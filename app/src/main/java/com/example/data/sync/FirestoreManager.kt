@@ -7,10 +7,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class FirestoreManager {
+    companion object {
+        var initErrorMsg: String? = null
+    }
+
     private val db: FirebaseFirestore? by lazy {
         try {
             FirebaseFirestore.getInstance()
         } catch (e: Exception) {
+            initErrorMsg = e.localizedMessage ?: e.toString()
             Log.e("FirestoreManager", "Firestore not initialized", e)
             null
         }
@@ -22,7 +27,7 @@ class FirestoreManager {
     private val objectivesCollection by lazy { db?.collection("objectives") }
 
     suspend fun uploadLocalDataToFirestore(): String? {
-        if (championsCollection == null) return "Firestore collections not initialized (Check Firebase configuration)"
+        if (championsCollection == null) return "Fallo al iniciar Firestore: ${initErrorMsg ?: "Desconocido"}"
         
         return try {
             val localChampions = WildRiftRepository.champions

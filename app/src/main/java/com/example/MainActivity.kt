@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.FirebaseApp
 import com.example.model.LaneRole
 import com.example.data.auth.AuthRepository
 import com.example.ui.screens.LoginScreen
@@ -43,6 +44,11 @@ enum class AppScreen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        try {
+            FirebaseApp.initializeApp(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
