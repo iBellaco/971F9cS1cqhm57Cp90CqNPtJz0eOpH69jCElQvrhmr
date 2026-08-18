@@ -46,10 +46,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
+import com.example.ui.components.BatteryAndOverlayNoticeCard
 import com.example.ui.components.FloatingAssistantOverlay
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.RoleIconType
 import com.example.ui.components.RoleSelectorCard
+import com.example.ui.components.WildRiftVersionBanner
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -135,7 +137,12 @@ fun MainDraftingScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Wild Rift Version Banner (Live from iTunes Lookup API)
+                    WildRiftVersionBanner()
+
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     // 1. Línea Main Selector Card
                     RoleSelectorCard(
@@ -165,7 +172,12 @@ fun MainDraftingScreen(
                         iconType = RoleIconType.SHIELD
                     )
 
-                    Spacer(modifier = Modifier.height(36.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    // Card de Configuración para Segundo Plano y Ahorro de Batería
+                    BatteryAndOverlayNoticeCard()
+
+                    Spacer(modifier = Modifier.height(28.dp))
 
                     // Hextech 3D Glowing Orb Button
                     HextechOrbButton(

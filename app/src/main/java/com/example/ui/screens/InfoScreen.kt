@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
@@ -50,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
+import com.example.ui.components.BatteryAndOverlayNoticeCard
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -279,11 +281,25 @@ fun InfoScreen(
             Spacer(modifier = Modifier.height(22.dp))
 
             // ==========================================
-            // SECCIÓN 4: RECOMENDACIONES
+            // SECCIÓN 4: SEGUNDO PLANO Y OPTIMIZACIÓN DE BATERÍA
+            // ==========================================
+            InfoSectionHeader(
+                icon = Icons.Default.BatteryChargingFull,
+                title = "4. Segundo Plano y Optimización de Batería",
+                tint = HextechCyan
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            BatteryAndOverlayNoticeCard()
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            // ==========================================
+            // SECCIÓN 5: RECOMENDACIONES TÁCTICAS
             // ==========================================
             InfoSectionHeader(
                 icon = Icons.Default.Lightbulb,
-                title = "4. Recomendaciones Tácticas & Seguridad",
+                title = "5. Recomendaciones Tácticas & Seguridad",
                 tint = HextechGold
             )
             Spacer(modifier = Modifier.height(10.dp))
