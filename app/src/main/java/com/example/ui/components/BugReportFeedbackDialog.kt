@@ -87,7 +87,7 @@ enum class FeedbackType(
 @Composable
 fun BugReportFeedbackDialog(
     onDismiss: () -> Unit,
-    defaultRepo: String = "barbadiego695/Wild-Rift-Drafting"
+    defaultRepo: String = "iBellaco/Wild-Rift-Drafting-"
 ) {
     val context = LocalContext.current
 

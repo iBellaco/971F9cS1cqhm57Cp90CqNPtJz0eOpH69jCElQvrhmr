@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -78,6 +80,8 @@ fun ChampionDetailSheet(
     var activeWebUrl by remember { mutableStateOf<String?>(null) }
     var activeWebTitle by remember { mutableStateOf<String?>(null) }
     var selectedRole by remember(champion.id) { mutableStateOf(champion.primaryRole) }
+    var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
+    var matchupExplanationType by remember { mutableStateOf<String?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -592,7 +596,18 @@ fun ChampionDetailSheet(
                         Spacer(modifier = Modifier.height(6.dp))
                         val advantageList = (champion.advantageAgainst + listOf("Garen", "Ashe", "Lux", "Vi", "Master Yi")).distinct().take(5)
                         advantageList.forEach { target ->
-                            Text("• $target", color = TextPrimary, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        matchupExplanationTarget = target
+                                        matchupExplanationType = "Ventaja"
+                                    }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("• $target", color = TextPrimary, fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -609,7 +624,56 @@ fun ChampionDetailSheet(
                         Spacer(modifier = Modifier.height(6.dp))
                         val counteredList = (champion.counteredBy + listOf("Zed", "Lee Sin", "Darius", "Akali", "Katarina")).distinct().take(5)
                         counteredList.forEach { counter ->
-                            Text("• $counter", color = TextPrimary, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        matchupExplanationTarget = counter
+                                        matchupExplanationType = "Debilidad"
+                                    }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("• $counter", color = TextPrimary, fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(10.dp))
+            
+            // Mejores Sinergias
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechGoldLight.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("Mejores Sinergias (Composición):", color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    val synergyList = (champion.synergies + listOf("Malphite", "Amumu", "Nami", "Lulu", "Yasuo")).distinct().take(5)
+                    
+                    @OptIn(ExperimentalLayoutApi::class)
+                    androidx.compose.foundation.layout.FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        synergyList.forEach { ally ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(HextechSurfaceVariant)
+                                    .clickable {
+                                        matchupExplanationTarget = ally
+                                        matchupExplanationType = "Sinergia"
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                            ) {
+                                Text(ally, color = TextPrimary, fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -669,6 +733,39 @@ fun ChampionDetailSheet(
                 activeWebUrl = null
                 activeWebTitle = null
             }
+        )
+    }
+
+    if (matchupExplanationTarget != null && matchupExplanationType != null) {
+        AlertDialog(
+            onDismissRequest = { matchupExplanationTarget = null },
+            title = {
+                Text(
+                    text = when(matchupExplanationType) {
+                        "Ventaja" -> "Ventaja contra ${matchupExplanationTarget}"
+                        "Debilidad" -> "Débil contra ${matchupExplanationTarget}"
+                        else -> "Sinergia con ${matchupExplanationTarget}"
+                    },
+                    color = HextechGold,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                val reasonText = when(matchupExplanationType) {
+                    "Ventaja" -> "${champion.name} tiene ventaja táctica sobre ${matchupExplanationTarget} porque su kit de habilidades le permite mitigar su daño o castigar su falta de movilidad durante la fase de líneas y las peleas de equipo."
+                    "Debilidad" -> "${champion.name} es débil contra ${matchupExplanationTarget}. El kit del enemigo neutraliza tus opciones principales, o tiene mayor facilidad para controlarte (ej. aplicando CC o burst)."
+                    else -> "${champion.name} y ${matchupExplanationTarget} forman una sinergia muy fuerte. Sus habilidades se combinan bien (ej. control de masas en área + daño), facilitando los asedios y asegurar objetivos."
+                }
+                Text(reasonText, color = TextPrimary)
+            },
+            confirmButton = {
+                TextButton(onClick = { matchupExplanationTarget = null }) {
+                    Text("Entendido", color = HextechCyan)
+                }
+            },
+            containerColor = HextechSurface,
+            titleContentColor = HextechGold,
+            textContentColor = TextPrimary
         )
     }
 }

@@ -3,6 +3,7 @@ package com.example.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
@@ -60,9 +62,17 @@ fun WildRiftVersionBanner(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .clickable {
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    data = android.net.Uri.parse("https://www.wildriftfire.com/patch-notes")
+                }
+                context.startActivity(intent)
+            }
             .testTag("wildrift_version_banner"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -114,7 +124,7 @@ fun WildRiftVersionBanner(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Parche 5.3c • Actualizado",
+                            text = com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION,
                             color = HextechCyan,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
@@ -124,12 +134,17 @@ fun WildRiftVersionBanner(
             }
 
             IconButton(
-                onClick = { viewModel.fetchLatestWildRiftVersion() },
-                modifier = Modifier.testTag("refresh_version_button")
+                onClick = { 
+                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                        data = android.net.Uri.parse("https://www.wildriftfire.com/patch-notes")
+                    }
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.testTag("open_patch_notes_button")
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = "Refrescar Versión",
+                    imageVector = Icons.Default.OpenInNew,
+                    contentDescription = "Ver Notas del Parche",
                     tint = HextechGold
                 )
             }
