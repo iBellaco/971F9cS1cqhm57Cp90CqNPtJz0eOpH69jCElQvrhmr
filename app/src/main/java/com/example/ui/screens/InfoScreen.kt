@@ -355,13 +355,18 @@ fun InfoScreen(
                     onClick = {
                         isUploading = true
                         scope.launch {
-                            val manager = FirestoreManager()
-                            val success = manager.uploadLocalDataToFirestore()
-                            isUploading = false
-                            if (success) {
-                                Toast.makeText(context, "Datos subidos a la nube con éxito", Toast.LENGTH_LONG).show()
-                            } else {
-                                Toast.makeText(context, "Error subiendo datos", Toast.LENGTH_LONG).show()
+                            try {
+                                val manager = FirestoreManager()
+                                val success = manager.uploadLocalDataToFirestore()
+                                isUploading = false
+                                if (success) {
+                                    Toast.makeText(context, "Datos subidos a la nube con éxito", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Error subiendo datos", Toast.LENGTH_LONG).show()
+                                }
+                            } catch (e: Throwable) {
+                                isUploading = false
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                         }
                     },
