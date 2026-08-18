@@ -14,12 +14,21 @@ enum class DamageType(val displayName: String) {
     TRUE_HYBRID("Híbrido / Verdadero")
 }
 
+data class MetaDataSource(
+    val id: String,
+    val name: String,
+    val url: String,
+    val badge: String,
+    val description: String,
+    val focusArea: String
+)
+
 data class Champion(
     val id: String,
     val name: String,
     val primaryRole: LaneRole,
     val secondaryRoles: List<LaneRole> = emptyList(),
-    val tier: String, // "S+", "S", "A"
+    val tier: String, // "S+", "S", "A+", "A"
     val winrate: Double, // e.g. 53.8
     val pickRate: Double,
     val banRate: Double,
@@ -30,11 +39,17 @@ data class Champion(
     val synergies: List<String>,
     val tacticalAdvice: String,
     val recommendedRunes: String,
+    val runeTreeDetails: String = "",
     val recommendedSpells: List<String>,
     val coreItems: List<String>,
+    val situationalItems: List<String> = emptyList(),
     val skillOrder: String,
     val isRanged: Boolean = false,
-    val isFrontline: Boolean = false
+    val isFrontline: Boolean = false,
+    val wildRiftFireUrl: String = "https://www.wildriftfire.com/tier-list",
+    val wrMetaUrl: String = "https://wr-meta.com/",
+    val wildRiftCoreUrl: String = "https://wildriftcore.com/es/",
+    val bestBuildWrUrl: String = "https://bestbuildwr.com/"
 )
 
 data class DraftAnalysisResult(

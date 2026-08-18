@@ -83,11 +83,11 @@ fun MainDraftingScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Drafting",
+                                text = "Wild Rift Drafting",
                                 color = TextPrimary,
-                                fontSize = 22.sp,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Black,
-                                letterSpacing = 1.sp
+                                letterSpacing = 0.5.sp
                             )
                         }
                     },
@@ -239,7 +239,7 @@ fun MainDraftingScreen(
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "Versión 2.1.0 • Modo de Uso & Recomendaciones",
+                                        text = "Versión 1.0 • Modo de Uso & Recomendaciones",
                                         color = HextechCyan,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Medium

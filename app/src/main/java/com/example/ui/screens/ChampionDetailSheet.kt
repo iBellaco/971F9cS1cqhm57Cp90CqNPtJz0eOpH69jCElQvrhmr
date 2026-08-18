@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Card
@@ -37,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,6 +68,7 @@ fun ChampionDetailSheet(
     if (champion == null) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val uriHandler = LocalUriHandler.current
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -179,6 +184,40 @@ fun ChampionDetailSheet(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Runes Breakdown Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Árbol de Runas Recomendado (Wild Rift)", color = HextechCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Runa Clave: ${champion.recommendedRunes}",
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (champion.runeTreeDetails.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = champion.runeTreeDetails,
+                            color = HextechGoldLight,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
             // Core Items Build
             Text(
                 text = "Objetos Principales (Wild Rift Meta)",
@@ -219,50 +258,66 @@ fun ChampionDetailSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Runes and Spells
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            if (champion.situationalItems.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Ítems Situacionales (BestBuildWR / WildRiftCore):",
+                    color = HextechCyan,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Runas", color = HextechCyan, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    champion.situationalItems.forEach { item ->
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(HextechSurface)
+                                .border(1.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(text = item, color = TextPrimary, fontSize = 11.sp)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(champion.recommendedRunes, color = TextPrimary, fontSize = 12.sp)
-                    }
-                }
-
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.FlashOn, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Hechizos & Orden", color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(champion.recommendedSpells.joinToString(" + "), color = TextPrimary, fontSize = 12.sp)
-                        Text(champion.skillOrder, color = TextMuted, fontSize = 11.sp)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Spells & Skill Order Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.FlashOn, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Hechizos:", color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Text(champion.recommendedSpells.joinToString(" + "), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("Orden Habilidades:", color = HextechCyan, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        Text(champion.skillOrder, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Matchup Advantage vs
             if (champion.advantageAgainst.isNotEmpty()) {
@@ -291,7 +346,76 @@ fun ChampionDetailSheet(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Consultar en Portales Web Oficiales
+            Text(
+                text = "Ver Guías Oficiales Sincronizadas:",
+                color = HextechGold,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                PortalButton(label = "WildRiftFire", modifier = Modifier.weight(1f)) {
+                    try { uriHandler.openUri(champion.wildRiftFireUrl) } catch (_: Exception) {}
+                }
+                PortalButton(label = "WR-Meta", modifier = Modifier.weight(1f)) {
+                    try { uriHandler.openUri(champion.wrMetaUrl) } catch (_: Exception) {}
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                PortalButton(label = "WildRiftCore", modifier = Modifier.weight(1f)) {
+                    try { uriHandler.openUri(champion.wildRiftCoreUrl) } catch (_: Exception) {}
+                }
+                PortalButton(label = "BestBuildWR", modifier = Modifier.weight(1f)) {
+                    try { uriHandler.openUri(champion.bestBuildWrUrl) } catch (_: Exception) {}
+                }
+            }
+
             Spacer(modifier = Modifier.height(28.dp))
+        }
+    }
+}
+
+@Composable
+private fun PortalButton(
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(HextechSurface)
+            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Language,
+                contentDescription = null,
+                tint = HextechCyan,
+                modifier = Modifier.size(14.dp)
+            )
+            Text(
+                text = label,
+                color = HextechCyan,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

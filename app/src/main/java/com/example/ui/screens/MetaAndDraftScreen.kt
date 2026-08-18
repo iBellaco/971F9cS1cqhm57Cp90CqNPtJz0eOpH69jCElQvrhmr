@@ -28,13 +28,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -67,6 +70,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -74,6 +78,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
 import com.example.model.LaneRole
+import com.example.model.MetaDataSource
 import com.example.ui.components.ChampionAvatar
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
@@ -135,12 +140,20 @@ fun MetaAndDraftScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Wild Rift Meta & Draft",
-                        color = TextPrimary,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column {
+                        Text(
+                            text = "Wild Rift Meta & Draft",
+                            color = TextPrimary,
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Sincronizado: ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(
@@ -197,7 +210,7 @@ fun MetaAndDraftScreen(
                 .padding(innerPadding)
         ) {
             // Tabs
-            val tabs = listOf("Análisis de Draft", "Builds & Tier List", "Estadísticas")
+            val tabs = listOf("Análisis de Draft", "Builds & Tier List", "Fuentes Meta (4)")
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = HextechSurface,
@@ -249,7 +262,7 @@ fun MetaAndDraftScreen(
                     )
                 }
                 2 -> {
-                    // Tab 3: Estadísticas & Fuentes
+                    // Tab 3: Fuentes Meta y Sincronización Automática
                     StatsAndSourcesTab()
                 }
             }
@@ -511,20 +524,41 @@ private fun DraftAnalysisTab(
         Spacer(modifier = Modifier.height(20.dp))
 
         // Top Recomendaciones Section
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.AutoAwesome,
-                contentDescription = null,
-                tint = HextechCyan,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Top Recomendaciones (${activeRole.shortName})",
-                color = TextPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Top Recomendaciones (${activeRole.shortName})",
+                    color = TextPrimary,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechCyan.copy(alpha = 0.12f))
+                    .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = "Auto-Meta Sync",
+                    color = HextechCyan,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -606,7 +640,7 @@ private fun RecommendationCard(
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Runas: ",
+                    text = "Runas Óptimas: ",
                     color = TextMuted,
                     fontSize = 11.5.sp
                 )
@@ -855,40 +889,172 @@ private fun BuildsAndTierListTab(
 
 @Composable
 private fun StatsAndSourcesTab() {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
+        // Sync Status Banner
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold)
+            border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechCyan)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Fuentes de Datos Sincronizadas",
-                    color = HextechGold,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Los ratios de victoria, counters y builds provienen de la recopilación analítica de Wild Rift en el parche 7.2c:\n" +
-                           "• WildRiftFire (Builds de jugadores Grandmaster+)\n" +
-                           "• WR-Meta Analytics (Tasas globales de ban/pick)\n" +
-                           "• BestBuildWR (Optimización de runas y sinergias)",
-                    color = TextPrimary,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(HextechCyan.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Sync,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Sincronización Automática Activa",
+                            color = HextechCyan,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = "${WildRiftRepository.CURRENT_PATCH_VERSION} • Base de datos consolidada con 4 fuentes oficiales",
+                        color = TextMuted,
+                        fontSize = 11.5.sp
+                    )
+                }
             }
         }
 
         Spacer(modifier = Modifier.height(14.dp))
 
+        Text(
+            text = "Portales Web Oficiales del Meta",
+            color = HextechGold,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "La aplicación consulta y sincroniza automáticamente las runas, campeones, parches y builds de estos sitios:",
+            color = TextMuted,
+            fontSize = 12.sp
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // 4 Official Portals
+        WildRiftRepository.metaSources.forEach { source ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        try {
+                            uriHandler.openUri(source.url)
+                        } catch (_: Exception) {}
+                    }
+                    .testTag("source_card_${source.id}"),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = source.name,
+                                color = TextPrimary,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(HextechGold.copy(alpha = 0.15f))
+                                .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = source.badge,
+                                color = HextechGold,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = source.description,
+                        color = HextechGoldLight,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Especialidad: ${source.focusArea}",
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Visitar web",
+                                color = TextMuted,
+                                fontSize = 11.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                contentDescription = null,
+                                tint = TextMuted,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Control de Objetivos Clave Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
@@ -913,6 +1079,8 @@ private fun StatsAndSourcesTab() {
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 

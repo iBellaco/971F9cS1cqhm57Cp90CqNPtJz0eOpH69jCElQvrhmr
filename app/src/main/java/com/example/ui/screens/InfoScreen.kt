@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +20,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,19 +44,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.AllyBlue
-import com.example.ui.theme.DangerRed
+import com.example.data.WildRiftRepository
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechSurface
-import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSColor
@@ -63,14 +65,15 @@ import com.example.ui.theme.TierSColor
 fun InfoScreen(
     onNavigateBack: () -> Unit
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth().padding(end = 16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(
                             text = "Acerca De",
@@ -86,7 +89,7 @@ fun InfoScreen(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "v2.1.0 • Parche 7.2c",
+                                text = "v1.0 • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -142,7 +145,7 @@ fun InfoScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Drafting Wild Rift",
+                            text = "Wild Rift Drafting",
                             color = HextechGold,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
@@ -155,7 +158,7 @@ fun InfoScreen(
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "Build 2.1.0",
+                                text = "Build 1.0",
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -165,8 +168,8 @@ fun InfoScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "• Compatibilidad: Diseñado exclusivamente para League of Legends: Wild Rift (Móvil).\n" +
-                               "• Parche del Meta: 7.2c (Ciclo 5.x/6.x/7.x con últimos ajustes de campeones e items).\n" +
-                               "• Motor Hextech: Botón 3D con animación de partículas y rotación en tiempo real.\n" +
+                               "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado automáticamente.\n" +
+                               "• Motor Hextech: Orbe 3D con animación de partículas y cálculo de composiciones.\n" +
                                "• Sistema Flotante: Ventana superpuesta no intrusiva con controles gestuales y HUD de análisis táctico.",
                         color = TextPrimary,
                         fontSize = 12.5.sp,
@@ -218,18 +221,70 @@ fun InfoScreen(
             StepCard(
                 stepNumber = "5",
                 title = "Paso 5: Controles Gestuales y Cierre",
-                description = "• Arrastra la burbuja a cualquier borde de tu pantalla.\n• Toca la burbuja para ciclar entre múltiples sugerencias tácticas.\n• Toca el botón rojo (X) o pulsa 'DETENER' en la app para finalizar."
+                description = "• Los controles flotantes están centrados en pantalla y son arrastrables libremente.\n• Toca la burbuja de la cámara para alternar las sugerencias tácticas.\n• Desliza la burbuja hacia abajo para cerrar el asistente o pulsa 'DETENER' en la app."
             )
 
             Spacer(modifier = Modifier.height(22.dp))
 
             // ==========================================
-            // SECCIÓN 3: RECOMENDACIONES
+            // SECCIÓN 3: FUENTES OFICIALES SINCRONIZADAS AUTOMÁTICAMENTE
+            // ==========================================
+            InfoSectionHeader(
+                icon = Icons.Default.Sync,
+                title = "3. Fuentes Oficiales Sincronizadas Automáticamente",
+                tint = HextechCyan
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "La aplicación toma automáticamente datos de campeones, runas, meta, winrates y parches de las siguientes 4 fuentes oficiales:",
+                color = TextMuted,
+                fontSize = 12.sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            WildRiftRepository.metaSources.forEach { source ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable {
+                            try { uriHandler.openUri(source.url) } catch (_: Exception) {}
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                Text(source.focusArea, color = HextechGoldLight, fontSize = 11.5.sp)
+                                Text(source.url, color = HextechCyan, fontSize = 10.5.sp)
+                            }
+                        }
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            // ==========================================
+            // SECCIÓN 4: RECOMENDACIONES
             // ==========================================
             InfoSectionHeader(
                 icon = Icons.Default.Lightbulb,
-                title = "3. Recomendaciones Tácticas & Seguridad",
-                tint = HextechCyan
+                title = "4. Recomendaciones Tácticas & Seguridad",
+                tint = HextechGold
             )
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -269,15 +324,15 @@ fun InfoScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Drafting Wild Rift • Asistente Externo Inteligente",
+                    text = "Wild Rift Drafting • Asistente Externo Inteligente",
                     color = HextechGold,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Versión 2.1.0 • Optimizado para League of Legends: Wild Rift",
+                    text = "Versión 1.0 • Sincronizado automáticamente con WildRiftCore, BestBuildWR, WildRiftFire y WR-Meta",
                     color = TextMuted,
-                    fontSize = 11.sp
+                    fontSize = 10.5.sp
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))
