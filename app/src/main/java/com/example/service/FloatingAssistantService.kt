@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.components.AppAssetImage
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -192,6 +193,17 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private fun createFloatingOverlay() {
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        val density = displayMetrics.density
+        val marginPx = (10 * density).toInt()
+        val cardWidthPx = (320 * density).toInt()
+        val cardHeightPx = (460 * density).toInt()
+        val bubbleSizePx = (56 * density).toInt()
+
+        var isOverlayExpanded = false
+
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
         } else {
@@ -203,13 +215,12 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = 24
-            y = 200
+            x = (screenWidth - bubbleSizePx - marginPx * 2).coerceAtLeast(marginPx)
+            y = (120 * density).toInt()
         }
 
         floatingComposeView = ComposeView(this).apply {
@@ -222,10 +233,28 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     FloatingOverlayContent(
                         onClose = { stopSelf() },
                         onDragDelta = { dx, dy ->
-                            params.x = (params.x + dx).coerceAtLeast(0)
-                            params.y = (params.y + dy).coerceAtLeast(0)
+                            val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
+                            val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
+                            val maxX = (screenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
+                            val maxY = (screenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
+                            params.x = (params.x + dx).coerceIn(marginPx, maxX)
+                            params.y = (params.y + dy).coerceIn(marginPx, maxY)
                             try {
-                                windowManager?.updateViewLayout(this, params)
+                                windowManager?.updateViewLayout(this@apply, params)
+                            } catch (_: Exception) {}
+                        },
+                        onExpandedChange = { expanded ->
+                            isOverlayExpanded = expanded
+                            if (expanded) {
+                                if (params.x + cardWidthPx > screenWidth - marginPx) {
+                                    params.x = (screenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
+                                }
+                                if (params.y + cardHeightPx > screenHeight - marginPx) {
+                                    params.y = (screenHeight - cardHeightPx - marginPx).coerceAtLeast(marginPx)
+                                }
+                            }
+                            try {
+                                windowManager?.updateViewLayout(this@apply, params)
                             } catch (_: Exception) {}
                         }
                     )
@@ -258,7 +287,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 @Composable
 private fun FloatingOverlayContent(
     onClose: () -> Unit,
-    onDragDelta: (Int, Int) -> Unit
+    onDragDelta: (Int, Int) -> Unit,
+    onExpandedChange: (Boolean) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) } // 0: Draft, 1: Objetivos, 2: Objetos, 3: Runas
@@ -319,6 +349,7 @@ private fun FloatingOverlayContent(
                 }
                 .clickable {
                     isExpanded = !isExpanded
+                    onExpandedChange(isExpanded)
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -349,7 +380,7 @@ private fun FloatingOverlayContent(
         ) {
             Card(
                 modifier = Modifier
-                    .width(330.dp)
+                    .widthIn(min = 280.dp, max = 320.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
@@ -379,7 +410,10 @@ private fun FloatingOverlayContent(
                             Text("Wild Rift HUD Inteligente", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                         }
                         IconButton(
-                            onClick = { isExpanded = false },
+                            onClick = {
+                                isExpanded = false
+                                onExpandedChange(false)
+                            },
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(Icons.Default.Close, contentDescription = "Minimizar", tint = TextMuted, modifier = Modifier.size(16.dp))
@@ -519,7 +553,7 @@ private fun FloatingOverlayContent(
                         }
 
                         1 -> {
-                            // OBJETIVOS TAB
+                            // OBJETIVOS TAB (IMÁGENES EXACTAS)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 WildRiftRepository.mapObjectives.forEach { obj ->
                                     Row(
@@ -531,10 +565,20 @@ private fun FloatingOverlayContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
+                                        AppAssetImage(
+                                            url = obj.iconUrl,
+                                            contentDescription = obj.name,
+                                            fallbackText = obj.name,
+                                            modifier = Modifier.size(30.dp),
+                                            borderColor = HextechGold,
+                                            shape = RoundedCornerShape(6.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(obj.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.sp, maxLines = 1)
+                                            Text(obj.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
+                                        Spacer(modifier = Modifier.width(4.dp))
                                         Text(obj.spawnTime, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
@@ -542,7 +586,7 @@ private fun FloatingOverlayContent(
                         }
 
                         2 -> {
-                            // OBJETOS TAB
+                            // OBJETOS TAB (IMÁGENES EXACTAS)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 WildRiftRepository.items.take(4).forEach { item ->
                                     Row(
@@ -554,10 +598,20 @@ private fun FloatingOverlayContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
+                                        AppAssetImage(
+                                            url = item.iconUrl,
+                                            contentDescription = item.name,
+                                            fallbackText = item.name,
+                                            modifier = Modifier.size(30.dp),
+                                            borderColor = HextechGold,
+                                            shape = RoundedCornerShape(6.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(item.name, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                            Text(item.passive, color = TextMuted, fontSize = 9.sp, maxLines = 1)
+                                            Text(item.name, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(item.passive, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
+                                        Spacer(modifier = Modifier.width(4.dp))
                                         Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }

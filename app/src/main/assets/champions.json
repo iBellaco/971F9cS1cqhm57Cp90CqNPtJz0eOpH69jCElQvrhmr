@@ -556,7 +556,7 @@
     "name": "Ambessa",
     "title": "la Matriarca de la Guerra",
     "ddragonId": "ambessa",
-    "avatarUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/Ambessa.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -7276,7 +7276,7 @@
     "name": "Mel",
     "title": "la Consejera Dorada",
     "ddragonId": "mel",
-    "avatarUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/6650.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT"
@@ -8487,7 +8487,7 @@
     "name": "Norra",
     "title": "la Maestra de los Portales",
     "ddragonId": "norra",
-    "avatarUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/5488.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT"
@@ -14666,7 +14666,7 @@
     "name": "Yunara",
     "title": "la Tejedora de Penumbra",
     "ddragonId": "yunara",
-    "avatarUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/596.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "MID"

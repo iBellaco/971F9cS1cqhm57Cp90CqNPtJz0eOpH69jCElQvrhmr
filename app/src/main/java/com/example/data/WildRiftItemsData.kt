@@ -4,7 +4,7 @@ import com.example.model.ItemCategory
 import com.example.model.WildRiftItem
 
 object WildRiftItemsData {
-    private const val CDN_VERSION = "14.20.1"
+    private const val CDN_VERSION = "14.24.1"
     private const val ITEM_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/item"
 
     val list: List<WildRiftItem> = listOf(
@@ -202,7 +202,7 @@ object WildRiftItemsData {
             goldCost = 3000,
             stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad, +7% Velocidad Mov.",
             passive = "Pasiva - Tiro Eco: Moverse y lanzar hechizos genera cargas; al llegar a 100, la siguiente habilidad inflige 100 (+10% AP) de daño mágico a 4 objetivos cercanos.",
-            iconUrl = "$ITEM_IMG/3285.png"
+            iconUrl = "$ITEM_IMG/6655.png"
         ),
         WildRiftItem(
             id = "infinity_orb",
@@ -220,7 +220,7 @@ object WildRiftItemsData {
             goldCost = 3000,
             stats = "+70 Poder de Habilidad, +250 Vida Máxima",
             passive = "Pasiva - Tormento: Las habilidades queman a los enemigos infligiendo un 2% de su vida máxima como daño mágico cada segundo durante 3s (daño duplicado si están inmovilizados).",
-            iconUrl = "$ITEM_IMG/3151.png"
+            iconUrl = "$ITEM_IMG/6653.png"
         ),
         WildRiftItem(
             id = "crown_shattered_queen",

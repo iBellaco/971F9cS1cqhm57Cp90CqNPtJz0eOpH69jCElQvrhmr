@@ -89,7 +89,7 @@ object BaronLaneChampions {
             name = "Ambessa",
             title = "la Matriarca de la Guerra",
             ddragonId = "ambessa",
-            avatarUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/Ambessa.png",
             primaryRole = LaneRole.TOP,
             secondaryRoles = listOf(LaneRole.JUNGLE),
             tier = "A+",
@@ -119,7 +119,7 @@ object BaronLaneChampions {
                     slot = "P",
                     slotName = "Pasiva",
                     name = "Paso de Cazadora",
-                    iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/passive/Icon_Ambessa_Passive.Domina.png",
                     description = "Usar una habilidad permite a Ambessa deslizarse al atacar y potencia su siguiente ataque con alcance y daño físico adicional.",
                     cooldown = ""
                 ),
@@ -127,7 +127,7 @@ object BaronLaneChampions {
                     slot = "1",
                     slotName = "Habilidad 1",
                     name = "Golpe de Guadaña",
-                    iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/spell/AmbessaQ.png",
                     description = "Golpea con sus hojas gemelas en un arco infligiendo daño físico a los enemigos cercanos, con daño crítico en el borde exterior.",
                     cooldown = "8s"
                 ),
@@ -135,7 +135,7 @@ object BaronLaneChampions {
                     slot = "2",
                     slotName = "Habilidad 2",
                     name = "Reprimenda",
-                    iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/spell/AmbessaW.png",
                     description = "Se protege con un escudo de absorción y descarga un impacto sísmico en el suelo causando daño físico en área.",
                     cooldown = "12s"
                 ),
@@ -143,7 +143,7 @@ object BaronLaneChampions {
                     slot = "3",
                     slotName = "Habilidad 3",
                     name = "Macerar",
-                    iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/spell/AmbessaE.png",
                     description = "Gira sus cadenas con fuerza arrolladora, ralentizando a los enemigos impactados e infligiendo daño continuo.",
                     cooldown = "10s"
                 ),
@@ -151,7 +151,7 @@ object BaronLaneChampions {
                     slot = "4",
                     slotName = "Definitiva",
                     name = "Ejecución Pública",
-                    iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/spell/AmbessaR.png",
                     description = "Se desliza imparable hacia el campeón enemigo objetivo en línea recta, lo suprime y lo estrella contra el suelo causándole daño devastador.",
                     cooldown = "65s"
                 )

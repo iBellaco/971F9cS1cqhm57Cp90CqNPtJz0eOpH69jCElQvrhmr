@@ -93,7 +93,7 @@ object WildRiftRepository {
             name = "Dragón Infernal (Fuego)",
             spawnTime = "Minuto 4:00",
             respawnTime = "Reaparece cada 4:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/dragon-icons/infernal.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/1598.png",
             buffDescription = "Otorga a todo el equipo +3% de daño de ataque y +3% de poder de habilidad acumulable.",
             tactics = "Prioriza asegurar la línea de dragón empujando oleadas 30s antes de su aparición. Ideal para composiciones de daño explosivo."
         ),
@@ -102,7 +102,7 @@ object WildRiftRepository {
             name = "Dragón de Montaña (Tierra)",
             spawnTime = "Minuto 4:00",
             respawnTime = "Reaparece cada 4:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/dragon-icons/mountain.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/1599.png",
             buffDescription = "Otorga a todo el equipo +6% de armadura y resistencia mágica adicionales.",
             tactics = "Refuerza la línea frontal de los tanques, facilitando asedios prolongados bajo torre enemiga."
         ),
@@ -111,7 +111,7 @@ object WildRiftRepository {
             name = "Dragón de los Océanos (Agua)",
             spawnTime = "Minuto 4:00",
             respawnTime = "Reaparece cada 4:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/dragon-icons/ocean.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/1600.png",
             buffDescription = "Restaura un 2.5% de la vida faltante cada 5 segundos a todos los miembros del equipo.",
             tactics = "Otorga sustain inagotable en el mapa para desgastar al rival sin necesidad de volver a base."
         ),
@@ -120,7 +120,7 @@ object WildRiftRepository {
             name = "Dragón de Hielo (Glacial)",
             spawnTime = "Minuto 4:00",
             respawnTime = "Reaparece cada 4:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/dragon-icons/chemtech.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/1601.png",
             buffDescription = "Otorga +7 de aceleración de habilidad a todo el equipo y crea zonas de escarcha.",
             tactics = "Permite rotar habilidades mucho más rápido en escaramuzas y peleas por el Barón."
         ),
@@ -129,7 +129,7 @@ object WildRiftRepository {
             name = "Dragón Anciano (Elder Dragon)",
             spawnTime = "Minuto 12:00",
             respawnTime = "Reaparece cada 5:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/dragon-icons/elder.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/1602.png",
             buffDescription = "Ataques y habilidades queman a los rivales. Si la vida del rival cae por debajo del 15%, es ejecutado de inmediato.",
             tactics = "El buff más decisivo de Wild Rift en el juego tardío. Asegura visión perimetral con centinelas antes de iniciar."
         ),
@@ -138,7 +138,7 @@ object WildRiftRepository {
             name = "Heraldo de la Grieta (Rift Herald)",
             spawnTime = "Minuto 5:00",
             respawnTime = "Solo aparece 1 por partida",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/507.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/507.png",
             buffDescription = "Al recoger el Ojo del Heraldo, permite invocar al Heraldo para embestir y destruir placas de torretas enemigas.",
             tactics = "Úsalo en la línea de Barón o Mid para derribar la primera torreta y desbloquear rotaciones tempranas."
         ),
@@ -147,7 +147,7 @@ object WildRiftRepository {
             name = "Barón Nashor",
             spawnTime = "Minuto 12:00",
             respawnTime = "Reaparece cada 5:00",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/508.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/658.png",
             buffDescription = "Otorga Mano del Barón: potencia el daño de los súbditos aliados cercanos y reduce el tiempo de Retirada a 4 segundos.",
             tactics = "Aprovecha el buff para asediar las tres líneas simultáneamente y forzar la caída de inhibidores."
         ),
@@ -156,7 +156,7 @@ object WildRiftRepository {
             name = "Cangrejo Escurridizo",
             spawnTime = "Minuto 1:25",
             respawnTime = "Reaparece cada 2:30",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/3379.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/3379.png",
             buffDescription = "Genera un Santuario de Velocidad y visión inquebrantable en el río frente al Dragón o Barón.",
             tactics = "Aplica control de masas duro para romper su escudo de inmediato y acelerar la limpieza del río."
         ),

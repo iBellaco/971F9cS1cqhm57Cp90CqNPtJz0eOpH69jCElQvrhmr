@@ -256,7 +256,7 @@
     "slotName": "Pasiva",
     "name": "Paso de Cazadora",
     "description": "Usar una habilidad permite a Ambessa deslizarse al atacar y potencia su siguiente ataque con alcance y daño físico adicional.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/passive/Icon_Ambessa_Passive.Domina.png",
     "cooldown": ""
   },
   {
@@ -3306,7 +3306,7 @@
     "slotName": "Pasiva",
     "name": "Resonancia Radiante",
     "description": "Lanzar habilidades marca a los enemigos; consumir la marca otorga velocidad de movimiento y daño mágico extra.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/6650.png",
     "cooldown": ""
   },
   {
@@ -3856,7 +3856,7 @@
     "slotName": "Pasiva",
     "name": "Portales del Reino Espiritual",
     "description": "Al lanzar hechizos crea vórtices efímeros que potencian las curaciones, escudos y movilidad del equipo aliado.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/5488.png",
     "cooldown": ""
   },
   {
@@ -6656,7 +6656,7 @@
     "slotName": "Pasiva",
     "name": "Hilos de Penumbra",
     "description": "Los ataques básicos aplican acumulaciones de seda negra. El tercer impacto detona infligiendo daño verdadero.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/profileicon/596.png",
     "cooldown": ""
   },
   {
