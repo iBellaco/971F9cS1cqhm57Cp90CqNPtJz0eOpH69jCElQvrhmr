@@ -77,6 +77,7 @@ fun ChampionDetailSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var activeWebUrl by remember { mutableStateOf<String?>(null) }
     var activeWebTitle by remember { mutableStateOf<String?>(null) }
+    var selectedRole by remember(champion.id) { mutableStateOf(champion.primaryRole) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -129,13 +130,13 @@ fun ChampionDetailSheet(
                             )
                         }
                         Text(
-                            text = "${champion.primaryRole.displayName} • ${champion.damageType.displayName}",
+                            text = "${selectedRole.displayName}${if (selectedRole != champion.primaryRole) " (Flex)" else ""} • ${champion.damageType.displayName}",
                             color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
                         if (champion.secondaryRoles.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -147,18 +148,27 @@ fun ChampionDetailSheet(
                                     fontWeight = FontWeight.Bold
                                 )
                                 champion.secondaryRoles.forEach { sec ->
+                                    val isSelected = selectedRole == sec
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
-                                            .background(HextechGold.copy(alpha = 0.15f))
-                                            .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-                                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                                            .background(
+                                                if (isSelected) HextechGold.copy(alpha = 0.35f)
+                                                else HextechGold.copy(alpha = 0.15f)
+                                            )
+                                            .border(
+                                                width = if (isSelected) 1.5.dp else 1.dp,
+                                                color = if (isSelected) HextechGold else HextechGold.copy(alpha = 0.5f),
+                                                shape = RoundedCornerShape(4.dp)
+                                            )
+                                            .clickable { selectedRole = sec }
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
                                         Text(
-                                            text = sec.shortName,
-                                            color = HextechGoldLight,
+                                            text = if (isSelected) "✓ ${sec.shortName}" else sec.shortName,
+                                            color = if (isSelected) HextechGold else HextechGoldLight,
                                             fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.Bold
                                         )
                                     }
                                 }
@@ -169,6 +179,117 @@ fun ChampionDetailSheet(
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
                 }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Selector interactivo de Rol / Flex
+            if (champion.secondaryRoles.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Cambiar Rol / Flex Activo:",
+                                color = HextechGold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Toca para alternar",
+                                color = TextMuted,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // Rol Principal
+                            val isPrimarySelected = selectedRole == champion.primaryRole
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        if (isPrimarySelected) HextechCyan.copy(alpha = 0.25f)
+                                        else HextechSurfaceVariant
+                                    )
+                                    .border(
+                                        width = if (isPrimarySelected) 1.5.dp else 1.dp,
+                                        color = if (isPrimarySelected) HextechCyan else HextechCardBorder,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .clickable { selectedRole = champion.primaryRole }
+                                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${if (isPrimarySelected) "✓ " else ""}${champion.primaryRole.shortName} (Principal)",
+                                    color = if (isPrimarySelected) HextechCyan else TextPrimary,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = if (isPrimarySelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            }
+
+                            // Roles Flex Secundarios
+                            champion.secondaryRoles.forEach { sec ->
+                                val isSecSelected = selectedRole == sec
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(
+                                            if (isSecSelected) HextechGold.copy(alpha = 0.25f)
+                                            else HextechSurfaceVariant
+                                        )
+                                        .border(
+                                            width = if (isSecSelected) 1.5.dp else 1.dp,
+                                            color = if (isSecSelected) HextechGold else HextechCardBorder,
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .clickable { selectedRole = sec }
+                                        .padding(vertical = 6.dp, horizontal = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${if (isSecSelected) "✓ " else ""}${sec.shortName} (Flex)",
+                                        color = if (isSecSelected) HextechGold else TextPrimary,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = if (isSecSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+
+                        if (selectedRole != champion.primaryRole) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechGold.copy(alpha = 0.12f))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "⭐ Configuración Flex activa: ${selectedRole.displayName}. Consejos adaptados a esta línea.",
+                                    color = HextechGoldLight,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
             Spacer(modifier = Modifier.height(14.dp))
