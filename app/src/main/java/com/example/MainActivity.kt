@@ -61,21 +61,16 @@ fun DraftingApp() {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     val isLanguageSet = remember { sharedPrefs.getBoolean("is_language_set", false) }
-    val authRepository = remember { AuthRepository() }
 
     var currentScreen by remember { 
-        mutableStateOf(
-            if (!authRepository.isUserLoggedIn) AppScreen.LOGIN 
-            else if (isLanguageSet) AppScreen.MAIN 
-            else AppScreen.LANGUAGE_SELECTION
-        ) 
+        mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
     }
     
     var mainRole by remember { mutableStateOf(LaneRole.MID) }
     var secondRole by remember { mutableStateOf(LaneRole.TOP) }
     var autofillRole by remember { mutableStateOf(LaneRole.JUNGLE) }
 
-    BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION && currentScreen != AppScreen.LOGIN) {
+    BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
         currentScreen = AppScreen.MAIN
     }
 
@@ -117,6 +112,7 @@ fun DraftingApp() {
                 MainDraftingScreen(
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
                     onNavigateToMeta = { currentScreen = AppScreen.META },
+                    onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
                     mainRole = mainRole,
                     onMainRoleChange = { mainRole = it },
                     secondRole = secondRole,

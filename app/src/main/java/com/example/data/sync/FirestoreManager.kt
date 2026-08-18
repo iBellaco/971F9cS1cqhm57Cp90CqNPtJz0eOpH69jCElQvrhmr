@@ -7,10 +7,19 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class FirestoreManager {
-    private val db = FirebaseFirestore.getInstance()
-    private val championsCollection = db.collection("champions")
+    private val db: FirebaseFirestore? by lazy {
+        try {
+            FirebaseFirestore.getInstance()
+        } catch (e: Exception) {
+            Log.e("FirestoreManager", "Firestore not initialized", e)
+            null
+        }
+    }
+    private val championsCollection by lazy { db?.collection("champions") }
 
     suspend fun uploadLocalDataToFirestore(): Boolean {
+        if (championsCollection == null) return false
+        
         return try {
             val localChampions = WildRiftRepository.champions
             for (champion in localChampions) {
@@ -60,7 +69,7 @@ class FirestoreManager {
                     "wildRiftCoreUrl" to champion.wildRiftCoreUrl,
                     "bestBuildWrUrl" to champion.bestBuildWrUrl
                 )
-                championsCollection.document(champion.id).set(data).await()
+                championsCollection?.document(champion.id)?.set(data)?.await()
                 Log.d("FirestoreManager", "Uploaded champion: ${champion.name}")
             }
             true
@@ -71,8 +80,9 @@ class FirestoreManager {
     }
 
     suspend fun getChampionsFromFirestore(): List<Champion> {
+        if (championsCollection == null) return emptyList()
         return try {
-            val snapshot = championsCollection.get().await()
+            val snapshot = championsCollection!!.get().await()
             val champions = snapshot.documents.mapNotNull { doc ->
                 try {
                     val primaryRoleStr = doc.getString("primaryRole") ?: "MID"

@@ -17,10 +17,17 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
-    val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    val auth: FirebaseAuth? by lazy {
+        try {
+            FirebaseAuth.getInstance()
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Firebase not initialized", e)
+            null
+        }
+    }
 
     val isUserLoggedIn: Boolean
-        get() = auth.currentUser != null
+        get() = auth?.currentUser != null
 
     suspend fun signInWithGoogle(context: Context): AuthResult? {
         val credentialManager = CredentialManager.create(context)
@@ -61,7 +68,7 @@ class AuthRepository {
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 val idToken = googleIdTokenCredential.idToken
                 val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                return auth.signInWithCredential(firebaseCredential).await()
+                return auth?.signInWithCredential(firebaseCredential)?.await()
             } catch (e: GoogleIdTokenParsingException) {
                 Log.e("AuthRepository", "Received an invalid google id token response", e)
             }
@@ -72,6 +79,6 @@ class AuthRepository {
     }
 
     fun signOut() {
-        auth.signOut()
+        auth?.signOut()
     }
 }
