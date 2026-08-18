@@ -250,6 +250,56 @@
     "cooldown": "120/100/80s"
   },
   {
+    "championId": "ambessa",
+    "championName": "Ambessa",
+    "slot": "P",
+    "slotName": "Pasiva",
+    "name": "Paso de Cazadora",
+    "description": "Usar una habilidad permite a Ambessa deslizarse al atacar y potencia su siguiente ataque con alcance y daño físico adicional.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "cooldown": ""
+  },
+  {
+    "championId": "ambessa",
+    "championName": "Ambessa",
+    "slot": "1",
+    "slotName": "Habilidad 1",
+    "name": "Golpe de Guadaña",
+    "description": "Golpea con sus hojas gemelas en un arco infligiendo daño físico a los enemigos cercanos, con daño crítico en el borde exterior.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "cooldown": "8s"
+  },
+  {
+    "championId": "ambessa",
+    "championName": "Ambessa",
+    "slot": "2",
+    "slotName": "Habilidad 2",
+    "name": "Reprimenda",
+    "description": "Se protege con un escudo de absorción y descarga un impacto sísmico en el suelo causando daño físico en área.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "cooldown": "12s"
+  },
+  {
+    "championId": "ambessa",
+    "championName": "Ambessa",
+    "slot": "3",
+    "slotName": "Habilidad 3",
+    "name": "Macerar",
+    "description": "Gira sus cadenas con fuerza arrolladora, ralentizando a los enemigos impactados e infligiendo daño continuo.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "cooldown": "10s"
+  },
+  {
+    "championId": "ambessa",
+    "championName": "Ambessa",
+    "slot": "4",
+    "slotName": "Definitiva",
+    "name": "Ejecución Pública",
+    "description": "Se desliza imparable hacia el campeón enemigo objetivo en línea recta, lo suprime y lo estrella contra el suelo causándole daño devastador.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/799.png",
+    "cooldown": "65s"
+  },
+  {
     "championId": "amumu",
     "championName": "Amumu",
     "slot": "P",
@@ -298,56 +348,6 @@
     "description": "Amumu envuelve en vendas a las unidades enemigas cercanas, les aplica su Maldición, les inflige daño y las aturde.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/CurseoftheSadMummy.png",
     "cooldown": "150/125/100s"
-  },
-  {
-    "championId": "anivia",
-    "championName": "Anivia",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Renacimiento",
-    "description": "Al recibir daño letal, Anivia vuelve a su estado de huevo y renace con toda la vida.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Anivia_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "anivia",
-    "championName": "Anivia",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Destello helado",
-    "description": "Anivia junta las alas e invoca una esfera de hielo que vuela hacia sus enemigos, de modo que enfría y daña a cualquiera que se cruce en su camino. Al explotar, la esfera inflige daño moderado en un radio y aturde a los que se encuentren en la zona.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/FlashFrost.png",
-    "cooldown": "12/11/10/9/8s"
-  },
-  {
-    "championId": "anivia",
-    "championName": "Anivia",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Cristalización",
-    "description": "Anivia condensa la humedad del aire en un muro de hielo infranqueable que bloquea todos los movimientos. El muro aguanta un breve periodo de tiempo antes de derretirse.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Crystallize.png",
-    "cooldown": "17s"
-  },
-  {
-    "championId": "anivia",
-    "championName": "Anivia",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Congelación",
-    "description": "Con un aleteo, Anivia lanza una ráfaga de viento congelado a su objetivo, lo que inflige daño. Si hace poco que el objetivo ha sido golpeado por Destello helado o dañado por una Tormenta glacial completamente formada, recibe el doble de daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Frostbite.png",
-    "cooldown": "4s"
-  },
-  {
-    "championId": "anivia",
-    "championName": "Anivia",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Tormenta glacial",
-    "description": "Anivia invoca una lluvia de hielo y granizo que daña a sus enemigos y dificulta su movimiento.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GlacialStorm.png",
-    "cooldown": "4/3/2s"
   },
   {
     "championId": "annie",
@@ -400,56 +400,6 @@
     "cooldown": "130/115/100s"
   },
   {
-    "championId": "aphelios",
-    "championName": "Aphelios",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "El Asesino y la Vidente",
-    "description": "Aphelios empuña cinco armas de los Lunari creadas por su hermana Alune. Tiene acceso a dos a la vez, una como arma principal y otra como secundaria. Cada arma tiene un ataque básico y una habilidad únicos. Los ataques y las habilidades consumen la munición del arma. Cuando se queda sin munición, Aphelios descarta el arma y Alune invoca la siguiente de las 5.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/ApheliosP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "aphelios",
-    "championName": "Aphelios",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Habilidades de las armas",
-    "description": "Aphelios cuenta con 5 habilidades activas diferentes, en función del arma principal que tenga equipada:Calibrum (rifle): Disparo de largo alcance que marca a su objetivo para realizar un ataque consecutivo también a largo alcance.Severum (revólver guadaña): Corre mientras ataca a los enemigos cercanos con ambas armas.Gravitum (cañón): Inmoviliza a todos los enemigos ralentizados por esta arma.Infernum (lanzallamas): Impacta contra los enemigos en un arco y ataca con el arma secundaria.Crescendum (chakram): Despliega un centinela que dispara con el arma secundaria.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ApheliosQ_ClientTooltipWrapper.png",
-    "cooldown": "9s"
-  },
-  {
-    "championId": "aphelios",
-    "championName": "Aphelios",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Fase",
-    "description": "Aphelios cambia su arma principal por el arma secundaria, lo que reemplaza sus ataques básicos y su habilidad activa.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ApheliosW.png",
-    "cooldown": "0.8s"
-  },
-  {
-    "championId": "aphelios",
-    "championName": "Aphelios",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Sistema de cola de armas",
-    "description": "Aphelios no tiene tercera habilidad. Esta ranura muestra la siguiente arma que Alune le dará. Al comienzo, el orden de las armas es fijo, pero puede cambiar durante la partida: cuando un arma se queda sin munición, pasa a ser la última.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ApheliosE_ClientTooltipWrapper.png",
-    "cooldown": "0s"
-  },
-  {
-    "championId": "aphelios",
-    "championName": "Aphelios",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Vigilia lunar",
-    "description": "Dispara un rayo de luz lunar concentrado que explota al golpear a campeones enemigos. Aplica el efecto único del arma principal de Aphelios.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ApheliosR.png",
-    "cooldown": "120/110/100s"
-  },
-  {
     "championId": "ashe",
     "championName": "Ashe",
     "slot": "P",
@@ -500,7 +450,7 @@
     "cooldown": "100/80/60s"
   },
   {
-    "championId": "aurelionsol",
+    "championId": "aurelion_sol",
     "championName": "Aurelion Sol",
     "slot": "P",
     "slotName": "Pasiva",
@@ -510,7 +460,7 @@
     "cooldown": ""
   },
   {
-    "championId": "aurelionsol",
+    "championId": "aurelion_sol",
     "championName": "Aurelion Sol",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -520,7 +470,7 @@
     "cooldown": "3s"
   },
   {
-    "championId": "aurelionsol",
+    "championId": "aurelion_sol",
     "championName": "Aurelion Sol",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -530,7 +480,7 @@
     "cooldown": "0s"
   },
   {
-    "championId": "aurelionsol",
+    "championId": "aurelion_sol",
     "championName": "Aurelion Sol",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -540,7 +490,7 @@
     "cooldown": "12s"
   },
   {
-    "championId": "aurelionsol",
+    "championId": "aurelion_sol",
     "championName": "Aurelion Sol",
     "slot": "4",
     "slotName": "Definitiva",
@@ -600,58 +550,8 @@
     "cooldown": "140/120/100s"
   },
   {
-    "championId": "azir",
-    "championName": "Azir",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Legado de Shurima",
-    "description": "Azir puede invocar el Disco solar sobre las ruinas de una torreta aliada o enemiga.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Azir_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "azir",
-    "championName": "Azir",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Arenas conquistadoras",
-    "description": "Azir envía a todos los soldados de arena hacia un punto. Los soldados de arena infligen daño mágico a los enemigos que atraviesan y además aplican un efecto de ralentización durante 1 s.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AzirQWrapper.png",
-    "cooldown": "14/12/10/8/6s"
-  },
-  {
-    "championId": "azir",
-    "championName": "Azir",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "¡Alzaos!",
-    "description": "Azir invoca a un soldado de arena para que ataque a los objetivos cercanos por él. El ataque básico de estos soldados reemplaza el suyo contra todos los enemigos que estén a su alcance. Su ataque inflige daño mágico a todos los enemigos situados en una línea. Además, ¡Alzaos! otorga velocidad de ataque de manera pasiva a Azir y a sus soldados de arena.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AzirW.png",
-    "cooldown": "1.5s"
-  },
-  {
-    "championId": "azir",
-    "championName": "Azir",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Arenas movedizas",
-    "description": "Azir se protege con un escudo durante unos instantes, se desliza hacia uno de sus soldados de arena y daña a los enemigos en su movimiento. Si golpea a un campeón enemigo, prepara inmediatamente un nuevo soldado de arena y detiene su deslizamiento.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AzirEWrapper.png",
-    "cooldown": "22/20.5/19/17.5/16s"
-  },
-  {
-    "championId": "azir",
-    "championName": "Azir",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Falange imperial",
-    "description": "Azir invoca un muro de soldados que, con una carga hacia delante, infligen daño y derriban al enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AzirR.png",
-    "cooldown": "120/105/90s"
-  },
-  {
     "championId": "bard",
-    "championName": "Bardo",
+    "championName": "Bard",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Llamada del viajero",
@@ -661,7 +561,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bardo",
+    "championName": "Bard",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Cadenas cósmicas",
@@ -671,7 +571,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bardo",
+    "championName": "Bard",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "Santuario del protector",
@@ -681,7 +581,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bardo",
+    "championName": "Bard",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Periplo mágico",
@@ -691,63 +591,13 @@
   },
   {
     "championId": "bard",
-    "championName": "Bardo",
+    "championName": "Bard",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Destino maleable",
     "description": "Bardo lanza su energía espiritual a un objetivo, dejando en estasis a todas las unidades y torretas de la zona durante breve tiempo.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BardR.png",
     "cooldown": "110/95/80s"
-  },
-  {
-    "championId": "belveth",
-    "championName": "Bel'Veth",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Muerte en lavanda",
-    "description": "Bel'Veth obtiene acumulaciones permanentes de velocidad de ataque tras acabar con súbditos grandes, monstruos gigantes y campeones. También obtiene velocidad de ataque adicional de forma temporal tras usar una habilidad.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Belveth_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "belveth",
-    "championName": "Bel'Veth",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Oleada del Vacío",
-    "description": "Bel'Veth se desliza en la dirección elegida y daña a todos los enemigos a los que atraviesa.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BelvethQ.png",
-    "cooldown": "1s"
-  },
-  {
-    "championId": "belveth",
-    "championName": "Bel'Veth",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Arriba y abajo",
-    "description": "Bel'Veth golpea el suelo, lo que inflige daño, lanza por los aires y ralentiza a sus enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BelvethW.png",
-    "cooldown": "12/11/10/9/8s"
-  },
-  {
-    "championId": "belveth",
-    "championName": "Bel'Veth",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Vorágine real",
-    "description": "Bel'Veth se queda inmóvil y canaliza una tormenta de cortes a su alrededor que selecciona como objetivo al enemigo con menos vida. Además, le otorga robo de vida y reducción de daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BelvethE.png",
-    "cooldown": "20/19/18/17/16s"
-  },
-  {
-    "championId": "belveth",
-    "championName": "Bel'Veth",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Banquete infinito",
-    "description": "Bel'Veth consume restos de coral del Vacío, adopta su verdadera forma y aumenta su vida máxima, alcance de ataque, velocidad de ataque y velocidad de movimiento fuera de combate. Consumir restos de coral del Vacío de un monstruo épico del Vacío le otorgará más duración de la definitiva, además de poder invocar rémoras del Vacío.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BelvethR.png",
-    "cooldown": "1s"
   },
   {
     "championId": "blitzcrank",
@@ -900,56 +750,6 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "briar",
-    "championName": "Briar",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Maldición carmesí",
-    "description": "Los ataques y habilidades de Briar aplican acumulaciones de sangrado, lo que la cura parte del daño que infligen. Dominada por un hambre insaciable, obtiene curación adicional según la vida que le falte, pero no cuenta con regeneración de vida de forma innata.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/BriarP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "briar",
-    "championName": "Briar",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "A la yugular",
-    "description": "Briar se lanza contra una unidad y golpea a los enemigos con una patada voladora (de la muerte), los aturde y destroza su armadura.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BriarQ.png",
-    "cooldown": "13/12/11/10/9s"
-  },
-  {
-    "championId": "briar",
-    "championName": "Briar",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Frenesí sanguinario / Otro mordisquito",
-    "description": "Briar se lanza hacia delante y destruye su picota, lo que la hace entrar en Frenesí sanguinario y perseguir sin descanso al enemigo más cercano (priorizando a los campeones). Mientras se encuentra en este estado, obtiene velocidad de ataque y de movimiento adicionales, y sus ataques infligen daño en área en torno a su objetivo.Briar puede reactivar esta habilidad durante el frenesí para darle un mordisco a su objetivo con su próximo ataque, lo que inflige daño adicional en base a la vida que le falte a la unidad y cura a Briar según el daño que inflija.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BriarW.png",
-    "cooldown": "14/13/12/11/10s"
-  },
-  {
-    "championId": "briar",
-    "championName": "Briar",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Alarido escalofriante",
-    "description": "Briar se concentra, pone fin a Frenesí sanguinario y canaliza su energía para proferir un poderoso alarido que inflige daño y ralentiza a los enemigos. Mientras canaliza, recibe menos daño y recupera parte de su vida máxima. Al canalizar por completo el alarido, este empuja a los enemigos, inflige daño adicional y aturde a los que choquen contra muros.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BriarE.png",
-    "cooldown": "16s"
-  },
-  {
-    "championId": "briar",
-    "championName": "Briar",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Final sangriento",
-    "description": "Briar lanza la gema hemolítica de su picota, que marca al primer campeón golpeado y lo convierte en su presa. Después, corre directa hacia él, aterroriza a los enemigos cercanos al alcanzar a su objetivo y entra en un estado de hemomanía incontrolable. Perseguirá a su presa hasta la muerte, con los efectos de Frenesí sanguinario y armadura, resistencia mágica, robo de vida y velocidad de movimiento adicionales.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/BriarR.png",
-    "cooldown": "120/100/80s"
-  },
-  {
     "championId": "caitlyn",
     "championName": "Caitlyn",
     "slot": "P",
@@ -1050,57 +850,7 @@
     "cooldown": "140/115/90s"
   },
   {
-    "championId": "cassiopeia",
-    "championName": "Cassiopeia",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Elegancia serpentina",
-    "description": "Cassiopeia obtiene velocidad de movimiento por nivel, pero no puede comprar botas.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Cassiopeia_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "cassiopeia",
-    "championName": "Cassiopeia",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Explosión perjudicial",
-    "description": "Cassiopeia, tras unos instantes, inunda una zona con veneno, lo que aumenta su velocidad de movimiento si alcanza a un campeón enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/CassiopeiaQ.png",
-    "cooldown": "3.5s"
-  },
-  {
-    "championId": "cassiopeia",
-    "championName": "Cassiopeia",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Miasma",
-    "description": "Cassiopeia lanza varias nubes de veneno que ralentizan, anclan e infligen un daño leve a los enemigos que las atraviesen. Los enemigos anclados no pueden usar habilidades de movimiento.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/CassiopeiaW.png",
-    "cooldown": "24/22/20/18/16s"
-  },
-  {
-    "championId": "cassiopeia",
-    "championName": "Cassiopeia",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Colmillo doble",
-    "description": "Cassiopeia lanza un ataque que inflige más daño a los objetivos envenenados y que la cura un porcentaje del daño infligido. Si el objetivo muere al recibir este ataque, Cassiopeia recupera maná.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/CassiopeiaE.png",
-    "cooldown": "0.75s"
-  },
-  {
-    "championId": "cassiopeia",
-    "championName": "Cassiopeia",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Mirada petrificante",
-    "description": "Cassiopeia libera con los ojos un remolino de energía mágica que aturde a los enemigos que tenga de cara a ella y ralentiza a los que le estén dando la espalda.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/CassiopeiaR.png",
-    "cooldown": "120/100/80s"
-  },
-  {
-    "championId": "chogath",
+    "championId": "cho_gath",
     "championName": "Cho'Gath",
     "slot": "P",
     "slotName": "Pasiva",
@@ -1110,7 +860,7 @@
     "cooldown": ""
   },
   {
-    "championId": "chogath",
+    "championId": "cho_gath",
     "championName": "Cho'Gath",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -1120,7 +870,7 @@
     "cooldown": "6s"
   },
   {
-    "championId": "chogath",
+    "championId": "cho_gath",
     "championName": "Cho'Gath",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -1130,7 +880,7 @@
     "cooldown": "11/10.5/10/9.5/9s"
   },
   {
-    "championId": "chogath",
+    "championId": "cho_gath",
     "championName": "Cho'Gath",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -1140,7 +890,7 @@
     "cooldown": "8/7/6/5/4s"
   },
   {
-    "championId": "chogath",
+    "championId": "cho_gath",
     "championName": "Cho'Gath",
     "slot": "4",
     "slotName": "Definitiva",
@@ -1300,7 +1050,7 @@
     "cooldown": "100/90/80s"
   },
   {
-    "championId": "drmundo",
+    "championId": "dr_mundo",
     "championName": "Dr. Mundo",
     "slot": "P",
     "slotName": "Pasiva",
@@ -1310,7 +1060,7 @@
     "cooldown": ""
   },
   {
-    "championId": "drmundo",
+    "championId": "dr_mundo",
     "championName": "Dr. Mundo",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -1320,7 +1070,7 @@
     "cooldown": "4s"
   },
   {
-    "championId": "drmundo",
+    "championId": "dr_mundo",
     "championName": "Dr. Mundo",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -1330,7 +1080,7 @@
     "cooldown": "17/16.5/16/15.5/15s"
   },
   {
-    "championId": "drmundo",
+    "championId": "dr_mundo",
     "championName": "Dr. Mundo",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -1340,7 +1090,7 @@
     "cooldown": "9/8.25/7.5/6.75/6s"
   },
   {
-    "championId": "drmundo",
+    "championId": "dr_mundo",
     "championName": "Dr. Mundo",
     "slot": "4",
     "slotName": "Definitiva",
@@ -1448,56 +1198,6 @@
     "description": "Ekko fragmenta su línea temporal y se vuelve imposible de seleccionar como objetivo mientras regresa a un momento pasado más favorable. Reaparece en el mismo sitio donde se encontraba unos segundos antes y recupera una parte de la vida que hubiera perdido en ese tiempo. Los enemigos situados cerca de su zona de llegada reciben muchísimo daño.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/EkkoR.png",
     "cooldown": "110/80/50s"
-  },
-  {
-    "championId": "elise",
-    "championName": "Elise",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Reina de las arañas",
-    "description": "Forma humana: Cuando Elise alcanza a un enemigo con una habilidad, convoca una araña durmiente.Forma de araña: Los ataques básicos infligen daño mágico adicional y le devuelven vida a Elise.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/ElisePassive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "elise",
-    "championName": "Elise",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Neurotoxina / Mordisco venenoso",
-    "description": "Forma humana: Inflige daño según la cantidad de vida que tenga el objetivo.Forma de araña: Embiste a un enemigo e inflige daño según la cantidad de vida que tenga.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/EliseHumanQ.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "elise",
-    "championName": "Elise",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Araña volátil / Frenesí arácnido",
-    "description": "Forma humana: Libera una araña cargada de veneno que explota al acercarse a un objetivo.Forma de araña: Elise y sus arañas aumentan su velocidad de ataque.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/EliseHumanW.png",
-    "cooldown": "12s"
-  },
-  {
-    "championId": "elise",
-    "championName": "Elise",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Maraña / Rápel",
-    "description": "Forma humana: Aturde a la primera unidad enemiga impactada y la revela si no se halla en sigilo.Forma de araña: Elise y sus arañas ascienden en el aire y luego descienden sobre un objetivo enemigo. Una vez ha descendido, el daño y la curación adicionales de Reina de las arañas aumentan.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/EliseHumanE.png",
-    "cooldown": "12/11.5/11/10.5/10s"
-  },
-  {
-    "championId": "elise",
-    "championName": "Elise",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Forma de araña",
-    "description": "Se transforma en una amenazadora araña, lo que reduce su alcance de ataque pero le proporciona velocidad de movimiento, nuevas habilidades y un enjambre de arañas que ataca a sus enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/EliseR.png",
-    "cooldown": "3s"
   },
   {
     "championId": "evelynn",
@@ -1798,56 +1498,6 @@
     "description": "Galio designa la ubicación de un campeón aliado como punto de aterrizaje y otorga un escudo mágico a todos los aliados en la zona. Tras un breve lapso de tiempo, Galio aterriza en la ubicación y lanza a los enemigos cercanos por los aires.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GalioR.png",
     "cooldown": "180/160/140s"
-  },
-  {
-    "championId": "gangplank",
-    "championName": "Gangplank",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Prueba de fuego",
-    "description": "Cada pocos segundos, los ataques cuerpo a cuerpo de Gangplank hacen arder a sus víctimas.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Gangplank_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "gangplank",
-    "championName": "Gangplank",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Parrrlamento",
-    "description": "Dispara a un objetivo y recibe oro por cada unidad enemiga asesinada.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GangplankQWrapper.png",
-    "cooldown": "4.5s"
-  },
-  {
-    "championId": "gangplank",
-    "championName": "Gangplank",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Eliminar escorbuto",
-    "description": "Los efectos curativos de los cítricos eliminan los efectos de control de adversario y restauran vida.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GangplankW.png",
-    "cooldown": "22/20/18/16/14s"
-  },
-  {
-    "championId": "gangplank",
-    "championName": "Gangplank",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Barril de pólvora",
-    "description": "Gangplank destapa un barril explosivo en una ubicación objetivo. Si lo rompe, el barril explota y, además de extender el daño del ataque a los enemigos de la zona, los ralentiza.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GangplankE.png",
-    "cooldown": "0s"
-  },
-  {
-    "championId": "gangplank",
-    "championName": "Gangplank",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Andanada de cañón",
-    "description": "Gangplank ordena a su barco que dispare sobre un área. Los enemigos situados en ella quedan ralentizados y sufren daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/GangplankR.png",
-    "cooldown": "170/150/130s"
   },
   {
     "championId": "garen",
@@ -2200,106 +1850,6 @@
     "cooldown": "100/85/70s"
   },
   {
-    "championId": "hwei",
-    "championName": "Hwei",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Firma del Visionario",
-    "description": "Hwei marca a los campeones enemigos a los que inflige daño con habilidades para darles el toque final.Tras golpear a un enemigo con una segunda habilidad que inflija daño, firma el suelo que hay a sus pies. Tras un breve lapso de tiempo, la firma explota e inflige daño a todos los enemigos al alcance.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/HweiPassive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "hwei",
-    "championName": "Hwei",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Temática: Desastres",
-    "description": "Hwei concibe una serie de desastres, lo que le permite pintar un golpe devastador.Esta temática le otorga habilidades de daño a Hwei: Llamas asoladoras, Energía cercenante y Grieta magmática.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/HweiQ.png",
-    "cooldown": "10/9/8/7/6s"
-  },
-  {
-    "championId": "hwei",
-    "championName": "Hwei",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Temática: Serenidades",
-    "description": "Hwei concibe una serie de serenidades, lo que le permite pintar escenas estimulantes.Esta temática le otorga habilidades de utilidad a Hwei: Corriente escurridiza, Aguas especulares y Luz inspiradora.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/HweiW.png",
-    "cooldown": "18/17.5/17/16.5/16s"
-  },
-  {
-    "championId": "hwei",
-    "championName": "Hwei",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Temática: Tormentos",
-    "description": "Hwei concibe una serie de tormentos, lo que le permite pintar rostros que ejerzan control sobre el enemigo.Esta temática le otorga habilidades con efectos de control de adversario a Hwei: Rostro lúgubre, Mirada del abismo y Fauces devastadoras.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/HweiE.png",
-    "cooldown": "12/11.5/11/10.5/10s"
-  },
-  {
-    "championId": "hwei",
-    "championName": "Hwei",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Vórtice del dolor",
-    "description": "Hwei pinta una visión de desesperación. El primer campeón enemigo al que golpea se vuelve el eje central de un cuadro en expansión que ralentiza e inflige daño a los enemigos cercanos. La visión explota tras alcanzar su tamaño máximo o cuando el campeón muere.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/HweiR.png",
-    "cooldown": "140/115/80s"
-  },
-  {
-    "championId": "illaoi",
-    "championName": "Illaoi",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Profeta de un dios antiguo",
-    "description": "Illaoi y los recipientes que crea generan tentáculos en el terreno circundante. Los tentáculos atacan a espíritus, recipientes y víctimas de Dura lección de Illaoi. Los tentáculos infligen daño físico a los enemigos alcanzados y curan a Illaoi si dañan a un campeón.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Illaoi_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "illaoi",
-    "championName": "Illaoi",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Aplastamiento con tentáculo",
-    "description": "Aumenta el daño que infligen los tentáculos. Al activarla, Illaoi golpea con un tentáculo que inflige daño físico.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IllaoiQ.png",
-    "cooldown": "10/9/8/7/6s"
-  },
-  {
-    "championId": "illaoi",
-    "championName": "Illaoi",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Dura lección",
-    "description": "Illaoi salta hacia su objetivo, le inflige daño físico y hace que los tentáculos cercanos lo ataquen también.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IllaoiW.png",
-    "cooldown": "4s"
-  },
-  {
-    "championId": "illaoi",
-    "championName": "Illaoi",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Prueba de espíritu",
-    "description": "Illaoi arranca el espíritu del cuerpo de un enemigo y lo obliga a mostrarse ante ella. Los espíritus transmiten al objetivo original un porcentaje del daño sufrido. Si muere o si el objetivo se aleja demasiado del espíritu, el objetivo se convertirá en un recipiente y hará aparecer tentáculos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IllaoiE.png",
-    "cooldown": "16/15/14/13/12s"
-  },
-  {
-    "championId": "illaoi",
-    "championName": "Illaoi",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Salto de fe",
-    "description": "Illaoi golpea su ídolo contra el suelo e inflige daño físico a los enemigos cercanos. Aparecerá un tentáculo por cada campeón impactado.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IllaoiR.png",
-    "cooldown": "120/95/70s"
-  },
-  {
     "championId": "irelia",
     "championName": "Irelia",
     "slot": "P",
@@ -2348,56 +1898,6 @@
     "description": "Irelia libera una gran cantidad de cuchillas que explotan hacia fuera al alcanzar a un campeón enemigo. Los enemigos alcanzados por las cuchillas reciben daño y quedan marcados. Después, las cuchillas forman un muro que inflige daño y ralentiza a los enemigos que pasen por él.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IreliaR.png",
     "cooldown": "125/105/85s"
-  },
-  {
-    "championId": "ivern",
-    "championName": "Ivern",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Amigo del Bosque",
-    "description": "Ivern no puede atacar ni ser atacado por monstruos no épicos. Ivern puede crear arboledas mágicas que crecen con el tiempo en los campamentos de la jungla. Cuando la arboleda ha crecido por completo, Ivern puede liberar a los monstruos para recibir oro y experiencia.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/IvernP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "ivern",
-    "championName": "Ivern",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Lanzarraíces",
-    "description": "Ivern conjura raíces que infligen daño e inmovilizan a los objetivos enemigos. Los aliados de Ivern pueden deslizarse hacia el objetivo inmovilizado.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IvernQ.png",
-    "cooldown": "14/13/12/11/10s"
-  },
-  {
-    "championId": "ivern",
-    "championName": "Ivern",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Creamaleza",
-    "description": "Cuando está en la maleza, los ataques de Ivern y de sus aliados cercanos infligen daño mágico adicional. Puede activar esta habilidad para crear una zona de maleza.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IvernW.png",
-    "cooldown": "0.5s"
-  },
-  {
-    "championId": "ivern",
-    "championName": "Ivern",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Semilla de relojería",
-    "description": "Ivern le concede un escudo a un aliado. Tras un breve lapso de tiempo, el escudo estalla, de forma que ralentiza e inflige daño a los enemigos. El escudo se regenera si no golpea a ningún enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IvernE.png",
-    "cooldown": "11/10/9/8/7s"
-  },
-  {
-    "championId": "ivern",
-    "championName": "Ivern",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "¡Margarita!",
-    "description": "Ivern invoca a su amiga centinela, Margarita, para que luche con él. Vuelve a lanzar la habilidad para que Margarita se mueva o ataque.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/IvernR.png",
-    "cooldown": "140/130/120s"
   },
   {
     "championId": "janna",
@@ -2450,7 +1950,7 @@
     "cooldown": "130/115/100s"
   },
   {
-    "championId": "jarvaniv",
+    "championId": "jarvan_iv",
     "championName": "Jarvan IV",
     "slot": "P",
     "slotName": "Pasiva",
@@ -2460,7 +1960,7 @@
     "cooldown": ""
   },
   {
-    "championId": "jarvaniv",
+    "championId": "jarvan_iv",
     "championName": "Jarvan IV",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -2470,7 +1970,7 @@
     "cooldown": "10/9/8/7/6s"
   },
   {
-    "championId": "jarvaniv",
+    "championId": "jarvan_iv",
     "championName": "Jarvan IV",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -2480,7 +1980,7 @@
     "cooldown": "9s"
   },
   {
-    "championId": "jarvaniv",
+    "championId": "jarvan_iv",
     "championName": "Jarvan IV",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -2490,7 +1990,7 @@
     "cooldown": "12/11.5/11/10.5/10s"
   },
   {
-    "championId": "jarvaniv",
+    "championId": "jarvan_iv",
     "championName": "Jarvan IV",
     "slot": "4",
     "slotName": "Definitiva",
@@ -2700,8 +2200,8 @@
     "cooldown": "85/65/45s"
   },
   {
-    "championId": "ksante",
-    "championName": "K'Sante",
+    "championId": "k_sante",
+    "championName": "K'Santé",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Instinto intrépido",
@@ -2710,8 +2210,8 @@
     "cooldown": ""
   },
   {
-    "championId": "ksante",
-    "championName": "K'Sante",
+    "championId": "k_sante",
+    "championName": "K'Santé",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Golpes de ntofo",
@@ -2720,8 +2220,8 @@
     "cooldown": "3.5s"
   },
   {
-    "championId": "ksante",
-    "championName": "K'Sante",
+    "championId": "k_sante",
+    "championName": "K'Santé",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "Pionero",
@@ -2730,8 +2230,8 @@
     "cooldown": "14/13/12/11/10s"
   },
   {
-    "championId": "ksante",
-    "championName": "K'Sante",
+    "championId": "k_sante",
+    "championName": "K'Santé",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Juego de pies",
@@ -2740,8 +2240,8 @@
     "cooldown": "10/9.5/9/8.5/8s"
   },
   {
-    "championId": "ksante",
-    "championName": "K'Sante",
+    "championId": "k_sante",
+    "championName": "K'Santé",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Órdago",
@@ -2750,7 +2250,7 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "kaisa",
+    "championId": "kai_sa",
     "championName": "Kai'Sa",
     "slot": "P",
     "slotName": "Pasiva",
@@ -2760,7 +2260,7 @@
     "cooldown": ""
   },
   {
-    "championId": "kaisa",
+    "championId": "kai_sa",
     "championName": "Kai'Sa",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -2770,7 +2270,7 @@
     "cooldown": "10/9/8/7/6s"
   },
   {
-    "championId": "kaisa",
+    "championId": "kai_sa",
     "championName": "Kai'Sa",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -2780,7 +2280,7 @@
     "cooldown": "22/20/18/16/14s"
   },
   {
-    "championId": "kaisa",
+    "championId": "kai_sa",
     "championName": "Kai'Sa",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -2790,7 +2290,7 @@
     "cooldown": "16/14.5/13/11.5/10s"
   },
   {
-    "championId": "kaisa",
+    "championId": "kai_sa",
     "championName": "Kai'Sa",
     "slot": "4",
     "slotName": "Definitiva",
@@ -2898,56 +2398,6 @@
     "description": "Karma potencia su siguiente habilidad para conseguir un efecto adicional. Mantra está disponible al nivel 1 y no necesita puntos de habilidad.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KarmaMantra.png",
     "cooldown": "40/38/36/34s"
-  },
-  {
-    "championId": "karthus",
-    "championName": "Karthus",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Desafío a la muerte",
-    "description": "Al morir, Karthus adopta una forma de espíritu que le permite seguir lanzando hechizos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Karthus_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "karthus",
-    "championName": "Karthus",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Sembrar la destrucción",
-    "description": "Karthus desata una explosión retardada en una ubicación, lo que daña a los enemigos cercanos. El daño infligido aumenta contra enemigos aislados.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KarthusLayWasteA1.png",
-    "cooldown": "0s"
-  },
-  {
-    "championId": "karthus",
-    "championName": "Karthus",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Muro de dolor",
-    "description": "Karthus crea una pantalla traspasable que roba energía. Cualquier enemigo que la atraviese verá reducidas durante un período de tiempo su velocidad de movimiento y su resistencia mágica.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KarthusWallOfPain.png",
-    "cooldown": "15s"
-  },
-  {
-    "championId": "karthus",
-    "championName": "Karthus",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Profanación",
-    "description": "Karthus roba energía de forma pasiva a sus víctimas, cuyas muertes le proporcionan maná. También puede optar por rodearse con las almas de sus presas, lo que inflige daño a los enemigos cercanos a costa de un alto coste de maná.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KarthusDefile.png",
-    "cooldown": "0.5s"
-  },
-  {
-    "championId": "karthus",
-    "championName": "Karthus",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Réquiem",
-    "description": "Tras concentrar su poder durante 3 s, Karthus inflige daño a todos los campeones enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KarthusFallenOne.png",
-    "cooldown": "200/180/160s"
   },
   {
     "championId": "kassadin",
@@ -3200,7 +2650,7 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "khazix",
+    "championId": "kha_zix",
     "championName": "Kha'Zix",
     "slot": "P",
     "slotName": "Pasiva",
@@ -3210,7 +2660,7 @@
     "cooldown": ""
   },
   {
-    "championId": "khazix",
+    "championId": "kha_zix",
     "championName": "Kha'Zix",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -3220,7 +2670,7 @@
     "cooldown": "4s"
   },
   {
-    "championId": "khazix",
+    "championId": "kha_zix",
     "championName": "Kha'Zix",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -3230,7 +2680,7 @@
     "cooldown": "9s"
   },
   {
-    "championId": "khazix",
+    "championId": "kha_zix",
     "championName": "Kha'Zix",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -3240,7 +2690,7 @@
     "cooldown": "20/18/16/14/12s"
   },
   {
-    "championId": "khazix",
+    "championId": "kha_zix",
     "championName": "Kha'Zix",
     "slot": "4",
     "slotName": "Definitiva",
@@ -3300,57 +2750,7 @@
     "cooldown": "180/150/120s"
   },
   {
-    "championId": "kled",
-    "championName": "Kled",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Skaarl, el Lagarto Cobarde",
-    "description": "Kled cabalga sobre su fiel corcel Skaarl, que recibe el daño por él. Cuando la vida de Skaarl llega a cero, se escabulle dejando sin montura a Kled.Cuando Kled no está a lomos de Skaarl, sus habilidades varían e inflige menos daño. Kled puede restaurar el coraje de Skaarl luchando contra enemigos. Cuando el coraje está al máximo, Skaarl reaparece con un porcentaje de su vida y Kled vuelve a montarlo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Kled_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "kled",
-    "championName": "Kled",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Trampa para osos",
-    "description": "Kled lanza una trampa para osos que inflige daño y engancha a un campeón enemigo. Si permanece enganchado durante un breve periodo, el objetivo recibe daño físico y Kled tira de él.Desmontado, la habilidad se sustituye por Arma de bolsillo, un disparo que hace retroceder a Kled y restaura coraje.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KledQ.png",
-    "cooldown": "11/10/9/8/7s"
-  },
-  {
-    "championId": "kled",
-    "championName": "Kled",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Tendencias violentas",
-    "description": "Kled obtiene una enorme cantidad de velocidad de ataque para cuatro ataques. El cuarto ataque inflige más daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KledW.png",
-    "cooldown": "11/9.5/8/6.5/5s"
-  },
-  {
-    "championId": "kled",
-    "championName": "Kled",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Justa",
-    "description": "Kled embiste hacia delante, inflige daño físico y obtiene un breve impulso de velocidad. Kled puede reactivar la habilidad para atravesar a su objetivo inicial e infligir el mismo daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KledE.png",
-    "cooldown": "13/12/11/10/9s"
-  },
-  {
-    "championId": "kled",
-    "championName": "Kled",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "¡A LA CARGAAA!",
-    "description": "Kled y Skaarl cargan hacia una ubicación, lo cual deja atrás un rastro que otorga velocidad y les proporciona un escudo. Skaarl fija como objetivo y embiste al primer enemigo con el que se tope.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/KledR.png",
-    "cooldown": "140/125/110s"
-  },
-  {
-    "championId": "kogmaw",
+    "championId": "kog_maw",
     "championName": "Kog'Maw",
     "slot": "P",
     "slotName": "Pasiva",
@@ -3360,7 +2760,7 @@
     "cooldown": ""
   },
   {
-    "championId": "kogmaw",
+    "championId": "kog_maw",
     "championName": "Kog'Maw",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -3370,7 +2770,7 @@
     "cooldown": "7s"
   },
   {
-    "championId": "kogmaw",
+    "championId": "kog_maw",
     "championName": "Kog'Maw",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -3380,7 +2780,7 @@
     "cooldown": "17s"
   },
   {
-    "championId": "kogmaw",
+    "championId": "kog_maw",
     "championName": "Kog'Maw",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -3390,7 +2790,7 @@
     "cooldown": "12s"
   },
   {
-    "championId": "kogmaw",
+    "championId": "kog_maw",
     "championName": "Kog'Maw",
     "slot": "4",
     "slotName": "Definitiva",
@@ -3400,57 +2800,7 @@
     "cooldown": "2/1.5/1s"
   },
   {
-    "championId": "leblanc",
-    "championName": "LeBlanc",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Imagen especular",
-    "description": "Cuando LeBlanc baja del 40% de vida, se hace invisible durante 1 s y crea una imagen de sí misma que no inflige daño y dura hasta 8 s.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/LeBlancP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "leblanc",
-    "championName": "LeBlanc",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Sello de malicia",
-    "description": "LeBlanc proyecta un sello que inflige daño y marca al objetivo durante 3,5 s. El sello explota al dañar al objetivo marcado con una habilidad e inflige daño adicional. Si el enemigo muere en algún momento, LeBlanc recupera el coste de maná y parte del enfriamiento restante de este hechizo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/LeblancQ.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "leblanc",
-    "championName": "LeBlanc",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Distorsión",
-    "description": "LeBlanc se desliza hacia una ubicación e inflige daño a los enemigos cercanos a su destino. Durante los siguientes 4 s, LeBlanc puede activar Distorsión de nuevo para volver al lugar de origen.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/LeblancW.png",
-    "cooldown": "15/13.75/12.5/11.25/10s"
-  },
-  {
-    "championId": "leblanc",
-    "championName": "LeBlanc",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Cadenas etéreas",
-    "description": "LeBlanc lanza una cadena que ata al primer enemigo alcanzado. Si el objetivo permanece encadenado durante 1,5 s, LeBlanc lo inmoviliza y le inflige daño adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/LeblancE.png",
-    "cooldown": "14/13.25/12.5/11.75/11s"
-  },
-  {
-    "championId": "leblanc",
-    "championName": "LeBlanc",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Mímica",
-    "description": "LeBlanc lanza una imitación de uno de sus hechizos básicos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/LeblancR.png",
-    "cooldown": "50/40/30s"
-  },
-  {
-    "championId": "leesin",
+    "championId": "lee_sin",
     "championName": "Lee Sin",
     "slot": "P",
     "slotName": "Pasiva",
@@ -3460,7 +2810,7 @@
     "cooldown": ""
   },
   {
-    "championId": "leesin",
+    "championId": "lee_sin",
     "championName": "Lee Sin",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -3470,7 +2820,7 @@
     "cooldown": "10/9/8/7/6s"
   },
   {
-    "championId": "leesin",
+    "championId": "lee_sin",
     "championName": "Lee Sin",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -3480,7 +2830,7 @@
     "cooldown": "12s"
   },
   {
-    "championId": "leesin",
+    "championId": "lee_sin",
     "championName": "Lee Sin",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -3490,7 +2840,7 @@
     "cooldown": "9s"
   },
   {
-    "championId": "leesin",
+    "championId": "lee_sin",
     "championName": "Lee Sin",
     "slot": "4",
     "slotName": "Definitiva",
@@ -3800,56 +3150,6 @@
     "cooldown": "60/50/40s"
   },
   {
-    "championId": "masteryi",
-    "championName": "Maestro Yi",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Golpe doble",
-    "description": "Cada varios ataques básicos consecutivos, Maestro Yi golpea dos veces.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/MasterYi_Passive1.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "masteryi",
-    "championName": "Maestro Yi",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Golpe fulgurante",
-    "description": "Maestro Yi se teleporta por el campo de batalla a toda velocidad, infligiendo daño físico a múltiples unidades a su paso. Además, no se le puede marcar como objetivo. Golpe fulgurante puede asestar golpes críticos e inflige daño físico adicional a los monstruos. Los ataques básicos reducen el enfriamiento de Golpe fulgurante.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AlphaStrike.png",
-    "cooldown": "20/19.5/19/18.5/18s"
-  },
-  {
-    "championId": "masteryi",
-    "championName": "Maestro Yi",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Meditar",
-    "description": "Maestro Yi medita y rejuvenece su cuerpo, restaurando vida y reduciendo el daño recibido durante un breve periodo de tiempo. Además, obtiene acumulaciones de Golpe doble y pausa la duración restante de Estilo Wuju e Imparable por cada segundo de canalización.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Meditate.png",
-    "cooldown": "10s"
-  },
-  {
-    "championId": "masteryi",
-    "championName": "Maestro Yi",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Estilo Wuju",
-    "description": "Otorga daño verdadero adicional con los ataques básicos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/WujuStyle.png",
-    "cooldown": "14s"
-  },
-  {
-    "championId": "masteryi",
-    "championName": "Maestro Yi",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Imparable",
-    "description": "Maestro Yi se mueve con una agilidad sin igual, lo que aumenta temporalmente su velocidad de ataque y su velocidad de movimiento, además de hacerlo inmune a todos los efectos de ralentización. Mientras la habilidad siga activa, los asesinatos de campeones y las ayudas aumentan la duración de Imparable. Reduce de forma pasiva el enfriamiento de sus otras habilidades al conseguir un asesinato o una ayuda.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Highlander.png",
-    "cooldown": "85s"
-  },
-  {
     "championId": "malphite",
     "championName": "Malphite",
     "slot": "P",
@@ -3898,56 +3198,6 @@
     "description": "Malphite se lanza hacia una ubicación a gran velocidad, inflige daño a los enemigos y los lanza por los aires.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/UFSlash.png",
     "cooldown": "130/105/80s"
-  },
-  {
-    "championId": "malzahar",
-    "championName": "Malzahar",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Alteración del Vacío",
-    "description": "Cuando lleva un tiempo sin sufrir daño ni efectos de control de adversario, Malzahar obtiene una gran reducción de daño e inmunidad al control de adversario. Perdurará unos instantes tras sufrir daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Malzahar_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "malzahar",
-    "championName": "Malzahar",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Llamada del Vacío",
-    "description": "Malzahar abre dos portales al Vacío. Tras unos instantes, disparan proyectiles que infligen daño mágico y silencian a los campeones enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/MalzaharQ.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "malzahar",
-    "championName": "Malzahar",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Enjambre del Vacío",
-    "description": "Malzahar invoca entes del Vacío que atacan a los enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/MalzaharW.png",
-    "cooldown": "8s"
-  },
-  {
-    "championId": "malzahar",
-    "championName": "Malzahar",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Visiones maléficas",
-    "description": "Malzahar infecta la mente de su objetivo con crueles visiones sobre su muerte, lo que le provoca daño prolongado. Las visiones se reiniciarán si usa sus otros hechizos contra ese objetivo.Si el objetivo muere mientras se encuentra afectado por las visiones, estas pasan a una unidad enemiga cercana y Malzahar obtiene maná. Los entes del Vacío de Malzahar se sienten atraídos por las unidades afectadas.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/MalzaharE.png",
-    "cooldown": "11/10/9/8/7s"
-  },
-  {
-    "championId": "malzahar",
-    "championName": "Malzahar",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Tenaza infernal",
-    "description": "Malzahar canaliza la esencia del Vacío para suprimir a un campeón enemigo en una zona de energía negativa y dañina.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/MalzaharR.png",
-    "cooldown": "140/110/80s"
   },
   {
     "championId": "maokai",
@@ -4000,6 +3250,106 @@
     "cooldown": "130/110/90s"
   },
   {
+    "championId": "master_yi",
+    "championName": "Master Yi",
+    "slot": "P",
+    "slotName": "Pasiva",
+    "name": "Golpe doble",
+    "description": "Cada varios ataques básicos consecutivos, Maestro Yi golpea dos veces.",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/MasterYi_Passive1.png",
+    "cooldown": ""
+  },
+  {
+    "championId": "master_yi",
+    "championName": "Master Yi",
+    "slot": "1",
+    "slotName": "Habilidad 1",
+    "name": "Golpe fulgurante",
+    "description": "Maestro Yi se teleporta por el campo de batalla a toda velocidad, infligiendo daño físico a múltiples unidades a su paso. Además, no se le puede marcar como objetivo. Golpe fulgurante puede asestar golpes críticos e inflige daño físico adicional a los monstruos. Los ataques básicos reducen el enfriamiento de Golpe fulgurante.",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/AlphaStrike.png",
+    "cooldown": "20/19.5/19/18.5/18s"
+  },
+  {
+    "championId": "master_yi",
+    "championName": "Master Yi",
+    "slot": "2",
+    "slotName": "Habilidad 2",
+    "name": "Meditar",
+    "description": "Maestro Yi medita y rejuvenece su cuerpo, restaurando vida y reduciendo el daño recibido durante un breve periodo de tiempo. Además, obtiene acumulaciones de Golpe doble y pausa la duración restante de Estilo Wuju e Imparable por cada segundo de canalización.",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Meditate.png",
+    "cooldown": "10s"
+  },
+  {
+    "championId": "master_yi",
+    "championName": "Master Yi",
+    "slot": "3",
+    "slotName": "Habilidad 3",
+    "name": "Estilo Wuju",
+    "description": "Otorga daño verdadero adicional con los ataques básicos.",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/WujuStyle.png",
+    "cooldown": "14s"
+  },
+  {
+    "championId": "master_yi",
+    "championName": "Master Yi",
+    "slot": "4",
+    "slotName": "Definitiva",
+    "name": "Imparable",
+    "description": "Maestro Yi se mueve con una agilidad sin igual, lo que aumenta temporalmente su velocidad de ataque y su velocidad de movimiento, además de hacerlo inmune a todos los efectos de ralentización. Mientras la habilidad siga activa, los asesinatos de campeones y las ayudas aumentan la duración de Imparable. Reduce de forma pasiva el enfriamiento de sus otras habilidades al conseguir un asesinato o una ayuda.",
+    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Highlander.png",
+    "cooldown": "85s"
+  },
+  {
+    "championId": "mel",
+    "championName": "Mel",
+    "slot": "P",
+    "slotName": "Pasiva",
+    "name": "Resonancia Radiante",
+    "description": "Lanzar habilidades marca a los enemigos; consumir la marca otorga velocidad de movimiento y daño mágico extra.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "cooldown": ""
+  },
+  {
+    "championId": "mel",
+    "championName": "Mel",
+    "slot": "1",
+    "slotName": "Habilidad 1",
+    "name": "Rayo del Solio",
+    "description": "Dispara un haz solar penetrante en línea recta infligiendo daño mágico a todos los enemigos a su paso.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "cooldown": "6s"
+  },
+  {
+    "championId": "mel",
+    "championName": "Mel",
+    "slot": "2",
+    "slotName": "Habilidad 2",
+    "name": "Decreto Protector",
+    "description": "Otorga un escudo áureo a un aliado o a sí misma que mitiga daño y refleja una fracción hacia los agresores.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "cooldown": "13s"
+  },
+  {
+    "championId": "mel",
+    "championName": "Mel",
+    "slot": "3",
+    "slotName": "Habilidad 3",
+    "name": "Manto de la Discordia",
+    "description": "Despliega una zona de luz que ralentiza y silencia a los oponentes que permanecen en su interior.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "cooldown": "11s"
+  },
+  {
+    "championId": "mel",
+    "championName": "Mel",
+    "slot": "4",
+    "slotName": "Definitiva",
+    "name": "Trascendencia Imperial",
+    "description": "Canaliza una tormenta solar que baña una gran área con daño mágico colosal y aturde a los campeones alcanzados.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/540.png",
+    "cooldown": "70s"
+  },
+  {
     "championId": "milio",
     "championName": "Milio",
     "slot": "P",
@@ -4050,7 +3400,7 @@
     "cooldown": "160/145/130s"
   },
   {
-    "championId": "missfortune",
+    "championId": "miss_fortune",
     "championName": "Miss Fortune",
     "slot": "P",
     "slotName": "Pasiva",
@@ -4060,7 +3410,7 @@
     "cooldown": ""
   },
   {
-    "championId": "missfortune",
+    "championId": "miss_fortune",
     "championName": "Miss Fortune",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -4070,7 +3420,7 @@
     "cooldown": "7/6/5/4/3s"
   },
   {
-    "championId": "missfortune",
+    "championId": "miss_fortune",
     "championName": "Miss Fortune",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -4080,7 +3430,7 @@
     "cooldown": "12s"
   },
   {
-    "championId": "missfortune",
+    "championId": "miss_fortune",
     "championName": "Miss Fortune",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -4090,7 +3440,7 @@
     "cooldown": "18/17/16/15/14s"
   },
   {
-    "championId": "missfortune",
+    "championId": "miss_fortune",
     "championName": "Miss Fortune",
     "slot": "4",
     "slotName": "Definitiva",
@@ -4197,56 +3547,6 @@
     "name": "Grilletes del alma",
     "description": "Morgana desata todo el potencial de su poder celestial, se suelta las alas y flota sobre el suelo. Lanza cadenas de oscuro dolor hacia los campeones enemigos, lo que le otorga velocidad de movimiento. Las cadenas ralentizan e infligen daño inicialmente y, tras unos instantes, aturden a todos aquellos que no hayan conseguido liberarse de ellas.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/MorganaR.png",
-    "cooldown": "120/110/100s"
-  },
-  {
-    "championId": "naafiri",
-    "championName": "Naafiri",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Carne fresca",
-    "description": "Naafiri genera miembros de la manada que atacan a los objetivos de sus ataques y habilidades.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Icons_Naafiri_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "naafiri",
-    "championName": "Naafiri",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Dagas de los Oscuros",
-    "description": "Naafiri lanza hasta dos dagas que aplican sangrado o daño adicional si el objetivo ya está sangrando.Los miembros de la manada atacan a los enemigos alcanzados.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NaafiriQ.png",
-    "cooldown": "9/8.5/8/7.5/7s"
-  },
-  {
-    "championId": "naafiri",
-    "championName": "Naafiri",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Persecución sabuesa",
-    "description": "Naafiri y su manada se deslizan hasta un enemigo, chocando contra el primer enemigo alcanzado al que le inflige daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NaafiriW.png",
-    "cooldown": "22/20/18/16/14s"
-  },
-  {
-    "championId": "naafiri",
-    "championName": "Naafiri",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Destripar",
-    "description": "Naafiri se desliza e inflige daño a los enemigos en una zona a su alrededor. Tras esto, llama a su manada y la cura al máximo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NaafiriE.png",
-    "cooldown": "10/9.5/9/8.5/8s"
-  },
-  {
-    "championId": "naafiri",
-    "championName": "Naafiri",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Llamada de la manada",
-    "description": "Naafiri potencia a su manada y genera más miembros. Obtiene una mejora de velocidad y de visión al instante. Al atacar a un campeón por primera vez, también obtiene un escudo.Al matar a un campeón por primera vez, se reinician todos los efectos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NaafiriR.png",
     "cooldown": "120/110/100s"
   },
   {
@@ -4400,56 +3700,6 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "neeko",
-    "championName": "Neeko",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Encanto innato",
-    "description": "Neeko puede adquirir la apariencia de un campeón aliado. Recibir daño de un campeón enemigo o lanzar hechizos de daño hace que pierda el disfraz.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Neeko_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "neeko",
-    "championName": "Neeko",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Estallido floreciente",
-    "description": "Neeko lanza una semilla que inflige daño mágico. La semilla vuelve a brotar si alcanza a campeones o si mata a alguna unidad.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NeekoQ.png",
-    "cooldown": "9/8.5/8/7.5/7s"
-  },
-  {
-    "championId": "neeko",
-    "championName": "Neeko",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Duplicaformas",
-    "description": "Cada tres ataques, Neeko inflige daño mágico adicional de forma pasiva. Neeko puede activar la habilidad para enviar a un clon en una dirección.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NeekoW.png",
-    "cooldown": "16/15/14/13/12s"
-  },
-  {
-    "championId": "neeko",
-    "championName": "Neeko",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Maraña de púas",
-    "description": "Neeko dispara una maraña que inflige daño e inmoviliza a todo lo que atraviesa. Si la maraña mata a un enemigo o atraviesa a un campeón, se vuelve más grande, más rápida e inmoviliza durante más tiempo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NeekoE.png",
-    "cooldown": "12/11.5/11/10.5/10s"
-  },
-  {
-    "championId": "neeko",
-    "championName": "Neeko",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Brote sorpresa",
-    "description": "Tras prepararse brevemente, Neeko pega un salto en el aire. Al aterrizar, daña y levanta por los aires a los enemigos cercanos. La preparación no puede verse si Neeko está disfrazada.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/NeekoR.png",
-    "cooldown": "120/105/90s"
-  },
-  {
     "championId": "nidalee",
     "championName": "Nidalee",
     "slot": "P",
@@ -4600,8 +3850,58 @@
     "cooldown": "140/115/90s"
   },
   {
-    "championId": "nunu",
-    "championName": "Nunu y Willump",
+    "championId": "norra",
+    "championName": "Norra",
+    "slot": "P",
+    "slotName": "Pasiva",
+    "name": "Portales del Reino Espiritual",
+    "description": "Al lanzar hechizos crea vórtices efímeros que potencian las curaciones, escudos y movilidad del equipo aliado.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "cooldown": ""
+  },
+  {
+    "championId": "norra",
+    "championName": "Norra",
+    "slot": "1",
+    "slotName": "Habilidad 1",
+    "name": "Proyectil Astral",
+    "description": "Lanza una esfera de energía espiritual que rebota entre enemigos infligiendo daño mágico creciente.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "cooldown": "7s"
+  },
+  {
+    "championId": "norra",
+    "championName": "Norra",
+    "slot": "2",
+    "slotName": "Habilidad 2",
+    "name": "Distorsión Dimensional",
+    "description": "Desplaza a un objetivo aliado o a sí misma a través de una grieta hacia una posición segura con velocidad extra.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "cooldown": "14s"
+  },
+  {
+    "championId": "norra",
+    "championName": "Norra",
+    "slot": "3",
+    "slotName": "Habilidad 3",
+    "name": "Vínculo de Bandle",
+    "description": "Enlaza a un aliado otorgándole maná continuo y daño mágico adicional en sus siguientes impactos.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "cooldown": "10s"
+  },
+  {
+    "championId": "norra",
+    "championName": "Norra",
+    "slot": "4",
+    "slotName": "Definitiva",
+    "name": "Puerta de Bandle",
+    "description": "Abre un portal cósmico masivo que succiona a los enemigos hacia el vórtice central, aturdiéndolos e infligiendo daño masivo.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/541.png",
+    "cooldown": "75s"
+  },
+  {
+    "championId": "nunu_willump",
+    "championName": "Nunu & Willump",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Llamada de Freljord",
@@ -4610,8 +3910,8 @@
     "cooldown": ""
   },
   {
-    "championId": "nunu",
-    "championName": "Nunu y Willump",
+    "championId": "nunu_willump",
+    "championName": "Nunu & Willump",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Voracidad",
@@ -4620,8 +3920,8 @@
     "cooldown": "12/11/10/9/8s"
   },
   {
-    "championId": "nunu",
-    "championName": "Nunu y Willump",
+    "championId": "nunu_willump",
+    "championName": "Nunu & Willump",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "¡La bola más grande de la historia!",
@@ -4630,8 +3930,8 @@
     "cooldown": "14s"
   },
   {
-    "championId": "nunu",
-    "championName": "Nunu y Willump",
+    "championId": "nunu_willump",
+    "championName": "Nunu & Willump",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Alud de bolas",
@@ -4640,8 +3940,8 @@
     "cooldown": "14/13/12/11/10s"
   },
   {
-    "championId": "nunu",
-    "championName": "Nunu y Willump",
+    "championId": "nunu_willump",
+    "championName": "Nunu & Willump",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Cero absoluto",
@@ -4950,106 +4250,6 @@
     "cooldown": "100/85/70s"
   },
   {
-    "championId": "qiyana",
-    "championName": "Qiyana",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Privilegio real",
-    "description": "El primer ataque básico o habilidad de Qiyana contra un enemigo inflige daño adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Qiyana_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "qiyana",
-    "championName": "Qiyana",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Ira elemental / Filo de Ixtal",
-    "description": "Qiyana blande su arma, inflige daño y aplica un efecto adicional que depende del elemento que controle en el momento.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QiyanaQ.png",
-    "cooldown": "7s"
-  },
-  {
-    "championId": "qiyana",
-    "championName": "Qiyana",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Terraformar",
-    "description": "Qiyana se desliza hacia una ubicación objetivo y aplica a su arma el encantamiento de un elemento. Sus ataques y habilidades infligen daño adicional cuando su arma está encantada.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QiyanaW.png",
-    "cooldown": "7s"
-  },
-  {
-    "championId": "qiyana",
-    "championName": "Qiyana",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Audacia",
-    "description": "Qiyana se desliza hasta un campeón enemigo y le inflige daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QiyanaE.png",
-    "cooldown": "11/10/9/8/7s"
-  },
-  {
-    "championId": "qiyana",
-    "championName": "Qiyana",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Muestra absoluta de talento",
-    "description": "Qiyana crea una onda de choque que hace explotar los elementos contra los que impacte, lo que aturde e inflige daño a los enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QiyanaR.png",
-    "cooldown": "120s"
-  },
-  {
-    "championId": "quinn",
-    "championName": "Quinn",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Acosar",
-    "description": "Valor, el águila demaciana de Quinn, marca a los enemigos de forma periódica y los vuelve vulnerables. El primer ataque básico de Quinn contra objetivos vulnerables infligirá daño físico adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Quinn_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "quinn",
-    "championName": "Quinn",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Asalto cegador",
-    "description": "Quinn ordena a Valor que marque a un enemigo y entorpezca su visión, para a continuación dañar a todos los enemigos de la zona circundante.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QuinnQ.png",
-    "cooldown": "11/10.5/10/9.5/9s"
-  },
-  {
-    "championId": "quinn",
-    "championName": "Quinn",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Sentidos aguzados",
-    "description": "Otorga pasivamente velocidad de ataque y velocidad de movimiento a Quinn después de atacar a un objetivo vulnerable. Al activarla, Valor revela una amplia zona alrededor.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QuinnW.png",
-    "cooldown": "50/45/40/35/30s"
-  },
-  {
-    "championId": "quinn",
-    "championName": "Quinn",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Acoso y derribo",
-    "description": "Quinn se abalanza sobre un enemigo infligiéndole daño físico y ralentizando su velocidad de movimiento. Una vez que lo alcanza lo interrumpe brevemente y retrocede de un salto aterrizando cerca de su alcance de ataque máximo, lejos del objetivo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QuinnE.png",
-    "cooldown": "12/11/10/9/8s"
-  },
-  {
-    "championId": "quinn",
-    "championName": "Quinn",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Tras las líneas enemigas",
-    "description": "Quinn y Valor vuelan juntos a gran velocidad. Poner fin a la habilidad lanza Golpe celestial, que inflige daño a los enemigos cercanos y marca a los campeones como vulnerables.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/QuinnR.png",
-    "cooldown": "3s"
-  },
-  {
     "championId": "rakan",
     "championName": "Rakan",
     "slot": "P",
@@ -5150,56 +4350,6 @@
     "cooldown": "90s"
   },
   {
-    "championId": "reksai",
-    "championName": "Rek'Sai",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Furia del Xer'Sai",
-    "description": "Rek'Sai genera furia cuando ataca o golpea con una habilidad básica. Consume esta furia mientras está bajo tierra para recuperar vida.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/RekSai_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "reksai",
-    "championName": "Rek'Sai",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Ira de la reina / Rastreadora",
-    "description": "Los siguientes 3 ataques básicos de Rek'Sai infligen daño físico adicional a todos los enemigos cercanos.Mientras está bajo tierra, Rek'Sai lanza una andanada de tierra que inflige daño y revela a los enemigos a los que golpee.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RekSaiQ.png",
-    "cooldown": "4/3.5/3/2.5/2s"
-  },
-  {
-    "championId": "reksai",
-    "championName": "Rek'Sai",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Excavar / Salir a la superficie",
-    "description": "Rek'Sai se mete bajo tierra, lo que le da acceso a habilidades nuevas y aumenta su velocidad de movimiento. No obstante, el alcance de visión se reduce y tampoco puede usar ataques básicos.Mientras está bajo tierra, Rek'Sai puede lanzar Salir a la superficie para causar daño a enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RekSaiW.png",
-    "cooldown": "4s"
-  },
-  {
-    "championId": "reksai",
-    "championName": "Rek'Sai",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Mordisco furioso / Túnel",
-    "description": "Rek'Sai muerde a su objetivo y le inflige daño adicional si dispone del máximo de furia.Mientras está bajo tierra, Rek'Sai crea un túnel reutilizable y duradero. Los enemigos pueden destruirlo al colocarse sobre cualquiera de sus entradas.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RekSaiE.png",
-    "cooldown": "10s"
-  },
-  {
-    "championId": "reksai",
-    "championName": "Rek'Sai",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Carrera del vacío",
-    "description": "Rek'Sai marca a los objetivos de forma pasiva al infligirles daño. Puede activar la habilidad para que no se la pueda seleccionar como objetivo durante unos instantes, se lance hacia un objetivo marcado y le inflija una gran cantidad de daño en función de la vida que le falte.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RekSaiR.png",
-    "cooldown": "100/90/80s"
-  },
-  {
     "championId": "rell",
     "championName": "Rell",
     "slot": "P",
@@ -5248,56 +4398,6 @@
     "description": "Rell genera una furiosa explosión magnética y atrae violentamente a los enemigos cercanos. Después, Rell atrae de forma constante a los enemigos cercanos hacia ella durante un breve periodo de tiempo, lo que inflige daño mágico a lo largo del tiempo.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RellR.png",
     "cooldown": "120/100/80s"
-  },
-  {
-    "championId": "renata",
-    "championName": "Renata Glasc",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Ventaja",
-    "description": "Los ataques de Renata infligen daño adicional y marcan a los enemigos. Los aliados de Renata pueden atacar a los enemigos marcados para infligirles daño adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Renata_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "renata",
-    "championName": "Renata Glasc",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Apretón de manos",
-    "description": "Renata lanza un misil que inmoviliza al primer enemigo golpeado y puede volver a lanzar la habilidad para arrojar a dicha unidad en cualquier dirección.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RenataQ.png",
-    "cooldown": "16s"
-  },
-  {
-    "championId": "renata",
-    "championName": "Renata Glasc",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Rescate financiero",
-    "description": "Renata potencia a un campeón aliado para que luche con más ahínco, lo que retrasa su muerte y, potencialmente, lo salva si consigue un asesinato o asistencia.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RenataW.png",
-    "cooldown": "28/27/26/25/24s"
-  },
-  {
-    "championId": "renata",
-    "championName": "Renata Glasc",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Programa de lealtad",
-    "description": "Renata dispara un par de misiles tecnoquímicos que otorgan escudos a los aliados e infligen daño y ralentizan a los enemigos golpeados.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RenataE.png",
-    "cooldown": "14/13/12/11/10s"
-  },
-  {
-    "championId": "renata",
-    "championName": "Renata Glasc",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Adquisición hostil",
-    "description": "Renata lanza una oleada de sustancias químicas en una dirección, lo que provoca que todos los enemigos golpeados se vuelvan furiosos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/RenataR.png",
-    "cooldown": "150/130/110s"
   },
   {
     "championId": "renekton",
@@ -5600,56 +4700,6 @@
     "cooldown": "5s"
   },
   {
-    "championId": "sejuani",
-    "championName": "Sejuani",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Furia del norte",
-    "description": "Cuando está fuera de combate, Sejuani obtiene Armadura de escarcha, lo cual le otorga armadura y resistencia mágica, así como inmunidad a las ralentizaciones. Armadura de escarcha persiste brevemente cuando Sejuani recibe daño. Sejuani puede dañar a un enemigo aturdido para hacerlo añicos, lo que le inflige una gran cantidad de daño mágico.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Sejuani_passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "sejuani",
-    "championName": "Sejuani",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Asalto ártico",
-    "description": "Sejuani carga hacia delante y lanza a los enemigos por los aires. La carga se detiene tras golpear a un campeón enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SejuaniQ.png",
-    "cooldown": "19/17.5/16/14.5/13s"
-  },
-  {
-    "championId": "sejuani",
-    "championName": "Sejuani",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Cólera del invierno",
-    "description": "Sejuani blande su maza dos veces, lo que inflige daño, ralentiza a los enemigos y aplica acumulaciones de Escarcha.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SejuaniW.png",
-    "cooldown": "9/8/7/6/5s"
-  },
-  {
-    "championId": "sejuani",
-    "championName": "Sejuani",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Congelación permanente",
-    "description": "Sejuani congela y aturde a un campeón enemigo que tenga el máximo de acumulaciones de Escarcha.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SejuaniE.png",
-    "cooldown": "1.5s"
-  },
-  {
-    "championId": "sejuani",
-    "championName": "Sejuani",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Prisión glacial",
-    "description": "Sejuani lanza su boleadora, que congela y aturde al primer campeón al que golpea y crea una tormenta de hielo que ralentiza a los demás enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SejuaniR.png",
-    "cooldown": "130/110/90s"
-  },
-  {
     "championId": "senna",
     "championName": "Senna",
     "slot": "P",
@@ -5798,56 +4848,6 @@
     "description": "Sett levanta a un campeón enemigo y lo estampa contra el suelo, lo que inflige daño y ralentiza a todos los enemigos próximos a la zona de impacto.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SettR.png",
     "cooldown": "120/100/80s"
-  },
-  {
-    "championId": "shaco",
-    "championName": "Shaco",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Puñalada por la espalda",
-    "description": "El ataque básico de Shaco y Veneno de doble filo infligen daño adicional cuando golpean a los enemigos por detrás.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Jester_CarefulStrikes.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "shaco",
-    "championName": "Shaco",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Engañar",
-    "description": "Shaco se hace invisible y se teleporta hasta el lugar seleccionado.Cuando es invisible, su primer ataque está potenciado, por lo que inflige daño adicional y el ataque es crítico si ataca por la espalda.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/Deceive.png",
-    "cooldown": "12/11.5/11/10.5/10s"
-  },
-  {
-    "championId": "shaco",
-    "championName": "Shaco",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Caja sorpresa",
-    "description": "Shaco crea una caja sorpresa animada e invisible. Cuando se activa, la caja asusta y luego ataca a los enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/JackInTheBox.png",
-    "cooldown": "15s"
-  },
-  {
-    "championId": "shaco",
-    "championName": "Shaco",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Veneno de doble filo",
-    "description": "Los puñales de Shaco envenenan de forma pasiva a los objetivos, lo que reduce su velocidad de movimiento. Puede lanzarlos para infligir daño a sus objetivos y envenenarlos. Si el objetivo tiene menos del 30% de la vida, los puñales infligen daño adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TwoShivPoison.png",
-    "cooldown": "8s"
-  },
-  {
-    "championId": "shaco",
-    "championName": "Shaco",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Alucinación",
-    "description": "Shaco crea una réplica ilusoria de sí mismo en las proximidades que puede atacar a los enemigos cercanos (aunque causa daño reducido a las torretas). Al morir, explota, lo que hace aparecer tres minicajas sorpresa y causa daño a los enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/HallucinateFull.png",
-    "cooldown": "100/90/80s"
   },
   {
     "championId": "shen",
@@ -6350,56 +5350,6 @@
     "cooldown": "100/80/60s"
   },
   {
-    "championId": "sylas",
-    "championName": "Sylas",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Arranque de petricita",
-    "description": "Tras lanzar un hechizo, Sylas acumula una carga de Arranque de petricita. Los ataques básicos de Sylas gastan una carga y hacen que sus cadenas giren alrededor de él, lo que inflige daño mágico adicional a los enemigos golpeados. Mientras Sylas tiene una carga de Arranque de petricita, obtiene velocidad de ataque.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/SylasP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "sylas",
-    "championName": "Sylas",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Latigazo de cadenas",
-    "description": "Sylas arremete con sus cadenas, que se cruzan en la ubicación objetivo e infligen daño a los enemigos y los ralentizan. Tras unos segundos, se produce una explosión de energía mágica desde el punto de intersección de las cadenas, lo que inflige daño.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SylasQ.png",
-    "cooldown": "10/9/8/7/6s"
-  },
-  {
-    "championId": "sylas",
-    "championName": "Sylas",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Matarreyes",
-    "description": "Sylas embiste a un enemigo con fuerza mágica para infligir daño y curarse a sí mismo contra campeones enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SylasW.png",
-    "cooldown": "12/10.5/9/7.5/6s"
-  },
-  {
-    "championId": "sylas",
-    "championName": "Sylas",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Fuga / Rapto",
-    "description": "Sylas se desliza hacia una ubicación. Puede volver a usar la habilidad para lanzar sus cadenas y deslizarse hasta el enemigo que golpee.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SylasE.png",
-    "cooldown": "13/12/11/10/9s"
-  },
-  {
-    "championId": "sylas",
-    "championName": "Sylas",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Apropiación",
-    "description": "Sylas roba la habilidad definitiva del enemigo y puede lanzarla libremente.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SylasR.png",
-    "cooldown": "80/55/30s"
-  },
-  {
     "championId": "syndra",
     "championName": "Syndra",
     "slot": "P",
@@ -6448,56 +5398,6 @@
     "description": "Syndra bombardea a un campeón enemigo con todas sus Esferas oscuras.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SyndraR.png",
     "cooldown": "120/100/80s"
-  },
-  {
-    "championId": "tahmkench",
-    "championName": "Tahm Kench",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Paladar peculiar",
-    "description": "Tahm Kench utiliza su fuerza corporal para reforzar sus ataques, con lo que obtiene daño extra en función de su vida total. Consigue acumulaciones de Paladar peculiar al infligir daño a los campeones enemigos. Con tres acumulaciones, puede usar Devorar contra un campeón enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/TahmKenchP.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "tahmkench",
-    "championName": "Tahm Kench",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Lengüetazo",
-    "description": "Tahm Kench lanza un lengüetazo que daña y ralentiza a la primera unidad alcanzada. Además, se cura a sí mismo si golpea a un campeón enemigo.Aplica una acumulación de Paladar peculiar a los campeones enemigos. Si el campeón ya tiene 3 acumulaciones de Paladar peculiar, resulta aturdido y se consumen las acumulaciones.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TahmKenchQ.png",
-    "cooldown": "7/6.5/6/5.5/5s"
-  },
-  {
-    "championId": "tahmkench",
-    "championName": "Tahm Kench",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Inmersión abisal",
-    "description": "Se sumerge y vuelve a aparecer en la ubicación objetivo, lo que inflige daño y lanza por los aires a todos los enemigos en una zona.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TahmKenchW.png",
-    "cooldown": "21/20/19/18/17s"
-  },
-  {
-    "championId": "tahmkench",
-    "championName": "Tahm Kench",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Piel gruesa",
-    "description": "Pasiva: Tahm Kench acumula un porcentaje del daño que recibe y se cura según dicho porcentaje cuando no está en combate.Activa: Convierte todo el daño acumulado en un escudo temporal.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TahmKenchE.png",
-    "cooldown": "3s"
-  },
-  {
-    "championId": "tahmkench",
-    "championName": "Tahm Kench",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Devorar",
-    "description": "Tahm Kench devora a un campeón durante unos segundos, lo que inflige daño mágico si es un enemigo o lo protege si es un aliado.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TahmKenchRWrapper.png",
-    "cooldown": "0s"
   },
   {
     "championId": "taliyah",
@@ -6598,56 +5498,6 @@
     "description": "Talon esparce un anillo de hojas, se hace invisible y consigue velocidad de movimiento adicional. Cuando se hace visible de nuevo, las hojas convergen sobre él. Cada vez que se mueven las hojas, Asalto de sombra inflige daño físico a los enemigos alcanzados al menos por una de ellas.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TalonR.png",
     "cooldown": "100/80/60s"
-  },
-  {
-    "championId": "taric",
-    "championName": "Taric",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Bravuconería",
-    "description": "Los hechizos potencian los dos siguientes ataques básicos de Taric; infligen daño mágico adicional, reducen el enfriamiento de sus hechizos y atacan en una sucesión rápida.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Taric_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "taric",
-    "championName": "Taric",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Toque de luz estelar",
-    "description": "Cura a los aliados cercanos según las cargas acumuladas. Los ataques potenciados por Bravuconería otorgan una carga de Toque de luz estelar.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TaricQ.png",
-    "cooldown": "3s"
-  },
-  {
-    "championId": "taric",
-    "championName": "Taric",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Bastión",
-    "description": "Aumenta de forma pasiva la armadura de Taric y del aliado vinculado con Bastión.Al activarlo, coloca un escudo a un aliado y le otorga Bastión mientras que permanezca cerca de Taric. Los hechizos de Taric también se lanzan desde el aliado vinculado por Bastión.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TaricW.png",
-    "cooldown": "15s"
-  },
-  {
-    "championId": "taric",
-    "championName": "Taric",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Desorientación",
-    "description": "Taric prepara un rayo de luz estelar que, tras un breve momento, inflige daño mágico y aturde a los enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TaricE.png",
-    "cooldown": "16/15/14/13/12s"
-  },
-  {
-    "championId": "taric",
-    "championName": "Taric",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Esplendor cósmico",
-    "description": "Emite energía cósmica a los campeones aliados cercanos tras un breve lapso de tiempo, lo que los hace invulnerables durante unos instantes.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TaricR.png",
-    "cooldown": "180/150/120s"
   },
   {
     "championId": "teemo",
@@ -6800,56 +5650,6 @@
     "cooldown": "100s"
   },
   {
-    "championId": "trundle",
-    "championName": "Trundle",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Tributo al rey",
-    "description": "Cuando una unidad enemiga próxima a Trundle muere, este recupera un porcentaje de su vida máxima.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Trundle_Passive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "trundle",
-    "championName": "Trundle",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Mascar",
-    "description": "Trundle muerde a su oponente, provocándole daños, ralentizándolo brevemente y minando un poco su daño de ataque.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TrundleTrollSmash.png",
-    "cooldown": "3.5s"
-  },
-  {
-    "championId": "trundle",
-    "championName": "Trundle",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Reino helado",
-    "description": "Trundle convierte una zona objetivo en su reino, ganando velocidad de ataque, velocidad de movimiento y aumentando la curación de todas las fuentes mientras esté en ella.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/trundledesecrate.png",
-    "cooldown": "16/15/14/13/12s"
-  },
-  {
-    "championId": "trundle",
-    "championName": "Trundle",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Pilar de hielo",
-    "description": "Trundle crea un pilar de hielo en un lugar determinado, que se convierte en un terreno infranqueable y ralentiza a las unidades enemigas cercanas.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TrundleCircle.png",
-    "cooldown": "24/22/20/18/16s"
-  },
-  {
-    "championId": "trundle",
-    "championName": "Trundle",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Subyugar",
-    "description": "Trundle roba instantáneamente un porcentaje de la vida del enemigo, de su armadura y de su resistencia mágica. Durante los siguientes 4 s, se dobla la cantidad de vida, armadura y resistencia mágica robada.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TrundlePain.png",
-    "cooldown": "120/100/80s"
-  },
-  {
     "championId": "tryndamere",
     "championName": "Tryndamere",
     "slot": "P",
@@ -6900,7 +5700,7 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "twistedfate",
+    "championId": "twisted_fate",
     "championName": "Twisted Fate",
     "slot": "P",
     "slotName": "Pasiva",
@@ -6910,7 +5710,7 @@
     "cooldown": ""
   },
   {
-    "championId": "twistedfate",
+    "championId": "twisted_fate",
     "championName": "Twisted Fate",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -6920,7 +5720,7 @@
     "cooldown": "6/5.75/5.5/5.25/5s"
   },
   {
-    "championId": "twistedfate",
+    "championId": "twisted_fate",
     "championName": "Twisted Fate",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -6930,7 +5730,7 @@
     "cooldown": "6s"
   },
   {
-    "championId": "twistedfate",
+    "championId": "twisted_fate",
     "championName": "Twisted Fate",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -6940,7 +5740,7 @@
     "cooldown": "0s"
   },
   {
-    "championId": "twistedfate",
+    "championId": "twisted_fate",
     "championName": "Twisted Fate",
     "slot": "4",
     "slotName": "Definitiva",
@@ -6998,56 +5798,6 @@
     "description": "Twitch desata todo el poder de su ballesta y dispara proyectiles a gran distancia que atraviesan a los enemigos que encuentran en su camino.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/TwitchFullAutomatic.png",
     "cooldown": "90s"
-  },
-  {
-    "championId": "udyr",
-    "championName": "Udyr",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Puente entre mundos",
-    "description": "Udyr tiene cuatro habilidades básicas que puede usar para cambiar de posición y puede volver a lanzarlas para obtener beneficios de la definitiva. Además, tras usar una habilidad, los siguientes dos ataques de Udyr obtienen velocidad de ataque.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Udyr_P.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "udyr",
-    "championName": "Udyr",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Garra bestial",
-    "description": "Udyr obtiene velocidad de ataque y sus dos siguientes ataques infligen daño físico adicional. Reactivación: Obtiene aún más velocidad de ataque y los siguientes dos ataques invocan rayos que golpean al objetivo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/UdyrQ.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "udyr",
-    "championName": "Udyr",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Manto férreo",
-    "description": "Udyr obtiene un escudo y sus dos siguientes ataques lo curan. Reactivación: Otorga un escudo aún mayor y se cura según la vida máxima durante un par de segundos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/UdyrW.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "udyr",
-    "championName": "Udyr",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Estampida llameante",
-    "description": "Udyr obtiene velocidad de movimiento y aturde a cada objetivo con su primer ataque. Reactivación: Obtiene aún más velocidad de movimiento e inmunidad a los efectos de inmovilización durante un par de segundos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/UdyrE.png",
-    "cooldown": "6s"
-  },
-  {
-    "championId": "udyr",
-    "championName": "Udyr",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Tormenta alada",
-    "description": "Udyr se rodea de una ventisca que inflige daño y ralentiza a los enemigos cercanos. Reactivación: Potencia y libera la tormenta, que persigue a los enemigos e inflige daño adicional.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/UdyrR.png",
-    "cooldown": "6s"
   },
   {
     "championId": "urgot",
@@ -7250,7 +6000,7 @@
     "cooldown": "100/80/60s"
   },
   {
-    "championId": "velkoz",
+    "championId": "vel_koz",
     "championName": "Vel'Koz",
     "slot": "P",
     "slotName": "Pasiva",
@@ -7260,7 +6010,7 @@
     "cooldown": ""
   },
   {
-    "championId": "velkoz",
+    "championId": "vel_koz",
     "championName": "Vel'Koz",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -7270,7 +6020,7 @@
     "cooldown": "7s"
   },
   {
-    "championId": "velkoz",
+    "championId": "vel_koz",
     "championName": "Vel'Koz",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -7280,7 +6030,7 @@
     "cooldown": "1.5s"
   },
   {
-    "championId": "velkoz",
+    "championId": "vel_koz",
     "championName": "Vel'Koz",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -7290,7 +6040,7 @@
     "cooldown": "16/15/14/13/12s"
   },
   {
-    "championId": "velkoz",
+    "championId": "vel_koz",
     "championName": "Vel'Koz",
     "slot": "4",
     "slotName": "Definitiva",
@@ -7650,7 +6400,7 @@
     "cooldown": "110/90/70s"
   },
   {
-    "championId": "monkeyking",
+    "championId": "wukong",
     "championName": "Wukong",
     "slot": "P",
     "slotName": "Pasiva",
@@ -7660,7 +6410,7 @@
     "cooldown": ""
   },
   {
-    "championId": "monkeyking",
+    "championId": "wukong",
     "championName": "Wukong",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -7670,7 +6420,7 @@
     "cooldown": "8/7.5/7/6.5/6s"
   },
   {
-    "championId": "monkeyking",
+    "championId": "wukong",
     "championName": "Wukong",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -7680,7 +6430,7 @@
     "cooldown": "22/20/18/16/14s"
   },
   {
-    "championId": "monkeyking",
+    "championId": "wukong",
     "championName": "Wukong",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -7690,7 +6440,7 @@
     "cooldown": "10/9.25/8.5/7.75/7s"
   },
   {
-    "championId": "monkeyking",
+    "championId": "wukong",
     "championName": "Wukong",
     "slot": "4",
     "slotName": "Definitiva",
@@ -7750,57 +6500,7 @@
     "cooldown": "140/120/100s"
   },
   {
-    "championId": "xerath",
-    "championName": "Xerath",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "Sobrecarga de maná",
-    "description": "Los ataques básicos de Xerath restauran maná de manera periódica. Cuando Xerath asesina a una unidad, este enfriamiento se reduce.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Xerath_Passive1.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "xerath",
-    "championName": "Xerath",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Pulso arcano",
-    "description": "Dispara un rayo de energía de largo alcance que inflige daño mágico a todos los objetivos impactados.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/XerathArcanopulseChargeUp.png",
-    "cooldown": "9/8/7/6/5s"
-  },
-  {
-    "championId": "xerath",
-    "championName": "Xerath",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Ojo de destrucción",
-    "description": "Invoca un rayo de energía arcana que ralentiza e inflige daño mágico a todos los enemigos de una zona. Los enemigos en el epicentro reciben daño adicional y una mayor ralentización.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/XerathArcaneBarrage2.png",
-    "cooldown": "14/13/12/11/10s"
-  },
-  {
-    "championId": "xerath",
-    "championName": "Xerath",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Orbe impactante",
-    "description": "Inflige daño mágico a un enemigo y lo aturde.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/XerathMageSpear.png",
-    "cooldown": "13/12.5/12/11.5/11s"
-  },
-  {
-    "championId": "xerath",
-    "championName": "Xerath",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "Rito del arcano",
-    "description": "Xerath se inmoviliza y obtiene varias andanadas de gran alcance.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/XerathLocusOfPower2.png",
-    "cooldown": "130/115/100s"
-  },
-  {
-    "championId": "xinzhao",
+    "championId": "xin_zhao",
     "championName": "Xin Zhao",
     "slot": "P",
     "slotName": "Pasiva",
@@ -7810,7 +6510,7 @@
     "cooldown": ""
   },
   {
-    "championId": "xinzhao",
+    "championId": "xin_zhao",
     "championName": "Xin Zhao",
     "slot": "1",
     "slotName": "Habilidad 1",
@@ -7820,7 +6520,7 @@
     "cooldown": "7/6.5/6/5.5/5s"
   },
   {
-    "championId": "xinzhao",
+    "championId": "xin_zhao",
     "championName": "Xin Zhao",
     "slot": "2",
     "slotName": "Habilidad 2",
@@ -7830,7 +6530,7 @@
     "cooldown": "12/11/10/9/8s"
   },
   {
-    "championId": "xinzhao",
+    "championId": "xin_zhao",
     "championName": "Xin Zhao",
     "slot": "3",
     "slotName": "Habilidad 3",
@@ -7840,7 +6540,7 @@
     "cooldown": "11s"
   },
   {
-    "championId": "xinzhao",
+    "championId": "xin_zhao",
     "championName": "Xin Zhao",
     "slot": "4",
     "slotName": "Definitiva",
@@ -7950,54 +6650,54 @@
     "cooldown": "120/100/80s"
   },
   {
-    "championId": "yorick",
-    "championName": "Yorick",
+    "championId": "yunara",
+    "championName": "Yunara",
     "slot": "P",
     "slotName": "Pasiva",
-    "name": "Pastor de Almas",
-    "description": "La horda maldita: Yorick puede invocar a caminantes de la niebla para que hostiguen y ataquen a los enemigos cercanos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Yorick_P.png",
+    "name": "Hilos de Penumbra",
+    "description": "Los ataques básicos aplican acumulaciones de seda negra. El tercer impacto detona infligiendo daño verdadero.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
     "cooldown": ""
   },
   {
-    "championId": "yorick",
-    "championName": "Yorick",
+    "championId": "yunara",
+    "championName": "Yunara",
     "slot": "1",
     "slotName": "Habilidad 1",
-    "name": "Ritos funerarios",
-    "description": "Yorick inflige daño adicional en su siguiente ataque y se cura. Si muere un objetivo, se cavará una tumba.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YorickQ.png",
-    "cooldown": "7/6.25/5.5/4.75/4s"
+    "name": "Flechas de Seda Negra",
+    "description": "Dispara una ráfaga de proyectiles oscuros que dañan y ralentizan al primer objetivo alcanzado.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "cooldown": "5s"
   },
   {
-    "championId": "yorick",
-    "championName": "Yorick",
+    "championId": "yunara",
+    "championName": "Yunara",
     "slot": "2",
     "slotName": "Habilidad 2",
-    "name": "Cortejo oscuro",
-    "description": "Yorick invoca un muro destruible en la ubicación objetivo que bloqueará el movimiento enemigo.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YorickW.png",
-    "cooldown": "20/18/16/14/12s"
+    "name": "Paso Espectral",
+    "description": "Se envuelve en sombras ganando camuflaje momentáneo y un aumento sustancial de velocidad de ataque.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "cooldown": "12s"
   },
   {
-    "championId": "yorick",
-    "championName": "Yorick",
+    "championId": "yunara",
+    "championName": "Yunara",
     "slot": "3",
     "slotName": "Habilidad 3",
-    "name": "Niebla de luto",
-    "description": "Yorick lanza un glóbulo de Niebla Negra que inflige daño, ralentiza y marca a los enemigos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YorickE.png",
-    "cooldown": "12/11/10/9/8s"
+    "name": "Red de Espinas",
+    "description": "Despliega una red de seda punzante que inmoviliza a los enemigos que la atraviesen.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "cooldown": "11s"
   },
   {
-    "championId": "yorick",
-    "championName": "Yorick",
+    "championId": "yunara",
+    "championName": "Yunara",
     "slot": "4",
     "slotName": "Definitiva",
-    "name": "Panegírico de las Islas",
-    "description": "Yorick invoca a la Dama de la Niebla, que provoca que los ataques de Yorick al objetivo de la Dama inflijan daño adicional. La Dama además convertirá a los enemigos muertos en caminantes.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YorickR.png",
-    "cooldown": "160/130/100s"
+    "name": "Tormenta del Telar",
+    "description": "Desata una lluvia torrencial de agujas de sombra que acribilla la zona e inflige daño crítico letal.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/542.png",
+    "cooldown": "60s"
   },
   {
     "championId": "yuumi",
@@ -8048,56 +6748,6 @@
     "description": "Yuumi canaliza cinco oleadas que dañan a los enemigos y curan a los aliados. Yuumi puede moverse, vincularse y lanzar Presteza gatuna durante la canalización. Mientras esté con su mejor amigui, esta habilidad sigue el cursor del ratón.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YuumiR.png",
     "cooldown": "120/110/100s"
-  },
-  {
-    "championId": "zac",
-    "championName": "Zac",
-    "slot": "P",
-    "slotName": "Pasiva",
-    "name": "División celular",
-    "description": "Cada vez que Zac alcanza a un enemigo con una habilidad, pierde un trozo de sí mismo que puede reabsorberse para recuperar vida. Al recibir un golpe letal, Zac se divide en cuatro partículas que intentan recombinarse. Si alguna de las partículas perdura, revivirá con una cantidad de vida según la vida de las células restantes. Cada partícula tiene un porcentaje de la vida máxima, de la armadura y de la resistencia mágica de Zac. Esta habilidad tiene un enfriamiento de 5 minutos.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/ZacPassive.png",
-    "cooldown": ""
-  },
-  {
-    "championId": "zac",
-    "championName": "Zac",
-    "slot": "1",
-    "slotName": "Habilidad 1",
-    "name": "Manos locas",
-    "description": "Zac estira el brazo y agarra a un enemigo. Si ataca a un enemigo diferente, lanzará a cada objetivo contra el otro.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ZacQ.png",
-    "cooldown": "14/12.5/11/9.5/8s"
-  },
-  {
-    "championId": "zac",
-    "championName": "Zac",
-    "slot": "2",
-    "slotName": "Habilidad 2",
-    "name": "Materia inestable",
-    "description": "Zac explota en dirección a los enemigos cercanos e inflige un porcentaje de sus vidas máximas en forma de daño mágico.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ZacW.png",
-    "cooldown": "5s"
-  },
-  {
-    "championId": "zac",
-    "championName": "Zac",
-    "slot": "3",
-    "slotName": "Habilidad 3",
-    "name": "Honda elástica",
-    "description": "Zac pega los brazos al suelo y se estira hacia atrás para lanzarse hacia delante.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ZacE.png",
-    "cooldown": "22/19/16/13/10s"
-  },
-  {
-    "championId": "zac",
-    "championName": "Zac",
-    "slot": "4",
-    "slotName": "Definitiva",
-    "name": "¡Rebotemos!",
-    "description": "Zac rebota cuatro veces, lanza por los aires a los enemigos golpeados y los ralentiza.",
-    "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/ZacR.png",
-    "cooldown": "120/105/90s"
   },
   {
     "championId": "zed",

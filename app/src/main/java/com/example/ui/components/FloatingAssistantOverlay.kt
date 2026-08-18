@@ -333,7 +333,9 @@ fun FloatingAssistantOverlay(
                                         text = {
                                             Text(
                                                 text = tab.title,
-                                                fontSize = 11.5.sp,
+                                                fontSize = 11.sp,
+                                                maxLines = 1,
+                                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                                 color = if (isSelected) HextechGold else TextMuted
                                             )

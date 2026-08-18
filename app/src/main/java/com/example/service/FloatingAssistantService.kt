@@ -58,6 +58,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -92,6 +96,8 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSPlusColor
 import kotlin.math.abs
+
+import kotlin.math.roundToInt
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
 
@@ -202,7 +208,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
-            x = 30
+            x = 24
             y = 200
         }
 
@@ -288,9 +294,9 @@ private fun FloatingOverlayContent(
 
     Column(
         horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(4.dp)
+        modifier = Modifier.padding(2.dp)
     ) {
-        // Floating Bubble Button (Draggable)
+        // Floating Bubble Button (Arastrable y clicable)
         Box(
             modifier = Modifier
                 .size(52.dp)
@@ -305,6 +311,12 @@ private fun FloatingOverlayContent(
                     )
                 )
                 .border(2.dp, HextechGold, CircleShape)
+                .pointerInput(Unit) {
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
+                    }
+                }
                 .clickable {
                     isExpanded = !isExpanded
                 },
@@ -312,7 +324,7 @@ private fun FloatingOverlayContent(
         ) {
             Icon(
                 imageVector = Icons.Default.Videocam,
-                contentDescription = "Asistente Flotante",
+                contentDescription = "Asistente Flotante Wild Rift",
                 tint = Color.White,
                 modifier = Modifier.size(26.dp)
             )
@@ -327,7 +339,7 @@ private fun FloatingOverlayContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Expanded Panel
         AnimatedVisibility(
@@ -337,27 +349,34 @@ private fun FloatingOverlayContent(
         ) {
             Card(
                 modifier = Modifier
-                    .width(320.dp)
+                    .width(330.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.96f)),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp)
+                        .padding(10.dp)
                 ) {
-                    // Header
+                    // Header con botón de arrastre y minimizar
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectDragGestures { change, dragAmount ->
+                                    change.consume()
+                                    onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
+                                }
+                            },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Wild Rift HUD Activo", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Wild Rift HUD Inteligente", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                         }
                         IconButton(
                             onClick = { isExpanded = false },
@@ -369,7 +388,7 @@ private fun FloatingOverlayContent(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // Tab Selector in Mini HUD
+                    // Tab Selector in Mini HUD (sin recortes)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -394,7 +413,9 @@ private fun FloatingOverlayContent(
                                     text = label,
                                     color = if (isTabSelected) HextechDarkBg else TextMuted,
                                     fontSize = 10.5.sp,
-                                    fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium
+                                    fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -406,22 +427,56 @@ private fun FloatingOverlayContent(
                     when (selectedTab) {
                         0 -> {
                             // DRAFT TAB
+                            // Selector de Líneas
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                LaneRole.entries.forEach { role ->
+                                    val isSelected = activeRole == role
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(if (isSelected) HextechCyan else HextechSurface)
+                                            .border(1.dp, if (isSelected) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
+                                            .clickable { activeRole = role }
+                                            .padding(vertical = 3.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = role.shortName,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (isSelected) HextechDarkBg else TextPrimary
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) "★ 1er Pick (Seguro)" else "★ Mejor Opción",
+                                    text = if (isFirstPick) "★ 1er Pick (Seguro)" else "★ MEJOR OPCIÓN (${activeRole.shortName})",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = if (isFirstPick) "Modo: Blind Pick" else "Modo: Counter",
+                                    text = if (isFirstPick) "Blind Pick" else "Counter Pick",
                                     color = HextechCyan,
                                     fontSize = 10.sp,
-                                    modifier = Modifier.clickable { isFirstPick = !isFirstPick }
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechSurface)
+                                        .clickable { isFirstPick = !isFirstPick }
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
 
@@ -433,6 +488,7 @@ private fun FloatingOverlayContent(
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(10.dp))
                                         .background(HextechSurface)
+                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
                                         .clickable {
                                             lockedChampion = topPick.champion
                                             selectedTab = 3
@@ -440,12 +496,23 @@ private fun FloatingOverlayContent(
                                         .padding(8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    ChampionAvatar(champion = topPick.champion, size = 38.dp)
+                                    ChampionAvatar(champion = topPick.champion, size = 40.dp)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(topPick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("WR: ${topPick.estimatedWinrate}% • ${topPick.advantageBadge}", color = HextechGold, fontSize = 10.5.sp)
-                                        Text(topPick.tacticalReason, color = TextMuted, fontSize = 9.5.sp, maxLines = 2)
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(topPick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(3.dp))
+                                                    .background(TierSPlusColor)
+                                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(topPick.champion.tier, color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Black)
+                                            }
+                                        }
+                                        Text("WR: ${topPick.estimatedWinrate}% • ${topPick.advantageBadge}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                        Text(topPick.tacticalReason, color = TextMuted, fontSize = 9.sp, maxLines = 2)
                                     }
                                 }
                             }
@@ -454,7 +521,7 @@ private fun FloatingOverlayContent(
                         1 -> {
                             // OBJETIVOS TAB
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                WildRiftRepository.mapObjectives.take(3).forEach { obj ->
+                                WildRiftRepository.mapObjectives.forEach { obj ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -464,7 +531,7 @@ private fun FloatingOverlayContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Column {
+                                        Column(modifier = Modifier.weight(1f)) {
                                             Text(obj.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                             Text(obj.buffDescription, color = TextMuted, fontSize = 9.sp, maxLines = 1)
                                         }
@@ -477,7 +544,7 @@ private fun FloatingOverlayContent(
                         2 -> {
                             // OBJETOS TAB
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                WildRiftRepository.items.take(3).forEach { item ->
+                                WildRiftRepository.items.take(4).forEach { item ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -491,65 +558,37 @@ private fun FloatingOverlayContent(
                                             Text(item.name, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                             Text(item.passive, color = TextMuted, fontSize = 9.sp, maxLines = 1)
                                         }
-                                        Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp)
+                                        Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
                         }
 
                         3 -> {
-                            // RUNAS TAB (SOLO CON CAMPEON FIJADO)
-                            if (lockedChampion == null) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurface)
-                                        .padding(10.dp),
-                                    contentAlignment = Alignment.Center
+                            // RUNAS TAB
+                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            text = "Selecciona un campeón en Draft para cargar sus Runas",
-                                            color = HextechCyan,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "O fija a ${topPick?.champion?.name ?: "Morgana"}",
-                                            color = HextechGold,
-                                            fontSize = 10.sp,
-                                            modifier = Modifier.clickable {
-                                                lockedChampion = topPick?.champion ?: WildRiftRepository.champions.first()
-                                            }
-                                        )
-                                    }
+                                    Text("Runas de ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text("Ver otro", color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
                                 }
-                            } else {
-                                val currentChamp = lockedChampion ?: return@Column
-                                Column {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("Runas de ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                        Text("Cambiar", color = TextMuted, fontSize = 10.sp, modifier = Modifier.clickable { lockedChampion = null })
-                                    }
-                                    Spacer(modifier = Modifier.height(3.dp))
-                                    Text(
-                                        text = currentChamp.recommendedRunes,
-                                        color = HextechCyan,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Build: ${currentChamp.coreItems.joinToString(" • ")}",
-                                        color = TextMuted,
-                                        fontSize = 9.5.sp
-                                    )
-                                }
+                                Spacer(modifier = Modifier.height(3.dp))
+                                Text(
+                                    text = currentChamp.recommendedRunes,
+                                    color = HextechCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Build: ${currentChamp.coreItems.joinToString(" • ")}",
+                                    color = TextMuted,
+                                    fontSize = 9.5.sp
+                                )
                             }
                         }
                     }
@@ -562,19 +601,25 @@ private fun FloatingOverlayContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Cerrar Superposición",
+                            text = "Detener Asistente",
                             color = DangerRed,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { onClose() }
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { onClose() }
+                                .padding(4.dp)
                         )
 
                         Text(
-                            text = "Minimizar",
+                            text = "Minimizar HUD",
                             color = HextechCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { isExpanded = false }
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { isExpanded = false }
+                                .padding(4.dp)
                         )
                     }
                 }

@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,18 +21,28 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,16 +50,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.model.LaneRole
-import com.example.ui.components.FloatingAssistantOverlay
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.RoleIconType
 import com.example.ui.components.RoleSelectorCard
 import com.example.ui.components.WildRiftVersionBanner
+import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -57,6 +73,7 @@ import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.util.SystemPermissionHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +87,39 @@ fun MainDraftingScreen(
     autofillRole: LaneRole,
     onAutofillRoleChange: (LaneRole) -> Unit
 ) {
-    var isAssistantActive by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    // Sincronizar estado del servicio cuando la app pasa a primer plano
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                isAssistantActive = SystemPermissionHelper.isServiceRunning(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    val toggleAssistant: () -> Unit = {
+        if (isAssistantActive) {
+            SystemPermissionHelper.stopFloatingService(context)
+            isAssistantActive = false
+        } else {
+            if (!SystemPermissionHelper.hasOverlayPermission(context)) {
+                showPermissionDialog = true
+            } else {
+                SystemPermissionHelper.startFloatingService(context)
+                isAssistantActive = true
+                // Enviar inmediatamente la aplicación a segundo plano para flotar sobre Wild Rift
+                (context as? Activity)?.moveTaskToBack(true)
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -127,6 +176,77 @@ fun MainDraftingScreen(
                 WildRiftVersionBanner()
 
                 Spacer(modifier = Modifier.height(14.dp))
+
+                // Banner de estado activo en segundo plano (si el servicio está corriendo)
+                if (isAssistantActive) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp)),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechCyan)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechCyan)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Asistente Activo en Segundo Plano",
+                                    color = HextechCyan,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "La cámara/burbuja flotante está activa sobre tu pantalla. Puedes abrir Wild Rift ahora.",
+                                color = TextMuted,
+                                fontSize = 11.5.sp
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        (context as? Activity)?.moveTaskToBack(true)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Ir a Wild Rift", color = HextechDarkBg, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+
+                                OutlinedButton(
+                                    onClick = {
+                                        SystemPermissionHelper.stopFloatingService(context)
+                                        isAssistantActive = false
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.7f))
+                                ) {
+                                    Icon(Icons.Default.Stop, contentDescription = null, tint = DangerRed, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Detener", color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
 
                 // 1. Línea Main Selector Card
                 RoleSelectorCard(
@@ -222,29 +342,69 @@ fun MainDraftingScreen(
                 // Botón Orbe Hextech 3D Central de Activación Inmediata
                 HextechOrbButton(
                     isActive = isAssistantActive,
-                    onToggle = {
-                        isAssistantActive = !isAssistantActive
-                    }
+                    onToggle = toggleAssistant
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Presiona ACTIVAR para iniciar el Asistente",
+                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Presiona ACTIVAR para iniciar el Asistente Flotante",
                     color = if (isAssistantActive) HextechCyan else TextMuted,
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
             }
         }
 
-        // Live Floating Overlay HUD Simulator (Se activa inmediatamente al presionar ACTIVAR)
-        FloatingAssistantOverlay(
-            isVisible = isAssistantActive,
-            initialRole = mainRole,
-            onDismiss = { isAssistantActive = false }
-        )
+        // Diálogo para conceder el permiso de superposición (Aparecer sobre otras apps)
+        if (showPermissionDialog) {
+            AlertDialog(
+                onDismissRequest = { showPermissionDialog = false },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Layers, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Permiso de Superposición", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
+                },
+                text = {
+                    Column {
+                        Text(
+                            text = "Para que el asistente inteligente funcione en segundo plano sobre League of Legends: Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición).",
+                            color = TextPrimary,
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "1. Toca 'Conceder Permiso'.\n2. Activa el interruptor para Wild Rift Drafting.\n3. Regresa a la app y pulsa ACTIVAR.",
+                            color = HextechCyan,
+                            fontSize = 12.sp
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showPermissionDialog = false
+                            SystemPermissionHelper.openOverlaySettings(context)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                    ) {
+                        Text("Conceder Permiso", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showPermissionDialog = false }) {
+                        Text("Cancelar", color = TextMuted)
+                    }
+                },
+                containerColor = HextechSurface,
+                shape = RoundedCornerShape(16.dp)
+            )
+        }
     }
 }
