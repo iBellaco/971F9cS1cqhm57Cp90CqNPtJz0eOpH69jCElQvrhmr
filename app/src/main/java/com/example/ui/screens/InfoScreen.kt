@@ -357,16 +357,16 @@ fun InfoScreen(
                         scope.launch {
                             try {
                                 val manager = FirestoreManager()
-                                val success = manager.uploadLocalDataToFirestore()
+                                val errorMsg = manager.uploadLocalDataToFirestore()
                                 isUploading = false
-                                if (success) {
-                                    Toast.makeText(context, "Datos subidos a la nube con éxito", Toast.LENGTH_LONG).show()
+                                if (errorMsg == null) {
+                                    Toast.makeText(context, "Base de datos migrada a la nube con éxito", Toast.LENGTH_LONG).show()
                                 } else {
-                                    Toast.makeText(context, "Error subiendo datos", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
                                 }
                             } catch (e: Throwable) {
                                 isUploading = false
-                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Fallo crítico: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                         }
                     },
@@ -377,7 +377,7 @@ fun InfoScreen(
                     if (isUploading) {
                         CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(20.dp))
                     } else {
-                        Text("Migrar campeones locales a la Nube (Firestore)", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                        Text("Migrar Base de Datos Completa a la Nube (Firestore)", color = HextechDarkBg, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
 

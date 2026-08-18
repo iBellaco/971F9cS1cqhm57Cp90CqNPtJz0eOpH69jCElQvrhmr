@@ -16,8 +16,8 @@ import com.example.model.WildRiftItem
 object WildRiftRepository {
 
     // Versión canónica oficial de Wild Rift
-    const val CURRENT_PATCH_VERSION = "Parche 5.3c • Actualizado"
-    const val LAST_SYNC_STATUS = "Sincronización Automática Activa"
+    var CURRENT_PATCH_VERSION = "Parche 5.3c"
+    var LAST_SYNC_STATUS = "Sincronización Automática Activa"
 
     // CDN base URL para avatares, habilidades, objetos y hechizos
     private const val CDN_VERSION = "14.20.1"
@@ -72,22 +72,22 @@ object WildRiftRepository {
     // ==========================================
     // CATÁLOGO DE HECHIZOS DE INVOCADOR (SUMMONER SPELLS)
     // ==========================================
-    val summonerSpells: List<SummonerSpellItem> = WildRiftSpellsAndRunes.summonerSpells
+    var summonerSpells: List<SummonerSpellItem> = WildRiftSpellsAndRunes.summonerSpells
 
     // ==========================================
     // CATÁLOGO DE RUNAS DE WILD RIFT
     // ==========================================
-    val runes: List<RuneItem> = WildRiftSpellsAndRunes.runes
+    var runes: List<RuneItem> = WildRiftSpellsAndRunes.runes
 
     // ==========================================
     // CATÁLOGO DE OBJETOS DE WILD RIFT
     // ==========================================
-    val items: List<WildRiftItem> = WildRiftItemsData.list
+    var items: List<WildRiftItem> = WildRiftItemsData.list
 
     // ==========================================
     // CATÁLOGO DE OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS DE WILD RIFT)
     // ==========================================
-    val mapObjectives: List<MapObjectiveItem> = listOf(
+    var mapObjectives: List<MapObjectiveItem> = listOf(
         MapObjectiveItem(
             id = "infernal_dragon",
             name = "Dragón Infernal (Fuego)",
@@ -183,7 +183,7 @@ object WildRiftRepository {
     // ==========================================
     // ROSTER INTEGRAL DE CAMPEONES DE WILD RIFT
     // ==========================================
-    val champions: List<Champion> = (
+    var champions: List<Champion> = (
         com.example.data.champions.BaronLaneChampions.list +
         com.example.data.champions.JungleChampions.list +
         com.example.data.champions.MidLaneChampions.list +

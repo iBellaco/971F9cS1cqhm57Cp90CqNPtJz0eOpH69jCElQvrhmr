@@ -15,6 +15,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +70,11 @@ fun DraftingApp() {
     var mainRole by remember { mutableStateOf(LaneRole.MID) }
     var secondRole by remember { mutableStateOf(LaneRole.TOP) }
     var autofillRole by remember { mutableStateOf(LaneRole.JUNGLE) }
+
+    LaunchedEffect(Unit) {
+        // Ejecuta la sincronización en segundo plano al arrancar la app para traer los datos desde la nube
+        com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
+    }
 
     BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
         currentScreen = AppScreen.MAIN

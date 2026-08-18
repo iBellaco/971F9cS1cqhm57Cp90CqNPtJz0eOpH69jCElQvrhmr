@@ -203,25 +203,6 @@ fun FloatingAssistantOverlay(
                         dragOffsetY.coerceIn(-maxSafeVerticalOffset, maxSafeVerticalOffset).roundToInt()
                     )
                 }
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragEnd = {
-                            if (dragOffsetY > 140f) {
-                                onDismiss()
-                            } else {
-                                dragOffsetY = 0f
-                            }
-                        },
-                        onDragCancel = {
-                            dragOffsetY = 0f
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            dragOffsetX += dragAmount.x
-                            dragOffsetY += dragAmount.y
-                        }
-                    )
-                }
                 .testTag("floating_assistant_container"),
             contentAlignment = Alignment.Center
         ) {
@@ -255,41 +236,18 @@ fun FloatingAssistantOverlay(
                                 .fillMaxWidth()
                                 .padding(12.dp)
                         ) {
-                            // Indicador de deslizamiento para cerrar
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .pointerInput(Unit) {
-                                        detectDragGestures { change, dragAmount ->
-                                            change.consume()
-                                            if (dragAmount.y > 15f) {
-                                                showSpeechBubble = false
-                                            }
-                                        }
-                                    }
-                                    .padding(bottom = 6.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(38.dp)
-                                        .height(4.dp)
-                                        .clip(CircleShape)
-                                        .background(HextechGold.copy(alpha = 0.7f))
-                                )
-                            }
-
-                            // Header Row
+                            // Header Row (Drag Handle)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .pointerInput(Unit) {
-                                        detectDragGestures { change, dragAmount ->
-                                            change.consume()
-                                            if (dragAmount.y > 15f) {
-                                                showSpeechBubble = false
+                                        detectDragGestures(
+                                            onDrag = { change, dragAmount ->
+                                                change.consume()
+                                                dragOffsetX += dragAmount.x
+                                                dragOffsetY += dragAmount.y
                                             }
-                                        }
+                                        )
                                     },
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -432,6 +390,34 @@ fun FloatingAssistantOverlay(
                                     }
                                 }
                             }
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            // Bottom Action Row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Detener Asistente",
+                                    color = DangerRed,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .clickable { onDismiss() }
+                                        .padding(8.dp)
+                                )
+                                Text(
+                                    text = "Minimizar HUD",
+                                    color = HextechCyan,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .clickable { showSpeechBubble = false }
+                                        .padding(8.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -450,6 +436,24 @@ fun FloatingAssistantOverlay(
                             )
                         )
                         .border(2.5.dp, HextechGold, CircleShape)
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDragEnd = {
+                                    if (dragOffsetY > maxSafeVerticalOffset - 60f) {
+                                        onDismiss() // Close if dragged to very bottom
+                                    }
+                                },
+                                onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    dragOffsetX += dragAmount.x
+                                    dragOffsetY += dragAmount.y
+                                    // Minimize if dragged down sharply while open
+                                    if (showSpeechBubble && dragAmount.y > 20f) {
+                                        showSpeechBubble = false
+                                    }
+                                }
+                            )
+                        }
                         .clickable {
                             showSpeechBubble = !showSpeechBubble
                         }
@@ -462,44 +466,6 @@ fun FloatingAssistantOverlay(
                         tint = HextechDarkBg,
                         modifier = Modifier.size(30.dp)
                     )
-                }
-
-                // ==========================================
-                // 3. PILL INDICADOR DE GESTO "DESLIZAR HACIA ABAJO"
-                // ==========================================
-                val isDragClosing = dragOffsetY > 50f
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(
-                            if (isDragClosing) TierSColor.copy(alpha = 0.9f)
-                            else HextechDarkBg.copy(alpha = 0.92f)
-                        )
-                        .border(
-                            1.dp,
-                            if (isDragClosing) TierSColor else HextechCyan.copy(alpha = 0.6f),
-                            RoundedCornerShape(20.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 5.dp)
-                        .testTag("floating_swipe_down_hint")
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Deslizar hacia abajo",
-                            tint = if (isDragClosing) Color.White else HextechGold,
-                            modifier = Modifier.size(15.dp)
-                        )
-                        Text(
-                            text = if (isDragClosing) "Suelta para cerrar asistente" else "Desliza hacia abajo para cerrar",
-                            color = if (isDragClosing) Color.White else HextechGold,
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
                 }
             }
         }

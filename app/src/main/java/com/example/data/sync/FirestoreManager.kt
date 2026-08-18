@@ -16,9 +16,13 @@ class FirestoreManager {
         }
     }
     private val championsCollection by lazy { db?.collection("champions") }
+    private val spellsCollection by lazy { db?.collection("spells") }
+    private val runesCollection by lazy { db?.collection("runes") }
+    private val itemsCollection by lazy { db?.collection("items") }
+    private val objectivesCollection by lazy { db?.collection("objectives") }
 
-    suspend fun uploadLocalDataToFirestore(): Boolean {
-        if (championsCollection == null) return false
+    suspend fun uploadLocalDataToFirestore(): String? {
+        if (championsCollection == null) return "Firestore collections not initialized (Check Firebase configuration)"
         
         return try {
             val localChampions = WildRiftRepository.champions
@@ -72,10 +76,63 @@ class FirestoreManager {
                 championsCollection?.document(champion.id)?.set(data)?.await()
                 Log.d("FirestoreManager", "Uploaded champion: ${champion.name}")
             }
-            true
+
+            val spells = WildRiftRepository.summonerSpells
+            for (spell in spells) {
+                val data = hashMapOf(
+                    "id" to spell.id,
+                    "name" to spell.name,
+                    "cooldown" to spell.cooldown,
+                    "iconUrl" to spell.iconUrl,
+                    "description" to spell.description
+                )
+                spellsCollection?.document(spell.id)?.set(data)?.await()
+            }
+
+            val runes = WildRiftRepository.runes
+            for (rune in runes) {
+                val data = hashMapOf(
+                    "id" to rune.id,
+                    "name" to rune.name,
+                    "category" to rune.category,
+                    "iconUrl" to rune.iconUrl,
+                    "description" to rune.description
+                )
+                runesCollection?.document(rune.id)?.set(data)?.await()
+            }
+
+            val items = WildRiftRepository.items
+            for (item in items) {
+                val data = hashMapOf(
+                    "id" to item.id,
+                    "name" to item.name,
+                    "category" to item.category.name,
+                    "goldCost" to item.goldCost,
+                    "stats" to item.stats,
+                    "passive" to item.passive,
+                    "iconUrl" to item.iconUrl
+                )
+                itemsCollection?.document(item.id)?.set(data)?.await()
+            }
+
+            val objectives = WildRiftRepository.mapObjectives
+            for (obj in objectives) {
+                val data = hashMapOf(
+                    "id" to obj.id,
+                    "name" to obj.name,
+                    "spawnTime" to obj.spawnTime,
+                    "respawnTime" to obj.respawnTime,
+                    "iconUrl" to obj.iconUrl,
+                    "buffDescription" to obj.buffDescription,
+                    "tactics" to obj.tactics
+                )
+                objectivesCollection?.document(obj.id)?.set(data)?.await()
+            }
+
+            null // Null means success (no error)
         } catch (e: Exception) {
             Log.e("FirestoreManager", "Error uploading data", e)
-            false
+            e.localizedMessage ?: e.toString()
         }
     }
 
@@ -150,6 +207,100 @@ class FirestoreManager {
             champions
         } catch (e: Exception) {
             Log.e("FirestoreManager", "Error fetching champions", e)
+            emptyList()
+        }
+    }
+
+    suspend fun getSpellsFromFirestore(): List<com.example.model.SummonerSpellItem> {
+        if (spellsCollection == null) return emptyList()
+        return try {
+            val snapshot = spellsCollection!!.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                try {
+                    com.example.model.SummonerSpellItem(
+                        id = doc.getString("id") ?: "",
+                        name = doc.getString("name") ?: "",
+                        cooldown = doc.getString("cooldown") ?: "",
+                        iconUrl = doc.getString("iconUrl") ?: "",
+                        description = doc.getString("description") ?: ""
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getRunesFromFirestore(): List<com.example.model.RuneItem> {
+        if (runesCollection == null) return emptyList()
+        return try {
+            val snapshot = runesCollection!!.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                try {
+                    com.example.model.RuneItem(
+                        id = doc.getString("id") ?: "",
+                        name = doc.getString("name") ?: "",
+                        category = doc.getString("category") ?: "",
+                        iconUrl = doc.getString("iconUrl") ?: "",
+                        description = doc.getString("description") ?: ""
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getItemsFromFirestore(): List<com.example.model.WildRiftItem> {
+        if (itemsCollection == null) return emptyList()
+        return try {
+            val snapshot = itemsCollection!!.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                try {
+                    val catStr = doc.getString("category") ?: "PHYSICAL"
+                    val cat = com.example.model.ItemCategory.valueOf(catStr)
+                    com.example.model.WildRiftItem(
+                        id = doc.getString("id") ?: "",
+                        name = doc.getString("name") ?: "",
+                        category = cat,
+                        goldCost = doc.getLong("goldCost")?.toInt() ?: 0,
+                        stats = doc.getString("stats") ?: "",
+                        passive = doc.getString("passive") ?: "",
+                        iconUrl = doc.getString("iconUrl") ?: ""
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getObjectivesFromFirestore(): List<com.example.model.MapObjectiveItem> {
+        if (objectivesCollection == null) return emptyList()
+        return try {
+            val snapshot = objectivesCollection!!.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                try {
+                    com.example.model.MapObjectiveItem(
+                        id = doc.getString("id") ?: "",
+                        name = doc.getString("name") ?: "",
+                        spawnTime = doc.getString("spawnTime") ?: "",
+                        respawnTime = doc.getString("respawnTime") ?: "",
+                        iconUrl = doc.getString("iconUrl") ?: "",
+                        buffDescription = doc.getString("buffDescription") ?: "",
+                        tactics = doc.getString("tactics") ?: ""
+                    )
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
             emptyList()
         }
     }
