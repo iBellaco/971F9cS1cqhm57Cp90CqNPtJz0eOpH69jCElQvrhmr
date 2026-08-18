@@ -64,6 +64,15 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSColor
 
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.data.sync.FirestoreManager
+import kotlinx.coroutines.launch
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoScreen(
@@ -71,6 +80,9 @@ fun InfoScreen(
 ) {
     var activeWebUrl by remember { mutableStateOf<String?>(null) }
     var activeWebTitle by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var isUploading by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -328,6 +340,39 @@ fun InfoScreen(
                                 Text("Abrir", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                InfoSectionHeader(
+                    icon = Icons.Default.Sync,
+                    title = "4. Opciones de Administrador",
+                    tint = HextechCyan
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = {
+                        isUploading = true
+                        scope.launch {
+                            val manager = FirestoreManager()
+                            val success = manager.uploadLocalDataToFirestore()
+                            isUploading = false
+                            if (success) {
+                                Toast.makeText(context, "Datos subidos a la nube con éxito", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(context, "Error subiendo datos", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    enabled = !isUploading
+                ) {
+                    if (isUploading) {
+                        CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(20.dp))
+                    } else {
+                        Text("Migrar campeones locales a la Nube (Firestore)", color = HextechDarkBg, fontWeight = FontWeight.Bold)
                     }
                 }
 

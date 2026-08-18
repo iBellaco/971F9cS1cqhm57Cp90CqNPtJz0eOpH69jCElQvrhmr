@@ -22,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.model.LaneRole
+import com.example.data.auth.AuthRepository
+import com.example.ui.screens.LoginScreen
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
@@ -30,6 +32,7 @@ import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
 
 enum class AppScreen {
+    LOGIN,
     LANGUAGE_SELECTION,
     MAIN,
     INFO,
@@ -50,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
+}
 }
 
 @Composable
@@ -58,23 +61,30 @@ fun DraftingApp() {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     val isLanguageSet = remember { sharedPrefs.getBoolean("is_language_set", false) }
+    val authRepository = remember { AuthRepository() }
 
     var currentScreen by remember { 
-        mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
+        mutableStateOf(
+            if (!authRepository.isUserLoggedIn) AppScreen.LOGIN 
+            else if (isLanguageSet) AppScreen.MAIN 
+            else AppScreen.LANGUAGE_SELECTION
+        ) 
     }
     
     var mainRole by remember { mutableStateOf(LaneRole.MID) }
     var secondRole by remember { mutableStateOf(LaneRole.TOP) }
     var autofillRole by remember { mutableStateOf(LaneRole.JUNGLE) }
 
-    BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
+    BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION && currentScreen != AppScreen.LOGIN) {
         currentScreen = AppScreen.MAIN
     }
 
     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
-            if (targetState == AppScreen.MAIN && initialState == AppScreen.LANGUAGE_SELECTION) {
+            if (targetState == AppScreen.MAIN && (initialState == AppScreen.LANGUAGE_SELECTION || initialState == AppScreen.LOGIN)) {
+                (fadeIn()).togetherWith(fadeOut())
+            } else if (targetState == AppScreen.LANGUAGE_SELECTION && initialState == AppScreen.LOGIN) {
                 (fadeIn()).togetherWith(fadeOut())
             } else if (targetState == AppScreen.MAIN) {
                 (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
@@ -85,6 +95,13 @@ fun DraftingApp() {
         label = "screen_navigation"
     ) { screen ->
         when (screen) {
+            AppScreen.LOGIN -> {
+                LoginScreen(
+                    onLoginSuccess = {
+                        currentScreen = if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION
+                    }
+                )
+            }
             AppScreen.LANGUAGE_SELECTION -> {
                 LanguageSelectionScreen(
                     onLanguageSelected = { langCode ->

@@ -32,42 +32,42 @@ data class MetaDataSource(
 )
 
 data class ChampionSkill(
-    val slot: String, // "P", "1", "2", "3", "4"
-    val slotName: String, // "Pasiva", "Habilidad 1", "Habilidad 2", "Habilidad 3", "Definitiva"
-    val name: String,
-    val iconUrl: String,
-    val description: String,
+    val slot: String = "", // "P", "1", "2", "3", "4"
+    val slotName: String = "", // "Pasiva", "Habilidad 1", "Habilidad 2", "Habilidad 3", "Definitiva"
+    val name: String = "",
+    val iconUrl: String = "",
+    val description: String = "",
     val cooldown: String = ""
 )
 
 data class Champion(
-    val id: String,
-    val name: String,
+    val id: String = "",
+    val name: String = "",
     val title: String = "",
     val ddragonId: String = "",
     val avatarUrl: String = "",
-    val primaryRole: LaneRole,
+    val primaryRole: LaneRole = LaneRole.MID,
     val secondaryRoles: List<LaneRole> = emptyList(),
-    val tier: String, // "S+", "S", "A+", "A", "B"
-    val winrate: Double, // e.g. 53.8
-    val pickRate: Double,
-    val banRate: Double,
-    val damageType: DamageType,
-    val summary: String,
-    val advantageAgainst: List<String>,
-    val counteredBy: List<String>,
-    val synergies: List<String>,
-    val tacticalAdvice: String,
-    val recommendedRunes: String,
+    val tier: String = "B", // "S+", "S", "A+", "A", "B"
+    val winrate: Double = 50.0, // e.g. 53.8
+    val pickRate: Double = 0.0,
+    val banRate: Double = 0.0,
+    val damageType: DamageType = DamageType.PHYSICAL,
+    val summary: String = "",
+    val advantageAgainst: List<String> = emptyList(),
+    val counteredBy: List<String> = emptyList(),
+    val synergies: List<String> = emptyList(),
+    val tacticalAdvice: String = "",
+    val recommendedRunes: String = "",
     val runeTreeDetails: String = "",
     val primaryRuneIconUrl: String = "",
-    val recommendedSpells: List<String>,
+    val recommendedSpells: List<String> = emptyList(),
     val spellsIcons: List<String> = emptyList(),
-    val coreItems: List<String>,
+    val coreItems: List<String> = emptyList(),
     val coreItemsIcons: List<String> = emptyList(),
     val situationalItems: List<String> = emptyList(),
     val situationalItemsIcons: List<String> = emptyList(),
-    val skillOrder: String,
+    val skillOrder: String = "",
     val skills: List<ChampionSkill> = emptyList(),
     val isRanged: Boolean = false,
     val isFrontline: Boolean = false,
