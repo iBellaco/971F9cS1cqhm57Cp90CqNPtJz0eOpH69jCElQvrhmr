@@ -5,52 +5,102 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Deep Hextech Cosmic Background -->
+    
+    <!-- Outer Dark Brushed Metallic Canvas -->
     <path android:pathData="M0,0h108v108h-108z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:startX="15"
+                android:startX="10"
                 android:startY="10"
-                android:endX="95"
-                android:endY="100"
+                android:endX="98"
+                android:endY="98"
                 android:type="linear">
-                <item android:color="#0A1826" android:offset="0.0" />
-                <item android:color="#090E20" android:offset="0.45" />
-                <item android:color="#1A0D2E" android:offset="1.0" />
+                <item android:color="#181D26" android:offset="0.0" />
+                <item android:color="#0D1117" android:offset="0.5" />
+                <item android:color="#07090D" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Outer Orbit Ring with Neon Cyan & Magenta Glow -->
+    <!-- Outer Gold Edge Rim Simulation -->
     <path
-        android:strokeWidth="1.6"
+        android:strokeWidth="1.2"
         android:fillColor="#00000000"
-        android:pathData="M54,16 A38,38 0 1 1 53.9,16 Z">
+        android:pathData="M18,10 L90,10 A8,8 0 0 1 98,18 L98,90 A8,8 0 0 1 90,98 L18,98 A8,8 0 0 1 10,90 L10,18 A8,8 0 0 1 18,10 Z">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="20"
-                android:startY="20"
-                android:endX="90"
-                android:endY="90"
+                android:startX="10"
+                android:startY="10"
+                android:endX="98"
+                android:endY="98"
                 android:type="linear">
-                <item android:color="#00F0FF" android:offset="0.0" />
-                <item android:color="#8A2BE2" android:offset="0.6" />
-                <item android:color="#FF007F" android:offset="1.0" />
+                <item android:color="#C8AA6E" android:offset="0.0" />
+                <item android:color="#5A4725" android:offset="0.5" />
+                <item android:color="#F0E6D2" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Orbit Satellite Nodes -->
+    <!-- Orbit Cosmic Glow Ring (Outer Circle) -->
+    <path
+        android:strokeWidth="1.8"
+        android:fillColor="#00000000"
+        android:pathData="M54,14 A40,40 0 1 1 53.9,14 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="14"
+                android:startY="14"
+                android:endX="94"
+                android:endY="94"
+                android:type="linear">
+                <item android:color="#00F0FF" android:offset="0.0" />
+                <item android:color="#00A3FF" android:offset="0.35" />
+                <item android:color="#A828EB" android:offset="0.7" />
+                <item android:color="#FF00A0" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Orbital Energy Nodes around ring -->
+    <!-- Top Node -->
     <path
         android:fillColor="#00F0FF"
-        android:pathData="M54,16 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.5"
+        android:pathData="M54,14 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+    
+    <!-- Top-Right Node -->
     <path
-        android:fillColor="#8A2BE2"
-        android:pathData="M92,54 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
+        android:fillColor="#7000FF"
+        android:strokeColor="#E0B0FF"
+        android:strokeWidth="0.5"
+        android:pathData="M82,26 m-2.8,0 a2.8,2.8 0 1,1 5.6,0 a2.8,2.8 0 1,1 -5.6,0" />
+
+    <!-- Right Node -->
     <path
-        android:fillColor="#FF007F"
-        android:pathData="M80,82 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+        android:fillColor="#FF00A0"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.5"
+        android:pathData="M94,54 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+
+    <!-- Bottom-Right Node -->
+    <path
+        android:fillColor="#D800FF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.5"
+        android:pathData="M82,82 m-2.8,0 a2.8,2.8 0 1,1 5.6,0 a2.8,2.8 0 1,1 -5.6,0" />
+
+    <!-- Left Node -->
     <path
         android:fillColor="#00F0FF"
-        android:pathData="M16,54 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.5"
+        android:pathData="M14,54 m-3,0 a3,3 0 1,1 6,0 a3,3 0 1,1 -6,0" />
+
+    <!-- Top-Left Node -->
+    <path
+        android:fillColor="#00C8FF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.5"
+        android:pathData="M26,26 m-2.8,0 a2.8,2.8 0 1,1 5.6,0 a2.8,2.8 0 1,1 -5.6,0" />
 </vector>

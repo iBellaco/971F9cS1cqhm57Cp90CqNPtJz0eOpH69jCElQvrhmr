@@ -1,6 +1,6 @@
 {
   "name": "Wild Rift Drafting",
-  "description": "Asistente inteligente de drafting, counters, builds y simulador en tiempo real para League of Legends: Wild Rift.",
+  "description": "Asistente táctico de drafting, counters, sinergias y builds en tiempo real exclusivo para Wild Rift.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

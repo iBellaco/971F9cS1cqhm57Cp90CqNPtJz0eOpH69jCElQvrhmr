@@ -167,7 +167,7 @@ fun InfoScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "• Compatibilidad: Diseñado exclusivamente para League of Legends: Wild Rift (Móvil).\n" +
+                        text = "• Compatibilidad: Diseñado y optimizado exclusivamente para Wild Rift (versión de juego, balance, runas, objetos y parches propios de Wild Rift).\n" +
                                "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado automáticamente.\n" +
                                "• Motor Hextech: Orbe 3D con animación de partículas y cálculo de composiciones.\n" +
                                "• Sistema Flotante: Ventana superpuesta no intrusiva con controles gestuales y HUD de análisis táctico.",
