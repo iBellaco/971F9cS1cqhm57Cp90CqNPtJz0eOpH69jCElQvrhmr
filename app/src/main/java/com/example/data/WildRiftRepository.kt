@@ -194,7 +194,8 @@ object WildRiftRepository {
     fun analyzeDraft(
         myRole: LaneRole,
         allies: List<Champion>,
-        enemies: List<Champion>
+        enemies: List<Champion>,
+        isFirstPick: Boolean = false
     ): DraftAnalysisResult {
         var physCount = 0
         var magicCount = 0
@@ -211,14 +212,31 @@ object WildRiftRepository {
         val totalEnemies = (physCount + magicCount + trueCount).coerceAtLeast(1)
         val physPct = (physCount * 100) / totalEnemies
         val magicPct = (magicCount * 100) / totalEnemies
-        val truePct = 100 - (physPct + magicPct)
+        val truePct = (100 - (physPct + magicPct)).coerceAtLeast(0)
+
+        // Ally Damage Profile
+        val allyPhysCount = allies.count { it.damageType == DamageType.PHYSICAL }
+        val allyMagicCount = allies.count { it.damageType == DamageType.MAGIC }
+        val isAllyFullAd = allies.isNotEmpty() && allyPhysCount >= 3 && allyMagicCount == 0
+        val isAllyFullAp = allies.isNotEmpty() && allyMagicCount >= 3 && allyPhysCount == 0
 
         val frontlineAllies = allies.count { it.isFrontline }
         val frontlineStatus = when {
             frontlineAllies >= 2 -> "Frontline Sólida (${frontlineAllies} Tanques/Luchadores)"
             frontlineAllies == 1 -> "Frontline Moderada (1 Tanque)"
-            else -> "¡Cuidado! Falta Frontline / Iniciación en el equipo aliado"
+            else -> "¡Alerta! Falta Frontline e Iniciación aliada"
         }
+
+        val isFirstPickEffective = isFirstPick || enemies.isEmpty()
+
+        // Known safe blind-picks per role in Wild Rift Meta
+        val safeBlindPicks = mapOf(
+            LaneRole.TOP to listOf("sett", "aatrox", "darius", "renekton", "ornn", "camille", "gwen"),
+            LaneRole.JUNGLE to listOf("vi", "lee_sin", "xin_zhao", "viego", "wukong", "kayn", "jarvan_iv"),
+            LaneRole.MID to listOf("ahri", "orianna", "syndra", "yone", "karma", "vex", "jayce"),
+            LaneRole.ADC to listOf("varus", "ezreal", "kaisa", "caitlyn", "xayah", "jinx", "lucian"),
+            LaneRole.SUPPORT to listOf("thresh", "nautilus", "lulu", "nami", "karma", "morgana", "leona", "rakan")
+        )
 
         var directMatchupWarning: String? = null
         var directCounterBestPick: String? = null
@@ -226,13 +244,21 @@ object WildRiftRepository {
         val enemySett = enemies.find { it.id == "sett" }
         val enemyVi = enemies.find { it.id == "vi" }
         val enemyCaitlyn = enemies.find { it.id == "caitlyn" }
+        val enemyZed = enemies.find { it.id == "zed" || it.id == "kayn" || it.id == "talon" || it.id == "khazix" }
+        val enemyTanks = enemies.filter { it.isFrontline }
 
         if (enemySett != null && enemyVi != null) {
-            directMatchupWarning = "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage o escudos antimagia."
+            directMatchupWarning = "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad."
             directCounterBestPick = "Morgana o Janna"
         } else if (enemyCaitlyn != null) {
-            directMatchupWarning = "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus."
+            directMatchupWarning = "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank."
             directCounterBestPick = "Nautilus o Viego"
+        } else if (enemyZed != null) {
+            directMatchupWarning = "Peligro de asesinos de burst (${enemyZed.name}). Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus)."
+            directCounterBestPick = "Lulu, Nautilus o Zhonya"
+        } else if (enemyTanks.size >= 2) {
+            directMatchupWarning = "Composición rival pesada (${enemyTanks.joinToString { it.name }}). Requiere daño verdadero y % vida máxima."
+            directCounterBestPick = "Vayne, Sett, Gwen o Liandry"
         }
 
         val availableChampions = champions.filter { champ ->
@@ -246,37 +272,144 @@ object WildRiftRepository {
         val recommendations = candidates.map { champ ->
             var score = champ.winrate
 
-            val countersFound = champ.advantageAgainst.count { adv ->
-                enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
-            }
-            score += (countersFound * 1.5)
-
-            val synergiesFound = champ.synergies.count { syn ->
-                allies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
-            }
-            score += (synergiesFound * 1.0)
-
-            val badge = when {
-                champ.tier == "S+" && countersFound >= 2 -> "★ ELECCIÓN ÓPTIMA (Counter & Meta)"
-                champ.tier == "S+" -> "★ TIER S+ (Alta Prioridad)"
-                countersFound >= 1 -> "✔ COUNTER DIRECTO (+${countersFound})"
-                else -> "Recomendación Balanceada"
+            // Tier Bonus
+            when (champ.tier) {
+                "S+" -> score += 3.0
+                "S" -> score += 2.0
+                "A+" -> score += 1.0
+                "A" -> score += 0.5
             }
 
-            val reason = if (champ.tacticalAdvice.isNotBlank()) {
-                champ.tacticalAdvice
+            var synergyText = ""
+            var counterText = ""
+
+            if (isFirstPickEffective) {
+                // FIRST PICK / BLIND PICK CALCULATION
+                val roleBlindList = safeBlindPicks[myRole] ?: emptyList()
+                val isSafeBlind = roleBlindList.contains(champ.id)
+                if (isSafeBlind) {
+                    score += 4.5
+                }
+
+                val badge = when {
+                    isSafeBlind && champ.tier == "S+" -> "★ MEJOR PRIMER PICK (Blind Pick Seguro)"
+                    isSafeBlind -> "★ BLIND PICK VERSÁTIL"
+                    champ.tier == "S+" -> "★ TIER S+ META"
+                    else -> "Opción General en ${myRole.shortName}"
+                }
+
+                val reason = when {
+                    isSafeBlind && champ.tier == "S+" ->
+                        "Prioridad #1 de Primer Pick en ${myRole.displayName}: ${champ.name} es un pick ciego ultra seguro de Tier S+. Domina la fase de líneas, tiene mínima vulnerabilidad a counters y se adapta a cualquier draft aliado o rival."
+                    isSafeBlind ->
+                        "Excelente selección a ciegas: ${champ.name} no puede ser contrarrestado fácilmente y garantiza presencia estable durante toda la partida."
+                    else ->
+                        champ.tacticalAdvice.ifBlank {
+                            "${champ.name}: Opción sólida de daño ${champ.damageType.displayName} para ${myRole.displayName}."
+                        }
+                }
+
+                synergyText = "Alta autosuficiencia, control de oleadas y flexibilidad táctica."
+                counterText = "Baja vulnerabilidad a emboscadas y sin counters abusivos en ${myRole.shortName}."
+
+                DraftRecommendation(
+                    champion = champ,
+                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(68.5),
+                    advantageBadge = badge,
+                    tacticalReason = reason,
+                    runes = champ.recommendedRunes,
+                    synergyDetails = synergyText,
+                    counterDetails = counterText
+                )
             } else {
-                "${champ.name}: Excelente selección en ${myRole.displayName}. Complementa la composición y ofrece ${champ.damageType.displayName}."
-            }
+                // REACTIVE / COUNTER & SYNERGY DRAFT CALCULATION
+                val directCounters = champ.advantageAgainst.filter { adv ->
+                    enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
+                }
+                val directWeaknesses = champ.counteredBy.filter { weak ->
+                    enemies.any { it.name.equals(weak, ignoreCase = true) || it.id.equals(weak, ignoreCase = true) }
+                }
+                val directSynergies = champ.synergies.filter { syn ->
+                    allies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
+                }
 
-            DraftRecommendation(
-                champion = champ,
-                estimatedWinrate = (score * 10).toInt() / 10.0,
-                advantageBadge = badge,
-                tacticalReason = reason,
-                runes = champ.recommendedRunes
-            )
+                // Enemy Counter Scoring
+                score += (directCounters.size * 2.8)
+                score -= (directWeaknesses.size * 2.2)
+
+                // Ally Synergy Scoring
+                score += (directSynergies.size * 2.2)
+
+                // Damage Balance compensation
+                if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
+                    score += 3.5 // Prevents enemy from just building Armor
+                } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
+                    score += 3.5 // Prevents enemy from just building Magic Resist
+                }
+
+                // Frontline compensation
+                if (frontlineAllies == 0 && champ.isFrontline) {
+                    score += 2.8 // Needed frontline
+                }
+
+                // Anti-tank or anti-assassin bonus
+                if (enemyTanks.size >= 2 && (champ.id == "vayne" || champ.id == "sett" || champ.id == "gwen" || champ.id == "fiora" || champ.id == "varus")) {
+                    score += 3.2
+                }
+
+                val badge = when {
+                    directCounters.isNotEmpty() && directSynergies.isNotEmpty() -> "★ #1 MEJOR OPCIÓN (Sinergia + Counter)"
+                    directCounters.isNotEmpty() && champ.tier == "S+" -> "★ COUNTER TIER S+ (+${directCounters.size})"
+                    directCounters.isNotEmpty() -> "✔ COUNTER DIRECTO (+${directCounters.size} Rival)"
+                    directSynergies.isNotEmpty() -> "⚡ SINERGIA CON EQUIPO (+${directSynergies.size})"
+                    champ.tier == "S+" -> "★ TIER S+ (Alta Prioridad)"
+                    else -> "Recomendación Balanceada"
+                }
+
+                val reasonParts = mutableListOf<String>()
+                if (directCounters.isNotEmpty()) {
+                    reasonParts.add("Ventaja directa contra ${directCounters.joinToString(", ")}.")
+                }
+                if (directSynergies.isNotEmpty()) {
+                    reasonParts.add("Sinergia óptima con ${directSynergies.joinToString(", ")}.")
+                }
+                if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
+                    reasonParts.add("Aporta el daño mágico crucial que le falta a tu equipo.")
+                }
+                if (frontlineAllies == 0 && champ.isFrontline) {
+                    reasonParts.add("Cubre la falta de iniciación y aguante de tu escuadrón.")
+                }
+                if (reasonParts.isEmpty()) {
+                    reasonParts.add(champ.tacticalAdvice.ifBlank { "${champ.name}: Elección balanceada para ${myRole.displayName}." })
+                }
+
+                synergyText = if (directSynergies.isNotEmpty()) {
+                    "Combina con: ${directSynergies.joinToString(", ")}"
+                } else {
+                    "Alineación estándar de equipo"
+                }
+
+                counterText = if (directCounters.isNotEmpty()) {
+                    "Fuerte contra: ${directCounters.joinToString(", ")}"
+                } else if (directWeaknesses.isNotEmpty()) {
+                    "Cuidado con: ${directWeaknesses.joinToString(", ")}"
+                } else {
+                    "Enfrentamiento neutral"
+                }
+
+                DraftRecommendation(
+                    champion = champ,
+                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(70.0),
+                    advantageBadge = badge,
+                    tacticalReason = reasonParts.joinToString(" "),
+                    runes = champ.recommendedRunes,
+                    synergyDetails = synergyText,
+                    counterDetails = counterText
+                )
+            }
         }.sortedByDescending { it.estimatedWinrate }
+
+        val bestOverall = recommendations.firstOrNull()
 
         return DraftAnalysisResult(
             physicalDamagePercent = physPct,
@@ -285,6 +418,8 @@ object WildRiftRepository {
             frontlineStatus = frontlineStatus,
             directMatchupWarning = directMatchupWarning,
             directCounterBestPick = directCounterBestPick,
+            isFirstPickMode = isFirstPickEffective,
+            bestOverallPick = bestOverall,
             recommendations = recommendations
         )
     }

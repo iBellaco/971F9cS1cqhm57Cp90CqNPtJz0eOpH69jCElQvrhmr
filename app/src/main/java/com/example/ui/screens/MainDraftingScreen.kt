@@ -19,14 +19,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -74,49 +81,131 @@ fun MainDraftingScreen(
     onAutofillRoleChange: (LaneRole) -> Unit
 ) {
     var isAssistantActive by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Wild Rift Drafting",
-                                color = TextPrimary,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onNavigateToInfo,
-                            modifier = Modifier.testTag("main_info_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Acerca De",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(26.dp)
-                            )
-                        }
+                        Text(
+                            text = "Wild Rift Drafting",
+                            color = TextPrimary,
+                            fontSize = 19.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.5.sp
+                        )
                     },
                     actions = {
-                        IconButton(
-                            onClick = onNavigateToMeta,
-                            modifier = Modifier.testTag("main_meta_button")
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.GridView,
-                                contentDescription = "Wild Rift Meta & Draft",
-                                tint = HextechGold,
-                                modifier = Modifier.size(26.dp)
-                            )
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechGold, CircleShape)
+                                    .size(38.dp)
+                                    .testTag("main_menu_options_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Menú de Opciones",
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+
+                            // Hextech Consolidated Options Menu
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                modifier = Modifier
+                                    .background(HextechDarkBg)
+                                    .border(1.2.dp, HextechGold, RoundedCornerShape(12.dp))
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                // 1. Meta & Draft
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text("Meta & Catálogo", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                            Text("Tier List, Sinergias, Runas y Objetos", color = TextMuted, fontSize = 11.sp)
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.GridView,
+                                            contentDescription = null,
+                                            tint = HextechGold,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onNavigateToMeta()
+                                    },
+                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
+                                )
+
+                                HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
+
+                                // 2. Acerca De
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text("Acerca De", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                            Text("Guía de uso, parches y fuentes", color = TextMuted, fontSize = 11.sp)
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = null,
+                                            tint = HextechCyan,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onNavigateToInfo()
+                                    },
+                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
+                                )
+
+                                HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
+
+                                // 3. Asistente Flotante
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text(
+                                                if (isAssistantActive) "Desactivar Asistente" else "Activar Asistente",
+                                                color = if (isAssistantActive) HextechCyan else TextPrimary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp
+                                            )
+                                            Text(
+                                                if (isAssistantActive) "Asistente activo en pantalla" else "Abrir HUD flotante",
+                                                color = TextMuted,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Videocam,
+                                            contentDescription = null,
+                                            tint = if (isAssistantActive) HextechCyan else HextechGold,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        isAssistantActive = !isAssistantActive
+                                    },
+                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
+                                )
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
@@ -130,159 +219,75 @@ fun MainDraftingScreen(
                     .padding(innerPadding)
                     .padding(horizontal = 24.dp)
                     .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    // Wild Rift Version Banner (Live from iTunes Lookup API)
-                    WildRiftVersionBanner()
+                // Wild Rift Version Banner (Live from iTunes Lookup API)
+                WildRiftVersionBanner()
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                    // 1. Línea Main Selector Card
-                    RoleSelectorCard(
-                        label = "Línea Main",
-                        selectedRole = mainRole,
-                        onRoleSelected = onMainRoleChange,
-                        iconType = RoleIconType.STAR
-                    )
+                // 1. Línea Main Selector Card
+                RoleSelectorCard(
+                    label = "Línea Main",
+                    selectedRole = mainRole,
+                    onRoleSelected = onMainRoleChange,
+                    iconType = RoleIconType.STAR
+                )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    // 2. Segunda Línea Selector Card
-                    RoleSelectorCard(
-                        label = "Segunda Línea",
-                        selectedRole = secondRole,
-                        onRoleSelected = onSecondRoleChange,
-                        iconType = RoleIconType.SWAP
-                    )
+                // 2. Segunda Línea Selector Card
+                RoleSelectorCard(
+                    label = "Segunda Línea",
+                    selectedRole = secondRole,
+                    onRoleSelected = onSecondRoleChange,
+                    iconType = RoleIconType.SWAP
+                )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                    // 3. Rol Autofill Selector Card
-                    RoleSelectorCard(
-                        label = "Rol Autofill",
-                        selectedRole = autofillRole,
-                        onRoleSelected = onAutofillRoleChange,
-                        iconType = RoleIconType.SHIELD
-                    )
+                // 3. Rol Autofill Selector Card
+                RoleSelectorCard(
+                    label = "Rol Autofill",
+                    selectedRole = autofillRole,
+                    onRoleSelected = onAutofillRoleChange,
+                    iconType = RoleIconType.SHIELD
+                )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-                    // Card de Configuración para Segundo Plano y Ahorro de Batería
-                    BatteryAndOverlayNoticeCard()
+                // Card de Configuración para Segundo Plano y Ahorro de Batería
+                BatteryAndOverlayNoticeCard()
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
-                    // Hextech 3D Glowing Orb Button
-                    HextechOrbButton(
-                        isActive = isAssistantActive,
-                        onToggle = {
-                            isAssistantActive = !isAssistantActive
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Toca para Activar Asistente Externo",
-                        color = if (isAssistantActive) HextechCyan else TextMuted,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                // Botón "Acerca De" (Reemplazo del botón anterior)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onNavigateToInfo() }
-                            .testTag("about_app_button"),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                // About Icon Orb
-                                Box(
-                                    modifier = Modifier
-                                        .size(44.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            Brush.radialGradient(
-                                                listOf(HextechCyan, HextechGold, Color(0xFF002B47))
-                                            )
-                                        )
-                                        .border(1.5.dp, HextechGold, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Acerca De",
-                                        tint = HextechDarkBg,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(14.dp))
-                                Column {
-                                    Text(
-                                        text = "Acerca De",
-                                        color = TextPrimary,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Versión 1.0 • Modo de Uso & Recomendaciones",
-                                        color = HextechCyan,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                            }
-
-                            // Trailing Arrow
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(HextechSurfaceVariant),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    contentDescription = "Abrir Acerca De",
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
-                        }
+                // Hextech 3D Glowing Orb Button
+                HextechOrbButton(
+                    isActive = isAssistantActive,
+                    onToggle = {
+                        isAssistantActive = !isAssistantActive
                     }
-                }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Toca para Activar Asistente Externo",
+                    color = if (isAssistantActive) HextechCyan else TextMuted,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
 
         // Live Floating Overlay HUD Simulator (Appears when isAssistantActive is true)
         FloatingAssistantOverlay(
             isVisible = isAssistantActive,
+            initialRole = mainRole,
             onDismiss = { isAssistantActive = false }
         )
     }

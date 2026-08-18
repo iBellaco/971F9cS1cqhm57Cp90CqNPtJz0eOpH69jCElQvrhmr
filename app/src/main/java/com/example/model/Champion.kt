@@ -120,6 +120,8 @@ data class DraftAnalysisResult(
     val frontlineStatus: String,
     val directMatchupWarning: String?,
     val directCounterBestPick: String?,
+    val isFirstPickMode: Boolean = false,
+    val bestOverallPick: DraftRecommendation? = null,
     val recommendations: List<DraftRecommendation>
 )
 
@@ -128,5 +130,7 @@ data class DraftRecommendation(
     val estimatedWinrate: Double,
     val advantageBadge: String,
     val tacticalReason: String,
-    val runes: String
+    val runes: String,
+    val synergyDetails: String = "",
+    val counterDetails: String = ""
 )

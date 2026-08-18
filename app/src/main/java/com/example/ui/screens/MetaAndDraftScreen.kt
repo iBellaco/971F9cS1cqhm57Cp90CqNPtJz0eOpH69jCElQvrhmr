@@ -56,6 +56,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -140,12 +142,14 @@ fun MetaAndDraftScreen(
     // Modal Champion Picker & Detail State
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY"
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
+    var isFirstPick by remember { mutableStateOf(false) }
 
-    val analysis = remember(activeRole, allyChampions.toList(), enemyChampions.toList()) {
+    val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList()) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allyChampions,
-            enemies = enemyChampions
+            enemies = enemyChampions,
+            isFirstPick = isFirstPick
         )
     }
 
@@ -269,6 +273,8 @@ fun MetaAndDraftScreen(
                         allies = allyChampions,
                         enemies = enemyChampions,
                         analysis = analysis,
+                        isFirstPick = isFirstPick,
+                        onToggleFirstPick = { isFirstPick = !isFirstPick },
                         onChangeRole = { showRoleChangeDialog = true },
                         onAddAlly = { pickingForTeam = "ALLY" },
                         onAddEnemy = { pickingForTeam = "ENEMY" },
@@ -599,7 +605,7 @@ private fun TierListTab(
             if (tierS.isNotEmpty()) {
                 item {
                     TierSectionCard(
-                        tierName = "TIER S (Fuertes en el Meta)",
+                        tierName = "TIER S (Meta)",
                         tierColor = TierSColor,
                         champions = tierS,
                         onSelectChampion = onSelectChampion
@@ -1180,6 +1186,8 @@ private fun DraftAnalysisTab(
     allies: List<Champion>,
     enemies: List<Champion>,
     analysis: DraftAnalysisResult,
+    isFirstPick: Boolean,
+    onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
     onAddAlly: () -> Unit,
     onAddEnemy: () -> Unit,
@@ -1195,25 +1203,62 @@ private fun DraftAnalysisTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Role active pill
+        // Role active pill & First Pick Row
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(HextechSurface)
-                .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
-                .clickable { onChangeRole() }
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Tu Línea Activa: ", color = TextMuted, fontSize = 13.sp)
-                Text(activeRole.displayName, color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            // Role active pill
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
+                    .clickable { onChangeRole() }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Column {
+                        Text("Línea:", color = TextMuted, fontSize = 10.5.sp)
+                        Text(activeRole.displayName, color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+                Text("Cambiar", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
             }
-            Text("Cambiar", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+
+            // First Pick / Blind Pick Mode Switch Pill
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (isFirstPick) HextechGold.copy(alpha = 0.18f) else HextechSurface)
+                    .border(1.dp, if (isFirstPick) HextechGold else HextechCardBorder, RoundedCornerShape(12.dp))
+                    .clickable { onToggleFirstPick() }
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("1er Pick", color = if (isFirstPick) HextechGold else TextMuted, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isFirstPick) "Blind Pick" else "Counter", color = if (isFirstPick) HextechCyan else TextMuted, fontSize = 10.sp)
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Switch(
+                    checked = isFirstPick,
+                    onCheckedChange = { onToggleFirstPick() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = HextechGold,
+                        checkedTrackColor = HextechGold.copy(alpha = 0.35f),
+                        uncheckedThumbColor = TextMuted,
+                        uncheckedTrackColor = HextechSurfaceVariant
+                    ),
+                    modifier = Modifier.size(32.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -1295,44 +1340,146 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // Live Recommendations
+        // Live Recommendations Header
         Text(
-            text = "Selecciones Recomendadas en Directo",
+            text = if (isFirstPick) "★ Mejor Primer Pick Seguro para ${activeRole.displayName}" else "★ Mejor Opción según tu Equipo y el Rival",
             color = HextechGold,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        analysis.recommendations.forEach { rec ->
+        // #1 Best Pick Hero Card
+        val topPick = analysis.bestOverallPick ?: analysis.recommendations.firstOrNull()
+        if (topPick != null) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { onSelectChampion(rec.champion) },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { onSelectChampion(topPick.champion) }
+                    .border(1.5.dp, HextechGold, RoundedCornerShape(14.dp)),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface)
             ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ChampionAvatar(champion = rec.champion, size = 52.dp)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(rec.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                            Text("Winrate Est.: ${rec.estimatedWinrate}%", color = HextechGold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (isFirstPick) "👑 #1 RECOMENDACIÓN BLIND PICK" else "👑 #1 MEJOR ELECCIÓN TÁCTICA",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = "Winrate Est.: ${topPick.estimatedWinrate}%",
+                            color = HextechCyan,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ChampionAvatar(champion = topPick.champion, size = 56.dp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = topPick.champion.name,
+                                    color = TextPrimary,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Tier ${topPick.champion.tier}",
+                                    color = TierSPlusColor,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Text(
+                                text = topPick.advantageBadge,
+                                color = HextechCyan,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
-                        Text(rec.advantageBadge, color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(rec.tacticalReason, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = topPick.tacticalReason,
+                        color = TextPrimary.copy(alpha = 0.9f),
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "🔮 Runas recomendadas: ${topPick.champion.recommendedRunes} • Toca para ver build",
+                        color = HextechGoldLight,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        // Secondary Recommendations
+        val otherRecs = analysis.recommendations.filter { it.champion.id != topPick?.champion?.id }
+        if (otherRecs.isNotEmpty()) {
+            Text(
+                text = "Otras Opciones Viables para ${activeRole.displayName}:",
+                color = HextechCyan,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+
+            otherRecs.forEach { rec ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { onSelectChampion(rec.champion) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ChampionAvatar(champion = rec.champion, size = 46.dp)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(rec.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("WR: ${rec.estimatedWinrate}%", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Text(rec.advantageBadge, color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(rec.tacticalReason, color = TextMuted, fontSize = 11.sp, lineHeight = 14.sp)
+                        }
                     }
                 }
             }

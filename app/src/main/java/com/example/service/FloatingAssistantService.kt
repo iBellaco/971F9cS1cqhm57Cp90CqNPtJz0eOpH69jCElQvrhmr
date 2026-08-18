@@ -48,6 +48,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import com.example.model.Champion
+import com.example.model.LaneRole
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -253,21 +255,45 @@ private fun FloatingOverlayContent(
     onDragDelta: (Int, Int) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    var touchStartX = remember { 0f }
-    var touchStartY = remember { 0f }
-    var hasMoved = remember { false }
+    var selectedTab by remember { mutableStateOf(0) } // 0: Draft, 1: Objetivos, 2: Objetos, 3: Runas
+    var activeRole by remember { mutableStateOf(LaneRole.MID) }
+    var isFirstPick by remember { mutableStateOf(false) }
+    var lockedChampion by remember { mutableStateOf<Champion?>(null) }
 
-    val morgana = WildRiftRepository.getChampionById("morgana") ?: WildRiftRepository.champions.first()
-    val viego = WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions[1]
+    val allies = remember {
+        listOfNotNull(
+            WildRiftRepository.getChampionById("vayne"),
+            WildRiftRepository.getChampionById("janna"),
+            WildRiftRepository.getChampionById("viego")
+        )
+    }
+    val enemies = remember {
+        listOfNotNull(
+            WildRiftRepository.getChampionById("sett"),
+            WildRiftRepository.getChampionById("vi"),
+            WildRiftRepository.getChampionById("caitlyn")
+        )
+    }
+
+    val analysis = remember(activeRole, isFirstPick, allies, enemies) {
+        WildRiftRepository.analyzeDraft(
+            myRole = activeRole,
+            allies = allies,
+            enemies = enemies,
+            isFirstPick = isFirstPick
+        )
+    }
+
+    val topPick = analysis.recommendations.firstOrNull()
 
     Column(
         horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(6.dp)
+        modifier = Modifier.padding(4.dp)
     ) {
         // Floating Bubble Button (Draggable)
         Box(
             modifier = Modifier
-                .size(54.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
@@ -288,7 +314,7 @@ private fun FloatingOverlayContent(
                 imageVector = Icons.Default.Videocam,
                 contentDescription = "Asistente Flotante",
                 tint = Color.White,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(26.dp)
             )
 
             // Pulse badge indicator
@@ -301,7 +327,7 @@ private fun FloatingOverlayContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Expanded Panel
         AnimatedVisibility(
@@ -311,17 +337,18 @@ private fun FloatingOverlayContent(
         ) {
             Card(
                 modifier = Modifier
-                    .width(300.dp)
+                    .width(320.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.95f)),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.96f)),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(14.dp)
+                        .padding(12.dp)
                 ) {
+                    // Header
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -340,30 +367,190 @@ private fun FloatingOverlayContent(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                    Text(
-                        text = "★ ELECCIÓN ÓPTIMA (Counter & Meta)",
-                        color = HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-
+                    // Tab Selector in Mini HUD
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(HextechSurface)
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ChampionAvatar(champion = morgana, size = 42.dp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(morgana.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                            Text("Winrate: ${morgana.winrate}% • Tier ${morgana.tier}", color = HextechGold, fontSize = 11.sp)
-                            Text("Escudo Negro anula CC de Vi y Sett", color = TextMuted, fontSize = 10.5.sp)
+                        val tabs = listOf("Draft", "Objetivos", "Objetos", "Runas")
+                        tabs.forEachIndexed { index, label ->
+                            val isTabSelected = selectedTab == index
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isTabSelected) HextechCyan else Color.Transparent)
+                                    .clickable { selectedTab = index }
+                                    .padding(vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    color = if (isTabSelected) HextechDarkBg else TextMuted,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Tab Content
+                    when (selectedTab) {
+                        0 -> {
+                            // DRAFT TAB
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = if (isFirstPick) "★ 1er Pick (Seguro)" else "★ Mejor Opción",
+                                    color = HextechGold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = if (isFirstPick) "Modo: Blind Pick" else "Modo: Counter",
+                                    color = HextechCyan,
+                                    fontSize = 10.sp,
+                                    modifier = Modifier.clickable { isFirstPick = !isFirstPick }
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            if (topPick != null) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(HextechSurface)
+                                        .clickable {
+                                            lockedChampion = topPick.champion
+                                            selectedTab = 3
+                                        }
+                                        .padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    ChampionAvatar(champion = topPick.champion, size = 38.dp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(topPick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("WR: ${topPick.estimatedWinrate}% • ${topPick.advantageBadge}", color = HextechGold, fontSize = 10.5.sp)
+                                        Text(topPick.tacticalReason, color = TextMuted, fontSize = 9.5.sp, maxLines = 2)
+                                    }
+                                }
+                            }
+                        }
+
+                        1 -> {
+                            // OBJETIVOS TAB
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                WildRiftRepository.mapObjectives.take(3).forEach { obj ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(HextechSurface)
+                                            .padding(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column {
+                                            Text(obj.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.sp, maxLines = 1)
+                                        }
+                                        Text(obj.spawnTime, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+
+                        2 -> {
+                            // OBJETOS TAB
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                WildRiftRepository.items.take(3).forEach { item ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(HextechSurface)
+                                            .padding(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(item.name, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            Text(item.passive, color = TextMuted, fontSize = 9.sp, maxLines = 1)
+                                        }
+                                        Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp)
+                                    }
+                                }
+                            }
+                        }
+
+                        3 -> {
+                            // RUNAS TAB (SOLO CON CAMPEON FIJADO)
+                            if (lockedChampion == null) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechSurface)
+                                        .padding(10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(
+                                            text = "Selecciona un campeón en Draft para cargar sus Runas",
+                                            color = HextechCyan,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "O fija a ${topPick?.champion?.name ?: "Morgana"}",
+                                            color = HextechGold,
+                                            fontSize = 10.sp,
+                                            modifier = Modifier.clickable {
+                                                lockedChampion = topPick?.champion ?: WildRiftRepository.champions.first()
+                                            }
+                                        )
+                                    }
+                                }
+                            } else {
+                                val currentChamp = lockedChampion ?: return@Column
+                                Column {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("Runas de ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                        Text("Cambiar", color = TextMuted, fontSize = 10.sp, modifier = Modifier.clickable { lockedChampion = null })
+                                    }
+                                    Spacer(modifier = Modifier.height(3.dp))
+                                    Text(
+                                        text = currentChamp.recommendedRunes,
+                                        color = HextechCyan,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Build: ${currentChamp.coreItems.joinToString(" • ")}",
+                                        color = TextMuted,
+                                        fontSize = 9.5.sp
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -383,7 +570,7 @@ private fun FloatingOverlayContent(
                         )
 
                         Text(
-                            text = "Ocultar panel",
+                            text = "Minimizar",
                             color = HextechCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
