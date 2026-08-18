@@ -33,11 +33,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -50,9 +54,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -77,8 +81,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
+import com.example.model.DamageType
+import com.example.model.DraftAnalysisResult
+import com.example.model.ItemCategory
 import com.example.model.LaneRole
-import com.example.model.MetaDataSource
+import com.example.model.MapObjectiveItem
+import com.example.model.RuneItem
+import com.example.model.SummonerSpellItem
+import com.example.model.WildRiftItem
+import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
@@ -93,6 +104,8 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextCyan
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TierAColor
+import com.example.ui.theme.TierSColor
 import com.example.ui.theme.TierSPlusColor
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -105,26 +118,26 @@ fun MetaAndDraftScreen(
     var activeRole by remember { mutableStateOf(userMainRole) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
-    // Draft State with initial realistic champions from video
+    // Draft State
     val allyChampions = remember {
         mutableStateListOf(
-            WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions[10],
-            WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions[11],
-            WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions[8],
+            WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions[8],
+            WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions[3],
+            WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions[4],
             WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions[1]
         )
     }
 
     val enemyChampions = remember {
         mutableStateListOf(
-            WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions[4],
-            WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions[13],
-            WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions[12],
-            WildRiftRepository.getChampionById("rell") ?: WildRiftRepository.champions[14]
+            WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions[2],
+            WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions[7],
+            WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions[6],
+            WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions[5]
         )
     }
 
-    // Modal Champion Picker State
+    // Modal Champion Picker & Detail State
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY"
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
 
@@ -142,13 +155,13 @@ fun MetaAndDraftScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Wild Rift Meta & Draft",
+                            text = "Wild Rift Meta & Catálogo",
                             color = TextPrimary,
-                            fontSize = 19.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Sincronizado: ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                            text = WildRiftRepository.CURRENT_PATCH_VERSION,
                             color = HextechCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
@@ -170,7 +183,6 @@ fun MetaAndDraftScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            // Reset / reload sample draft
                             allyChampions.clear()
                             allyChampions.addAll(
                                 listOfNotNull(
@@ -186,7 +198,7 @@ fun MetaAndDraftScreen(
                                     WildRiftRepository.getChampionById("sett"),
                                     WildRiftRepository.getChampionById("vi"),
                                     WildRiftRepository.getChampionById("caitlyn"),
-                                    WildRiftRepository.getChampionById("rell")
+                                    WildRiftRepository.getChampionById("nautilus")
                                 )
                             )
                         },
@@ -209,12 +221,22 @@ fun MetaAndDraftScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Tabs
-            val tabs = listOf("Análisis de Draft", "Builds & Tier List", "Fuentes Meta (4)")
-            TabRow(
+            // Scrollable Tab Row with all requested sections
+            val tabs = listOf(
+                "Drafting",
+                "Campeones",
+                "Tier List",
+                "Objetos",
+                "Runas & Hechizos",
+                "Objetivos",
+                "Fuentes Meta"
+            )
+
+            ScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = HextechSurface,
                 contentColor = HextechCyan,
+                edgePadding = 12.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
@@ -241,7 +263,7 @@ fun MetaAndDraftScreen(
 
             when (selectedTabIndex) {
                 0 -> {
-                    // Tab 1: Análisis de Draft
+                    // SECCIÓN: ANÁLISIS DE DRAFTING & COUNTERS
                     DraftAnalysisTab(
                         activeRole = activeRole,
                         allies = allyChampions,
@@ -252,498 +274,85 @@ fun MetaAndDraftScreen(
                         onAddEnemy = { pickingForTeam = "ENEMY" },
                         onRemoveAlly = { allyChampions.remove(it) },
                         onRemoveEnemy = { enemyChampions.remove(it) },
-                        onChampionClick = { selectedDetailChampion = it }
+                        onSelectChampion = { selectedDetailChampion = it }
                     )
                 }
                 1 -> {
-                    // Tab 2: Builds & Tier List
-                    BuildsAndTierListTab(
+                    // SECCIÓN: CATÁLOGO DE CAMPEONES
+                    ChampionsCatalogTab(
                         onSelectChampion = { selectedDetailChampion = it }
                     )
                 }
                 2 -> {
-                    // Tab 3: Fuentes Meta y Sincronización Automática
-                    StatsAndSourcesTab()
+                    // SECCIÓN: TIER LIST OFICIAL WILD RIFT
+                    TierListTab(
+                        onSelectChampion = { selectedDetailChampion = it }
+                    )
+                }
+                3 -> {
+                    // SECCIÓN: OBJETOS (ITEMS) DE WILD RIFT
+                    ItemsCatalogTab()
+                }
+                4 -> {
+                    // SECCIÓN: RUNAS Y HECHIZOS
+                    RunesAndSpellsTab()
+                }
+                5 -> {
+                    // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
+                    MapObjectivesTab()
+                }
+                6 -> {
+                    // SECCIÓN: FUENTES META (4 PORTALES)
+                    MetaSourcesTab()
                 }
             }
         }
     }
 
-    // Modal Champion Picker for Draft Slots
+    // Modal Champion Detail Sheet
+    if (selectedDetailChampion != null) {
+        ChampionDetailSheet(
+            champion = selectedDetailChampion,
+            onDismiss = { selectedDetailChampion = null }
+        )
+    }
+
+    // Modal Champion Picker for Draft
     if (pickingForTeam != null) {
-        ChampionPickerSheet(
-            title = if (pickingForTeam == "ALLY") "Añadir Campeón Aliado" else "Añadir Campeón Rival",
-            onDismiss = { pickingForTeam = null },
-            onChampionSelected = { selected ->
-                if (pickingForTeam == "ALLY") {
-                    if (allyChampions.none { it.id == selected.id } && enemyChampions.none { it.id == selected.id }) {
-                        if (allyChampions.size < 4) allyChampions.add(selected)
-                    }
-                } else {
-                    if (enemyChampions.none { it.id == selected.id } && allyChampions.none { it.id == selected.id }) {
-                        if (enemyChampions.size < 5) enemyChampions.add(selected)
-                    }
+        DraftChampionPickerSheet(
+            team = pickingForTeam!!,
+            alreadySelected = (allyChampions + enemyChampions).map { it.id },
+            onChampionPicked = { champ ->
+                if (pickingForTeam == "ALLY" && allyChampions.size < 5) {
+                    allyChampions.add(champ)
+                } else if (pickingForTeam == "ENEMY" && enemyChampions.size < 5) {
+                    enemyChampions.add(champ)
                 }
                 pickingForTeam = null
-            }
+            },
+            onDismiss = { pickingForTeam = null }
         )
     }
 
-    // Role Selection Dialog
+    // Role Switch Dialog
     if (showRoleChangeDialog) {
-        RoleChangeSheet(
+        RoleChangeBottomSheet(
             currentRole = activeRole,
-            onDismiss = { showRoleChangeDialog = false },
-            onSelect = {
+            onRoleSelected = {
                 activeRole = it
                 showRoleChangeDialog = false
-            }
-        )
-    }
-
-    // Champion Detail Sheet
-    ChampionDetailSheet(
-        champion = selectedDetailChampion,
-        onDismiss = { selectedDetailChampion = null }
-    )
-}
-
-@Composable
-private fun DraftAnalysisTab(
-    activeRole: LaneRole,
-    allies: List<Champion>,
-    enemies: List<Champion>,
-    analysis: com.example.model.DraftAnalysisResult,
-    onChangeRole: () -> Unit,
-    onAddAlly: () -> Unit,
-    onAddEnemy: () -> Unit,
-    onRemoveAlly: (Champion) -> Unit,
-    onRemoveEnemy: (Champion) -> Unit,
-    onChampionClick: (Champion) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        // Tu Rol a Elegir Banner
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Tu Rol a Elegir: ",
-                        color = TextMuted,
-                        fontSize = 13.sp
-                    )
-                    Text(
-                        text = activeRole.displayName,
-                        color = HextechCyan,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(HextechCyan.copy(alpha = 0.15f))
-                        .border(1.dp, HextechCyan, RoundedCornerShape(8.dp))
-                        .clickable { onChangeRole() }
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "CAMBIAR",
-                        color = HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // Slots Aliados vs Rivales
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Allies Column
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Aliados (${allies.size}/4)",
-                    color = AllyBlue,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                allies.forEach { champ ->
-                    DraftSlotItem(
-                        champion = champ,
-                        isAlly = true,
-                        onRemove = { onRemoveAlly(champ) },
-                        onClick = { onChampionClick(champ) }
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-                if (allies.size < 4) {
-                    AddSlotButton(label = "+ Añadir Aliado", isAlly = true, onClick = onAddAlly)
-                }
-            }
-
-            // Enemies Column
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Rivales (${enemies.size}/4)",
-                    color = DangerRed,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                enemies.forEach { champ ->
-                    DraftSlotItem(
-                        champion = champ,
-                        isAlly = false,
-                        onRemove = { onRemoveEnemy(champ) },
-                        onClick = { onChampionClick(champ) }
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-                if (enemies.size < 4) {
-                    AddSlotButton(label = "+ Añadir Rival", isAlly = false, onClick = onAddEnemy)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Composición del Equipo Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Composición del Equipo",
-                    color = HextechGold,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Damage Balance Progress
-                Text(
-                    text = "Daño: ${analysis.physicalDamagePercent}% Físico / ${analysis.magicDamagePercent}% Mágico",
-                    color = TextPrimary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(Color(0xFF1E293B))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(analysis.physicalDamagePercent / 100f)
-                            .height(8.dp)
-                            .background(DangerRed)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(HextechCyan)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "Vanguardia: ${analysis.frontlineStatus}",
-                    color = if (analysis.frontlineStatus.startsWith("⚠️")) HextechGold else AllyBlue,
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                // Direct matchup highlight
-                if (analysis.directCounterBestPick != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(DangerRedSurface)
-                            .border(1.dp, DangerRed.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = DangerRed,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = analysis.directMatchupWarning ?: "Aviso Táctico:",
-                                    color = DangerRed,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = analysis.directCounterBestPick,
-                                color = HextechGoldLight,
-                                fontSize = 12.sp,
-                                lineHeight = 16.sp
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Top Recomendaciones Section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.AutoAwesome,
-                    contentDescription = null,
-                    tint = HextechCyan,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Top Recomendaciones (${activeRole.shortName})",
-                    color = TextPrimary,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(HextechCyan.copy(alpha = 0.12f))
-                    .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = "Auto-Meta Sync",
-                    color = HextechCyan,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-
-        analysis.recommendations.forEach { rec ->
-            RecommendationCard(
-                recommendation = rec,
-                onClick = { onChampionClick(rec.champion) }
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun RecommendationCard(
-    recommendation: com.example.model.DraftRecommendation,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .testTag("rec_card_${recommendation.champion.id}"),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChampionAvatar(champion = recommendation.champion, size = 48.dp)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = recommendation.champion.name,
-                                color = TextPrimary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(HextechCyan.copy(alpha = 0.15f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = recommendation.advantageBadge,
-                                    color = HextechCyan,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                        Text(
-                            text = "Winrate Est: ${String.format("%.1f", recommendation.estimatedWinrate)}%",
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = recommendation.tacticalReason,
-                color = HextechGoldLight,
-                fontSize = 12.5.sp,
-                lineHeight = 17.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Runas Óptimas: ",
-                    color = TextMuted,
-                    fontSize = 11.5.sp
-                )
-                Text(
-                    text = recommendation.runes,
-                    color = HextechCyan,
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DraftSlotItem(
-    champion: Champion,
-    isAlly: Boolean,
-    onRemove: () -> Unit,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (isAlly) HextechSurface else DangerRedSurface)
-            .border(
-                1.dp,
-                if (isAlly) AllyBlue.copy(alpha = 0.4f) else DangerRed.copy(alpha = 0.4f),
-                RoundedCornerShape(10.dp)
-            )
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp, vertical = 6.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ChampionAvatar(champion = champion, size = 34.dp, showTierBadge = false)
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(
-                        text = champion.name,
-                        color = TextPrimary,
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = champion.primaryRole.shortName,
-                        color = TextMuted,
-                        fontSize = 10.sp
-                    )
-                }
-            }
-
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Quitar",
-                    tint = TextMuted,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AddSlotButton(
-    label: String,
-    isAlly: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(HextechSurface.copy(alpha = 0.5f))
-            .border(
-                1.dp,
-                if (isAlly) AllyBlue.copy(alpha = 0.3f) else DangerRed.copy(alpha = 0.3f),
-                RoundedCornerShape(10.dp)
-            )
-            .clickable { onClick() }
-            .padding(vertical = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            color = if (isAlly) AllyBlue else DangerRed,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
+            },
+            onDismiss = { showRoleChangeDialog = false }
         )
     }
 }
 
+// ====================================================================
+// TAB 1: CATÁLOGO DE CAMPEONES (BUSCADOR, FILTROS, IMÁGENES Y METAS)
+// ====================================================================
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BuildsAndTierListTab(
+private fun ChampionsCatalogTab(
     onSelectChampion: (Champion) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -752,83 +361,92 @@ private fun BuildsAndTierListTab(
 
     val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter) {
         WildRiftRepository.champions.filter { champ ->
-            val matchesSearch = champ.name.contains(searchQuery, ignoreCase = true)
-            val matchesRole = selectedRoleFilter == null || champ.primaryRole == selectedRoleFilter || champ.secondaryRoles.contains(selectedRoleFilter)
+            val matchesQuery = champ.name.contains(searchQuery, ignoreCase = true) ||
+                    champ.summary.contains(searchQuery, ignoreCase = true)
+            val matchesRole = selectedRoleFilter == null ||
+                    champ.primaryRole == selectedRoleFilter ||
+                    champ.secondaryRoles.contains(selectedRoleFilter)
             val matchesTier = selectedTierFilter == null || champ.tier == selectedTierFilter
-            matchesSearch && matchesRole && matchesTier
-        }.sortedByDescending { it.winrate }
+            matchesQuery && matchesRole && matchesTier
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
         // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Buscar campeón de Wild Rift...", color = TextMuted, fontSize = 13.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("champions_search_input"),
+            placeholder = { Text("Buscar campeón por nombre o habilidad...", color = TextMuted, fontSize = 13.sp) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted)
+                    }
+                }
+            },
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = HextechSurface,
-                unfocusedContainerColor = HextechSurface,
                 focusedBorderColor = HextechCyan,
                 unfocusedBorderColor = HextechCardBorder,
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary
+                focusedContainerColor = HextechSurface,
+                unfocusedContainerColor = HextechSurface
             ),
-            modifier = Modifier.fillMaxWidth().testTag("champion_search_field")
+            shape = RoundedCornerShape(12.dp)
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Role Filter Chips Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        // Role Filter Chips
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             FilterChip(
                 selected = selectedRoleFilter == null,
                 onClick = { selectedRoleFilter = null },
-                label = { Text("Todos", fontSize = 11.sp) },
+                label = { Text("Todos los Roles", fontSize = 11.5.sp) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg,
-                    containerColor = HextechSurface,
-                    labelColor = TextMuted
+                    selectedLabelColor = HextechDarkBg
                 )
             )
             LaneRole.entries.forEach { role ->
                 FilterChip(
                     selected = selectedRoleFilter == role,
                     onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
-                    label = { Text(role.shortName, fontSize = 11.sp) },
+                    label = { Text(role.shortName, fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
-                        selectedLabelColor = HextechDarkBg,
-                        containerColor = HextechSurface,
-                        labelColor = TextMuted
+                        selectedLabelColor = HextechDarkBg
                     )
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
+        // Champions List
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(filteredChampions) { champion ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
                         .clickable { onSelectChampion(champion) }
-                        .testTag("tier_item_${champion.id}"),
-                    shape = RoundedCornerShape(12.dp),
+                        .testTag("champion_item_${champion.id}"),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                 ) {
@@ -836,49 +454,239 @@ private fun BuildsAndTierListTab(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ChampionAvatar(champion = champion, size = 58.dp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = champion.name,
+                                    color = TextPrimary,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "WR: ${champion.winrate}%",
+                                    color = HextechGold,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Text(
+                                text = "${champion.primaryRole.displayName} • ${champion.damageType.displayName}",
+                                color = HextechCyan,
+                                fontSize = 11.5.sp
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = champion.summary,
+                                color = TextMuted,
+                                fontSize = 11.sp,
+                                maxLines = 2,
+                                lineHeight = 15.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            // Skill icons preview
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                champion.skills.take(5).forEach { skill ->
+                                    AppAssetImage(
+                                        url = skill.iconUrl,
+                                        contentDescription = skill.name,
+                                        fallbackText = skill.slot,
+                                        modifier = Modifier.size(20.dp),
+                                        borderColor = HextechCyan.copy(alpha = 0.6f),
+                                        shape = RoundedCornerShape(4.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Toca para ver build y runas",
+                                    color = HextechGoldLight,
+                                    fontSize = 10.5.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+}
+
+// ====================================================================
+// TAB 2: TIER LIST OFICIAL WILD RIFT (POR LÍNEAS Y TIERS)
+// ====================================================================
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TierListTab(
+    onSelectChampion: (Champion) -> Unit
+) {
+    var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
+
+    val championsToDisplay = remember(selectedLane) {
+        if (selectedLane == null) WildRiftRepository.champions
+        else WildRiftRepository.getChampionsByRole(selectedLane!!)
+    }
+
+    val tierSPlus = championsToDisplay.filter { it.tier == "S+" }
+    val tierS = championsToDisplay.filter { it.tier == "S" }
+    val tierA = championsToDisplay.filter { it.tier == "A+" || it.tier == "A" }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Role Filter
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            FilterChip(
+                selected = selectedLane == null,
+                onClick = { selectedLane = null },
+                label = { Text("Todas las Líneas", fontSize = 11.5.sp) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = HextechCyan,
+                    selectedLabelColor = HextechDarkBg
+                )
+            )
+            LaneRole.entries.forEach { role ->
+                FilterChip(
+                    selected = selectedLane == role,
+                    onClick = { selectedLane = if (selectedLane == role) null else role },
+                    label = { Text(role.shortName, fontSize = 11.5.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            // Tier S+
+            if (tierSPlus.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
+                        tierColor = TierSPlusColor,
+                        champions = tierSPlus,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            // Tier S
+            if (tierS.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER S (Fuertes en el Meta)",
+                        tierColor = TierSColor,
+                        champions = tierS,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            // Tier A
+            if (tierA.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER A (Opciones Sólidas y Balanceadas)",
+                        tierColor = TierAColor,
+                        champions = tierA,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TierSectionCard(
+    tierName: String,
+    tierColor: Color,
+    champions: List<Champion>,
+    onSelectChampion: (Champion) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = androidx.compose.foundation.BorderStroke(1.5.dp, tierColor.copy(alpha = 0.8f))
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(tierColor)
+                )
+                Text(
+                    text = tierName,
+                    color = tierColor,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                champions.forEach { champ ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                            .clickable { onSelectChampion(champ) }
+                            .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            ChampionAvatar(champion = champion, size = 48.dp)
-                            Spacer(modifier = Modifier.width(12.dp))
+                            ChampionAvatar(champion = champ, size = 44.dp, showTierBadge = false)
+                            Spacer(modifier = Modifier.width(10.dp))
                             Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = champion.name,
-                                        color = TextPrimary,
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "• ${champion.primaryRole.shortName}",
-                                        color = HextechCyan,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                                Text(
-                                    text = "WR: ${champion.winrate}% • Pick: ${champion.pickRate}% • Ban: ${champion.banRate}%",
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
+                                Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("${champ.primaryRole.shortName} • ${champ.damageType.displayName}", color = HextechCyan, fontSize = 11.sp)
                             }
                         }
-
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(HextechCyan.copy(alpha = 0.15f))
-                                .border(1.dp, HextechCyan, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "VER BUILD",
-                                color = HextechCyan,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                                Text("Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.5.sp)
+                            }
+                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -887,215 +695,622 @@ private fun BuildsAndTierListTab(
     }
 }
 
+// ====================================================================
+// TAB 3: CATÁLOGO DE OBJETOS (ITEMS) DE WILD RIFT
+// ====================================================================
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun StatsAndSourcesTab() {
+private fun ItemsCatalogTab() {
+    var selectedCategory by remember { mutableStateOf<ItemCategory?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredItems = remember(selectedCategory, searchQuery) {
+        WildRiftRepository.items.filter { item ->
+            val matchesCategory = selectedCategory == null || item.category == selectedCategory
+            val matchesSearch = item.name.contains(searchQuery, ignoreCase = true) ||
+                    item.stats.contains(searchQuery, ignoreCase = true) ||
+                    item.passive.contains(searchQuery, ignoreCase = true)
+            matchesCategory && matchesSearch
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Buscar objeto por nombre o estadísticas...", color = TextMuted, fontSize = 13.sp) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = HextechCyan,
+                unfocusedBorderColor = HextechCardBorder,
+                focusedContainerColor = HextechSurface,
+                unfocusedContainerColor = HextechSurface
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Category Filter Chips
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            FilterChip(
+                selected = selectedCategory == null,
+                onClick = { selectedCategory = null },
+                label = { Text("Todos", fontSize = 11.5.sp) },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = HextechCyan,
+                    selectedLabelColor = HextechDarkBg
+                )
+            )
+            ItemCategory.entries.forEach { cat ->
+                FilterChip(
+                    selected = selectedCategory == cat,
+                    onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
+                    label = { Text(cat.displayName, fontSize = 11.5.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(filteredItems) { item ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        AppAssetImage(
+                            url = item.iconUrl,
+                            contentDescription = item.name,
+                            fallbackText = item.name,
+                            modifier = Modifier.size(50.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(item.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Coste: ${item.goldCost} Oro", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                            }
+                            Text(item.category.displayName, color = HextechCyan, fontSize = 11.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(item.stats, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(item.passive, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                        }
+                    }
+                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+}
+
+// ====================================================================
+// TAB 4: CATÁLOGO DE RUNAS Y HECHIZOS
+// ====================================================================
+@Composable
+private fun RunesAndSpellsTab() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Hechizos de Invocador
+        Text("Hechizos de Invocador (Wild Rift)", color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            WildRiftRepository.summonerSpells.forEach { spell ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        AppAssetImage(
+                            url = spell.iconUrl,
+                            contentDescription = spell.name,
+                            fallbackText = spell.name,
+                            modifier = Modifier.size(42.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                Text("Enfriamiento: ${spell.cooldown}", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                            }
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Runas Clave
+        Text("Runas Clave del Meta (Wild Rift)", color = HextechCyan, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            WildRiftRepository.runes.forEach { rune ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        AppAssetImage(
+                            url = rune.iconUrl,
+                            contentDescription = rune.name,
+                            fallbackText = rune.name,
+                            modifier = Modifier.size(42.dp),
+                            borderColor = HextechCyan,
+                            shape = CircleShape
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                Text(rune.category, color = HextechCyan, fontSize = 11.sp)
+                            }
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// ====================================================================
+// TAB 5: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS DE WILD RIFT)
+// ====================================================================
+@Composable
+private fun MapObjectivesTab() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text("Monstruos Épicos & Tiempos de Aparición", color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text("Conocer los tiempos exactos de aparición en Wild Rift asegura la victoria de tu equipo:", color = TextMuted, fontSize = 11.5.sp)
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            WildRiftRepository.mapObjectives.forEach { obj ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        AppAssetImage(
+                            url = obj.iconUrl,
+                            contentDescription = obj.name,
+                            fallbackText = obj.name,
+                            modifier = Modifier.size(52.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(obj.spawnTime, color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                            }
+                            Text(obj.respawnTime, color = TextMuted, fontSize = 10.5.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Mejora: ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text("Táctica: ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// ====================================================================
+// TAB 6: FUENTES META OFICIALES (4 PORTALES)
+// ====================================================================
+@Composable
+private fun MetaSourcesTab() {
     val uriHandler = LocalUriHandler.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
     ) {
-        // Sync Status Banner
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechCyan)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(HextechCyan.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Sync,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Sincronización Automática Activa",
-                            color = HextechCyan,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Text(
-                        text = "${WildRiftRepository.CURRENT_PATCH_VERSION} • Base de datos consolidada con 4 fuentes oficiales",
-                        color = TextMuted,
-                        fontSize = 11.5.sp
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Portales Web Oficiales del Meta",
+            text = "4 Fuentes Meta Oficiales",
             color = HextechGold,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "La aplicación consulta y sincroniza automáticamente las runas, campeones, parches y builds de estos sitios:",
+            text = "Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan automáticamente con estos portales:",
             color = TextMuted,
             fontSize = 12.sp
         )
-
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 4 Official Portals
         WildRiftRepository.metaSources.forEach { source ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        try {
-                            uriHandler.openUri(source.url)
-                        } catch (_: Exception) {}
-                    }
-                    .testTag("source_card_${source.id}"),
+                        try { uriHandler.openUri(source.url) } catch (_: Exception) {}
+                    },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
-                Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Language,
-                                contentDescription = null,
-                                tint = HextechCyan,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = source.name,
-                                color = TextPrimary,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(HextechGold.copy(alpha = 0.15f))
-                                .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = source.badge,
-                                color = HextechGold,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechCyan.copy(alpha = 0.15f))
+                                        .border(1.dp, HextechCyan, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(source.badge, color = HextechCyan, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                            Text(source.description, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                            Text(source.url, color = HextechGold, fontSize = 11.sp)
                         }
                     }
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                }
+            }
+        }
 
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = source.description,
-                        color = HextechGoldLight,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// ====================================================================
+// TAB 0: ANÁLISIS DE DRAFTING & COUNTERS
+// ====================================================================
+@Composable
+private fun DraftAnalysisTab(
+    activeRole: LaneRole,
+    allies: List<Champion>,
+    enemies: List<Champion>,
+    analysis: DraftAnalysisResult,
+    onChangeRole: () -> Unit,
+    onAddAlly: () -> Unit,
+    onAddEnemy: () -> Unit,
+    onRemoveAlly: (Champion) -> Unit,
+    onRemoveEnemy: (Champion) -> Unit,
+    onSelectChampion: (Champion) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Role active pill
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(HextechSurface)
+                .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
+                .clickable { onChangeRole() }
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Tu Línea Activa: ", color = TextMuted, fontSize = 13.sp)
+                Text(activeRole.displayName, color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+            Text("Cambiar", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Team Drafting Slots (Allies & Enemies)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Allies Column
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Equipo Aliado (${allies.size}/5)",
+                    color = AllyBlue,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                allies.forEach { champ ->
+                    TeamChampionSlot(
+                        champion = champ,
+                        isEnemy = false,
+                        onRemove = { onRemoveAlly(champ) },
+                        onClick = { onSelectChampion(champ) }
                     )
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                if (allies.size < 5) {
+                    AddChampionSlotButton(isEnemy = false, onClick = onAddAlly)
+                }
+            }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Especialidad: ${source.focusArea}",
-                            color = HextechCyan,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Visitar web",
-                                color = TextMuted,
-                                fontSize = 11.sp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                contentDescription = null,
-                                tint = TextMuted,
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
+            // Enemies Column
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Equipo Rival (${enemies.size}/5)",
+                    color = DangerRed,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                enemies.forEach { champ ->
+                    TeamChampionSlot(
+                        champion = champ,
+                        isEnemy = true,
+                        onRemove = { onRemoveEnemy(champ) },
+                        onClick = { onSelectChampion(champ) }
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                if (enemies.size < 5) {
+                    AddChampionSlotButton(isEnemy = true, onClick = onAddEnemy)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Warnings & Matchup
+        if (analysis.directMatchupWarning != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = DangerRedSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text("Alerta de Composición Rival", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(analysis.directMatchupWarning, color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        // Live Recommendations
+        Text(
+            text = "Selecciones Recomendadas en Directo",
+            color = HextechGold,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Control de Objetivos Clave Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Control de Objetivos Clave (Wild Rift)",
-                    color = HextechCyan,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "• Dragón Elemental: Minuto 4:00 (Mayor prioridad si tu ADC tiene ventaja de rango).\n" +
-                           "• Heraldo de la Grieta: Minuto 5:00 (Prioridad para abrir primera torre).\n" +
-                           "• Barón Nashor y Dragón Anciano: Minuto 12:00 (Decisivos para cerrar partidas).",
-                    color = TextMuted,
-                    fontSize = 12.5.sp,
-                    lineHeight = 18.sp
-                )
+        analysis.recommendations.forEach { rec ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onSelectChampion(rec.champion) },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ChampionAvatar(champion = rec.champion, size = 52.dp)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(rec.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text("Winrate Est.: ${rec.estimatedWinrate}%", color = HextechGold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Text(rec.advantageBadge, color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(rec.tacticalReason, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                    }
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(30.dp))
+    }
+}
+
+@Composable
+private fun TeamChampionSlot(
+    champion: Champion,
+    isEnemy: Boolean,
+    onRemove: () -> Unit,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .clickable { onClick() },
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (isEnemy) DangerRed.copy(alpha = 0.6f) else AllyBlue.copy(alpha = 0.6f))
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ChampionAvatar(champion = champion, size = 36.dp, showTierBadge = false)
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                    Text(champion.primaryRole.shortName, color = if (isEnemy) DangerRed else AllyBlue, fontSize = 10.5.sp)
+                }
+            }
+            IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
+                Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = TextMuted, modifier = Modifier.size(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddChampionSlotButton(
+    isEnemy: Boolean,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(HextechSurface)
+            .border(
+                1.dp,
+                if (isEnemy) DangerRed.copy(alpha = 0.4f) else AllyBlue.copy(alpha = 0.4f),
+                RoundedCornerShape(10.dp)
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Add, contentDescription = null, tint = if (isEnemy) DangerRed else AllyBlue, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Añadir", color = if (isEnemy) DangerRed else AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChampionPickerSheet(
-    title: String,
-    onDismiss: () -> Unit,
-    onChampionSelected: (Champion) -> Unit
+private fun DraftChampionPickerSheet(
+    team: String,
+    alreadySelected: List<String>,
+    onChampionPicked: (Champion) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    var search by remember { mutableStateOf("") }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var search by remember { mutableStateOf("") }
 
-    val list = remember(search) {
-        WildRiftRepository.champions.filter { it.name.contains(search, ignoreCase = true) }
+    val availableChamps = remember(search, alreadySelected) {
+        WildRiftRepository.champions.filter { champ ->
+            !alreadySelected.contains(champ.id) &&
+                    (search.isBlank() || champ.name.contains(search, ignoreCase = true))
+        }
     }
 
     ModalBottomSheet(
@@ -1109,43 +1324,51 @@ private fun ChampionPickerSheet(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = title,
-                color = HextechGold,
+                text = if (team == "ALLY") "Seleccionar Campeón Aliado" else "Seleccionar Campeón Rival",
+                color = if (team == "ALLY") AllyBlue else DangerRed,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(10.dp))
+
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = { Text("Buscar...", color = TextMuted) },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Buscar campeón...", color = TextMuted, fontSize = 13.sp) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                shape = RoundedCornerShape(10.dp)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(380.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(list) { champ ->
+                items(availableChamps) { champ ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .background(HextechSurface)
-                            .clickable { onChampionSelected(champ) }
+                            .clickable { onChampionPicked(champ) }
                             .padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        ChampionAvatar(champion = champ, size = 40.dp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(text = champ.name, color = TextPrimary, fontWeight = FontWeight.Bold)
-                            Text(text = "${champ.primaryRole.displayName} • Tier ${champ.tier}", color = HextechCyan, fontSize = 11.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ChampionAvatar(champion = champ, size = 42.dp)
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("${champ.primaryRole.displayName} • Tier ${champ.tier}", color = HextechCyan, fontSize = 11.sp)
+                            }
                         }
+                        Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                     }
                 }
             }
@@ -1156,12 +1379,13 @@ private fun ChampionPickerSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RoleChangeSheet(
+private fun RoleChangeBottomSheet(
     currentRole: LaneRole,
-    onDismiss: () -> Unit,
-    onSelect: (LaneRole) -> Unit
+    onRoleSelected: (LaneRole) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -1170,39 +1394,31 @@ private fun RoleChangeSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
-            Text(
-                text = "Cambiar tu Rol para el Draft",
-                color = HextechGold,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(14.dp))
+            Text("Selecciona tu Línea para esta Partida", color = HextechGold, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(12.dp))
 
             LaneRole.entries.forEach { role ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (role == currentRole) HextechSurface else Color.Transparent)
-                        .clickable { onSelect(role) }
+                        .background(if (role == currentRole) HextechCyan.copy(alpha = 0.2f) else HextechSurface)
+                        .border(1.dp, if (role == currentRole) HextechCyan else HextechCardBorder, RoundedCornerShape(10.dp))
+                        .clickable { onRoleSelected(role) }
                         .padding(14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = role.displayName,
-                        color = if (role == currentRole) HextechCyan else TextPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(role.displayName, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     if (role == currentRole) {
                         Icon(Icons.Default.Check, contentDescription = null, tint = HextechCyan)
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

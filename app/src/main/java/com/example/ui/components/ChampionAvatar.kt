@@ -3,11 +3,13 @@ package com.example.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,10 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
 import com.example.model.Champion
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -34,7 +40,6 @@ fun ChampionAvatar(
     showTierBadge: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    // Generate harmonious colors for champion portrait background based on name
     val avatarBrush = when (champion.id) {
         "morgana" -> Brush.radialGradient(listOf(Color(0xFF8B5CF6), Color(0xFF2E1065), Color(0xFF0F051D)))
         "viego" -> Brush.radialGradient(listOf(Color(0xFF00F2FE), Color(0xFF005A82), Color(0xFF071426)))
@@ -54,30 +59,86 @@ fun ChampionAvatar(
         "ahri" -> Brush.radialGradient(listOf(Color(0xFFF472B6), Color(0xFF9D174D), Color(0xFF38071B)))
         "zed" -> Brush.radialGradient(listOf(Color(0xFFEF4444), Color(0xFF330808), Color(0xFF110202)))
         "kaisa" -> Brush.radialGradient(listOf(Color(0xFFA855F7), Color(0xFF3B0764), Color(0xFF130122)))
+        "lux" -> Brush.radialGradient(listOf(Color(0xFFFDE047), Color(0xFFCA8A04), Color(0xFF422006)))
+        "lee_sin" -> Brush.radialGradient(listOf(Color(0xFFF97316), Color(0xFF9A3412), Color(0xFF431407)))
+        "ezreal" -> Brush.radialGradient(listOf(Color(0xFF38BDF8), Color(0xFF0284C7), Color(0xFF0C4A6E)))
+        "yone" -> Brush.radialGradient(listOf(Color(0xFFE11D48), Color(0xFF881337), Color(0xFF4C0519)))
         else -> Brush.radialGradient(listOf(HextechCyan, Color(0xFF003852), HextechDarkBg))
     }
+
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
             .size(size)
             .padding(2.dp)
     ) {
-        // Champion Face Icon with stylized initial and Hextech border
+        // Champion portrait circle
         Box(
             modifier = Modifier
                 .size(size - 4.dp)
                 .clip(CircleShape)
-                .background(avatarBrush)
+                .background(HextechDarkBg)
                 .border(1.5.dp, HextechGold, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            // Elegant champion monogram / stylized portrait
-            Text(
-                text = champion.name.take(2).uppercase(),
-                color = Color.White,
-                fontSize = (size.value * 0.32).sp,
-                fontWeight = FontWeight.Black
-            )
+            if (champion.avatarUrl.isNotBlank()) {
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(champion.avatarUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = champion.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(size - 4.dp)
+                        .clip(CircleShape),
+                    loading = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(avatarBrush),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = champion.name.take(2).uppercase(),
+                                color = Color.White,
+                                fontSize = (size.value * 0.32).sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    },
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(avatarBrush),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = champion.name.take(2).uppercase(),
+                                color = Color.White,
+                                fontSize = (size.value * 0.32).sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(avatarBrush),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = champion.name.take(2).uppercase(),
+                        color = Color.White,
+                        fontSize = (size.value * 0.32).sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
         }
 
         // Tier Badge in bottom corner
@@ -103,6 +164,62 @@ fun ChampionAvatar(
                     fontWeight = FontWeight.Black
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun AppAssetImage(
+    url: String,
+    contentDescription: String?,
+    fallbackText: String,
+    modifier: Modifier = Modifier,
+    borderColor: Color = HextechGold,
+    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(8.dp)
+) {
+    val context = LocalContext.current
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(HextechDarkBg)
+            .border(1.dp, borderColor, shape),
+        contentAlignment = Alignment.Center
+    ) {
+        if (url.isNotBlank()) {
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(url)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape),
+                error = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(HextechDarkBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = fallbackText.take(2).uppercase(),
+                            color = borderColor,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            )
+        } else {
+            Text(
+                text = fallbackText.take(2).uppercase(),
+                color = borderColor,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
