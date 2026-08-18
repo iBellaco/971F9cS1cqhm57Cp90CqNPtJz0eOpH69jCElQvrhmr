@@ -35,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +70,16 @@ fun InAppWebSourceDialog(
     var webViewInstance by remember { mutableStateOf<WebView?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var hasError by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            try {
+                webViewInstance?.stopLoading()
+                webViewInstance?.destroy()
+                webViewInstance = null
+            } catch (_: Exception) {}
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -186,12 +197,14 @@ fun InAppWebSourceDialog(
                     AndroidView(
                         factory = { ctx ->
                             WebView(ctx).apply {
+                                setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
                                 settings.javaScriptEnabled = true
                                 settings.domStorageEnabled = true
                                 settings.loadWithOverviewMode = true
                                 settings.useWideViewPort = true
                                 settings.builtInZoomControls = true
                                 settings.displayZoomControls = false
+                                settings.cacheMode = android.webkit.WebSettings.LOAD_DEFAULT
 
                                 webViewClient = object : WebViewClient() {
                                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {

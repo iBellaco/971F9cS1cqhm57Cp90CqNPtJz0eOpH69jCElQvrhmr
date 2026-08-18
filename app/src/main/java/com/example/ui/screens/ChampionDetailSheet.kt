@@ -469,6 +469,7 @@ fun ChampionDetailSheet(
             Spacer(modifier = Modifier.height(6.dp))
 
             val links = listOf(
+                Pair("Oficial Wild Rift (ES)", "https://wildrift.leagueoflegends.com/es-es/champions/"),
                 Pair("WildRiftCore (ES)", champion.wildRiftCoreUrl),
                 Pair("BestBuildWR", champion.bestBuildWrUrl),
                 Pair("WildRiftFire", champion.wildRiftFireUrl),

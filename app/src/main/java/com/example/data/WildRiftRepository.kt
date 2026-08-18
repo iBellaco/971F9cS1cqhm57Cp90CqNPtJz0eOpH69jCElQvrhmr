@@ -28,6 +28,14 @@ object WildRiftRepository {
 
     val metaSources: List<MetaDataSource> = listOf(
         MetaDataSource(
+            id = "riot_wildrift_official",
+            name = "Wild Rift Oficial (Riot Games)",
+            url = "https://wildrift.leagueoflegends.com/es-es/champions/",
+            badge = "Sitio Oficial",
+            description = "Portal oficial de League of Legends: Wild Rift en español con el catálogo completo de campeones, biografías, roles y habilidades oficiales.",
+            focusArea = "Catálogo Oficial de Campeones y Habilidades"
+        ),
+        MetaDataSource(
             id = "wildriftcore",
             name = "WildRiftCore (ES)",
             url = "https://wildriftcore.com/es/",

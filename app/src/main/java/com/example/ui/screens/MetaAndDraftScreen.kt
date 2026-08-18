@@ -1133,7 +1133,7 @@ private fun MetaSourcesTab(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "4 Fuentes Meta Oficiales",
+            text = "Fuentes Oficiales y del Meta",
             color = HextechGold,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
