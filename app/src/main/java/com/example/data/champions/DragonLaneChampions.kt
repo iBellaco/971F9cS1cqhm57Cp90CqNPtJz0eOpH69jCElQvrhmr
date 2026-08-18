@@ -40,13 +40,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3153.png", "$ITEM_IMG/3094.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/3046.png"),
             situationalItems = listOf("Ángel Guardián", "Fauces de Malmortius", "Recordatorio Mortal"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/3156.png", "$ITEM_IMG/3033.png"),
-            skillOrder = "Max W > Q > E",
+            skillOrder = "Max 2 > 1 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Cazadora Nocturna", "$PASSIVE_IMG/Vayne_Passive.png", "Vayne obtiene 30 de velocidad de movimiento adicional al avanzar hacia campeones enemigos."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Voltereta", "$SPELL_IMG/VayneQ.png", "Rueda en una dirección y potencia su siguiente ataque básico. Durante la definitiva otorga invisibilidad.", "4s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Proyectiles de Plata", "$SPELL_IMG/VayneW.png", "Cada 3 ataques consecutivos inflige un porcentaje de la vida máxima del enemigo como daño verdadero.", "Pasiva"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Condena", "$SPELL_IMG/VayneE.png", "Dispara un dardo que empuja hacia atrás al objetivo; si choca contra un muro, queda aturdido.", "16s"),
-                ChampionSkill("4", "Definitiva (R)", "Hora Final", "$SPELL_IMG/VayneR.png", "Obtiene daño de ataque masivo, triplica la velocidad de su pasiva e invisibilidad en cada Voltereta.", "75s")
+                ChampionSkill("1", "Habilidad 1", "Voltereta", "$SPELL_IMG/VayneQ.png", "Rueda en una dirección y potencia su siguiente ataque básico. Durante la definitiva otorga invisibilidad.", "4s"),
+                ChampionSkill("2", "Habilidad 2", "Proyectiles de Plata", "$SPELL_IMG/VayneW.png", "Cada 3 ataques consecutivos inflige un porcentaje de la vida máxima del enemigo como daño verdadero.", "Pasiva"),
+                ChampionSkill("3", "Habilidad 3", "Condena", "$SPELL_IMG/VayneE.png", "Dispara un dardo que empuja hacia atrás al objetivo; si choca contra un muro, queda aturdido.", "16s"),
+                ChampionSkill("4", "Definitiva", "Hora Final", "$SPELL_IMG/VayneR.png", "Obtiene daño de ataque masivo, triplica la velocidad de su pasiva e invisibilidad en cada Voltereta.", "75s")
             ),
             isRanged = true,
             isFrontline = false
@@ -78,13 +78,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/6676.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/3094.png", "$ITEM_IMG/3033.png"),
             situationalItems = listOf("Ángel Guardián", "Bailarín Espectral", "Fauces de Malmortius"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/3046.png", "$ITEM_IMG/3156.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Disparo a la Cabeza", "$PASSIVE_IMG/Caitlyn_Passive.png", "Cada varios disparos o sobre objetivos atrapados en trampas, Caitlyn dispara un tiro crítico demoledor."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Pacificadora de Piltóver", "$SPELL_IMG/CaitlynQ.png", "Prepara su rifle para disparar un proyectil de largo alcance que atraviesa a los enemigos.", "9s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Trampa para Yordles", "$SPELL_IMG/CaitlynW.png", "Coloca una trampa invisible que inmoviliza a los enemigos que la pisan y activa Disparo a la Cabeza.", "12s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Red Calibre 90", "$SPELL_IMG/CaitlynE.png", "Dispara una red pesada que ralentiza al objetivo y empuja a Caitlyn hacia atrás.", "14s"),
-                ChampionSkill("4", "Definitiva (R)", "As en la Manga", "$SPELL_IMG/CaitlynR.png", "Apunta a un campeón enemigo a distancia extrema y dispara un proyectil letal teledirigido.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Pacificadora de Piltóver", "$SPELL_IMG/CaitlynQ.png", "Prepara su rifle para disparar un proyectil de largo alcance que atraviesa a los enemigos.", "9s"),
+                ChampionSkill("2", "Habilidad 2", "Trampa para Yordles", "$SPELL_IMG/CaitlynW.png", "Coloca una trampa invisible que inmoviliza a los enemigos que la pisan y activa Disparo a la Cabeza.", "12s"),
+                ChampionSkill("3", "Habilidad 3", "Red Calibre 90", "$SPELL_IMG/CaitlynE.png", "Dispara una red pesada que ralentiza al objetivo y empuja a Caitlyn hacia atrás.", "14s"),
+                ChampionSkill("4", "Definitiva", "As en la Manga", "$SPELL_IMG/CaitlynR.png", "Apunta a un campeón enemigo a distancia extrema y dispara un proyectil letal teledirigido.", "70s")
             ),
             isRanged = true,
             isFrontline = false
@@ -116,13 +116,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3031.png", "$ITEM_IMG/3085.png", "$ITEM_IMG/3094.png", "$ITEM_IMG/3033.png"),
             situationalItems = listOf("Ángel Guardián", "Arcoescudo Inmortal", "Sanguinaria"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/6673.png", "$ITEM_IMG/3072.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "¡A Darse Prisa!", "$PASSIVE_IMG/Jinx_Passive.png", "Al derribar torretas, dragones o campeones, Jinx obtiene un pico masivo de velocidad de movimiento y de ataque."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "¡Cambio de Luces!", "$SPELL_IMG/JinxQ.png", "Alterna entre Minigun Pow-Pow (velocidad rápida) y Lanzacohetes Fishbones (alcance y daño en área).", "1s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "¡Zap!", "$SPELL_IMG/JinxW.png", "Dispara un rayo eléctrico que ralentiza y revela al primer enemigo que golpea.", "6s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "¡Mascafuegos!", "$SPELL_IMG/JinxE.png", "Lanza una hilera de granadas trampa que inmovilizan a los enemigos que las pisan.", "16s"),
-                ChampionSkill("4", "Definitiva (R)", "¡Supermegacohete Mortal!", "$SPELL_IMG/JinxR.png", "Dispara un cohete gigante global que explota al impactar a un campeón causando daño según la vida faltante.", "60s")
+                ChampionSkill("1", "Habilidad 1", "¡Cambio de Luces!", "$SPELL_IMG/JinxQ.png", "Alterna entre Minigun Pow-Pow (velocidad rápida) y Lanzacohetes Fishbones (alcance y daño en área).", "1s"),
+                ChampionSkill("2", "Habilidad 2", "¡Zap!", "$SPELL_IMG/JinxW.png", "Dispara un rayo eléctrico que ralentiza y revela al primer enemigo que golpea.", "6s"),
+                ChampionSkill("3", "Habilidad 3", "¡Mascafuegos!", "$SPELL_IMG/JinxE.png", "Lanza una hilera de granadas trampa que inmovilizan a los enemigos que las pisan.", "16s"),
+                ChampionSkill("4", "Definitiva", "¡Supermegacohete Mortal!", "$SPELL_IMG/JinxR.png", "Dispara un cohete gigante global que explota al impactar a un campeón causando daño según la vida faltante.", "60s")
             ),
             isRanged = true,
             isFrontline = false
@@ -154,13 +154,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3004.png", "$ITEM_IMG/3115.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/4644.png"),
             situationalItems = listOf("Ángel Guardián", "Boca del Abismo", "Recordatorio Mortal"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/3156.png", "$ITEM_IMG/3033.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Segunda Piel", "$PASSIVE_IMG/Kaisa_Passive.png", "Los ataques y el CC aliado acumulan Plasma detonando daño mágico por vida faltante. Sus compras evolucionan habilidades."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Lluvia de Icathia", "$SPELL_IMG/KaisaQ.png", "Dispara una andanada de misiles teledirigidos a objetivos cercanos.", "6s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Buscadora del Vacío", "$SPELL_IMG/KaisaW.png", "Dispara un rayo de largo alcance que revela al objetivo y aplica 2 marcas de Plasma.", "14s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Supercarga", "$SPELL_IMG/KaisaE.png", "Carga energía ganando velocidad de movimiento y velocidad de ataque; al evolucionar otorga invisibilidad.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "Instinto Asesino", "$SPELL_IMG/KaisaR.png", "Se teletransporta a cualquier enemigo marcado con Plasma, ganando un escudo colosal.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Lluvia de Icathia", "$SPELL_IMG/KaisaQ.png", "Dispara una andanada de misiles teledirigidos a objetivos cercanos.", "6s"),
+                ChampionSkill("2", "Habilidad 2", "Buscadora del Vacío", "$SPELL_IMG/KaisaW.png", "Dispara un rayo de largo alcance que revela al objetivo y aplica 2 marcas de Plasma.", "14s"),
+                ChampionSkill("3", "Habilidad 3", "Supercarga", "$SPELL_IMG/KaisaE.png", "Carga energía ganando velocidad de movimiento y velocidad de ataque; al evolucionar otorga invisibilidad.", "12s"),
+                ChampionSkill("4", "Definitiva", "Instinto Asesino", "$SPELL_IMG/KaisaR.png", "Se teletransporta a cualquier enemigo marcado con Plasma, ganando un escudo colosal.", "80s")
             ),
             isRanged = true,
             isFrontline = false
@@ -192,13 +192,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3004.png", "$ITEM_IMG/3078.png", "$ITEM_IMG/6694.png", "$ITEM_IMG/6333.png"),
             situationalItems = listOf("Corona de la Reina", "Ángel Guardián", "Fauces de Malmortius"),
             situationalItemsIcons = listOf("$ITEM_IMG/4644.png", "$ITEM_IMG/3026.png", "$ITEM_IMG/3156.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Fuerza de Hechizo Creciente", "$PASSIVE_IMG/Ezreal_Passive.png", "Impactar habilidades otorga hasta un 50% de velocidad de ataque acumulable."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Disparo Místico", "$SPELL_IMG/EzrealQ.png", "Dispara un rayo de energía que reduce los enfriamientos de todas las habilidades en 1.5s al impactar.", "4s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Flujo de Esencia", "$SPELL_IMG/EzrealW.png", "Dispara un orbe que se adhiere al objetivo detonando al golpearlo con ataques o habilidades.", "8s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Desplazamiento Arcano", "$SPELL_IMG/EzrealE.png", "Se teletransporta a una ubicación cercana y dispara un proyectil guiado al enemigo más cercano.", "15s"),
-                ChampionSkill("4", "Definitiva (R)", "Descarga de Tiros Certeros", "$SPELL_IMG/EzrealR.png", "Dispara una onda masiva de proyectiles que atraviesa todo el mapa dañando a todos los enemigos.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Disparo Místico", "$SPELL_IMG/EzrealQ.png", "Dispara un rayo de energía que reduce los enfriamientos de todas las habilidades en 1.5s al impactar.", "4s"),
+                ChampionSkill("2", "Habilidad 2", "Flujo de Esencia", "$SPELL_IMG/EzrealW.png", "Dispara un orbe que se adhiere al objetivo detonando al golpearlo con ataques o habilidades.", "8s"),
+                ChampionSkill("3", "Habilidad 3", "Desplazamiento Arcano", "$SPELL_IMG/EzrealE.png", "Se teletransporta a una ubicación cercana y dispara un proyectil guiado al enemigo más cercano.", "15s"),
+                ChampionSkill("4", "Definitiva", "Descarga de Tiros Certeros", "$SPELL_IMG/EzrealR.png", "Dispara una onda masiva de proyectiles que atraviesa todo el mapa dañando a todos los enemigos.", "80s")
             ),
             isRanged = true,
             isFrontline = false
@@ -230,13 +230,13 @@ object DragonLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/6676.png", "$ITEM_IMG/6673.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/3072.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián", "Baile de la Muerte"),
             situationalItemsIcons = listOf("$ITEM_IMG/3033.png", "$ITEM_IMG/3026.png", "$ITEM_IMG/6333.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Impulso Temerario", "$PASSIVE_IMG/Samira_Passive.png", "Encadenar ataques y habilidades alternados acumula estilo de E a S y derriba a enemigos inmovilizados."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Instinto", "$SPELL_IMG/SamiraQ.png", "Dispara un tiro a distancia o asesta un tajo en cono a corta distancia."),
-                ChampionSkill("2", "Habilidad 2 (W)", "Giro de Cuchillas", "$SPELL_IMG/SamiraW.png", "Gira sus cuchillas dos veces destruyendo todos los proyectiles entrantes durante 1s.", "22s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Carrera Audaz", "$SPELL_IMG/SamiraE.png", "Se desliza a través de un objetivo ganando velocidad de ataque. Se reinicia con cada baja.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "Gatillo Infernal", "$SPELL_IMG/SamiraR.png", "Solo disponible con estilo S: desata un torbellino de disparos dañando a todos los enemigos a su alrededor.", "5s")
+                ChampionSkill("1", "Habilidad 1", "Instinto", "$SPELL_IMG/SamiraQ.png", "Dispara un tiro a distancia o asesta un tajo en cono a corta distancia."),
+                ChampionSkill("2", "Habilidad 2", "Giro de Cuchillas", "$SPELL_IMG/SamiraW.png", "Gira sus cuchillas dos veces destruyendo todos los proyectiles entrantes durante 1s.", "22s"),
+                ChampionSkill("3", "Habilidad 3", "Carrera Audaz", "$SPELL_IMG/SamiraE.png", "Se desliza a través de un objetivo ganando velocidad de ataque. Se reinicia con cada baja.", "12s"),
+                ChampionSkill("4", "Definitiva", "Gatillo Infernal", "$SPELL_IMG/SamiraR.png", "Solo disponible con estilo S: desata un torbellino de disparos dañando a todos los enemigos a su alrededor.", "5s")
             ),
             isRanged = true,
             isFrontline = false

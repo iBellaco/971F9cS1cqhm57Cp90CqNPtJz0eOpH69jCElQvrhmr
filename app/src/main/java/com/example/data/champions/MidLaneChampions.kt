@@ -40,13 +40,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3151.png", "$ITEM_IMG/4628.png", "$ITEM_IMG/4644.png", "$ITEM_IMG/3089.png"),
             situationalItems = listOf("Morellonomicón", "Velo de Banshee", "Cetro de Cristal de Rylai"),
             situationalItemsIcons = listOf("$ITEM_IMG/3165.png", "$ITEM_IMG/3102.png", "$ITEM_IMG/3116.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Sifón de Alma", "$PASSIVE_IMG/Morgana_Passive.png", "Morgana se cura un porcentaje del daño mágico infligido a campeones y monstruos grandes."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Hechizo Oscuro", "$SPELL_IMG/MorganaQ.png", "Lanza una esfera de magia estelar que inmoviliza al primer objetivo impactado hasta por 2.75s.", "10s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Sombra Atormentada", "$SPELL_IMG/MorganaW.png", "Maldice una zona, infligiendo daño mágico continuo según la vida faltante del enemigo.", "12s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Escudo Negro", "$SPELL_IMG/MorganaE.png", "Otorga un escudo a un aliado que absorbe daño mágico e inmune a todos los efectos de control de masas.", "16s"),
-                ChampionSkill("4", "Definitiva (R)", "Grilletes de Alma", "$SPELL_IMG/MorganaR.png", "Encadena a los campeones enemigos cercanos infligiendo daño y ralentizándolos; tras 3s los aturde.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Hechizo Oscuro", "$SPELL_IMG/MorganaQ.png", "Lanza una esfera de magia estelar que inmoviliza al primer objetivo impactado hasta por 2.75s.", "10s"),
+                ChampionSkill("2", "Habilidad 2", "Sombra Atormentada", "$SPELL_IMG/MorganaW.png", "Maldice una zona, infligiendo daño mágico continuo según la vida faltante del enemigo.", "12s"),
+                ChampionSkill("3", "Habilidad 3", "Escudo Negro", "$SPELL_IMG/MorganaE.png", "Otorga un escudo a un aliado que absorbe daño mágico e inmune a todos los efectos de control de masas.", "16s"),
+                ChampionSkill("4", "Definitiva", "Grilletes de Alma", "$SPELL_IMG/MorganaR.png", "Encadena a los campeones enemigos cercanos infligiendo daño y ralentizándolos; tras 3s los aturde.", "80s")
             ),
             isRanged = true,
             isFrontline = false
@@ -78,13 +78,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3285.png", "$ITEM_IMG/4628.png", "$ITEM_IMG/3089.png", "$ITEM_IMG/3135.png"),
             situationalItems = listOf("Corona de la Reina", "Velo de Banshee", "Morellonomicón"),
             situationalItemsIcons = listOf("$ITEM_IMG/4644.png", "$ITEM_IMG/3102.png", "$ITEM_IMG/3165.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Hurto de Esencia", "$PASSIVE_IMG/Ahri_Passive.png", "Asesinar súbditos y campeones otorga fragmentos de esencia que curan a Ahri."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Orbe del Engaño", "$SPELL_IMG/AhriQ.png", "Lanza y recupera su orbe infligiendo daño mágico al salir y daño verdadero al regresar.", "7s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Fuego Zorruno", "$SPELL_IMG/AhriW.png", "Libera tres llamas zorrunas que persiguen a los enemigos cercanos y gana velocidad de movimiento.", "6s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Encanto", "$SPELL_IMG/AhriE.png", "Lanza un beso que enamora al primer enemigo impactado, haciéndolo caminar indefenso hacia ella.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "Impulso Espiritual", "$SPELL_IMG/AhriR.png", "Se desliza hasta 3 veces disparando rayos de esencia mágica. Las bajas enemigas otorgan cargas adicionales.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Orbe del Engaño", "$SPELL_IMG/AhriQ.png", "Lanza y recupera su orbe infligiendo daño mágico al salir y daño verdadero al regresar.", "7s"),
+                ChampionSkill("2", "Habilidad 2", "Fuego Zorruno", "$SPELL_IMG/AhriW.png", "Libera tres llamas zorrunas que persiguen a los enemigos cercanos y gana velocidad de movimiento.", "6s"),
+                ChampionSkill("3", "Habilidad 3", "Encanto", "$SPELL_IMG/AhriE.png", "Lanza un beso que enamora al primer enemigo impactado, haciéndolo caminar indefenso hacia ella.", "12s"),
+                ChampionSkill("4", "Definitiva", "Impulso Espiritual", "$SPELL_IMG/AhriR.png", "Se desliza hasta 3 veces disparando rayos de esencia mágica. Las bajas enemigas otorgan cargas adicionales.", "80s")
             ),
             isRanged = true,
             isFrontline = false
@@ -106,7 +106,7 @@ object MidLaneChampions {
             advantageAgainst = listOf("Lux", "Veigar", "Syndra", "Twisted Fate", "Aurelion Sol"),
             counteredBy = listOf("Malphite", "Zhonya", "Sett", "Lissandra", "Kayle"),
             synergies = listOf("Vi", "Lee Sin", "Nautilus", "Thresh"),
-            tacticalAdvice = "Zed: Coloca tu Sombra Viviente (W) fuera del rango enemigo antes de usar la Definitiva para una vía de escape segura.",
+            tacticalAdvice = "Zed: Coloca tu Sombra Viviente (Habilidad 2) fuera del rango enemigo antes de usar la Definitiva para una vía de escape segura.",
             recommendedRunes = "Electrocutar • Impacto Repentino",
             runeTreeDetails = "Electrocutar > Impacto Repentino > Colección de Ojos > Cazador Titánico",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -116,13 +116,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3142.png", "$ITEM_IMG/3814.png", "$ITEM_IMG/6694.png", "$ITEM_IMG/6695.png"),
             situationalItems = listOf("Ángel Guardián", "Baile de la Muerte", "Fauces de Malmortius"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3156.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Desprecio por los Débiles", "$PASSIVE_IMG/Zed_Passive.png", "Los ataques de Zed contra objetivos con menos del 50% de vida infligen hasta un 10% de su vida máxima como daño mágico."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Navaja Shuriken", "$SPELL_IMG/ZedQ.png", "Zed y sus sombras arrojan shurikens que infligen daño físico en línea recta.", "6s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Sombra Viviente", "$SPELL_IMG/ZedW.png", "Envía una sombra que imita sus habilidades y con la que puede intercambiar posiciones.", "17s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Cuchillada de Sombra", "$SPELL_IMG/ZedE.png", "Gira sus cuchillas infligiendo daño físico a los enemigos cercanos y ralentizándolos.", "5s"),
-                ChampionSkill("4", "Definitiva (R)", "Marca de la Muerte", "$SPELL_IMG/ZedR.png", "Se vuelve inalcanzable, aparece detrás del objetivo, aplica una marca que detona tras 3s según el daño acumulado.", "60s")
+                ChampionSkill("1", "Habilidad 1", "Navaja Shuriken", "$SPELL_IMG/ZedQ.png", "Zed y sus sombras arrojan shurikens que infligen daño físico en línea recta.", "6s"),
+                ChampionSkill("2", "Habilidad 2", "Sombra Viviente", "$SPELL_IMG/ZedW.png", "Envía una sombra que imita sus habilidades y con la que puede intercambiar posiciones.", "17s"),
+                ChampionSkill("3", "Habilidad 3", "Cuchillada de Sombra", "$SPELL_IMG/ZedE.png", "Gira sus cuchillas infligiendo daño físico a los enemigos cercanos y ralentizándolos.", "5s"),
+                ChampionSkill("4", "Definitiva", "Marca de la Muerte", "$SPELL_IMG/ZedR.png", "Se vuelve inalcanzable, aparece detrás del objetivo, aplica una marca que detona tras 3s según el daño acumulado.", "60s")
             ),
             isRanged = false,
             isFrontline = false
@@ -154,13 +154,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3153.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/6673.png", "$ITEM_IMG/6333.png"),
             situationalItems = listOf("Ángel Guardián", "Fuerza de la Naturaleza", "Recordatorio Mortal"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/4401.png", "$ITEM_IMG/3033.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Camino del Vagabundo", "$PASSIVE_IMG/Yasuo_Passive.png", "Duplica la probabilidad de golpe crítico y genera un escudo al moverse."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Tempestad de Acero", "$SPELL_IMG/YasuoQ.png", "Apuñala hacia adelante; al tercer impacto desata un tornado que lanza a los enemigos por los aires.", "3s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Muro de Viento", "$SPELL_IMG/YasuoW.png", "Crea una pared de viento flotante que bloquea todos los proyectiles enemigos durante 4 segundos.", "21s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Hoja Cortante", "$SPELL_IMG/YasuoE.png", "Se desliza a través de un enemigo infligiendo daño mágico creciente.", "0.4s"),
-                ChampionSkill("4", "Definitiva (R)", "Último Aliento", "$SPELL_IMG/YasuoR.png", "Se teletransporta hacia un campeón enemigo en el aire, manteniéndolo suspendido y ganando 50% de penetración de armadura.", "60s")
+                ChampionSkill("1", "Habilidad 1", "Tempestad de Acero", "$SPELL_IMG/YasuoQ.png", "Apuñala hacia adelante; al tercer impacto desata un tornado que lanza a los enemigos por los aires.", "3s"),
+                ChampionSkill("2", "Habilidad 2", "Muro de Viento", "$SPELL_IMG/YasuoW.png", "Crea una pared de viento flotante que bloquea todos los proyectiles enemigos durante 4 segundos.", "21s"),
+                ChampionSkill("3", "Habilidad 3", "Hoja Cortante", "$SPELL_IMG/YasuoE.png", "Se desliza a través de un enemigo infligiendo daño mágico creciente.", "0.4s"),
+                ChampionSkill("4", "Definitiva", "Último Aliento", "$SPELL_IMG/YasuoR.png", "Se teletransporta hacia un campeón enemigo en el aire, manteniéndolo suspendido y ganando 50% de penetración de armadura.", "60s")
             ),
             isRanged = false,
             isFrontline = false
@@ -182,7 +182,7 @@ object MidLaneChampions {
             advantageAgainst = listOf("Annie", "Brand", "Veigar", "Jinx", "Twisted Fate"),
             counteredBy = listOf("Zed", "Yasuo", "Fizz", "Kassadin", "Vi"),
             synergies = listOf("Caitlyn", "Jhin", "Morgana", "Varus"),
-            tacticalAdvice = "Lux: Conecta Hechizo Luminoso (Q) a través de los súbditos para asegurar el combo completo E + R.",
+            tacticalAdvice = "Lux: Conecta Hechizo Luminoso (Habilidad 1) a través de los súbditos para asegurar el combo completo de Habilidad 3 y Definitiva.",
             recommendedRunes = "Primer Golpe • Flujo de Maná",
             runeTreeDetails = "Primer Golpe > Flujo de Maná > Trascendencia > Cazador Titánico",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -192,13 +192,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3285.png", "$ITEM_IMG/4628.png", "$ITEM_IMG/3089.png", "$ITEM_IMG/3135.png"),
             situationalItems = listOf("Corona de la Reina", "Morellonomicón", "Velo de Banshee"),
             situationalItemsIcons = listOf("$ITEM_IMG/4644.png", "$ITEM_IMG/3165.png", "$ITEM_IMG/3102.png"),
-            skillOrder = "Max E > Q > W",
+            skillOrder = "Max 3 > 1 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Iluminación", "$PASSIVE_IMG/Lux_Passive.png", "Las habilidades de Lux cargan al objetivo con luz; sus ataques detonan la marca causando daño mágico extra."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Hechizo Luminoso", "$SPELL_IMG/LuxQ.png", "Dispara una esfera que inmoviliza y daña hasta a dos unidades enemigas.", "9s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Barrera Prismática", "$SPELL_IMG/LuxW.png", "Arroja su varita protegiendo con un escudo a todos los aliados que toca al salir y al volver.", "13s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Singularidad Brillante", "$SPELL_IMG/LuxE.png", "Dispara una zona de luz que ralentiza a los enemigos y puede detonar para infligir daño.", "10s"),
-                ChampionSkill("4", "Definitiva (R)", "Chispa Final", "$SPELL_IMG/LuxR.png", "Canaliza un rayo de luz gigante a través de todo el mapa que inflige daño masivo y detona la pasiva.", "45s")
+                ChampionSkill("1", "Habilidad 1", "Hechizo Luminoso", "$SPELL_IMG/LuxQ.png", "Dispara una esfera que inmoviliza y daña hasta a dos unidades enemigas.", "9s"),
+                ChampionSkill("2", "Habilidad 2", "Barrera Prismática", "$SPELL_IMG/LuxW.png", "Arroja su varita protegiendo con un escudo a todos los aliados que toca al salir y al volver.", "13s"),
+                ChampionSkill("3", "Habilidad 3", "Singularidad Brillante", "$SPELL_IMG/LuxE.png", "Dispara una zona de luz que ralentiza a los enemigos y puede detonar para infligir daño.", "10s"),
+                ChampionSkill("4", "Definitiva", "Chispa Final", "$SPELL_IMG/LuxR.png", "Canaliza un rayo de luz gigante a través de todo el mapa que inflige daño masivo y detona la pasiva.", "45s")
             ),
             isRanged = true,
             isFrontline = false
@@ -220,7 +220,7 @@ object MidLaneChampions {
             advantageAgainst = listOf("Ahri", "Lux", "Katarina", "Twisted Fate", "Veigar"),
             counteredBy = listOf("Zed", "Yasuo", "Fizz", "Ekko", "Kassadin"),
             synergies = listOf("Vi", "Lee Sin", "Sett", "Nautilus"),
-            tacticalAdvice = "Syndra: Empuja múltiples esferas con Dispersar a los Débiles (E) para aturdir a todo el equipo enemigo a distancia.",
+            tacticalAdvice = "Syndra: Empuja múltiples esferas con Dispersar a los Débiles (Habilidad 3) para aturdir a todo el equipo enemigo a distancia.",
             recommendedRunes = "Primer Golpe • Flujo de Maná",
             runeTreeDetails = "Primer Golpe > Flujo de Maná > Trascendencia > Cazador Titánico",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -230,13 +230,13 @@ object MidLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3285.png", "$ITEM_IMG/4628.png", "$ITEM_IMG/3089.png", "$ITEM_IMG/3135.png"),
             situationalItems = listOf("Corona de la Reina", "Velo de Banshee", "Morellonomicón"),
             situationalItemsIcons = listOf("$ITEM_IMG/4644.png", "$ITEM_IMG/3102.png", "$ITEM_IMG/3165.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Trascendencia", "$PASSIVE_IMG/Syndra_Passive.png", "Syndra recolecta astillas de ira al golpear campeones y subir de nivel, mejorando sus habilidades."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Esfera Oscura", "$SPELL_IMG/SyndraQ.png", "Invoca una esfera oscura que inflige daño mágico. Puede almacenar 2 cargas al mejorarse.", "4s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Fuerza de Voluntad", "$SPELL_IMG/SyndraW.png", "Agarra una esfera oscura o un monstruo y lo lanza ralentizando y dañando al impactar.", "11s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Dispersar a los Débiles", "$SPELL_IMG/SyndraE.png", "Empuja a los enemigos y esferas; las esferas empujadas aturden a todos los enemigos a su paso.", "14s"),
-                ChampionSkill("4", "Definitiva (R)", "Poder Desatado", "$SPELL_IMG/SyndraR.png", "Bombardea a un campeón enemigo con todas las esferas oscuras creadas, ejecutando si tienen poca vida.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Esfera Oscura", "$SPELL_IMG/SyndraQ.png", "Invoca una esfera oscura que inflige daño mágico. Puede almacenar 2 cargas al mejorarse.", "4s"),
+                ChampionSkill("2", "Habilidad 2", "Fuerza de Voluntad", "$SPELL_IMG/SyndraW.png", "Agarra una esfera oscura o un monstruo y lo lanza ralentizando y dañando al impactar.", "11s"),
+                ChampionSkill("3", "Habilidad 3", "Dispersar a los Débiles", "$SPELL_IMG/SyndraE.png", "Empuja a los enemigos y esferas; las esferas empujadas aturden a todos los enemigos a su paso.", "14s"),
+                ChampionSkill("4", "Definitiva", "Poder Desatado", "$SPELL_IMG/SyndraR.png", "Bombardea a un campeón enemigo con todas las esferas oscuras creadas, ejecutando si tienen poca vida.", "80s")
             ),
             isRanged = true,
             isFrontline = false

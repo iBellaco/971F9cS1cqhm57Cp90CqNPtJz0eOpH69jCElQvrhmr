@@ -1,0 +1,44 @@
+[
+  {
+    "championId": "ahri",
+    "key": "Pasiva",
+    "name": "Ladrona de Esencias",
+    "description": "Al matar 9 súbditos o monstruos, Ahri cura su vida. Eliminar un campeón enemigo la cura una cantidad sustancial.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/103.png"
+  },
+  {
+    "championId": "ahri",
+    "key": "Habilidad 1",
+    "name": "Orbe del Engaño",
+    "description": "Lanza y recupera su orbe, infligiendo daño mágico en la ida y daño verdadero en la vuelta.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/103.png"
+  },
+  {
+    "championId": "ahri",
+    "key": "Habilidad 2",
+    "name": "Fuego Zorruno",
+    "description": "Libera tres llamas zorrunas que buscan enemigos cercanos y otorgan una breve ráfaga de velocidad de movimiento.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/103.png"
+  },
+  {
+    "championId": "ahri",
+    "key": "Habilidad 3",
+    "name": "Hechizar",
+    "description": "Lanza un beso que enamora e inmoviliza al primer enemigo impactado, haciéndolo caminar inofensivamente hacia ella.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/103.png"
+  },
+  {
+    "championId": "ahri",
+    "key": "Definitiva",
+    "name": "Impulso Espiritual",
+    "description": "Ahri se desplaza velozmente hacia adelante disparando rayos espirituales a enemigos cercanos. Puede relanzarse hasta 3 veces (+ reinicios por derribo).",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/103.png"
+  },
+  {
+    "championId": "viego",
+    "key": "Definitiva",
+    "name": "Rompecorazones",
+    "description": "Viego descarta cualquier cuerpo que posea y se teletransporta hacia adelante para ejecutar al campeón enemigo con menos porcentaje de vida.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/234.png"
+  }
+]

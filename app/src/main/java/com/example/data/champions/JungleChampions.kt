@@ -40,13 +40,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3078.png", "$ITEM_IMG/3153.png", "$ITEM_IMG/6632.png", "$ITEM_IMG/3026.png"),
             situationalItems = listOf("Baile de la Muerte", "Fauces de Malmortius", "Filo de la Noche"),
             situationalItemsIcons = listOf("$ITEM_IMG/6333.png", "$ITEM_IMG/3156.png", "$ITEM_IMG/3814.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Dominio del Soberano", "$PASSIVE_IMG/Viego_Passive.png", "Viego puede poseer temporalmente los espectros de los campeones enemigos que ayuda a asesinar."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Hoja del Rey Arruinado", "$SPELL_IMG/ViegoQ.png", "Apuñala hacia adelante infligiendo daño físico y curándose pasivamente en ataques consecutivos.", "5s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Fauce Espectral", "$SPELL_IMG/ViegoW.png", "Carga y se abalanza hacia adelante lanzando una niebla que aturde al primer enemigo.", "8s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Camino del Tormento", "$SPELL_IMG/ViegoE.png", "Envuelve un muro cercano en Niebla Negra, ganando camuflaje y velocidad de ataque.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "Rompecorazones", "$SPELL_IMG/ViegoR.png", "Se teletransporta e impacta al campeón enemigo con menos vida, ejecutándolo y ralentizando el área.", "90s")
+                ChampionSkill("1", "Habilidad 1", "Hoja del Rey Arruinado", "$SPELL_IMG/ViegoQ.png", "Apuñala hacia adelante infligiendo daño físico y curándose pasivamente en ataques consecutivos.", "5s"),
+                ChampionSkill("2", "Habilidad 2", "Fauce Espectral", "$SPELL_IMG/ViegoW.png", "Carga y se abalanza hacia adelante lanzando una niebla que aturde al primer enemigo.", "8s"),
+                ChampionSkill("3", "Habilidad 3", "Camino del Tormento", "$SPELL_IMG/ViegoE.png", "Envuelve un muro cercano en Niebla Negra, ganando camuflaje y velocidad de ataque.", "12s"),
+                ChampionSkill("4", "Definitiva", "Rompecorazones", "$SPELL_IMG/ViegoR.png", "Se teletransporta e impacta al campeón enemigo con menos vida, ejecutándolo y ralentizando el área.", "90s")
             ),
             isRanged = false,
             isFrontline = false
@@ -78,13 +78,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3078.png", "$ITEM_IMG/6632.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3053.png"),
             situationalItems = listOf("Malla de Espinas", "Ángel Guardián", "Coraza del Muerto"),
             situationalItemsIcons = listOf("$ITEM_IMG/3075.png", "$ITEM_IMG/3026.png", "$ITEM_IMG/3742.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Blindaje", "$PASSIVE_IMG/Vi_Passive.png", "Al impactar con habilidades, Vi genera un escudo temporal que absorbe daño."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Rompebóvedas", "$SPELL_IMG/ViQ.png", "Carga sus guanteletes y se abalanza hacia adelante lanzando por los aires a los enemigos.", "8s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Golpes Abollantes", "$SPELL_IMG/ViW.png", "Cada 3 ataques reduce la armadura del objetivo en un 20% y otorga velocidad de ataque.", "Pasiva"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Fuerza Excesiva", "$SPELL_IMG/ViE.png", "Su siguiente ataque atraviesa al objetivo infligiendo daño de cono a los enemigos detrás.", "1s"),
-                ChampionSkill("4", "Definitiva (R)", "Asalto y Lesiones", "$SPELL_IMG/ViR.png", "Persigue a un campeón enemigo haciéndose imparable, lo lanza por los aires y lo estampa contra el suelo.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Rompebóvedas", "$SPELL_IMG/ViQ.png", "Carga sus guanteletes y se abalanza hacia adelante lanzando por los aires a los enemigos.", "8s"),
+                ChampionSkill("2", "Habilidad 2", "Golpes Abollantes", "$SPELL_IMG/ViW.png", "Cada 3 ataques reduce la armadura del objetivo en un 20% y otorga velocidad de ataque.", "Pasiva"),
+                ChampionSkill("3", "Habilidad 3", "Fuerza Excesiva", "$SPELL_IMG/ViE.png", "Su siguiente ataque atraviesa al objetivo infligiendo daño de cono a los enemigos detrás.", "1s"),
+                ChampionSkill("4", "Definitiva", "Asalto y Lesiones", "$SPELL_IMG/ViR.png", "Persigue a un campeón enemigo haciéndose imparable, lo lanza por los aires y lo estampa contra el suelo.", "70s")
             ),
             isRanged = false,
             isFrontline = true
@@ -116,13 +116,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/6692.png", "$ITEM_IMG/3071.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3026.png"),
             situationalItems = listOf("Fauces de Malmortius", "Filo de la Noche", "Guantelete de Sterak"),
             situationalItemsIcons = listOf("$ITEM_IMG/3156.png", "$ITEM_IMG/3814.png", "$ITEM_IMG/3053.png"),
-            skillOrder = "Max Q > W > E",
+            skillOrder = "Max 1 > 2 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Ráfaga", "$PASSIVE_IMG/LeeSin_Passive.png", "Usar una habilidad otorga 40% de velocidad de ataque y restaura energía en los siguientes dos ataques."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Onda Sónica / Golpe Resonante", "$SPELL_IMG/LeeSinQ.png", "Dispara una onda que revela al enemigo y permite lanzarse hacia él infligiendo daño según la vida faltante.", "7s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Salvaguarda / Voluntad de Hierro", "$SPELL_IMG/LeeSinW.png", "Se desliza hacia un punto o aliado otorgándose un escudo y robo de vida.", "9s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Tempestad / Incapacitar", "$SPELL_IMG/LeeSinE.png", "Golpea el suelo revelando a los enemigos cercanos y ralentizándolos intensamente.", "8s"),
-                ChampionSkill("4", "Definitiva (R)", "Furia del Dragón", "$SPELL_IMG/LeeSinR.png", "Asesta una patada devastadora que repele al campeón enemigo y derriba a todos los rivales en su trayectoria.", "65s")
+                ChampionSkill("1", "Habilidad 1", "Onda Sónica / Golpe Resonante", "$SPELL_IMG/LeeSinQ.png", "Dispara una onda que revela al enemigo y permite lanzarse hacia él infligiendo daño según la vida faltante.", "7s"),
+                ChampionSkill("2", "Habilidad 2", "Salvaguarda / Voluntad de Hierro", "$SPELL_IMG/LeeSinW.png", "Se desliza hacia un punto o aliado otorgándose un escudo y robo de vida.", "9s"),
+                ChampionSkill("3", "Habilidad 3", "Tempestad / Incapacitar", "$SPELL_IMG/LeeSinE.png", "Golpea el suelo revelando a los enemigos cercanos y ralentizándolos intensamente.", "8s"),
+                ChampionSkill("4", "Definitiva", "Furia del Dragón", "$SPELL_IMG/LeeSinR.png", "Asesta una patada devastadora que repele al campeón enemigo y derriba a todos los rivales en su trayectoria.", "65s")
             ),
             isRanged = false,
             isFrontline = false
@@ -154,13 +154,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3142.png", "$ITEM_IMG/6695.png", "$ITEM_IMG/3814.png", "$ITEM_IMG/6694.png"),
             situationalItems = listOf("Ángel Guardián", "Baile de la Muerte", "Fauces de Malmortius"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3156.png"),
-            skillOrder = "Max Q > W > E (Evolución: Q > E > W/R)",
+            skillOrder = "Max 1 > 2 > 3 (Evolución: Q > E > W/R)",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Amenaza Invisible", "$PASSIVE_IMG/Khazix_P.png", "Al no ser visto por el enemigo, su siguiente ataque básico inflige daño mágico adicional y ralentiza."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Saborea su Miedo", "$SPELL_IMG/KhazixQ.png", "Corta al enemigo. Contra objetivos aislados, el daño se duplica y el enfriamiento se reduce drásticamente.", "4s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Púas del Vacío", "$SPELL_IMG/KhazixW.png", "Dispara púas que explotan infligiendo daño físico y curando a Kha'Zix si está en el radio.", "8s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Salto", "$SPELL_IMG/KhazixE.png", "Salta a una zona. Al evolucionar, triplica el rango y se reinicia completamente con cada baja o asistencia.", "18s"),
-                ChampionSkill("4", "Definitiva (R)", "Ataque del Vacío", "$SPELL_IMG/KhazixR.png", "Se vuelve invisible temporalmente ganando velocidad e inmunidad a ralentizaciones.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Saborea su Miedo", "$SPELL_IMG/KhazixQ.png", "Corta al enemigo. Contra objetivos aislados, el daño se duplica y el enfriamiento se reduce drásticamente.", "4s"),
+                ChampionSkill("2", "Habilidad 2", "Púas del Vacío", "$SPELL_IMG/KhazixW.png", "Dispara púas que explotan infligiendo daño físico y curando a Kha'Zix si está en el radio.", "8s"),
+                ChampionSkill("3", "Habilidad 3", "Salto", "$SPELL_IMG/KhazixE.png", "Salta a una zona. Al evolucionar, triplica el rango y se reinicia completamente con cada baja o asistencia.", "18s"),
+                ChampionSkill("4", "Definitiva", "Ataque del Vacío", "$SPELL_IMG/KhazixR.png", "Se vuelve invisible temporalmente ganando velocidad e inmunidad a ralentizaciones.", "70s")
             ),
             isRanged = false,
             isFrontline = false
@@ -192,13 +192,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/4628.png", "$ITEM_IMG/3089.png", "$ITEM_IMG/3135.png", "$ITEM_IMG/3100.png"),
             situationalItems = listOf("Corona de la Reina", "Velo de Banshee", "Morellonomicón"),
             situationalItemsIcons = listOf("$ITEM_IMG/4644.png", "$ITEM_IMG/3102.png", "$ITEM_IMG/3165.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Sombra Demoníaca", "$PASSIVE_IMG/Evelynn_Passive.png", "Fuera de combate regenera vida; al nivel 5 obtiene camuflaje invisible permanente."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Púa de Odio", "$SPELL_IMG/EvelynnQ.png", "Lanza una púa y dispara hasta 3 ráfagas consecutivas de púas mágicas a los enemigos.", "4s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Seducción", "$SPELL_IMG/EvelynnW.png", "Maldice al objetivo; golpearlo tras 2.5s lo enamora y destruye su resistencia mágica.", "14s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Latigazo", "$SPELL_IMG/EvelynnE.png", "Azota al enemigo infligiendo daño porcentual de vida máxima y otorgando velocidad.", "8s"),
-                ChampionSkill("4", "Definitiva (R)", "Última Caricia", "$SPELL_IMG/EvelynnR.png", "Se vuelve invulnerable, inflige daño de ejecución masivo en cono y se teletransporta hacia atrás.", "75s")
+                ChampionSkill("1", "Habilidad 1", "Púa de Odio", "$SPELL_IMG/EvelynnQ.png", "Lanza una púa y dispara hasta 3 ráfagas consecutivas de púas mágicas a los enemigos.", "4s"),
+                ChampionSkill("2", "Habilidad 2", "Seducción", "$SPELL_IMG/EvelynnW.png", "Maldice al objetivo; golpearlo tras 2.5s lo enamora y destruye su resistencia mágica.", "14s"),
+                ChampionSkill("3", "Habilidad 3", "Latigazo", "$SPELL_IMG/EvelynnE.png", "Azota al enemigo infligiendo daño porcentual de vida máxima y otorgando velocidad.", "8s"),
+                ChampionSkill("4", "Definitiva", "Última Caricia", "$SPELL_IMG/EvelynnR.png", "Se vuelve invulnerable, inflige daño de ejecución masivo en cono y se teletransporta hacia atrás.", "75s")
             ),
             isRanged = false,
             isFrontline = false
@@ -230,13 +230,13 @@ object JungleChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3153.png", "$ITEM_IMG/3031.png", "$ITEM_IMG/3091.png", "$ITEM_IMG/3046.png"),
             situationalItems = listOf("Ángel Guardián", "Baile de la Muerte", "Guantelete de Sterak"),
             situationalItemsIcons = listOf("$ITEM_IMG/3026.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3053.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Golpe Doble", "$PASSIVE_IMG/MasterYi_Passive1.png", "Cada varios ataques, Master Yi golpea dos veces consecutivas."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Golpe Alfa", "$SPELL_IMG/MasterYiQ.png", "Se vuelve inalcanzable y se teletransporta atacando velozmente hasta a 4 enemigos.", "14s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Meditación", "$SPELL_IMG/MasterYiW.png", "Canaliza reduciendo el daño recibido un 70% y regenerando vida rápidamente.", "25s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Estilo Wuju", "$SPELL_IMG/MasterYiE.png", "Otorga daño verdadero adicional masivo en todos sus ataques básicos.", "17s"),
-                ChampionSkill("4", "Definitiva (R)", "Imparable", "$SPELL_IMG/MasterYiR.png", "Obtiene velocidad de movimiento y de ataque extrema y se vuelve inmune a ralentizaciones. Las bajas extienden su duración.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Golpe Alfa", "$SPELL_IMG/MasterYiQ.png", "Se vuelve inalcanzable y se teletransporta atacando velozmente hasta a 4 enemigos.", "14s"),
+                ChampionSkill("2", "Habilidad 2", "Meditación", "$SPELL_IMG/MasterYiW.png", "Canaliza reduciendo el daño recibido un 70% y regenerando vida rápidamente.", "25s"),
+                ChampionSkill("3", "Habilidad 3", "Estilo Wuju", "$SPELL_IMG/MasterYiE.png", "Otorga daño verdadero adicional masivo en todos sus ataques básicos.", "17s"),
+                ChampionSkill("4", "Definitiva", "Imparable", "$SPELL_IMG/MasterYiR.png", "Obtiene velocidad de movimiento y de ataque extrema y se vuelve inmune a ralentizaciones. Las bajas extienden su duración.", "70s")
             ),
             isRanged = false,
             isFrontline = false

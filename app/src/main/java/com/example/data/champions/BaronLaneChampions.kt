@@ -40,13 +40,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3181.png", "$ITEM_IMG/3078.png", "$ITEM_IMG/3742.png", "$ITEM_IMG/3053.png"),
             situationalItems = listOf("Malla de Espinas", "Fuerza de la Naturaleza", "Presagio de Randuin"),
             situationalItemsIcons = listOf("$ITEM_IMG/3075.png", "$ITEM_IMG/4401.png", "$ITEM_IMG/3143.png"),
-            skillOrder = "Max W > Q > E",
+            skillOrder = "Max 2 > 1 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Furia de la Arena", "$PASSIVE_IMG/Sett_Passive.png", "Los ataques alternan entre puño izquierdo y derecho rápido. Gana regeneración de vida según la vida faltante."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Salen Chispas", "$SPELL_IMG/SettQ.png", "Sett gana velocidad hacia enemigos y sus siguientes dos ataques infligen daño porcentual de vida.", "7s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Trancazo", "$SPELL_IMG/SettW.png", "Convierte el daño recibido en Coraje y dispara un golpe central que inflige daño verdadero masivo.", "14s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Rompecaras", "$SPELL_IMG/SettE.png", "Atrae a los enemigos a ambos lados estrellándolos entre sí y aturdiéndolos.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "El Espectáculo", "$SPELL_IMG/SettR.png", "Agarra a un campeón enemigo y lo estampa contra el suelo, dañando y ralentizando a los rivales.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Salen Chispas", "$SPELL_IMG/SettQ.png", "Sett gana velocidad hacia enemigos y sus siguientes dos ataques infligen daño porcentual de vida.", "7s"),
+                ChampionSkill("2", "Habilidad 2", "Trancazo", "$SPELL_IMG/SettW.png", "Convierte el daño recibido en Coraje y dispara un golpe central que inflige daño verdadero masivo.", "14s"),
+                ChampionSkill("3", "Habilidad 3", "Rompecaras", "$SPELL_IMG/SettE.png", "Atrae a los enemigos a ambos lados estrellándolos entre sí y aturdiéndolos.", "12s"),
+                ChampionSkill("4", "Definitiva", "El Espectáculo", "$SPELL_IMG/SettR.png", "Agarra a un campeón enemigo y lo estampa contra el suelo, dañando y ralentizando a los rivales.", "80s")
             ),
             isRanged = false,
             isFrontline = true
@@ -78,13 +78,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3071.png", "$ITEM_IMG/6692.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3053.png"),
             situationalItems = listOf("Rostro Espiritual", "Malla de Espinas", "Ángel Guardián"),
             situationalItemsIcons = listOf("$ITEM_IMG/3065.png", "$ITEM_IMG/3075.png", "$ITEM_IMG/3026.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Heraldo de la Destrucción", "$PASSIVE_IMG/Aatrox_Passive.png", "Su siguiente ataque básico inflige daño adicional basado en la vida máxima y cura a Aatrox."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "La Espada de los Oscuros", "$SPELL_IMG/AatroxQ.png", "Blande su mandoble hasta 3 veces; golpear con el filo derriba y multiplica el daño.", "10s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Cadenas Infernales", "$SPELL_IMG/AatroxW.png", "Golpea el suelo creando una zona; si el enemigo no sale a tiempo, es arrastrado al centro.", "16s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Deslizamiento Sombrío", "$SPELL_IMG/AatroxE.png", "Se desliza una corta distancia. Otorga omnivampirismo pasivo contra campeones.", "7s"),
-                ChampionSkill("4", "Definitiva (R)", "Destructor del Mundo", "$SPELL_IMG/AatroxR.png", "Desata su verdadera forma demoníaca ganando velocidad, daño masivo y amplificación de curación.", "75s")
+                ChampionSkill("1", "Habilidad 1", "La Espada de los Oscuros", "$SPELL_IMG/AatroxQ.png", "Blande su mandoble hasta 3 veces; golpear con el filo derriba y multiplica el daño.", "10s"),
+                ChampionSkill("2", "Habilidad 2", "Cadenas Infernales", "$SPELL_IMG/AatroxW.png", "Golpea el suelo creando una zona; si el enemigo no sale a tiempo, es arrastrado al centro.", "16s"),
+                ChampionSkill("3", "Habilidad 3", "Deslizamiento Sombrío", "$SPELL_IMG/AatroxE.png", "Se desliza una corta distancia. Otorga omnivampirismo pasivo contra campeones.", "7s"),
+                ChampionSkill("4", "Definitiva", "Destructor del Mundo", "$SPELL_IMG/AatroxR.png", "Desata su verdadera forma demoníaca ganando velocidad, daño masivo y amplificación de curación.", "75s")
             ),
             isRanged = false,
             isFrontline = true
@@ -116,13 +116,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3078.png", "$ITEM_IMG/3053.png", "$ITEM_IMG/3742.png", "$ITEM_IMG/4401.png"),
             situationalItems = listOf("Baile de la Muerte", "Malla de Espinas", "Presagio de Randuin"),
             situationalItemsIcons = listOf("$ITEM_IMG/6333.png", "$ITEM_IMG/3075.png", "$ITEM_IMG/3143.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Hemorragia", "$PASSIVE_IMG/Darius_Passive.png", "Los ataques y habilidades hacen sangrar al enemigo. A 5 cargas gana Poder Noxiano (+AD masivo)."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Diezmar", "$SPELL_IMG/DariusQ.png", "Gira su hacha; golpear con la hoja cura a Darius e inflige daño máximo.", "7s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Golpe Incapacitante", "$SPELL_IMG/DariusW.png", "Su siguiente ataque hiere a la arteria del enemigo ralentizándolo un 90%.", "5s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Aprehender", "$SPELL_IMG/DariusE.png", "Engancha a todos los enemigos al frente y los atrae hacia él; otorga penetración pasiva.", "14s"),
-                ChampionSkill("4", "Definitiva (R)", "Guillotina Noxiana", "$SPELL_IMG/DariusR.png", "Salta y asesta un golpe letal de daño verdadero. Si asesina al objetivo, se reinicia el enfriamiento.", "80s")
+                ChampionSkill("1", "Habilidad 1", "Diezmar", "$SPELL_IMG/DariusQ.png", "Gira su hacha; golpear con la hoja cura a Darius e inflige daño máximo.", "7s"),
+                ChampionSkill("2", "Habilidad 2", "Golpe Incapacitante", "$SPELL_IMG/DariusW.png", "Su siguiente ataque hiere a la arteria del enemigo ralentizándolo un 90%.", "5s"),
+                ChampionSkill("3", "Habilidad 3", "Aprehender", "$SPELL_IMG/DariusE.png", "Engancha a todos los enemigos al frente y los atrae hacia él; otorga penetración pasiva.", "14s"),
+                ChampionSkill("4", "Definitiva", "Guillotina Noxiana", "$SPELL_IMG/DariusR.png", "Salta y asesta un golpe letal de daño verdadero. Si asesina al objetivo, se reinicia el enfriamiento.", "80s")
             ),
             isRanged = false,
             isFrontline = true
@@ -144,7 +144,7 @@ object BaronLaneChampions {
             advantageAgainst = listOf("Aatrox", "Cho'Gath", "Sion", "Sett", "Ornn", "Darius"),
             counteredBy = listOf("Malphite", "Jayce", "Kennen", "Poppy", "Akali"),
             synergies = listOf("Twisted Fate", "Morgana", "Ahri"),
-            tacticalAdvice = "Fiora: Usa Estocada (W) en el milisegundo exacto en que el rival use su CC principal para aturdirlo de vuelta.",
+            tacticalAdvice = "Fiora: Usa Estocada (Habilidad 2) en el milisegundo exacto en que el rival use su CC principal para aturdirlo de vuelta.",
             recommendedRunes = "Conquistador • Triunfo",
             runeTreeDetails = "Conquistador > Triunfo > Cazador Titánico > Dulces Frutos",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -154,13 +154,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/6632.png", "$ITEM_IMG/3181.png", "$ITEM_IMG/6333.png", "$ITEM_IMG/3026.png"),
             situationalItems = listOf("Fauces de Malmortius", "Fuerza de la Trinidad", "Rancor de Serylda"),
             situationalItemsIcons = listOf("$ITEM_IMG/3156.png", "$ITEM_IMG/3078.png", "$ITEM_IMG/6694.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Baile de Duelista", "$PASSIVE_IMG/Fiora_Passive.png", "Fiora identifica puntos vitales en campeones enemigos; golpearlos inflige daño verdadero y la cura."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Embestida", "$SPELL_IMG/FioraQ.png", "Se abalanza y apuñala a un enemigo cercano, priorizando puntos vitales.", "6s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Estocada", "$SPELL_IMG/FioraW.png", "Bloquea todo el daño y CC entrante durante 0.75s y contraataca; si bloquea CC, aturde al enemigo.", "16s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Esgrima", "$SPELL_IMG/FioraE.png", "Los siguientes dos ataques ganan velocidad; el primero ralentiza y el segundo es crítico garantizado.", "9s"),
-                ChampionSkill("4", "Definitiva (R)", "Gran Duelo", "$SPELL_IMG/FioraR.png", "Revela los 4 puntos vitales de un campeón; golpear los cuatro crea una zona de curación masiva para el equipo.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Embestida", "$SPELL_IMG/FioraQ.png", "Se abalanza y apuñala a un enemigo cercano, priorizando puntos vitales.", "6s"),
+                ChampionSkill("2", "Habilidad 2", "Estocada", "$SPELL_IMG/FioraW.png", "Bloquea todo el daño y CC entrante durante 0.75s y contraataca; si bloquea CC, aturde al enemigo.", "16s"),
+                ChampionSkill("3", "Habilidad 3", "Esgrima", "$SPELL_IMG/FioraE.png", "Los siguientes dos ataques ganan velocidad; el primero ralentiza y el segundo es crítico garantizado.", "9s"),
+                ChampionSkill("4", "Definitiva", "Gran Duelo", "$SPELL_IMG/FioraR.png", "Revela los 4 puntos vitales de un campeón; golpear los cuatro crea una zona de curación masiva para el equipo.", "70s")
             ),
             isRanged = false,
             isFrontline = false
@@ -182,7 +182,7 @@ object BaronLaneChampions {
             advantageAgainst = listOf("Riven", "Jax", "Yasuo", "Irelia", "Katarina"),
             counteredBy = listOf("Vayne", "Darius", "Fiora", "Sett", "Teemo"),
             synergies = listOf("Jinx", "Morgana", "Ahri", "Viego"),
-            tacticalAdvice = "Garen: Activa Coraje (W) justo antes de recibir el daño explosivo rival para reducirlo un 60%.",
+            tacticalAdvice = "Garen: Activa Coraje (Habilidad 2) justo antes de recibir el daño explosivo rival para reducirlo un 60%.",
             recommendedRunes = "Conquistador • Triunfo",
             runeTreeDetails = "Conquistador > Triunfo > Fuerzas Renovadas > Cazador Titánico",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -192,13 +192,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3071.png", "$ITEM_IMG/3742.png", "$ITEM_IMG/3053.png", "$ITEM_IMG/4401.png"),
             situationalItems = listOf("Malla de Espinas", "Presagio de Randuin", "Ángel Guardián"),
             situationalItemsIcons = listOf("$ITEM_IMG/3075.png", "$ITEM_IMG/3143.png", "$ITEM_IMG/3026.png"),
-            skillOrder = "Max E > Q > W",
+            skillOrder = "Max 3 > 1 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Perseverancia", "$PASSIVE_IMG/Garen_Passive.png", "Si no ha recibido daño recientemente, regenera un porcentaje alto de vida por segundo."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Golpe Decisivo", "$SPELL_IMG/GarenQ.png", "Se libera de ralentizaciones, gana velocidad y silencia al enemigo con su siguiente golpe.", "8s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Coraje", "$SPELL_IMG/GarenW.png", "Gana un escudo temporal, tenacidad masiva y reduce todo el daño recibido un 60%.", "18s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Juicio", "$SPELL_IMG/GarenE.png", "Gira su espada velozmente destrozando la armadura enemiga e infligiendo daño continuo.", "9s"),
-                ChampionSkill("4", "Definitiva (R)", "Justicia Demaciana", "$SPELL_IMG/GarenR.png", "Invoca el poder de Demacia para ejecutar a un enemigo con daño verdadero según su vida faltante.", "70s")
+                ChampionSkill("1", "Habilidad 1", "Golpe Decisivo", "$SPELL_IMG/GarenQ.png", "Se libera de ralentizaciones, gana velocidad y silencia al enemigo con su siguiente golpe.", "8s"),
+                ChampionSkill("2", "Habilidad 2", "Coraje", "$SPELL_IMG/GarenW.png", "Gana un escudo temporal, tenacidad masiva y reduce todo el daño recibido un 60%.", "18s"),
+                ChampionSkill("3", "Habilidad 3", "Juicio", "$SPELL_IMG/GarenE.png", "Gira su espada velozmente destrozando la armadura enemiga e infligiendo daño continuo.", "9s"),
+                ChampionSkill("4", "Definitiva", "Justicia Demaciana", "$SPELL_IMG/GarenR.png", "Invoca el poder de Demacia para ejecutar a un enemigo con daño verdadero según su vida faltante.", "70s")
             ),
             isRanged = false,
             isFrontline = true
@@ -216,7 +216,7 @@ object BaronLaneChampions {
             pickRate = 11.2,
             banRate = 9.8,
             damageType = DamageType.TRUE_HYBRID,
-            summary = "Monstruo de juego tardío. Contraataque (E) esquiva todos los ataques básicos y aturde en área.",
+            summary = "Monstruo de juego tardío. Contraataque (Habilidad 3) esquiva todos los ataques básicos y aturde en área.",
             advantageAgainst = listOf("Master Yi", "Viego", "Tryndamere", "Sett", "Camille", "Irelia"),
             counteredBy = listOf("Malphite", "Gengar", "Singed", "Gragas", "Akali"),
             synergies = listOf("Ahri", "Viego", "Morgana", "Lulu"),
@@ -230,13 +230,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3078.png", "$ITEM_IMG/3153.png", "$ITEM_IMG/6632.png", "$ITEM_IMG/3053.png"),
             situationalItems = listOf("Baile de la Muerte", "Rostro Espiritual", "Ángel Guardián"),
             situationalItemsIcons = listOf("$ITEM_IMG/6333.png", "$ITEM_IMG/3065.png", "$ITEM_IMG/3026.png"),
-            skillOrder = "Max W > Q > E",
+            skillOrder = "Max 2 > 1 > 3",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Asalto Implacable", "$PASSIVE_IMG/Jax_Passive.png", "Los ataques consecutivos de Jax aumentan continuamente su velocidad de ataque."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Salto de Fuerza", "$SPELL_IMG/JaxQ.png", "Salta hacia una unidad enemiga o aliada; si es enemiga, inflige daño físico.", "6s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Potenciación", "$SPELL_IMG/JaxW.png", "Carga su arma con energía para infligir daño mágico adicional masivo en su siguiente ataque.", "4s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Contraataque", "$SPELL_IMG/JaxE.png", "Esquiva todos los ataques básicos durante 2s y luego aturde a los enemigos cercanos.", "12s"),
-                ChampionSkill("4", "Definitiva (R)", "Fuerza del Gran Maestro", "$SPELL_IMG/JaxR.png", "Cada 3 ataques inflige daño mágico adicional. Al activarse gana armadura y resistencia mágica masivas.", "60s")
+                ChampionSkill("1", "Habilidad 1", "Salto de Fuerza", "$SPELL_IMG/JaxQ.png", "Salta hacia una unidad enemiga o aliada; si es enemiga, inflige daño físico.", "6s"),
+                ChampionSkill("2", "Habilidad 2", "Potenciación", "$SPELL_IMG/JaxW.png", "Carga su arma con energía para infligir daño mágico adicional masivo en su siguiente ataque.", "4s"),
+                ChampionSkill("3", "Habilidad 3", "Contraataque", "$SPELL_IMG/JaxE.png", "Esquiva todos los ataques básicos durante 2s y luego aturde a los enemigos cercanos.", "12s"),
+                ChampionSkill("4", "Definitiva", "Fuerza del Gran Maestro", "$SPELL_IMG/JaxR.png", "Cada 3 ataques inflige daño mágico adicional. Al activarse gana armadura y resistencia mágica masivas.", "60s")
             ),
             isRanged = false,
             isFrontline = true
@@ -268,13 +268,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3068.png", "$ITEM_IMG/3068.png", "$ITEM_IMG/3075.png", "$ITEM_IMG/4401.png"),
             situationalItems = listOf("Presagio de Randuin", "Rostro Espiritual", "Gárgola"),
             situationalItemsIcons = listOf("$ITEM_IMG/3143.png", "$ITEM_IMG/3065.png", "$ITEM_IMG/3193.png"),
-            skillOrder = "Max E > W > Q",
+            skillOrder = "Max 3 > 2 > 1",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Carnívoro", "$PASSIVE_IMG/ChoGath_Passive.png", "Asesinar unidades restaura vida y maná a Cho'Gath de forma permanente en fase de líneas."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Ruptura", "$SPELL_IMG/ChoGathQ.png", "Hace que el suelo estalle en púas levantando a los enemigos y ralentizándolos un 60%.", "7s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Grito Salvaje", "$SPELL_IMG/ChoGathW.png", "Desata un cono sónico que silencia e inflige daño mágico a los enemigos.", "11s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Púas Vorpal", "$SPELL_IMG/ChoGathE.png", "Los siguientes tres ataques disparan púas que infligen daño porcentual de vida y ralentizan.", "6s"),
-                ChampionSkill("4", "Definitiva (R)", "Festín", "$SPELL_IMG/ChoGathR.png", "Devora a un objetivo infligiendo daño verdadero masivo; si lo asesina gana tamaño y vida máxima permanente.", "65s")
+                ChampionSkill("1", "Habilidad 1", "Ruptura", "$SPELL_IMG/ChoGathQ.png", "Hace que el suelo estalle en púas levantando a los enemigos y ralentizándolos un 60%.", "7s"),
+                ChampionSkill("2", "Habilidad 2", "Grito Salvaje", "$SPELL_IMG/ChoGathW.png", "Desata un cono sónico que silencia e inflige daño mágico a los enemigos.", "11s"),
+                ChampionSkill("3", "Habilidad 3", "Púas Vorpal", "$SPELL_IMG/ChoGathE.png", "Los siguientes tres ataques disparan púas que infligen daño porcentual de vida y ralentizan.", "6s"),
+                ChampionSkill("4", "Definitiva", "Festín", "$SPELL_IMG/ChoGathR.png", "Devora a un objetivo infligiendo daño verdadero masivo; si lo asesina gana tamaño y vida máxima permanente.", "65s")
             ),
             isRanged = false,
             isFrontline = true
@@ -306,13 +306,13 @@ object BaronLaneChampions {
             coreItemsIcons = listOf("$ITEM_IMG/3068.png", "$ITEM_IMG/3075.png", "$ITEM_IMG/3025.png", "$ITEM_IMG/3143.png"),
             situationalItems = listOf("Fuerza de la Naturaleza", "Corazón de Hielo", "Gárgola"),
             situationalItemsIcons = listOf("$ITEM_IMG/4401.png", "$ITEM_IMG/3110.png", "$ITEM_IMG/3193.png"),
-            skillOrder = "Max Q > E > W",
+            skillOrder = "Max 1 > 3 > 2",
             skills = listOf(
                 ChampionSkill("P", "Pasiva", "Escudo de Granito", "$PASSIVE_IMG/Malphite_Passive.png", "Se protege con un escudo de roca del 10% de su vida máxima que se regenera fuera de combate."),
-                ChampionSkill("1", "Habilidad 1 (Q)", "Fragmento Sísmico", "$SPELL_IMG/MalphiteQ.png", "Arroja un pedazo de tierra que daña al rival y le roba velocidad de movimiento.", "8s"),
-                ChampionSkill("2", "Habilidad 2 (W)", "Trueno Sonoro", "$SPELL_IMG/MalphiteW.png", "Aumenta pasivamente su armadura. Al activarse sus ataques golpean en cono.", "10s"),
-                ChampionSkill("3", "Habilidad 3 (E)", "Golpe de Suelo", "$SPELL_IMG/MalphiteE.png", "Golpea el suelo infligiendo daño mágico que escala con su armadura y reduce la velocidad de ataque un 50%.", "7s"),
-                ChampionSkill("4", "Definitiva (R)", "Fuerza Imparable", "$SPELL_IMG/MalphiteR.png", "Se lanza velozmente a una zona, infligiendo daño masivo y lanzando a los enemigos por los aires.", "75s")
+                ChampionSkill("1", "Habilidad 1", "Fragmento Sísmico", "$SPELL_IMG/MalphiteQ.png", "Arroja un pedazo de tierra que daña al rival y le roba velocidad de movimiento.", "8s"),
+                ChampionSkill("2", "Habilidad 2", "Trueno Sonoro", "$SPELL_IMG/MalphiteW.png", "Aumenta pasivamente su armadura. Al activarse sus ataques golpean en cono.", "10s"),
+                ChampionSkill("3", "Habilidad 3", "Golpe de Suelo", "$SPELL_IMG/MalphiteE.png", "Golpea el suelo infligiendo daño mágico que escala con su armadura y reduce la velocidad de ataque un 50%.", "7s"),
+                ChampionSkill("4", "Definitiva", "Fuerza Imparable", "$SPELL_IMG/MalphiteR.png", "Se lanza velozmente a una zona, infligiendo daño masivo y lanzando a los enemigos por los aires.", "75s")
             ),
             isRanged = false,
             isFrontline = true

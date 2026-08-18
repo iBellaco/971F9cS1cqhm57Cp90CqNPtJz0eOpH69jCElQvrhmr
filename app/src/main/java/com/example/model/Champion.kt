@@ -33,7 +33,7 @@ data class MetaDataSource(
 
 data class ChampionSkill(
     val slot: String, // "P", "1", "2", "3", "4"
-    val slotName: String, // "Pasiva", "Habilidad 1 (Q)", "Habilidad 2 (W)", "Habilidad 3 (E)", "Definitiva (R)"
+    val slotName: String, // "Pasiva", "Habilidad 1", "Habilidad 2", "Habilidad 3", "Definitiva"
     val name: String,
     val iconUrl: String,
     val description: String,

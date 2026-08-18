@@ -1,0 +1,82 @@
+[
+  {
+    "id": "infinity_edge",
+    "cDragonId": 3031,
+    "name": "Filo del Infinito",
+    "category": "FÍSICO",
+    "goldCost": 3400,
+    "stats": "+55 Daño de Ataque, +25% Probabilidad de Impacto Crítico",
+    "passive": "Infinito: Los impactos críticos infligen un 205% de daño en lugar del 175%.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3031.png"
+  },
+  {
+    "id": "blade_of_the_ruined_king",
+    "cDragonId": 3153,
+    "name": "Hoja del Rey Arruinado",
+    "category": "FÍSICO",
+    "goldCost": 3100,
+    "stats": "+20 Daño de Ataque, +35% Velocidad de Ataque, +10% Vampirismo Físico",
+    "passive": "Golpe de Niebla: Los ataques infligen un 7% (cuerpo a cuerpo) o 4% (a distancia) de la vida actual del objetivo.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3153.png"
+  },
+  {
+    "id": "black_cleaver",
+    "cDragonId": 3071,
+    "name": "Cuchilla Negra",
+    "category": "FÍSICO",
+    "goldCost": 3000,
+    "stats": "+40 Daño de Ataque, +350 Vida Máxima, +20 Aceleración de Habilidad",
+    "passive": "Descuartizar: Infligir daño físico reduce la armadura del objetivo un 5% por 6s (acumulable hasta 25%).",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3071.png"
+  },
+  {
+    "id": "rabadons_deathcap",
+    "cDragonId": 3089,
+    "name": "Sombrero Mortal de Rabadon",
+    "category": "MAGIA",
+    "goldCost": 3400,
+    "stats": "+120 Poder de Habilidad",
+    "passive": "Opus: Aumenta el Poder de Habilidad total en un 40% a 45% (según el nivel).",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3089.png"
+  },
+  {
+    "id": "infinity_orb",
+    "cDragonId": 4628,
+    "name": "Orbe del Infinito",
+    "category": "MAGIA",
+    "goldCost": 3150,
+    "stats": "+85 Poder de Habilidad, +5% Velocidad de Movimiento, +15 Penetración Mágica",
+    "passive": "Juicio Inevitable: Las habilidades y ataques mejorados asestan golpes críticos que infligen un 20% más de daño contra enemigos por debajo del 35% de vida.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/4628.png"
+  },
+  {
+    "id": "ludens_echo",
+    "cDragonId": 3285,
+    "name": "Eco de Luden",
+    "category": "MAGIA",
+    "goldCost": 3000,
+    "stats": "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad",
+    "passive": "Tiro Discordante: Al moverte y lanzar habilidades acumulas cargas. Al llegar a 100, el próximo hechizo inflige 100 + 10% PH adicional a hasta 3 objetivos.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3285.png"
+  },
+  {
+    "id": "heartsteel",
+    "cDragonId": 3084,
+    "name": "Corazón de Acero",
+    "category": "DEFENSA",
+    "goldCost": 3000,
+    "stats": "+700 Vida Máxima, +150% Regeneración de Vida Básica, +20 Aceleración de Habilidad",
+    "passive": "Consumo Colosal: Carga un golpe devastador contra un campeón dentro de 700 unidades. Inflige 120 + 5% de vida máxima y otorga vida máxima permanente equivalente al 10% del daño infligido.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3084.png"
+  },
+  {
+    "id": "sunfire_aegis",
+    "cDragonId": 3068,
+    "name": "Égida de Fuego Solar",
+    "category": "DEFENSA",
+    "goldCost": 2900,
+    "stats": "+500 Vida Máxima, +15 Aceleración de Habilidad",
+    "passive": "Inmolar: Inflige daño mágico por segundo a enemigos cercanos. Aumenta un 10% por segundo al estar en combate.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3068.png"
+  }
+]

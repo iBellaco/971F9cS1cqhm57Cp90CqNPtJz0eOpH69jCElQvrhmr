@@ -1,0 +1,50 @@
+[
+  {
+    "id": "conqueror",
+    "name": "Conquistador (Conqueror)",
+    "tree": "Precisión / Dominación",
+    "type": "Clave",
+    "description": "Acumula hasta 6 cargas de fuerza adaptable al golpear campeones enemigos. Con el máximo de cargas, otorga vampirismo físico y mágico adicional.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png"
+  },
+  {
+    "id": "electrocute",
+    "name": "Electrocutar (Electrocute)",
+    "tree": "Dominación",
+    "type": "Clave",
+    "description": "Alcanzar a un campeón con 3 ataques o habilidades individuales en 3s inflige daño adaptable instantáneo adicional.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png"
+  },
+  {
+    "id": "lethal_tempo",
+    "name": "Compás Letal (Lethal Tempo)",
+    "tree": "Precisión",
+    "type": "Clave",
+    "description": "Los ataques básicos otorgan velocidad de ataque acumulable (hasta 6 veces). Al llegar al máximo, otorga alcance de ataque adicional y velocidad de ataque desbordante.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png"
+  },
+  {
+    "id": "summon_aery",
+    "name": "Invocar a Aery (Summon Aery)",
+    "tree": "Brujería / Inspiración",
+    "type": "Clave",
+    "description": "Tus ataques y habilidades envían a Aery hacia un objetivo para dañar enemigos o poner un escudo protector a tus aliados.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summongaery/summongaery.png"
+  },
+  {
+    "id": "aftershock",
+    "name": "Reverberacción (Aftershock)",
+    "tree": "Valor",
+    "type": "Clave",
+    "description": "Inmovilizar a un campeón enemigo otorga armadura y resistencia mágica masiva por 2.5s, detonando luego una explosión que inflige daño mágico.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png"
+  },
+  {
+    "id": "arcane_comet",
+    "name": "Cometa Arcano (Arcane Comet)",
+    "tree": "Brujería",
+    "type": "Clave",
+    "description": "Dañar a un campeón con una habilidad dispara un cometa hacia su posición que inflige daño mágico adaptativo en área.",
+    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png"
+  }
+]
