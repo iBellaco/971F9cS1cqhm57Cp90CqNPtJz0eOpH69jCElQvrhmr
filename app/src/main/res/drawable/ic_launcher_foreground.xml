@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Inner Crest Circle Ring (Gold & Cyan Glowing Border) -->
+    <path
+        android:strokeWidth="2.8"
+        android:fillColor="#121026"
+        android:pathData="M54,26 A28,28 0 1 1 53.9,26 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="26"
+                android:startY="26"
+                android:endX="82"
+                android:endY="82"
+                android:type="linear">
+                <item android:color="#00F5FF" android:offset="0.0" />
+                <item android:color="#F0E6D2" android:offset="0.3" />
+                <item android:color="#C8AA6E" android:offset="0.7" />
+                <item android:color="#E056FD" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glowing Cyan/Magenta Crest Glow Arc -->
+    <path
+        android:strokeWidth="1.8"
+        android:fillColor="#00000000"
+        android:pathData="M30,54 A24,24 0 0 1 78,54">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="30"
+                android:startY="40"
+                android:endX="78"
+                android:endY="40"
+                android:type="linear">
+                <item android:color="#00F5FF" android:offset="0.0" />
+                <item android:color="#E056FD" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Top-Left: Crossed Battle Axes (Golden) -->
+    <!-- Axe 1 Handle & Blade -->
+    <path
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M36,44 L48,32" />
+    <path
+        android:fillColor="#F0E6D2"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M44,30 C46,28 48,30 47,33 L45,34 C44,32 43,31 44,30 Z" />
+    <path
+        android:fillColor="#F0E6D2"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M49,35 C51,37 49,39 46,38 L45,37 C47,36 48,35 49,35 Z" />
+
+    <!-- Axe 2 Handle & Blade -->
+    <path
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M48,44 L36,32" />
+    <path
+        android:fillColor="#F0E6D2"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M40,30 C38,28 36,30 37,33 L39,34 C40,32 41,31 40,30 Z" />
+    <path
+        android:fillColor="#F0E6D2"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M35,35 C33,37 35,39 38,38 L39,37 C37,36 36,35 35,35 Z" />
+
+    <!-- Bottom-Right: Revolver Gun Silhouette (Golden/Steel) -->
+    <path
+        android:fillColor="#C8AA6E"
+        android:strokeColor="#F0E6D2"
+        android:strokeWidth="0.6"
+        android:pathData="M65,54 L72,50 L73,53 L68,56 L67,61 L64,62 L63,58 L65,57 Z" />
+    <path
+        android:fillColor="#00F5FF"
+        android:pathData="M66,54 L70,52 L70,54 L66,56 Z" />
+
+    <!-- Bottom: Mystic Eye / Swirl Rune -->
+    <path
+        android:strokeColor="#00F5FF"
+        android:strokeWidth="1.5"
+        android:fillColor="#00000000"
+        android:pathData="M48,68 C51,64 57,64 60,68 C57,72 51,72 48,68 Z" />
+    <path
+        android:fillColor="#00F5FF"
+        android:pathData="M54,68 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0" />
+
+    <!-- Central Diagonal Arrow (Prominent Neon Spear/Arrow pointing Up-Right) -->
+    <!-- Arrow Body -->
+    <path
+        android:strokeWidth="1.2"
+        android:strokeColor="#F0E6D2"
+        android:pathData="M38,68 L48,58 L54,64 L68,48 L76,56 L78,28 L50,30 L58,38 L44,52 L38,46 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="38"
+                android:startY="68"
+                android:endX="78"
+                android:endY="28"
+                android:type="linear">
+                <item android:color="#00F5FF" android:offset="0.0" />
+                <item android:color="#0AC8B9" android:offset="0.4" />
+                <item android:color="#C8AA6E" android:offset="0.75" />
+                <item android:color="#FF007F" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Arrow Inner Highlight -->
+    <path
+        android:fillColor="#F0E6D2"
+        android:pathData="M74,32 L56,33 L61,38 L51,48 L55,52 L65,42 L70,47 Z" />
+
+    <!-- Bottom Ribbon Banner: "WILD RIFT DRAFT" Crest Frame -->
+    <path
+        android:strokeColor="#00F5FF"
+        android:strokeWidth="1.4"
+        android:fillColor="#0D1B2A"
+        android:pathData="M34,80 L74,80 L78,87 L70,89 L54,92 L38,89 L30,87 Z" />
+    <path
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="1.0"
+        android:fillColor="#00000000"
+        android:pathData="M38,83 L70,83 L73,87 L54,90 L35,87 Z" />
+    <path
+        android:fillColor="#F0E6D2"
+        android:pathData="M54,84 L57,86 L54,88 L51,86 Z" />
+</vector>
