@@ -143,6 +143,8 @@ fun MetaAndDraftScreen(
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY"
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
     var isFirstPick by remember { mutableStateOf(false) }
+    var activeWebUrl by remember { mutableStateOf<String?>(null) }
+    var activeWebTitle by remember { mutableStateOf<String?>(null) }
 
     val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList()) {
         WildRiftRepository.analyzeDraft(
@@ -309,7 +311,12 @@ fun MetaAndDraftScreen(
                 }
                 6 -> {
                     // SECCIÓN: FUENTES META (4 PORTALES)
-                    MetaSourcesTab()
+                    MetaSourcesTab(
+                        onOpenSource = { url, name ->
+                            activeWebUrl = url
+                            activeWebTitle = name
+                        }
+                    )
                 }
             }
         }
@@ -320,6 +327,18 @@ fun MetaAndDraftScreen(
         ChampionDetailSheet(
             champion = selectedDetailChampion,
             onDismiss = { selectedDetailChampion = null }
+        )
+    }
+
+    // In-App Web Viewer for Meta Sources
+    if (activeWebUrl != null) {
+        com.example.ui.components.InAppWebSourceDialog(
+            url = activeWebUrl!!,
+            title = activeWebTitle ?: "Fuente Meta",
+            onDismiss = {
+                activeWebUrl = null
+                activeWebTitle = null
+            }
         )
     }
 
@@ -1103,9 +1122,9 @@ private fun MapObjectivesTab() {
 // TAB 6: FUENTES META OFICIALES (4 PORTALES)
 // ====================================================================
 @Composable
-private fun MetaSourcesTab() {
-    val uriHandler = LocalUriHandler.current
-
+private fun MetaSourcesTab(
+    onOpenSource: (url: String, name: String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1120,7 +1139,7 @@ private fun MetaSourcesTab() {
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan automáticamente con estos portales:",
+            text = "Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan con estos portales dentro de la app:",
             color = TextMuted,
             fontSize = 12.sp
         )
@@ -1133,7 +1152,7 @@ private fun MetaSourcesTab() {
                     .padding(vertical = 4.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        try { uriHandler.openUri(source.url) } catch (_: Exception) {}
+                        onOpenSource(source.url, source.name)
                     },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechSurface),

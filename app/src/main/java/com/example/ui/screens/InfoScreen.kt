@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.HelpOutline
@@ -40,18 +39,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
-import com.example.ui.components.BatteryAndOverlayNoticeCard
+import com.example.ui.components.InAppWebSourceDialog
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -67,291 +69,282 @@ import com.example.ui.theme.TierSColor
 fun InfoScreen(
     onNavigateBack: () -> Unit
 ) {
-    val uriHandler = LocalUriHandler.current
+    var activeWebUrl by remember { mutableStateOf<String?>(null) }
+    var activeWebTitle by remember { mutableStateOf<String?>(null) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text(
-                            text = "Acerca De",
-                            color = TextPrimary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(HextechCyan.copy(alpha = 0.15f))
-                                .border(1.dp, HextechCyan, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text(
-                                text = "v1.0 • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
-                                color = HextechCyan,
-                                fontSize = 11.sp,
+                                text = "Acerca De",
+                                color = TextPrimary,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechCyan, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                            ) {
+                                Text(
+                                    text = WildRiftRepository.CURRENT_PATCH_VERSION,
+                                    color = HextechCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack,
-                        modifier = Modifier.testTag("info_back_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = HextechGold
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
-            )
-        },
-        containerColor = HextechDarkBg
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 18.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // ==========================================
-            // SECCIÓN 1: VERSIÓN DE LA APLICACIÓN
-            // ==========================================
-            InfoSectionHeader(
-                icon = Icons.Default.NewReleases,
-                title = "1. Versión de la Aplicación",
-                tint = HextechCyan
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onNavigateBack,
+                            modifier = Modifier.testTag("info_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Volver",
+                                tint = HextechGold
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
+                )
+            },
+            containerColor = HextechDarkBg
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Wild Rift Drafting",
-                            color = HextechGold,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(HextechGold.copy(alpha = 0.15f))
-                                .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Hero Info Banner
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold)
+                ) {
+                    Column(modifier = Modifier.padding(18.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                text = "Build 1.0",
-                                color = HextechGold,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechGold.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechGold, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "Asistente Táctico Wild Rift",
+                                    color = HextechGold,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                                Text(
+                                    text = "Guía en Tiempo Real para Selección de Campeones",
+                                    color = HextechGoldLight,
+                                    fontSize = 11.5.sp
+                                )
+                            }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "• Compatibilidad: Diseñado y optimizado exclusivamente para Wild Rift (versión de juego, balance, runas, objetos y parches propios de Wild Rift).\n" +
-                               "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado automáticamente.\n" +
-                               "• Motor Hextech: Orbe 3D con animación de partículas y cálculo de composiciones.\n" +
-                               "• Sistema Flotante: Ventana superpuesta no intrusiva con controles gestuales y HUD de análisis táctico.",
-                        color = TextPrimary,
-                        fontSize = 12.5.sp,
-                        lineHeight = 18.sp
-                    )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-            // ==========================================
-            // SECCIÓN 2: MODO DE USO DE LA APLICACIÓN
-            // ==========================================
-            InfoSectionHeader(
-                icon = Icons.Default.HelpOutline,
-                title = "2. Modo de Uso de la Aplicación",
-                tint = HextechGold
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+                // ==========================================
+                // SECCIÓN 1: COMPATIBILIDAD Y PARCHE OFICIAL
+                // ==========================================
+                InfoSectionHeader(
+                    icon = Icons.Default.NewReleases,
+                    title = "1. Compatibilidad y Parche Oficial",
+                    tint = HextechCyan
+                )
+                Spacer(modifier = Modifier.height(10.dp))
 
-            StepCard(
-                stepNumber = "1",
-                title = "Paso 1: Configura tus Preferencias de Línea",
-                description = "En la pantalla principal, selecciona tu 'Línea Main', 'Segunda Línea' y 'Rol Autofill' tocando sobre cada tarjeta para abrir el selector rápido."
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            StepCard(
-                stepNumber = "2",
-                title = "Paso 2: Activa el Asistente Hextech",
-                description = "Pulsa el Orbe Hextech 3D central ('ACTIVAR'). Se desplegará la burbuja flotante con el icono de la cámara y el botón de cierre rápido."
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            StepCard(
-                stepNumber = "3",
-                title = "Paso 3: Fase de Selección de Campeones (Champ Select)",
-                description = "Abre Wild Rift y entra a la fase de selección. Toca la burbuja de la cámara en cualquier momento para activar el escaneo táctico y recibir consejos en directo."
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            StepCard(
-                stepNumber = "4",
-                title = "Paso 4: Consulta de Counters y Sinergias",
-                description = "Revisa el bocadillo de texto que aparece junto a la cámara: te indicará la mejor selección según los campeones que bloquee y elija el equipo enemigo."
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            StepCard(
-                stepNumber = "5",
-                title = "Paso 5: Controles Gestuales y Cierre",
-                description = "• Los controles flotantes están centrados en pantalla y son arrastrables libremente.\n• Toca la burbuja de la cámara para alternar las sugerencias tácticas.\n• Desliza la burbuja hacia abajo para cerrar el asistente o pulsa 'DETENER' en la app."
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            // ==========================================
-            // SECCIÓN 3: FUENTES OFICIALES SINCRONIZADAS AUTOMÁTICAMENTE
-            // ==========================================
-            InfoSectionHeader(
-                icon = Icons.Default.Sync,
-                title = "3. Fuentes Oficiales Sincronizadas Automáticamente",
-                tint = HextechCyan
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "La aplicación toma automáticamente datos de campeones, runas, meta, winrates y parches de las siguientes 4 fuentes oficiales:",
-                color = TextMuted,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            WildRiftRepository.metaSources.forEach { source ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable {
-                            try { uriHandler.openUri(source.url) } catch (_: Exception) {}
-                        },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                                Text(source.focusArea, color = HextechGoldLight, fontSize = 11.5.sp)
-                                Text(source.url, color = HextechCyan, fontSize = 10.5.sp)
+                            Text(
+                                text = "Wild Rift Drafting",
+                                color = HextechGold,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechGold.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "Edición Móvil",
+                                    color = HextechGold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
-                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "• Compatibilidad: Diseñado exclusivamente para League of Legends: Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).\n" +
+                                   "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado con fuentes de balance.\n" +
+                                   "• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.\n" +
+                                   "• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección.",
+                            color = TextPrimary,
+                            fontSize = 12.5.sp,
+                            lineHeight = 18.sp
+                        )
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(22.dp))
 
-            // ==========================================
-            // SECCIÓN 4: SEGUNDO PLANO Y OPTIMIZACIÓN DE BATERÍA
-            // ==========================================
-            InfoSectionHeader(
-                icon = Icons.Default.BatteryChargingFull,
-                title = "4. Segundo Plano y Optimización de Batería",
-                tint = HextechCyan
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            BatteryAndOverlayNoticeCard()
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            // ==========================================
-            // SECCIÓN 5: RECOMENDACIONES TÁCTICAS
-            // ==========================================
-            InfoSectionHeader(
-                icon = Icons.Default.Lightbulb,
-                title = "5. Recomendaciones Tácticas & Seguridad",
-                tint = HextechGold
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            RecommendationTopicCard(
-                icon = Icons.Default.AutoAwesome,
-                title = "Recomendaciones de Selección de Campeón",
-                description = "• Si el rival elige un iniciador pesado (ej. Vi, Sett, Rell), prioriza campeones con desengage o escudos mágicos (como Morgana o Janna).\n" +
-                              "• Si el rival acumula tanques con mucha vida, selecciona daño porcentual o verdadero (ej. Vayne, Fiora o Sett).\n" +
-                              "• Si tus aliados son casi todos de daño físico (AD), elige obligatoriamente una opción de daño mágico (AP) para evitar que el rival se arme solo armadura.",
-                tint = HextechCyan
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            RecommendationTopicCard(
-                icon = Icons.Default.Timer,
-                title = "Recomendaciones de Tiempos y Objetivos",
-                description = "• Dragón Elemental (Minuto 4:00): Asegura prioridad en la línea de Dragón 30 segundos antes empujando la oleada.\n" +
-                              "• Heraldo de la Grieta (Minuto 5:00): Crucial para derribar la primera torre y liberar a tu carrilero solitario.\n" +
-                              "• Barón Nashor & Dragón Anciano (Minuto 12:00): Coloca centinelas en las entradas de la jungla antes de iniciar.",
-                tint = HextechGold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            RecommendationTopicCard(
-                icon = Icons.Default.Security,
-                title = "Recomendaciones de Seguridad (Modo Anti-Ban)",
-                description = "Drafting Wild Rift no altera la memoria de la app ni inyecta código en los servidores de Riot Games. Funciona 100% como una superposición de asistencia visual independiente, garantizando total seguridad para tu cuenta.",
-                tint = TierSColor,
-                highlight = true
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Footer version banner
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Wild Rift Drafting • Asistente Externo Inteligente",
-                    color = HextechGold,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                // ==========================================
+                // SECCIÓN 2: MODO DE USO DE LA APLICACIÓN
+                // ==========================================
+                InfoSectionHeader(
+                    icon = Icons.Default.HelpOutline,
+                    title = "2. Modo de Uso de la Aplicación",
+                    tint = HextechGold
                 )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                StepCard(
+                    stepNumber = "1",
+                    title = "Paso 1: Configura tus Líneas de Juego",
+                    description = "En la pantalla principal, selecciona tu 'Línea Main', 'Segunda Línea' y 'Rol Autofill' tocando cada tarjeta."
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                StepCard(
+                    stepNumber = "2",
+                    title = "Paso 2: Activa el Asistente Flotante",
+                    description = "Pulsa el botón central 'ACTIVAR'. Se desplegará la burbuja flotante en pantalla para acompañarte en tu partida."
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                StepCard(
+                    stepNumber = "3",
+                    title = "Paso 3: Selección de Campeones (Champ Select)",
+                    description = "Abre Wild Rift y entra a la fase de selección. Toca el botón flotante en cualquier momento para ver recomendaciones, counters y sinergias tácticas en directo."
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                StepCard(
+                    stepNumber = "4",
+                    title = "Paso 4: Consulta de Builds y Runas",
+                    description = "Revisa los consejos tácticos, orden de habilidades móviles (Pasiva, 1, 2, 3, Definitiva) y armado de objetos recomendado para tu línea."
+                )
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                // ==========================================
+                // SECCIÓN 3: FUENTES WEB DEL META (EN LA APP)
+                // ==========================================
+                InfoSectionHeader(
+                    icon = Icons.Default.Sync,
+                    title = "3. Fuentes Web del Meta (Visor en la App)",
+                    tint = HextechCyan
+                )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Versión 1.0 • Sincronizado automáticamente con WildRiftCore, BestBuildWR, WildRiftFire y WR-Meta",
+                    text = "Toca cualquier fuente para consultar sus datos directamente dentro de la aplicación:",
                     color = TextMuted,
-                    fontSize = 10.5.sp
+                    fontSize = 12.sp
                 )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                WildRiftRepository.metaSources.forEach { source ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable {
+                                activeWebUrl = source.url
+                                activeWebTitle = source.name
+                            },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                    Text(source.focusArea, color = HextechGoldLight, fontSize = 11.5.sp)
+                                    Text(source.url, color = HextechCyan, fontSize = 10.5.sp)
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechGold.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text("Abrir", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
             }
-            Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        // In-App WebView Dialog for sources
+        if (activeWebUrl != null) {
+            InAppWebSourceDialog(
+                url = activeWebUrl!!,
+                title = activeWebTitle ?: "Fuente Web",
+                onDismiss = {
+                    activeWebUrl = null
+                    activeWebTitle = null
+                }
+            )
         }
     }
 }
@@ -372,8 +365,8 @@ private fun InfoSectionHeader(
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = title,
-            color = TextPrimary,
-            fontSize = 16.sp,
+            color = tint,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold
         )
     }
@@ -387,96 +380,41 @@ private fun StepCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
     ) {
         Row(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.Top
         ) {
             Box(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .background(HextechCyan.copy(alpha = 0.15f))
-                    .border(1.dp, HextechCyan, CircleShape),
+                    .background(HextechGold.copy(alpha = 0.2f))
+                    .border(1.dp, HextechGold, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = stepNumber,
-                    color = HextechCyan,
+                    color = HextechGold,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    color = TextPrimary,
-                    fontSize = 14.sp,
+                    color = HextechGoldLight,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = description,
-                    color = TextMuted,
-                    fontSize = 12.5.sp,
-                    lineHeight = 17.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecommendationTopicCard(
-    icon: ImageVector,
-    title: String,
-    description: String,
-    tint: Color,
-    highlight: Boolean = false
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(
-            if (highlight) 1.5.dp else 1.dp,
-            if (highlight) HextechGold else HextechCardBorder
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(tint.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = tint,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = title,
-                    color = if (highlight) HextechGold else TextPrimary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = description,
-                    color = if (highlight) HextechGoldLight.copy(alpha = 0.9f) else TextMuted,
+                    color = TextPrimary.copy(alpha = 0.9f),
                     fontSize = 12.sp,
                     lineHeight = 17.sp
                 )

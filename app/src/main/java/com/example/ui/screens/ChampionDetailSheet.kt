@@ -37,11 +37,14 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +53,7 @@ import com.example.data.WildRiftRepository
 import com.example.model.Champion
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.InAppWebSourceDialog
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -71,7 +75,8 @@ fun ChampionDetailSheet(
     if (champion == null) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val uriHandler = LocalUriHandler.current
+    var activeWebUrl by remember { mutableStateOf<String?>(null) }
+    var activeWebTitle by remember { mutableStateOf<String?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -311,7 +316,7 @@ fun ChampionDetailSheet(
                             AppAssetImage(
                                 url = champion.primaryRuneIconUrl,
                                 contentDescription = champion.recommendedRunes,
-                                fallbackText = "R",
+                                fallbackText = "Runa",
                                 modifier = Modifier.size(34.dp),
                                 borderColor = HextechCyan,
                                 shape = CircleShape
@@ -482,7 +487,8 @@ fun ChampionDetailSheet(
                             .background(HextechSurface)
                             .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                             .clickable {
-                                try { uriHandler.openUri(url) } catch (_: Exception) {}
+                                activeWebUrl = url
+                                activeWebTitle = name
                             }
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
@@ -499,5 +505,16 @@ fun ChampionDetailSheet(
 
             Spacer(modifier = Modifier.height(30.dp))
         }
+    }
+
+    if (activeWebUrl != null) {
+        InAppWebSourceDialog(
+            url = activeWebUrl!!,
+            title = activeWebTitle ?: "Fuente Meta",
+            onDismiss = {
+                activeWebUrl = null
+                activeWebTitle = null
+            }
+        )
     }
 }

@@ -16,7 +16,7 @@ import com.example.model.WildRiftItem
 object WildRiftRepository {
 
     // Versión canónica oficial de Wild Rift
-    const val CURRENT_PATCH_VERSION = "Patch 5.3 (Wild Rift)"
+    const val CURRENT_PATCH_VERSION = "Parche 5.3c (Wild Rift)"
     const val LAST_SYNC_STATUS = "Sincronización Automática Activa"
 
     // CDN base URL para avatares, habilidades, objetos y hechizos

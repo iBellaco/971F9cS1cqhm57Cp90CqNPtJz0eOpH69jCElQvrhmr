@@ -99,71 +99,26 @@ fun WildRiftVersionBanner(
 
                 Column {
                     Text(
-                        text = "Versión en Vivo (Wild Rift):",
+                        text = "Meta de Wild Rift:",
                         color = HextechGoldLight,
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Medium
                     )
 
-                    AnimatedContent(targetState = uiState, label = "version_state") { state ->
-                        when (state) {
-                            is WildRiftVersionUiState.Loading -> {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(14.dp),
-                                        color = HextechCyan,
-                                        strokeWidth = 2.dp
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "Consultando iTunes API...",
-                                        color = TextMuted,
-                                        fontSize = 12.sp
-                                    )
-                                }
-                            }
-                            is WildRiftVersionUiState.Success -> {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.CheckCircle,
-                                        contentDescription = null,
-                                        tint = HextechCyan,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "v${state.version} (Pública)",
-                                        color = HextechCyan,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                            is WildRiftVersionUiState.Error -> {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.ErrorOutline,
-                                        contentDescription = null,
-                                        tint = DangerRed,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "Fallo de conexión",
-                                        color = DangerRed,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
-                            }
-                            WildRiftVersionUiState.Idle -> {
-                                Text(
-                                    text = "Sin consultar",
-                                    color = TextMuted,
-                                    fontSize = 12.sp
-                                )
-                            }
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Parche 5.3c • Actualizado",
+                            color = HextechCyan,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

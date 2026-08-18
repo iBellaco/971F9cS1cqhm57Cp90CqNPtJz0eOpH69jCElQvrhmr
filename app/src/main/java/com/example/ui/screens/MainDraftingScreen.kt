@@ -19,24 +19,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,14 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
-import com.example.ui.components.BatteryAndOverlayNoticeCard
 import com.example.ui.components.FloatingAssistantOverlay
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.RoleIconType
@@ -63,8 +53,8 @@ import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
+import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechSurface
-import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 
@@ -81,134 +71,44 @@ fun MainDraftingScreen(
     onAutofillRoleChange: (LaneRole) -> Unit
 ) {
     var isAssistantActive by remember { mutableStateOf(false) }
-    var showMenu by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
                             text = "Wild Rift Drafting",
                             color = TextPrimary,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 0.5.sp
+                            letterSpacing = 0.5.sp,
+                            modifier = Modifier.testTag("app_title_centered")
                         )
                     },
-                    actions = {
-                        Box {
-                            IconButton(
-                                onClick = { showMenu = true },
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(HextechSurface)
-                                    .border(1.dp, HextechGold, CircleShape)
-                                    .size(38.dp)
-                                    .testTag("main_menu_options_button")
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menú de Opciones",
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-
-                            // Hextech Consolidated Options Menu
-                            DropdownMenu(
-                                expanded = showMenu,
-                                onDismissRequest = { showMenu = false },
-                                modifier = Modifier
-                                    .background(HextechDarkBg)
-                                    .border(1.2.dp, HextechGold, RoundedCornerShape(12.dp))
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                // 1. Meta & Draft
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text("Meta & Catálogo", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                            Text("Tier List, Sinergias, Runas y Objetos", color = TextMuted, fontSize = 11.sp)
-                                        }
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.GridView,
-                                            contentDescription = null,
-                                            tint = HextechGold,
-                                            modifier = Modifier.size(22.dp)
-                                        )
-                                    },
-                                    onClick = {
-                                        showMenu = false
-                                        onNavigateToMeta()
-                                    },
-                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
-                                )
-
-                                HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
-
-                                // 2. Acerca De
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text("Acerca De", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                            Text("Guía de uso, parches y fuentes", color = TextMuted, fontSize = 11.sp)
-                                        }
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Info,
-                                            contentDescription = null,
-                                            tint = HextechCyan,
-                                            modifier = Modifier.size(22.dp)
-                                        )
-                                    },
-                                    onClick = {
-                                        showMenu = false
-                                        onNavigateToInfo()
-                                    },
-                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
-                                )
-
-                                HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 4.dp))
-
-                                // 3. Asistente Flotante
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(
-                                                if (isAssistantActive) "Desactivar Asistente" else "Activar Asistente",
-                                                color = if (isAssistantActive) HextechCyan else TextPrimary,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp
-                                            )
-                                            Text(
-                                                if (isAssistantActive) "Asistente activo en pantalla" else "Abrir HUD flotante",
-                                                color = TextMuted,
-                                                fontSize = 11.sp
-                                            )
-                                        }
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Videocam,
-                                            contentDescription = null,
-                                            tint = if (isAssistantActive) HextechCyan else HextechGold,
-                                            modifier = Modifier.size(22.dp)
-                                        )
-                                    },
-                                    onClick = {
-                                        showMenu = false
-                                        isAssistantActive = !isAssistantActive
-                                    },
-                                    colors = MenuDefaults.itemColors(textColor = TextPrimary)
-                                )
-                            }
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onNavigateToInfo,
+                            modifier = Modifier
+                                .padding(start = 6.dp)
+                                .clip(CircleShape)
+                                .background(HextechSurface)
+                                .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
+                                .size(38.dp)
+                                .testTag("nav_about_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Acerca De",
+                                tint = HextechGold,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
+                    actions = {
+                        // Lado superior derecho completamente limpio según solicitud
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = HextechDarkBg)
                 )
             },
             containerColor = HextechDarkBg
@@ -221,9 +121,9 @@ fun MainDraftingScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                // Wild Rift Version Banner (Live from iTunes Lookup API)
+                // Banner de estado del Meta de Wild Rift
                 WildRiftVersionBanner()
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -258,12 +158,68 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Card de Configuración para Segundo Plano y Ahorro de Batería
-                BatteryAndOverlayNoticeCard()
+                // Acceso a Meta & Catálogo de Campeones
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { onNavigateToMeta() }
+                        .testTag("open_meta_catalog_card"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(HextechCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechCyan, RoundedCornerShape(8.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.GridView,
+                                    contentDescription = null,
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Meta & Catálogo de Campeones",
+                                    color = TextPrimary,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Tier list, counters, sinergias, runas y objetos",
+                                    color = TextMuted,
+                                    fontSize = 11.5.sp
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Ver",
+                            tint = HextechGold,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Hextech 3D Glowing Orb Button
+                // Botón Orbe Hextech 3D Central de Activación Inmediata
                 HextechOrbButton(
                     isActive = isAssistantActive,
                     onToggle = {
@@ -271,20 +227,20 @@ fun MainDraftingScreen(
                     }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Toca para Activar Asistente Externo",
+                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Presiona ACTIVAR para iniciar el Asistente",
                     color = if (isAssistantActive) HextechCyan else TextMuted,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
 
-        // Live Floating Overlay HUD Simulator (Appears when isAssistantActive is true)
+        // Live Floating Overlay HUD Simulator (Se activa inmediatamente al presionar ACTIVAR)
         FloatingAssistantOverlay(
             isVisible = isAssistantActive,
             initialRole = mainRole,
