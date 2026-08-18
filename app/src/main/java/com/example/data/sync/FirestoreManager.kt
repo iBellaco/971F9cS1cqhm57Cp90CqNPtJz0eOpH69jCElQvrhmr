@@ -27,7 +27,14 @@ class FirestoreManager {
     suspend fun getChampionsFromFirestore(): List<Champion> {
         return try {
             val snapshot = championsCollection.get().await()
-            val champions = snapshot.toObjects(Champion::class.java)
+            val champions = snapshot.documents.mapNotNull { doc ->
+                try {
+                    doc.toObject(Champion::class.java)
+                } catch (e: Exception) {
+                    Log.e("FirestoreManager", "Error parsing champion ${doc.id}", e)
+                    null
+                }
+            }
             champions
         } catch (e: Exception) {
             Log.e("FirestoreManager", "Error fetching champions", e)
