@@ -385,14 +385,35 @@ private fun ChampionsCatalogTab(
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
 
     val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter) {
-        WildRiftRepository.champions.filter { champ ->
-            val matchesQuery = champ.name.contains(searchQuery, ignoreCase = true) ||
-                    champ.summary.contains(searchQuery, ignoreCase = true)
+        val list = WildRiftRepository.champions.filter { champ ->
+            val matchesQuery = searchQuery.isBlank() ||
+                    champ.name.contains(searchQuery, ignoreCase = true) ||
+                    champ.title.contains(searchQuery, ignoreCase = true) ||
+                    champ.summary.contains(searchQuery, ignoreCase = true) ||
+                    champ.primaryRole.displayName.contains(searchQuery, ignoreCase = true) ||
+                    champ.primaryRole.shortName.contains(searchQuery, ignoreCase = true) ||
+                    champ.secondaryRoles.any { it.shortName.contains(searchQuery, ignoreCase = true) || it.displayName.contains(searchQuery, ignoreCase = true) }
             val matchesRole = selectedRoleFilter == null ||
                     champ.primaryRole == selectedRoleFilter ||
                     champ.secondaryRoles.contains(selectedRoleFilter)
             val matchesTier = selectedTierFilter == null || champ.tier == selectedTierFilter
             matchesQuery && matchesRole && matchesTier
+        }
+        if (selectedRoleFilter != null) {
+            list.sortedWith(
+                compareByDescending<Champion> { it.primaryRole == selectedRoleFilter }
+                    .thenByDescending { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenByDescending { it.tier == "A+" }
+                    .thenByDescending { it.winrate }
+            )
+        } else {
+            list.sortedWith(
+                compareByDescending<Champion> { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenByDescending { it.tier == "A+" }
+                    .thenByDescending { it.winrate }
+            )
         }
     }
 
@@ -502,11 +523,57 @@ private fun ChampionsCatalogTab(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                            Text(
-                                text = "${champion.primaryRole.displayName} • ${champion.damageType.displayName}",
-                                color = HextechCyan,
-                                fontSize = 11.5.sp
-                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            val roleFilter = selectedRoleFilter
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                if (roleFilter != null && champion.primaryRole != roleFilter) {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(HextechGold.copy(alpha = 0.2f))
+                                            .border(1.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                                    ) {
+                                        Text(
+                                            text = "⭐ Flex en ${roleFilter.shortName}",
+                                            color = HextechGold,
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Text(
+                                        text = "Principal: ${champion.primaryRole.shortName} • ${champion.damageType.displayName}",
+                                        color = HextechCyan,
+                                        fontSize = 11.sp
+                                    )
+                                } else {
+                                    Text(
+                                        text = "${champion.primaryRole.displayName} • ${champion.damageType.displayName}",
+                                        color = HextechCyan,
+                                        fontSize = 11.5.sp
+                                    )
+                                    if (champion.secondaryRoles.isNotEmpty()) {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(HextechCyan.copy(alpha = 0.15f))
+                                                .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                                        ) {
+                                            Text(
+                                                text = "Flex: " + champion.secondaryRoles.joinToString("/") { it.shortName },
+                                                color = HextechCyan,
+                                                fontSize = 9.5.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = champion.summary,
@@ -1571,7 +1638,7 @@ private fun AddChampionSlotButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun DraftChampionPickerSheet(
     team: String,
@@ -1581,11 +1648,32 @@ private fun DraftChampionPickerSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var search by remember { mutableStateOf("") }
+    var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
 
-    val availableChamps = remember(search, alreadySelected) {
-        WildRiftRepository.champions.filter { champ ->
-            !alreadySelected.contains(champ.id) &&
-                    (search.isBlank() || champ.name.contains(search, ignoreCase = true))
+    val availableChamps = remember(search, alreadySelected, selectedRoleFilter) {
+        val list = WildRiftRepository.champions.filter { champ ->
+            val notSelected = !alreadySelected.contains(champ.id)
+            val matchesQuery = search.isBlank() ||
+                    champ.name.contains(search, ignoreCase = true) ||
+                    champ.summary.contains(search, ignoreCase = true)
+            val matchesRole = selectedRoleFilter == null ||
+                    champ.primaryRole == selectedRoleFilter ||
+                    champ.secondaryRoles.contains(selectedRoleFilter)
+            notSelected && matchesQuery && matchesRole
+        }
+        if (selectedRoleFilter != null) {
+            list.sortedWith(
+                compareByDescending<Champion> { it.primaryRole == selectedRoleFilter }
+                    .thenByDescending { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenByDescending { it.winrate }
+            )
+        } else {
+            list.sortedWith(
+                compareByDescending<Champion> { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenByDescending { it.winrate }
+            )
         }
     }
 
@@ -1617,7 +1705,36 @@ private fun DraftChampionPickerSheet(
                 shape = RoundedCornerShape(10.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Quick Role Filters
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FilterChip(
+                    selected = selectedRoleFilter == null,
+                    onClick = { selectedRoleFilter = null },
+                    label = { Text("Todos", fontSize = 11.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+                LaneRole.entries.forEach { role ->
+                    FilterChip(
+                        selected = selectedRoleFilter == role,
+                        onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                        label = { Text(role.shortName, fontSize = 11.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier

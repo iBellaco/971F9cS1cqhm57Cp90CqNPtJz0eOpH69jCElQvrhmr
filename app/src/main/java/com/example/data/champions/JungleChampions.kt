@@ -861,7 +861,7 @@ object JungleChampions {
             ddragonId = "Kindred",
             avatarUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/Kindred.png",
             primaryRole = LaneRole.JUNGLE,
-            secondaryRoles = listOf(LaneRole.ADC),
+            secondaryRoles = emptyList(),
             tier = "S",
             winrate = 51.5,
             pickRate = 8.2,

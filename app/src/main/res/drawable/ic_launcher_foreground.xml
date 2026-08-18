@@ -6,109 +6,273 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Inner Dark Crest Shield Circle -->
+    <!-- Inner Magic Orbit Background Plate -->
     <path
-        android:strokeWidth="2.4"
-        android:fillColor="#0D131D"
-        android:pathData="M54,23 A31,31 0 1 1 53.9,23 Z">
+        android:strokeWidth="1.2"
+        android:fillColor="#0B1019"
+        android:pathData="M54,23 A28,28 0 1 1 53.9,23 Z">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="23"
-                android:startY="23"
-                android:endX="85"
-                android:endY="85"
+                android:startX="26"
+                android:startY="51"
+                android:endX="82"
+                android:endY="51"
                 android:type="linear">
-                <item android:color="#00F5FF" android:offset="0.0" />
-                <item android:color="#00B0FF" android:offset="0.3" />
-                <item android:color="#9D00FF" android:offset="0.7" />
-                <item android:color="#FF00A0" android:offset="1.0" />
+                <item android:color="#00F0FF" android:offset="0.0" />
+                <item android:color="#38BDF8" android:offset="0.3" />
+                <item android:color="#A855F7" android:offset="0.7" />
+                <item android:color="#EC4899" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Top-Left: Crossed Dual Runic Battleaxes -->
-    <!-- Axe 1 Shaft -->
+    <!-- Top Center: Crossed Dual Runic Battleaxes -->
+    <!-- Axe 1 Shaft (Left-to-Right) -->
     <path
         android:strokeColor="#C8AA6E"
-        android:strokeWidth="1.6"
+        android:strokeWidth="2.0"
         android:fillColor="#00000000"
-        android:pathData="M35,46 L49,30" />
-    <!-- Axe 1 Left Blade -->
+        android:pathData="M37,42 L57,25" />
+    <!-- Axe 1 Head Double Blades -->
     <path
         android:fillColor="#E2E8F0"
-        android:strokeColor="#00F5FF"
-        android:strokeWidth="0.8"
-        android:pathData="M40,33 C37,29 40,26 44,28 L43,33 Z" />
-    <!-- Axe 1 Right Blade -->
-    <path
-        android:fillColor="#CBD5E1"
-        android:strokeColor="#00F5FF"
-        android:strokeWidth="0.8"
-        android:pathData="M45,35 C48,31 51,34 49,38 L44,36 Z" />
-
-    <!-- Axe 2 Shaft -->
-    <path
         android:strokeColor="#C8AA6E"
-        android:strokeWidth="1.6"
-        android:fillColor="#00000000"
-        android:pathData="M49,46 L35,30" />
-    <!-- Axe 2 Left Blade -->
-    <path
-        android:fillColor="#CBD5E1"
-        android:strokeColor="#00F5FF"
         android:strokeWidth="0.8"
-        android:pathData="M39,35 C36,31 33,34 35,38 L40,36 Z" />
-    <!-- Axe 2 Right Blade -->
+        android:pathData="M48,27 C44,22 47,19 52,22 L51,28 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M53,29 C57,25 60,28 57,33 L52,30 Z" />
+
+    <!-- Axe 2 Shaft (Right-to-Left) -->
+    <path
+        android:strokeColor="#DFC082"
+        android:strokeWidth="2.0"
+        android:fillColor="#00000000"
+        android:pathData="M57,42 L37,25" />
+    <!-- Axe 2 Head Double Blades -->
+    <path
+        android:fillColor="#94A3B8"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.8"
+        android:pathData="M43,29 C39,25 36,28 39,33 L44,30 Z" />
     <path
         android:fillColor="#E2E8F0"
-        android:strokeColor="#00F5FF"
+        android:strokeColor="#C8AA6E"
         android:strokeWidth="0.8"
-        android:pathData="M44,33 C47,29 44,26 40,28 L41,33 Z" />
+        android:pathData="M48,27 C52,22 49,19 44,22 L45,28 Z" />
 
-    <!-- Axe Runic Inscriptions (Cyan glow dots) -->
+    <!-- Axe Center Binding Gold Ring -->
     <path
-        android:fillColor="#00F5FF"
-        android:pathData="M40,30 m-0.8,0 a0.8,0.8 0 1,1 1.6,0 a0.8,0.8 0 1,1 -1.6,0" />
-    <path
-        android:fillColor="#00F5FF"
-        android:pathData="M44,30 m-0.8,0 a0.8,0.8 0 1,1 1.6,0 a0.8,0.8 0 1,1 -1.6,0" />
-
-    <!-- Lower-Right: Antique Ornate Revolver Gun -->
-    <!-- Gun Barrel & Cylinder -->
-    <path
-        android:fillColor="#1E293B"
+        android:fillColor="#C8AA6E"
         android:strokeColor="#F0E6D2"
-        android:strokeWidth="0.9"
-        android:pathData="M65,55 L74,48 L76,51 L68,56 L67,64 L63,65 L63,60 L66,58 Z" />
-    <!-- Gun Cylinder Glow / Details -->
-    <path
-        android:fillColor="#00F5FF"
-        android:pathData="M67,55 L71,52 L71,54 L67,57 Z" />
-    <!-- Gun Grip Engravings -->
-    <path
-        android:strokeColor="#C8AA6E"
-        android:strokeWidth="0.6"
-        android:fillColor="#00000000"
-        android:pathData="M65,60 L64,64 M66,59 L65,63" />
+        android:strokeWidth="0.5"
+        android:pathData="M47,33.5 m-2.2,0 a2.2,2.2 0 1,1 4.4,0 a2.2,2.2 0 1,1 -4.4,0" />
 
-    <!-- Bottom Center: Mystic Eye Rune -->
+    <!-- ==================== LEFT: CRYSTALLINE 3D 'W' ==================== -->
+    <!-- 'W' Outer Ice Flame Glow Aura -->
     <path
-        android:strokeWidth="1.6"
-        android:fillColor="#09101A"
-        android:pathData="M46,67 C50,63 58,63 62,67 C58,71 50,71 46,67 Z">
+        android:strokeWidth="2.2"
+        android:fillColor="#00000000"
+        android:pathData="M24,37 L33,68 L42,47 L48,68 L55,42">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="46"
+                android:startX="24"
+                android:startY="37"
+                android:endX="55"
+                android:endY="68"
+                android:type="linear">
+                <item android:color="#00F5FF" android:offset="0.0" />
+                <item android:color="#0284C7" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'W' Crystal Facet 1 (Left Pillar) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.8"
+        android:pathData="M26,38 L34,67 L38,65 L31,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="26"
+                android:startY="38"
+                android:endX="38"
+                android:endY="67"
+                android:type="linear">
+                <item android:color="#E0F2FE" android:offset="0.0" />
+                <item android:color="#38BDF8" android:offset="0.5" />
+                <item android:color="#0369A1" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'W' Crystal Facet 2 (Middle-Left Ascent) -->
+    <path
+        android:strokeColor="#BAE6FD"
+        android:strokeWidth="0.6"
+        android:pathData="M34,67 L42,48 L45,49 L38,65 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="34"
                 android:startY="67"
-                android:endX="62"
+                android:endX="45"
+                android:endY="48"
+                android:type="linear">
+                <item android:color="#0284C7" android:offset="0.0" />
+                <item android:color="#38BDF8" android:offset="0.6" />
+                <item android:color="#BAE6FD" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'W' Crystal Facet 3 (Middle-Right Descent) -->
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="0.6"
+        android:pathData="M42,48 L48,67 L51,64 L45,49 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="48"
+                android:endX="51"
+                android:endY="67"
+                android:type="linear">
+                <item android:color="#00F0FF" android:offset="0.0" />
+                <item android:color="#0369A1" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'W' Crystal Facet 4 (Right Ascent / Crest junction) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.8"
+        android:pathData="M48,67 L55,42 L58,44 L51,64 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="48"
+                android:startY="67"
+                android:endX="58"
+                android:endY="42"
+                android:type="linear">
+                <item android:color="#0284C7" android:offset="0.0" />
+                <item android:color="#38BDF8" android:offset="0.5" />
+                <item android:color="#E0F2FE" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'W' Runic Inscription Glyphs (< ^ | runes) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.9"
+        android:fillColor="#00000000"
+        android:pathData="M29,43 L31,46 L29,49 M30,53 L32,56 M31,59 L33,62" />
+
+    <!-- ==================== RIGHT: CRYSTALLINE 3D 'R' ==================== -->
+    <!-- 'R' Outer Purple Flame Glow Aura -->
+    <path
+        android:strokeWidth="2.2"
+        android:fillColor="#00000000"
+        android:pathData="M53,30 L74,27 C80,27 82,34 76,43 L81,67 M57,43 L72,43">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="53"
+                android:startY="27"
+                android:endX="81"
+                android:endY="67"
+                android:type="linear">
+                <item android:color="#C084FC" android:offset="0.0" />
+                <item android:color="#A855F7" android:offset="0.5" />
+                <item android:color="#E11D48" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'R' Top Arch / Header Crystal -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.8"
+        android:pathData="M52,31 L75,27 C81,27 83,34 77,44 L70,44 C76,36 74,32 68,32 L52,35 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="52"
+                android:startY="27"
+                android:endX="83"
+                android:endY="44"
+                android:type="linear">
+                <item android:color="#F5D0FE" android:offset="0.0" />
+                <item android:color="#C084FC" android:offset="0.4" />
+                <item android:color="#7E22CE" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'R' Diagonal Kick Leg Crystal -->
+    <path
+        android:strokeColor="#F472B6"
+        android:strokeWidth="0.8"
+        android:pathData="M66,43 L76,68 L81,66 L72,43 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="66"
+                android:startY="43"
+                android:endX="81"
+                android:endY="68"
+                android:type="linear">
+                <item android:color="#A855F7" android:offset="0.0" />
+                <item android:color="#DB2777" android:offset="0.6" />
+                <item android:color="#F43F5E" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 'R' Runic Inscription Glyphs -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="0.9"
+        android:fillColor="#00000000"
+        android:pathData="M59,32 L62,31 M74,48 L76,53 M77,57 L79,62" />
+
+    <!-- ==================== ORNATE REVOLVER (INSIDE 'R') ==================== -->
+    <!-- Gun Barrel & Frame -->
+    <path
+        android:fillColor="#1E293B"
+        android:strokeColor="#E2E8F0"
+        android:strokeWidth="0.7"
+        android:pathData="M64,48 L71,43 L72,45 L66,50 L65,58 L62,59 L61,54 L64,51 Z" />
+    <!-- Revolver Cylinder & Golden Hammer -->
+    <path
+        android:fillColor="#C8AA6E"
+        android:pathData="M65,48 L68,46 L68,48 L65,50 Z" />
+    <!-- Revolver Grip Filigree Inscription -->
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="0.6"
+        android:fillColor="#00000000"
+        android:pathData="M63,53 L64,57 M64,52 L65,56" />
+
+    <!-- ==================== BOTTOM CENTER: MYSTIC EYE RUNE ==================== -->
+    <!-- Eye Outer Crescent Socket -->
+    <path
+        android:strokeWidth="1.4"
+        android:fillColor="#070E18"
+        android:pathData="M44,67 C49,62 59,62 64,67 C59,72 49,72 44,67 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="44"
+                android:startY="67"
+                android:endX="64"
                 android:endY="67"
                 android:type="linear">
                 <item android:color="#00F5FF" android:offset="0.0" />
-                <item android:color="#C026D3" android:offset="1.0" />
+                <item android:color="#C084FC" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
-    <!-- Eye Pupil & Iris (Cyan Glow Spiral) -->
+    <!-- Eye Iris / Pupil (Cyan Radiant Orb) -->
     <path
         android:fillColor="#00F5FF"
         android:pathData="M54,67 m-2.2,0 a2.2,2.2 0 1,1 4.4,0 a2.2,2.2 0 1,1 -4.4,0" />
@@ -116,100 +280,61 @@
         android:fillColor="#FFFFFF"
         android:pathData="M54.5,66.5 m-0.8,0 a0.8,0.8 0 1,1 1.6,0 a0.8,0.8 0 1,1 -1.6,0" />
 
-    <!-- Main Giant 3D Crystalline Arrow (Pointing Diagonally Up-Right) -->
-    <!-- Base Crescent Curve -->
+    <!-- ==================== BOTTOM METALLIC GOLD TEXT: "DRAFTING" ==================== -->
+    <!-- D -->
     <path
-        android:strokeWidth="2.0"
-        android:fillColor="#00000000"
-        android:pathData="M32,60 C26,50 36,36 48,46">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="28"
-                android:startY="60"
-                android:endX="48"
-                android:endY="46"
-                android:type="linear">
-                <item android:color="#00F5FF" android:offset="0.0" />
-                <item android:color="#38BDF8" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M31,84 L34.5,84 C36.5,84 37.8,85.2 37.8,87 C37.8,88.8 36.5,90 34.5,90 L31,90 Z M32.6,85.5 L32.6,88.5 L34.3,88.5 C35.4,88.5 36.1,87.8 36.1,87 C36.1,86.2 35.4,85.5 34.3,85.5 Z" />
 
-    <!-- Main Arrow Shaft & Facets -->
+    <!-- R -->
     <path
-        android:strokeWidth="1.0"
-        android:strokeColor="#FFFFFF"
-        android:pathData="M34,68 L46,56 L54,62 L66,48 L76,57 L79,24 L48,27 L56,36 L42,50 L34,44 Z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:startX="34"
-                android:startY="68"
-                android:endX="79"
-                android:endY="24"
-                android:type="linear">
-                <item android:color="#00F5FF" android:offset="0.0" />
-                <item android:color="#0EA5E9" android:offset="0.3" />
-                <item android:color="#9333EA" android:offset="0.65" />
-                <item android:color="#F43F5E" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M39.5,84 L43,84 C44.5,84 45.5,84.8 45.5,86.2 C45.5,87.2 44.8,87.9 43.8,88.1 L45.8,90 L44.2,90 L42.5,88.3 L41.1,88.3 L41.1,90 L39.5,90 Z M41.1,85.3 L41.1,87.1 L42.8,87.1 C43.5,87.1 44,86.7 44,86.2 C44,85.7 43.5,85.3 42.8,85.3 Z" />
 
-    <!-- Arrowhead Crystal Bevel (Light Shard Left) -->
+    <!-- A -->
     <path
-        android:fillColor="#E0F2FE"
-        android:pathData="M79,24 L48,27 L56,36 L64,31 Z" />
-    
-    <!-- Arrowhead Crystal Bevel (Magenta Shard Right) -->
-    <path
-        android:fillColor="#FB7185"
-        android:pathData="M79,24 L64,31 L66,48 L76,57 Z" />
-    
-    <!-- Arrow Center Core Spine Highlight -->
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="1.2"
-        android:fillColor="#00000000"
-        android:pathData="M38,64 L64,31 L79,24" />
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M49.2,84 L51,84 L53.8,90 L52.2,90 L51.6,88.6 L48.6,88.6 L48,90 L46.4,90 Z M50.1,85.2 L49.1,87.4 L51.1,87.4 Z" />
 
-    <!-- Bottom Insignia Banner: "WILD RIFT DRAFTING / Picks & Bans" -->
-    <!-- Banner Outer Glow Plate -->
+    <!-- F -->
     <path
-        android:strokeWidth="1.5"
-        android:fillColor="#080C14"
-        android:pathData="M30,81 L78,81 L82,88 L74,94 L54,97 L34,94 L26,88 Z">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="26"
-                android:startY="81"
-                android:endX="82"
-                android:endY="97"
-                android:type="linear">
-                <item android:color="#00F5FF" android:offset="0.0" />
-                <item android:color="#A855F7" android:offset="0.5" />
-                <item android:color="#EC4899" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M55,84 L60,84 L60,85.3 L56.6,85.3 L56.6,86.6 L59.4,86.6 L59.4,87.9 L56.6,87.9 L56.6,90 L55,90 Z" />
 
-    <!-- Inner Ribbon Edge -->
+    <!-- T -->
     <path
-        android:strokeColor="#38BDF8"
-        android:strokeWidth="0.8"
-        android:fillColor="#00000000"
-        android:pathData="M33,83 L75,83 L78,88 L54,94 L30,88 Z" />
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M61,84 L66.5,84 L66.5,85.3 L64.5,85.3 L64.5,90 L63,90 L63,85.3 L61,85.3 Z" />
 
-    <!-- Banner Inner Text Simulation Blocks (WILD RIFT / DRAFTING / Picks & Bans) -->
-    <!-- Row 1: WILD RIFT -->
+    <!-- I -->
     <path
-        android:fillColor="#E0F2FE"
-        android:pathData="M38,85 h32 v2 h-32 z" />
-    <!-- Row 2: DRAFTING -->
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M67.8,84 L69.4,84 L69.4,90 L67.8,90 Z" />
+
+    <!-- N -->
     <path
-        android:fillColor="#00F5FF"
-        android:pathData="M36,88 h36 v2.5 h-36 z" />
-    <!-- Row 3: PICKS & BANS -->
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M71,84 L72.6,84 L75.5,87.8 L75.5,84 L77,84 L77,90 L75.4,90 L72.5,86.2 L72.5,90 L71,90 Z" />
+
+    <!-- G -->
     <path
-        android:fillColor="#C084FC"
-        android:pathData="M42,91.5 h24 v1.2 h-24 z" />
+        android:fillColor="#DFC082"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="0.3"
+        android:pathData="M81.5,84 C83.8,84 85,85.4 85,87 C85,88.7 83.6,90 81.3,90 C79.2,90 78,88.6 78,87 C78,85.4 79.3,84 81.5,84 Z M81.4,85.3 C80.2,85.3 79.6,86.1 79.6,87 C79.6,87.9 80.3,88.7 81.4,88.7 C82.4,88.7 83.3,88.1 83.3,87.3 L81.8,87.3 L81.8,86.2 L84.7,86.2 C84.7,86.5 84.7,86.8 84.7,87.2 C84.7,88.8 83.4,90 81.3,90" />
+
 </vector>

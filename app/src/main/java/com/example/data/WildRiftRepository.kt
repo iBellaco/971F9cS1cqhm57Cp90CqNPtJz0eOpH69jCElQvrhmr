@@ -196,7 +196,14 @@ object WildRiftRepository {
     }
 
     fun getChampionsByRole(role: LaneRole): List<Champion> {
-        return champions.filter { it.primaryRole == role || it.secondaryRoles.contains(role) }
+        return champions
+            .filter { it.primaryRole == role || it.secondaryRoles.contains(role) }
+            .sortedWith(
+                compareByDescending<Champion> { it.primaryRole == role }
+                    .thenByDescending { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenByDescending { it.winrate }
+            )
     }
 
     fun analyzeDraft(

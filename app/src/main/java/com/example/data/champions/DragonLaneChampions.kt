@@ -476,7 +476,7 @@ object DragonLaneChampions {
             ddragonId = "Kaisa",
             avatarUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/Kaisa.png",
             primaryRole = LaneRole.ADC,
-            secondaryRoles = emptyList(),
+            secondaryRoles = listOf(LaneRole.MID),
             tier = "S+",
             winrate = 53.3,
             pickRate = 13.8,

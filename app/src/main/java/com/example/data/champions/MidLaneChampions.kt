@@ -168,7 +168,7 @@ object MidLaneChampions {
             ddragonId = "Akshan",
             avatarUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/Akshan.png",
             primaryRole = LaneRole.MID,
-            secondaryRoles = listOf(LaneRole.TOP, LaneRole.ADC),
+            secondaryRoles = listOf(LaneRole.TOP),
             tier = "A",
             winrate = 50.1,
             pickRate = 13.3,

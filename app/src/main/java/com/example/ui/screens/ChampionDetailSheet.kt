@@ -134,6 +134,36 @@ fun ChampionDetailSheet(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        if (champion.secondaryRoles.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "Flex:",
+                                    color = HextechGold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                champion.secondaryRoles.forEach { sec ->
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(HextechGold.copy(alpha = 0.15f))
+                                            .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                                    ) {
+                                        Text(
+                                            text = sec.shortName,
+                                            color = HextechGoldLight,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 IconButton(onClick = onDismiss) {
