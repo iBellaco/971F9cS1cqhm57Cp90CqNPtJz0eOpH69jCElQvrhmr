@@ -760,32 +760,29 @@ private fun OverlayObjectivesTabContent() {
                 colors = CardDefaults.cardColors(containerColor = HextechSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
-                Row(
-                    modifier = Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.Top
+                Column(
+                    modifier = Modifier.padding(10.dp)
                 ) {
-                    AppAssetImage(
-                        url = obj.iconUrl,
-                        contentDescription = obj.name,
-                        fallbackText = obj.name,
-                        modifier = Modifier.size(38.dp),
-                        borderColor = HextechGold,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(HextechCyan.copy(alpha = 0.15f))
+                                .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
-                            Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                             Text(obj.spawnTime, color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
                         }
-                        Text("Reaparición: ${obj.respawnTime}", color = TextMuted, fontSize = 9.5.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(obj.buffDescription, color = TextPrimary.copy(alpha = 0.9f), fontSize = 10.5.sp, lineHeight = 14.sp)
                     }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text("Reaparición: ${obj.respawnTime}", color = TextMuted, fontSize = 9.5.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(obj.buffDescription, color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.sp, lineHeight = 15.sp)
                 }
             }
         }

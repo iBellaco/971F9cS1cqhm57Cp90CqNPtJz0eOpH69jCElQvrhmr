@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.model.LaneRole
+import com.example.ui.components.BugReportFeedbackDialog
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.RoleIconType
 import com.example.ui.components.RoleSelectorCard
@@ -91,6 +93,7 @@ fun MainDraftingScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showBugReportDialog by remember { mutableStateOf(false) }
 
     // Sincronizar estado del servicio cuando la app pasa a primer plano
     DisposableEffect(lifecycleOwner) {
@@ -155,7 +158,23 @@ fun MainDraftingScreen(
                         }
                     },
                     actions = {
-                        // Lado superior derecho completamente limpio según solicitud
+                        IconButton(
+                            onClick = { showBugReportDialog = true },
+                            modifier = Modifier
+                                .padding(end = 6.dp)
+                                .clip(CircleShape)
+                                .background(HextechSurface)
+                                .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
+                                .size(38.dp)
+                                .testTag("nav_bug_report_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.BugReport,
+                                contentDescription = "Reportar Bugs o Sugerencias",
+                                tint = HextechGold,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = HextechDarkBg)
                 )
@@ -333,6 +352,12 @@ fun MainDraftingScreen(
                 },
                 containerColor = HextechSurface,
                 shape = RoundedCornerShape(16.dp)
+            )
+        }
+
+        if (showBugReportDialog) {
+            BugReportFeedbackDialog(
+                onDismiss = { showBugReportDialog = false }
             )
         }
     }

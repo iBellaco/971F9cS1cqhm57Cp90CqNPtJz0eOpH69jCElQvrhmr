@@ -1148,34 +1148,31 @@ private fun MapObjectivesTab() {
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.Top
+                    Column(
+                        modifier = Modifier.padding(14.dp)
                     ) {
-                        AppAssetImage(
-                            url = obj.iconUrl,
-                            contentDescription = obj.name,
-                            fallbackText = obj.name,
-                            modifier = Modifier.size(52.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.5.sp)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
                             ) {
-                                Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Text(obj.spawnTime, color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                             }
-                            Text(obj.respawnTime, color = TextMuted, fontSize = 10.5.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Mejora: ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Text("Táctica: ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
                         }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text("Reaparición: ${obj.respawnTime}", color = TextMuted, fontSize = 11.sp)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text("Mejora: ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Táctica: ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
                     }
                 }
             }

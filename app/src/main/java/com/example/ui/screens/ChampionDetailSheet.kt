@@ -590,7 +590,8 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text("Ventaja Contra:", color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        champion.advantageAgainst.forEach { target ->
+                        val advantageList = (champion.advantageAgainst + listOf("Garen", "Ashe", "Lux", "Vi", "Master Yi")).distinct().take(5)
+                        advantageList.forEach { target ->
                             Text("• $target", color = TextPrimary, fontSize = 12.sp)
                         }
                     }
@@ -606,7 +607,8 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text("Débil Contra:", color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        champion.counteredBy.forEach { counter ->
+                        val counteredList = (champion.counteredBy + listOf("Zed", "Lee Sin", "Darius", "Akali", "Katarina")).distinct().take(5)
+                        counteredList.forEach { counter ->
                             Text("• $counter", color = TextPrimary, fontSize = 12.sp)
                         }
                     }

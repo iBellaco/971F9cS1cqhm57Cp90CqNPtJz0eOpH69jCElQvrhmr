@@ -327,6 +327,9 @@ private fun FloatingOverlayContent(
         horizontalAlignment = Alignment.Start,
         modifier = Modifier.padding(2.dp)
     ) {
+        var dragDownY by remember { mutableFloatStateOf(0f) }
+        var isScanning by remember { mutableStateOf(false) }
+
         // Floating Bubble Button (Arastrable y clicable)
         Box(
             modifier = Modifier
@@ -341,34 +344,65 @@ private fun FloatingOverlayContent(
                         )
                     )
                 )
-                .border(2.dp, HextechGold, CircleShape)
+                .border(2.dp, if (isScanning) HextechCyan else HextechGold, CircleShape)
                 .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                    }
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            dragDownY += dragAmount.y
+                            // Si desliza hacia abajo más de 100px, cerramos la burbuja flotante
+                            if (dragDownY > 100f && !isExpanded) {
+                                onClose()
+                            } else {
+                                onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
+                            }
+                        },
+                        onDragEnd = { dragDownY = 0f },
+                        onDragCancel = { dragDownY = 0f }
+                    )
                 }
                 .clickable {
-                    isExpanded = !isExpanded
-                    onExpandedChange(isExpanded)
+                    if (!isExpanded) {
+                        isScanning = true
+                        selectedTab = 0
+                        // Simular escaneo de 1.2s antes de abrir
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            isScanning = false
+                            isExpanded = true
+                            onExpandedChange(true)
+                        }, 1200)
+                    } else {
+                        isExpanded = false
+                        onExpandedChange(false)
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Videocam,
-                contentDescription = "Asistente Flotante Wild Rift",
-                tint = Color.White,
-                modifier = Modifier.size(26.dp)
-            )
+            if (isScanning) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.size(36.dp),
+                    color = HextechCyan,
+                    strokeWidth = 3.dp
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Videocam,
+                    contentDescription = "Asistente Flotante Wild Rift",
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
 
-            // Pulse badge indicator
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .align(Alignment.TopEnd)
-                    .clip(CircleShape)
-                    .background(HextechGold)
-            )
+            if (!isScanning) {
+                // Pulse badge indicator
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .align(Alignment.TopEnd)
+                        .clip(CircleShape)
+                        .background(HextechGold)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -579,44 +613,46 @@ private fun FloatingOverlayContent(
 
                             Spacer(modifier = Modifier.height(4.dp))
 
-                            if (topPick != null) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
-                                        .clickable {
-                                            lockedChampion = topPick.champion
-                                            selectedTab = 3
-                                        }
-                                        .padding(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    ChampionAvatar(champion = topPick.champion, size = 40.dp)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(topPick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(3.dp))
-                                                    .background(TierSPlusColor)
-                                                    .padding(horizontal = 4.dp, vertical = 1.dp)
-                                            ) {
-                                                Text(topPick.champion.tier, color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Black)
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                analysis.recommendations.take(3).forEach { pick ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(HextechSurface)
+                                            .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
+                                            .clickable {
+                                                lockedChampion = pick.champion
+                                                selectedTab = 3
                                             }
+                                            .padding(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        ChampionAvatar(champion = pick.champion, size = 40.dp)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(pick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Box(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(3.dp))
+                                                        .background(TierSPlusColor)
+                                                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                                                ) {
+                                                    Text(pick.champion.tier, color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Black)
+                                                }
+                                            }
+                                            Text("WR: ${pick.estimatedWinrate}% • ${pick.advantageBadge}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                            Text(pick.tacticalReason, color = TextMuted, fontSize = 9.sp, maxLines = 2)
                                         }
-                                        Text("WR: ${topPick.estimatedWinrate}% • ${topPick.advantageBadge}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                        Text(topPick.tacticalReason, color = TextMuted, fontSize = 9.sp, maxLines = 2)
                                     }
                                 }
                             }
                         }
 
                         1 -> {
-                            // OBJETIVOS TAB (IMÁGENES EXACTAS)
+                            // OBJETIVOS TAB (SIN IMÁGENES, DISEÑO LIMPIO HEXTECH)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 WildRiftRepository.mapObjectives.forEach { obj ->
                                     Row(
@@ -624,34 +660,48 @@ private fun FloatingOverlayContent(
                                             .fillMaxWidth()
                                             .clip(RoundedCornerShape(6.dp))
                                             .background(HextechSurface)
-                                            .padding(6.dp),
+                                            .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                                            .padding(horizontal = 8.dp, vertical = 6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        AppAssetImage(
-                                            url = obj.iconUrl,
-                                            contentDescription = obj.name,
-                                            fallbackText = obj.name,
-                                            modifier = Modifier.size(30.dp),
-                                            borderColor = HextechGold,
-                                            shape = RoundedCornerShape(6.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(obj.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(obj.name, color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(obj.spawnTime, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(HextechCyan.copy(alpha = 0.15f))
+                                                .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(obj.spawnTime, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        }
                                     }
                                 }
                             }
                         }
 
                         2 -> {
-                            // OBJETOS TAB (IMÁGENES EXACTAS)
+                            // OBJETOS TAB
+                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
+                            val itemsToShow = currentChamp.coreItems.take(2) + currentChamp.situationalItems.take(2)
+                            val champItems = itemsToShow.mapNotNull { itemName -> 
+                                WildRiftRepository.items.find { it.name == itemName } 
+                            }.takeIf { it.isNotEmpty() } ?: WildRiftRepository.items.take(4)
+
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                WildRiftRepository.items.take(4).forEach { item ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("Objetos clave para ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                champItems.forEach { item ->
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
