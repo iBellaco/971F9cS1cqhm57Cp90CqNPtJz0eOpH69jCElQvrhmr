@@ -50,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.example.model.Champion
 import com.example.model.LaneRole
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -378,6 +379,8 @@ private fun FloatingOverlayContent(
             enter = scaleIn() + fadeIn(),
             exit = scaleOut() + fadeOut()
         ) {
+            var dragDownY by remember { mutableFloatStateOf(0f) }
+
             Card(
                 modifier = Modifier
                     .widthIn(min = 280.dp, max = 320.dp)
@@ -391,15 +394,75 @@ private fun FloatingOverlayContent(
                         .fillMaxWidth()
                         .padding(10.dp)
                 ) {
-                    // Header con botón de arrastre y minimizar
+                    // Barra / Indicador para deslizar hacia abajo y cerrar
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectDragGestures(
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        dragDownY += dragAmount.y
+                                        if (dragDownY > 40f) {
+                                            isExpanded = false
+                                            onExpandedChange(false)
+                                            dragDownY = 0f
+                                        } else {
+                                            onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        if (dragDownY > 35f) {
+                                            isExpanded = false
+                                            onExpandedChange(false)
+                                        }
+                                        dragDownY = 0f
+                                    },
+                                    onDragCancel = {
+                                        dragDownY = 0f
+                                    }
+                                )
+                            }
+                            .padding(bottom = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(38.dp)
+                                .height(4.dp)
+                                .clip(CircleShape)
+                                .background(HextechGold.copy(alpha = 0.7f))
+                        )
+                    }
+
+                    // Header con botón de arrastre y minimizar (deslizar hacia abajo cierra el menú)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .pointerInput(Unit) {
-                                detectDragGestures { change, dragAmount ->
-                                    change.consume()
-                                    onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                                }
+                                detectDragGestures(
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        dragDownY += dragAmount.y
+                                        if (dragDownY > 40f) {
+                                            isExpanded = false
+                                            onExpandedChange(false)
+                                            dragDownY = 0f
+                                        } else {
+                                            onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        if (dragDownY > 35f) {
+                                            isExpanded = false
+                                            onExpandedChange(false)
+                                        }
+                                        dragDownY = 0f
+                                    },
+                                    onDragCancel = {
+                                        dragDownY = 0f
+                                    }
+                                )
                             },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically

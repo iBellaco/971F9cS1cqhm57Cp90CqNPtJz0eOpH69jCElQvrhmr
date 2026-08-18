@@ -255,9 +255,42 @@ fun FloatingAssistantOverlay(
                                 .fillMaxWidth()
                                 .padding(12.dp)
                         ) {
+                            // Indicador de deslizamiento para cerrar
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pointerInput(Unit) {
+                                        detectDragGestures { change, dragAmount ->
+                                            change.consume()
+                                            if (dragAmount.y > 15f) {
+                                                showSpeechBubble = false
+                                            }
+                                        }
+                                    }
+                                    .padding(bottom = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(38.dp)
+                                        .height(4.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechGold.copy(alpha = 0.7f))
+                                )
+                            }
+
                             // Header Row
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pointerInput(Unit) {
+                                        detectDragGestures { change, dragAmount ->
+                                            change.consume()
+                                            if (dragAmount.y > 15f) {
+                                                showSpeechBubble = false
+                                            }
+                                        }
+                                    },
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
