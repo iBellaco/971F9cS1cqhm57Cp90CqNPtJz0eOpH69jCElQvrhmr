@@ -10,30 +10,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -44,19 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.model.LaneRole
-import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
-import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
-import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.util.tr
 
 /**
- * Representación oficial del panel "LANE DISPLAY SETTING" de Wild Rift.
- * Permite seleccionar de forma táctil y visual las posiciones preferidas (Línea Main y Secundaria).
+ * Representación oficial del panel de selección de posiciones de Wild Rift.
+ * Selección automática e instantánea de la posición principal (1) y secundaria (2),
+ * completamente traducido según el idioma activo del usuario.
  */
 @Composable
 fun LaneDisplaySettingCard(
@@ -64,15 +52,14 @@ fun LaneDisplaySettingCard(
     onMainRoleChange: (LaneRole) -> Unit,
     secondRole: LaneRole,
     onSecondRoleChange: (LaneRole) -> Unit,
-    modifier: Modifier = Modifier,
-    onSaveConfirmed: (() -> Unit)? = null
+    modifier: Modifier = Modifier
 ) {
     val roles = listOf(
-        Triple(LaneRole.TOP, "SOLO", R.drawable.ic_wr_role_solo),
-        Triple(LaneRole.JUNGLE, "JUNGLE", R.drawable.ic_wr_role_jungle),
-        Triple(LaneRole.MID, "MID", R.drawable.ic_wr_role_mid),
-        Triple(LaneRole.ADC, "DUO", R.drawable.ic_wr_role_duo),
-        Triple(LaneRole.SUPPORT, "SUPPORT", R.drawable.ic_wr_role_support)
+        Triple(LaneRole.TOP, "SOLO NIV. 1", R.drawable.ic_wr_role_solo),
+        Triple(LaneRole.JUNGLE, "JUNGLA NIV. 1", R.drawable.ic_wr_role_jungle),
+        Triple(LaneRole.MID, "CENTRAL NIV. 1", R.drawable.ic_wr_role_mid),
+        Triple(LaneRole.ADC, "DÚO NIV. 1", R.drawable.ic_wr_role_duo),
+        Triple(LaneRole.SUPPORT, "SOPORTE NIV. 1", R.drawable.ic_wr_role_support)
     )
 
     Card(
@@ -92,36 +79,23 @@ fun LaneDisplaySettingCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(horizontal = 14.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Bar: Centered title with gold cross 'X' on top right
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "LANE DISPLAY SETTING",
-                    color = HextechGoldLight,
-                    fontSize = 14.5.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.2.sp,
-                    textAlign = TextAlign.Center
-                )
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Cerrar",
-                    tint = HextechGold.copy(alpha = 0.8f),
-                    modifier = Modifier
-                        .size(18.dp)
-                        .align(Alignment.CenterEnd)
-                )
-            }
+            // Header Bar Traducido
+            Text(
+                text = tr("Ajustes de Posición").uppercase(),
+                color = HextechGoldLight,
+                fontSize = 14.5.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.2.sp,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = tr("Up to 2 positions can be displayed"),
+                text = tr("Se pueden seleccionar hasta 2 posiciones"),
                 color = Color(0xFF94A3B8),
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight.Medium,
@@ -130,12 +104,12 @@ fun LaneDisplaySettingCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 5 Column Roles in horizontal arrangement
+            // 5 Column Roles en disposición horizontal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                roles.forEach { (role, label, iconRes) ->
+                roles.forEach { (role, labelKey, iconRes) ->
                     val isMain = role == mainRole
                     val isSecond = role == secondRole
                     val isSelected = isMain || isSecond
@@ -176,28 +150,31 @@ fun LaneDisplaySettingCard(
                             .clickable {
                                 when {
                                     isMain -> {
-                                        // Si es main y tocamos de nuevo, no hacemos nada o swap si existe secundario
+                                        // Si tocamos el rol principal, alternar con el secundario
+                                        val oldSecond = secondRole
+                                        onMainRoleChange(oldSecond)
+                                        onSecondRoleChange(role)
                                     }
                                     isSecond -> {
-                                        // Intercambiar secundario a main
+                                        // Si tocamos el secundario, ascenderlo a principal
                                         val oldMain = mainRole
                                         onMainRoleChange(role)
                                         onSecondRoleChange(oldMain)
                                     }
                                     else -> {
-                                        // Seleccionar como secundario o main
+                                        // Asignar automáticamente como nuevo rol secundario
                                         onSecondRoleChange(role)
                                     }
                                 }
                             }
                             .padding(vertical = 10.dp, horizontal = 2.dp)
-                            .testTag("role_col_${label.lowercase()}"),
+                            .testTag("role_col_${role.name.lowercase()}"),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Official Crest Icon
+                        // Icono Oficial de Cresta
                         Icon(
                             painter = painterResource(id = iconRes),
-                            contentDescription = label,
+                            contentDescription = tr(labelKey),
                             tint = iconTint,
                             modifier = Modifier
                                 .size(34.dp)
@@ -206,11 +183,11 @@ fun LaneDisplaySettingCard(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Role Name & Level
+                        // Nombre de Rol y Nivel Traducido
                         Text(
-                            text = "$label LV. 1",
+                            text = tr(labelKey),
                             color = if (isSelected) TextPrimary else TextMuted,
-                            fontSize = 9.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             maxLines = 1,
                             textAlign = TextAlign.Center
@@ -218,7 +195,7 @@ fun LaneDisplaySettingCard(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Selection Checkbox / Badge Indicator
+                        // Casilla / Indicador Numérico de Prioridad (1 y 2)
                         Box(
                             modifier = Modifier
                                 .size(22.dp)
@@ -259,36 +236,12 @@ fun LaneDisplaySettingCard(
                                     )
                                 }
                                 else -> {
-                                    // Empty unselected box
+                                    // Casilla vacía
                                 }
                             }
                         }
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Save / Confirm Action Button
-            Button(
-                onClick = {
-                    onSaveConfirmed?.invoke()
-                },
-                modifier = Modifier
-                    .width(130.dp)
-                    .height(34.dp)
-                    .testTag("save_lane_display_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D1B2A)),
-                border = BorderStroke(1.dp, HextechGold),
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Text(
-                    text = tr("SAVE"),
-                    color = HextechGold,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 1.sp
-                )
             }
         }
     }

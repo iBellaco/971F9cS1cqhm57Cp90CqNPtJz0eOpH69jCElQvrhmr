@@ -196,7 +196,14 @@ val translations = mapOf(
         "Actualizaciones de la Aplicación" to "Atualizações do Aplicativo",
         "Buscar Actualizaciones" to "Verificar Atualizações",
         "Comprobando versión..." to "Verificando versão...",
-        "¡Tienes la versión más reciente!" to "Você já está na versão mais recente!"
+        "¡Tienes la versión más reciente!" to "Você já está na versão mais recente!",
+        "Ajustes de Posición" to "Ajustes de Posição",
+        "Se pueden seleccionar hasta 2 posiciones" to "Até 2 posições podem ser selecionadas",
+        "SOLO NIV. 1" to "SOLO NV. 1",
+        "JUNGLA NIV. 1" to "SELVA NV. 1",
+        "CENTRAL NIV. 1" to "MEIO NV. 1",
+        "DÚO NIV. 1" to "DUO NV. 1",
+        "SOPORTE NIV. 1" to "SUPORTE NV. 1"
     ),
     "en" to mapOf(
         "Acerca De" to "About",
@@ -386,7 +393,14 @@ val translations = mapOf(
         "Actualizaciones de la Aplicación" to "App Updates",
         "Buscar Actualizaciones" to "Check for Updates",
         "Comprobando versión..." to "Checking version...",
-        "¡Tienes la versión más reciente!" to "You have the latest version!"
+        "¡Tienes la versión más reciente!" to "You have the latest version!",
+        "Ajustes de Posición" to "Lane Display Setting",
+        "Se pueden seleccionar hasta 2 posiciones" to "Up to 2 positions can be displayed",
+        "SOLO NIV. 1" to "SOLO LV. 1",
+        "JUNGLA NIV. 1" to "JUNGLE LV. 1",
+        "CENTRAL NIV. 1" to "MID LV. 1",
+        "DÚO NIV. 1" to "DUO LV. 1",
+        "SOPORTE NIV. 1" to "SUPPORT LV. 1"
     )
 )
 

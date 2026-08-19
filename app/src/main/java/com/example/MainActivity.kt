@@ -100,9 +100,9 @@ fun DraftingApp() {
         mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
     }
     
-    var mainRole by remember { mutableStateOf(LaneRole.MID) }
-    var secondRole by remember { mutableStateOf(LaneRole.TOP) }
-    var autofillRole by remember { mutableStateOf(LaneRole.JUNGLE) }
+    var mainRole by remember { mutableStateOf(LaneRole.TOP) }
+    var secondRole by remember { mutableStateOf(LaneRole.MID) }
+    var autofillRole by remember { mutableStateOf(LaneRole.SUPPORT) }
     val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {

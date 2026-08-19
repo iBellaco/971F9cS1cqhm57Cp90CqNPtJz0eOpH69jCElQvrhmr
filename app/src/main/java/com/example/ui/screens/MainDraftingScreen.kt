@@ -253,14 +253,7 @@ fun MainDraftingScreen(
                     mainRole = mainRole,
                     onMainRoleChange = onMainRoleChange,
                     secondRole = secondRole,
-                    onSecondRoleChange = onSecondRoleChange,
-                    onSaveConfirmed = {
-                        android.widget.Toast.makeText(
-                            context,
-                            "Líneas guardadas: ${mainRole.shortName} (1) y ${secondRole.shortName} (2)",
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                    onSecondRoleChange = onSecondRoleChange
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
