@@ -8,6 +8,83 @@ import com.example.model.LaneRole
 object DragonLaneChampions {
     val list: List<Champion> = listOf(
         Champion(
+            id = "yunara",
+            name = "Yunara",
+            title = "La Trascendencia Híbrida",
+            ddragonId = "Yunara",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/champion/Yunara.png",
+            primaryRole = LaneRole.ADC,
+            secondaryRoles = listOf(LaneRole.MID),
+            tier = "S+",
+            winrate = 53.2,
+            pickRate = 18.5,
+            banRate = 35.4,
+            damageType = DamageType.TRUE_HYBRID,
+            summary = "Yunara es una tiradora hipercarry híbrida que transforma sus golpes críticos en daño mágico adicional. Se vuelve imparable en juego tardío y su Trascendencia la convierte en una pesadilla para los tanques tradicionales.",
+            advantageAgainst = listOf("Rammus", "Malphite", "Ezreal"),
+            counteredBy = listOf("Draven", "Lucian", "Zed"),
+            synergies = listOf("Lulu", "Yuumi", "Nami"),
+            tacticalAdvice = "🔥 ÍTEMS OBLIGATORIOS (Core):\n1. Espadafuria de Guinsoo: Acelera drásticamente sus autoataques y mejora su perfil de daño híbrido.\n2. Huracán de Runaan: Permite que su daño mágico pasivo por golpes críticos barra con el equipo enemigo en peleas de equipo.\n3. Filo del Infinito: Al convertir probabilidad de crítico en daño mágico bruto a través de su pasiva (Promesa de las Tierras Originarias), este ítem es el pico de poder absoluto para derretir a cualquiera.\n\n🛡️ ÍTEMS SITUACIONALES (Por qué y Contra Quién):\n• Botas de Mercurio: Obligatorias contra composiciones con mucho CC (Leona, Nautilus) o asesinos AP (Evelynn, Akali) para evitar ser eliminada instantáneamente.\n• La Sanguinaria: Cómprala cuando no tengas una Yuumi/Soraka y necesites sobrevivir al desgaste o daño explosivo (ej. contra Zed, Rengar, Caitlyn).\n• Ángel Guardián: Ideal en el juego tardío contra asesinos que siempre te buscan (Kha'Zix, Talon), obligándolos a gastar todo su combo en ti sin lograr sacarte de la pelea.\n\n🤝 SINERGIAS CLAVE:\n• Yuumi/Lulu: Yunara necesita sobrevivir a su débil fase de líneas. Estos soportes la mantienen con vida y le otorgan velocidad de ataque (buffs de enchanters), permitiendo que escale hasta convertirse en el monstruo del 1v5 en juego medio/tardío.\n• Nami: El Mandato Imperial y la bendición de agua potencian de forma absurda los intercambios iniciales de Yunara.",
+            recommendedRunes = "Compás Letal (Precisión)",
+            runeTreeDetails = "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Revestimiento de Huesos",
+            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
+            recommendedSpells = listOf("Destello", "Fantasmal"),
+            spellsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SummonerFlash.png", "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/SummonerHaste.png"),
+            coreItems = listOf("Espadafuria de Guinsoo", "Huracán de Runaan", "Filo del Infinito"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3124.png", "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3085.png", "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3031.png"),
+            situationalItems = listOf("Botas de Mercurio", "La Sanguinaria", "Ángel Guardián"),
+            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3111.png", "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3072.png", "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/item/3026.png"),
+            skillOrder = "Habilidad 1 > Habilidad 3 > Habilidad 2 (Priorizar Definitiva)",
+            isRanged = true,
+            isFrontline = false,
+            wildRiftFireUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            wrMetaUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            wildRiftCoreUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            bestBuildWrUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            skills = listOf(
+                ChampionSkill(
+                    slot = "P",
+                    slotName = "Pasiva",
+                    name = "Promesa de las Tierras Originarias",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Yunara_P.png",
+                    description = "Los golpes críticos de Yunara no infligen daño físico adicional, sino que se convierten en ráfagas de daño mágico verdadero en función de su probabilidad de impacto crítico.",
+                    cooldown = ""
+                ),
+                ChampionSkill(
+                    slot = "1",
+                    slotName = "Habilidad 1",
+                    name = "Cultivo de Espíritu",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YunaraQ.png",
+                    description = "Dispara una onda de energía espiritual que daña a los enemigos en línea recta, otorgando velocidad de ataque adicional si golpea a un campeón.",
+                    cooldown = "6s"
+                ),
+                ChampionSkill(
+                    slot = "2",
+                    slotName = "Habilidad 2",
+                    name = "Arco del Juicio / Arco de la Ruina",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YunaraW.png",
+                    description = "Yunara lanza un tajo circular curándose por un porcentaje del daño mágico infligido. Alterna entre dos tipos de arcos dependiendo de sus cargas pasivas.",
+                    cooldown = "10s"
+                ),
+                ChampionSkill(
+                    slot = "3",
+                    slotName = "Habilidad 3",
+                    name = "Pasos de Kanmei / Sombra Intocable",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YunaraE.png",
+                    description = "Se desliza rápidamente en una dirección. Durante 1.5 segundos tras el deslizamiento, los ataques básicos que reciba tienen un porcentaje de fallar.",
+                    cooldown = "14s"
+                ),
+                ChampionSkill(
+                    slot = "4",
+                    slotName = "Definitiva",
+                    name = "Trascender a uno mismo",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/spell/YunaraR.png",
+                    description = "Yunara entra en Estado Trascendental durante 10 segundos, eliminando los costos de maná, aumentando su alcance y haciendo que sus ataques básicos reboten a enemigos cercanos.",
+                    cooldown = "80s"
+                )
+            )
+        ),
+        Champion(
             id = "ashe",
             name = "Ashe",
             title = "La Arquera de Hielo",

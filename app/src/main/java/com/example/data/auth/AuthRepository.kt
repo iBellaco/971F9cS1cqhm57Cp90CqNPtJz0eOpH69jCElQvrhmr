@@ -1,25 +1,17 @@
 package com.example.data.auth
 
-import android.content.Context
 import android.util.Log
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.exceptions.GetCredentialException
-import com.example.BuildConfig
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
     val auth: FirebaseAuth? by lazy {
         try {
-            FirebaseAuth.getInstance()
+            val instance = FirebaseAuth.getInstance()
+            // Bypass App Verification / reCAPTCHA in emulator to prevent GMS crashes
+            instance.firebaseAuthSettings.setAppVerificationDisabledForTesting(true)
+            instance
         } catch (e: Exception) {
             Log.e("AuthRepository", "Firebase not initialized", e)
             null
@@ -29,53 +21,32 @@ class AuthRepository {
     val isUserLoggedIn: Boolean
         get() = auth?.currentUser != null
 
-    suspend fun signInWithGoogle(context: Context): AuthResult? {
-        val credentialManager = CredentialManager.create(context)
-        val webClientId = "500606030430-mkionnq7odmvivdi6cfcag0nkhn4nlu3.apps.googleusercontent.com"
-        if (webClientId.isEmpty()) {
-            Log.e("AuthRepository", "Web Client ID is empty. Google Sign-In will fail.")
-            return null
-        }
-
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(webClientId)
-            .setAutoSelectEnabled(false)
-            .build()
-
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
-
+    suspend fun signIn(email: String, password: String): Result<AuthResult> {
         return try {
-            val result: GetCredentialResponse = credentialManager.getCredential(
-                request = request,
-                context = context,
-            )
-            handleSignIn(result)
-        } catch (e: GetCredentialException) {
-            Log.e("AuthRepository", "Sign-in failed with exception: ${e.message}")
-            null
+            val result = auth?.signInWithEmailAndPassword(email, password)?.await()
+            if (result != null) {
+                Result.success(result)
+            } else {
+                Result.failure(Exception("Fallo al iniciar sesión. Firebase no inicializado."))
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Sign-in failed", e)
+            Result.failure(e)
         }
     }
 
-    private suspend fun handleSignIn(result: GetCredentialResponse): AuthResult? {
-        val credential = result.credential
-        if (credential is CustomCredential &&
-            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-        ) {
-            try {
-                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                val idToken = googleIdTokenCredential.idToken
-                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                return auth?.signInWithCredential(firebaseCredential)?.await()
-            } catch (e: GoogleIdTokenParsingException) {
-                Log.e("AuthRepository", "Received an invalid google id token response", e)
+    suspend fun signUp(email: String, password: String): Result<AuthResult> {
+        return try {
+            val result = auth?.createUserWithEmailAndPassword(email, password)?.await()
+            if (result != null) {
+                Result.success(result)
+            } else {
+                Result.failure(Exception("Fallo al registrar. Firebase no inicializado."))
             }
-        } else {
-            Log.e("AuthRepository", "Unexpected type of credential")
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Sign-up failed", e)
+            Result.failure(e)
         }
-        return null
     }
 
     fun signOut() {

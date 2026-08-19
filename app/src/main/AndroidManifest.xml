@@ -17,6 +17,10 @@
     <!-- Permiso para solicitar ignorar optimizaciones de batería en segundo plano -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <queries>
+        <package android:name="com.google.android.gms" />
+    </queries>
+
     <application
         android:name=".WildRiftApplication"
         android:allowBackup="true"
