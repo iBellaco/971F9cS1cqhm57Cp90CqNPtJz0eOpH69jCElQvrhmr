@@ -193,7 +193,7 @@ fun InfoScreen(
                 // ==========================================
                 InfoSectionHeader(
                     icon = Icons.Default.NewReleases,
-                    title = "1. Compatibilidad y Parche Oficial",
+                    title = tr("1. Compatibilidad y Parche Oficial"),
                     tint = HextechCyan
                 )
                 Spacer(modifier = Modifier.height(10.dp))
@@ -251,36 +251,36 @@ fun InfoScreen(
                 // ==========================================
                 InfoSectionHeader(
                     icon = Icons.Default.HelpOutline,
-                    title = "2. Modo de Uso de la Aplicación",
+                    title = tr("2. Modo de Uso de la Aplicación"),
                     tint = HextechGold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
                 StepCard(
                     stepNumber = "1",
-                    title = "Paso 1: Configura tus Líneas de Juego",
-                    description = "En la pantalla principal, selecciona tu 'Línea Main', 'Segunda Línea' y 'Rol Autofill' tocando cada tarjeta."
+                    title = tr("Paso 1: Configura tus Líneas de Juego"),
+                    description = tr("En la pantalla principal, selecciona tu 'Línea Main', 'Segunda Línea' y 'Rol Autofill' tocando cada tarjeta.")
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 StepCard(
                     stepNumber = "2",
-                    title = "Paso 2: Activa el Asistente Flotante",
-                    description = "Pulsa el botón central 'ACTIVAR'. Se desplegará la burbuja flotante en pantalla para acompañarte en tu partida."
+                    title = tr("Paso 2: Activa el Asistente Flotante"),
+                    description = tr("Pulsa el botón central 'ACTIVAR'. Se desplegará la burbuja flotante en pantalla para acompañarte en tu partida.")
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 StepCard(
                     stepNumber = "3",
-                    title = "Paso 3: Selección de Campeones (Champ Select)",
-                    description = "Abre Wild Rift y entra a la fase de selección. Toca el botón flotante en cualquier momento para ver recomendaciones, counters y sinergias tácticas en directo."
+                    title = tr("Paso 3: Selección de Campeones (Champ Select)"),
+                    description = tr("Abre Wild Rift y entra a la fase de selección. Toca el botón flotante en cualquier momento para ver recomendaciones, counters y sinergias tácticas en directo.")
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 StepCard(
                     stepNumber = "4",
-                    title = "Paso 4: Consulta de Builds y Runas",
-                    description = "Revisa los consejos tácticos, orden de habilidades móviles (Pasiva, 1, 2, 3, Definitiva) y armado de objetos recomendado para tu línea."
+                    title = tr("Paso 4: Consulta de Builds y Runas"),
+                    description = tr("Revisa los consejos tácticos, orden de habilidades móviles (Pasiva, 1, 2, 3, Definitiva) y armado de objetos recomendado para tu línea.")
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))
@@ -348,7 +348,7 @@ fun InfoScreen(
 
                 InfoSectionHeader(
                     icon = Icons.Default.Sync,
-                    title = "4. Opciones de Administrador",
+                    title = tr("4. Opciones de Administrador"),
                     tint = HextechCyan
                 )
                 Spacer(modifier = Modifier.height(10.dp))

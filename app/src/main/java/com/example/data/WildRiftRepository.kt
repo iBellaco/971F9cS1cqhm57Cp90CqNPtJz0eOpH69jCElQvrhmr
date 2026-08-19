@@ -312,7 +312,7 @@ object WildRiftRepository {
             var counterText = ""
 
             val isFlex = champ.primaryRole != myRole
-            val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, lang)
+            val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, myRole, lang)
             val roleContextAdvice = if (isFlex) {
                 t(lang,
                     "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Play safe early. Tips: $dynamicAdvice",

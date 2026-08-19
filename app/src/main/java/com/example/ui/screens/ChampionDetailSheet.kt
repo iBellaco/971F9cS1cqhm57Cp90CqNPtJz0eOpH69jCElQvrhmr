@@ -342,7 +342,7 @@ fun ChampionDetailSheet(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     val currentLang = com.example.util.LocalLanguage.current
-                    val fullAnalysis = remember(champion.id, currentLang) { CoachingGenerator.generateTacticalAnalysis(champion, currentLang) }
+                    val fullAnalysis = remember(champion.id, currentLang, selectedRole) { CoachingGenerator.generateTacticalAnalysis(champion, selectedRole, currentLang) }
                     Text(fullAnalysis, color = TextPrimary, fontSize = 13.sp, lineHeight = 18.sp)
                 }
             }
@@ -770,7 +770,7 @@ fun ChampionDetailSheet(
             }
         }
         
-        val descText = CoachingGenerator.generateMatchupReason(champion, target, type, com.example.util.LocalLanguage.current)
+        val descText = CoachingGenerator.generateMatchupReason(champion, selectedRole, target, type, com.example.util.LocalLanguage.current)
 
         AlertDialog(
             onDismissRequest = { matchupExplanationTarget = null },

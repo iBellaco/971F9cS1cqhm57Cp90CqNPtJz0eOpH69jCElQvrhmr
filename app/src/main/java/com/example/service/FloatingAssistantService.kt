@@ -84,6 +84,7 @@ import com.example.MainActivity
 import com.example.R
 import com.example.data.WildRiftRepository
 import com.example.ui.components.ChampionAvatar
+import com.example.util.tr
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -231,7 +232,20 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
             setContent {
                 val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
-                val selectedLanguage = remember { sharedPrefs.getString("selected_language", "es") ?: "es" }
+                // Use a mutable state and update it by observing SharedPreferences
+                var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
+
+                androidx.compose.runtime.DisposableEffect(sharedPrefs) {
+                    val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+                        if (key == "selected_language") {
+                            selectedLanguage = prefs.getString(key, "es") ?: "es"
+                        }
+                    }
+                    sharedPrefs.registerOnSharedPreferenceChangeListener(listener)
+                    onDispose {
+                        sharedPrefs.unregisterOnSharedPreferenceChangeListener(listener)
+                    }
+                }
 
                 androidx.compose.runtime.CompositionLocalProvider(com.example.util.LocalLanguage provides selectedLanguage) {
                     MyApplicationTheme {
@@ -533,7 +547,7 @@ private fun FloatingOverlayContent(
                             .padding(2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val tabs = listOf("Draft", "Objetivos", "Objetos", "Runas")
+                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Objetos"), tr("Runas"))
                         tabs.forEachIndexed { index, label ->
                             val isTabSelected = selectedTab == index
                             Box(
@@ -598,13 +612,13 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) "★ 1er Pick (Seguro)" else "★ MEJOR OPCIÓN (${activeRole.shortName})",
+                                    text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN") + " (${activeRole.shortName})",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = if (isFirstPick) "Blind Pick" else "Counter Pick",
+                                    text = if (isFirstPick) tr("Blind Pick") else tr("Counter Pick"),
                                     color = HextechCyan,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -703,7 +717,7 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Objetos clave para ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Objetos clave para") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
                                 champItems.forEach { item ->
@@ -745,8 +759,8 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Runas de ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text("Ver otro", color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
+                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Ver otro"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
                                 }
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Text(
@@ -757,7 +771,7 @@ private fun FloatingOverlayContent(
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "Build: ${currentChamp.coreItems.joinToString(" • ")}",
+                                    text = tr("Build") + ": ${currentChamp.coreItems.joinToString(" • ")}",
                                     color = TextMuted,
                                     fontSize = 9.5.sp
                                 )
@@ -773,7 +787,7 @@ private fun FloatingOverlayContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Detener Asistente",
+                            text = tr("Detener Asistente"),
                             color = DangerRed,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -784,7 +798,7 @@ private fun FloatingOverlayContent(
                         )
 
                         Text(
-                            text = "Minimizar HUD",
+                            text = tr("Minimizar HUD"),
                             color = HextechCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,

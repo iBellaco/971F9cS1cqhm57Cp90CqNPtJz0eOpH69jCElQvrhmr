@@ -798,7 +798,7 @@ private fun TierSectionCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(horizontalAlignment = Alignment.End) {
-                                Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                                Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                                 Text("Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.5.sp)
                             }
                             Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
@@ -863,7 +863,7 @@ private fun ItemsCatalogTab() {
             FilterChip(
                 selected = selectedCategory == null,
                 onClick = { selectedCategory = null },
-                label = { Text("Todos", fontSize = 11.5.sp) },
+                label = { Text(tr("Todos"), fontSize = 11.5.sp) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = HextechCyan,
                     selectedLabelColor = HextechDarkBg
@@ -943,7 +943,7 @@ private fun RunesAndSpellsTab() {
     var selectedFilter by remember { mutableStateOf("TODOS") }
 
     val filterOptions = listOf(
-        "TODOS" to "Todos",
+        "TODOS" to tr("Todos"),
         "SPELLS" to "Hechizos",
         "KEYSTONE" to "Runas Clave",
         "DOMINATION" to "Dominación",
@@ -1160,7 +1160,7 @@ private fun MapObjectivesTab() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text("Monstruos Épicos & Tiempos de Aparición", color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Text("Conocer los tiempos exactos de aparición en Wild Rift asegura la victoria de tu equipo:", color = TextMuted, fontSize = 11.5.sp)
+        Text(tr("Conocer los tiempos exactos de aparición en Wild Rift asegura la victoria de tu equipo:"), color = TextMuted, fontSize = 11.5.sp)
         Spacer(modifier = Modifier.height(10.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1191,11 +1191,11 @@ private fun MapObjectivesTab() {
                             }
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text("Reaparición: ${obj.respawnTime}", color = TextMuted, fontSize = 11.sp)
+                        Text(tr("Reaparición:") + " ${obj.respawnTime}", color = TextMuted, fontSize = 11.sp)
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text("Mejora: ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(tr("Mejora:") + " ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Táctica: ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
+                        Text(tr("Táctica:") + " ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
                     }
                 }
             }
@@ -1220,13 +1220,13 @@ private fun MetaSourcesTab(
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Fuentes Oficiales y del Meta",
+            text = tr("Fuentes Oficiales y del Meta"),
             color = HextechGold,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan con estos portales dentro de la app:",
+            text = tr("Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan con estos portales dentro de la app:"),
             color = TextMuted,
             fontSize = 12.sp
         )
@@ -1331,11 +1331,11 @@ private fun DraftAnalysisTab(
                     Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Column {
-                        Text("Línea:", color = TextMuted, fontSize = 10.5.sp)
+                        Text(tr("Línea:"), color = TextMuted, fontSize = 10.5.sp)
                         Text(activeRole.displayName, color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-                Text("Cambiar", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Text(tr("Cambiar"), color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
             }
 
             // First Pick / Blind Pick Mode Switch Pill
@@ -1349,8 +1349,8 @@ private fun DraftAnalysisTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("1er Pick", color = if (isFirstPick) HextechGold else TextMuted, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                    Text(if (isFirstPick) "Blind Pick" else "Counter", color = if (isFirstPick) HextechCyan else TextMuted, fontSize = 10.sp)
+                    Text(tr("1er Pick"), color = if (isFirstPick) HextechGold else TextMuted, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isFirstPick) tr("Blind Pick") else tr("Counter"), color = if (isFirstPick) HextechCyan else TextMuted, fontSize = 10.sp)
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Switch(
@@ -1377,7 +1377,7 @@ private fun DraftAnalysisTab(
             // Allies Column
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Equipo Aliado (${allies.size}/5)",
+                    text = tr("Equipo Aliado") + " (${allies.size}/5)",
                     color = AllyBlue,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
@@ -1400,7 +1400,7 @@ private fun DraftAnalysisTab(
             // Enemies Column
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Equipo Rival (${enemies.size}/5)",
+                    text = tr("Equipo Rival") + " (${enemies.size}/5)",
                     color = DangerRed,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
@@ -1708,7 +1708,7 @@ private fun DraftChampionPickerSheet(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = if (team == "ALLY") "Seleccionar Campeón Aliado" else "Seleccionar Campeón Rival",
+                text = if (team == "ALLY") tr("Seleccionar Campeón Aliado") else tr("Seleccionar Campeón Rival"),
                 color = if (team == "ALLY") AllyBlue else DangerRed,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -1719,7 +1719,7 @@ private fun DraftChampionPickerSheet(
                 value = search,
                 onValueChange = { search = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Buscar campeón...", color = TextMuted, fontSize = 13.sp) },
+                placeholder = { Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
                 singleLine = true,
                 shape = RoundedCornerShape(10.dp)
@@ -1735,7 +1735,7 @@ private fun DraftChampionPickerSheet(
                 FilterChip(
                     selected = selectedRoleFilter == null,
                     onClick = { selectedRoleFilter = null },
-                    label = { Text("Todos", fontSize = 11.sp) },
+                    label = { Text(tr("Todos"), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1781,7 +1781,7 @@ private fun DraftChampionPickerSheet(
                                 Text("${champ.primaryRole.displayName} • Tier ${champ.tier}", color = HextechCyan, fontSize = 11.sp)
                             }
                         }
-                        Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                     }
                 }
             }
@@ -1809,7 +1809,7 @@ private fun RoleChangeBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
-            Text("Selecciona tu Línea para esta Partida", color = HextechGold, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(tr("Selecciona tu Línea para esta Partida"), color = HextechGold, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(12.dp))
 
             LaneRole.entries.forEach { role ->

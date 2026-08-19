@@ -1,4 +1,13 @@
-package com.example.util
+import re
+
+file_path = "app/src/main/java/com/example/util/CoachingGenerator.kt"
+with open(file_path, "r", encoding="utf-8") as f:
+    content = f.read()
+
+# I will rewrite the whole file to make it cleaner. 
+# It's only 109 lines.
+
+new_content = """package com.example.util
 
 import com.example.model.Champion
 import com.example.model.LaneRole
@@ -141,3 +150,9 @@ object CoachingGenerator {
         }
     }
 }
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(new_content)
+
+print("CoachingGenerator translated completely.")
