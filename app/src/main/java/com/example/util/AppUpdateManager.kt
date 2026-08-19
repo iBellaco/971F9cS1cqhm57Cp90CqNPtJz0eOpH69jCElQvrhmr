@@ -55,84 +55,56 @@ object AppUpdateManager {
         return withContext(Dispatchers.IO) {
             var result = AppUpdateInfo()
 
-            // 1. Intentar consultar desde Firebase Firestore primero
+            // 1. Consultar GitHub Releases API directamente (rápido, sin dependencias de Play Services)
             try {
-                val db = FirebaseFirestore.getInstance()
-                val snapshot = db.collection("app_config").document("update_info").get().await()
-                if (snapshot.exists()) {
-                    val remoteCode = snapshot.getLong("versionCode")?.toInt() ?: BuildConfig.VERSION_CODE
-                    val remoteName = snapshot.getString("versionName") ?: BuildConfig.VERSION_NAME
-                    val notes = snapshot.getString("releaseNotes") ?: snapshot.getString("changelog") ?: "Mejoras de rendimiento y corrección de errores."
-                    val dlUrl = snapshot.getString("downloadUrl") ?: snapshot.getString("apkUrl") ?: ""
-                    val mandatory = snapshot.getBoolean("isMandatory") ?: false
+                val customRepo = context.getSharedPreferences("feedback_prefs", Context.MODE_PRIVATE)
+                    .getString("github_repo", DEFAULT_REPO)?.trim() ?: DEFAULT_REPO
+                val cleanRepo = customRepo.removePrefix("https://github.com/").removeSuffix("/")
 
-                    if (remoteCode > BuildConfig.VERSION_CODE) {
-                        result = AppUpdateInfo(
-                            isUpdateAvailable = true,
-                            latestVersionCode = remoteCode,
-                            latestVersionName = remoteName,
-                            releaseNotes = notes,
-                            downloadUrl = dlUrl.ifBlank { "https://github.com/$DEFAULT_REPO/releases/latest" },
-                            isMandatory = mandatory
-                        )
+                val request = Request.Builder()
+                    .url("https://api.github.com/repos/$cleanRepo/releases/latest")
+                    .header("Accept", "application/vnd.github.v3+json")
+                    .build()
+
+                httpClient.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val bodyStr = response.body?.string() ?: ""
+                        val json = JSONObject(bodyStr)
+                        val tagName = json.optString("tag_name", "").removePrefix("v").trim()
+                        val bodyNotes = json.optString("body", "Nuevas mejoras de balance y asistente flotante.")
+                        val htmlUrl = json.optString("html_url", "https://github.com/$cleanRepo/releases/latest")
+
+                        // Buscar asset APK si existe
+                        var apkDownloadUrl = htmlUrl
+                        val assets = json.optJSONArray("assets")
+                        if (assets != null) {
+                            for (i in 0 until assets.length()) {
+                                val asset = assets.getJSONObject(i)
+                                val name = asset.optString("name", "")
+                                if (name.endsWith(".apk", ignoreCase = true)) {
+                                    apkDownloadUrl = asset.optString("browser_download_url", htmlUrl)
+                                    break
+                                }
+                            }
+                        }
+
+                        // Comprobar si la versión de GitHub es mayor
+                        val isHigherVersion = compareVersionNames(tagName, BuildConfig.VERSION_NAME) > 0
+                        if (isHigherVersion) {
+                            result = AppUpdateInfo(
+                                isUpdateAvailable = true,
+                                latestVersionCode = BuildConfig.VERSION_CODE + 1,
+                                latestVersionName = tagName,
+                                releaseNotes = bodyNotes,
+                                downloadUrl = apkDownloadUrl,
+                                isMandatory = false,
+                                publishedAt = json.optString("published_at", "")
+                            )
+                        }
                     }
                 }
             } catch (e: Exception) {
-                AppLogger.d(TAG, "Firestore update info check skipped/failed: ${e.message}")
-            }
-
-            // 2. Si no se encontró en Firestore o no es más reciente, consultar GitHub Releases API
-            if (!result.isUpdateAvailable) {
-                try {
-                    val customRepo = context.getSharedPreferences("feedback_prefs", Context.MODE_PRIVATE)
-                        .getString("github_repo", DEFAULT_REPO)?.trim() ?: DEFAULT_REPO
-                    val cleanRepo = customRepo.removePrefix("https://github.com/").removeSuffix("/")
-
-                    val request = Request.Builder()
-                        .url("https://api.github.com/repos/$cleanRepo/releases/latest")
-                        .header("Accept", "application/vnd.github.v3+json")
-                        .build()
-
-                    httpClient.newCall(request).execute().use { response ->
-                        if (response.isSuccessful) {
-                            val bodyStr = response.body?.string() ?: ""
-                            val json = JSONObject(bodyStr)
-                            val tagName = json.optString("tag_name", "").removePrefix("v").trim()
-                            val bodyNotes = json.optString("body", "Nuevas mejoras de balance y asistente flotante.")
-                            val htmlUrl = json.optString("html_url", "https://github.com/$cleanRepo/releases/latest")
-
-                            // Buscar asset APK si existe
-                            var apkDownloadUrl = htmlUrl
-                            val assets = json.optJSONArray("assets")
-                            if (assets != null) {
-                                for (i in 0 until assets.length()) {
-                                    val asset = assets.getJSONObject(i)
-                                    val name = asset.optString("name", "")
-                                    if (name.endsWith(".apk", ignoreCase = true)) {
-                                        apkDownloadUrl = asset.optString("browser_download_url", htmlUrl)
-                                        break
-                                    }
-                                }
-                            }
-
-                            // Comprobar si la versión de GitHub es mayor
-                            val isHigherVersion = compareVersionNames(tagName, BuildConfig.VERSION_NAME) > 0
-                            if (isHigherVersion) {
-                                result = AppUpdateInfo(
-                                    isUpdateAvailable = true,
-                                    latestVersionCode = BuildConfig.VERSION_CODE + 1,
-                                    latestVersionName = tagName,
-                                    releaseNotes = bodyNotes,
-                                    downloadUrl = apkDownloadUrl,
-                                    isMandatory = false,
-                                    publishedAt = json.optString("published_at", "")
-                                )
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    AppLogger.d(TAG, "GitHub releases check error: ${e.message}")
-                }
+                AppLogger.d(TAG, "GitHub releases check: ${e.message}")
             }
 
             // Verificar si el usuario pospuso esta versión en chequeos automáticos

@@ -37,7 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
@@ -781,7 +781,7 @@ private fun TierSectionCard(
                                 Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                                 Text("Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.5.sp)
                             }
-                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
                         }
                     }
                 }

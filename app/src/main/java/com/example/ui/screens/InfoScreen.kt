@@ -58,7 +58,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
-import com.example.ui.components.InAppWebSourceDialog
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -83,8 +82,6 @@ import androidx.compose.ui.platform.LocalContext
 fun InfoScreen(
     onNavigateBack: () -> Unit
 ) {
-    var activeWebUrl by remember { mutableStateOf<String?>(null) }
-    var activeWebTitle by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var isUploading by remember { mutableStateOf(false) }
@@ -402,18 +399,6 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(30.dp))
             }
-        }
-
-        // In-App WebView Dialog for sources
-        if (activeWebUrl != null) {
-            InAppWebSourceDialog(
-                url = activeWebUrl!!,
-                title = activeWebTitle ?: "Fuente Web",
-                onDismiss = {
-                    activeWebUrl = null
-                    activeWebTitle = null
-                }
-            )
         }
     }
 }

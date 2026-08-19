@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ButtonDefaults
@@ -68,12 +67,6 @@ fun WildRiftVersionBanner(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable {
-                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
-                    data = android.net.Uri.parse("https://www.wildriftfire.com/patch-notes")
-                }
-                context.startActivity(intent)
-            }
             .testTag("wildrift_version_banner"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -114,22 +107,6 @@ fun WildRiftVersionBanner(
                         )
                     }
                 }
-            }
-
-            IconButton(
-                onClick = { 
-                    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
-                        data = android.net.Uri.parse("https://www.wildriftfire.com/patch-notes")
-                    }
-                    context.startActivity(intent)
-                },
-                modifier = Modifier.testTag("open_patch_notes_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.OpenInNew,
-                    contentDescription = "Ver Notas del Parche",
-                    tint = HextechGold
-                )
             }
         }
     }

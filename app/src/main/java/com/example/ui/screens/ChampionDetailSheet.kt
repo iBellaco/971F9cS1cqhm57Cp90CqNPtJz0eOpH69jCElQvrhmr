@@ -56,7 +56,6 @@ import com.example.data.WildRiftRepository
 import com.example.model.Champion
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
-import com.example.ui.components.InAppWebSourceDialog
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
