@@ -56,7 +56,7 @@
             android:name=".service.FloatingAssistantService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse|mediaProjection">
+            android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Wild Rift floating real-time drafting overlay assistant" />

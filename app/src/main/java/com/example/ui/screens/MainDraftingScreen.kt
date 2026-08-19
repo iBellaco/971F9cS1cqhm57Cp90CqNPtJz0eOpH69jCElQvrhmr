@@ -122,8 +122,6 @@ fun MainDraftingScreen(
             } else {
                 SystemPermissionHelper.startFloatingService(context)
                 isAssistantActive = true
-                // Enviar inmediatamente la aplicación a segundo plano para flotar sobre Wild Rift
-                (context as? Activity)?.moveTaskToBack(true)
             }
         }
     }
