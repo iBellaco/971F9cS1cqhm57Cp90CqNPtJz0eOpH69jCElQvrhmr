@@ -451,6 +451,8 @@ private fun FloatingOverlayContent(
             exit = scaleOut() + fadeOut()
         ) {
             var dragDownY by remember { mutableFloatStateOf(0f) }
+            val isClosingSoon = dragDownY > 10f
+            val currentBorderColor = if (isClosingSoon) Color.Red else HextechGold
 
             Card(
                 modifier = Modifier
@@ -458,12 +460,12 @@ private fun FloatingOverlayContent(
                     .clip(RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
-                border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
+                border = androidx.compose.foundation.BorderStroke(if (isClosingSoon) 2.dp else 1.5.dp, currentBorderColor)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
                 ) {
                     // Barra / Indicador para deslizar hacia abajo y cerrar
                     Box(
@@ -474,7 +476,7 @@ private fun FloatingOverlayContent(
                                     onDrag = { change, dragAmount ->
                                         change.consume()
                                         dragDownY += dragAmount.y
-                                        if (dragDownY > 40f) {
+                                        if (dragDownY > 30f) {
                                             isExpanded = false
                                             onExpandedChange(false)
                                             dragDownY = 0f
@@ -483,7 +485,7 @@ private fun FloatingOverlayContent(
                                         }
                                     },
                                     onDragEnd = {
-                                        if (dragDownY > 35f) {
+                                        if (dragDownY > 20f) {
                                             isExpanded = false
                                             onExpandedChange(false)
                                         }
@@ -494,19 +496,30 @@ private fun FloatingOverlayContent(
                                     }
                                 )
                             }
-                            .padding(bottom = 6.dp),
+                            .padding(bottom = 2.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .width(38.dp)
-                                .height(4.dp)
-                                .clip(CircleShape)
-                                .background(HextechGold.copy(alpha = 0.7f))
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(3.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isClosingSoon) Color.Red else HextechGold.copy(alpha = 0.7f))
+                            )
+                            if (isClosingSoon) {
+                                Text(
+                                    text = tr("Cerrando..."),
+                                    color = Color.Red,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
+                        }
                     }
 
-                    // Header con botón de arrastre y minimizar (deslizar hacia abajo cierra el menú)
+                    // Header con botón de arrastre y minimizar
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -565,7 +578,7 @@ private fun FloatingOverlayContent(
                             .padding(2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Objetos"), tr("Runas"))
+                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Build"))
                         tabs.forEachIndexed { index, label ->
                             val isTabSelected = selectedTab == index
                             Box(
@@ -660,7 +673,7 @@ private fun FloatingOverlayContent(
                                             .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
                                             .clickable {
                                                 lockedChampion = pick.champion
-                                                selectedTab = 3
+                                                selectedTab = 2
                                             }
                                             .padding(8.dp),
                                         verticalAlignment = Alignment.CenterVertically
@@ -722,9 +735,9 @@ private fun FloatingOverlayContent(
                         }
 
                         2 -> {
-                            // OBJETOS TAB
+                            // BUILD TAB (Objetos + Runas)
                             val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
-                            val itemsToShow = currentChamp.coreItems.take(2) + currentChamp.situationalItems.take(2)
+                            val itemsToShow = currentChamp.coreItems + currentChamp.situationalItems
                             val champItems = itemsToShow.mapNotNull { itemName -> 
                                 WildRiftRepository.items.find { it.name == itemName } 
                             }.takeIf { it.isNotEmpty() } ?: WildRiftRepository.items.take(4)
@@ -735,9 +748,18 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(tr("Objetos clave para") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Build y Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Ver otro"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
                                 }
+                                
+                                Text(
+                                    text = tr("Runas") + ": " + currentChamp.recommendedRunes,
+                                    color = HextechCyan,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Spacer(modifier = Modifier.height(2.dp))
+
                                 champItems.forEach { item ->
                                     Row(
                                         modifier = Modifier
@@ -767,34 +789,7 @@ private fun FloatingOverlayContent(
                                 }
                             }
                         }
-
-                        3 -> {
-                            // RUNAS TAB
-                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
-                            Column {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Ver otro"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
-                                }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(
-                                    text = currentChamp.recommendedRunes,
-                                    color = HextechCyan,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = tr("Build") + ": ${currentChamp.coreItems.joinToString(" • ")}",
-                                    color = TextMuted,
-                                    fontSize = 9.5.sp
-                                )
-                            }
-                        }
+                    }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -830,4 +825,4 @@ private fun FloatingOverlayContent(
             }
         }
     }
-}
+

@@ -22,14 +22,6 @@ enum class ItemCategory(val displayName: String) {
     BOOTS_ENCHANTMENT("Botas & Encantamientos")
 }
 
-data class MetaDataSource(
-    val id: String,
-    val name: String,
-    val url: String,
-    val badge: String,
-    val description: String,
-    val focusArea: String
-)
 
 data class ChampionSkill(
     val slot: String = "", // "P", "1", "2", "3", "4"
@@ -133,4 +125,13 @@ data class DraftRecommendation(
     val runes: String,
     val synergyDetails: String = "",
     val counterDetails: String = ""
+)
+
+data class MetaDataSource(
+    val id: String,
+    val name: String,
+    val description: String,
+    val url: String,
+    val focusArea: String,
+    val badge: String = "Sincronizado"
 )

@@ -95,7 +95,7 @@ fun InfoScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             Text(
-                                text = "Acerca De",
+                                text = tr("Acerca De"),
                                 color = TextPrimary,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
@@ -171,13 +171,13 @@ fun InfoScreen(
                             }
                             Column {
                                 Text(
-                                    text = "Asistente Táctico Wild Rift",
+                                    text = tr("Asistente Táctico Wild Rift"),
                                     color = HextechGold,
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Black
                                 )
                                 Text(
-                                    text = "Guía en Tiempo Real para Selección de Campeones",
+                                    text = tr("Guía en Tiempo Real para Selección de Campeones"),
                                     color = HextechGoldLight,
                                     fontSize = 11.5.sp
                                 )
@@ -224,7 +224,7 @@ fun InfoScreen(
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
-                                    text = "Edición Móvil",
+                                    text = tr("Edición Móvil"),
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
@@ -233,10 +233,10 @@ fun InfoScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).\n" +
-                                   "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado con fuentes de balance.\n" +
-                                   "• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.\n" +
-                                   "• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección.",
+                            text = tr("• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).") + "\n" +
+                                   tr("• Parche del juego: ") + "${WildRiftRepository.CURRENT_PATCH_VERSION} " + tr("sincronizado con fuentes de balance.") + "\n" +
+                                   tr("• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.") + "\n" +
+                                   tr("• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección."),
                             color = TextPrimary,
                             fontSize = 12.5.sp,
                             lineHeight = 18.sp
@@ -285,70 +285,9 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                // ==========================================
-                // SECCIÓN 3: FUENTES WEB DEL META (EN LA APP)
-                // ==========================================
                 InfoSectionHeader(
                     icon = Icons.Default.Sync,
-                    title = "3. Fuentes Web del Meta (Visor en la App)",
-                    tint = HextechCyan
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Toca cualquier fuente para consultar sus datos directamente dentro de la aplicación:",
-                    color = TextMuted,
-                    fontSize = 12.sp
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-
-                WildRiftRepository.metaSources.forEach { source ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clickable {
-                                activeWebUrl = source.url
-                                activeWebTitle = source.name
-                            },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                                    Text(source.focusArea, color = HextechGoldLight, fontSize = 11.5.sp)
-                                    Text(source.url, color = HextechCyan, fontSize = 10.5.sp)
-                                }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(HextechGold.copy(alpha = 0.15f))
-                                    .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ) {
-                                Text("Abrir", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                InfoSectionHeader(
-                    icon = Icons.Default.Sync,
-                    title = tr("4. Opciones de Administrador"),
+                    title = tr("3. Opciones de Administrador"),
                     tint = HextechCyan
                 )
                 Spacer(modifier = Modifier.height(10.dp))

@@ -28,6 +28,9 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -86,6 +89,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
@@ -1218,66 +1222,6 @@ private fun MetaSourcesTab(
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = tr("Fuentes Oficiales y del Meta"),
-            color = HextechGold,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = tr("Los datos de campeones, runas, objetos, winrates y parches de Wild Rift se sincronizan con estos portales dentro de la app:"),
-            color = TextMuted,
-            fontSize = 12.sp
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        WildRiftRepository.metaSources.forEach { source ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        onOpenSource(source.url, source.name)
-                    },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(source.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(HextechCyan.copy(alpha = 0.15f))
-                                        .border(1.dp, HextechCyan, RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(source.badge, color = HextechCyan, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                            Text(source.description, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
-                            Text(source.url, color = HextechGold, fontSize = 11.sp)
-                        }
-                    }
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                }
-            }
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
     }
@@ -1756,32 +1700,32 @@ private fun DraftChampionPickerSheet(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 64.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(380.dp),
+                    .height(420.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(availableChamps) { champ ->
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(HextechSurface)
+                            .clip(RoundedCornerShape(8.dp))
                             .clickable { onChampionPicked(champ) }
-                            .padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            ChampionAvatar(champion = champ, size = 42.dp)
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("${champ.primaryRole.displayName} • Tier ${champ.tier}", color = HextechCyan, fontSize = 11.sp)
-                            }
-                        }
-                        Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        ChampionAvatar(champion = champ, size = 56.dp, showTierBadge = false)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = champ.name,
+                            color = TextPrimary,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }

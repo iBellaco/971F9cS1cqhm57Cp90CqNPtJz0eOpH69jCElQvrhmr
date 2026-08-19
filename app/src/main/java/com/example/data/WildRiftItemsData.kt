@@ -202,7 +202,7 @@ object WildRiftItemsData {
             goldCost = 3000,
             stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad, +7% Velocidad Mov.",
             passive = "Pasiva - Tiro Eco: Moverse y lanzar hechizos genera cargas; al llegar a 100, la siguiente habilidad inflige 100 (+10% AP) de daño mágico a 4 objetivos cercanos.",
-            iconUrl = "$ITEM_IMG/3285.png"
+            iconUrl = "https://lolwildriftbuild.com/wp-content/uploads/2020/10/Luden_sEcho.jpg"
         ),
         WildRiftItem(
             id = "infinity_orb",

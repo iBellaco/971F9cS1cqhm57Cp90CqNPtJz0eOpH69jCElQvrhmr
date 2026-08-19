@@ -92,7 +92,7 @@ fun WildRiftVersionBanner(
             ) {
                 Column {
                     Text(
-                        text = "Meta de Wild Rift:",
+                        text = tr("Versión del Parche de Wild Rift:"),
                         color = HextechGoldLight,
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Medium

@@ -48,7 +48,7 @@ import com.example.ui.theme.TextPrimary
 
 @Composable
 fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
-    var selectedLang by remember { mutableStateOf("auto") }
+    var selectedLang by remember { mutableStateOf("es") }
     
     Column(
         modifier = Modifier

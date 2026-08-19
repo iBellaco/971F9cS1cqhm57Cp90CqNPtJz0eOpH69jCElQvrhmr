@@ -8,10 +8,10 @@ import com.example.model.DraftRecommendation
 import com.example.model.ItemCategory
 import com.example.model.LaneRole
 import com.example.model.MapObjectiveItem
-import com.example.model.MetaDataSource
 import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 import com.example.model.WildRiftItem
+import com.example.model.MetaDataSource
 
 object WildRiftRepository {
 
@@ -26,50 +26,51 @@ object WildRiftRepository {
     private const val DDRAGON_ITEM_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/item"
     private const val DDRAGON_PASSIVE_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/passive"
 
+
+    // ==========================================
+
+
+    // ==========================================
+    // FUENTES DE DATOS Y META ACTUAL
+    // ==========================================
     val metaSources: List<MetaDataSource> = listOf(
         MetaDataSource(
-            id = "riot_wildrift_official",
+            id = "riot_games_oficial",
             name = "Wild Rift Oficial (Riot Games)",
+            description = "Catálogo Oficial de Campeones y Habilidades",
             url = "https://wildrift.leagueoflegends.com/es-es/champions/",
-            badge = "Sitio Oficial",
-            description = "Portal oficial de Wild Rift en español con el catálogo completo de campeones, biografías, roles y habilidades oficiales.",
-            focusArea = "Catálogo Oficial de Campeones y Habilidades"
+            focusArea = "Datos Canónicos y Oficiales"
         ),
         MetaDataSource(
             id = "wildriftcore",
             name = "WildRiftCore (ES)",
+            description = "Runas en Español, Parches y Novedades",
             url = "https://wildriftcore.com/es/",
-            badge = "Español & Parches",
-            description = "Portal líder en español con notas de parches, árboles completos de runas y análisis de cambios de balance de Wild Rift.",
-            focusArea = "Runas en Español, Parches y Novedades"
+            focusArea = "Runas y Novedades en Español"
         ),
         MetaDataSource(
             id = "bestbuildwr",
             name = "BestBuildWR",
+            description = "Builds Óptimas e Ítems Situacionales",
             url = "https://bestbuildwr.com/",
-            badge = "Pro Builds",
-            description = "Optimización de builds de jugadores Grandmaster/Challenger en Wild Rift, rutas de ítems y órdenes de habilidades prioritarias.",
-            focusArea = "Builds Óptimas e Ítems Situacionales"
+            focusArea = "Armado de Objetos Profundo"
         ),
         MetaDataSource(
             id = "wildriftfire",
             name = "WildRiftFire",
+            description = "Tier Lists Globales y Sinergias",
             url = "https://www.wildriftfire.com/",
-            badge = "Tier List Global",
-            description = "Referencia global de tier lists exclusivas de Wild Rift, guías maestras de campeones, sinergias de carril y runas meta.",
-            focusArea = "Tier Lists Globales y Sinergias"
+            focusArea = "Tier List General (S+ a C)"
         ),
         MetaDataSource(
-            id = "wrmeta",
+            id = "wr_meta",
             name = "WR-Meta",
+            description = "Estadísticas en Tiempo Real y Counters",
             url = "https://wr-meta.com/",
-            badge = "Estadísticas & Counters",
-            description = "Analítica masiva con winrates, pickrates, banrates y enfrentamientos directos de los servidores globales de Wild Rift.",
-            focusArea = "Estadísticas en Tiempo Real y Counters"
+            focusArea = "Winrates y Counters Dinámicos"
         )
     )
 
-    // ==========================================
     // CATÁLOGO DE HECHIZOS DE INVOCADOR (SUMMONER SPELLS)
     // ==========================================
     var summonerSpells: List<SummonerSpellItem> = WildRiftSpellsAndRunes.summonerSpells
