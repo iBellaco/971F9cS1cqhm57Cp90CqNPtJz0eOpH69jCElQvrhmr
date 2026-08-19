@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Wild Rift Solo / Baron Lane Crest -->
+    <path
+        android:fillColor="#C8AA6E"
+        android:pathData="M 24,6 L 27.5,14 L 36,11 L 33,23 L 38,28 L 29,29 L 27,38 L 24,44 L 21,38 L 19,29 L 10,28 L 15,23 L 12,11 L 20.5,14 Z M 24,19 L 21,24 L 24,28 L 27,24 Z" />
+</vector>

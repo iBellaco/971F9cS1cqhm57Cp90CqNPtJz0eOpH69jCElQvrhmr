@@ -88,6 +88,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
 import com.example.model.ItemCategory
@@ -547,21 +549,37 @@ private fun OverlayDraftTabContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            val roleIcons = mapOf(
+                LaneRole.TOP to R.drawable.ic_wr_role_solo,
+                LaneRole.JUNGLE to R.drawable.ic_wr_role_jungle,
+                LaneRole.MID to R.drawable.ic_wr_role_mid,
+                LaneRole.ADC to R.drawable.ic_wr_role_duo,
+                LaneRole.SUPPORT to R.drawable.ic_wr_role_support
+            )
             LaneRole.entries.forEach { role ->
                 val isSelected = activeRole == role
-                Box(
+                val iconRes = roleIcons[role] ?: R.drawable.ic_wr_role_mid
+                Row(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(6.dp))
                         .background(if (isSelected) HextechCyan else HextechSurface)
                         .clickable { onRoleChange(role) }
-                        .padding(vertical = 4.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(vertical = 4.dp, horizontal = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
+                    Icon(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = role.shortName,
+                        tint = if (isSelected) HextechDarkBg else HextechGold,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = role.shortName,
                         color = if (isSelected) HextechDarkBg else TextMuted,
-                        fontSize = 10.sp,
+                        fontSize = 9.5.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )
                 }

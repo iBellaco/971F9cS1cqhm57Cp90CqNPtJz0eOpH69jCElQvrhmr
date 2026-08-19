@@ -64,8 +64,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.model.LaneRole
 import com.example.ui.components.BugReportFeedbackDialog
 import com.example.ui.components.HextechOrbButton
-import com.example.ui.components.RoleIconType
-import com.example.ui.components.RoleSelectorCard
+import com.example.ui.components.LaneDisplaySettingCard
 import com.example.ui.components.WildRiftVersionBanner
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -249,32 +248,19 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // 1. Línea Main Selector Card
-                RoleSelectorCard(
-                    label = tr("Línea Main"),
-                    selectedRole = mainRole,
-                    onRoleSelected = onMainRoleChange,
-                    iconType = RoleIconType.STAR
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // 2. Segunda Línea Selector Card
-                RoleSelectorCard(
-                    label = tr("Segunda Línea"),
-                    selectedRole = secondRole,
-                    onRoleSelected = onSecondRoleChange,
-                    iconType = RoleIconType.SWAP
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // 3. Rol Autofill Selector Card
-                RoleSelectorCard(
-                    label = tr("Rol Autofill"),
-                    selectedRole = autofillRole,
-                    onRoleSelected = onAutofillRoleChange,
-                    iconType = RoleIconType.SHIELD
+                // Panel oficial de Ajustes de Posición / Línea (LANE DISPLAY SETTING)
+                LaneDisplaySettingCard(
+                    mainRole = mainRole,
+                    onMainRoleChange = onMainRoleChange,
+                    secondRole = secondRole,
+                    onSecondRoleChange = onSecondRoleChange,
+                    onSaveConfirmed = {
+                        android.widget.Toast.makeText(
+                            context,
+                            "Líneas guardadas: ${mainRole.shortName} (1) y ${secondRole.shortName} (2)",
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
