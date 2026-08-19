@@ -4,8 +4,31 @@ import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 
 object WildRiftSpellsAndRunes {
-    private const val CDN_VERSION = "16.16.1"
-    private const val SPELL_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/spell"
+    const val SPELL_FLASH = "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
+    const val SPELL_IGNITE = "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
+    const val SPELL_SMITE = "https://static.wikia.nocookie.net/leagueoflegends/images/0/05/Smite.png/revision/latest?cb=20180514003641"
+    const val SPELL_BARRIER = "https://static.wikia.nocookie.net/leagueoflegends/images/c/cc/Barrier.png/revision/latest?cb=20180514002510"
+    const val SPELL_EXHAUST = "https://static.wikia.nocookie.net/leagueoflegends/images/4/4a/Exhaust.png/revision/latest?cb=20180514003128"
+    const val SPELL_GHOST = "https://static.wikia.nocookie.net/leagueoflegends/images/a/ab/Ghost.png/revision/latest?cb=20180514003209"
+    const val SPELL_HEAL = "https://static.wikia.nocookie.net/leagueoflegends/images/6/6e/Heal.png/revision/latest?cb=20180514003319"
+    const val SPELL_CLARITY = "https://static.wikia.nocookie.net/leagueoflegends/images/7/71/Claridad.png/revision/latest?cb=20141013024826&path-prefix=es"
+    const val SPELL_MARK = "https://static.wikia.nocookie.net/leagueoflegends/images/5/55/Marca.png/revision/latest?cb=20150802150053&path-prefix=es"
+
+    fun getSpellIconByName(name: String): String {
+        return when (name.trim().lowercase()) {
+            "destello", "flash" -> SPELL_FLASH
+            "prender", "ignición", "ignite", "ignicion", "incendiar" -> SPELL_IGNITE
+            "castigo", "smite" -> SPELL_SMITE
+            "barrera", "barrier" -> SPELL_BARRIER
+            "extenuación", "extenuacion", "exhaust" -> SPELL_EXHAUST
+            "fantasma", "ghost" -> SPELL_GHOST
+            "curar", "curación", "curacion", "heal" -> SPELL_HEAL
+            "claridad", "clarity" -> SPELL_CLARITY
+            "marca", "marca / lanzamiento", "mark", "snowball" -> SPELL_MARK
+            else -> SPELL_FLASH
+        }
+    }
+
     private const val CDRAGON_PERKS = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles"
 
     val summonerSpells: List<SummonerSpellItem> = listOf(
@@ -13,63 +36,63 @@ object WildRiftSpellsAndRunes {
             id = "flash",
             name = "Destello",
             cooldown = "150s",
-            iconUrl = "$SPELL_IMG/SummonerFlash.png",
+            iconUrl = SPELL_FLASH,
             description = "Teletransporta a tu campeón una corta distancia hacia la ubicación objetivo. El hechizo universal imprescindible en Wild Rift."
         ),
         SummonerSpellItem(
             id = "ignite",
             name = "Prender",
             cooldown = "100s",
-            iconUrl = "$SPELL_IMG/SummonerDot.png",
+            iconUrl = SPELL_IGNITE,
             description = "Prende fuego a un campeón enemigo infligiendo daño verdadero durante 5s y aplicando Heridas Graves (60%) que reducen drásticamente las curaciones."
         ),
         SummonerSpellItem(
             id = "smite",
             name = "Castigo",
             cooldown = "45s",
-            iconUrl = "$SPELL_IMG/SummonerSmite.png",
+            iconUrl = SPELL_SMITE,
             description = "Inflige daño verdadero masivo a monstruos de la jungla y súbditos. Evoluciona a Castigo Desafiante o Helador tras 4 campamentos grandes."
         ),
         SummonerSpellItem(
             id = "barrier",
             name = "Barrera",
             cooldown = "110s",
-            iconUrl = "$SPELL_IMG/SummonerBarrier.png",
+            iconUrl = SPELL_BARRIER,
             description = "Otorga un escudo temporal de 115-465 de absorción de daño durante 2 segundos. Ideal para tiradores y magos contra ráfagas."
         ),
         SummonerSpellItem(
             id = "exhaust",
             name = "Extenuación",
             cooldown = "105s",
-            iconUrl = "$SPELL_IMG/SummonerExhaust.png",
+            iconUrl = SPELL_EXHAUST,
             description = "Ralentiza a un campeón enemigo un 60% y reduce su daño infligido un 40% durante 2.5s. Esencial contra asesinos e hipercarries."
         ),
         SummonerSpellItem(
             id = "ghost",
             name = "Fantasma",
             cooldown = "90s",
-            iconUrl = "$SPELL_IMG/SummonerHaste.png",
+            iconUrl = SPELL_GHOST,
             description = "Otorga una ráfaga de velocidad de movimiento masiva (hasta +45%) e ignorar colisiones durante 6s. Cada baja reinicia la duración."
         ),
         SummonerSpellItem(
             id = "heal",
             name = "Curar",
             cooldown = "120s",
-            iconUrl = "$SPELL_IMG/SummonerHeal.png",
+            iconUrl = SPELL_HEAL,
             description = "Restaura vida a tu campeón y al aliado más cercano con menor salud, otorgando +30% de velocidad de movimiento durante 1s."
         ),
         SummonerSpellItem(
             id = "clarity",
             name = "Claridad",
             cooldown = "90s",
-            iconUrl = "$SPELL_IMG/SummonerMana.png",
+            iconUrl = SPELL_CLARITY,
             description = "Restaura el 50% del maná máximo a tu campeón y el 25% del maná a todos los aliados cercanos en el área."
         ),
         SummonerSpellItem(
             id = "mark_dash",
             name = "Marca / Lanzamiento",
             cooldown = "80s",
-            iconUrl = "$SPELL_IMG/SummonerSnowball.png",
+            iconUrl = SPELL_MARK,
             description = "Lanza una bola de nieve en línea recta; si impacta a un enemigo, permite reactivarlo para deslizarse instantáneamente hacia él."
         )
     )

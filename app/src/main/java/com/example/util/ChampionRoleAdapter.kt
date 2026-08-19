@@ -1,5 +1,6 @@
 package com.example.util
 
+import com.example.data.WildRiftSpellsAndRunes
 import com.example.model.Champion
 import com.example.model.DamageType
 import com.example.model.LaneRole
@@ -28,6 +29,12 @@ data class ChampionRoleProfile(
 object ChampionRoleAdapter {
 
     fun getProfile(champion: Champion, targetRole: LaneRole): ChampionRoleProfile {
+        val resolvedSpellsIcons = if (champion.recommendedSpells.isNotEmpty()) {
+            champion.recommendedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+        } else {
+            champion.spellsIcons
+        }
+
         val isPrimary = targetRole == champion.primaryRole
 
         if (isPrimary) {
@@ -45,7 +52,7 @@ object ChampionRoleAdapter {
                 runeTreeDetails = champion.runeTreeDetails,
                 primaryRuneIconUrl = champion.primaryRuneIconUrl,
                 recommendedSpells = champion.recommendedSpells,
-                spellsIcons = champion.spellsIcons,
+                spellsIcons = resolvedSpellsIcons,
                 advantageAgainst = champion.advantageAgainst,
                 counteredBy = champion.counteredBy,
                 synergies = champion.synergies,
@@ -86,8 +93,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
                         recommendedSpells = listOf("Castigo", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerSmite.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_SMITE,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Amumu", "Shyvana", "Master Yi", "Evelynn"),
                         counteredBy = listOf("Lee Sin", "Xin Zhao", "Kha'Zix", "Olaf"),
@@ -118,8 +125,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
                         recommendedSpells = listOf("Castigo", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerSmite.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_SMITE,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Master Yi", "Kayn", "Wukong", "Vi"),
                         counteredBy = listOf("Lee Sin", "Olaf", "Warwick", "Xin Zhao"),
@@ -153,8 +160,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3860.png",
                         recommendedSpells = listOf("Extenuación", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerExhaust.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_EXHAUST,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Braum", "Alistar", "Sona", "Yuumi"),
                         counteredBy = listOf("Blitzcrank", "Nautilus", "Pyke", "Leona"),
@@ -185,8 +192,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3858.png",
                         recommendedSpells = listOf("Ignición", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerDot.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_IGNITE,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Pyke", "Rakan", "Yuumi", "Sona"),
                         counteredBy = listOf("Morgana", "Janna", "Lulu", "Thresh"),
@@ -220,8 +227,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
                         recommendedSpells = listOf("Ignición", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerDot.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_IGNITE,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Katarina", "Akali", "Yasuo", "Zed"),
                         counteredBy = listOf("Orianna", "Syndra", "Vex", "Galio"),
@@ -252,8 +259,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png",
                         recommendedSpells = listOf("Ignición", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerDot.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_IGNITE,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Veigar", "Lux", "Ziggs", "Aurelion Sol"),
                         counteredBy = listOf("Pantheon", "Malphite", "Vex", "Lissandra"),
@@ -298,8 +305,8 @@ object ChampionRoleAdapter {
                     primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png",
                     recommendedSpells = listOf("Ignición", "Destello"),
                     spellsIcons = listOf(
-                        "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerDot.png",
-                        "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                        WildRiftSpellsAndRunes.SPELL_IGNITE,
+                        WildRiftSpellsAndRunes.SPELL_FLASH
                     ),
                     advantageAgainst = listOf("Jax", "Irelia", "Tryndamere", "Riven"),
                     counteredBy = listOf("Fiora", "Gwen", "Darius", "Mordekaiser"),
@@ -332,8 +339,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3151.png",
                         recommendedSpells = listOf("Barrera", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerBarrier.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_BARRIER,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Jinx", "Vayne", "Kai'Sa", "Ashe"),
                         counteredBy = listOf("Draven", "Tristana", "Samira", "Lucian"),
@@ -364,8 +371,8 @@ object ChampionRoleAdapter {
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png",
                         recommendedSpells = listOf("Barrera", "Destello"),
                         spellsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerBarrier.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SummonerFlash.png"
+                            WildRiftSpellsAndRunes.SPELL_BARRIER,
+                            WildRiftSpellsAndRunes.SPELL_FLASH
                         ),
                         advantageAgainst = listOf("Jinx", "Ashe", "Varus", "Miss Fortune"),
                         counteredBy = listOf("Draven", "Caitlyn", "Samira", "Tristana"),

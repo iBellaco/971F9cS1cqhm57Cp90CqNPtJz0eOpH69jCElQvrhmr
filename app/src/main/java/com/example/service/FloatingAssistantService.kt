@@ -862,13 +862,35 @@ private fun FloatingOverlayContent(
                                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
                                 ) {
                                     Column(modifier = Modifier.padding(8.dp)) {
-                                        Text(
-                                            text = "${tr("Hechizos")}: ${currentChamp.recommendedSpells.map { tr(it) }.joinToString(" + ")}",
-                                            color = HextechGoldLight,
-                                            fontSize = 11.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Spacer(modifier = Modifier.height(3.dp))
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                        ) {
+                                            Text(
+                                                text = "${tr("Hechizos")}:",
+                                                color = HextechGoldLight,
+                                                fontSize = 11.5.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            currentChamp.recommendedSpells.forEach { rawSpell ->
+                                                val spellIcon = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(rawSpell)
+                                                AppAssetImage(
+                                                    url = spellIcon,
+                                                    contentDescription = tr(rawSpell),
+                                                    fallbackText = rawSpell,
+                                                    modifier = Modifier.size(18.dp),
+                                                    borderColor = HextechGold,
+                                                    shape = RoundedCornerShape(4.dp)
+                                                )
+                                                Text(
+                                                    text = tr(rawSpell),
+                                                    color = Color.White,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = "${tr("Habilidades")}: ${currentChamp.skillOrder}",
                                             color = HextechCyan,
