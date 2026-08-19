@@ -95,15 +95,28 @@ fun LaneDisplaySettingCard(
                 .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header: LANE DISPLAY SETTING
-            Text(
-                text = "LANE DISPLAY SETTING",
-                color = HextechGoldLight,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 1.sp,
-                textAlign = TextAlign.Center
-            )
+            // Header Bar: Centered title with gold cross 'X' on top right
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "LANE DISPLAY SETTING",
+                    color = HextechGoldLight,
+                    fontSize = 14.5.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.2.sp,
+                    textAlign = TextAlign.Center
+                )
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cerrar",
+                    tint = HextechGold.copy(alpha = 0.8f),
+                    modifier = Modifier
+                        .size(18.dp)
+                        .align(Alignment.CenterEnd)
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
