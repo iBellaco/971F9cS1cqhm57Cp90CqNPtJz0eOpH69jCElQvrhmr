@@ -1,10 +1,10 @@
 package com.example.model
 
 enum class LaneRole(val displayName: String, val shortName: String) {
-    TOP("Línea de Barón", "Barón"),
+    TOP("Línea de Barón", "Top"),
     JUNGLE("Jungla", "Jungla"),
-    MID("Línea Central", "Central"),
-    ADC("Línea de Dragón", "Dragón"),
+    MID("Línea Central", "Mid"),
+    ADC("Línea de Dragón", "Dúo"),
     SUPPORT("Soporte", "Soporte")
 }
 

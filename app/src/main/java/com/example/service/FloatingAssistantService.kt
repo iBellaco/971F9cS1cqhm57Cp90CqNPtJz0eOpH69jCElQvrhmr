@@ -598,7 +598,7 @@ private fun FloatingOverlayContent(
                             .padding(2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Build"))
+                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Build"), tr("Runas"), tr("Hechizos"))
                         tabs.forEachIndexed { index, label ->
                             val isTabSelected = selectedTab == index
                             Box(
@@ -613,7 +613,7 @@ private fun FloatingOverlayContent(
                                 Text(
                                     text = label,
                                     color = if (isTabSelected) HextechDarkBg else TextMuted,
-                                    fontSize = 10.5.sp,
+                                    fontSize = 10.sp,
                                     fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -646,7 +646,7 @@ private fun FloatingOverlayContent(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = role.shortName,
+                                            text = tr(role.shortName),
                                             fontSize = 9.5.sp,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                             color = if (isSelected) HextechDarkBg else TextPrimary
@@ -663,7 +663,7 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN") + " (${activeRole.shortName})",
+                                    text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
@@ -755,7 +755,7 @@ private fun FloatingOverlayContent(
                         }
 
                         2 -> {
-                            // BUILD TAB (Objetos + Runas)
+                            // BUILD TAB (SOLO OBJETOS CORE Y SITUACIONALES)
                             val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
                             val itemsToShow = currentChamp.coreItems + currentChamp.situationalItems
                             val champItems = itemsToShow.mapNotNull { itemName -> 
@@ -768,17 +768,9 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(tr("Build y Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Ver otro"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
+                                    Text(tr("Build de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
                                 }
-                                
-                                Text(
-                                    text = tr("Runas") + ": " + currentChamp.recommendedRunes,
-                                    color = HextechCyan,
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
 
                                 champItems.forEach { item ->
                                     Row(
@@ -805,6 +797,84 @@ private fun FloatingOverlayContent(
                                         }
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+
+                        3 -> {
+                            // RUNAS TAB (EXCLUSIVO RUNAS)
+                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Cambiar"), color = HextechGold, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
+                                }
+
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                                ) {
+                                    Column(modifier = Modifier.padding(8.dp)) {
+                                        Text(
+                                            text = currentChamp.recommendedRunes,
+                                            color = HextechGoldLight,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (currentChamp.runeTreeDetails.isNotBlank()) {
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                text = currentChamp.runeTreeDetails,
+                                                color = TextPrimary.copy(alpha = 0.85f),
+                                                fontSize = 9.5.sp,
+                                                lineHeight = 13.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        4 -> {
+                            // HECHIZOS TAB (EXCLUSIVO HECHIZOS & MAXEO)
+                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(tr("Hechizos de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
+                                }
+
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                                ) {
+                                    Column(modifier = Modifier.padding(8.dp)) {
+                                        Text(
+                                            text = "${tr("Hechizos")}: ${currentChamp.recommendedSpells.map { tr(it) }.joinToString(" + ")}",
+                                            color = HextechGoldLight,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Spacer(modifier = Modifier.height(3.dp))
+                                        Text(
+                                            text = "${tr("Habilidades")}: ${currentChamp.skillOrder}",
+                                            color = HextechCyan,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
                                     }
                                 }
                             }

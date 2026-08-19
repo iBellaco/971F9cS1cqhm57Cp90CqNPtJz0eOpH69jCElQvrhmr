@@ -54,6 +54,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -113,7 +114,8 @@ enum class OverlayTab(val title: String, val icon: @Composable () -> Unit) {
     DRAFT("Draft", { Icon(Icons.Default.FlashOn, contentDescription = null, modifier = Modifier.size(16.dp)) }),
     OBJECTIVES("Objetivos", { Icon(Icons.Default.Alarm, contentDescription = null, modifier = Modifier.size(16.dp)) }),
     ITEMS("Objetos", { Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp)) }),
-    RUNES("Runas", { Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(16.dp)) })
+    RUNES("Runas", { Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(16.dp)) }),
+    SPELLS("Hechizos", { Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp)) })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -391,6 +393,16 @@ fun FloatingAssistantOverlay(
                                             onClearChampion = { lockedChampion = null }
                                         )
                                     }
+
+                                    OverlayTab.SPELLS -> {
+                                        OverlaySpellsTabContent(
+                                            lockedChampion = lockedChampion,
+                                            searchQuery = runeSearchQuery,
+                                            onSearchChange = { runeSearchQuery = it },
+                                            onSelectChampion = { lockedChampion = it },
+                                            onClearChampion = { lockedChampion = null }
+                                        )
+                                    }
                                 }
                             }
                             
@@ -538,7 +550,7 @@ private fun OverlayDraftTabContent(
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Escanear", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(tr("Escanear"), color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -577,7 +589,7 @@ private fun OverlayDraftTabContent(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = role.shortName,
+                        text = tr(role.shortName),
                         color = if (isSelected) HextechDarkBg else TextMuted,
                         fontSize = 9.5.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
@@ -765,7 +777,7 @@ private fun OverlayObjectivesTabContent() {
                         }
                     }
                     Spacer(modifier = Modifier.height(2.dp))
-                    Text("Reaparición: ${obj.respawnTime}", color = TextMuted, fontSize = 9.5.sp)
+                    Text("${tr("Reaparición")}: ${obj.respawnTime}", color = TextMuted, fontSize = 9.5.sp)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(obj.buffDescription, color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.sp, lineHeight = 15.sp)
                 }
@@ -802,7 +814,7 @@ private fun OverlayItemsTabContent(
             value = searchQuery,
             onValueChange = onSearchChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar objeto situacional (ej. Heridas, Zhonya)...", color = TextMuted, fontSize = 11.5.sp) },
+            placeholder = { Text(tr("Buscar objeto situacional (ej. Heridas, Zhonya)..."), color = TextMuted, fontSize = 11.5.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp)) },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -873,7 +885,7 @@ private fun OverlayItemsTabContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(item.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                Text("${item.goldCost} Oro", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                Text("${item.goldCost} ${tr("Oro")}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
                             Text(item.stats, color = HextechCyan, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(2.dp))
@@ -887,7 +899,7 @@ private fun OverlayItemsTabContent(
 }
 
 // ====================================================================
-// OVERLAY SUB-TAB 4: RUNAS Y BUILD (SOLO CUANDO SE SELECCIONA CAMPEÓN)
+// OVERLAY SUB-TAB 4: RUNAS META (EXCLUSIVO RUNAS)
 // ====================================================================
 @Composable
 private fun OverlayRunesTabContent(
@@ -898,7 +910,6 @@ private fun OverlayRunesTabContent(
     onClearChampion: () -> Unit
 ) {
     if (lockedChampion == null) {
-        // State A: NO CHAMPION SELECTED YET
         val matchingChampions = remember(searchQuery) {
             WildRiftRepository.champions.filter { champ ->
                 searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true)
@@ -919,7 +930,7 @@ private fun OverlayRunesTabContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Selecciona tu campeón fijado para ver sus runas y build exacta",
+                    text = "Selecciona un campeón para ver su página de runas óptima",
                     color = HextechCyan,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
@@ -933,7 +944,7 @@ private fun OverlayRunesTabContent(
                 value = searchQuery,
                 onValueChange = onSearchChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Buscar campeón fijado...", color = TextMuted, fontSize = 11.sp) },
+                placeholder = { Text(tr("Buscar campeón fijado..."), color = TextMuted, fontSize = 11.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp)) },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -976,19 +987,18 @@ private fun OverlayRunesTabContent(
             }
         }
     } else {
-        // State B: CHAMPION IS SELECTED -> DISPLAY COMPLETE RUNES & BUILD
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Selected Champion Banner with Clear Action
+            // Selected Champion Banner
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .background(HextechSurface)
-                    .border(1.dp, HextechGold, RoundedCornerShape(10.dp))
+                    .border(1.dp, HextechCyan, RoundedCornerShape(10.dp))
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -999,13 +1009,13 @@ private fun OverlayRunesTabContent(
                     Column {
                         Text(
                             text = "${lockedChampion.name} (Fijado)",
-                            color = HextechGold,
+                            color = HextechCyan,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${lockedChampion.primaryRole.displayName} • ${lockedChampion.damageType.displayName}",
-                            color = HextechCyan,
+                            text = "${lockedChampion.primaryRole.displayName} • Página de Runas",
+                            color = HextechGoldLight,
                             fontSize = 10.sp
                         )
                     }
@@ -1030,7 +1040,7 @@ private fun OverlayRunesTabContent(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🔮 Runas Recomendadas para ${lockedChampion.name}",
+                        text = "🔮 Runa Clave Recomendada",
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -1039,11 +1049,11 @@ private fun OverlayRunesTabContent(
                     Text(
                         text = lockedChampion.recommendedRunes,
                         color = HextechGoldLight,
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Black
                     )
                     if (lockedChampion.runeTreeDetails.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(3.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = lockedChampion.runeTreeDetails,
                             color = TextPrimary.copy(alpha = 0.9f),
@@ -1053,70 +1063,197 @@ private fun OverlayRunesTabContent(
                     }
                 }
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(8.dp))
+// ====================================================================
+// OVERLAY SUB-TAB 5: HECHIZOS DE INVOCADOR & HABILIDADES (EXCLUSIVO)
+// ====================================================================
+@Composable
+private fun OverlaySpellsTabContent(
+    lockedChampion: Champion?,
+    searchQuery: String,
+    onSearchChange: (String) -> Unit,
+    onSelectChampion: (Champion) -> Unit,
+    onClearChampion: () -> Unit
+) {
+    if (lockedChampion == null) {
+        val matchingChampions = remember(searchQuery) {
+            WildRiftRepository.champions.filter { champ ->
+                searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true)
+            }
+        }
 
-            // Recommended Spells & Skill Order
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    Text(
-                        text = "⚡ Hechizos de Invocador & Habilidades",
-                        color = HextechGold,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Hechizos: ${lockedChampion.recommendedSpells.joinToString(" + ")}",
-                        color = TextPrimary,
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Maxeo: ${lockedChampion.skillOrder}",
-                        color = HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                Text(
+                    text = "Selecciona un campeón para ver sus hechizos de invocador recomendados",
+                    color = HextechGold,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onSearchChange,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 11.sp) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp)) },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechGold,
+                    unfocusedBorderColor = HextechCardBorder,
+                    focusedContainerColor = HextechSurface,
+                    unfocusedContainerColor = HextechSurface
+                ),
+                shape = RoundedCornerShape(10.dp)
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(matchingChampions) { champ ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurface)
+                            .clickable { onSelectChampion(champ) }
+                            .padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ChampionAvatar(champion = champ, size = 32.dp, showTierBadge = false)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(champ.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("${champ.primaryRole.shortName} • Hechizos: ${champ.recommendedSpells.joinToString("+")}", color = HextechGold, fontSize = 10.sp)
+                            }
+                        }
+                        Icon(Icons.Default.Check, contentDescription = "Seleccionar", tint = HextechGold, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Selected Champion Banner
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold, RoundedCornerShape(10.dp))
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ChampionAvatar(champion = lockedChampion, size = 36.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = "${lockedChampion.name} (Fijado)",
+                            color = HextechGold,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${lockedChampion.primaryRole.displayName} • Hechizos & Orden de Habilidades",
+                            color = HextechCyan,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+
+                IconButton(
+                    onClick = onClearChampion,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Cambiar campeón", tint = TextMuted, modifier = Modifier.size(16.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Recommended Build Items
+            // Recommended Spells & Skill Order Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🛡 Build de Objetos Core",
+                        text = "⚡ Hechizos de Invocador Recomendados",
                         color = HextechGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        lockedChampion.recommendedSpells.forEach { spell ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechSurfaceVariant)
+                                    .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                            ) {
+                                Text(
+                                    text = tr(spell),
+                                    color = HextechGoldLight,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(color = HextechCardBorder, thickness = 0.5.dp)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "🎯 Prioridad de Habilidades (Skill Order)",
+                        color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = lockedChampion.coreItems.joinToString(" ➔ "),
+                        text = "Maxeo: ${lockedChampion.skillOrder}",
                         color = TextPrimary,
-                        fontSize = 11.sp,
-                        lineHeight = 15.sp
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
-                    if (lockedChampion.situationalItems.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Situacionales: ${lockedChampion.situationalItems.joinToString(", ")}",
-                            color = TextMuted,
-                            fontSize = 10.5.sp
-                        )
-                    }
                 }
             }
         }

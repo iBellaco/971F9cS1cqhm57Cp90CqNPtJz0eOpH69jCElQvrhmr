@@ -246,7 +246,8 @@ fun MetaAndDraftScreen(
                 tr("Campeones"),
                 tr("Tier List"),
                 tr("Objetos"),
-                tr("Runas & Hechizos"),
+                tr("Runas"),
+                tr("Hechizos"),
                 tr("Objetivos")
             )
 
@@ -325,10 +326,14 @@ fun MetaAndDraftScreen(
                         ItemsCatalogTab()
                     }
                     4 -> {
-                        // SECCIÓN: RUNAS Y HECHIZOS
-                        RunesAndSpellsTab()
+                        // SECCIÓN SEPARADA: RUNAS DE WILD RIFT
+                        RunesTab()
                     }
                     5 -> {
+                        // SECCIÓN SEPARADA: HECHIZOS DE INVOCADOR
+                        SpellsTab()
+                    }
+                    6 -> {
                         // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
                         MapObjectivesTab()
                     }
@@ -434,7 +439,7 @@ private fun ChampionsCatalogTab(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("champions_search_input"),
-            placeholder = { Text("Buscar campeón por nombre o habilidad...", color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar campeón por nombre o habilidad..."), color = TextMuted, fontSize = 13.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
@@ -463,7 +468,7 @@ private fun ChampionsCatalogTab(
             FilterChip(
                 selected = selectedRoleFilter == null,
                 onClick = { selectedRoleFilter = null },
-                label = { Text("Todos los Roles", fontSize = 11.5.sp) },
+                label = { Text(tr("Todos los Roles"), fontSize = 11.5.sp) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = HextechCyan,
                     selectedLabelColor = HextechDarkBg
@@ -473,7 +478,7 @@ private fun ChampionsCatalogTab(
                 FilterChip(
                     selected = selectedRoleFilter == role,
                     onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
-                    label = { Text(role.shortName, fontSize = 11.5.sp) },
+                    label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -653,7 +658,7 @@ private fun TierListTab(
             FilterChip(
                 selected = selectedLane == null,
                 onClick = { selectedLane = null },
-                label = { Text("Todas las Líneas", fontSize = 11.5.sp) },
+                label = { Text(tr("Todas las Líneas"), fontSize = 11.5.sp) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = HextechCyan,
                     selectedLabelColor = HextechDarkBg
@@ -663,7 +668,7 @@ private fun TierListTab(
                 FilterChip(
                     selected = selectedLane == role,
                     onClick = { selectedLane = if (selectedLane == role) null else role },
-                    label = { Text(role.shortName, fontSize = 11.5.sp) },
+                    label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -821,7 +826,7 @@ private fun ItemsCatalogTab() {
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar objeto por nombre o estadísticas...", color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar objeto por nombre o estadísticas..."), color = TextMuted, fontSize = 13.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -894,14 +899,14 @@ private fun ItemsCatalogTab() {
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(item.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("Coste: ${item.goldCost} Oro", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                                Text(tr(item.name), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("${tr("Coste")}: ${item.goldCost} ${tr("Oro")}", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                             }
-                            Text(item.category.displayName, color = HextechCyan, fontSize = 11.sp)
+                            Text(tr(item.category.displayName), color = HextechCyan, fontSize = 11.sp)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(item.stats, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(tr(item.stats), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                             Spacer(modifier = Modifier.height(3.dp))
-                            Text(item.passive, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                            Text(tr(item.passive), color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
                         }
                     }
                 }
@@ -914,56 +919,41 @@ private fun ItemsCatalogTab() {
 }
 
 // ====================================================================
-// TAB 4: CATÁLOGO DE RUNAS Y HECHIZOS (BÚSQUEDA Y FILTROS)
+// TAB 4: CATÁLOGO EXCLUSIVO DE RUNAS (BÚSQUEDA Y RAMAS)
 // ====================================================================
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RunesAndSpellsTab() {
+private fun RunesTab() {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("TODOS") }
 
     val filterOptions = listOf(
         "TODOS" to tr("Todos"),
-        "SPELLS" to "Hechizos",
-        "KEYSTONE" to "Runas Clave",
-        "DOMINATION" to "Dominación",
-        "PRECISION" to "Precisión",
-        "RESOLVE" to "Valor",
-        "INSPIRATION" to "Inspiración",
-        "SORCERY" to "Brujería"
+        "KEYSTONE" to tr("Runas Clave"),
+        "DOMINATION" to tr("Dominación"),
+        "PRECISION" to tr("Precisión"),
+        "RESOLVE" to tr("Valor"),
+        "INSPIRATION" to tr("Inspiración"),
+        "SORCERY" to tr("Brujería")
     )
 
-    val filteredSpells = remember(searchQuery, selectedFilter) {
-        if (selectedFilter != "TODOS" && selectedFilter != "SPELLS") emptyList()
-        else {
-            WildRiftRepository.summonerSpells.filter { spell ->
-                searchQuery.isBlank() ||
-                        spell.name.contains(searchQuery, ignoreCase = true) ||
-                        spell.description.contains(searchQuery, ignoreCase = true)
-            }
-        }
-    }
-
     val filteredRunes = remember(searchQuery, selectedFilter) {
-        if (selectedFilter == "SPELLS") emptyList()
-        else {
-            WildRiftRepository.runes.filter { rune ->
-                val matchesCategory = when (selectedFilter) {
-                    "TODOS" -> true
-                    "KEYSTONE" -> rune.category.contains("Clave", ignoreCase = true) || rune.category.contains("Keystone", ignoreCase = true)
-                    "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true)
-                    "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true)
-                    "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true)
-                    "INSPIRATION" -> rune.category.contains("Inspiración", ignoreCase = true)
-                    "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true)
-                    else -> true
-                }
-                val matchesSearch = searchQuery.isBlank() ||
-                        rune.name.contains(searchQuery, ignoreCase = true) ||
-                        rune.description.contains(searchQuery, ignoreCase = true) ||
-                        rune.category.contains(searchQuery, ignoreCase = true)
-                matchesCategory && matchesSearch
+        WildRiftRepository.runes.filter { rune ->
+            val matchesCategory = when (selectedFilter) {
+                "TODOS" -> true
+                "KEYSTONE" -> rune.category.contains("Clave", ignoreCase = true) || rune.category.contains("Keystone", ignoreCase = true)
+                "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true) || rune.category.contains("Domination", ignoreCase = true)
+                "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true) || rune.category.contains("Precision", ignoreCase = true)
+                "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true) || rune.category.contains("Resolve", ignoreCase = true)
+                "INSPIRATION" -> rune.category.contains("Inspiración", ignoreCase = true) || rune.category.contains("Inspiration", ignoreCase = true)
+                "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true) || rune.category.contains("Sorcery", ignoreCase = true)
+                else -> true
             }
+            val matchesSearch = searchQuery.isBlank() ||
+                    rune.name.contains(searchQuery, ignoreCase = true) ||
+                    rune.description.contains(searchQuery, ignoreCase = true) ||
+                    rune.category.contains(searchQuery, ignoreCase = true)
+            matchesCategory && matchesSearch
         }
     }
 
@@ -979,12 +969,12 @@ private fun RunesAndSpellsTab() {
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Buscar runa o hechizo...", color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar runa..."), color = TextMuted, fontSize = 13.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
                     IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted)
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
                     }
                 }
             },
@@ -1022,98 +1012,232 @@ private fun RunesAndSpellsTab() {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Summoner Spells Section
-            if (filteredSpells.isNotEmpty()) {
-                item {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        "Hechizos de Invocador (${filteredSpells.size})",
-                        color = HextechGold,
-                        fontSize = 15.sp,
+                        "${tr("Runas del Meta Wild Rift")} (${filteredRunes.size})",
+                        color = HextechCyan,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Text(
+                        "Parche 16.16.1",
+                        color = HextechGoldLight,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
-                items(filteredSpells) { spell ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            }
+
+            items(filteredRunes) { rune ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            AppAssetImage(
-                                url = spell.iconUrl,
-                                contentDescription = spell.name,
-                                fallbackText = spell.name,
-                                modifier = Modifier.size(42.dp),
-                                borderColor = HextechGold,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                        AppAssetImage(
+                            url = rune.iconUrl,
+                            contentDescription = rune.name,
+                            fallbackText = rune.name,
+                            modifier = Modifier.size(42.dp),
+                            borderColor = HextechCyan,
+                            shape = CircleShape
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechCyan.copy(alpha = 0.12f))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
-                                    Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                                    Text("CD: ${spell.cooldown}", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                    Text(rune.category, color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
                                 }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                             }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                         }
                     }
                 }
             }
 
-            // Runes Section
-            if (filteredRunes.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(6.dp))
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+}
+
+// ====================================================================
+// TAB 5: CATÁLOGO EXCLUSIVO DE HECHIZOS DE INVOCADOR
+// ====================================================================
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SpellsTab() {
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf("TODOS") }
+
+    val filterOptions = listOf(
+        "TODOS" to tr("Todos"),
+        "COMBAT" to tr("Combate & Daño"),
+        "UTILITY" to tr("Movilidad & Utilidad")
+    )
+
+    val filteredSpells = remember(searchQuery, selectedFilter) {
+        WildRiftRepository.summonerSpells.filter { spell ->
+            val matchesFilter = when (selectedFilter) {
+                "TODOS" -> true
+                "COMBAT" -> spell.name.contains("Prender", true) || 
+                            spell.name.contains("Ignición", true) || 
+                            spell.name.contains("Castigo", true) || 
+                            spell.name.contains("Extenuación", true) || 
+                            spell.name.contains("Curar", true) || 
+                            spell.name.contains("Barrera", true)
+                "UTILITY" -> spell.name.contains("Destello", true) || 
+                             spell.name.contains("Fantasma", true) || 
+                             spell.name.contains("Teleport", true)
+                else -> true
+            }
+            val matchesSearch = searchQuery.isBlank() ||
+                    spell.name.contains(searchQuery, ignoreCase = true) ||
+                    spell.description.contains(searchQuery, ignoreCase = true)
+            matchesFilter && matchesSearch
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(tr("Buscar hechizo..."), color = TextMuted, fontSize = 13.sp) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold) },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    }
+                }
+            },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = HextechGold,
+                unfocusedBorderColor = HextechCardBorder,
+                focusedContainerColor = HextechSurface,
+                unfocusedContainerColor = HextechSurface
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Filter Chips
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            filterOptions.forEach { (key, label) ->
+                FilterChip(
+                    selected = selectedFilter == key,
+                    onClick = { selectedFilter = key },
+                    label = { Text(label, fontSize = 11.5.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechGold,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        "Runas del Meta Wild Rift (${filteredRunes.size})",
-                        color = HextechCyan,
-                        fontSize = 15.sp,
+                        "${tr("Hechizos de Invocador")} (${filteredSpells.size})",
+                        color = HextechGold,
+                        fontSize = 14.5.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    Text(
+                        "CDs Oficiales WR",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
-                items(filteredRunes) { rune ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            }
+
+            items(filteredSpells) { spell ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            AppAssetImage(
-                                url = rune.iconUrl,
-                                contentDescription = rune.name,
-                                fallbackText = rune.name,
-                                modifier = Modifier.size(42.dp),
-                                borderColor = HextechCyan,
-                                shape = CircleShape
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                        AppAssetImage(
+                            url = spell.iconUrl,
+                            contentDescription = spell.name,
+                            fallbackText = spell.name,
+                            modifier = Modifier.size(44.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechGold.copy(alpha = 0.15f))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
-                                    Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                                    Text(rune.category, color = HextechCyan, fontSize = 11.sp)
+                                    Text("CD: ${spell.cooldown}", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                             }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                         }
                     }
                 }
@@ -1139,7 +1263,7 @@ private fun MapObjectivesTab() {
     ) {
         Spacer(modifier = Modifier.height(12.dp))
 
-        Text("Monstruos Épicos & Tiempos de Aparición", color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text(tr("Monstruos Épicos & Tiempos de Aparición"), color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Text(tr("Conocer los tiempos exactos de aparición en Wild Rift asegura la victoria de tu equipo:"), color = TextMuted, fontSize = 11.5.sp)
         Spacer(modifier = Modifier.height(10.dp))
 

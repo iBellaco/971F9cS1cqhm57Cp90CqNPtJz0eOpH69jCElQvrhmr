@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,7 +76,20 @@ fun ChampionDetailSheet(
     if (champion == null) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedRole by remember(champion.id) { mutableStateOf(champion.primaryRole) }
+    // Solo las líneas Main y Flex en las que realmente se juega el campeón
+    val availableRoles = remember(champion.id) {
+        (listOf(champion.primaryRole) + champion.secondaryRoles).distinct()
+    }
+    var selectedRole by remember(champion.id) { 
+        mutableStateOf(champion.primaryRole) 
+    }
+    
+    LaunchedEffect(champion.id) {
+        if (selectedRole !in availableRoles) {
+            selectedRole = champion.primaryRole
+        }
+    }
+
     var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
     var matchupExplanationType by remember { mutableStateOf<String?>(null) }
     var selectedSituationalItem by remember { mutableStateOf<String?>(null) }
@@ -84,14 +98,6 @@ fun ChampionDetailSheet(
     val roleProfile = remember(champion.id, selectedRole) {
         ChampionRoleAdapter.getProfile(champion, selectedRole)
     }
-
-    val allRoles = listOf(
-        LaneRole.TOP,
-        LaneRole.JUNGLE,
-        LaneRole.MID,
-        LaneRole.ADC,
-        LaneRole.SUPPORT
-    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -188,18 +194,18 @@ fun ChampionDetailSheet(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        allRoles.forEach { role ->
+                        availableRoles.forEach { role ->
                             val isSelected = selectedRole == role
                             val isPrimary = champion.primaryRole == role
                             val isSecondary = champion.secondaryRoles.contains(role)
 
                             val roleLabel = when (role) {
-                                LaneRole.TOP -> tr("SOLO")
+                                LaneRole.TOP -> tr("TOP")
                                 LaneRole.JUNGLE -> tr("JUNGLA")
-                                LaneRole.MID -> tr("CENTRAL")
+                                LaneRole.MID -> tr("MID")
                                 LaneRole.ADC -> tr("DÚO")
                                 LaneRole.SUPPORT -> tr("SOPORTE")
                             }
@@ -211,8 +217,8 @@ fun ChampionDetailSheet(
                                     .background(
                                         when {
                                             isSelected -> HextechGold.copy(alpha = 0.28f)
-                                            isPrimary || isSecondary -> HextechSurfaceVariant
-                                            else -> HextechSurfaceVariant.copy(alpha = 0.5f)
+                                            isPrimary -> HextechSurfaceVariant
+                                            else -> HextechSurfaceVariant.copy(alpha = 0.7f)
                                         }
                                     )
                                     .border(
@@ -221,20 +227,20 @@ fun ChampionDetailSheet(
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable { selectedRole = role }
-                                    .padding(vertical = 6.dp, horizontal = 2.dp),
+                                    .padding(vertical = 6.dp, horizontal = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
                                         text = roleLabel,
                                         color = if (isSelected) HextechGold else TextPrimary,
-                                        fontSize = 10.5.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     )
                                     if (isPrimary) {
-                                        Text("Main", color = HextechCyan, fontSize = 8.5.sp)
-                                    } else if (isSecondary) {
-                                        Text("Flex", color = HextechGoldLight, fontSize = 8.5.sp)
+                                        Text("Main", color = HextechCyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                    } else {
+                                        Text("Flex", color = HextechGoldLight, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -585,7 +591,7 @@ fun ChampionDetailSheet(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(tr("Objetos Situacionales:"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            Text("⚡ Toca para ver info", color = HextechCyan, fontSize = 10.5.sp)
+                            Text(tr("⚡ Toca para ver info"), color = HextechCyan, fontSize = 10.5.sp)
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         FlowRow(
