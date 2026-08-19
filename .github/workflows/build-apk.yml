@@ -54,29 +54,26 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Create temporary debug keystore
+      - name: Restore persistent debug keystore
         run: |
-          if [ -f "./debug.keystore" ]; then
-            echo "debug.keystore already exists. Skipping creation."
+          if [ -f "./debug.keystore.base64" ]; then
+            echo "Restoring persistent debug keystore from base64 to ensure consistent signatures across updates..."
+            base64 -d ./debug.keystore.base64 > ./debug.keystore
+          elif [ -f "./debug.keystore" ]; then
+            echo "debug.keystore already exists. Using existing keystore."
           else
-            echo "Generating temporary debug keystore..."
+            echo "Generating fallback debug keystore..."
             keytool -genkey -v \
               -keystore ./debug.keystore \
               -storepass android \
               -alias androiddebugkey \
               -keypass android \
-              -dname "CN=Android Debug,O=Android,C=US" \
+              -dname "CN=Wild Rift Drafting,O=AI Studio,C=US" \
               -keyalg RSA \
               -keysize 2048 \
               -validity 10000
-
-            if [ -f "./debug.keystore" ]; then
-              echo "Temporary debug keystore created successfully at ./debug.keystore."
-            else
-              echo "ERROR: Failed to create ./debug.keystore!"
-              exit 1
-            fi
           fi
+          echo "Keystore verified at ./debug.keystore"
 
       - name: Build Debug APK
         run: |
