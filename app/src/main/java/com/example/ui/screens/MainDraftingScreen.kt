@@ -78,10 +78,6 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.util.SystemPermissionHelper
 
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Logout
-import com.example.data.auth.AuthRepository
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainDraftingScreen(
@@ -98,8 +94,6 @@ fun MainDraftingScreen(
     onLanguageChange: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    val authRepository = remember { AuthRepository() }
-    var isUserLoggedIn by remember { mutableStateOf(authRepository.isUserLoggedIn) }
     
     val lifecycleOwner = LocalLifecycleOwner.current
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
@@ -111,7 +105,6 @@ fun MainDraftingScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 isAssistantActive = SystemPermissionHelper.isServiceRunning(context)
-                isUserLoggedIn = authRepository.isUserLoggedIn
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -168,43 +161,6 @@ fun MainDraftingScreen(
                                     tint = HextechGold,
                                     modifier = Modifier.size(22.dp)
                                 )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            if (isUserLoggedIn) {
-                                IconButton(
-                                    onClick = {
-                                        authRepository.signOut()
-                                        isUserLoggedIn = false
-                                    },
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
-                                        .size(38.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Logout,
-                                        contentDescription = "Cerrar sesión",
-                                        tint = HextechGold,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            } else {
-                                IconButton(
-                                    onClick = onNavigateToLogin,
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
-                                        .size(38.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.AccountCircle,
-                                        contentDescription = "Iniciar sesión",
-                                        tint = HextechGold,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
                             }
                         }
                     },
