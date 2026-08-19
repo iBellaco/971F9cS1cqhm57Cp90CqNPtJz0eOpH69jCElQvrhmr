@@ -308,20 +308,15 @@ object WildRiftRepository {
             var counterText = ""
 
             val isFlex = champ.primaryRole != myRole
+            val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, lang)
             val roleContextAdvice = if (isFlex) {
                 t(lang,
-                    "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Play safe early. Tips: ${champ.tacticalAdvice}",
-                    "Flex no ${myRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Jogue seguro no início. Dicas: ${champ.tacticalAdvice}",
-                    "Flex en ${myRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Juega seguro al inicio. Consejos: ${champ.tacticalAdvice}"
+                    "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Play safe early. Tips: $dynamicAdvice",
+                    "Flex no ${myRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Jogue seguro no início. Dicas: $dynamicAdvice",
+                    "Flex en ${myRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Juega seguro al inicio. Consejos: $dynamicAdvice"
                 )
             } else {
-                champ.tacticalAdvice.ifBlank {
-                    t(lang,
-                        "${champ.name}: Solid ${champ.damageType.displayName} damage option for ${myRole.displayName}.",
-                        "${champ.name}: Opção sólida de dano ${champ.damageType.displayName} para ${myRole.displayName}.",
-                        "${champ.name}: Opción sólida de daño ${champ.damageType.displayName} para ${myRole.displayName}."
-                    )
-                }
+                dynamicAdvice
             }
 
             if (isFirstPickEffective) {

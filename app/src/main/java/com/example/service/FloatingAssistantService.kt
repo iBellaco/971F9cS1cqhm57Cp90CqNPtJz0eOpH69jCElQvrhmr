@@ -230,35 +230,40 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
 
             setContent {
-                MyApplicationTheme {
-                    FloatingOverlayContent(
-                        onClose = { stopSelf() },
-                        onDragDelta = { dx, dy ->
-                            val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
-                            val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
-                            val maxX = (screenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
-                            val maxY = (screenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
-                            params.x = (params.x + dx).coerceIn(marginPx, maxX)
-                            params.y = (params.y + dy).coerceIn(marginPx, maxY)
-                            try {
-                                windowManager?.updateViewLayout(this@apply, params)
-                            } catch (_: Exception) {}
-                        },
-                        onExpandedChange = { expanded ->
-                            isOverlayExpanded = expanded
-                            if (expanded) {
-                                if (params.x + cardWidthPx > screenWidth - marginPx) {
-                                    params.x = (screenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
+                val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
+                val selectedLanguage = remember { sharedPrefs.getString("selected_language", "es") ?: "es" }
+
+                androidx.compose.runtime.CompositionLocalProvider(com.example.util.LocalLanguage provides selectedLanguage) {
+                    MyApplicationTheme {
+                        FloatingOverlayContent(
+                            onClose = { stopSelf() },
+                            onDragDelta = { dx, dy ->
+                                val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
+                                val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
+                                val maxX = (screenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
+                                val maxY = (screenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
+                                params.x = (params.x + dx).coerceIn(marginPx, maxX)
+                                params.y = (params.y + dy).coerceIn(marginPx, maxY)
+                                try {
+                                    windowManager?.updateViewLayout(this@apply, params)
+                                } catch (_: Exception) {}
+                            },
+                            onExpandedChange = { expanded ->
+                                isOverlayExpanded = expanded
+                                if (expanded) {
+                                    if (params.x + cardWidthPx > screenWidth - marginPx) {
+                                        params.x = (screenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
+                                    }
+                                    if (params.y + cardHeightPx > screenHeight - marginPx) {
+                                        params.y = (screenHeight - cardHeightPx - marginPx).coerceAtLeast(marginPx)
+                                    }
                                 }
-                                if (params.y + cardHeightPx > screenHeight - marginPx) {
-                                    params.y = (screenHeight - cardHeightPx - marginPx).coerceAtLeast(marginPx)
-                                }
+                                try {
+                                    windowManager?.updateViewLayout(this@apply, params)
+                                } catch (_: Exception) {}
                             }
-                            try {
-                                windowManager?.updateViewLayout(this@apply, params)
-                            } catch (_: Exception) {}
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

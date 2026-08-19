@@ -69,6 +69,8 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSPlusColor
 
+import com.example.util.CoachingGenerator
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChampionDetailSheet(
@@ -135,7 +137,7 @@ fun ChampionDetailSheet(
                             )
                         }
                         Text(
-                            text = "${selectedRole.displayName}${if (selectedRole != champion.primaryRole) " (Flex)" else ""} • ${champion.damageType.displayName}",
+                            text = "${tr(selectedRole.displayName)}${if (selectedRole != champion.primaryRole) " (Flex)" else ""} • ${tr(champion.damageType.displayName)}",
                             color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
@@ -203,13 +205,13 @@ fun ChampionDetailSheet(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Cambiar Rol / Flex Activo:",
+                                text = tr("Cambiar Rol / Flex Activo:"),
                                 color = HextechGold,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Toca para alternar",
+                                text = tr("Toca para alternar"),
                                 color = TextMuted,
                                 fontSize = 10.5.sp
                             )
@@ -336,10 +338,12 @@ fun ChampionDetailSheet(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Análisis Táctico en Wild Rift", color = HextechGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(tr("Análisis Táctico en Wild Rift"), color = HextechGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(champion.summary, color = TextPrimary, fontSize = 13.sp, lineHeight = 18.sp)
+                    val currentLang = com.example.util.LocalLanguage.current
+                    val fullAnalysis = remember(champion.id, currentLang) { CoachingGenerator.generateTacticalAnalysis(champion, currentLang) }
+                    Text(fullAnalysis, color = TextPrimary, fontSize = 13.sp, lineHeight = 18.sp)
                 }
             }
 
@@ -350,7 +354,7 @@ fun ChampionDetailSheet(
             // ==========================================
             if (champion.skills.isNotEmpty()) {
                 Text(
-                    text = "Habilidades de ${champion.name}",
+                    text = tr("Habilidades de") + " ${champion.name}",
                     color = HextechGold,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
@@ -383,8 +387,16 @@ fun ChampionDetailSheet(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
+                                        val slotTranslation = when {
+                                            skill.slotName.contains("Pasiva", true) -> tr("Pasiva:")
+                                            skill.slotName.contains("Habilidad 1", true) -> tr("Habilidad") + " 1:"
+                                            skill.slotName.contains("Habilidad 2", true) -> tr("Habilidad") + " 2:"
+                                            skill.slotName.contains("Habilidad 3", true) -> tr("Habilidad") + " 3:"
+                                            skill.slotName.contains("Definitiva", true) -> tr("Definitiva:")
+                                            else -> skill.slotName
+                                        }
                                         Text(
-                                            text = "${skill.slotName}: ${skill.name}",
+                                            text = "$slotTranslation ${skill.name}",
                                             color = HextechGoldLight,
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold
@@ -735,6 +747,7 @@ fun ChampionDetailSheet(
                 activeWebTitle = null
             }
         )
+    }
 
     if (matchupExplanationTarget != null && matchupExplanationType != null) {
         val type = matchupExplanationType!!
@@ -757,21 +770,7 @@ fun ChampionDetailSheet(
             }
         }
         
-        val descText = if (com.example.util.LocalLanguage.current == "es" || com.example.util.LocalLanguage.current == "auto") {
-            when (type) {
-                "Ventaja" -> "$champName tiene una ventaja táctica sobre $target.\n\n¿Por qué?\nSu kit de habilidades le permite esquivar el daño principal o castigar su falta de movilidad."
-                "Debilidad" -> "$champName sufre contra $target.\n\n¿Por qué?\nEl kit de $target cuenta con herramientas que contrarrestan directamente tu condición de victoria."
-                "Situacional" -> "Este es un objeto situacional para $champName.\n\n¿Por qué usarlo?\nSe recomienda comprar $target únicamente cuando la composición enemiga presenta una amenaza específica que este objeto contrarresta."
-                else -> "$champName y $target forman un dúo letal.\n\n¿Por qué?\nSus definitivas y habilidades pasivas se complementan de manera ideal para peleas en equipo."
-            }
-        } else {
-            when (type) {
-                "Ventaja" -> "$champName has a tactical advantage over $target.\n\nWhy?\nTheir ability kit allows them to dodge main damage or severely punish their lack of mobility."
-                "Debilidad" -> "$champName struggles against $target.\n\nWhy?\n$target's kit has tools that directly counter your win condition."
-                "Situacional" -> "This is a situational item for $champName.\n\nWhen to use it?\nYou should only buy $target when the enemy team composition presents a specific threat."
-                else -> "$champName and $target form a lethal duo.\n\nWhy?\nTheir ultimates and passive abilities complement each other perfectly for team fights."
-            }
-        }
+        val descText = CoachingGenerator.generateMatchupReason(champName, target, type, com.example.util.LocalLanguage.current)
 
         AlertDialog(
             onDismissRequest = { matchupExplanationTarget = null },
@@ -795,6 +794,4 @@ fun ChampionDetailSheet(
             textContentColor = TextPrimary
         )
     }
-}
-
 }
