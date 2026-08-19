@@ -349,8 +349,9 @@ private fun FloatingOverlayContent(
         var dragDownY by remember { mutableFloatStateOf(0f) }
         var isScanning by remember { mutableStateOf(false) }
 
-        // Floating Bubble Button (Arastrable y clicable)
-        Box(
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Floating Bubble Button (Arastrable y clicable)
+            Box(
             modifier = Modifier
                 .size(52.dp)
                 .clip(CircleShape)
@@ -421,6 +422,23 @@ private fun FloatingOverlayContent(
                         .clip(CircleShape)
                         .background(HextechGold)
                 )
+            }
+        }
+
+            if (!isExpanded && !isScanning) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.65f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = tr("↓ Desliza para cerrar"),
+                        color = Color.White,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
