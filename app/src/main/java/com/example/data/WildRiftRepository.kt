@@ -191,6 +191,10 @@ object WildRiftRepository {
         com.example.data.champions.SupportChampions.list
     ).distinctBy { it.id }
 
+    fun getChampionByName(name: String): Champion? {
+        return champions.find { it.name.equals(name, ignoreCase = true) }
+    }
+
     fun getChampionById(id: String): Champion? {
         return champions.find { it.id.equals(id, ignoreCase = true) }
     }

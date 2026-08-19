@@ -607,7 +607,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val advantageList = (champion.advantageAgainst + listOf("Garen", "Ashe", "Lux", "Vi", "Master Yi")).distinct().take(5)
+                        val advantageList = champion.advantageAgainst.take(5)
                         advantageList.forEach { target ->
                             Row(
                                 modifier = Modifier
@@ -635,7 +635,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Débil Contra:"), color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val counteredList = (champion.counteredBy + listOf("Zed", "Lee Sin", "Darius", "Akali", "Katarina")).distinct().take(5)
+                        val counteredList = champion.counteredBy.take(5)
                         counteredList.forEach { counter ->
                             Row(
                                 modifier = Modifier
@@ -666,7 +666,7 @@ fun ChampionDetailSheet(
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(tr("Mejores Sinergias (Composición):"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
-                    val synergyList = (champion.synergies + listOf("Malphite", "Amumu", "Nami", "Lulu", "Yasuo")).distinct().take(5)
+                    val synergyList = champion.synergies.take(5)
                     
                     @OptIn(ExperimentalLayoutApi::class)
                     androidx.compose.foundation.layout.FlowRow(
@@ -770,7 +770,7 @@ fun ChampionDetailSheet(
             }
         }
         
-        val descText = CoachingGenerator.generateMatchupReason(champName, target, type, com.example.util.LocalLanguage.current)
+        val descText = CoachingGenerator.generateMatchupReason(champion, target, type, com.example.util.LocalLanguage.current)
 
         AlertDialog(
             onDismissRequest = { matchupExplanationTarget = null },

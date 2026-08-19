@@ -1,10 +1,10 @@
-package com.example.util
+import os
 
-import com.example.model.Champion
-import com.example.model.LaneRole
+file_path = "app/src/main/java/com/example/util/CoachingGenerator.kt"
+with open(file_path, "r", encoding="utf-8") as f:
+    content = f.read()
 
-object CoachingGenerator {
-            fun generateMatchupReason(champion: Champion, target: String, type: String, lang: String): String {
+new_reason_method = """    fun generateMatchupReason(champion: Champion, target: String, type: String, lang: String): String {
         val isEs = lang == "es" || lang == "auto"
         val champName = champion.name
         val sourceRole = champion.primaryRole
@@ -75,35 +75,12 @@ object CoachingGenerator {
                 }
             }
         }
-    }
+    }"""
 
-    fun generateTacticalAnalysis(champion: Champion, lang: String): String {
-        val isEs = lang == "es" || lang == "auto"
-        val roleStr = champion.primaryRole.displayName
-        
-        val base = if (isEs) {
-            "**Fase de Líneas:** En ${roleStr}, ${champion.name} debe centrarse en asegurar súbditos y buscar intercambios cortos cuando sus habilidades principales estén disponibles. "
-        } else {
-            "**Laning Phase:** In ${roleStr}, ${champion.name} should focus on securing minions and looking for short trades when core abilities are off cooldown. "
-        }
-        
-        val mid = if (isEs) {
-            "**Juego Medio/Tardío:** Su principal condición de victoria es agruparse en objetivos (Dragón/Barón). Como fuente de daño ${champion.damageType.displayName}, es crucial el posicionamiento para evitar el CC enemigo y aplicar daño constante."
-        } else {
-            "**Mid/Late Game:** Their main win condition is grouping for objectives (Dragon/Baron). As a ${champion.damageType.displayName} damage source, positioning is crucial to avoid enemy CC and deal consistent damage."
-        }
-        
-        return champion.summary + "\n\n" + base + "\n\n" + mid
-    }
+import re
+content = re.sub(r'fun generateMatchupReason.*?(?=\n    fun generateTacticalAnalysis)', new_reason_method + '\n', content, flags=re.DOTALL)
 
-    fun generateTacticalAdvice(champion: Champion, lang: String): String {
-        val isEs = lang == "es" || lang == "auto"
-        return when (champion.primaryRole) {
-            LaneRole.ADC -> if (isEs) "Concéntrate en farmear seguro y acumular oro para tus objetos clave. Posiciónate siempre detrás de tu soporte/tanque en peleas grupales." else "Focus on safe farming and stacking gold for key items. Always position behind your support/tank in teamfights."
-            LaneRole.SUPPORT -> if (isEs) "Controla la visión (wards) en objetivos y protege a tus carries. Guarda tu CC para interrumpir al asesino enemigo." else "Control vision (wards) around objectives and peel for your carries. Save your CC to interrupt enemy assassins."
-            LaneRole.MID -> if (isEs) "Usa tu presión de línea para rotar (roam) con el jungla. En peleas grupales, prioriza flanquear o aplicar daño explosivo al carry enemigo." else "Use lane pressure to roam with the jungler. In teamfights, prioritize flanking or bursting the enemy carry."
-            LaneRole.JUNGLE -> if (isEs) "Garantiza el control de los Escurridizos (Scuttles) para visión y rastrea la ruta del jungla rival. Asegura los Dragones y Heraldos." else "Secure Scuttles for vision and track the enemy jungler's path. Secure Dragons and Heralds."
-            LaneRole.TOP -> if (isEs) "Mantén la presión dividida (split-push) si tienes ventaja, o agruparte si tu equipo necesita iniciación o tanqueo para los objetivos." else "Keep split-push pressure if ahead, or group if your team needs engage or frontline for objectives."
-        }
-    }
-}
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("CoachingGenerator updated with sourceRole and targetRole logic!")
