@@ -4,7 +4,7 @@ import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 
 object WildRiftSpellsAndRunes {
-    private const val CDN_VERSION = "14.20.1"
+    private const val CDN_VERSION = "16.16.1"
     private const val SPELL_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/spell"
     private const val CDRAGON_PERKS = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles"
 

@@ -20,7 +20,7 @@ object WildRiftRepository {
     var LAST_SYNC_STATUS = "Sincronización Automática Activa"
 
     // CDN base URL para avatares, habilidades, objetos y hechizos
-    private const val CDN_VERSION = "14.20.1"
+    private const val CDN_VERSION = "16.16.1"
     private const val DDRAGON_CHAMP_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/champion"
     private const val DDRAGON_SPELL_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/spell"
     private const val DDRAGON_ITEM_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/item"
@@ -32,7 +32,7 @@ object WildRiftRepository {
             name = "Wild Rift Oficial (Riot Games)",
             url = "https://wildrift.leagueoflegends.com/es-es/champions/",
             badge = "Sitio Oficial",
-            description = "Portal oficial de League of Legends: Wild Rift en español con el catálogo completo de campeones, biografías, roles y habilidades oficiales.",
+            description = "Portal oficial de Wild Rift en español con el catálogo completo de campeones, biografías, roles y habilidades oficiales.",
             focusArea = "Catálogo Oficial de Campeones y Habilidades"
         ),
         MetaDataSource(

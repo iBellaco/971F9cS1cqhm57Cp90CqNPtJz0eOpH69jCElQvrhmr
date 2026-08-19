@@ -25,13 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.util.LocalLanguage
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
 import com.example.data.auth.AuthRepository
-import com.example.ui.screens.LoginScreen
+import com.example.ui.screens.DatabaseTestScreen
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
@@ -98,7 +100,9 @@ fun DraftingApp() {
         currentScreen = AppScreen.MAIN
     }
 
-    AnimatedContent(
+    var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
+    CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
+                    AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
             if (targetState == AppScreen.MAIN && (initialState == AppScreen.LANGUAGE_SELECTION || initialState == AppScreen.LOGIN)) {
@@ -115,8 +119,8 @@ fun DraftingApp() {
     ) { screen ->
         when (screen) {
             AppScreen.LOGIN -> {
-                LoginScreen(
-                    onLoginSuccess = {
+                DatabaseTestScreen(
+                    onContinue = {
                         currentScreen = if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION
                     }
                 )
@@ -128,6 +132,7 @@ fun DraftingApp() {
                             .putBoolean("is_language_set", true)
                             .putString("selected_language", langCode)
                             .apply()
+                        selectedLanguage = langCode
                         currentScreen = AppScreen.MAIN
                     }
                 )
@@ -158,4 +163,5 @@ fun DraftingApp() {
             }
         }
     }
+}
 }

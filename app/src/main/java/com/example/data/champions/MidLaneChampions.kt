@@ -1120,7 +1120,7 @@ object MidLaneChampions {
                     slot = "P",
                     slotName = "Pasiva",
                     name = "Resonancia Radiante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Mel.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Mel_Passive.png",
                     description = "Lanzar habilidades marca a los enemigos; consumir la marca otorga velocidad de movimiento y daño mágico extra.",
                     cooldown = ""
                 ),
@@ -1128,7 +1128,7 @@ object MidLaneChampions {
                     slot = "1",
                     slotName = "Habilidad 1",
                     name = "Rayo del Solio",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Mel.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/MelQ.png",
                     description = "Dispara un haz solar penetrante en línea recta infligiendo daño mágico a todos los enemigos a su paso.",
                     cooldown = "6s"
                 ),
@@ -1136,7 +1136,7 @@ object MidLaneChampions {
                     slot = "2",
                     slotName = "Habilidad 2",
                     name = "Decreto Protector",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Mel.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/MelW.png",
                     description = "Otorga un escudo áureo a un aliado o a sí misma que mitiga daño y refleja una fracción hacia los agresores.",
                     cooldown = "13s"
                 ),
@@ -1144,7 +1144,7 @@ object MidLaneChampions {
                     slot = "3",
                     slotName = "Habilidad 3",
                     name = "Manto de la Discordia",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Mel.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/MelE.png",
                     description = "Despliega una zona de luz que ralentiza y silencia a los oponentes que permanecen en su interior.",
                     cooldown = "11s"
                 ),
@@ -1152,7 +1152,7 @@ object MidLaneChampions {
                     slot = "4",
                     slotName = "Definitiva",
                     name = "Trascendencia Imperial",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Mel.png",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/MelR.png",
                     description = "Canaliza una tormenta solar que baña una gran área con daño mágico colosal y aturde a los campeones alcanzados.",
                     cooldown = "70s"
                 )

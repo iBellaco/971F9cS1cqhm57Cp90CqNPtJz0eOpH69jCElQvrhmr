@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import com.example.util.tr
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -363,13 +364,13 @@ fun MainDraftingScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Layers, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Permiso de Superposición", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(tr("Permiso de Superposición"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 },
                 text = {
                     Column {
                         Text(
-                            text = "Para que el asistente inteligente funcione en segundo plano sobre League of Legends: Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición).",
+                            text = "Para que el asistente inteligente funcione en segundo plano sobre Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición).",
                             color = TextPrimary,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
@@ -390,12 +391,12 @@ fun MainDraftingScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
                     ) {
-                        Text("Conceder Permiso", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                        Text(tr("Conceder Permiso"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showPermissionDialog = false }) {
-                        Text("Cancelar", color = TextMuted)
+                        Text(tr("Cancelar"), color = TextMuted)
                     }
                 },
                 containerColor = HextechSurface,

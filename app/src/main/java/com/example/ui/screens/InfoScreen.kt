@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -232,7 +233,7 @@ fun InfoScreen(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "• Compatibilidad: Diseñado exclusivamente para League of Legends: Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).\n" +
+                            text = "• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).\n" +
                                    "• Parche del Meta: ${WildRiftRepository.CURRENT_PATCH_VERSION} sincronizado con fuentes de balance.\n" +
                                    "• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.\n" +
                                    "• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección.",

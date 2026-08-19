@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -431,7 +432,7 @@ fun ChampionDetailSheet(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     // Spells
-                    Text("Hechizos de Invocador:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Hechizos de Invocador:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -464,7 +465,7 @@ fun ChampionDetailSheet(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Rune
-                    Text("Árbol de Runas Meta:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Árbol de Runas Meta:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (champion.primaryRuneIconUrl.isNotBlank()) {
@@ -508,7 +509,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Core Items (Obligatorios):", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Core Items (Obligatorios):"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -541,7 +542,7 @@ fun ChampionDetailSheet(
 
                     if (champion.situationalItems.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(10.dp))
-                        Text("Objetos Situacionales:", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(tr("Objetos Situacionales:"), color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -592,7 +593,7 @@ fun ChampionDetailSheet(
                     border = androidx.compose.foundation.BorderStroke(1.dp, AllyBlue.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Ventaja Contra:", color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
                         val advantageList = (champion.advantageAgainst + listOf("Garen", "Ashe", "Lux", "Vi", "Master Yi")).distinct().take(5)
                         advantageList.forEach { target ->
@@ -620,7 +621,7 @@ fun ChampionDetailSheet(
                     border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Débil Contra:", color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(tr("Débil Contra:"), color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
                         val counteredList = (champion.counteredBy + listOf("Zed", "Lee Sin", "Darius", "Akali", "Katarina")).distinct().take(5)
                         counteredList.forEach { counter ->
@@ -651,7 +652,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechGoldLight.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Mejores Sinergias (Composición):", color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Mejores Sinergias (Composición):"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     val synergyList = (champion.synergies + listOf("Malphite", "Amumu", "Nami", "Lulu", "Yasuo")).distinct().take(5)
                     
@@ -682,7 +683,7 @@ fun ChampionDetailSheet(
             Spacer(modifier = Modifier.height(18.dp))
 
             // Portal Meta Links
-            Text("Ver Guía & Estadísticas en Fuentes Meta:", color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            Text(tr("Ver Guía & Estadísticas en Fuentes Meta:"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(6.dp))
 
             val links = listOf(
@@ -760,7 +761,7 @@ fun ChampionDetailSheet(
             },
             confirmButton = {
                 TextButton(onClick = { matchupExplanationTarget = null }) {
-                    Text("Entendido", color = HextechCyan)
+                    Text(tr("Entendido"), color = HextechCyan)
                 }
             },
             containerColor = HextechSurface,

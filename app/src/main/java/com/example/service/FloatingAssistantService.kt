@@ -152,7 +152,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 "Asistente Flotante Wild Rift",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Mantiene activo el asistente en superposición sobre League of Legends: Wild Rift"
+                description = "Mantiene activo el asistente en superposición sobre Wild Rift"
             }
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)

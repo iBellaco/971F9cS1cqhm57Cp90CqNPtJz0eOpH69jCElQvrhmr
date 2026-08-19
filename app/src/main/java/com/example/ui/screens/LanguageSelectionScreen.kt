@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,21 +82,21 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
         
         LanguageOption(
-            title = "Automático (Sistema)",
+            title = tr("Automático (Sistema)"),
             subtitle = "System default",
             isSelected = selectedLang == "auto",
             onClick = { selectedLang = "auto" }
         )
         
         LanguageOption(
-            title = "Español",
+            title = tr("Español"),
             subtitle = "Spanish",
             isSelected = selectedLang == "es",
             onClick = { selectedLang = "es" }
         )
         
         LanguageOption(
-            title = "English",
+            title = tr("Inglés"),
             subtitle = "Inglés",
             isSelected = selectedLang == "en",
             onClick = { selectedLang = "en" }
@@ -111,7 +112,7 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
         ) {
-            Text("Continuar / Continue", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(tr("Continuar / Continue"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }

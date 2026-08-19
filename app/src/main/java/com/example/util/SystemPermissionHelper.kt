@@ -50,7 +50,7 @@ object SystemPermissionHelper {
 
     /**
      * Solicita al usuario desactivar el ahorro de batería para evitar que el sistema cierre
-     * el asistente flotante en segundo plano mientras se ejecuta League of Legends: Wild Rift.
+     * el asistente flotante en segundo plano mientras se ejecuta Wild Rift.
      */
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization(context: Context) {
