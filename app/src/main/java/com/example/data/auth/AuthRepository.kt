@@ -31,7 +31,7 @@ class AuthRepository {
 
     suspend fun signInWithGoogle(context: Context): AuthResult? {
         val credentialManager = CredentialManager.create(context)
-        val webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
+        val webClientId = "500606030430-mkionnq7odmvivdi6cfcag0nkhn4nlu3.apps.googleusercontent.com"
         if (webClientId.isEmpty()) {
             Log.e("AuthRepository", "Web Client ID is empty. Google Sign-In will fail.")
             return null

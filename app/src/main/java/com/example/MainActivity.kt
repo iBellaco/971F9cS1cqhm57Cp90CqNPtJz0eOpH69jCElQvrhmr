@@ -44,11 +44,6 @@ enum class AppScreen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            FirebaseApp.initializeApp(this)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
