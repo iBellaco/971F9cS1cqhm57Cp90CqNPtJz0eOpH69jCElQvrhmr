@@ -55,11 +55,11 @@ fun LaneDisplaySettingCard(
     modifier: Modifier = Modifier
 ) {
     val roles = listOf(
-        Triple(LaneRole.TOP, "SOLO NIV. 1", R.drawable.ic_wr_role_solo),
-        Triple(LaneRole.JUNGLE, "JUNGLA NIV. 1", R.drawable.ic_wr_role_jungle),
-        Triple(LaneRole.MID, "CENTRAL NIV. 1", R.drawable.ic_wr_role_mid),
-        Triple(LaneRole.ADC, "DÚO NIV. 1", R.drawable.ic_wr_role_duo),
-        Triple(LaneRole.SUPPORT, "SOPORTE NIV. 1", R.drawable.ic_wr_role_support)
+        Triple(LaneRole.TOP, "SOLO", R.drawable.ic_wr_role_solo),
+        Triple(LaneRole.JUNGLE, "JUNGLA", R.drawable.ic_wr_role_jungle),
+        Triple(LaneRole.MID, "CENTRAL", R.drawable.ic_wr_role_mid),
+        Triple(LaneRole.ADC, "DÚO", R.drawable.ic_wr_role_duo),
+        Triple(LaneRole.SUPPORT, "SOPORTE", R.drawable.ic_wr_role_support)
     )
 
     Card(

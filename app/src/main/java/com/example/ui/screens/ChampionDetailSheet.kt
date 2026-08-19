@@ -20,14 +20,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,12 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.WildRiftRepository
+import com.example.data.SituationalItemAdvisor
 import com.example.model.Champion
+import com.example.model.LaneRole
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
 import com.example.ui.theme.AllyBlue
@@ -67,8 +62,9 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSPlusColor
-
+import com.example.util.ChampionRoleAdapter
 import com.example.util.CoachingGenerator
+import com.example.util.tr
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -82,6 +78,20 @@ fun ChampionDetailSheet(
     var selectedRole by remember(champion.id) { mutableStateOf(champion.primaryRole) }
     var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
     var matchupExplanationType by remember { mutableStateOf<String?>(null) }
+    var selectedSituationalItem by remember { mutableStateOf<String?>(null) }
+
+    // Perfil dinámico de estadísticas, build, runas y counters adaptados a la línea elegida
+    val roleProfile = remember(champion.id, selectedRole) {
+        ChampionRoleAdapter.getProfile(champion, selectedRole)
+    }
+
+    val allRoles = listOf(
+        LaneRole.TOP,
+        LaneRole.JUNGLE,
+        LaneRole.MID,
+        LaneRole.ADC,
+        LaneRole.SUPPORT
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -119,7 +129,7 @@ fun ChampionDetailSheet(
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
-                                    text = "Tier ${champion.tier}",
+                                    text = "Tier ${roleProfile.tier}",
                                     color = Color.Black,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Black
@@ -139,166 +149,122 @@ fun ChampionDetailSheet(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
-                        if (champion.secondaryRoles.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = "Flex:",
-                                    color = HextechGold,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                champion.secondaryRoles.forEach { sec ->
-                                    val isSelected = selectedRole == sec
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(
-                                                if (isSelected) HextechGold.copy(alpha = 0.35f)
-                                                else HextechGold.copy(alpha = 0.15f)
-                                            )
-                                            .border(
-                                                width = if (isSelected) 1.5.dp else 1.dp,
-                                                color = if (isSelected) HextechGold else HextechGold.copy(alpha = 0.5f),
-                                                shape = RoundedCornerShape(4.dp)
-                                            )
-                                            .clickable { selectedRole = sec }
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = if (isSelected) "✓ ${sec.shortName}" else sec.shortName,
-                                            color = if (isSelected) HextechGold else HextechGoldLight,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Selector interactivo de Rol / Flex
-            if (champion.secondaryRoles.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    shape = RoundedCornerShape(10.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = tr("Cambiar Rol / Flex Activo:"),
-                                color = HextechGold,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = tr("Toca para alternar"),
-                                color = TextMuted,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            // Rol Principal
-                            val isPrimarySelected = selectedRole == champion.primaryRole
+            // ==========================================
+            // SELECTOR DE LÍNEA / ROL (TOP, JUNGLA, MID, ADC, SUPPORTE)
+            // ==========================================
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                shape = RoundedCornerShape(10.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = tr("Cambiar Línea / Rol Activo:"),
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = tr(selectedRole.displayName),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        allRoles.forEach { role ->
+                            val isSelected = selectedRole == role
+                            val isPrimary = champion.primaryRole == role
+                            val isSecondary = champion.secondaryRoles.contains(role)
+
+                            val roleLabel = when (role) {
+                                LaneRole.TOP -> tr("SOLO")
+                                LaneRole.JUNGLE -> tr("JUNGLA")
+                                LaneRole.MID -> tr("CENTRAL")
+                                LaneRole.ADC -> tr("DÚO")
+                                LaneRole.SUPPORT -> tr("SOPORTE")
+                            }
+
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(
-                                        if (isPrimarySelected) HextechCyan.copy(alpha = 0.25f)
-                                        else HextechSurfaceVariant
+                                        when {
+                                            isSelected -> HextechGold.copy(alpha = 0.28f)
+                                            isPrimary || isSecondary -> HextechSurfaceVariant
+                                            else -> HextechSurfaceVariant.copy(alpha = 0.5f)
+                                        }
                                     )
                                     .border(
-                                        width = if (isPrimarySelected) 1.5.dp else 1.dp,
-                                        color = if (isPrimarySelected) HextechCyan else HextechCardBorder,
+                                        width = if (isSelected) 1.5.dp else 1.dp,
+                                        color = if (isSelected) HextechGold else HextechCardBorder,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { selectedRole = champion.primaryRole }
-                                    .padding(vertical = 6.dp, horizontal = 8.dp),
+                                    .clickable { selectedRole = role }
+                                    .padding(vertical = 6.dp, horizontal = 2.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = "${if (isPrimarySelected) "✓ " else ""}${champion.primaryRole.shortName} (Principal)",
-                                    color = if (isPrimarySelected) HextechCyan else TextPrimary,
-                                    fontSize = 11.5.sp,
-                                    fontWeight = if (isPrimarySelected) FontWeight.Bold else FontWeight.Medium
-                                )
-                            }
-
-                            // Roles Flex Secundarios
-                            champion.secondaryRoles.forEach { sec ->
-                                val isSecSelected = selectedRole == sec
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(
-                                            if (isSecSelected) HextechGold.copy(alpha = 0.25f)
-                                            else HextechSurfaceVariant
-                                        )
-                                        .border(
-                                            width = if (isSecSelected) 1.5.dp else 1.dp,
-                                            color = if (isSecSelected) HextechGold else HextechCardBorder,
-                                            shape = RoundedCornerShape(8.dp)
-                                        )
-                                        .clickable { selectedRole = sec }
-                                        .padding(vertical = 6.dp, horizontal = 8.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "${if (isSecSelected) "✓ " else ""}${sec.shortName} (Flex)",
-                                        color = if (isSecSelected) HextechGold else TextPrimary,
-                                        fontSize = 11.5.sp,
-                                        fontWeight = if (isSecSelected) FontWeight.Bold else FontWeight.Medium
+                                        text = roleLabel,
+                                        color = if (isSelected) HextechGold else TextPrimary,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     )
+                                    if (isPrimary) {
+                                        Text("Main", color = HextechCyan, fontSize = 8.5.sp)
+                                    } else if (isSecondary) {
+                                        Text("Flex", color = HextechGoldLight, fontSize = 8.5.sp)
+                                    }
                                 }
                             }
                         }
+                    }
 
-                        if (selectedRole != champion.primaryRole) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(HextechGold.copy(alpha = 0.12f))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ) {
-                                Text(
-                                    text = "⭐ Configuración Flex activa: ${selectedRole.displayName}. Consejos adaptados a esta línea.",
-                                    color = HextechGoldLight,
-                                    fontSize = 11.sp
-                                )
-                            }
+                    if (selectedRole != champion.primaryRole) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(HextechGold.copy(alpha = 0.12f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "⭐ ${tr("Estadísticas, hechizos, runas y build adaptadas a")} ${tr(selectedRole.displayName)}.",
+                                color = HextechGoldLight,
+                                fontSize = 11.sp
+                            )
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Winrate, Pickrate, Banrate Stats Row
+            // ==========================================
+            // ESTADÍSTICAS ADAPTADAS A LA LÍNEA (TRADUCIDAS)
+            // ==========================================
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -309,16 +275,16 @@ fun ChampionDetailSheet(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Winrate", color = TextMuted, fontSize = 11.sp)
-                    Text("${champion.winrate}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Tasa de Victoria"), color = TextMuted, fontSize = 11.sp)
+                    Text("${roleProfile.winrate}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Pick Rate", color = TextMuted, fontSize = 11.sp)
-                    Text("${champion.pickRate}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Tasa de Selección"), color = TextMuted, fontSize = 11.sp)
+                    Text("${roleProfile.pickRate}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Ban Rate", color = TextMuted, fontSize = 11.sp)
-                    Text("${champion.banRate}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Tasa de Bloqueo"), color = TextMuted, fontSize = 11.sp)
+                    Text("${roleProfile.banRate}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -339,7 +305,9 @@ fun ChampionDetailSheet(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     val currentLang = com.example.util.LocalLanguage.current
-                    val fullAnalysis = remember(champion.id, currentLang, selectedRole) { CoachingGenerator.generateTacticalAnalysis(champion, selectedRole, currentLang) }
+                    val fullAnalysis = remember(champion.id, currentLang, selectedRole) {
+                        CoachingGenerator.generateTacticalAnalysis(champion, selectedRole, currentLang)
+                    }
                     Text(fullAnalysis, color = TextPrimary, fontSize = 13.sp, lineHeight = 18.sp)
                 }
             }
@@ -423,10 +391,10 @@ fun ChampionDetailSheet(
             }
 
             // ==========================================
-            // HECHIZOS DE INVOCADOR & RUNAS (CON IMÁGENES)
+            // SECCIÓN SEPARADA: HECHIZOS DE INVOCADOR
             // ==========================================
             Text(
-                text = "Hechizos & Runas Recomendadas",
+                text = "${tr("Hechizos de Invocador")} • ${selectedRole.shortName}",
                 color = HextechGold,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
@@ -440,58 +408,42 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    // Spells
-                    Text(tr("Hechizos de Invocador:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Bolt, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Hechizos Recomendados para esta Línea:"),
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        champion.spellsIcons.forEachIndexed { idx, iconUrl ->
-                            val spellName = champion.recommendedSpells.getOrNull(idx) ?: "Spell"
+                        roleProfile.spellsIcons.forEachIndexed { idx, iconUrl ->
+                            val rawSpellName = roleProfile.recommendedSpells.getOrNull(idx) ?: "Spell"
+                            val spellName = tr(rawSpellName)
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurfaceVariant)
-                                    .border(1.dp, HextechGoldLight.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
                                 AppAssetImage(
                                     url = iconUrl,
                                     contentDescription = spellName,
                                     fallbackText = spellName,
-                                    modifier = Modifier.size(28.dp),
+                                    modifier = Modifier.size(30.dp),
                                     borderColor = HextechGold,
                                     shape = RoundedCornerShape(6.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(spellName, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Rune
-                    Text(tr("Árbol de Runas Meta:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (champion.primaryRuneIconUrl.isNotBlank()) {
-                            AppAssetImage(
-                                url = champion.primaryRuneIconUrl,
-                                contentDescription = champion.recommendedRunes,
-                                fallbackText = "Runa",
-                                modifier = Modifier.size(34.dp),
-                                borderColor = HextechCyan,
-                                shape = CircleShape
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                        }
-                        Column {
-                            Text(champion.recommendedRunes, color = HextechGoldLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            if (champion.runeTreeDetails.isNotBlank()) {
-                                Text(champion.runeTreeDetails, color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(spellName, color = TextPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -501,14 +453,89 @@ fun ChampionDetailSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ==========================================
-            // OBJETOS PRINCIPALES (CORE & SITUACIONALES CON IMÁGENES)
+            // SECCIÓN SEPARADA: RUNAS META & ÁRBOL
             // ==========================================
             Text(
-                text = "Objetos Clave (Build Recomendada)",
+                text = "${tr("Runas Meta")} • ${selectedRole.shortName}",
                 color = HextechGold,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Psychology, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Configuración de Runas para esta Línea:"),
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (roleProfile.primaryRuneIconUrl.isNotBlank()) {
+                            AppAssetImage(
+                                url = roleProfile.primaryRuneIconUrl,
+                                contentDescription = roleProfile.recommendedRunes,
+                                fallbackText = "Runa",
+                                modifier = Modifier.size(38.dp),
+                                borderColor = HextechCyan,
+                                shape = CircleShape
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                        }
+                        Column {
+                            Text(
+                                text = roleProfile.recommendedRunes,
+                                color = HextechGoldLight,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (roleProfile.runeTreeDetails.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = roleProfile.runeTreeDetails,
+                                    color = TextMuted,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // ==========================================
+            // OBJETOS CLAVE (CORE & SITUACIONALES CON EXPLICACIÓN TÁCTICA)
+            // ==========================================
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${tr("Objetos Clave (Build Recomendada)")} • ${selectedRole.shortName}",
+                    color = HextechGold,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "💡 Toca situacionales",
+                    color = HextechCyan,
+                    fontSize = 11.sp
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             Card(
@@ -525,8 +552,9 @@ fun ChampionDetailSheet(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        champion.coreItems.forEachIndexed { idx, itemName ->
-                            val iconUrl = champion.coreItemsIcons.getOrNull(idx) ?: ""
+                        roleProfile.coreItems.forEachIndexed { idx, rawName ->
+                            val iconUrl = roleProfile.coreItemsIcons.getOrNull(idx) ?: ""
+                            val itemName = tr(rawName)
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
@@ -549,24 +577,33 @@ fun ChampionDetailSheet(
                         }
                     }
 
-                    if (champion.situationalItems.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(tr("Objetos Situacionales:"), color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    if (roleProfile.situationalItems.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(tr("Objetos Situacionales:"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("⚡ Toca para ver info", color = HextechCyan, fontSize = 10.5.sp)
+                        }
                         Spacer(modifier = Modifier.height(6.dp))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            champion.situationalItems.forEachIndexed { idx, itemName ->
-                                val iconUrl = champion.situationalItemsIcons.getOrNull(idx) ?: ""
+                            roleProfile.situationalItems.forEachIndexed { idx, rawName ->
+                                val iconUrl = roleProfile.situationalItemsIcons.getOrNull(idx) ?: ""
+                                val itemName = tr(rawName)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurfaceVariant.copy(alpha = 0.6f))
-                                        .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        .background(Color(0xFF0C1929))
+                                        .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                        .clickable { selectedSituationalItem = rawName }
+                                        .padding(horizontal = 8.dp, vertical = 5.dp)
                                 ) {
                                     AppAssetImage(
                                         url = iconUrl,
@@ -577,7 +614,7 @@ fun ChampionDetailSheet(
                                         shape = RoundedCornerShape(6.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text(itemName, color = TextMuted, fontSize = 11.5.sp)
+                                    Text(itemName, color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -588,13 +625,13 @@ fun ChampionDetailSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ==========================================
-            // COUNTERS Y SINERGIAS
+            // COUNTERS Y SINERGIAS (ADAPTADOS AL ROL)
             // ==========================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Fuerte Contra
+                // Fuerte Contra (Ventaja)
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -604,7 +641,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val advantageList = champion.advantageAgainst.take(5)
+                        val advantageList = roleProfile.advantageAgainst.take(5)
                         advantageList.forEach { target ->
                             Row(
                                 modifier = Modifier
@@ -622,7 +659,7 @@ fun ChampionDetailSheet(
                     }
                 }
 
-                // Débil Contra
+                // Débil Contra (Debilidad)
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -632,7 +669,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Débil Contra:"), color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val counteredList = champion.counteredBy.take(5)
+                        val counteredList = roleProfile.counteredBy.take(5)
                         counteredList.forEach { counter ->
                             Row(
                                 modifier = Modifier
@@ -650,9 +687,9 @@ fun ChampionDetailSheet(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(10.dp))
-            
+
             // Mejores Sinergias
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -663,10 +700,9 @@ fun ChampionDetailSheet(
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(tr("Mejores Sinergias (Composición):"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
-                    val synergyList = champion.synergies.take(5)
-                    
-                    @OptIn(ExperimentalLayoutApi::class)
-                    androidx.compose.foundation.layout.FlowRow(
+                    val synergyList = roleProfile.synergies.take(5)
+
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -693,11 +729,153 @@ fun ChampionDetailSheet(
         }
     }
 
+    // ==========================================
+    // DIALOG DE DETALLE DE OBJETO SITUACIONAL
+    // ==========================================
+    if (selectedSituationalItem != null) {
+        val itemName = selectedSituationalItem!!
+        val advice = SituationalItemAdvisor.getAdvice(itemName)
+
+        AlertDialog(
+            onDismissRequest = { selectedSituationalItem = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (advice.iconUrl.isNotBlank()) {
+                        AppAssetImage(
+                            url = advice.iconUrl,
+                            contentDescription = tr(advice.name),
+                            fallbackText = advice.name,
+                            modifier = Modifier.size(36.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+                    Column {
+                        Text(
+                            text = tr(advice.name),
+                            color = HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 17.sp
+                        )
+                        Text(
+                            text = tr(advice.categoryName),
+                            color = HextechCyan,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // ¿Por qué comprarlo?
+                    Column {
+                        Text(
+                            text = tr("¿Por qué comprar este objeto?"),
+                            color = HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = advice.purpose,
+                            color = TextPrimary,
+                            fontSize = 12.5.sp,
+                            lineHeight = 17.sp
+                        )
+                    }
+
+                    // Contra quién o qué es bueno
+                    Column {
+                        Text(
+                            text = tr("Efectivo contra:"),
+                            color = DangerRed,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            advice.bestAgainst.forEach { target ->
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(HextechSurfaceVariant)
+                                        .border(1.dp, DangerRed.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "⚔️ $target",
+                                        color = TextPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Efecto clave
+                    Column {
+                        Text(
+                            text = tr("Efecto clave:"),
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = advice.keyEffect,
+                            color = TextPrimary.copy(alpha = 0.9f),
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+
+                    // Consejo táctico
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechGold.copy(alpha = 0.12f))
+                            .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "💡 ${advice.recommendationTip}",
+                            color = HextechGoldLight,
+                            fontSize = 11.5.sp,
+                            lineHeight = 15.sp
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { selectedSituationalItem = null }) {
+                    Text(tr("Entendido"), color = HextechCyan, fontWeight = FontWeight.Bold)
+                }
+            },
+            containerColor = HextechSurface,
+            titleContentColor = HextechGold,
+            textContentColor = TextPrimary
+        )
+    }
+
+    // ==========================================
+    // DIALOG DE DETALLE DE MATCHUP / SINERGIA
+    // ==========================================
     if (matchupExplanationTarget != null && matchupExplanationType != null) {
         val type = matchupExplanationType!!
         val target = matchupExplanationTarget!!
-        val champName = champion.name
-        
+
         val titleText = if (com.example.util.LocalLanguage.current == "es" || com.example.util.LocalLanguage.current == "auto") {
             when (type) {
                 "Ventaja" -> "Ventaja contra $target"
@@ -713,7 +891,7 @@ fun ChampionDetailSheet(
                 else -> "Synergy with $target"
             }
         }
-        
+
         val descText = CoachingGenerator.generateMatchupReason(champion, selectedRole, target, type, com.example.util.LocalLanguage.current)
 
         AlertDialog(
@@ -730,7 +908,7 @@ fun ChampionDetailSheet(
             },
             confirmButton = {
                 TextButton(onClick = { matchupExplanationTarget = null }) {
-                    Text("Entendido", color = HextechCyan)
+                    Text(tr("Entendido"), color = HextechCyan)
                 }
             },
             containerColor = HextechSurface,
