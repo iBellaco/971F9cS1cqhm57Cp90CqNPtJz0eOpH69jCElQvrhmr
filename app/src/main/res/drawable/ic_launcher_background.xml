@@ -5,8 +5,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Outer Dark Brushed Metallic Canvas -->
+
+    <!-- Dark Cosmic Background Canvas -->
     <path android:pathData="M0,0h108v108h-108z">
         <aapt:attr name="android:fillColor">
             <gradient
@@ -15,143 +15,109 @@
                 android:endX="96"
                 android:endY="96"
                 android:type="linear">
-                <item android:color="#141822" android:offset="0.0" />
-                <item android:color="#0A0D13" android:offset="0.5" />
-                <item android:color="#06080C" android:offset="1.0" />
+                <item android:color="#0D131F" android:offset="0.0" />
+                <item android:color="#07090E" android:offset="0.5" />
+                <item android:color="#040508" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Subtle Diagonal Brushed Metal Texture Lines -->
-    <path
-        android:strokeColor="#1E293B"
-        android:strokeWidth="0.5"
-        android:strokeAlpha="0.4"
-        android:pathData="M0,20 L88,108 M0,40 L68,108 M0,60 L48,108 M0,80 L28,108 M20,0 L108,88 M40,0 L108,68 M60,0 L108,48 M80,0 L108,28" />
-
-    <!-- Outer Gold Squircle Border Trim -->
-    <path
-        android:strokeWidth="1.6"
-        android:fillColor="#00000000"
-        android:pathData="M24,12 L84,12 C92,12 96,16 96,24 L96,84 C96,92 92,96 84,96 L24,96 C16,96 12,92 12,84 L12,24 C12,16 16,12 24,12 Z">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="12"
-                android:startY="12"
-                android:endX="96"
-                android:endY="96"
-                android:type="linear">
-                <item android:color="#F0E6D2" android:offset="0.0" />
-                <item android:color="#C8AA6E" android:offset="0.35" />
-                <item android:color="#785A28" android:offset="0.7" />
-                <item android:color="#DFC082" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Ambient Arcane Energy Glows (Left Cyan, Right Magenta) -->
+    <!-- Dual Energy Nebulas (Left: Hextech Cyan, Right: Arcane Violet) -->
     <!-- Left Cyan Aura -->
     <path
         android:fillColor="#00E5FF"
-        android:fillAlpha="0.12"
-        android:pathData="M54,54 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" />
-
-    <!-- Outer Mystic Magic Circle with Dual Gradient -->
+        android:fillAlpha="0.18"
+        android:pathData="M38,54 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0" />
     <path
-        android:strokeWidth="1.8"
+        android:fillColor="#00B4D8"
+        android:fillAlpha="0.25"
+        android:pathData="M36,52 m-18,0 a18,18 0 1,1 36,0 a18,18 0 1,1 -36,0" />
+
+    <!-- Right Magenta Aura -->
+    <path
+        android:fillColor="#E040FB"
+        android:fillAlpha="0.18"
+        android:pathData="M70,54 m-28,0 a28,28 0 1,1 56,0 a28,28 0 1,1 -56,0" />
+    <path
+        android:fillColor="#C026D3"
+        android:fillAlpha="0.25"
+        android:pathData="M72,52 m-18,0 a18,18 0 1,1 36,0 a18,18 0 1,1 -36,0" />
+
+    <!-- Outer Circular Runic Frame (Dual Gradient Ring) -->
+    <path
+        android:strokeWidth="2.0"
         android:fillColor="#00000000"
-        android:pathData="M54,18 A36,36 0 1 1 53.9,18 Z">
+        android:pathData="M54,16 A38,38 0 1,1 53.9,16 Z">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="18"
+                android:startX="16"
                 android:startY="54"
-                android:endX="90"
+                android:endX="92"
                 android:endY="54"
                 android:type="linear">
                 <item android:color="#00F0FF" android:offset="0.0" />
                 <item android:color="#38BDF8" android:offset="0.35" />
                 <item android:color="#A855F7" android:offset="0.65" />
+                <item android:color="#F43F5E" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Inner Concentric Orbit Ring -->
+    <path
+        android:strokeWidth="0.8"
+        android:strokeAlpha="0.5"
+        android:fillColor="#00000000"
+        android:pathData="M54,20 A34,34 0 1,1 53.9,20 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="20"
+                android:startY="54"
+                android:endX="88"
+                android:endY="54"
+                android:type="linear">
+                <item android:color="#00F0FF" android:offset="0.0" />
                 <item android:color="#E879F9" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Concentric Inner Circle -->
+    <!-- 4 Cardinal Runic Gemstone Nodes -->
+    <!-- Top Node (Cyan Orb) -->
     <path
-        android:strokeWidth="0.9"
-        android:fillColor="#00000000"
-        android:pathData="M54,22 A32,32 0 1 1 53.9,22 Z">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="22"
-                android:startY="54"
-                android:endX="86"
-                android:endY="54"
-                android:type="linear">
-                <item android:color="#00E5FF" android:offset="0.0" />
-                <item android:color="#C084FC" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- 6 Orbital Rune Node Orbs -->
-    <!-- Top Node (Center Peak) -->
-    <path
-        android:fillColor="#0E1726"
+        android:fillColor="#0369A1"
         android:strokeColor="#00F0FF"
         android:strokeWidth="1.0"
-        android:pathData="M54,18 m-3.5,0 a3.5,3.5 0 1,1 7,0 a3.5,3.5 0 1,1 -7,0" />
+        android:pathData="M54,16 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0" />
     <path
-        android:fillColor="#00F0FF"
-        android:pathData="M54,16.5 L55.5,19.5 L52.5,19.5 Z" />
+        android:fillColor="#E0F2FE"
+        android:pathData="M54,16 m-1.5,0 a1.5,1.5 0 1,1 3,0 a1.5,1.5 0 1,1 -3,0" />
 
-    <!-- Top-Right Node (Purple) -->
+    <!-- Left Node (Cyan Orb) -->
     <path
-        android:fillColor="#150E24"
-        android:strokeColor="#C084FC"
-        android:strokeWidth="1.0"
-        android:pathData="M79,29 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
-    <path
-        android:fillColor="#E879F9"
-        android:pathData="M78,28 h2 v2 h-2 z" />
-
-    <!-- Bottom-Right Node (Magenta) -->
-    <path
-        android:fillColor="#180A20"
-        android:strokeColor="#F43F5E"
-        android:strokeWidth="1.0"
-        android:pathData="M79,79 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
-    <path
-        android:fillColor="#F43F5E"
-        android:pathData="M78,78 h2 v2 h-2 z" />
-
-    <!-- Bottom Node (Gold / Center) -->
-    <path
-        android:fillColor="#15120C"
-        android:strokeColor="#C8AA6E"
-        android:strokeWidth="1.0"
-        android:pathData="M54,90 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
-    <path
-        android:fillColor="#F0E6D2"
-        android:pathData="M54,88.5 L55.2,91 L52.8,91 Z" />
-
-    <!-- Bottom-Left Node (Cyan/Teal) -->
-    <path
-        android:fillColor="#0A1620"
+        android:fillColor="#0369A1"
         android:strokeColor="#00F0FF"
         android:strokeWidth="1.0"
-        android:pathData="M29,79 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
+        android:pathData="M16,54 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0" />
     <path
-        android:fillColor="#00F0FF"
-        android:pathData="M28,78 h2 v2 h-2 z" />
+        android:fillColor="#E0F2FE"
+        android:pathData="M16,54 m-1.5,0 a1.5,1.5 0 1,1 3,0 a1.5,1.5 0 1,1 -3,0" />
 
-    <!-- Top-Left Node (Cyan) -->
+    <!-- Right Node (Purple Orb) -->
     <path
-        android:fillColor="#0A1624"
-        android:strokeColor="#00F0FF"
+        android:fillColor="#701A75"
+        android:strokeColor="#F472B6"
         android:strokeWidth="1.0"
-        android:pathData="M29,29 m-3.2,0 a3.2,3.2 0 1,1 6.4,0 a3.2,3.2 0 1,1 -6.4,0" />
+        android:pathData="M92,54 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0" />
     <path
-        android:fillColor="#38BDF8"
-        android:pathData="M28,28 h2 v2 h-2 z" />
+        android:fillColor="#FDF2F8"
+        android:pathData="M92,54 m-1.5,0 a1.5,1.5 0 1,1 3,0 a1.5,1.5 0 1,1 -3,0" />
+
+    <!-- Bottom Node (Teardrop Rune) -->
+    <path
+        android:fillColor="#0369A1"
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="1.0"
+        android:pathData="M54,88 C51,92 51,95 54,97 C57,95 57,92 54,88 Z" />
+
 </vector>

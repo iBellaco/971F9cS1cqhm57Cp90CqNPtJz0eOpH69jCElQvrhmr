@@ -149,7 +149,15 @@ val translations = mapOf(
         "Habilidades de" to "Habilidades de",
         "Pasiva:" to "Passiva:",
         "Habilidad" to "Habilidade",
-        "Definitiva:" to "Ultimate:"
+        "Definitiva:" to "Ultimate:",
+        "¡Nueva Versión Disponible!" to "Nova Versão Disponível!",
+        "Novedades de la actualización:" to "Novidades da atualização:",
+        "Descargar e Instalar" to "Baixar e Instalar",
+        "Recordarme más tarde" to "Lembrar mais tarde",
+        "Actualizaciones de la Aplicación" to "Atualizações do Aplicativo",
+        "Buscar Actualizaciones" to "Verificar Atualizações",
+        "Comprobando versión..." to "Verificando versão...",
+        "¡Tienes la versión más reciente!" to "Você já está na versão mais recente!"
     ),
     "en" to mapOf(
 
@@ -291,7 +299,15 @@ val translations = mapOf(
         "Habilidades de" to "Abilities of",
         "Pasiva:" to "Passive:",
         "Habilidad" to "Ability",
-        "Definitiva:" to "Ultimate:"
+        "Definitiva:" to "Ultimate:",
+        "¡Nueva Versión Disponible!" to "New Version Available!",
+        "Novedades de la actualización:" to "Update Highlights & Notes:",
+        "Descargar e Instalar" to "Download & Install",
+        "Recordarme más tarde" to "Remind me later",
+        "Actualizaciones de la Aplicación" to "App Updates",
+        "Buscar Actualizaciones" to "Check for Updates",
+        "Comprobando versión..." to "Checking version...",
+        "¡Tienes la versión más reciente!" to "You have the latest version!"
     )
 )
 

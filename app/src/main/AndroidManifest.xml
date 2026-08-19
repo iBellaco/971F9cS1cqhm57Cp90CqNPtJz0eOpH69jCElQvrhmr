@@ -9,9 +9,10 @@
     <!-- Permiso esencial para superposición flotante sobre Wild Rift y otras apps -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <!-- Permisos para servicio en primer plano y notificaciones persistentes -->
+    <!-- Permisos para servicio en primer plano, captura de pantalla y notificaciones persistentes -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Permiso para solicitar ignorar optimizaciones de batería en segundo plano -->
@@ -46,12 +47,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Servicio en segundo plano para la superposición flotante sobre Wild Rift -->
+        <!-- Servicio en segundo plano para la superposición flotante y escaneo de draft sobre Wild Rift -->
         <service
             android:name=".service.FloatingAssistantService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse">
+            android:foregroundServiceType="specialUse|mediaProjection">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Wild Rift floating real-time drafting overlay assistant" />

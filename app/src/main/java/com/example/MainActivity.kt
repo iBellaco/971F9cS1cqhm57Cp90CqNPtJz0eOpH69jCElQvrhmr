@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
 import com.example.data.auth.AuthRepository
+import com.example.ui.components.AppUpdateDialog
 import com.example.ui.screens.DatabaseTestScreen
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
@@ -42,6 +43,8 @@ import com.example.ui.screens.MainDraftingScreen
 import com.example.ui.screens.MetaAndDraftScreen
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
+import com.example.util.AppUpdateManager
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 enum class AppScreen {
     LOGIN,
@@ -100,10 +103,23 @@ fun DraftingApp() {
     var mainRole by remember { mutableStateOf(LaneRole.MID) }
     var secondRole by remember { mutableStateOf(LaneRole.TOP) }
     var autofillRole by remember { mutableStateOf(LaneRole.JUNGLE) }
+    val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         // Ejecuta la sincronización en segundo plano al arrancar la app para traer los datos desde la nube
         com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
+        // Comprobar si hay una nueva versión disponible para alertar al usuario
+        AppUpdateManager.checkForUpdates(context)
+    }
+
+    // Modal de Alerta de Actualización Disponible con opción de descarga directa
+    activeUpdateInfo?.let { update ->
+        if (update.isUpdateAvailable) {
+            AppUpdateDialog(
+                updateInfo = update,
+                onDismiss = { AppUpdateManager.dismissAlert() }
+            )
+        }
     }
 
     BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {

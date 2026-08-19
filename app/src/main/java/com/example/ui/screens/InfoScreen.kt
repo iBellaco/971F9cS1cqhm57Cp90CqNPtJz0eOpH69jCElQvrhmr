@@ -27,8 +27,12 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.RocketLaunch
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Timer
+import com.example.BuildConfig
+import com.example.util.AppUpdateManager
+import kotlinx.coroutines.launch
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,6 +88,7 @@ fun InfoScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var isUploading by remember { mutableStateOf(false) }
+    var isCheckingUpdates by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -285,10 +290,84 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                // ==========================================
+                // SECCIÓN: ACTUALIZACIONES DE LA APLICACIÓN
+                // ==========================================
+                InfoSectionHeader(
+                    icon = Icons.Default.SystemUpdate,
+                    title = tr("Actualizaciones de la Aplicación"),
+                    tint = HextechCyan
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Wild Rift Drafting Assistant",
+                                color = HextechGold,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                                color = HextechCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Button(
+                            onClick = {
+                                isCheckingUpdates = true
+                                scope.launch {
+                                    try {
+                                        val result = AppUpdateManager.checkForUpdates(context, forceManualCheck = true)
+                                        isCheckingUpdates = false
+                                        if (!result.isUpdateAvailable) {
+                                            Toast.makeText(context, "¡Tienes la versión más reciente! (v${BuildConfig.VERSION_NAME})", Toast.LENGTH_LONG).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        isCheckingUpdates = false
+                                        Toast.makeText(context, "Error al comprobar versión: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !isCheckingUpdates
+                        ) {
+                            if (isCheckingUpdates) {
+                                CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(tr("Comprobando versión..."), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                            } else {
+                                Icon(Icons.Default.RocketLaunch, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(tr("Buscar Actualizaciones"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(22.dp))
+
                 InfoSectionHeader(
                     icon = Icons.Default.Sync,
                     title = tr("3. Opciones de Administrador"),
-                    tint = HextechCyan
+                    tint = HextechGold
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(
