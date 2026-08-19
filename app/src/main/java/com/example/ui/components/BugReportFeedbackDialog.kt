@@ -116,38 +116,32 @@ fun BugReportFeedbackDialog(
         """.trimIndent()
     }
 
+    val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank()
+    val canCopy = title.trim().isNotBlank() || description.trim().isNotBlank()
+
     val openGitHubIssue: () -> Unit = {
-        try {
-            val formattedTitle = "${selectedType.prefix}${title.trim().ifBlank { "Reporte de " + selectedType.title }}"
-            val formattedBody = buildReportMarkdown()
-            val cleanRepo = githubRepo.trim().removePrefix("https://github.com/").removeSuffix("/")
+        if (canPublish) {
+            try {
+                val formattedTitle = "${selectedType.prefix}${title.trim()}"
+                val formattedBody = buildReportMarkdown()
+                val cleanRepo = githubRepo.trim().removePrefix("https://github.com/").removeSuffix("/")
 
-            val encodedTitle = URLEncoder.encode(formattedTitle, StandardCharsets.UTF_8.toString())
-            val encodedBody = URLEncoder.encode(formattedBody, StandardCharsets.UTF_8.toString())
-            val encodedLabels = URLEncoder.encode(selectedType.githubLabel, StandardCharsets.UTF_8.toString())
+                val encodedTitle = URLEncoder.encode(formattedTitle, StandardCharsets.UTF_8.toString())
+                val encodedBody = URLEncoder.encode(formattedBody, StandardCharsets.UTF_8.toString())
+                val encodedLabels = URLEncoder.encode(selectedType.githubLabel, StandardCharsets.UTF_8.toString())
 
-            val githubUrl = "https://github.com/$cleanRepo/issues/new?title=$encodedTitle&body=$encodedBody&labels=$encodedLabels"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl)).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                val githubUrl = "https://github.com/$cleanRepo/issues/new?title=$encodedTitle&body=$encodedBody&labels=$encodedLabels"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl)).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+                Toast.makeText(context, "Abriendo GitHub Issues...", Toast.LENGTH_SHORT).show()
+                onDismiss()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error al abrir GitHub: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             }
-            context.startActivity(intent)
-            Toast.makeText(context, "Abriendo GitHub Issues...", Toast.LENGTH_SHORT).show()
-            onDismiss()
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error al abrir GitHub: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    val openGitHubViewIssues: () -> Unit = {
-        try {
-            val cleanRepo = githubRepo.trim().removePrefix("https://github.com/").removeSuffix("/")
-            val issuesUrl = "https://github.com/$cleanRepo/issues"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(issuesUrl)).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error al abrir Issues: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(context, "Por favor completa el título y la descripción", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -179,14 +173,14 @@ fun BugReportFeedbackDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Reportes & Sugerencias",
+                        text = tr("Reportes & Sugerencias"),
                         color = TextPrimary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
                 IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
                 }
             }
         },
@@ -198,7 +192,7 @@ fun BugReportFeedbackDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = "Reporta fallos o envía sugerencias para que aparezcan registrados en tu repositorio de GitHub:",
+                    text = tr("Reporta fallos o envía sugerencias para mejorar el asistente:"),
                     color = TextMuted,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
@@ -237,7 +231,7 @@ fun BugReportFeedbackDialog(
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = type.label,
+                                    text = tr(type.label),
                                     color = if (isSelected) HextechGold else TextPrimary,
                                     fontSize = 10.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
@@ -251,13 +245,13 @@ fun BugReportFeedbackDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Título del reporte o sugerencia", fontSize = 12.sp) },
+                    label = { Text(tr("Título del reporte o sugerencia"), fontSize = 12.sp) },
                     placeholder = {
                         Text(
                             when (selectedType) {
-                                FeedbackType.BUG -> "Ej: El overlay no detecta la pantalla"
-                                FeedbackType.SUGGESTION -> "Ej: Agregar temporizador de dragones con audio"
-                                FeedbackType.META_CHAMPION -> "Ej: Actualizar build recomendada de Veigar"
+                                FeedbackType.BUG -> tr("Ej: El overlay no detecta la pantalla")
+                                FeedbackType.SUGGESTION -> tr("Ej: Agregar temporizador de dragones con audio")
+                                FeedbackType.META_CHAMPION -> tr("Ej: Actualizar build recomendada de Veigar")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -281,17 +275,17 @@ fun BugReportFeedbackDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descripción detallada", fontSize = 12.sp) },
+                    label = { Text(tr("Descripción detallada"), fontSize = 12.sp) },
                     placeholder = {
                         Text(
-                            "Describe qué sucedió, cómo reproducirlo o tu idea para mejorar la app...",
+                            tr("Describe qué sucedió, cómo reproducirlo o tu idea para mejorar la app..."),
                             fontSize = 11.5.sp,
                             color = TextMuted
                         )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(110.dp)
+                        .height(120.dp)
                         .testTag("feedback_desc_input"),
                     maxLines = 5,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -304,53 +298,6 @@ fun BugReportFeedbackDialog(
                     )
                 )
 
-                // Repositorio de GitHub
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Repositorio en GitHub:",
-                                color = HextechCyan,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            TextButton(
-                                onClick = openGitHubViewIssues,
-                                modifier = Modifier.height(26.dp)
-                            ) {
-                                Text("Ver Issues", color = HextechGold, fontSize = 10.5.sp)
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechGold, modifier = Modifier.size(11.dp))
-                            }
-                        }
-                        OutlinedTextField(
-                            value = githubRepo,
-                            onValueChange = { githubRepo = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = HextechCyan,
-                                unfocusedBorderColor = HextechCardBorder,
-                                focusedTextColor = HextechGoldLight,
-                                unfocusedTextColor = HextechGoldLight,
-                                focusedContainerColor = HextechSurfaceVariant,
-                                unfocusedContainerColor = HextechSurfaceVariant
-                            )
-                        )
-                    }
-                }
-
                 // Diagnóstico del sistema
                 Box(
                     modifier = Modifier
@@ -360,7 +307,7 @@ fun BugReportFeedbackDialog(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "📱 Diagnóstico: ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                        text = "${tr("📱 Diagnóstico:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
                         color = TextMuted,
                         fontSize = 10.sp
                     )
@@ -370,32 +317,55 @@ fun BugReportFeedbackDialog(
         confirmButton = {
             Button(
                 onClick = openGitHubIssue,
-                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                enabled = canPublish,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HextechGold,
+                    disabledContainerColor = HextechGold.copy(alpha = 0.25f),
+                    disabledContentColor = TextMuted
+                ),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.testTag("submit_github_issue_button")
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = null,
+                        tint = if (canPublish) Color.Black else TextMuted,
+                        modifier = Modifier.size(16.dp)
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Publicar en GitHub", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text(
+                        text = tr("Publicar en GitHub"),
+                        color = if (canPublish) Color.Black else TextMuted,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
                 }
             }
         },
         dismissButton = {
             OutlinedButton(
                 onClick = copyToClipboard,
+                enabled = canCopy,
                 shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (canCopy) HextechCardBorder else HextechCardBorder.copy(alpha = 0.3f)
+                )
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
                         contentDescription = null,
-                        tint = if (isCopied) HextechCyan else TextPrimary,
+                        tint = if (isCopied) HextechCyan else if (canCopy) TextPrimary else TextMuted,
                         modifier = Modifier.size(15.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isCopied) "Copiado" else "Copiar", color = TextPrimary, fontSize = 12.sp)
+                    Text(
+                        text = if (isCopied) tr("Copiado") else tr("Copiar"),
+                        color = if (canCopy) TextPrimary else TextMuted,
+                        fontSize = 12.sp
+                    )
                 }
             }
         }

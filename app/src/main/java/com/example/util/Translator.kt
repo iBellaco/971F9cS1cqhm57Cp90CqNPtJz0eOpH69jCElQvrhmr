@@ -223,7 +223,30 @@ val translations = mapOf(
         "Cambiar Línea / Rol Activo:" to "Mudar Rota / Função Ativa:",
         "Línea de Barón" to "Rota do Barão",
         "Línea Central" to "Rota do Meio",
-        "Línea de Dragón" to "Rota do Dragão"
+        "Línea de Dragón" to "Rota do Dragão",
+
+        // Reportes & Sugerencias
+        "Reportes & Sugerencias" to "Relatórios e Sugestões",
+        "Reporta fallos o envía sugerencias para mejorar el asistente:" to "Relate bugs ou envie sugestões para melhorar o assistente:",
+        "Reportar Bug" to "Reportar Bug",
+        "Bug / Error" to "Bug / Erro",
+        "Sugerencia" to "Sugestão",
+        "Idea / Mejora" to "Ideia / Melhoria",
+        "Campeón/Meta" to "Campeão/Meta",
+        "Meta / Campeón" to "Meta / Campeão",
+        "Título del reporte o sugerencia" to "Título do relatório ou sugestão",
+        "Descripción detallada" to "Descrição detalhada",
+        "Ej: El overlay no detecta la pantalla" to "Ex: Overlay não detecta a tela",
+        "Ej: Agregar temporizador de dragones con audio" to "Ex: Adicionar cronômetro de dragões com áudio",
+        "Ej: Actualizar build recomendada de Veigar" to "Ex: Atualizar build recomendada do Veigar",
+        "Describe qué sucedió, cómo reproducirlo o tu idea para mejorar la app..." to "Descreva o que aconteceu, como reproduzir ou sua ideia para melhorar o app...",
+        "📱 Diagnóstico:" to "📱 Diagnóstico:",
+        "Publicar en GitHub" to "Publicar no GitHub",
+        "Copiar" to "Copiar",
+        "Copiado" to "Copiado",
+        "Abriendo GitHub Issues..." to "Abrindo GitHub Issues...",
+        "Reporte copiado al portapapeles ✓" to "Relatório copiado para a área de transferência ✓",
+        "Por favor completa el título y la descripción para publicar." to "Por favor, preencha o título e a descrição para publicar."
     ),
     "en" to mapOf(
         "Acerca De" to "About",
@@ -440,7 +463,30 @@ val translations = mapOf(
         "Cambiar Línea / Rol Activo:" to "Change Active Role / Lane:",
         "Línea de Barón" to "Baron Lane",
         "Línea Central" to "Mid Lane",
-        "Línea de Dragón" to "Dragon Lane"
+        "Línea de Dragón" to "Dragon Lane",
+
+        // Reports & Suggestions
+        "Reportes & Sugerencias" to "Reports & Suggestions",
+        "Reporta fallos o envía sugerencias para mejorar el asistente:" to "Report bugs or submit suggestions to improve the assistant:",
+        "Reportar Bug" to "Report Bug",
+        "Bug / Error" to "Bug / Error",
+        "Sugerencia" to "Suggestion",
+        "Idea / Mejora" to "Idea / Improvement",
+        "Campeón/Meta" to "Champion/Meta",
+        "Meta / Campeón" to "Meta / Champion",
+        "Título del reporte o sugerencia" to "Title of report or suggestion",
+        "Descripción detallada" to "Detailed description",
+        "Ej: El overlay no detecta la pantalla" to "Ex: Overlay does not detect the screen",
+        "Ej: Agregar temporizador de dragones con audio" to "Ex: Add dragon timer with audio alert",
+        "Ej: Actualizar build recomendada de Veigar" to "Ex: Update Veigar recommended build",
+        "Describe qué sucedió, cómo reproducirlo o tu idea para mejorar la app..." to "Describe what happened, how to reproduce it, or your suggestion to improve the app...",
+        "📱 Diagnóstico:" to "📱 Diagnostics:",
+        "Publicar en GitHub" to "Publish on GitHub",
+        "Copiar" to "Copy",
+        "Copiado" to "Copied",
+        "Abriendo GitHub Issues..." to "Opening GitHub Issues...",
+        "Reporte copiado al portapapeles ✓" to "Report copied to clipboard ✓",
+        "Por favor completa el título y la descripción para publicar." to "Please complete the title and description to publish."
     )
 )
 

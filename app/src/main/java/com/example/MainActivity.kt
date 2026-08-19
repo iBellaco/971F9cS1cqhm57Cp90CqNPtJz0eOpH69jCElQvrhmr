@@ -45,6 +45,8 @@ import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
 import com.example.util.AppUpdateManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 enum class AppScreen {
     LOGIN,
@@ -100,6 +102,7 @@ fun DraftingApp() {
         mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
     }
     
+    val coroutineScope = rememberCoroutineScope()
     var mainRole by remember { mutableStateOf(LaneRole.TOP) }
     var secondRole by remember { mutableStateOf(LaneRole.MID) }
     var autofillRole by remember { mutableStateOf(LaneRole.SUPPORT) }
@@ -108,8 +111,9 @@ fun DraftingApp() {
     LaunchedEffect(Unit) {
         // Ejecuta la sincronización en segundo plano al arrancar la app para traer los datos desde la nube
         com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
-        // Comprobar si hay una nueva versión disponible para alertar al usuario
-        AppUpdateManager.checkForUpdates(context)
+        if (isLanguageSet) {
+            AppUpdateManager.checkForUpdates(context)
+        }
     }
 
     // Modal de Alerta de Actualización Disponible con opción de descarga directa
@@ -163,6 +167,10 @@ fun DraftingApp() {
                             .apply()
                         selectedLanguage = langCode
                         currentScreen = AppScreen.MAIN
+                        // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
+                        coroutineScope.launch {
+                            AppUpdateManager.checkForUpdates(context)
+                        }
                     }
                 )
             }
