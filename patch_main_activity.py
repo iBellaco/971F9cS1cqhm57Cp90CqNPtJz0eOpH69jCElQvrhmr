@@ -1,41 +1,23 @@
 import re
 
-with open('app/src/main/java/com/example/MainActivity.kt', 'r') as f:
+file_path = "app/src/main/java/com/example/MainActivity.kt"
+with open(file_path, "r", encoding="utf-8") as f:
     content = f.read()
 
-if 'import com.example.util.LocalLanguage' not in content:
-    content = content.replace('import androidx.compose.ui.Modifier', 'import androidx.compose.ui.Modifier\nimport com.example.util.LocalLanguage\nimport androidx.compose.runtime.CompositionLocalProvider')
+import_firebase = "import com.google.firebase.FirebaseApp\n"
+if "import com.google.firebase.FirebaseApp" not in content:
+    content = content.replace("import android.os.Bundle", f"import android.os.Bundle\n{import_firebase}")
 
-# Find the AnimatedContent and wrap it
-if 'CompositionLocalProvider(LocalLanguage provides currentLang)' not in content:
-    # First, let's derive currentLang from sharedPrefs
-    if 'val currentScreen by' not in content:
-        # need to inject state
-        pass
-    
-    # Actually we can just read the language from sharedPrefs during compose
-    content = content.replace('val sharedPrefs = context.getSharedPreferences', 
-'''val sharedPrefs = context.getSharedPreferences("wildrift_prefs", Context.MODE_PRIVATE)
-            
-            var selectedLanguage by remember { 
-                mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") 
-            }
-            // Remove the duplicate val sharedPrefs declaration
-''')
-    
-    content = content.replace('val sharedPrefs = context.getSharedPreferences("wildrift_prefs", Context.MODE_PRIVATE)', '')
-    content = content.replace('// Remove the duplicate val sharedPrefs declaration', 'val sharedPrefs = context.getSharedPreferences("wildrift_prefs", Context.MODE_PRIVATE)')
-    
-    content = content.replace('AnimatedContent(', '''CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
-                    AnimatedContent(''')
-                    
-    content = content.replace('                        currentScreen = AppScreen.MAIN\n                    }\n                )', '''                        selectedLanguage = langCode
-                        currentScreen = AppScreen.MAIN
-                    }
-                )''')
+init_code = """
+        super.onCreate(savedInstanceState)
+        try {
+            FirebaseApp.initializeApp(this)
+            com.example.util.AppLogger.d("APP", "Firebase initialized in MainActivity")
+        } catch (e: Exception) {
+            com.example.util.AppLogger.e("APP", "Firebase init failed in MainActivity", e)
+        }
+"""
+content = content.replace("super.onCreate(savedInstanceState)", init_code)
 
-    # Close the CompositionLocalProvider block
-    content = content.replace('        }\n    }\n}', '''        }\n    }\n}\n}''')
-
-with open('app/src/main/java/com/example/MainActivity.kt', 'w') as f:
+with open(file_path, "w", encoding="utf-8") as f:
     f.write(content)

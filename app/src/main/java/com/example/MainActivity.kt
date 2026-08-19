@@ -2,6 +2,8 @@ package com.example
 
 import android.content.Context
 import android.os.Bundle
+import com.google.firebase.FirebaseApp
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -51,7 +53,15 @@ enum class AppScreen {
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        
         super.onCreate(savedInstanceState)
+        try {
+            FirebaseApp.initializeApp(this)
+            com.example.util.AppLogger.d("APP", "Firebase initialized in MainActivity")
+        } catch (e: Exception) {
+            com.example.util.AppLogger.e("APP", "Firebase init failed in MainActivity", e)
+        }
+
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
