@@ -90,6 +90,7 @@ object MetaCrawlerSyncService {
                 val nowStr = timestampFormat.format(Date())
 
                 // Pull actual dynamic data from Firestore to override local defaults
+                /* DISABLED temporarily to prevent GoogleApiManager errors on emulator without GMS
                 val firestoreManager = com.example.data.sync.FirestoreManager()
                 
                 val cloudChampions = firestoreManager.getChampionsFromFirestore()
@@ -116,6 +117,7 @@ object MetaCrawlerSyncService {
                 if (cloudObjectives.isNotEmpty()) {
                     WildRiftRepository.mapObjectives = cloudObjectives
                 }
+                */
 
                 // Guardar en caché local persistente
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
