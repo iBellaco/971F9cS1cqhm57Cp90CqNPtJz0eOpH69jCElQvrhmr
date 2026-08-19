@@ -13,7 +13,7 @@ object WildRiftItemsData {
         // ==========================================
         WildRiftItem(
             id = "infinity_edge",
-            name = "Filo del Infinito (Infinity Edge)",
+            name = "Filo del Infinito",
             category = ItemCategory.PHYSICAL,
             goldCost = 3400,
             stats = "+55 Daño de Ataque, +25% Prob. de Golpe Crítico",
@@ -22,7 +22,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "blade_ruined_king",
-            name = "Hoja del Rey Arruinado (BotRK)",
+            name = "Hoja del Rey Arruinado",
             category = ItemCategory.PHYSICAL,
             goldCost = 3200,
             stats = "+20 Daño de Ataque, +35% Velocidad de Ataque, +10% Vampirismo Físico",
@@ -31,7 +31,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "trinity_force",
-            name = "Fuerza de la Trinidad (Trinity Force)",
+            name = "Fuerza de la Trinidad",
             category = ItemCategory.PHYSICAL,
             goldCost = 3533,
             stats = "+30 Daño de Ataque, +30% Velocidad de Ataque, +250 Vida Máxima, +25 Aceleración de Habilidad, +5% Velocidad Mov.",
@@ -40,7 +40,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "black_cleaver",
-            name = "Cuchilla Negra (Black Cleaver)",
+            name = "Cuchilla Negra",
             category = ItemCategory.PHYSICAL,
             goldCost = 3000,
             stats = "+40 Daño de Ataque, +350 Vida Máxima, +20 Aceleración de Habilidad",
@@ -49,7 +49,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "immortal_shieldbow",
-            name = "Arcoescudo Inmortal (Shieldbow)",
+            name = "Arcoescudo Inmortal",
             category = ItemCategory.PHYSICAL,
             goldCost = 3200,
             stats = "+40 Daño de Ataque, +25% Prob. Crítico, +10% Vampirismo Físico",
@@ -58,7 +58,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "deaths_dance",
-            name = "Baile de la Muerte (Death's Dance)",
+            name = "Baile de la Muerte",
             category = ItemCategory.PHYSICAL,
             goldCost = 3000,
             stats = "+35 Daño de Ataque, +40 Armadura, +15 Aceleración de Habilidad",
@@ -67,7 +67,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "the_collector",
-            name = "La Recaudadora (The Collector)",
+            name = "La Recaudadora",
             category = ItemCategory.PHYSICAL,
             goldCost = 2900,
             stats = "+40 Daño de Ataque, +25% Prob. Crítico, +10 Letalidad",
@@ -76,7 +76,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "rapid_firecannon",
-            name = "Cañón de Fuego Rápido (RFC)",
+            name = "Cañón de Fuego Rápido",
             category = ItemCategory.PHYSICAL,
             goldCost = 2800,
             stats = "+25% Prob. Crítico, +35% Velocidad de Ataque, +5% Velocidad Mov.",
@@ -85,7 +85,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "phantom_dancer",
-            name = "Bailarín Espectral (Phantom Dancer)",
+            name = "Bailarín Espectral",
             category = ItemCategory.PHYSICAL,
             goldCost = 2800,
             stats = "+25 Daño de Ataque, +25% Prob. Crítico, +30% Velocidad de Ataque, +7% Velocidad Mov.",
@@ -94,7 +94,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "mortal_reminder",
-            name = "Recordatorio Mortal (Mortal Reminder)",
+            name = "Recordatorio Mortal",
             category = ItemCategory.PHYSICAL,
             goldCost = 3000,
             stats = "+30 Daño de Ataque, +25% Prob. Crítico, +30% Penetración de Armadura",
@@ -103,7 +103,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "seryldas_grudge",
-            name = "Rencor de Serylda (Serylda's Grudge)",
+            name = "Rencor de Serylda",
             category = ItemCategory.PHYSICAL,
             goldCost = 3000,
             stats = "+40 Daño de Ataque, +15 Aceleración de Habilidad, +30% Penetración de Armadura",
@@ -112,7 +112,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "serpents_fang",
-            name = "Colmillo de Serpiente (Serpent's Fang)",
+            name = "Colmillo de Serpiente",
             category = ItemCategory.PHYSICAL,
             goldCost = 2800,
             stats = "+50 Daño de Ataque, +12 Letalidad, +10 Aceleración de Habilidad",
@@ -130,7 +130,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "edge_of_night",
-            name = "Filo de la Noche (Edge of Night)",
+            name = "Filo de la Noche",
             category = ItemCategory.PHYSICAL,
             goldCost = 3150,
             stats = "+50 Daño de Ataque, +250 Vida Máxima, +10 Letalidad",
@@ -139,7 +139,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "hullbreaker",
-            name = "Rompecascos (Hullbreaker)",
+            name = "Rompecascos",
             category = ItemCategory.PHYSICAL,
             goldCost = 3000,
             stats = "+55 Daño de Ataque, +325 Vida Máxima, +5% Velocidad Mov.",
@@ -148,7 +148,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "divine_sunderer",
-            name = "Desgarrador Divino (Divine Sunderer)",
+            name = "Desgarrador Divino",
             category = ItemCategory.PHYSICAL,
             goldCost = 3450,
             stats = "+25 Daño de Ataque, +400 Vida Máxima, +20 Aceleración de Habilidad",
@@ -157,7 +157,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "steraks_gage",
-            name = "Guantelete de Sterak (Sterak's Gage)",
+            name = "Guantelete de Sterak",
             category = ItemCategory.PHYSICAL,
             goldCost = 3100,
             stats = "+400 Vida Máxima",
@@ -197,7 +197,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "ludens_echo",
-            name = "Eco de Luden (Luden's Echo)",
+            name = "Eco de Luden",
             category = ItemCategory.MAGIC,
             goldCost = 3000,
             stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad, +7% Velocidad Mov.",
@@ -206,7 +206,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "infinity_orb",
-            name = "Orbe del Infinito (Infinity Orb)",
+            name = "Orbe del Infinito",
             category = ItemCategory.MAGIC,
             goldCost = 3150,
             stats = "+85 Poder de Habilidad, +5% Velocidad de Movimiento, +15 Penetración Mágica",
@@ -215,7 +215,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "liandrys_torment",
-            name = "Tormento de Liandry (Liandry's)",
+            name = "Tormento de Liandry",
             category = ItemCategory.MAGIC,
             goldCost = 3000,
             stats = "+70 Poder de Habilidad, +250 Vida Máxima",
@@ -224,7 +224,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "crown_shattered_queen",
-            name = "Corona de la Reina Ahogada (Crown)",
+            name = "Corona de la Reina Ahogada",
             category = ItemCategory.MAGIC,
             goldCost = 3000,
             stats = "+70 Poder de Habilidad, +200 Vida, +200 Maná, +15 Aceleración de Habilidad",
@@ -233,7 +233,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "void_staff",
-            name = "Báculo del Vacío (Void Staff)",
+            name = "Báculo del Vacío",
             category = ItemCategory.MAGIC,
             goldCost = 2800,
             stats = "+70 Poder de Habilidad, +40% Penetración Mágica",
@@ -242,7 +242,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "lich_bane",
-            name = "Perdición del Liche (Lich Bane)",
+            name = "Perdición del Liche",
             category = ItemCategory.MAGIC,
             goldCost = 2950,
             stats = "+80 Poder de Habilidad, +15 Aceleración de Habilidad, +7% Velocidad Mov.",
@@ -251,7 +251,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "nashors_tooth",
-            name = "Diente de Nashor (Nashor's Tooth)",
+            name = "Diente de Nashor",
             category = ItemCategory.MAGIC,
             goldCost = 3000,
             stats = "+70 Poder de Habilidad, +45% Velocidad de Ataque, +15 Aceleración de Habilidad",
@@ -269,7 +269,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "morellonomicon",
-            name = "Morellonomicón (Morello)",
+            name = "Morellonomicón",
             category = ItemCategory.MAGIC,
             goldCost = 2600,
             stats = "+75 Poder de Habilidad, +150 Vida, +15 Penetración Mágica",
@@ -282,7 +282,7 @@ object WildRiftItemsData {
         // ==========================================
         WildRiftItem(
             id = "heartsteel",
-            name = "Corazón de Acero (Heartsteel)",
+            name = "Corazón de Acero",
             category = ItemCategory.DEFENSE,
             goldCost = 3000,
             stats = "+700 Vida Máxima, +150% Regeneración de Vida, +20 Aceleración de Habilidad",
@@ -291,7 +291,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "sunfire_aegis",
-            name = "Égida de Fuego Solar (Sunfire)",
+            name = "Égida de Fuego Solar",
             category = ItemCategory.DEFENSE,
             goldCost = 3000,
             stats = "+450 Vida Máxima, +40 Armadura, +15 Aceleración de Habilidad",
@@ -300,7 +300,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "thornmail",
-            name = "Malla de Espinas (Thornmail)",
+            name = "Malla de Espinas",
             category = ItemCategory.DEFENSE,
             goldCost = 2700,
             stats = "+200 Vida Máxima, +75 Armadura",
@@ -309,7 +309,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "dead_mans_plate",
-            name = "Coraza del Muerto (Dead Man's)",
+            name = "Coraza del Muerto",
             category = ItemCategory.DEFENSE,
             goldCost = 2800,
             stats = "+250 Vida Máxima, +50 Armadura, +5% Velocidad Mov.",
@@ -318,7 +318,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "randuins_omen",
-            name = "Presagio de Randuin (Randuin's)",
+            name = "Presagio de Randuin",
             category = ItemCategory.DEFENSE,
             goldCost = 2800,
             stats = "+400 Vida Máxima, +55 Armadura",
@@ -327,7 +327,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "force_of_nature",
-            name = "Fuerza de la Naturaleza (FoN)",
+            name = "Fuerza de la Naturaleza",
             category = ItemCategory.DEFENSE,
             goldCost = 2850,
             stats = "+350 Vida Máxima, +50 Resistencia Mágica, +5% Velocidad Mov.",
@@ -336,7 +336,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "spirit_visage",
-            name = "Rostro Espiritual (Spirit Visage)",
+            name = "Rostro Espiritual",
             category = ItemCategory.DEFENSE,
             goldCost = 2900,
             stats = "+350 Vida Máxima, +50 Resistencia Mágica, +20 Aceleración de Habilidad, +100% Regeneración de Vida",
@@ -345,7 +345,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "frozen_heart",
-            name = "Corazón de Hielo (Frozen Heart)",
+            name = "Corazón de Hielo",
             category = ItemCategory.DEFENSE,
             goldCost = 2700,
             stats = "+80 Armadura, +400 Maná Máximo, +20 Aceleración de Habilidad",
@@ -358,7 +358,7 @@ object WildRiftItemsData {
         // ==========================================
         WildRiftItem(
             id = "spectral_sickle",
-            name = "Hoz Espectral (Spectral Sickle)",
+            name = "Hoz Espectral",
             category = ItemCategory.SUPPORT,
             goldCost = 500,
             stats = "+10 Poder de Habilidad o +6 AD, +5 Aceleración Habilidad",
@@ -367,7 +367,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "relic_shield",
-            name = "Escudo Reliquia (Relic Shield)",
+            name = "Escudo Reliquia",
             category = ItemCategory.SUPPORT,
             goldCost = 500,
             stats = "+100 Vida Máxima, +5 Aceleración de Habilidad",
@@ -376,7 +376,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "ardent_censer",
-            name = "Incensario Ardiente (Ardent Censer)",
+            name = "Incensario Ardiente",
             category = ItemCategory.SUPPORT,
             goldCost = 2800,
             stats = "+60 Poder de Habilidad, +250 Vida Máxima, +10 Aceleración de Habilidad, +5% Velocidad Mov.",
@@ -385,7 +385,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "staff_flowing_water",
-            name = "Bastón de Agua Fluyente (SoFW)",
+            name = "Bastón de Agua Fluyente",
             category = ItemCategory.SUPPORT,
             goldCost = 2500,
             stats = "+65 Poder de Habilidad, +350 Maná, +20 Aceleración de Habilidad",
@@ -394,7 +394,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "redemption_support",
-            name = "Redención (Redemption)",
+            name = "Redención",
             category = ItemCategory.SUPPORT,
             goldCost = 2600,
             stats = "+250 Vida Máxima, +15 Aceleración de Habilidad, +100% Regeneración Maná",
@@ -403,7 +403,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "knights_vow",
-            name = "Promesa del Caballero (Knight's Vow)",
+            name = "Promesa del Caballero",
             category = ItemCategory.SUPPORT,
             goldCost = 2700,
             stats = "+300 Vida Máxima, +40 Armadura, +10 Aceleración de Habilidad",
@@ -416,7 +416,7 @@ object WildRiftItemsData {
         // ==========================================
         WildRiftItem(
             id = "plated_steelcaps",
-            name = "Punteras de Acero (Ninja Tabi)",
+            name = "Punteras de Acero",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 1000,
             stats = "+40 Velocidad de Movimiento, +15 Armadura",
@@ -425,7 +425,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "mercurys_treads",
-            name = "Botas de Mercurio (Mercury's)",
+            name = "Botas de Mercurio",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 1000,
             stats = "+40 Velocidad de Movimiento, +15 Resistencia Mágica",
@@ -443,7 +443,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "quicksilver_enchant",
-            name = "Encantamiento de Fajín de Mercurio (QSS)",
+            name = "Encantamiento de Fajín de Mercurio",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 800,
             stats = "Mejora activa para cualquier bota mejorada",
@@ -452,7 +452,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "gargoyle_enchant",
-            name = "Encantamiento de Gárgola (Gargoyle)",
+            name = "Encantamiento de Gárgola",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 800,
             stats = "Mejora activa para cualquier bota mejorada",
@@ -461,7 +461,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "teleport_enchant",
-            name = "Encantamiento de Teletransporte (TP)",
+            name = "Encantamiento de Teletransporte",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 800,
             stats = "Mejora activa para cualquier bota mejorada",
@@ -470,7 +470,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "protobelt_enchant",
-            name = "Encantamiento de Cinturón Cohete (Protobelt)",
+            name = "Encantamiento de Cinturón Cohete",
             category = ItemCategory.BOOTS_ENCHANTMENT,
             goldCost = 800,
             stats = "Mejora activa para cualquier bota mejorada",

@@ -33,8 +33,18 @@ data class DraftScanResult(
 object DraftVisionScanner {
 
     private const val TAG = "DraftVisionScanner"
-    private val textRecognizer by lazy {
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    
+    private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
+
+    private fun getRecognizer(): com.google.mlkit.vision.text.TextRecognizer? {
+        if (recognizerInstance == null) {
+            try {
+                recognizerInstance = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            } catch (e: Throwable) {
+                AppLogger.e(TAG, "ML Kit TextRecognizer initialization warning", e)
+            }
+        }
+        return recognizerInstance
     }
 
     // Mapa de alias comunes para campeones de Wild Rift
@@ -72,8 +82,15 @@ object DraftVisionScanner {
      */
     suspend fun scanDraftFromBitmap(bitmap: Bitmap): DraftScanResult {
         return try {
+            val recognizer = getRecognizer() ?: return DraftScanResult(
+                allies = emptyList(),
+                enemies = emptyList(),
+                detectedRawWords = emptyList(),
+                isSuccessful = false,
+                statusMessage = "El servicio de visión no se encuentra disponible en este entorno."
+            )
             val inputImage = InputImage.fromBitmap(bitmap, 0)
-            val visionText = textRecognizer.process(inputImage).await()
+            val visionText = recognizer.process(inputImage).await()
 
             val detectedWords = mutableListOf<String>()
             val foundAllies = mutableListOf<Champion>()

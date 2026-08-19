@@ -19,9 +19,16 @@ class WildRiftApp : Application() {
         // Global Exception Handler
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
-            AppLogger.e("CRASH", "Uncaught exception on thread \${thread.name}", exception)
-            // Still call the default handler so the app crashes as expected
-            defaultExceptionHandler?.uncaughtException(thread, exception)
+            AppLogger.e("CRASH", "Uncaught exception on thread ${thread.name}", exception)
+            val isGmsBrokerSecurityException = exception is SecurityException &&
+                    (exception.message?.contains("com.google.android.gms") == true ||
+                     exception.message?.contains("Unknown calling package") == true)
+            if (!isGmsBrokerSecurityException) {
+                // Still call the default handler for actual application crashes
+                defaultExceptionHandler?.uncaughtException(thread, exception)
+            } else {
+                AppLogger.w("APP", "Suppressed non-fatal GMS broker security exception in background thread")
+            }
         }
         
         AppLogger.d("APP", "Application started successfully.")

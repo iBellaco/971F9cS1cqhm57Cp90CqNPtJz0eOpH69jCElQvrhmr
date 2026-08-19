@@ -1,11 +1,11 @@
 package com.example.model
 
 enum class LaneRole(val displayName: String, val shortName: String) {
-    TOP("Línea de Barón (Top)", "Top"),
+    TOP("Línea de Barón", "Barón"),
     JUNGLE("Jungla", "Jungla"),
-    MID("Línea Central (Mid)", "Mid"),
-    ADC("Línea de Dragón (ADC)", "ADC"),
-    SUPPORT("Soporte (Apoyo)", "Apoyo")
+    MID("Línea Central", "Central"),
+    ADC("Línea de Dragón", "Dragón"),
+    SUPPORT("Soporte", "Soporte")
 }
 
 enum class DamageType(val displayName: String) {
@@ -15,9 +15,9 @@ enum class DamageType(val displayName: String) {
 }
 
 enum class ItemCategory(val displayName: String) {
-    PHYSICAL("Físico (AD)"),
-    MAGIC("Mágico (AP)"),
-    DEFENSE("Defensa / Tanque"),
+    PHYSICAL("Daño Físico"),
+    MAGIC("Poder Mágico"),
+    DEFENSE("Defensa"),
     SUPPORT("Soporte"),
     BOOTS_ENCHANTMENT("Botas & Encantamientos")
 }

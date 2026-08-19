@@ -80,8 +80,6 @@ fun ChampionDetailSheet(
     if (champion == null) return
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var activeWebUrl by remember { mutableStateOf<String?>(null) }
-    var activeWebTitle by remember { mutableStateOf<String?>(null) }
     var selectedRole by remember(champion.id) { mutableStateOf(champion.primaryRole) }
     var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
     var matchupExplanationType by remember { mutableStateOf<String?>(null) }
@@ -692,61 +690,8 @@ fun ChampionDetailSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // Portal Meta Links
-            Text(tr("Ver Guía & Estadísticas en Fuentes Meta:"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(6.dp))
-
-            val links = listOf(
-                Pair("Oficial Wild Rift (ES)", "https://wildrift.leagueoflegends.com/es-es/champions/"),
-                Pair("WildRiftCore (ES)", champion.wildRiftCoreUrl),
-                Pair("BestBuildWR", champion.bestBuildWrUrl),
-                Pair("WildRiftFire", champion.wildRiftFireUrl),
-                Pair("WR-Meta", champion.wrMetaUrl)
-            )
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                links.forEach { (name, url) ->
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(HextechSurface)
-                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .clickable {
-                                activeWebUrl = url
-                                activeWebTitle = name
-                            }
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Language, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(name, color = TextPrimary, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
-                        }
-                    }
-                }
-            }
-
             Spacer(modifier = Modifier.height(30.dp))
         }
-    }
-
-    if (activeWebUrl != null) {
-        InAppWebSourceDialog(
-            url = activeWebUrl!!,
-            title = activeWebTitle ?: "Fuente Meta",
-            onDismiss = {
-                activeWebUrl = null
-                activeWebTitle = null
-            }
-        )
     }
 
     if (matchupExplanationTarget != null && matchupExplanationType != null) {

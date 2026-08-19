@@ -20,15 +20,25 @@ object AppLogger {
         addLog("DEBUG", tag, message)
     }
 
+    fun i(tag: String, message: String) {
+        Log.i(tag, message)
+        addLog("INFO", tag, message)
+    }
+
+    fun w(tag: String, message: String) {
+        Log.w(tag, message)
+        addLog("WARN", tag, message)
+    }
+
     fun e(tag: String, message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
-        val errorMessage = if (throwable != null) "\$message: \${throwable.message}" else message
+        val errorMessage = if (throwable != null) "$message: ${throwable.message}" else message
         addLog("ERROR", tag, errorMessage)
     }
 
     private fun addLog(level: String, tag: String, message: String) {
         val timestamp = dateFormat.format(Date())
-        val logEntry = "[\$timestamp] \$level/\$tag: \$message"
+        val logEntry = "[$timestamp] $level/$tag: $message"
         _logs.update { currentLogs -> 
             val newLogs = currentLogs.toMutableList()
             newLogs.add(0, logEntry)

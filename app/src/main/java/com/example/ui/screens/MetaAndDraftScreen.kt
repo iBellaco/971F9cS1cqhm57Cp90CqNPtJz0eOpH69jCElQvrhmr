@@ -157,8 +157,6 @@ fun MetaAndDraftScreen(
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY"
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
     var isFirstPick by remember { mutableStateOf(false) }
-    var activeWebUrl by remember { mutableStateOf<String?>(null) }
-    var activeWebTitle by remember { mutableStateOf<String?>(null) }
 
     val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList(), lang) {
         WildRiftRepository.analyzeDraft(
@@ -249,8 +247,7 @@ fun MetaAndDraftScreen(
                 tr("Tier List"),
                 tr("Objetos"),
                 tr("Runas & Hechizos"),
-                tr("Objetivos"),
-                tr("Fuentes Meta")
+                tr("Objetivos")
             )
 
             ScrollableTabRow(
@@ -335,15 +332,6 @@ fun MetaAndDraftScreen(
                         // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
                         MapObjectivesTab()
                     }
-                    6 -> {
-                        // SECCIÓN: FUENTES META (4 PORTALES)
-                        MetaSourcesTab(
-                            onOpenSource = { url, name ->
-                                activeWebUrl = url
-                                activeWebTitle = name
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -354,18 +342,6 @@ fun MetaAndDraftScreen(
         ChampionDetailSheet(
             champion = selectedDetailChampion,
             onDismiss = { selectedDetailChampion = null }
-        )
-    }
-
-    // In-App Web Viewer for Meta Sources
-    if (activeWebUrl != null) {
-        com.example.ui.components.InAppWebSourceDialog(
-            url = activeWebUrl!!,
-            title = activeWebTitle ?: "Fuente Meta",
-            onDismiss = {
-                activeWebUrl = null
-                activeWebTitle = null
-            }
         )
     }
 
@@ -1204,24 +1180,6 @@ private fun MapObjectivesTab() {
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-    }
-}
-
-// ====================================================================
-// TAB 6: FUENTES META OFICIALES (4 PORTALES)
-// ====================================================================
-@Composable
-private fun MetaSourcesTab(
-    onOpenSource: (url: String, name: String) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
 
         Spacer(modifier = Modifier.height(32.dp))
     }
