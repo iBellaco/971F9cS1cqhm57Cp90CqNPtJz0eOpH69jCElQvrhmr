@@ -93,7 +93,9 @@ fun MainDraftingScreen(
     secondRole: LaneRole,
     onSecondRoleChange: (LaneRole) -> Unit,
     autofillRole: LaneRole,
-    onAutofillRoleChange: (LaneRole) -> Unit
+    onAutofillRoleChange: (LaneRole) -> Unit,
+    currentLanguage: String = "es",
+    onLanguageChange: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val authRepository = remember { AuthRepository() }
@@ -207,6 +209,52 @@ fun MainDraftingScreen(
                         }
                     },
                     actions = {
+                        var expandedLang by remember { mutableStateOf(false) }
+                        val currentFlag = when(currentLanguage) {
+                            "en" -> "🇺🇸/🇬🇧"
+                            "pt" -> "🇧🇷/🇵🇹"
+                            else -> "🇪🇸"
+                        }
+                        Box {
+                            TextButton(
+                                onClick = { expandedLang = true },
+                                modifier = Modifier
+                                    .padding(end = 6.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                            ) {
+                                Text(currentFlag, fontSize = 16.sp)
+                            }
+                            androidx.compose.material3.DropdownMenu(
+                                expanded = expandedLang,
+                                onDismissRequest = { expandedLang = false },
+                                modifier = Modifier.background(HextechSurface)
+                            ) {
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text("🇪🇸 Español", color = TextPrimary) },
+                                    onClick = { 
+                                        onLanguageChange("es")
+                                        expandedLang = false 
+                                    }
+                                )
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text("🇺🇸/🇬🇧 English", color = TextPrimary) },
+                                    onClick = { 
+                                        onLanguageChange("en")
+                                        expandedLang = false 
+                                    }
+                                )
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text("🇧🇷/🇵🇹 Português", color = TextPrimary) },
+                                    onClick = { 
+                                        onLanguageChange("pt")
+                                        expandedLang = false 
+                                    }
+                                )
+                            }
+                        }
+
                         IconButton(
                             onClick = { showBugReportDialog = true },
                             modifier = Modifier
@@ -247,7 +295,7 @@ fun MainDraftingScreen(
 
                 // 1. Línea Main Selector Card
                 RoleSelectorCard(
-                    label = "Línea Main",
+                    label = tr("Línea Main"),
                     selectedRole = mainRole,
                     onRoleSelected = onMainRoleChange,
                     iconType = RoleIconType.STAR
@@ -257,7 +305,7 @@ fun MainDraftingScreen(
 
                 // 2. Segunda Línea Selector Card
                 RoleSelectorCard(
-                    label = "Segunda Línea",
+                    label = tr("Segunda Línea"),
                     selectedRole = secondRole,
                     onRoleSelected = onSecondRoleChange,
                     iconType = RoleIconType.SWAP
@@ -267,7 +315,7 @@ fun MainDraftingScreen(
 
                 // 3. Rol Autofill Selector Card
                 RoleSelectorCard(
-                    label = "Rol Autofill",
+                    label = tr("Rol Autofill"),
                     selectedRole = autofillRole,
                     onRoleSelected = onAutofillRoleChange,
                     iconType = RoleIconType.SHIELD
@@ -313,13 +361,13 @@ fun MainDraftingScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "Meta & Catálogo de Campeones",
+                                    text = tr("Meta & Catálogo de Campeones"),
                                     color = TextPrimary,
                                     fontSize = 13.5.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Tier list, counters, sinergias, runas y objetos",
+                                    text = tr("Tier list, counters, sinergias, runas y objetos"),
                                     color = TextMuted,
                                     fontSize = 11.5.sp
                                 )
@@ -345,7 +393,7 @@ fun MainDraftingScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = if (isAssistantActive) "Asistente Hextech Activo • Toca la cámara flotante" else "Presiona ACTIVAR para iniciar el Asistente Flotante",
+                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante") else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
                     color = if (isAssistantActive) HextechCyan else TextMuted,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
@@ -370,14 +418,14 @@ fun MainDraftingScreen(
                 text = {
                     Column {
                         Text(
-                            text = "Para que el asistente inteligente funcione en segundo plano sobre Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición).",
+                            text = tr("Para que el asistente inteligente funcione en segundo plano sobre Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición)."),
                             color = TextPrimary,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "1. Toca 'Conceder Permiso'.\n2. Activa el interruptor para Wild Rift Drafting.\n3. Regresa a la app y pulsa ACTIVAR.",
+                            text = tr("PermisoSuperposicionTexto"),
                             color = HextechCyan,
                             fontSize = 12.sp
                         )

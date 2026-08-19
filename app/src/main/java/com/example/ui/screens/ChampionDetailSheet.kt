@@ -735,33 +735,59 @@ fun ChampionDetailSheet(
                 activeWebTitle = null
             }
         )
-    }
 
     if (matchupExplanationTarget != null && matchupExplanationType != null) {
+        val type = matchupExplanationType!!
+        val target = matchupExplanationTarget!!
+        val champName = champion.name
+        
+        val titleText = if (com.example.util.LocalLanguage.current == "es" || com.example.util.LocalLanguage.current == "auto") {
+            when (type) {
+                "Ventaja" -> "Ventaja contra $target"
+                "Debilidad" -> "Débil contra $target"
+                "Situacional" -> "Objeto Situacional: $target"
+                else -> "Sinergia con $target"
+            }
+        } else {
+            when (type) {
+                "Ventaja" -> "Strong against $target"
+                "Debilidad" -> "Weak against $target"
+                "Situacional" -> "Situational Item: $target"
+                else -> "Synergy with $target"
+            }
+        }
+        
+        val descText = if (com.example.util.LocalLanguage.current == "es" || com.example.util.LocalLanguage.current == "auto") {
+            when (type) {
+                "Ventaja" -> "$champName tiene una ventaja táctica sobre $target.\n\n¿Por qué?\nSu kit de habilidades le permite esquivar el daño principal o castigar su falta de movilidad."
+                "Debilidad" -> "$champName sufre contra $target.\n\n¿Por qué?\nEl kit de $target cuenta con herramientas que contrarrestan directamente tu condición de victoria."
+                "Situacional" -> "Este es un objeto situacional para $champName.\n\n¿Por qué usarlo?\nSe recomienda comprar $target únicamente cuando la composición enemiga presenta una amenaza específica que este objeto contrarresta."
+                else -> "$champName y $target forman un dúo letal.\n\n¿Por qué?\nSus definitivas y habilidades pasivas se complementan de manera ideal para peleas en equipo."
+            }
+        } else {
+            when (type) {
+                "Ventaja" -> "$champName has a tactical advantage over $target.\n\nWhy?\nTheir ability kit allows them to dodge main damage or severely punish their lack of mobility."
+                "Debilidad" -> "$champName struggles against $target.\n\nWhy?\n$target's kit has tools that directly counter your win condition."
+                "Situacional" -> "This is a situational item for $champName.\n\nWhen to use it?\nYou should only buy $target when the enemy team composition presents a specific threat."
+                else -> "$champName and $target form a lethal duo.\n\nWhy?\nTheir ultimates and passive abilities complement each other perfectly for team fights."
+            }
+        }
+
         AlertDialog(
             onDismissRequest = { matchupExplanationTarget = null },
             title = {
                 Text(
-                    text = when(matchupExplanationType) {
-                        "Ventaja" -> "Ventaja contra ${matchupExplanationTarget}"
-                        "Debilidad" -> "Débil contra ${matchupExplanationTarget}"
-                        else -> "Sinergia con ${matchupExplanationTarget}"
-                    },
+                    text = titleText,
                     color = HextechGold,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
-                val reasonText = when(matchupExplanationType) {
-                    "Ventaja" -> "${champion.name} tiene ventaja táctica sobre ${matchupExplanationTarget} porque su kit de habilidades le permite mitigar su daño o castigar su falta de movilidad durante la fase de líneas y las peleas de equipo."
-                    "Debilidad" -> "${champion.name} es débil contra ${matchupExplanationTarget}. El kit del enemigo neutraliza tus opciones principales, o tiene mayor facilidad para controlarte (ej. aplicando CC o burst)."
-                    else -> "${champion.name} y ${matchupExplanationTarget} forman una sinergia muy fuerte. Sus habilidades se combinan bien (ej. control de masas en área + daño), facilitando los asedios y asegurar objetivos."
-                }
-                Text(reasonText, color = TextPrimary)
+                Text(descText, color = TextPrimary)
             },
             confirmButton = {
                 TextButton(onClick = { matchupExplanationTarget = null }) {
-                    Text(tr("Entendido"), color = HextechCyan)
+                    Text("Entendido", color = HextechCyan)
                 }
             },
             containerColor = HextechSurface,
@@ -769,4 +795,6 @@ fun ChampionDetailSheet(
             textContentColor = TextPrimary
         )
     }
+}
+
 }

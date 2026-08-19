@@ -101,6 +101,9 @@ fun DraftingApp() {
     }
 
     var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
+    LaunchedEffect(selectedLanguage) {
+        // Just trigger recompose
+    }
     CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
                     AnimatedContent(
         targetState = currentScreen,
@@ -147,7 +150,12 @@ fun DraftingApp() {
                     secondRole = secondRole,
                     onSecondRoleChange = { secondRole = it },
                     autofillRole = autofillRole,
-                    onAutofillRoleChange = { autofillRole = it }
+                    onAutofillRoleChange = { autofillRole = it },
+                    currentLanguage = selectedLanguage,
+                    onLanguageChange = { newLang ->
+                        sharedPrefs.edit().putString("selected_language", newLang).apply()
+                        selectedLanguage = newLang
+                    }
                 )
             }
             AppScreen.INFO -> {

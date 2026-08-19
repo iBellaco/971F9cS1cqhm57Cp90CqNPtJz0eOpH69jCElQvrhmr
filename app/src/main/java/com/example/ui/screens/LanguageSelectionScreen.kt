@@ -97,15 +97,25 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
         
         LanguageOption(
             title = tr("Inglés"),
-            subtitle = "Inglés",
+            subtitle = "English",
             isSelected = selectedLang == "en",
             onClick = { selectedLang = "en" }
+        )
+        
+        LanguageOption(
+            title = "Português",
+            subtitle = "Portuguese",
+            isSelected = selectedLang == "pt",
+            onClick = { selectedLang = "pt" }
         )
         
         Spacer(modifier = Modifier.height(32.dp))
         
         Button(
-            onClick = { onLanguageSelected(selectedLang) },
+            onClick = { 
+    if(selectedLang == "en") com.example.util.AppLogger.d("LANG", "English Selected")
+    onLanguageSelected(selectedLang) 
+},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),

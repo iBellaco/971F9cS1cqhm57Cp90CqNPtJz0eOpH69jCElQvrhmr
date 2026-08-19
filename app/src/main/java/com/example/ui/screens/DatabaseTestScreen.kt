@@ -26,8 +26,12 @@ fun DatabaseTestScreen(onContinue: () -> Unit) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
-    val logs by AppLogger.logs.collectAsState(initial = emptyList())
+    val logs by com.example.util.AppLogger.logs.collectAsState()
     var isLoading by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        AppLogger.d("DB_TEST", "Test panel loaded and logs initialized.")
+    }
 
     Column(
         modifier = Modifier
@@ -145,13 +149,14 @@ fun DatabaseTestScreen(onContinue: () -> Unit) {
         Text(tr("Logs:"), color = HextechGold, style = MaterialTheme.typography.titleMedium)
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
+                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(8.dp)
         ) {
             items(logs) { log ->
                 Text(text = log, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                Divider(color = HextechGold.copy(alpha = 0.2f))
+                HorizontalDivider(color = HextechGold.copy(alpha = 0.2f))
             }
         }
     }

@@ -20,6 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -111,12 +117,15 @@ import com.example.ui.theme.TierAColor
 import com.example.ui.theme.TierSColor
 import com.example.ui.theme.TierSPlusColor
 
+import com.example.util.LocalLanguage
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MetaAndDraftScreen(
     userMainRole: LaneRole,
     onNavigateBack: () -> Unit
 ) {
+    val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var activeRole by remember { mutableStateOf(userMainRole) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
@@ -147,12 +156,13 @@ fun MetaAndDraftScreen(
     var activeWebUrl by remember { mutableStateOf<String?>(null) }
     var activeWebTitle by remember { mutableStateOf<String?>(null) }
 
-    val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList()) {
+    val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList(), lang) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allyChampions,
             enemies = enemyChampions,
-            isFirstPick = isFirstPick
+            isFirstPick = isFirstPick,
+            lang = lang
         )
     }
 
@@ -268,56 +278,68 @@ fun MetaAndDraftScreen(
                 }
             }
 
-            when (selectedTabIndex) {
-                0 -> {
-                    // SECCIÓN: ANÁLISIS DE DRAFTING & COUNTERS
-                    DraftAnalysisTab(
-                        activeRole = activeRole,
-                        allies = allyChampions,
-                        enemies = enemyChampions,
-                        analysis = analysis,
-                        isFirstPick = isFirstPick,
-                        onToggleFirstPick = { isFirstPick = !isFirstPick },
-                        onChangeRole = { showRoleChangeDialog = true },
-                        onAddAlly = { pickingForTeam = "ALLY" },
-                        onAddEnemy = { pickingForTeam = "ENEMY" },
-                        onRemoveAlly = { allyChampions.remove(it) },
-                        onRemoveEnemy = { enemyChampions.remove(it) },
-                        onSelectChampion = { selectedDetailChampion = it }
-                    )
-                }
-                1 -> {
-                    // SECCIÓN: CATÁLOGO DE CAMPEONES
-                    ChampionsCatalogTab(
-                        onSelectChampion = { selectedDetailChampion = it }
-                    )
-                }
-                2 -> {
-                    // SECCIÓN: TIER LIST OFICIAL WILD RIFT
-                    TierListTab(
-                        onSelectChampion = { selectedDetailChampion = it }
-                    )
-                }
-                3 -> {
-                    // SECCIÓN: OBJETOS (ITEMS) DE WILD RIFT
-                    ItemsCatalogTab()
-                }
-                4 -> {
-                    // SECCIÓN: RUNAS Y HECHIZOS
-                    RunesAndSpellsTab()
-                }
-                5 -> {
-                    // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
-                    MapObjectivesTab()
-                }
-                6 -> {
-                    // SECCIÓN: FUENTES META (4 PORTALES)
-                    MetaSourcesTab(
-                        onOpenSource = { url, name ->
-                            activeWebUrl = url
-                            activeWebTitle = name
-                        }
-                    )
+            AnimatedContent(
+                targetState = selectedTabIndex,
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                    } else {
+                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                    }
+                },
+                label = "tab_animation"
+            ) { targetIndex ->
+                when (targetIndex) {
+                    0 -> {
+                        // SECCIÓN: ANÁLISIS DE DRAFTING & COUNTERS
+                        DraftAnalysisTab(
+                            activeRole = activeRole,
+                            allies = allyChampions,
+                            enemies = enemyChampions,
+                            analysis = analysis,
+                            isFirstPick = isFirstPick,
+                            onToggleFirstPick = { isFirstPick = !isFirstPick },
+                            onChangeRole = { showRoleChangeDialog = true },
+                            onAddAlly = { pickingForTeam = "ALLY" },
+                            onAddEnemy = { pickingForTeam = "ENEMY" },
+                            onRemoveAlly = { allyChampions.remove(it) },
+                            onRemoveEnemy = { enemyChampions.remove(it) },
+                            onSelectChampion = { selectedDetailChampion = it }
+                        )
+                    }
+                    1 -> {
+                        // SECCIÓN: CATÁLOGO DE CAMPEONES
+                        ChampionsCatalogTab(
+                            onSelectChampion = { selectedDetailChampion = it }
+                        )
+                    }
+                    2 -> {
+                        // SECCIÓN: TIER LIST OFICIAL WILD RIFT
+                        TierListTab(
+                            onSelectChampion = { selectedDetailChampion = it }
+                        )
+                    }
+                    3 -> {
+                        // SECCIÓN: OBJETOS (ITEMS) DE WILD RIFT
+                        ItemsCatalogTab()
+                    }
+                    4 -> {
+                        // SECCIÓN: RUNAS Y HECHIZOS
+                        RunesAndSpellsTab()
+                    }
+                    5 -> {
+                        // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
+                        MapObjectivesTab()
+                    }
+                    6 -> {
+                        // SECCIÓN: FUENTES META (4 PORTALES)
+                        MetaSourcesTab(
+                            onOpenSource = { url, name ->
+                                activeWebUrl = url
+                                activeWebTitle = name
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -1416,7 +1438,7 @@ private fun DraftAnalysisTab(
                     Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
-                        Text("Alerta de Composición Rival", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(tr("Alerta de Composición Rival"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         Text(analysis.directMatchupWarning, color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
                     }
                 }
@@ -1426,7 +1448,7 @@ private fun DraftAnalysisTab(
 
         // Live Recommendations Header
         Text(
-            text = if (isFirstPick) "★ Mejor Primer Pick Seguro para ${activeRole.displayName}" else "★ Mejor Opción según tu Equipo y el Rival",
+            text = if (isFirstPick) tr("★ Mejor Primer Pick Seguro para") + " ${activeRole.displayName}" else tr("★ Mejor Opción según tu Equipo y el Rival"),
             color = HextechGold,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
@@ -1452,13 +1474,13 @@ private fun DraftAnalysisTab(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (isFirstPick) "👑 #1 RECOMENDACIÓN BLIND PICK" else "👑 #1 MEJOR ELECCIÓN TÁCTICA",
+                            text = if (isFirstPick) tr("👑 #1 RECOMENDACIÓN BLIND PICK") else tr("👑 #1 MEJOR ELECCIÓN TÁCTICA"),
                             color = HextechGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Black
                         )
                         Text(
-                            text = "Winrate Est.: ${topPick.estimatedWinrate}%",
+                            text = tr("Winrate Est.:") + " ${topPick.estimatedWinrate}%",
                             color = HextechCyan,
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Bold
@@ -1513,7 +1535,7 @@ private fun DraftAnalysisTab(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "🔮 Runas recomendadas: ${topPick.champion.recommendedRunes} • Toca para ver build",
+                        text = tr("🔮 Runas recomendadas:") + " ${topPick.champion.recommendedRunes} • " + tr("Toca para ver build"),
                         color = HextechGoldLight,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -1527,7 +1549,7 @@ private fun DraftAnalysisTab(
         val otherRecs = analysis.recommendations.filter { it.champion.id != topPick?.champion?.id }
         if (otherRecs.isNotEmpty()) {
             Text(
-                text = "Otras Opciones Viables para ${activeRole.displayName}:",
+                text = tr("Otras Opciones Viables para") + " ${activeRole.displayName}:",
                 color = HextechCyan,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold
@@ -1603,7 +1625,7 @@ private fun TeamChampionSlot(
                 }
             }
             IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = TextMuted, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -1631,7 +1653,7 @@ private fun AddChampionSlotButton(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Add, contentDescription = null, tint = if (isEnemy) DangerRed else AllyBlue, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Añadir", color = if (isEnemy) DangerRed else AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(tr("Añadir"), color = if (isEnemy) DangerRed else AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
