@@ -202,7 +202,7 @@ object WildRiftItemsData {
             goldCost = 3000,
             stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad, +7% Velocidad Mov.",
             passive = "Pasiva - Tiro Eco: Moverse y lanzar hechizos genera cargas; al llegar a 100, la siguiente habilidad inflige 100 (+10% AP) de daño mágico a 4 objetivos cercanos.",
-            iconUrl = "$ITEM_IMG/6655.png"
+            iconUrl = "$ITEM_IMG/3285.png"
         ),
         WildRiftItem(
             id = "infinity_orb",
@@ -466,7 +466,7 @@ object WildRiftItemsData {
             goldCost = 800,
             stats = "Mejora activa para cualquier bota mejorada",
             passive = "Activa - Teletransporte: Tras canalizar durante 3.5s, te teletransportas a una estructura aliada, centinela o súbdito en cualquier parte del mapa.",
-            iconUrl = "$ITEM_IMG/3172.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/8000_summoner_teleport.png"
         ),
         WildRiftItem(
             id = "protobelt_enchant",

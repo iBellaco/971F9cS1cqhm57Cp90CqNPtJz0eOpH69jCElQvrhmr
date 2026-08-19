@@ -190,7 +190,7 @@ fun HextechOrbButton(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (isActive) "DETENER" else "ACTIVAR",
+                text = if (isActive) tr("DETENER") else tr("ACTIVAR"),
                 color = if (isActive) HextechCyanLight else HextechCyan,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Black,

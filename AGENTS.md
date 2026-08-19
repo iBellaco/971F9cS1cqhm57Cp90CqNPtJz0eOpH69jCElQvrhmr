@@ -28,3 +28,7 @@ En cada interacción donde el usuario comparta un escaneo de la selección de ca
 Reglas de respuesta:
 - Sé conciso, analítico y directo. Prioriza la claridad táctica sobre explicaciones largas.
 - Adáptate automáticamente al parche/meta actual de la versión del juego que indique el usuario.
+
+### REGLA DE COMMIT MESSAGE Y VERSIÓN DE DEPURADO
+- Siempre que termines una modificación o tarea en el proyecto, debes entregar un mensaje de commit copiable en español.
+- Además de entregar el commit, debes incrementar/modificar la versión de depurado de la aplicación (en `app/build.gradle.kts` incrementando `versionCode` y `versionName`) para que se actualice la versión que aparece en la parte de abajo derecha de la aplicación.

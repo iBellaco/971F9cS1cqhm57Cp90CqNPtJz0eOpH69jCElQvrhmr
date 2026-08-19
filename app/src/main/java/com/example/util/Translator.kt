@@ -82,7 +82,18 @@ val translations = mapOf(
         "Otras Opciones Viables para" to "Outras Opções Viáveis para",
         "Alerta de Composición Rival" to "Alerta de Composição Inimiga",
         "Añadir" to "Adicionar",
-        "Eliminar" to "Remover"
+        "Eliminar" to "Remover",
+        "ACTIVAR" to "ATIVAR",
+        "DETENER" to "PARAR",
+        "Volver" to "Voltar",
+        "Reiniciar Draft" to "Reiniciar Draft",
+        "Drafting" to "Drafting",
+        "Campeones" to "Campeões",
+        "Tier List" to "Tier List",
+        "Objetos" to "Itens",
+        "Runas & Hechizos" to "Runas & Feitiços",
+        "Objetivos" to "Objetivos",
+        "Fuentes Meta" to "Fontes do Meta"
     ),
     "en" to mapOf(
         "Elige tu idioma" to "Choose your language",
@@ -158,7 +169,18 @@ val translations = mapOf(
         "Otras Opciones Viables para" to "Other Viable Options for",
         "Alerta de Composición Rival" to "Enemy Comp Alert",
         "Añadir" to "Add",
-        "Eliminar" to "Remove"
+        "Eliminar" to "Remove",
+        "ACTIVAR" to "ACTIVATE",
+        "DETENER" to "STOP",
+        "Volver" to "Back",
+        "Reiniciar Draft" to "Reset Draft",
+        "Drafting" to "Drafting",
+        "Campeones" to "Champions",
+        "Tier List" to "Tier List",
+        "Objetos" to "Items",
+        "Runas & Hechizos" to "Runes & Spells",
+        "Objetivos" to "Objectives",
+        "Fuentes Meta" to "Meta Sources"
     )
 )
 

@@ -428,7 +428,7 @@ object WildRiftRepository {
                 if (reasonParts.isEmpty()) {
                     reasonParts.add(roleContextAdvice)
                 } else {
-                    reasonParts.add(roleContextAdvice)
+                    reasonParts.add(0, roleContextAdvice) // Put role context first
                 }
 
                 synergyText = if (directSynergies.isNotEmpty()) {

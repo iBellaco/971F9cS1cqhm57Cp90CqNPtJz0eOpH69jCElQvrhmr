@@ -172,7 +172,7 @@ fun MetaAndDraftScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Wild Rift Meta & Catálogo",
+                            text = tr("Meta & Catálogo de Campeones"),
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -192,7 +192,7 @@ fun MetaAndDraftScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
+                            contentDescription = tr("Volver"),
                             tint = HextechGold
                         )
                     }
@@ -223,7 +223,7 @@ fun MetaAndDraftScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "Reiniciar Draft",
+                            contentDescription = tr("Reiniciar Draft"),
                             tint = HextechCyan
                         )
                     }
@@ -240,13 +240,13 @@ fun MetaAndDraftScreen(
         ) {
             // Scrollable Tab Row with all requested sections
             val tabs = listOf(
-                "Drafting",
-                "Campeones",
-                "Tier List",
-                "Objetos",
-                "Runas & Hechizos",
-                "Objetivos",
-                "Fuentes Meta"
+                tr("Drafting"),
+                tr("Campeones"),
+                tr("Tier List"),
+                tr("Objetos"),
+                tr("Runas & Hechizos"),
+                tr("Objetivos"),
+                tr("Fuentes Meta")
             )
 
             ScrollableTabRow(
