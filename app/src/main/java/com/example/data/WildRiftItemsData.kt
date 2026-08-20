@@ -287,7 +287,7 @@ object WildRiftItemsData {
             goldCost = 3000,
             stats = "+700 Vida Máxima, +150% Regeneración de Vida, +20 Aceleración de Habilidad",
             passive = "Pasiva - Consumo Colosal: Carga un golpe devastador contra campeones enemigos cercanos cada 30s que inflige daño según tu vida e incrementa tu vida máxima de forma permanente.",
-            iconUrl = "$ITEM_IMG/3068.png"
+            iconUrl = "$ITEM_IMG/3084.png"
         ),
         WildRiftItem(
             id = "sunfire_aegis",
@@ -335,13 +335,13 @@ object WildRiftItemsData {
             iconUrl = "$ITEM_IMG/4401.png"
         ),
         WildRiftItem(
-            id = "spirit_visage",
-            name = "Rostro Espiritual",
+            id = "kaenic_rookern",
+            name = "Rookern Kaénico",
             category = ItemCategory.DEFENSE,
-            goldCost = 2900,
-            stats = "+350 Vida Máxima, +50 Resistencia Mágica, +20 Aceleración de Habilidad, +100% Regeneración de Vida",
-            passive = "Pasiva - Vitalidad Inagotable: Aumenta todas las curaciones y escudos recibidos por tu campeón en un 30%.",
-            iconUrl = "$ITEM_IMG/3065.png"
+            goldCost = 2800,
+            stats = "+350 Vida Máxima, +100% Regeneración de Vida, +85 Resistencia Mágica",
+            passive = "Pasiva - Perdición de Mago: Tras no recibir daño mágico durante 12s, obtienes un escudo mágico que absorbe daño igual a 50-150 + 14% de tu Vida Máxima.",
+            iconUrl = "$ITEM_IMG/2504.png"
         ),
         WildRiftItem(
             id = "frozen_heart",
