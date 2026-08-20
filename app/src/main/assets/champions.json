@@ -9,10 +9,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 8.6,
-    "banRate": 3.5,
+    "tier": "A",
+    "winrate": 48.74,
+    "pickRate": 6.69,
+    "banRate": 10.23,
     "damageType": "PHYSICAL",
     "summary": "Aatrox y sus hermanos, otrora respetados defensores de Shurima contra el Vacío, acabarían convirtiéndose en una amenaza aún mayor para Runaterra y solo conocieron la derrota ante el uso astuto de hechizos mortales. No obstante, tras siglos de reclusión...",
     "advantageAgainst": [
@@ -118,10 +118,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Ahri.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.3,
-    "pickRate": 15.1,
-    "banRate": 11.9,
+    "tier": "B",
+    "winrate": 49.59,
+    "pickRate": 6.68,
+    "banRate": 0.43,
     "damageType": "MAGIC",
     "summary": "Ahri es una raposa vastaya conectada de forma innata a la magia del reino de los espíritus. Es capaz de manipular las emociones de su presa antes de consumir su esencia, proceso que le transmite los recuerdos de cada alma que consume. Otrora una...",
     "advantageAgainst": [
@@ -229,10 +229,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 53.5,
-    "pickRate": 12.9,
-    "banRate": 8.7,
+    "tier": "C",
+    "winrate": 46.47,
+    "pickRate": 5.08,
+    "banRate": 0.53,
     "damageType": "MAGIC",
     "summary": "Tras abandonar la Orden Kinkou y su título de Puño de la Sombra, Akali actúa ahora en solitario y está lista para convertirse en el arma mortal que necesita su gente. Aunque no renuncia a las enseñanzas de Shen, su maestro, ha jurado defender Jonia de...",
     "advantageAgainst": [
@@ -450,10 +450,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Alistar.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.0,
-    "pickRate": 10.7,
-    "banRate": 5.9,
+    "tier": "C",
+    "winrate": 51.16,
+    "pickRate": 3.38,
+    "banRate": 0.67,
     "damageType": "MAGIC",
     "summary": "Alistar, un poderoso guerrero con una reputación temible, busca venganza por la muerte de su clan a manos del imperio noxiano. Aunque fue esclavizado y forzado a vivir como gladiador, fue su voluntad inquebrantable lo que le impidió convertirse en una...",
     "advantageAgainst": [
@@ -561,10 +561,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 50.6,
-    "pickRate": 16.2,
-    "banRate": 6.0,
+    "tier": "D",
+    "winrate": 50.27,
+    "pickRate": 1.38,
+    "banRate": 0.83,
     "damageType": "PHYSICAL",
     "summary": "Ambessa Medarda comanda el campo de batalla con implacable disciplina militar. Sus cadenas y hojas gemelas le permiten deslizarse continuamente entre habilidades para desgarrar a sus rivales.",
     "advantageAgainst": [
@@ -672,10 +672,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "S",
-    "winrate": 52.2,
-    "pickRate": 6.7,
-    "banRate": 4.4,
+    "tier": "D",
+    "winrate": 55.05,
+    "pickRate": 1.6,
+    "banRate": 0.11,
     "damageType": "MAGIC",
     "summary": "Cuenta la leyenda que Amumu es un alma solitaria y melancólica de la vieja Shurima que vaga por el mundo en busca de un amigo. Condenado por una maldición ancestral, su destino es permanecer solo para siempre, pues su tacto es muerte y su cariño, la...",
     "advantageAgainst": [
@@ -783,10 +783,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 15.0,
-    "banRate": 7.5,
+    "tier": "D",
+    "winrate": 47.04,
+    "pickRate": 2.41,
+    "banRate": 0.17,
     "damageType": "MAGIC",
     "summary": "Peligrosa pero encantadoramente precoz, Annie es una pequeña maga con un inmenso poder piromántico. Incluso en los parajes montañosos al norte de Noxus es una hechicera sin precedentes. Su afinidad natural con el fuego se manifestó a temprana edad en...",
     "advantageAgainst": [
@@ -894,10 +894,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "S+",
-    "winrate": 52.7,
-    "pickRate": 14.1,
-    "banRate": 13.2,
+    "tier": "B",
+    "winrate": 50.84,
+    "pickRate": 7.61,
+    "banRate": 0.24,
     "damageType": "PHYSICAL",
     "summary": "Ashe, comandante hija del hielo de la tribu de Avarosa, lidera las hordas más numerosas del norte. Impasible, inteligente e idealista, aunque incómoda en su papel de líder, utiliza los poderes mágicos ancestrales de su linaje para empuñar un arco de...",
     "advantageAgainst": [
@@ -1114,10 +1114,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "A+",
-    "winrate": 50.7,
-    "pickRate": 12.1,
-    "banRate": 13.1,
+    "tier": "D",
+    "winrate": 49.42,
+    "pickRate": 3.45,
+    "banRate": 1.82,
     "damageType": "MAGIC",
     "summary": "Desde que nació, Aurora ha tenido una visión única de la vida gracias a su capacidad para moverse entre los reinos material y espiritual. Decidida a conocer mejor a los habitantes del reino espiritual, abandonó su hogar para ampliar sus conocimientos...",
     "advantageAgainst": [
@@ -1332,10 +1332,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Blitzcrank.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 12.9,
-    "banRate": 4.4,
+    "tier": "B",
+    "winrate": 49.89,
+    "pickRate": 9.87,
+    "banRate": 4.09,
     "damageType": "MAGIC",
     "summary": "Blitzcrank es un autómata enorme, casi indestructible, creado originalmente para el tratamiento de residuos tóxicos. Sin embargo, este propósito original le parecía demasiado restrictivo, así que se automodificó para servir mejor a los débiles del...",
     "advantageAgainst": [
@@ -1444,10 +1444,10 @@
       "MID",
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 12.2,
-    "banRate": 7.9,
+    "tier": "S",
+    "winrate": 51.83,
+    "pickRate": 9.49,
+    "banRate": 10.79,
     "damageType": "MAGIC",
     "summary": "Brand, antiguo miembro de la tribu Kegan Rodhe del helado Freljord, es una lección sobre la tentación de un poder mayor. En busca de una de las legendarias Runas Geogénicas, Kegan traicionó a sus compañeros y se quedó con la runa. El hombre desapareció...",
     "advantageAgainst": [
@@ -1553,10 +1553,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Braum.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 7.2,
-    "banRate": 10.5,
+    "tier": "C",
+    "winrate": 51.72,
+    "pickRate": 3.67,
+    "banRate": 1.17,
     "damageType": "MAGIC",
     "summary": "Bendecido con bíceps enormes y un corazón aún más grande, Braum es un héroe muy apreciado en Freljord. Todas las tabernas al norte del Fuerte Helado brindan por su fuerza legendaria. Se dice que taló un bosque de robles en una sola noche y convirtió una...",
     "advantageAgainst": [
@@ -1662,10 +1662,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Caitlyn.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.2,
-    "pickRate": 6.9,
-    "banRate": 9.5,
+    "tier": "S+",
+    "winrate": 48.59,
+    "pickRate": 22.16,
+    "banRate": 3.01,
     "damageType": "PHYSICAL",
     "summary": "Reconocida como su mejor pacificadora, Caitlyn es también la mejor arma de Piltover para librar a la ciudad de sus elusivos elementos criminales. A menudo trabaja con Vi, y actúa como un frío y eficiente contrapunto para la naturaleza más impetuosa de...",
     "advantageAgainst": [
@@ -1773,10 +1773,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "S",
-    "winrate": 51.6,
-    "pickRate": 11.6,
-    "banRate": 12.0,
+    "tier": "D",
+    "winrate": 50.36,
+    "pickRate": 1.41,
+    "banRate": 0.11,
     "damageType": "PHYSICAL",
     "summary": "Convertida en un arma viviente diseñada para operar fuera de la ley, Camille es la jefa de espías del clan Ferros, una elegante agente de élite que se asegura de que nada amenace el funcionamiento de Piltover ni de Zaun. Su adaptabilidad y minuciosidad...",
     "advantageAgainst": [
@@ -2104,10 +2104,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Darius.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.4,
-    "pickRate": 6.5,
-    "banRate": 10.5,
+    "tier": "S+",
+    "winrate": 50.41,
+    "pickRate": 18.9,
+    "banRate": 9.03,
     "damageType": "PHYSICAL",
     "summary": "No hay mayor símbolo del poder de Noxus que Darius, el comandante más temido y más curtido en batallas de toda la nación. Pasando de orígenes humildes a convertirse en la Mano de Noxus, se abre paso a tajos entre los enemigos del imperio, muchos de...",
     "advantageAgainst": [
@@ -2215,10 +2215,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 52.7,
-    "pickRate": 12.3,
-    "banRate": 2.8,
+    "tier": "C",
+    "winrate": 52.67,
+    "pickRate": 1.46,
+    "banRate": 0.3,
     "damageType": "MAGIC",
     "summary": "Portadora de una espada en forma de media luna, Diana es una guerrera de los Lunari, una fe rechazada en casi todas las tierras a los pies del Monte Targon. Ataviada con una armadura reluciente del color de la nieve en una noche de invierno, es la...",
     "advantageAgainst": [
@@ -2435,10 +2435,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Draven.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.3,
-    "pickRate": 5.2,
-    "banRate": 13.6,
+    "tier": "S",
+    "winrate": 47.67,
+    "pickRate": 10.1,
+    "banRate": 7.54,
     "damageType": "PHYSICAL",
     "summary": "En Noxus, los guerreros conocidos como 'justicieros' se enfrentan en recintos donde corre la sangre y se pone a prueba la fortaleza. Pero ninguno ha alcanzado la fama de Draven, un antiguo soldado cuyo sentido del espectáculo y habilidad sin igual con...",
     "advantageAgainst": [
@@ -2546,10 +2546,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A+",
-    "winrate": 50.9,
-    "pickRate": 8.4,
-    "banRate": 5.2,
+    "tier": "B",
+    "winrate": 50.11,
+    "pickRate": 3.84,
+    "banRate": 0.38,
     "damageType": "MAGIC",
     "summary": "Ekko, un prodigio surgido de las implacables calles de Zaun, manipula el tiempo para sacar ventaja de todas las situaciones. Con una máquina de su invención llamada Dispositivo Z, explora las distintas posibilidades de la realidad hasta alcanzar el...",
     "advantageAgainst": [
@@ -2655,10 +2655,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Evelynn.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.4,
-    "pickRate": 15.6,
-    "banRate": 13.9,
+    "tier": "D",
+    "winrate": 49.26,
+    "pickRate": 1.96,
+    "banRate": 0.55,
     "damageType": "MAGIC",
     "summary": "En los oscuros adentros de Runaterra, el súcubo Evelynn deambula en busca de su siguiente víctima. Acecha a sus presas con una voluptuosa fachada femenina, pero cuando alguien sucumbe a sus encantos, Evelynn libera su auténtica forma. Después somete a...",
     "advantageAgainst": [
@@ -2766,10 +2766,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 52.9,
-    "pickRate": 5.3,
-    "banRate": 9.5,
+    "tier": "A",
+    "winrate": 51.83,
+    "pickRate": 10.21,
+    "banRate": 0.59,
     "damageType": "TRUE_HYBRID",
     "summary": "Ezreal, un aventurero aficionado a deslizarse y dotado de artes mágicas sin saberlo, saquea catacumbas perdidas, lidia con maldiciones ancestrales y supera con facilidad adversidades imposibles. De valor y chulería sin límites, prefiere improvisar para...",
     "advantageAgainst": [
@@ -2877,10 +2877,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "S+",
-    "winrate": 53.6,
-    "pickRate": 11.8,
-    "banRate": 6.1,
+    "tier": "D",
+    "winrate": 49.47,
+    "pickRate": 1.68,
+    "banRate": 0.23,
     "damageType": "MAGIC",
     "summary": "Algo ha despertado en Runaterra. Algo ancestral. Algo terrible. El horror conocido como Fiddlesticks acecha en las lindes de la sociedad, en las zonas en las que impera la paranoia, donde se alimenta de aquellos a los que aterroriza. Armada con una...",
     "advantageAgainst": [
@@ -2986,10 +2986,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Fiora.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.5,
-    "pickRate": 13.8,
-    "banRate": 9.5,
+    "tier": "D",
+    "winrate": 45.46,
+    "pickRate": 2.57,
+    "banRate": 0.41,
     "damageType": "TRUE_HYBRID",
     "summary": "Fiora, la duelista más temida de Valoran, ha alcanzado renombre por su estilo brusco y su mente astuta, así como por la velocidad de su estoque. Fiora nació en el seno de la Casa Laurent, en el reino de Demacia, y asumió el control de la familia a raíz...",
     "advantageAgainst": [
@@ -3095,10 +3095,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Fizz.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.0,
-    "pickRate": 11.1,
-    "banRate": 10.9,
+    "tier": "C",
+    "winrate": 49.59,
+    "pickRate": 3.51,
+    "banRate": 6.28,
     "damageType": "MAGIC",
     "summary": "Fizz es un yordle anfibio que habita entre los arrecifes de alrededor de Aguas Estancadas. Suele recuperar y devolver los diezmos arrojados al mar por capitanes supersticiosos, pero incluso los marineros más agudos saben que no hay que plantarle cara...",
     "advantageAgainst": [
@@ -3206,10 +3206,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "A+",
-    "winrate": 51.4,
-    "pickRate": 13.9,
-    "banRate": 11.3,
+    "tier": "A",
+    "winrate": 52.17,
+    "pickRate": 9.55,
+    "banRate": 2.42,
     "damageType": "MAGIC",
     "summary": "Fuera de la reluciente ciudad de Demacia, el coloso de piedra Galio se mantiene vigilante. Construido como un baluarte contra los magos enemigos, suele permanecer inmóvil durante décadas hasta que la presencia de magia poderosa lo vuelve a traer a la...",
     "advantageAgainst": [
@@ -3315,10 +3315,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Garen.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.4,
-    "pickRate": 7.7,
-    "banRate": 3.0,
+    "tier": "A",
+    "winrate": 50.91,
+    "pickRate": 11.19,
+    "banRate": 2.4,
     "damageType": "PHYSICAL",
     "summary": "Garen, un orgulloso y noble guerrero, lucha en las filas de la Vanguardia Impertérrita. Es querido entre sus compañeros y respetado por sus enemigos, y no solo por ser vástago de la prestigiosa familia Crownguard, responsable de la defensa de Demacia y...",
     "advantageAgainst": [
@@ -3424,10 +3424,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Gnar.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 5.1,
-    "banRate": 3.8,
+    "tier": "C",
+    "winrate": 53.23,
+    "pickRate": 2.34,
+    "banRate": 0.37,
     "damageType": "PHYSICAL",
     "summary": "Gnar es un yordle primitivo cuyas payasadas lúdicas pueden estallar en la ira de un niño pequeño en un instante, transformándolo en una bestia enorme empeñada en la destrucción. Congelado en Hielo Puro durante milenios, la curiosa criatura se liberó y...",
     "advantageAgainst": [
@@ -3647,10 +3647,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "A+",
-    "winrate": 50.8,
-    "pickRate": 11.9,
-    "banRate": 13.9,
+    "tier": "S",
+    "winrate": 50.27,
+    "pickRate": 9.25,
+    "banRate": 0.94,
     "damageType": "PHYSICAL",
     "summary": "Malcolm Graves es un famoso mercenario, jugador y ladrón. Un hombre buscado en todas las ciudades e imperios que ha visitado. A pesar de su temperamento explosivo, posee un firme sentido del honor criminal, que a menudo ejecuta con su escopeta de doble...",
     "advantageAgainst": [
@@ -3758,10 +3758,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.2,
-    "pickRate": 15.8,
-    "banRate": 4.0,
+    "tier": "C",
+    "winrate": 50.32,
+    "pickRate": 3.38,
+    "banRate": 1.43,
     "damageType": "MAGIC",
     "summary": "Gwen, una muñeca a la que la magia confirió vida, va armada con los mismos utensilios que en su día la confeccionaron. Lleva consigo la fuerza del amor de su creadora en cada paso que da y es consciente de la maravilla de vivir. La Niebla consagrada...",
     "advantageAgainst": [
@@ -3867,10 +3867,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Hecarim.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 52.8,
-    "pickRate": 11.8,
-    "banRate": 11.7,
+    "tier": "D",
+    "winrate": 46.11,
+    "pickRate": 1.67,
+    "banRate": 0.74,
     "damageType": "PHYSICAL",
     "summary": "Hecarim es una fusión espectral de hombre y bestia, condenado a arrollar las almas de los vivos por toda la eternidad. Cuando las Islas Bendecidas cayeron en la sombra, este orgulloso caballero fue aniquilado por las energías destructivas de la Ruina...",
     "advantageAgainst": [
@@ -3979,10 +3979,10 @@
       "TOP",
       "SUPPORT"
     ],
-    "tier": "S+",
-    "winrate": 53.2,
-    "pickRate": 16.2,
-    "banRate": 3.4,
+    "tier": "D",
+    "winrate": 50.69,
+    "pickRate": 2.1,
+    "banRate": 1.7,
     "damageType": "MAGIC",
     "summary": "El profesor Cecil B. Heimerdinger, un científico yordle excéntrico pero brillante, es considerado una de las mentes más innovadoras y uno de los inventores más admirados de la historia de Piltover. Tiene una dedicación incesante en su trabajo hasta el...",
     "advantageAgainst": [
@@ -4090,10 +4090,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S",
-    "winrate": 51.5,
-    "pickRate": 12.7,
-    "banRate": 6.7,
+    "tier": "D",
+    "winrate": 49.74,
+    "pickRate": 2.19,
+    "banRate": 0.99,
     "damageType": "PHYSICAL",
     "summary": "La ocupación noxiana de Jonia produjo mucho héroes, pero ninguno más improbable que la joven Irelia de Navori. Se entrenó en las antiguas danzas de su gente y adaptó su arte para la guerra, usando los movimientos elegantes y diligentemente practicados...",
     "advantageAgainst": [
@@ -4199,10 +4199,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Janna.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.1,
-    "pickRate": 14.8,
-    "banRate": 13.8,
+    "tier": "D",
+    "winrate": 47.22,
+    "pickRate": 1.18,
+    "banRate": 0.17,
     "damageType": "MAGIC",
     "summary": "Janna, armada con el poder de los vendavales de Runaterra, es un misterioso espíritu elemental que aprovecha el viento para proteger a los más desfavorecidos de Zaun. Hay quien cree que surgió de los ruegos de los marineros de Runaterra, que rezaban por...",
     "advantageAgainst": [
@@ -4421,10 +4421,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A",
-    "winrate": 50.4,
-    "pickRate": 10.7,
-    "banRate": 7.3,
+    "tier": "C",
+    "winrate": 53.37,
+    "pickRate": 2.73,
+    "banRate": 0.6,
     "damageType": "TRUE_HYBRID",
     "summary": "Incomparable en su habilidad con armas especiales y su mordaz sarcasmo, Jax es el último maestro de armas conocido de Icathia. Después de que su tierra natal fuera devastada por su propia arrogancia al desatar el Vacío, Jax y los suyos juraron proteger...",
     "advantageAgainst": [
@@ -4532,10 +4532,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 15.8,
-    "banRate": 12.9,
+    "tier": "D",
+    "winrate": 50.91,
+    "pickRate": 1.38,
+    "banRate": 0.36,
     "damageType": "PHYSICAL",
     "summary": "Jayce es un brillante inventor que ha jurado defender con su vida a Piltover y a su irreductible afán de progreso. Empuñando su martillo hextech transformable, Jayce hace uso de su fuerza, coraje y considerable inteligencia para proteger su ciudad natal...",
     "advantageAgainst": [
@@ -4641,10 +4641,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Jhin.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.7,
-    "pickRate": 8.9,
-    "banRate": 12.1,
+    "tier": "B",
+    "winrate": 51.46,
+    "pickRate": 10.56,
+    "banRate": 0.63,
     "damageType": "PHYSICAL",
     "summary": "Jhin es un meticuloso criminal psicópata que ve el asesinato como arte. Otrora prisionero jonio, fue liberado gracias a los sombríos tejemanejes del consejo de Jonia. Ahora, el asesino en serie trabaja como sicario de la secta. Con su pistola como...",
     "advantageAgainst": [
@@ -4751,9 +4751,9 @@
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "A",
-    "winrate": 50.0,
-    "pickRate": 7.9,
-    "banRate": 10.2,
+    "winrate": 49.11,
+    "pickRate": 13.74,
+    "banRate": 1.36,
     "damageType": "PHYSICAL",
     "summary": "Jinx, una criminal perturbada e impulsiva de Zaun, vive para sembrar el caos sin importarle las consecuencias. Provoca las explosiones más ruidosas y cegadoras con su arsenal de armas letales para dejar un rastro de terror y destrucción a su paso. Jinx...",
     "advantageAgainst": [
@@ -5077,10 +5077,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Kalista.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.2,
-    "pickRate": 9.2,
-    "banRate": 6.3,
+    "tier": "A",
+    "winrate": 51.4,
+    "pickRate": 6.89,
+    "banRate": 4.78,
     "damageType": "PHYSICAL",
     "summary": "Kalista, un espectro de cólera y castigo, es el inmortal espíritu de la venganza, una pesadilla acorazada que llega desde las Islas de la Sombra para dar caza a los embusteros y los traidores. Puede que todos los que han sido traicionados pidan venganza...",
     "advantageAgainst": [
@@ -5188,10 +5188,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 13.8,
-    "banRate": 9.3,
+    "tier": "C",
+    "winrate": 51.07,
+    "pickRate": 2.77,
+    "banRate": 0.36,
     "damageType": "MAGIC",
     "summary": "No hay mortal que ejemplifique las tradiciones espirituales de Jonia mejor que Karma. Es la personificación de un alma antigua reencarnada un sinfín de veces, que acumula en cada vida sucesiva los recuerdos de las vidas pasadas y que ha sido bendecida...",
     "advantageAgainst": [
@@ -5297,10 +5297,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Kassadin.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 52.8,
-    "pickRate": 8.6,
-    "banRate": 11.1,
+    "tier": "D",
+    "winrate": 51.08,
+    "pickRate": 1.05,
+    "banRate": 0.12,
     "damageType": "MAGIC",
     "summary": "Dejando tras sí una huella ardiente por los lugares más oscuros del mundo, Kassadin sabe que sus días están contados. Guía y aventurero de Shurima que ha viajado por medio mundo, había elegido formar a una familia entre las pacíficas tribus del sur...",
     "advantageAgainst": [
@@ -5406,10 +5406,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Katarina.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.8,
-    "pickRate": 9.0,
-    "banRate": 9.5,
+    "tier": "D",
+    "winrate": 49.12,
+    "pickRate": 1.64,
+    "banRate": 0.77,
     "damageType": "MAGIC",
     "summary": "Con un juicio decisivo y letal en el combate, Katarina es una de las mejores asesinas noxianas. Al ser la primogénita del legendario general Du Couteau, ha dado a conocer sus habilidades con asesinatos rápidos contra enemigos inconscientes. Una ambición...",
     "advantageAgainst": [
@@ -5517,10 +5517,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A+",
-    "winrate": 51.3,
-    "pickRate": 14.3,
-    "banRate": 4.4,
+    "tier": "D",
+    "winrate": 53.16,
+    "pickRate": 3.17,
+    "banRate": 0.4,
     "damageType": "TRUE_HYBRID",
     "summary": "Kayle, nacida de un Aspecto de Targon en el punto álgido de las Guerras Rúnicas, honró el legado de su madre al continuar la lucha por la justicia con sus alas de llamas divinas. Durante muchos años, ella y su hermana gemela Morgana fueron las...",
     "advantageAgainst": [
@@ -5626,10 +5626,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Kayn.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.2,
-    "pickRate": 11.5,
-    "banRate": 11.8,
+    "tier": "B",
+    "winrate": 50.53,
+    "pickRate": 5.49,
+    "banRate": 0.46,
     "damageType": "PHYSICAL",
     "summary": "Shieda Kayn, un practicante sin par de la mortífera magia sombría, lucha por alcanzar su verdadero destino: llegar a guiar algún día a la Orden de la Sombra hacia una nueva era de supremacía jonia. Empuña la oscura arma viviente Rhaast, impasible ante...",
     "advantageAgainst": [
@@ -5737,10 +5737,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S",
-    "winrate": 51.9,
-    "pickRate": 12.6,
-    "banRate": 5.0,
+    "tier": "D",
+    "winrate": 52.0,
+    "pickRate": 1.23,
+    "banRate": 0.57,
     "damageType": "MAGIC",
     "summary": "Más allá de ser el rápido encargado de mantener el equilibrio en Jonia, Kennen es también el único yordle de los kinkou. A pesar de su pequeño y peludo tamaño, siempre está impaciente por enfrentarse a cualquier amenaza dando rienda suelta a una...",
     "advantageAgainst": [
@@ -5957,10 +5957,10 @@
     "secondaryRoles": [
       "ADC"
     ],
-    "tier": "S",
-    "winrate": 51.5,
-    "pickRate": 8.2,
-    "banRate": 10.6,
+    "tier": "C",
+    "winrate": 52.6,
+    "pickRate": 2.33,
+    "banRate": 0.17,
     "damageType": "PHYSICAL",
     "summary": "Divididos, pero nunca separados, Kindred representan las dos esencias de la muerte. El arco de Cordera ofrece una rápida liberación de los pesares del reino mortal a aquellos que aceptan su destino. Lobo da caza a quienes intentan escapar de él y les...",
     "advantageAgainst": [
@@ -6286,10 +6286,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Leona.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.9,
-    "pickRate": 6.0,
-    "banRate": 7.8,
+    "tier": "A",
+    "winrate": 51.13,
+    "pickRate": 11.53,
+    "banRate": 5.89,
     "damageType": "MAGIC",
     "summary": "Imbuida del fuego del sol, Leona es una guerrera sagrada de los Solari que defiende el Monte Targon con su Hoja del cénit y su Escudo del amanecer. Su piel brilla como las estrellas y sus ojos resplandecen con el poder del aspecto celestial de su...",
     "advantageAgainst": [
@@ -6397,10 +6397,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 53.5,
-    "pickRate": 9.0,
-    "banRate": 6.1,
+    "tier": "B",
+    "winrate": 53.42,
+    "pickRate": 2.78,
+    "banRate": 0.59,
     "damageType": "MAGIC",
     "summary": "Lillia es una tímida cervatilla feérica que merodea a su antojo por los bosques jonios. Se oculta de los mortales, cuya misteriosa naturaleza la cautiva y la intimida a partes iguales, con la esperanza de descubrir por qué los sueños humanos han dejado...",
     "advantageAgainst": [
@@ -6506,10 +6506,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Lissandra.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.6,
-    "pickRate": 11.2,
-    "banRate": 2.9,
+    "tier": "D",
+    "winrate": 51.86,
+    "pickRate": 2.57,
+    "banRate": 1.95,
     "damageType": "MAGIC",
     "summary": "La magia de Lissandra convierte el poder del hielo en algo oscuro y terrible. Con la fuerza de su hielo negro, además de congelar a aquellos que se le oponen, los empala y los destruye sin mostrar piedad. Se la conoce como ''la Bruja de Hielo'' entre...",
     "advantageAgainst": [
@@ -6617,10 +6617,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A",
-    "winrate": 50.4,
-    "pickRate": 6.4,
-    "banRate": 14.6,
+    "tier": "B",
+    "winrate": 48.45,
+    "pickRate": 6.38,
+    "banRate": 0.2,
     "damageType": "PHYSICAL",
     "summary": "Lucian, antiguo Centinela de la Luz, es un sombrío cazador de espíritus eternos a los que persigue implacablemente y los aniquila con sus pistolas reliquias. Después de que el macabro espectro Thresh asesinara a su mujer, Lucian se dejó llevar por el...",
     "advantageAgainst": [
@@ -6726,10 +6726,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Lulu.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.6,
-    "pickRate": 11.7,
-    "banRate": 11.1,
+    "tier": "D",
+    "winrate": 48.94,
+    "pickRate": 6.06,
+    "banRate": 2.27,
     "damageType": "MAGIC",
     "summary": "Lulu, la yordle maga, es conocida por invocar ilusiones oníricas y criaturas imaginarias en sus viajes por Runaterra con su hada compañera, Pix. Lulu le da forma a la realidad a su antojo, transforma el tejido del mundo y de lo que ve como los límites...",
     "advantageAgainst": [
@@ -6837,10 +6837,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "A+",
-    "winrate": 50.5,
-    "pickRate": 11.6,
-    "banRate": 9.3,
+    "tier": "S+",
+    "winrate": 50.43,
+    "pickRate": 12.9,
+    "banRate": 18.17,
     "damageType": "MAGIC",
     "summary": "Luxanna Crownguard procede de Demacia, un reino insular en el que las habilidades mágicas se observan con temor y suspicacia. Capaz de manipular la luz a su voluntad, creció temiendo que la descubriesen y la exiliaran, por lo que se vio obligada a...",
     "advantageAgainst": [
@@ -6950,9 +6950,9 @@
       "SUPPORT"
     ],
     "tier": "S+",
-    "winrate": 53.5,
-    "pickRate": 6.8,
-    "banRate": 14.6,
+    "winrate": 50.96,
+    "pickRate": 10.54,
+    "banRate": 19.63,
     "damageType": "MAGIC",
     "summary": "Como una criatura enorme de piedra viviente, a Malphite le cuesta imponer el orden en un mundo caótico. Creado como sirviente de fragmentos de un obelisco sobrenatural conocido como el Monolito, usó su increíble fuerza elemental para mantener y proteger...",
     "advantageAgainst": [
@@ -7061,10 +7061,10 @@
       "TOP",
       "JUNGLE"
     ],
-    "tier": "S",
-    "winrate": 52.1,
-    "pickRate": 8.5,
-    "banRate": 12.4,
+    "tier": "C",
+    "winrate": 49.97,
+    "pickRate": 2.42,
+    "banRate": 0.56,
     "damageType": "MAGIC",
     "summary": "Maokai es un imponente y feroz treant que lucha contra los horrores antinaturales de las Islas de la Sombra. Las ansias de venganza le inundaron después de que un cataclismo mágico destruyera su hogar, y sobrevive a la podredumbre únicamente por las...",
     "advantageAgainst": [
@@ -7281,10 +7281,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 9.2,
-    "banRate": 2.6,
+    "tier": "S+",
+    "winrate": 47.89,
+    "pickRate": 9.9,
+    "banRate": 28.38,
     "damageType": "MAGIC",
     "summary": "Mel domina las líneas con magia solar áurea, proveyendo daño a distancia, escudos reflectantes y potente control de masas en combates de equipo.",
     "advantageAgainst": [
@@ -7613,9 +7613,9 @@
       "JUNGLE"
     ],
     "tier": "S",
-    "winrate": 52.3,
-    "pickRate": 5.8,
-    "banRate": 9.9,
+    "winrate": 48.43,
+    "pickRate": 11.52,
+    "banRate": 11.27,
     "damageType": "MAGIC",
     "summary": "Mordekaiser es un sanguinario señor de la guerra proveniente de tiempos olvidados al que los siglos han visto nacer en tres ocasiones y morir en otras dos. Utiliza sus poderes necrománticos para atar almas perdidas a una vida eterna a su servicio. Ya no...",
     "advantageAgainst": [
@@ -7725,9 +7725,9 @@
       "JUNGLE"
     ],
     "tier": "S",
-    "winrate": 51.5,
-    "pickRate": 7.8,
-    "banRate": 7.9,
+    "winrate": 52.09,
+    "pickRate": 5.9,
+    "banRate": 21.01,
     "damageType": "MAGIC",
     "summary": "En vistas del conflicto entre su naturaleza celestial y su naturaleza mortal, Morgana decidió atarse las alas para aceptar la humanidad y deja caer el peso de su dolor y rencor sobre los deshonestos y los corruptos. Se opone a las leyes y tradiciones...",
     "advantageAgainst": [
@@ -7833,10 +7833,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Nami.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.2,
-    "pickRate": 8.9,
-    "banRate": 10.2,
+    "tier": "D",
+    "winrate": 51.11,
+    "pickRate": 3.28,
+    "banRate": 0.26,
     "damageType": "MAGIC",
     "summary": "Nami, una joven y testaruda vastaya marina, fue la primera de la tribu marai en abandonar las olas y aventurarse en tierra firme cuando se rompió el ancestral acuerdo de su tribu con los targonianos. A falta de otra opción, Nami se encargó de completar...",
     "advantageAgainst": [
@@ -7942,10 +7942,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Nasus.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 12.7,
-    "banRate": 3.4,
+    "tier": "C",
+    "winrate": 48.4,
+    "pickRate": 5.85,
+    "banRate": 1.69,
     "damageType": "PHYSICAL",
     "summary": "Nasus es un imponente ser Ascendido con cabeza de chacal procedente de la antigua Shurima; una figura heroica a la que las gentes del desierto han encumbrado al nivel de semidiós. Poseedor de una increíble inteligencia, fue un guardián del saber y...",
     "advantageAgainst": [
@@ -8054,10 +8054,10 @@
       "TOP",
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 8.6,
-    "banRate": 9.7,
+    "tier": "S",
+    "winrate": 49.33,
+    "pickRate": 14.02,
+    "banRate": 3.58,
     "damageType": "MAGIC",
     "summary": "El gigante acorazado Nautilus, una leyenda solitaria tan antigua como los pecios de Aguas Estancadas, recorre las turbias aguas que rodean las costas de las Islas de la Llama Azul. Impulsado por una traición olvidada, ataca con su enorme ancla sin...",
     "advantageAgainst": [
@@ -8163,10 +8163,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Nidalee.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.4,
-    "pickRate": 7.4,
-    "banRate": 3.2,
+    "tier": "D",
+    "winrate": 44.37,
+    "pickRate": 1.77,
+    "banRate": 1.34,
     "damageType": "MAGIC",
     "summary": "Criada en lo más profundo de la jungla, Nidalee es una rastreadora maestra que puede convertirse en un felino feroz a voluntad. No es completamente mujer ni bestia, pero defiende con fiereza su territorio de todos los invasores, con trampas colocadas...",
     "advantageAgainst": [
@@ -8381,10 +8381,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Nocturne.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.9,
-    "pickRate": 11.0,
-    "banRate": 9.7,
+    "tier": "C",
+    "winrate": 49.96,
+    "pickRate": 3.24,
+    "banRate": 2.87,
     "damageType": "PHYSICAL",
     "summary": "El ser conocido como Nocturne es una fusión demoníaca extraída de las pesadillas que acechan a todas las mentes conscientes y se ha convertido en una fuerza primordial de pura maldad. Tiene un aspecto líquido y caótico, una sombra sin rostro con ojos...",
     "advantageAgainst": [
@@ -8492,10 +8492,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "A",
-    "winrate": 50.2,
-    "pickRate": 11.5,
-    "banRate": 7.1,
+    "tier": "D",
+    "winrate": 48.07,
+    "pickRate": 1.47,
+    "banRate": 5.71,
     "damageType": "MAGIC",
     "summary": "Norra abre fisuras hacia la Ciudad de Bandle para dotar de hipermovilidad a su equipo y desorientar a los adversarios con proyectiles cósmicos.",
     "advantageAgainst": [
@@ -8712,10 +8712,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 50.5,
-    "pickRate": 11.0,
-    "banRate": 8.7,
+    "tier": "D",
+    "winrate": 49.89,
+    "pickRate": 1.75,
+    "banRate": 1.03,
     "damageType": "PHYSICAL",
     "summary": "Olaf porta sus hachas de forma que es una fuerza imparable de destrucción que no quiere nada, salvo morir en un combate glorioso. Natural de Lokfar, una brutal península de Freljord, una vez escuchó una profecía que lo avisaba de una muerte tranquila...",
     "advantageAgainst": [
@@ -8821,10 +8821,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Orianna.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.5,
-    "pickRate": 6.5,
-    "banRate": 4.6,
+    "tier": "C",
+    "winrate": 53.63,
+    "pickRate": 3.0,
+    "banRate": 0.24,
     "damageType": "MAGIC",
     "summary": "Orianna, antaño una chica curiosa de carne y hueso, es ahora una maravilla tecnológica compuesta exclusivamente de engranajes. Cayó gravemente enferma tras un accidente en los distritos inferiores de Zaun y su cuerpo moribundo tuvo que ser reemplazado...",
     "advantageAgainst": [
@@ -8930,10 +8930,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Ornn.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "A",
-    "winrate": 50.2,
-    "pickRate": 6.6,
-    "banRate": 13.2,
+    "tier": "C",
+    "winrate": 47.55,
+    "pickRate": 1.42,
+    "banRate": 0.39,
     "damageType": "MAGIC",
     "summary": "Ornn es el espíritu de Freljord de la forja y la artesanía. Trabaja en la soledad de una enorme forja esculpida en las cavernas de lava bajo el volcán de Dulcehogar. En ella modela objetos de calidad sin igual y depura menas en burbujeantes calderos de...",
     "advantageAgainst": [
@@ -9043,10 +9043,10 @@
       "SUPPORT",
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 51.0,
-    "pickRate": 13.2,
-    "banRate": 13.5,
+    "tier": "B",
+    "winrate": 52.57,
+    "pickRate": 5.65,
+    "banRate": 2.63,
     "damageType": "PHYSICAL",
     "summary": "Tiempo atrás, Atreus había albergado al Aspecto de la Guerra en su interior contra su voluntad, pero sobrevivió al golpe que acabó con el poder divino y arrancó estrellas del firmamento. Con el paso de los años, aprendió a aceptar el poder de su propia...",
     "advantageAgainst": [
@@ -9266,10 +9266,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S",
-    "winrate": 52.0,
-    "pickRate": 13.3,
-    "banRate": 8.4,
+    "tier": "C",
+    "winrate": 48.64,
+    "pickRate": 6.15,
+    "banRate": 2.59,
     "damageType": "PHYSICAL",
     "summary": "A Pyke, un conocido arponero de los muelles del matadero de Aguas Estancadas, le esperaba la muerte en el estómago de una gigantesca criatura marina... y sin embargo, regresó. Desde entonces acecha en los fríos y húmedos callejones y caminos de la que...",
     "advantageAgainst": [
@@ -9375,10 +9375,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Rakan.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.9,
-    "pickRate": 5.9,
-    "banRate": 10.4,
+    "tier": "D",
+    "winrate": 49.95,
+    "pickRate": 2.52,
+    "banRate": 0.41,
     "damageType": "MAGIC",
     "summary": "Con un carácter tan impulsivo como encantador, Rakan es un infame alborotador vastaya y el mejor bailarín de batalla de la historia tribal de Lhotlan. Para los humanos de las montañas de Jonia, su nombre siempre ha sido sinónimo de festivales...",
     "advantageAgainst": [
@@ -9484,10 +9484,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Rammus.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 13.9,
-    "banRate": 12.4,
+    "tier": "D",
+    "winrate": 53.92,
+    "pickRate": 1.98,
+    "banRate": 1.18,
     "damageType": "MAGIC",
     "summary": "Idealizado por muchos, ignorado por otros, inexplicable para todos, Rammus, el extraño ser, es todo un enigma. Protegido por un armazón de pinchos, inspira teorías cada vez más absurdas sobre sus orígenes allá donde va. Estas pasan por considerarlo un...",
     "advantageAgainst": [
@@ -9595,10 +9595,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 51.1,
-    "pickRate": 7.1,
-    "banRate": 3.2,
+    "tier": "C",
+    "winrate": 51.88,
+    "pickRate": 2.38,
+    "banRate": 1.27,
     "damageType": "MAGIC",
     "summary": "Rell, producto de crueles experimentos a manos de la Rosa Negra, es ahora una intrépida arma viviente decidida a hacer caer Noxus. Su infancia estuvo marcada por la desdicha y el horror, pues se vio sometida a espeluznantes tratamientos para...",
     "advantageAgainst": [
@@ -9704,10 +9704,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Renekton.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.9,
-    "pickRate": 12.9,
-    "banRate": 14.1,
+    "tier": "C",
+    "winrate": 48.16,
+    "pickRate": 5.5,
+    "banRate": 1.1,
     "damageType": "PHYSICAL",
     "summary": "Renekton es una terrorífica criatura Ascendida movida por la ira y procedente de los desiertos abrasadores de Shurima. En su día fue el guerrero más admirado del imperio, un líder que condujo a los ejércitos de la nación a incontables victorias. Sin...",
     "advantageAgainst": [
@@ -9815,10 +9815,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "A+",
-    "winrate": 50.6,
-    "pickRate": 8.6,
-    "banRate": 3.1,
+    "tier": "D",
+    "winrate": 48.47,
+    "pickRate": 1.53,
+    "banRate": 1.22,
     "damageType": "PHYSICAL",
     "summary": "Rengar es un feroz cazador de trofeos vastaya que vive por el placer de perseguir y asesinar criaturas peligrosas. Explora el mundo en busca de las bestias más aterradoras, pero, ante todo, quiere encontrar alguna pista que lo lleve hasta Kha'Zix, la...",
     "advantageAgainst": [
@@ -9924,10 +9924,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Riven.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 52.6,
-    "pickRate": 11.7,
-    "banRate": 10.3,
+    "tier": "D",
+    "winrate": 45.46,
+    "pickRate": 2.79,
+    "banRate": 0.77,
     "damageType": "PHYSICAL",
     "summary": "Antaño maestra de la espada de las huestes de Noxus, Riven es una expatriada en la tierra que previamente había tratado de conquistar. Fue ascendiendo de rango gracias a la fuerza de su convicción y a su brutal eficiencia, y fue recompensada con una...",
     "advantageAgainst": [
@@ -10036,10 +10036,10 @@
       "MID",
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 50.5,
-    "pickRate": 14.5,
-    "banRate": 6.5,
+    "tier": "C",
+    "winrate": 49.7,
+    "pickRate": 2.09,
+    "banRate": 0.53,
     "damageType": "MAGIC",
     "summary": "Rumble es un joven inventor con temperamento. Utilizando nada más que sus propias manos y un montón de chatarra, el yordle peleón construyó un traje mecha colosal equipado con un arsenal de arpones electrificados y cohetes incendiarios. Aunque los demás...",
     "advantageAgainst": [
@@ -10147,10 +10147,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 52.6,
-    "pickRate": 9.3,
-    "banRate": 11.7,
+    "tier": "C",
+    "winrate": 48.22,
+    "pickRate": 3.19,
+    "banRate": 2.23,
     "damageType": "MAGIC",
     "summary": "Ryze es considerado uno de los hechiceros con más experiencia de Runaterra. El archimago ancestral y gruñón lleva sobre sus hombros una pesada carga. Con su constitución sin límites y su inmenso poder arcano, Ryze se pasa la vida buscando...",
     "advantageAgainst": [
@@ -10257,9 +10257,9 @@
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "S",
-    "winrate": 51.7,
-    "pickRate": 12.8,
-    "banRate": 12.8,
+    "winrate": 50.69,
+    "pickRate": 9.22,
+    "banRate": 5.25,
     "damageType": "PHYSICAL",
     "summary": "Samira mira de cara a la muerte con una confianza férrea y busca emociones extremas allá donde va. Tras la destrucción de su hogar en Shurima cuando era una niña, Samira encontró su verdadera vocación en Noxus, donde se ganó la reputación de ser una...",
     "advantageAgainst": [
@@ -10367,10 +10367,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "A+",
-    "winrate": 51.2,
-    "pickRate": 14.3,
-    "banRate": 3.7,
+    "tier": "B",
+    "winrate": 52.46,
+    "pickRate": 4.9,
+    "banRate": 0.84,
     "damageType": "PHYSICAL",
     "summary": "Maldita desde que era apenas una niña y perseguida por la Niebla Negra, Senna se unió a una orden sagrada conocida como los Centinelas de la Luz y pasó años luchando sin descanso hasta que fue asesinada y encerrada en el interior de la linterna del...",
     "advantageAgainst": [
@@ -10479,10 +10479,10 @@
       "MID",
       "ADC"
     ],
-    "tier": "S+",
-    "winrate": 52.5,
-    "pickRate": 15.8,
-    "banRate": 4.4,
+    "tier": "A",
+    "winrate": 50.44,
+    "pickRate": 11.99,
+    "banRate": 2.66,
     "damageType": "MAGIC",
     "summary": "Seraphine, de padres zaunitas, nació en Piltover y es capaz de escuchar las almas de los demás. El mundo le canta y ella le devuelve la canción. Aunque esos sonidos le resultaban abrumadores cuando era pequeña, ahora le sirven de inspiración, y...",
     "advantageAgainst": [
@@ -10590,10 +10590,10 @@
     "secondaryRoles": [
       "SUPPORT"
     ],
-    "tier": "S+",
-    "winrate": 53.5,
-    "pickRate": 16.1,
-    "banRate": 2.1,
+    "tier": "S",
+    "winrate": 50.93,
+    "pickRate": 10.07,
+    "banRate": 1.62,
     "damageType": "PHYSICAL",
     "summary": "Sett es una prominente figura en los emergentes círculos criminales jonios, que aseguró su posición al inicio de la guerra con Noxus. A pesar de sus humildes comienzos como luchador en el foso de Navori, no tardó en labrarse una reputación con la ayuda...",
     "advantageAgainst": [
@@ -10810,10 +10810,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Shyvana.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.6,
-    "pickRate": 4.4,
-    "banRate": 2.2,
+    "tier": "A",
+    "winrate": 51.55,
+    "pickRate": 7.06,
+    "banRate": 1.46,
     "damageType": "MAGIC",
     "summary": "Shyvana es una criatura con la magia de un fragmento de runa incandescente alojada en lo más profundo de su corazón. Pese a que su aspecto más común es el de humana, su verdadera forma es la de una feroz dragona capaz de reducir a sus enemigos a cenizas...",
     "advantageAgainst": [
@@ -11028,10 +11028,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Sion.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.8,
-    "pickRate": 6.3,
-    "banRate": 13.4,
+    "tier": "B",
+    "winrate": 50.53,
+    "pickRate": 1.65,
+    "banRate": 0.31,
     "damageType": "PHYSICAL",
     "summary": "Sion fue un héroe de guerra en el pasado y los noxianos lo veneraban porque había arrebatado la vida de un rey demaciano con sus simples manos. No obstante, se le denegó su viaje al más allá, pues fue revivido para servir a su imperio incluso después de...",
     "advantageAgainst": [
@@ -11137,10 +11137,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Sivir.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.0,
-    "pickRate": 16.3,
-    "banRate": 2.2,
+    "tier": "B",
+    "winrate": 48.19,
+    "pickRate": 3.88,
+    "banRate": 0.09,
     "damageType": "PHYSICAL",
     "summary": "Sivir es una afamada buscadora de tesoros y capitana mercenaria que se gana la vida en el desierto de Shurima. Provista de un arma legendaria en forma de cruz engastada con gemas, ha librado y ganado innumerables batallas para aquellos que pueden...",
     "advantageAgainst": [
@@ -11248,10 +11248,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "A",
-    "winrate": 50.1,
-    "pickRate": 12.8,
-    "banRate": 5.7,
+    "tier": "D",
+    "winrate": 46.86,
+    "pickRate": 1.59,
+    "banRate": 0.81,
     "damageType": "PHYSICAL",
     "summary": "A Skarner, el colosal brackern ancestral, se le rinde culto en Ixtal como uno de los fundadores de su casta soberana, los Yun Tal. Se dedica a proteger su tierra del resto del mundo manteniendo la región aislada. Skarner vive en una cámara bajo Ixaocan...",
     "advantageAgainst": [
@@ -11359,10 +11359,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A+",
-    "winrate": 51.1,
-    "pickRate": 7.8,
-    "banRate": 5.9,
+    "tier": "S",
+    "winrate": 53.44,
+    "pickRate": 7.18,
+    "banRate": 6.63,
     "damageType": "PHYSICAL",
     "summary": "Oculto entre los escarpados acantilados de la frontera noxiana y bajo la atenta mirada de su madre, un joven dragón está aprendiendo qué implica ser el heredero del linaje imperial de los dragones camavoranos. Juguetón y ansioso por crecer, Smolder...",
     "advantageAgainst": [
@@ -11468,10 +11468,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Sona.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.4,
-    "pickRate": 14.7,
-    "banRate": 8.4,
+    "tier": "D",
+    "winrate": 50.88,
+    "pickRate": 2.94,
+    "banRate": 0.42,
     "damageType": "MAGIC",
     "summary": "Sona es la artista más virtuosa de Demacia con el etwahl de cuerda y solo se comunica a través de sus elegantes acordes y vibrantes melodías. Esta refinada actitud le ha hecho ganarse el favor de la alta sociedad, aunque los hay que sospechan que sus...",
     "advantageAgainst": [
@@ -11577,10 +11577,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Soraka.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 52.5,
-    "pickRate": 8.9,
-    "banRate": 11.0,
+    "tier": "D",
+    "winrate": 51.5,
+    "pickRate": 4.37,
+    "banRate": 1.28,
     "damageType": "MAGIC",
     "summary": "Soraka, una nómada proveniente de las dimensiones celestiales más allá del monte Targon, dejó a un lado su inmortalidad para proteger a las razas mortales de sus propios instintos asesinos. Su cometido es difundir las virtudes de la compasión y la...",
     "advantageAgainst": [
@@ -11689,10 +11689,10 @@
       "SUPPORT",
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 53.3,
-    "pickRate": 8.7,
-    "banRate": 3.5,
+    "tier": "A",
+    "winrate": 51.59,
+    "pickRate": 4.75,
+    "banRate": 6.76,
     "damageType": "MAGIC",
     "summary": "Jericho Swain es el visionario líder de Noxus, una nación expansionista que solo venera la fuerza. Pese a haber sido relegado y a haber perdido el brazo izquierdo en las guerras de Jonia, se hizo con el control del imperio con una despiadada...",
     "advantageAgainst": [
@@ -11798,10 +11798,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Syndra.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 13.8,
-    "banRate": 12.5,
+    "tier": "D",
+    "winrate": 48.46,
+    "pickRate": 4.02,
+    "banRate": 2.15,
     "damageType": "MAGIC",
     "summary": "Syndra es una temible maga jonia con un poder increíble a su disposición. De niña, inquietó a los ancianos del lugar con su imprudente y tempestuosa magia. La enviaron a que aprendiera a controlarla mejor, pero al final descubrió que su supuesto mentor...",
     "advantageAgainst": [
@@ -11909,10 +11909,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A+",
-    "winrate": 50.5,
-    "pickRate": 16.2,
-    "banRate": 13.6,
+    "tier": "D",
+    "winrate": 52.66,
+    "pickRate": 2.42,
+    "banRate": 0.97,
     "damageType": "MAGIC",
     "summary": "Taliyah es una hechicera nómada de Shurima desgarrada entre la curiosidad de una adolescente y la responsabilidad de una adulta. Ha atravesado Valoran de un lado a otro para descubrir la auténtica naturaleza de sus crecientes poderes, aunque...",
     "advantageAgainst": [
@@ -12020,10 +12020,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "A+",
-    "winrate": 51.3,
-    "pickRate": 12.7,
-    "banRate": 10.6,
+    "tier": "D",
+    "winrate": 48.12,
+    "pickRate": 2.14,
+    "banRate": 0.47,
     "damageType": "PHYSICAL",
     "summary": "Talon es el cuchillo de la oscuridad, un asesino despiadado capaz de atacar sin previo aviso y huir antes de que salte alarma alguna. Logró granjearse una peligrosa reputación en las terribles calles de Noxus, donde se vio obligado a luchar, matar y...",
     "advantageAgainst": [
@@ -12131,10 +12131,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S",
-    "winrate": 52.3,
-    "pickRate": 14.8,
-    "banRate": 10.2,
+    "tier": "A",
+    "winrate": 50.63,
+    "pickRate": 4.22,
+    "banRate": 19.66,
     "damageType": "TRUE_HYBRID",
     "summary": "Sin inmutarse siquiera por los obstáculos más peligrosos y amenazantes, Teemo explora el mundo con un entusiasmo infinito y una alegría desbordante. Con un inquebrantable sentido de la moralidad, este yordle se enorgullece de seguir el Código de los...",
     "advantageAgainst": [
@@ -12240,10 +12240,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Thresh.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 11.3,
-    "banRate": 2.4,
+    "tier": "S",
+    "winrate": 50.93,
+    "pickRate": 13.1,
+    "banRate": 8.94,
     "damageType": "MAGIC",
     "summary": "Thresh, un ser sádico y astuto, es un ambicioso y trastornado espíritu de las Islas de la Sombra. Otrora guardián de innumerables secretos arcanos, acabó sucumbiendo a un poder por encima de la vida y la muerte. Ahora sobrevive torturando a sus víctimas...",
     "advantageAgainst": [
@@ -12351,10 +12351,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 53.7,
-    "pickRate": 6.3,
-    "banRate": 4.9,
+    "tier": "B",
+    "winrate": 48.74,
+    "pickRate": 6.8,
+    "banRate": 0.19,
     "damageType": "PHYSICAL",
     "summary": "Pese a que la mayoría de los yordles canalizan sus energías hacia el descubrimiento, la invención o simples trastadas, Tristana siempre se ha visto inspirada por las aventuras de los grandes guerreros. Siempre ha escuchado las historias de Runaterra...",
     "advantageAgainst": [
@@ -12463,9 +12463,9 @@
       "JUNGLE"
     ],
     "tier": "S+",
-    "winrate": 52.9,
-    "pickRate": 14.5,
-    "banRate": 13.0,
+    "winrate": 53.32,
+    "pickRate": 10.0,
+    "banRate": 22.17,
     "damageType": "PHYSICAL",
     "summary": "Impulsado por una furia y una rabia desenfrenadas, Tryndamere solía abrirse paso por Freljord desafiando abiertamente a los mejores guerreros del norte con el objetivo de prepararse para días aún más oscuros. El furioso bárbaro lleva una eternidad...",
     "advantageAgainst": [
@@ -12682,10 +12682,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "S",
-    "winrate": 52.2,
-    "pickRate": 15.0,
-    "banRate": 3.6,
+    "tier": "C",
+    "winrate": 48.45,
+    "pickRate": 2.32,
+    "banRate": 0.26,
     "damageType": "TRUE_HYBRID",
     "summary": "Rata de la peste zaunita por nacimiento y apasionado experto de la suciedad por afición, a Twitch no le preocupa ensuciarse las zarpas. Con su ballesta de cualidades químicas apuntando al corazón hipócrita de Piltover, se ha jurado demostrar a los...",
     "advantageAgainst": [
@@ -12791,10 +12791,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Urgot.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.7,
-    "pickRate": 10.1,
-    "banRate": 11.0,
+    "tier": "C",
+    "winrate": 51.14,
+    "pickRate": 3.47,
+    "banRate": 1.64,
     "damageType": "PHYSICAL",
     "summary": "Urgot, antiguo verdugo noxiano, fue traicionado por el imperio por el que había matado a tantos. Amarrado con cadenas de hierro, se vio obligado a aprender el verdadero significado de la fuerza en la Draga; una mina penitenciaria en las profundidades de...",
     "advantageAgainst": [
@@ -12902,10 +12902,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 53.6,
-    "pickRate": 5.0,
-    "banRate": 3.1,
+    "tier": "B",
+    "winrate": 54.34,
+    "pickRate": 5.02,
+    "banRate": 0.7,
     "damageType": "TRUE_HYBRID",
     "summary": "Como uno de los antiguos oscuros Varus era un asesino despiadado al que le encantaba torturar a sus enemigos hasta las puertas de la locura antes de atravesarlos con una flecha letal. Fue apresado y encarcelado al final de la gran Guerra Oscura, pero...",
     "advantageAgainst": [
@@ -13013,10 +13013,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S",
-    "winrate": 52.0,
-    "pickRate": 13.8,
-    "banRate": 14.5,
+    "tier": "A",
+    "winrate": 50.09,
+    "pickRate": 8.02,
+    "banRate": 9.02,
     "damageType": "TRUE_HYBRID",
     "summary": "Shauna Vayne es una cazadora de monstruos demaciana letal y despiadada que ha dedicado su vida a buscar y destruir al demonio que asesinó a su familia. Provista de una ballesta que lleva en la muñeca y un corazón ansioso de venganza, Vayne solo es...",
     "advantageAgainst": [
@@ -13124,10 +13124,10 @@
     "secondaryRoles": [
       "ADC"
     ],
-    "tier": "S+",
-    "winrate": 53.6,
-    "pickRate": 13.6,
-    "banRate": 5.6,
+    "tier": "A",
+    "winrate": 49.18,
+    "pickRate": 10.8,
+    "banRate": 12.2,
     "damageType": "MAGIC",
     "summary": "Entusiasta maestro de la magia negra, Veigar ha hecho suyos poderes a los que pocos mortales se atreven a acercarse. Como espíritu de Ciudad de Bandle, buscó durante mucho tiempo deshacerse de las limitaciones de la magia yordle, así que su atención se...",
     "advantageAgainst": [
@@ -13344,10 +13344,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Vex.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 51.1,
-    "pickRate": 9.6,
-    "banRate": 11.0,
+    "tier": "D",
+    "winrate": 49.25,
+    "pickRate": 2.43,
+    "banRate": 0.58,
     "damageType": "MAGIC",
     "summary": "En el oscuro corazón de las Islas de la Sombra, una yordle solitaria atraviesa arduamente la bruma espectral, satisfecha con su tenebrosa miseria. Con una angustia adolescente inagotable y una poderosa sombra tras de sí, Vex vive en un planeta de...",
     "advantageAgainst": [
@@ -13453,10 +13453,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Vi.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 6.8,
-    "banRate": 11.8,
+    "tier": "B",
+    "winrate": 52.03,
+    "pickRate": 6.06,
+    "banRate": 0.59,
     "damageType": "PHYSICAL",
     "summary": "Otrora delincuente en las perversas calles de Zaun, Vi es una mujer impulsiva e imponente con muy poco respeto por las figuras de la autoridad. Tras crecer sola, Vi desarrolló y perfeccionó sus instintos de supervivencia, así como un áspero sentido del...",
     "advantageAgainst": [
@@ -13564,10 +13564,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S",
-    "winrate": 52.1,
-    "pickRate": 6.1,
-    "banRate": 4.4,
+    "tier": "A",
+    "winrate": 48.12,
+    "pickRate": 7.28,
+    "banRate": 2.63,
     "damageType": "PHYSICAL",
     "summary": "Viego, soberano de un reino ya olvidado, murió hace más de mil años cuando su intento por devolverle la vida a su esposa desencadenó una catástrofe mágica conocida como la Ruina. Ahora Viego, trasformado en un poderoso espectro atormentado por el anhelo...",
     "advantageAgainst": [
@@ -13673,10 +13673,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Viktor.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "A+",
-    "winrate": 50.7,
-    "pickRate": 10.1,
-    "banRate": 13.9,
+    "tier": "C",
+    "winrate": 51.44,
+    "pickRate": 3.11,
+    "banRate": 1.24,
     "damageType": "MAGIC",
     "summary": "Viktor, el heraldo de una nueva era tecnológica, ha consagrado su vida al progreso de la humanidad. Es un idealista que busca llevar al pueblo de Zaun a un nuevo nivel de comprensión y cree que la humanidad solo podrá alcanzar su máximo potencial...",
     "advantageAgainst": [
@@ -13784,10 +13784,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 53.5,
-    "pickRate": 16.4,
-    "banRate": 13.8,
+    "tier": "D",
+    "winrate": 48.55,
+    "pickRate": 2.36,
+    "banRate": 0.85,
     "damageType": "MAGIC",
     "summary": "Un demonio con sed de sangre mortal, Vladimir ha influido en el destino de Noxus desde los primeros días del imperio. Además de alargar su vida de forma sobrenatural, su amplio conocimiento de la hemomancia le posibilita controlar el cuerpo y la mente...",
     "advantageAgainst": [
@@ -13895,10 +13895,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 51.0,
-    "pickRate": 6.5,
-    "banRate": 13.2,
+    "tier": "B",
+    "winrate": 52.45,
+    "pickRate": 4.95,
+    "banRate": 5.66,
     "damageType": "TRUE_HYBRID",
     "summary": "Para aquellos que aún lo veneran, Volibear es la encarnación de la tormenta. Destructivo, salvaje y decidido, existe desde antes de que los mortales pusieran pie en las tundras de Freljord y protege con fiereza las tierras que creó junto a sus hermanos...",
     "advantageAgainst": [
@@ -14006,10 +14006,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 51.2,
-    "pickRate": 4.3,
-    "banRate": 9.7,
+    "tier": "D",
+    "winrate": 48.36,
+    "pickRate": 2.19,
+    "banRate": 0.42,
     "damageType": "TRUE_HYBRID",
     "summary": "Warwick es un monstruo que acecha en los oscuros callejones de Zaun. Transformado por atroces experimentos, su cuerpo está fusionado con un complejo sistema de cámaras y bombas, una maquinaria que llena sus venas de furia alquímica. Saltando desde las...",
     "advantageAgainst": [
@@ -14117,10 +14117,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.0,
-    "pickRate": 10.1,
-    "banRate": 3.5,
+    "tier": "D",
+    "winrate": 49.7,
+    "pickRate": 2.32,
+    "banRate": 0.36,
     "damageType": "PHYSICAL",
     "summary": "Wukong es un embaucador vastaya que se vale de su fuerza, agilidad e inteligencia para confundir a sus oponentes y conseguir ventaja. Tras forjar una amistad para toda la vida con el guerrero conocido como el Maestro Yi, Wukong se convirtió en el último...",
     "advantageAgainst": [
@@ -14226,10 +14226,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Xayah.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 52.7,
-    "pickRate": 7.0,
-    "banRate": 11.0,
+    "tier": "B",
+    "winrate": 51.91,
+    "pickRate": 4.62,
+    "banRate": 0.27,
     "damageType": "PHYSICAL",
     "summary": "Mortal y precisa, Xayah es una vastaya revolucionaria que libra una guerra personal para salvar a su pueblo. Utiliza su rapidez, su astucia y sus plumas afiladas como cuchillas para liquidar a cualquiera que se interponga en su camino. Xayah lucha junto...",
     "advantageAgainst": [
@@ -14450,9 +14450,9 @@
       "ADC"
     ],
     "tier": "S+",
-    "winrate": 52.8,
-    "pickRate": 11.4,
-    "banRate": 11.3,
+    "winrate": 49.95,
+    "pickRate": 17.54,
+    "banRate": 10.05,
     "damageType": "PHYSICAL",
     "summary": "Yasuo, un intrépido jonio con una fuerza de voluntad inquebrantable, es también un hábil espadachín capaz de controlar el viento y utilizarlo contra sus enemigos. Siendo un joven orgulloso fue injustamente acusado de asesinar a su maestro. Incapaz de...",
     "advantageAgainst": [
@@ -14560,10 +14560,10 @@
     "secondaryRoles": [
       "TOP"
     ],
-    "tier": "S+",
-    "winrate": 53.2,
-    "pickRate": 11.2,
-    "banRate": 6.0,
+    "tier": "A",
+    "winrate": 53.92,
+    "pickRate": 7.4,
+    "banRate": 6.75,
     "damageType": "TRUE_HYBRID",
     "summary": "En vida, fue Yone, hermanastro de Yasuo y pupilo de renombre en la escuela de esgrima de su aldea. No obstante, al morir a manos de su hermano, se vio perseguido por una maligna entidad del reino espiritual y acabó por asesinarlo con su propia espada...",
     "advantageAgainst": [
@@ -14671,10 +14671,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 6.0,
-    "banRate": 2.2,
+    "tier": "S",
+    "winrate": 52.02,
+    "pickRate": 13.16,
+    "banRate": 12.25,
     "damageType": "TRUE_HYBRID",
     "summary": "Yunara es una tiradora letal que enlaza a sus víctimas con hilos invisibles de daño verdadero y gran capacidad de reposicionamiento.",
     "advantageAgainst": [
@@ -14780,10 +14780,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 51.9,
-    "pickRate": 11.7,
-    "banRate": 4.6,
+    "tier": "B",
+    "winrate": 45.13,
+    "pickRate": 7.5,
+    "banRate": 19.15,
     "damageType": "MAGIC",
     "summary": "Yuumi, una gata mágica de Ciudad de Bandle, fue antaño la compañera de una hechicera yordle, Norra. Tras la misteriosa desaparición de su maestra, Yuumi se convirtió en la guardiana del Libro de umbrales de Norra, un objeto sintiente cuyas páginas...",
     "advantageAgainst": [
@@ -14891,10 +14891,10 @@
     "secondaryRoles": [
       "JUNGLE"
     ],
-    "tier": "A+",
-    "winrate": 51.1,
-    "pickRate": 12.1,
-    "banRate": 4.0,
+    "tier": "C",
+    "winrate": 46.83,
+    "pickRate": 4.02,
+    "banRate": 1.13,
     "damageType": "PHYSICAL",
     "summary": "Zed, despiadado y nada compasivo, es el líder de la Orden de la Sombra, una organización que él mismo creó con el propósito de militarizar las tradiciones marciales y mágicas de Jonia para expulsar a los invasores noxianos. Durante la guerra, la...",
     "advantageAgainst": [
@@ -15000,10 +15000,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Zeri.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
-    "tier": "S",
-    "winrate": 52.2,
-    "pickRate": 6.4,
-    "banRate": 10.6,
+    "tier": "C",
+    "winrate": 48.68,
+    "pickRate": 1.14,
+    "banRate": 0.05,
     "damageType": "TRUE_HYBRID",
     "summary": "Una joven testaruda y llena de vida de la clase trabajadora de Zaun. Zeri canaliza su magia eléctrica para cargarse a sí misma y su fusil personalizado. Su volátil poder canaliza sus emociones, y sus chispas se inspiran en su veloz estilo de vida...",
     "advantageAgainst": [
@@ -15111,10 +15111,10 @@
     "secondaryRoles": [
       "ADC"
     ],
-    "tier": "S+",
-    "winrate": 52.7,
-    "pickRate": 10.6,
-    "banRate": 10.1,
+    "tier": "B",
+    "winrate": 48.61,
+    "pickRate": 4.84,
+    "banRate": 2.3,
     "damageType": "MAGIC",
     "summary": "Gran amante de las bombas grandes y las mechas cortas, el yordle Ziggs es una explosiva fuerza de la naturaleza. Trabajaba como ayudante de un inventor en Piltover, pero, cansado de llevar una vida tan aburrida y monótona, decidió hacerse amigo de una...",
     "advantageAgainst": [
@@ -15222,10 +15222,10 @@
     "secondaryRoles": [
       "MID"
     ],
-    "tier": "S+",
-    "winrate": 53.4,
-    "pickRate": 4.9,
-    "banRate": 5.8,
+    "tier": "D",
+    "winrate": 49.42,
+    "pickRate": 1.2,
+    "banRate": 0.77,
     "damageType": "MAGIC",
     "summary": "Zilean, el que un día fuera un poderoso mago de Icathia, se obsesionó con el paso del tiempo tras ser testigo de la destrucción de su tierra natal a manos del Vacío. Incapaz de parar un minuto a llorar tan catastrófica pérdida, se entregó a la vetusta...",
     "advantageAgainst": [
@@ -15331,10 +15331,10 @@
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Zoe.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
-    "tier": "S+",
-    "winrate": 53.1,
-    "pickRate": 10.8,
-    "banRate": 5.0,
+    "tier": "D",
+    "winrate": 49.69,
+    "pickRate": 1.23,
+    "banRate": 0.28,
     "damageType": "MAGIC",
     "summary": "Como personificación de la travesura, de la imaginación y del cambio, Zoe es la mensajera cósmica de Targon y anuncia acontecimientos importantes que remodelan mundos. Su mera presencia distorsiona las matemáticas arcanas que gobiernan las realidades y...",
     "advantageAgainst": [
@@ -15443,10 +15443,10 @@
       "MID",
       "JUNGLE"
     ],
-    "tier": "S+",
-    "winrate": 53.6,
-    "pickRate": 8.9,
-    "banRate": 9.0,
+    "tier": "S",
+    "winrate": 52.52,
+    "pickRate": 4.6,
+    "banRate": 23.81,
     "damageType": "MAGIC",
     "summary": "Nacida gracias a un fenómeno sobrenatural hace mucho tiempo, Zyra encarna la ira de la naturaleza: un seductor híbrido entre planta y humano que da lugar a nueva vida a cada paso. Ve a los mortales de Valoran como poco más que presas para su progenie, y...",
     "advantageAgainst": [
