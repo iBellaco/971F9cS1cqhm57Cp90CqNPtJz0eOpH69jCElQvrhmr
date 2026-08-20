@@ -77,8 +77,8 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          export _JAVA_OPTIONS="-Djava.awt.headless=true"
-          gradle :app:assembleDebug --stacktrace --no-daemon
+          
+          gradle :app:assembleDebug --stacktrace --no-daemon --max-workers=2
 
       - name: Verify APK
         run: |
