@@ -107,7 +107,6 @@ object AppUpdateManager {
                 AppLogger.d(TAG, "GitHub releases check: ${e.message}")
             }
 
-            // Verificar si el usuario pospuso esta versión en chequeos automáticos
             if (!forceManualCheck && result.isUpdateAvailable) {
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 val snoozedCode = prefs.getInt(KEY_SNOOZED_VERSION, -1)
@@ -117,6 +116,8 @@ object AppUpdateManager {
                 } else {
                     _updateInfo.value = result
                 }
+            } else if (forceManualCheck) {
+                _updateInfo.value = result
             } else if (result.isUpdateAvailable) {
                 _updateInfo.value = result
             }

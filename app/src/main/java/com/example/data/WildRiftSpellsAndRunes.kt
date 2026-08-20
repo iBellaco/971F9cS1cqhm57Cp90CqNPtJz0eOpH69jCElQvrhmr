@@ -103,77 +103,77 @@ object WildRiftSpellsAndRunes {
             id = "conqueror",
             name = "Conquistador",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/precision/conqueror/conqueror.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             description = "Acumula Fuerza Adaptable al impactar ataques y habilidades a campeones (hasta 6 cargas). Al máximo otorga omnivampirismo y daño extra."
         ),
         RuneItem(
             id = "kraken_slayer",
             name = "Matakrakens",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/precision/presstheattack/presstheattack.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
             description = "Cada 3 ataques básicos consecutivos inflige daño verdadero adicional creciente a campeones enemigos."
         ),
         RuneItem(
             id = "lethal_tempo",
             name = "Cadencia Letal",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/precision/lethaltempo/lethaltempotemp.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
             description = "Atacar a un campeón enemigo otorga velocidad de ataque acumulable hasta 6 veces. A cargas máximas aumenta el rango de ataque básico."
         ),
         RuneItem(
             id = "electrocute",
             name = "Electrocutar",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/domination/electrocute/electrocute.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
             description = "Golpear a un campeón con 3 ataques o habilidades individuales en un lapso de 3s desata un rayo con daño adaptativo explosivo."
         ),
         RuneItem(
             id = "first_strike",
             name = "Primer Golpe",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/inspiration/firststrike/firststrike.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             description = "Iniciar combate antes de recibir daño otorga 9% de daño verdadero adicional durante 3s y genera oro equivalente al daño infligido."
         ),
         RuneItem(
             id = "phase_rush",
             name = "Irrupción de Fase",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/sorcery/phaserush/phaserush.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/stormraiderssurgeruneicon2.png",
             description = "Golpear a un campeón con 3 ataques o habilidades separadas otorga hasta 60% de velocidad de movimiento y 75% de resistencia a ralentizaciones."
         ),
         RuneItem(
             id = "grasp_undying",
             name = "Agarre del Perpetuo",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/resolve/graspoftheundying/graspoftheundying.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             description = "Cada 4s en combate, tu siguiente ataque básico inflige daño mágico adicional basado en tu vida máxima, te cura y aumenta tu vida permanentemente."
         ),
         RuneItem(
             id = "aftershock",
             name = "Réplica",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/resolve/veteranaftershock/veteranaftershock.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             description = "Inmovilizar a un campeón enemigo otorga +35 armadura y resistencia mágica durante 2.5s, detonando luego una explosión mágica en área."
         ),
         RuneItem(
             id = "aery",
             name = "Invocar a Aery",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/sorcery/summonaery/summonaery.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             description = "Tus ataques y habilidades envían a Aery a dañar al enemigo o a otorgar un escudo protector al aliado seleccionado."
         ),
         RuneItem(
             id = "glacial_augment",
             name = "Aumento Glacial",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/inspiration/glacialaugment/glacialaugment.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
             description = "Inmovilizar a un campeón enemigo crea 3 líneas de escarcha que ralentizan a los enemigos y reducen su daño infligido un 15%."
         ),
         RuneItem(
             id = "arcane_comet",
             name = "Cometa Arcano",
             category = "Runa Clave",
-            iconUrl = "$CDRAGON_PERKS/sorcery/arcanecomet/arcanecomet.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
             description = "Dañar a un campeón con una habilidad dispara un cometa hacia su posición que inflige daño mágico adaptativo en área."
         ),
 
@@ -182,28 +182,28 @@ object WildRiftSpellsAndRunes {
             id = "sudden_impact",
             name = "Impacto Repentino",
             category = "Dominación",
-            iconUrl = "$CDRAGON_PERKS/domination/suddenimpact/suddenimpact.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/suddenimpact/suddenimpact.png",
             description = "Usar un deslizamiento, salto, teletransporte o salir de sigilo otorga penetración de armadura y penetración mágica adicionales durante 4s."
         ),
         RuneItem(
             id = "scorch",
             name = "Quemadura",
             category = "Dominación",
-            iconUrl = "$CDRAGON_PERKS/sorcery/scorch/scorch.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/scorch/scorch.png",
             description = "Tu siguiente impacto con habilidad quema a los campeones enemigos infligiendo daño mágico adaptativo adicional tras 1s."
         ),
         RuneItem(
             id = "eyeball_collection",
             name = "Colección de Ojos",
             category = "Dominación",
-            iconUrl = "$CDRAGON_PERKS/domination/eyeballcollection/eyeballcollection.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/eyeballcollection/eyeballcollection.png",
             description = "Consigue ojos por cada derribo de campeón enemigo, acumulando hasta +30 de daño de ataque o +60 de poder de habilidad permanentemente."
         ),
         RuneItem(
             id = "zombie_ward",
             name = "Centinela Zombi",
             category = "Dominación",
-            iconUrl = "$CDRAGON_PERKS/domination/zombieward/zombieward.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/zombieward/zombieward.png",
             description = "Destruir centinelas enemigos engendra un centinela zombi aliado en su lugar que otorga visión de mapa extendida."
         ),
 
@@ -212,28 +212,28 @@ object WildRiftSpellsAndRunes {
             id = "triumph",
             name = "Triunfo",
             category = "Precisión",
-            iconUrl = "$CDRAGON_PERKS/precision/triumph.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/triumph.png",
             description = "Los derribos de campeones restauran un 10% de la vida faltante e infligen 5% de daño adicional a enemigos con menos del 35% de vida."
         ),
         RuneItem(
             id = "coup_de_grace",
             name = "Golpe de Gracia",
             category = "Precisión",
-            iconUrl = "$CDRAGON_PERKS/precision/coupdegrace/coupdegrace.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/coupdegrace/coupdegrace.png",
             description = "Inflige un 7% de daño adicional a campeones enemigos que tengan menos del 40% de vida máxima."
         ),
         RuneItem(
             id = "last_stand",
             name = "Último Esfuerzo",
             category = "Precisión",
-            iconUrl = "$CDRAGON_PERKS/precision/laststand/laststand.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/laststand/laststand.png",
             description = "Inflige entre 5% y 11% de daño adicional a campeones mientras estés por debajo del 60% de tu propia vida."
         ),
         RuneItem(
             id = "legend_alacrity",
             name = "Leyenda: Celeridad",
             category = "Precisión",
-            iconUrl = "$CDRAGON_PERKS/precision/legendalacrity/legendalacrity.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendalacrity/legendalacrity.png",
             description = "Gana velocidad de ataque permanente al derribar súbditos, monstruos y campeones enemigos."
         ),
 
@@ -242,35 +242,35 @@ object WildRiftSpellsAndRunes {
             id = "bone_plating",
             name = "Revestimiento de Huesos",
             category = "Valor",
-            iconUrl = "$CDRAGON_PERKS/resolve/boneplating/boneplating.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/boneplating/boneplating.png",
             description = "Tras recibir daño de un campeón enemigo, los siguientes 3 ataques o habilidades enemigas infligen entre 35-65 menos de daño."
         ),
         RuneItem(
             id = "second_wind",
             name = "Segundo Aire",
             category = "Valor",
-            iconUrl = "$CDRAGON_PERKS/resolve/secondwind/secondwind.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/secondwind/secondwind.png",
             description = "Tras recibir daño de un campeón, regenera 6 (+2% de tu vida faltante) a lo largo de 5 segundos."
         ),
         RuneItem(
             id = "conditioning",
             name = "Condicionamiento",
             category = "Valor",
-            iconUrl = "$CDRAGON_PERKS/resolve/conditioning/conditioning.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/conditioning/conditioning.png",
             description = "A partir del minuto 3 de la partida, otorga +8 de armadura y resistencia mágica adicionales y aumenta tus resistencias un 5%."
         ),
         RuneItem(
             id = "overgrowth",
             name = "Sobrecrecimiento",
             category = "Valor",
-            iconUrl = "$CDRAGON_PERKS/resolve/overgrowth/overgrowth.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/overgrowth/overgrowth.png",
             description = "Absorbe la esencia de súbditos o monstruos que mueran cerca de ti para aumentar permanentemente tu vida máxima."
         ),
         RuneItem(
             id = "font_of_life",
             name = "Fuente de Vida",
             category = "Valor",
-            iconUrl = "$CDRAGON_PERKS/resolve/fontoflife/fontoflife.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/fontoflife/fontoflife.png",
             description = "Ralentizar o inmovilizar a un campeón enemigo lo marca. Los aliados que ataquen al enemigo marcado se curan con el tiempo."
         ),
 
@@ -279,35 +279,35 @@ object WildRiftSpellsAndRunes {
             id = "sweet_tooth",
             name = "Dulces Frutos",
             category = "Inspiración",
-            iconUrl = "$CDRAGON_PERKS/inspiration/sweettooth/sweettooth.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/biscuitdelivery/biscuitdelivery.png",
             description = "Aumenta la curación de los Frutos de Miel en un 25% y otorga 20 de oro extra por cada fruto consumido."
         ),
         RuneItem(
             id = "demolish",
             name = "Demolición",
             category = "Inspiración",
-            iconUrl = "$CDRAGON_PERKS/resolve/demolish/demolish.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/demolish/demolish.png",
             description = "Carga un ataque demoledor contra estructuras enemigas cuando estás a 550 de distancia durante 3s, infligiendo daño masivo a torretas."
         ),
         RuneItem(
             id = "manaflow_band",
             name = "Banda de Flujo de Maná",
             category = "Brujería",
-            iconUrl = "$CDRAGON_PERKS/sorcery/manaflowband/manaflowband.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/manaflowband/manaflowband.png",
             description = "Golpear a un campeón con una habilidad aumenta permanentemente tu maná máximo en 30 (hasta 300) y restaura maná faltante."
         ),
         RuneItem(
             id = "transcendence",
             name = "Trascendencia",
             category = "Brujería",
-            iconUrl = "$CDRAGON_PERKS/sorcery/transcendence/transcendence.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/transcendence/transcendence.png",
             description = "Otorga +6 de aceleración de habilidad al nivel 1, +6 adicional al nivel 6, y derribar campeones reduce un 15% los enfriamientos activos."
         ),
         RuneItem(
             id = "nimbus_cloak",
             name = "Capa del Nimbo",
             category = "Brujería",
-            iconUrl = "$CDRAGON_PERKS/sorcery/nimbuscloak/nimbuscloak.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nimbuscloak/6361.png",
             description = "Lanzar un Hechizo de Invocador otorga una ráfaga de hasta 25% de velocidad de movimiento e ignorar colisión de unidades durante 2.5s."
         )
     )

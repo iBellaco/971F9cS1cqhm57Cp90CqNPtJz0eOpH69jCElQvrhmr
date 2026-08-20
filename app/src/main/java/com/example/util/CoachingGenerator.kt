@@ -165,7 +165,7 @@ object CoachingGenerator {
             }
         }
         
-        return champion.summary + "\n\n" + base + "\n\n" + mid
+        return base + "\n\n" + mid
     }
 
     fun generateTacticalAdvice(champion: Champion, activeRole: LaneRole, lang: String): String {

@@ -118,12 +118,16 @@ fun DraftingApp() {
 
     // Modal de Alerta de Actualización Disponible con opción de descarga directa
     activeUpdateInfo?.let { update ->
-        if (update.isUpdateAvailable) {
-            AppUpdateDialog(
-                updateInfo = update,
-                onDismiss = { AppUpdateManager.dismissAlert() }
-            )
-        }
+        AppUpdateDialog(
+            updateInfo = update,
+            onDismiss = { AppUpdateManager.dismissAlert() }
+        )
+    }
+
+    if (isLanguageSet && currentScreen == AppScreen.MAIN) {
+        com.example.ui.components.WelcomePatchDialog(
+            onDismiss = { /* do nothing, handles its own state */ }
+        )
     }
 
     BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
@@ -169,7 +173,7 @@ fun DraftingApp() {
                         currentScreen = AppScreen.MAIN
                         // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
                         coroutineScope.launch {
-                            AppUpdateManager.checkForUpdates(context)
+                            AppUpdateManager.checkForUpdates(context, true)
                         }
                     }
                 )

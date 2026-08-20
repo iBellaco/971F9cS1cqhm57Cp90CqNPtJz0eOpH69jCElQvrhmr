@@ -1027,7 +1027,7 @@ private fun RunesTab() {
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "Parche 16.16.1",
+                        WildRiftRepository.CURRENT_PATCH_VERSION,
                         color = HextechGoldLight,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
