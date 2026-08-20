@@ -277,16 +277,16 @@ object WildRiftRepository {
         val enemyTanks = enemies.filter { it.isFrontline }
 
         if (enemySett != null && enemyVi != null) {
-            directMatchupWarning = "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad."
+            directMatchupWarning = com.example.util.trStr(lang, "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad.")
             directCounterBestPick = "Morgana o Janna"
         } else if (enemyCaitlyn != null) {
-            directMatchupWarning = "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank."
+            directMatchupWarning = com.example.util.trStr(lang, "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank.")
             directCounterBestPick = "Nautilus o Viego"
         } else if (enemyZed != null) {
-            directMatchupWarning = "Peligro de asesinos de burst (${enemyZed.name}). Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus)."
+            directMatchupWarning = com.example.util.trStr(lang, "Peligro de asesinos de burst") + " (${enemyZed.name}). " + com.example.util.trStr(lang, "Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus).")
             directCounterBestPick = "Lulu, Nautilus o Zhonya"
         } else if (enemyTanks.size >= 2) {
-            directMatchupWarning = "Composición rival pesada (${enemyTanks.joinToString { it.name }}). Requiere daño verdadero y % vida máxima."
+            directMatchupWarning = com.example.util.trStr(lang, "Composición rival pesada") + " (${enemyTanks.joinToString { it.name }}). " + com.example.util.trStr(lang, "Requiere daño verdadero y % vida máxima.")
             directCounterBestPick = "Vayne, Sett, Gwen o Liandry"
         }
 

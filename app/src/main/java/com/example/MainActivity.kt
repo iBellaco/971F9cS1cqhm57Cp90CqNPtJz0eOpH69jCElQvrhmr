@@ -116,29 +116,30 @@ fun DraftingApp() {
         }
     }
 
-    // Modal de Alerta de Actualización Disponible con opción de descarga directa
-    activeUpdateInfo?.let { update ->
-        AppUpdateDialog(
-            updateInfo = update,
-            onDismiss = { AppUpdateManager.dismissAlert() }
-        )
+    var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
+    LaunchedEffect(selectedLanguage) {
+        // Just trigger recompose
     }
 
-    if (isLanguageSet && currentScreen == AppScreen.MAIN) {
-        com.example.ui.components.WelcomePatchDialog(
-            onDismiss = { /* do nothing, handles its own state */ }
-        )
-    }
+    CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
+        // Modal de Alerta de Actualización Disponible con opción de descarga directa
+        activeUpdateInfo?.let { update ->
+            AppUpdateDialog(
+                updateInfo = update,
+                onDismiss = { AppUpdateManager.dismissAlert() }
+            )
+        }
+
+        if (isLanguageSet && currentScreen == AppScreen.MAIN) {
+            com.example.ui.components.WelcomePatchDialog(
+                onDismiss = { /* do nothing, handles its own state */ }
+            )
+        }
 
     BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
         currentScreen = AppScreen.MAIN
     }
 
-    var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
-    LaunchedEffect(selectedLanguage) {
-        // Just trigger recompose
-    }
-    CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
                     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {

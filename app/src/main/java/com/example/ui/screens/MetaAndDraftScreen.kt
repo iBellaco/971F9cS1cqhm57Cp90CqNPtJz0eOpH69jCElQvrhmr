@@ -554,13 +554,13 @@ private fun ChampionsCatalogTab(
                                         )
                                     }
                                     Text(
-                                        text = "Principal: ${champion.primaryRole.shortName} • ${champion.damageType.displayName}",
+                                        text = "Principal: ${com.example.util.tr(champion.primaryRole.shortName)} • ${com.example.util.tr(champion.damageType.displayName)}",
                                         color = HextechCyan,
                                         fontSize = 11.sp
                                     )
                                 } else {
                                     Text(
-                                        text = "${champion.primaryRole.displayName} • ${champion.damageType.displayName}",
+                                        text = "${com.example.util.tr(champion.primaryRole.displayName)} • ${com.example.util.tr(champion.damageType.displayName)}",
                                         color = HextechCyan,
                                         fontSize = 11.5.sp
                                     )
@@ -775,7 +775,7 @@ private fun TierSectionCard(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("${champ.primaryRole.shortName} • ${champ.damageType.displayName}", color = HextechCyan, fontSize = 11.sp)
+                                Text("${com.example.util.tr(champ.primaryRole.shortName)} • ${com.example.util.tr(champ.damageType.displayName)}", color = HextechCyan, fontSize = 11.sp)
                             }
                         }
                         Row(
@@ -858,7 +858,7 @@ private fun ItemsCatalogTab() {
                 FilterChip(
                     selected = selectedCategory == cat,
                     onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
-                    label = { Text(cat.displayName, fontSize = 11.5.sp) },
+                    label = { Text(com.example.util.tr(cat.displayName), fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1358,7 +1358,7 @@ private fun DraftAnalysisTab(
                     Spacer(modifier = Modifier.width(6.dp))
                     Column {
                         Text(tr("Línea:"), color = TextMuted, fontSize = 10.5.sp)
-                        Text(activeRole.displayName, color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                        Text(com.example.util.tr(activeRole.displayName), color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 Text(tr("Cambiar"), color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
@@ -1474,7 +1474,7 @@ private fun DraftAnalysisTab(
 
         // Live Recommendations Header
         Text(
-            text = if (isFirstPick) tr("★ Mejor Primer Pick Seguro para") + " ${activeRole.displayName}" else tr("★ Mejor Opción según tu Equipo y el Rival"),
+            text = if (isFirstPick) tr("★ Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("★ Mejor Opción según tu Equipo y el Rival"),
             color = HextechGold,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
@@ -1575,7 +1575,7 @@ private fun DraftAnalysisTab(
         val otherRecs = analysis.recommendations.filter { it.champion.id != topPick?.champion?.id }
         if (otherRecs.isNotEmpty()) {
             Text(
-                text = tr("Otras Opciones Viables para") + " ${activeRole.displayName}:",
+                text = tr("Otras Opciones Viables para") + " ${com.example.util.tr(activeRole.displayName)}:",
                 color = HextechCyan,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold
@@ -1850,7 +1850,7 @@ private fun RoleChangeBottomSheet(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(role.displayName, color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(com.example.util.tr(role.displayName), color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     if (role == currentRole) {
                         Icon(Icons.Default.Check, contentDescription = null, tint = HextechCyan)
                     }

@@ -1,12 +1,27 @@
 import re
 
-file_path = "app/src/main/java/com/example/data/WildRiftRepository.kt"
-with open(file_path, "r", encoding="utf-8") as f:
+with open("app/src/main/java/com/example/data/WildRiftRepository.kt", "r") as f:
     content = f.read()
 
-content = content.replace('    )\n\n    // ==========================================\n', '\n    // ==========================================\n')
+content = content.replace(
+    'directMatchupWarning = "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad."',
+    'directMatchupWarning = com.example.util.trStr(lang, "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad.")'
+)
 
-with open(file_path, "w", encoding="utf-8") as f:
+content = content.replace(
+    'directMatchupWarning = "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank."',
+    'directMatchupWarning = com.example.util.trStr(lang, "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank.")'
+)
+
+content = content.replace(
+    'directMatchupWarning = "Peligro de asesinos de burst (${enemyZed.name}). Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus)."',
+    'directMatchupWarning = com.example.util.trStr(lang, "Peligro de asesinos de burst") + " (${enemyZed.name}). " + com.example.util.trStr(lang, "Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus).")'
+)
+
+content = content.replace(
+    'directMatchupWarning = "Composición rival pesada (${enemyTanks.joinToString { it.name }}). Requiere daño verdadero y % vida máxima."',
+    'directMatchupWarning = com.example.util.trStr(lang, "Composición rival pesada") + " (${enemyTanks.joinToString { it.name }}). " + com.example.util.trStr(lang, "Requiere daño verdadero y % vida máxima.")'
+)
+
+with open("app/src/main/java/com/example/data/WildRiftRepository.kt", "w") as f:
     f.write(content)
-
-print("Fixed WildRiftRepository.kt!")
