@@ -1,55 +1,70 @@
 package com.example.data.auth
 
 import android.util.Log
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.tasks.await
+import com.example.data.supabase.SupabaseClientManager
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.providers.builtin.Email
+import io.github.jan.supabase.gotrue.user.UserInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class AuthRepository {
-    val auth: FirebaseAuth? by lazy {
-        try {
-            val instance = FirebaseAuth.getInstance()
-            // Bypass App Verification / reCAPTCHA in emulator to prevent GMS crashes
-            instance.firebaseAuthSettings.setAppVerificationDisabledForTesting(true)
-            instance
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Firebase not initialized", e)
-            null
-        }
-    }
-
+    
+    // We use Supabase Auth now
     val isUserLoggedIn: Boolean
-        get() = auth?.currentUser != null
+        get() = SupabaseClientManager.client.auth.currentUserOrNull() != null
+        
+    fun getCurrentUser(): UserInfo? {
+        return SupabaseClientManager.client.auth.currentUserOrNull()
+    }
 
-    suspend fun signIn(email: String, password: String): Result<AuthResult> {
-        return try {
-            val result = auth?.signInWithEmailAndPassword(email, password)?.await()
-            if (result != null) {
-                Result.success(result)
-            } else {
-                Result.failure(Exception("Fallo al iniciar sesión. Firebase no inicializado."))
+    suspend fun signIn(email: String, password: String): Result<UserInfo> {
+        return withContext(Dispatchers.IO) {
+            try {
+                SupabaseClientManager.client.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
+                val user = SupabaseClientManager.client.auth.currentUserOrNull()
+                if (user != null) {
+                    Result.success(user)
+                } else {
+                    Result.failure(Exception("Fallo al iniciar sesión en Supabase."))
+                }
+            } catch (e: Exception) {
+                Log.e("AuthRepository", "Sign-in failed", e)
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Sign-in failed", e)
-            Result.failure(e)
         }
     }
 
-    suspend fun signUp(email: String, password: String): Result<AuthResult> {
-        return try {
-            val result = auth?.createUserWithEmailAndPassword(email, password)?.await()
-            if (result != null) {
-                Result.success(result)
-            } else {
-                Result.failure(Exception("Fallo al registrar. Firebase no inicializado."))
+    suspend fun signUp(email: String, password: String): Result<UserInfo> {
+        return withContext(Dispatchers.IO) {
+            try {
+                SupabaseClientManager.client.auth.signUpWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
+                val user = SupabaseClientManager.client.auth.currentUserOrNull()
+                if (user != null) {
+                    Result.success(user)
+                } else {
+                    Result.failure(Exception("Fallo al registrar en Supabase."))
+                }
+            } catch (e: Exception) {
+                Log.e("AuthRepository", "Sign-up failed", e)
+                Result.failure(e)
             }
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Sign-up failed", e)
-            Result.failure(e)
         }
     }
 
-    fun signOut() {
-        auth?.signOut()
+    suspend fun signOut() {
+        withContext(Dispatchers.IO) {
+            try {
+                SupabaseClientManager.client.auth.signOut()
+            } catch (e: Exception) {
+                Log.e("AuthRepository", "Sign-out failed", e)
+            }
+        }
     }
 }

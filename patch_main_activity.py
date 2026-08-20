@@ -1,23 +1,16 @@
 import re
 
-file_path = "app/src/main/java/com/example/MainActivity.kt"
-with open(file_path, "r", encoding="utf-8") as f:
+with open("app/src/main/java/com/example/MainActivity.kt", "r") as f:
     content = f.read()
 
-import_firebase = "import com.google.firebase.FirebaseApp\n"
-if "import com.google.firebase.FirebaseApp" not in content:
-    content = content.replace("import android.os.Bundle", f"import android.os.Bundle\n{import_firebase}")
+content = re.sub(r'import com\.google\.firebase\.FirebaseApp\n', '', content)
+firebase_init_block = r'''        try {
+            FirebaseApp\.initializeApp\(this\)
+            com\.example\.util\.AppLogger\.d\("APP", "Firebase initialized in MainActivity"\)
+        } catch \(e: Exception\) {
+            com\.example\.util\.AppLogger\.e\("APP", "Firebase init failed in MainActivity", e\)
+        }'''
+content = re.sub(firebase_init_block, '', content)
 
-init_code = """
-        super.onCreate(savedInstanceState)
-        try {
-            FirebaseApp.initializeApp(this)
-            com.example.util.AppLogger.d("APP", "Firebase initialized in MainActivity")
-        } catch (e: Exception) {
-            com.example.util.AppLogger.e("APP", "Firebase init failed in MainActivity", e)
-        }
-"""
-content = content.replace("super.onCreate(savedInstanceState)", init_code)
-
-with open(file_path, "w", encoding="utf-8") as f:
+with open("app/src/main/java/com/example/MainActivity.kt", "w") as f:
     f.write(content)

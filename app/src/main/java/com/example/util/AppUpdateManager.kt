@@ -5,12 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import com.example.BuildConfig
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -29,7 +27,7 @@ data class AppUpdateInfo(
 
 /**
  * Gestor de verificación y descarga de actualizaciones en tiempo real para la aplicación.
- * Consulta tanto Firebase Firestore (colección 'app_config/update_info') como la API de GitHub Releases.
+ * Consulta la API de GitHub Releases.
  */
 object AppUpdateManager {
 

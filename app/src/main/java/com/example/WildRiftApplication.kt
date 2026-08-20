@@ -7,18 +7,12 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
-import com.google.firebase.FirebaseApp
 import android.util.Log
 
 class WildRiftApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
-        try {
-            FirebaseApp.initializeApp(this)
-            Log.d("WildRiftApplication", "FirebaseApp successfully initialized in Application class.")
-        } catch (e: Exception) {
-            Log.e("WildRiftApplication", "Failed to initialize FirebaseApp", e)
-        }
+        
     }
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)

@@ -154,9 +154,7 @@ fun AppUpdateDialog(
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = updateInfo.releaseNotes.ifBlank {
-                                "• Actualización del nuevo icono emblemático.\n• Compatibilidad de instalación sin conflicto de versiones.\n• Mejoras generales de estabilidad y asistente en vivo."
-                            },
+                            text = updateInfo.releaseNotes.ifBlank { tr("release_notes_fallback") },
                             color = Color(0xFFCBD5E1),
                             fontSize = 12.sp,
                             lineHeight = 16.sp
@@ -245,7 +243,7 @@ fun AppUpdateDialog(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = tr("Estás utilizando la versión más reciente (v${BuildConfig.VERSION_NAME})."),
+                        text = tr("Estás utilizando la versión más reciente") + " (v${BuildConfig.VERSION_NAME}).",
                         color = Color(0xFFCBD5E1),
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center

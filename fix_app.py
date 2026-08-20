@@ -1,13 +1,8 @@
-with open('app/src/main/java/com/example/WildRiftApp.kt', 'r') as f:
+with open("app/src/main/java/com/example/WildRiftApplication.kt", "r") as f:
     content = f.read()
 
-content = content.replace('AppLogger.e("CRASH", "Uncaught exception on thread ${thread.name}", exception)', '''
-            if (exception is SecurityException && exception.message?.contains("com.google.android.gms") == true) {
-                AppLogger.d("SYSTEM_WARNING", "Ignored GMS Emulator SecurityException: ${exception.message}")
-            } else {
-                AppLogger.e("CRASH", "Uncaught exception on thread ${thread.name}", exception)
-            }
-''')
+import re
+content = re.sub(r'try \{Log\.d\("WildRiftApplication", "FirebaseApp successfully initialized in Application class\."\)\n\s*\} catch \(e: Exception\) \{\n\s*Log\.e\("WildRiftApplication", "Failed to initialize FirebaseApp", e\)\n\s*\}', '', content)
 
-with open('app/src/main/java/com/example/WildRiftApp.kt', 'w') as f:
+with open("app/src/main/java/com/example/WildRiftApplication.kt", "w") as f:
     f.write(content)

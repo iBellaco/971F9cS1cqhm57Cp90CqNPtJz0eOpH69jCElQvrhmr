@@ -1,5 +1,8 @@
 package com.example.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class LaneRole(val displayName: String, val shortName: String) {
     TOP("Línea de Barón", "Top"),
     JUNGLE("Jungla", "Jungla"),
@@ -8,12 +11,14 @@ enum class LaneRole(val displayName: String, val shortName: String) {
     SUPPORT("Soporte", "Soporte")
 }
 
+@Serializable
 enum class DamageType(val displayName: String) {
     PHYSICAL("Físico"),
     MAGIC("Mágico"),
     TRUE_HYBRID("Híbrido / Verdadero")
 }
 
+@Serializable
 enum class ItemCategory(val displayName: String) {
     PHYSICAL("Daño Físico"),
     MAGIC("Poder Mágico"),
@@ -23,6 +28,7 @@ enum class ItemCategory(val displayName: String) {
 }
 
 
+@Serializable
 data class ChampionSkill(
     val slot: String = "", // "P", "1", "2", "3", "4"
     val slotName: String = "", // "Pasiva", "Habilidad 1", "Habilidad 2", "Habilidad 3", "Definitiva"
@@ -32,6 +38,7 @@ data class ChampionSkill(
     val cooldown: String = ""
 )
 
+@Serializable
 data class Champion(
     val id: String = "",
     val name: String = "",
@@ -69,6 +76,7 @@ data class Champion(
     val bestBuildWrUrl: String = "https://bestbuildwr.com/"
 )
 
+@Serializable
 data class WildRiftItem(
     val id: String,
     val name: String,
@@ -79,6 +87,7 @@ data class WildRiftItem(
     val iconUrl: String
 )
 
+@Serializable
 data class SummonerSpellItem(
     val id: String,
     val name: String,
@@ -87,6 +96,7 @@ data class SummonerSpellItem(
     val description: String
 )
 
+@Serializable
 data class RuneItem(
     val id: String,
     val name: String,
@@ -95,6 +105,7 @@ data class RuneItem(
     val description: String
 )
 
+@Serializable
 data class MapObjectiveItem(
     val id: String,
     val name: String,
@@ -105,6 +116,7 @@ data class MapObjectiveItem(
     val tactics: String
 )
 
+@Serializable
 data class DraftAnalysisResult(
     val physicalDamagePercent: Int,
     val magicDamagePercent: Int,
@@ -117,6 +129,7 @@ data class DraftAnalysisResult(
     val recommendations: List<DraftRecommendation>
 )
 
+@Serializable
 data class DraftRecommendation(
     val champion: Champion,
     val estimatedWinrate: Double,
@@ -127,6 +140,7 @@ data class DraftRecommendation(
     val counterDetails: String = ""
 )
 
+@Serializable
 data class MetaDataSource(
     val id: String,
     val name: String,

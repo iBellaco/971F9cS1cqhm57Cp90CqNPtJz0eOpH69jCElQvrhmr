@@ -2,7 +2,6 @@ package com.example
 
 import android.content.Context
 import android.os.Bundle
-import com.google.firebase.FirebaseApp
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -28,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.util.LocalLanguage
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -43,11 +43,16 @@ import com.example.ui.screens.MainDraftingScreen
 import com.example.ui.screens.MetaAndDraftScreen
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.theme.HextechCyan
+import com.example.ui.theme.HextechGold
+import com.example.util.tr
 import com.example.util.AppUpdateManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 
+import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.*
 enum class AppScreen {
     LOGIN,
     LANGUAGE_SELECTION,
@@ -60,12 +65,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         
         super.onCreate(savedInstanceState)
-        try {
-            FirebaseApp.initializeApp(this)
-            com.example.util.AppLogger.d("APP", "Firebase initialized in MainActivity")
-        } catch (e: Exception) {
-            com.example.util.AppLogger.e("APP", "Firebase init failed in MainActivity", e)
-        }
+
 
         enableEdgeToEdge()
         setContent {
@@ -91,6 +91,82 @@ class MainActivity : ComponentActivity() {
         }
 }
 }
+
+@Composable
+fun DashboardScreen(
+    onNavigateToInfo: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    mainRole: LaneRole,
+    onMainRoleChange: (LaneRole) -> Unit,
+    secondRole: LaneRole,
+    onSecondRoleChange: (LaneRole) -> Unit,
+    autofillRole: LaneRole,
+    onAutofillRoleChange: (LaneRole) -> Unit,
+    currentLanguage: String,
+    onLanguageChange: (String) -> Unit
+) {
+    var selectedTab by remember { mutableStateOf(0) }
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor = com.example.ui.theme.HextechDarkBg,
+                contentColor = com.example.ui.theme.HextechGold
+            ) {
+                NavigationBarItem(
+                    selected = selectedTab == 0,
+                    onClick = { selectedTab = 0 },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                    label = { Text(tr("Inicio")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = HextechDarkBg,
+                        selectedTextColor = HextechGold,
+                        indicatorColor = HextechGold,
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    icon = { Icon(Icons.Default.MenuBook, contentDescription = "Catálogo") },
+                    label = { Text(tr("Catálogo")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = HextechDarkBg,
+                        selectedTextColor = HextechCyan,
+                        indicatorColor = HextechCyan,
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+            }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            if (selectedTab == 0) {
+                MainDraftingScreen(
+                    onNavigateToInfo = onNavigateToInfo,
+                    onNavigateToMeta = { selectedTab = 1 }, // Navigates to Catalog tab
+                    onNavigateToLogin = onNavigateToLogin,
+                    mainRole = mainRole,
+                    onMainRoleChange = onMainRoleChange,
+                    secondRole = secondRole,
+                    onSecondRoleChange = onSecondRoleChange,
+                    autofillRole = autofillRole,
+                    onAutofillRoleChange = onAutofillRoleChange,
+                    currentLanguage = currentLanguage,
+                    onLanguageChange = onLanguageChange
+                )
+            } else {
+                MetaAndDraftScreen(
+                    userMainRole = mainRole,
+                    onNavigateBack = { selectedTab = 0 }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun DraftingApp() {
@@ -180,9 +256,8 @@ fun DraftingApp() {
                 )
             }
             AppScreen.MAIN -> {
-                MainDraftingScreen(
+                DashboardScreen(
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
-                    onNavigateToMeta = { currentScreen = AppScreen.META },
                     onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
                     mainRole = mainRole,
                     onMainRoleChange = { mainRole = it },
@@ -197,14 +272,9 @@ fun DraftingApp() {
                     }
                 )
             }
+            AppScreen.META -> {}
             AppScreen.INFO -> {
                 InfoScreen(
-                    onNavigateBack = { currentScreen = AppScreen.MAIN }
-                )
-            }
-            AppScreen.META -> {
-                MetaAndDraftScreen(
-                    userMainRole = mainRole,
                     onNavigateBack = { currentScreen = AppScreen.MAIN }
                 )
             }

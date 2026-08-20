@@ -89,34 +89,7 @@ object MetaCrawlerSyncService {
                 val timestampFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
                 val nowStr = timestampFormat.format(Date())
 
-                // Pull actual dynamic data from Firestore to override local defaults
-                // ENABLED
-                val firestoreManager = com.example.data.sync.FirestoreManager()
-                
-                val cloudChampions = firestoreManager.getChampionsFromFirestore()
-                if (cloudChampions.isNotEmpty()) {
-                    WildRiftRepository.champions = cloudChampions
-                }
-
-                val cloudSpells = firestoreManager.getSpellsFromFirestore()
-                if (cloudSpells.isNotEmpty()) {
-                    WildRiftRepository.summonerSpells = cloudSpells
-                }
-
-                val cloudRunes = firestoreManager.getRunesFromFirestore()
-                if (cloudRunes.isNotEmpty()) {
-                    WildRiftRepository.runes = cloudRunes
-                }
-
-                val cloudItems = firestoreManager.getItemsFromFirestore()
-                if (cloudItems.isNotEmpty()) {
-                    WildRiftRepository.items = cloudItems
-                }
-
-                val cloudObjectives = firestoreManager.getObjectivesFromFirestore()
-                if (cloudObjectives.isNotEmpty()) {
-                    WildRiftRepository.mapObjectives = cloudObjectives
-                }
+                // Supabase dynamic data fetching will be implemented here
 
                 // Guardar en caché local persistente
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

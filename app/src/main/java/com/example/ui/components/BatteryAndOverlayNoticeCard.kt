@@ -127,13 +127,13 @@ fun BatteryAndOverlayNoticeCard(
 
                 Column {
                     Text(
-                        text = "Configuración para Segundo Plano",
+                        text = tr("Configuración para Segundo Plano"),
                         color = HextechGold,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Recomendaciones para funcionamiento óptimo sobre Wild Rift",
+                        text = tr("Recomendaciones para funcionamiento óptimo sobre Wild Rift"),
                         color = TextMuted,
                         fontSize = 11.5.sp
                     )
@@ -144,7 +144,7 @@ fun BatteryAndOverlayNoticeCard(
 
             // Explanation
             Text(
-                text = "Para que el asistente flote en tiempo real sobre tu partida de Wild Rift sin que Android cierre el proceso por consumo de memoria:",
+                text = tr("Para que el asistente flote en tiempo real sobre tu partida de Wild Rift sin que Android cierre el proceso por consumo de memoria:"),
                 color = TextPrimary.copy(alpha = 0.9f),
                 fontSize = 12.5.sp,
                 lineHeight = 17.sp
@@ -183,13 +183,13 @@ fun BatteryAndOverlayNoticeCard(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "1. Permiso de Superposición",
+                            text = tr("1. Permiso de Superposición"),
                             color = TextPrimary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (hasOverlayPermission) "✔ Concedido (Ventana flotante habilitada)" else "✘ Pendiente: Toca para autorizar",
+                            text = if (hasOverlayPermission) tr("✔ Concedido (Ventana flotante habilitada)") else tr("✘ Pendiente: Toca para autorizar"),
                             color = if (hasOverlayPermission) HextechCyan else DangerRed,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
@@ -238,13 +238,13 @@ fun BatteryAndOverlayNoticeCard(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "2. Desactivar Ahorro de Batería",
+                            text = tr("2. Desactivar Ahorro de Batería"),
                             color = TextPrimary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = if (isBatteryExempt) "✔ Sin restricciones (No se cerrará en segundo plano)" else "✘ Optimizado: Toca para quitar restricción",
+                            text = if (isBatteryExempt) tr("✔ Sin restricciones (No se cerrará en segundo plano)") else tr("✘ Optimizado: Toca para quitar restricción"),
                             color = if (isBatteryExempt) HextechCyan else DangerRed,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
@@ -298,7 +298,7 @@ fun BatteryAndOverlayNoticeCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (!hasOverlayPermission) "Conceder Permiso" else if (isServiceRunning) "Detener Flotante" else "Lanzar Flotante en Juego",
+                        text = if (!hasOverlayPermission) tr("Conceder Permiso") else if (isServiceRunning) tr("Detener Flotante") else tr("Lanzar Flotante en Juego"),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.5.sp
                     )
