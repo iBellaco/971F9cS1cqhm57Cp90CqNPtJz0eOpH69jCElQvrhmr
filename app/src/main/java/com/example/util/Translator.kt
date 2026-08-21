@@ -29,6 +29,32 @@ val translations = mapOf(
         "Seleccionar Campeón Aliado" to "Selecionar Campeão Aliado",
         "Seleccionar Campeón Rival" to "Selecionar Campeão Inimigo",
 
+        // Modal de Bienvenida del Parche
+        "¡Bienvenidos a Wild Rift Coach!" to "Bem-vindos ao Wild Rift Coach!",
+        "Estado del Parche: " to "Status do Patch: ",
+        "Estado del Parche:" to "Status do Patch:",
+        "Versión del Parche:" to "Versão do Patch:",
+        "Versión del Parche de Wild Rift:" to "Versão do Patch do Wild Rift:",
+        "Parche" to "Patch",
+        "parche" to "patch",
+        "Parches" to "Patches",
+        "parches" to "patches",
+        "Parche 7.2c" to "Patch 7.2c",
+        "Parche 7.2b" to "Patch 7.2b",
+        "Parche 7.2a" to "Patch 7.2a",
+        "Parche 7.2" to "Patch 7.2",
+        "1. Compatibilidad y Parche Oficial" to "1. Compatibilidade e Patch Oficial",
+        "Ver Notas de Bienvenida y Novedades del Parche" to "Ver Notas de Boas-vindas e Novidades do Patch",
+        "Runas en Español, Parches y Novedades" to "Runas, Patches e Novidades",
+        "Catálogo Completo de Objetos" to "Catálogo Completo de Itens",
+        "Sincronizado con wr-meta.com con descripciones, estadísticas y costes actualizados." to "Sincronizado com wr-meta.com com descrições, estatísticas e custos atualizados.",
+        "Overlay Flotante Táctico" to "Overlay Flutuante Tático",
+        "Asistente en tiempo real durante tu fase de selección y partida en Wild Rift." to "Assistente em tempo real durante a fase de seleção e partida no Wild Rift.",
+        "Seguridad y Rendimiento" to "Segurança e Desempenho",
+        "Ícono adaptativo optimizado para todas las capas de personalización (Xiaomi/Samsung)." to "Ícone adaptativo otimizado para todas as camadas de personalização (Xiaomi/Samsung).",
+        "¡Comenzar / Entendido!" to "Começar / Entendido!",
+        "Cerrar" to "Fechar",
+
         "¡Bienvenidos!" to "Bem-vindos!",
         "Notas del Nuevo Parche" to "Notas do Novo Patch",
         "• Sincronización automática con: " to "• Sincronização automática com: ",
@@ -98,6 +124,27 @@ val translations = mapOf(
         "Puedes deslizar el panel hacia abajo en cualquier momento para ocultarlo temporalmente sin detener la herramienta." to "Você pode deslizar o painel para baixo a qualquer momento para ocultá-lo temporariamente sem interromper a ferramenta.",
         "Versión del Parche de Wild Rift:" to "Versão do Patch do Wild Rift:",
         "Build y Runas de" to "Build e Runas de",
+        "Básicos" to "Básicos",
+        "Nivel Medio" to "Nível Médio",
+        "Botas N2" to "Botas N2",
+        "Botas N3" to "Botas N3",
+        "Encantamientos" to "Encantamentos",
+        "ÍTEMS BÁSICOS (BASIC ITEMS)" to "ITENS BÁSICOS (BASIC ITEMS)",
+        "ÍTEMS DE NIVEL MEDIO (MID TIER)" to "ITENS DE NÍVEL MÉDIO (MID TIER)",
+        "DAÑO FÍSICO (PHYSICAL DAMAGE)" to "DANO FÍSICO (PHYSICAL DAMAGE)",
+        "DAÑO MÁGICO (MAGIC DAMAGE)" to "DANO MÁGICO (MAGIC DAMAGE)",
+        "DEFENSA (DEFENSIVE ITEMS)" to "DEFESA (DEFENSIVE ITEMS)",
+        "SOPORTE (SUPPORT ITEMS)" to "SUPORTE (SUPPORT ITEMS)",
+        "BOTAS NIVEL 2 (BOOTS TIER 2)" to "BOTAS NÍVEL 2 (BOOTS TIER 2)",
+        "BOTAS NIVEL 3 (BOOTS TIER 3)" to "BOTAS NÍVEL 3 (BOOTS TIER 3)",
+        "ENCANTAMIENTOS Y ACTIVOS (ACTIVE ITEMS)" to "ENCANTAMENTOS E ATIVOS (ACTIVE ITEMS)",
+        "Cuadrícula" to "Grade",
+        "Detallado" to "Detalhado",
+        "Buscar objeto por nombre o estadísticas..." to "Buscar item por nome ou atributos...",
+        "Estadísticas:" to "Atributos:",
+        "Efecto / Pasiva:" to "Efeito / Passiva:",
+        "Coste:" to "Custo:",
+        "Oro" to "Ouro",
 
         "Elige tu idioma" to "Escolha seu idioma",
         "Español" to "Espanhol",
@@ -398,6 +445,32 @@ val translations = mapOf(
         "Seleccionar Campeón Aliado" to "Select Ally Champion",
         "Seleccionar Campeón Rival" to "Select Enemy Champion",
 
+        // Modal de Bienvenida del Parche
+        "¡Bienvenidos a Wild Rift Coach!" to "Welcome to Wild Rift Coach!",
+        "Estado del Parche: " to "Patch Status: ",
+        "Estado del Parche:" to "Patch Status:",
+        "Versión del Parche:" to "Patch Version:",
+        "Versión del Parche de Wild Rift:" to "Wild Rift Patch Version:",
+        "Parche" to "Patch",
+        "parche" to "patch",
+        "Parches" to "Patches",
+        "parches" to "patches",
+        "Parche 7.2c" to "Patch 7.2c",
+        "Parche 7.2b" to "Patch 7.2b",
+        "Parche 7.2a" to "Patch 7.2a",
+        "Parche 7.2" to "Patch 7.2",
+        "1. Compatibilidad y Parche Oficial" to "1. Official Patch & Compatibility",
+        "Ver Notas de Bienvenida y Novedades del Parche" to "View Welcome Notes & Patch Updates",
+        "Runas en Español, Parches y Novedades" to "Runes, Patches and Updates",
+        "Catálogo Completo de Objetos" to "Complete Item Catalog",
+        "Sincronizado con wr-meta.com con descripciones, estadísticas y costes actualizados." to "Synchronized with wr-meta.com with updated descriptions, stats, and gold costs.",
+        "Overlay Flotante Táctico" to "Tactical Floating Overlay",
+        "Asistente en tiempo real durante tu fase de selección y partida en Wild Rift." to "Real-time assistant during your draft pick and match in Wild Rift.",
+        "Seguridad y Rendimiento" to "Security & Performance",
+        "Ícono adaptativo optimizado para todas las capas de personalización (Xiaomi/Samsung)." to "Adaptive icon optimized for all custom Android skins (Xiaomi/Samsung).",
+        "¡Comenzar / Entendido!" to "Get Started / Understood!",
+        "Cerrar" to "Close",
+
         "¡Bienvenidos!" to "Welcome!",
         "Notas del Nuevo Parche" to "New Patch Notes",
         "• Sincronización automática con: " to "• Automatic synchronization with: ",
@@ -467,6 +540,27 @@ val translations = mapOf(
         "Puedes deslizar el panel hacia abajo en cualquier momento para ocultarlo temporalmente sin detener la herramienta." to "You can swipe the panel down anytime to temporarily hide it without stopping the tool.",
         "Versión del Parche de Wild Rift:" to "Wild Rift Patch Version:",
         "Build y Runas de" to "Build and Runes for",
+        "Básicos" to "Basic",
+        "Nivel Medio" to "Mid Tier",
+        "Botas N2" to "Boots T2",
+        "Botas N3" to "Boots T3",
+        "Encantamientos" to "Actives & Enchants",
+        "ÍTEMS BÁSICOS (BASIC ITEMS)" to "BASIC ITEMS",
+        "ÍTEMS DE NIVEL MEDIO (MID TIER)" to "MID-TIER ITEMS",
+        "DAÑO FÍSICO (PHYSICAL DAMAGE)" to "PHYSICAL DAMAGE",
+        "DAÑO MÁGICO (MAGIC DAMAGE)" to "MAGIC DAMAGE",
+        "DEFENSA (DEFENSIVE ITEMS)" to "DEFENSIVE ITEMS",
+        "SOPORTE (SUPPORT ITEMS)" to "SUPPORT ITEMS",
+        "BOTAS NIVEL 2 (BOOTS TIER 2)" to "BOOTS TIER 2",
+        "BOTAS NIVEL 3 (BOOTS TIER 3)" to "BOOTS TIER 3",
+        "ENCANTAMIENTOS Y ACTIVOS (ACTIVE ITEMS)" to "ACTIVE & ENCHANTMENT ITEMS",
+        "Cuadrícula" to "Grid",
+        "Detallado" to "Detailed",
+        "Buscar objeto por nombre o estadísticas..." to "Search item by name or stats...",
+        "Estadísticas:" to "Stats:",
+        "Efecto / Pasiva:" to "Effect / Passive:",
+        "Coste:" to "Cost:",
+        "Oro" to "Gold",
 
         "Elige tu idioma" to "Choose your language",
         "Español" to "Spanish",
@@ -760,11 +854,25 @@ val translations = mapOf(
 @Composable
 fun tr(key: String): String {
     val lang = LocalLanguage.current
-    if (lang == "es" || lang == "auto") return key
-    return translations[lang]?.get(key) ?: key
+    return trStr(lang, key)
 }
 
 fun trStr(lang: String, key: String): String {
     if (lang == "es" || lang == "auto") return key
-    return translations[lang]?.get(key) ?: key
+    val direct = translations[lang]?.get(key)
+    if (direct != null) return direct
+
+    // Dynamic patch replacement fallback
+    if (lang == "en" || lang == "pt") {
+        if (key.startsWith("Parche ")) {
+            return "Patch " + key.substring("Parche ".length)
+        } else if (key.startsWith("parche ")) {
+            return "patch " + key.substring("parche ".length)
+        } else if (key == "Parche") {
+            return "Patch"
+        } else if (key == "parche") {
+            return "patch"
+        }
+    }
+    return key
 }

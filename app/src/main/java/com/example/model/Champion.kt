@@ -19,16 +19,16 @@ enum class DamageType(val displayName: String) {
 }
 
 @Serializable
-enum class ItemCategory(val displayName: String) {
-    PHYSICAL("Daño Físico"),
-    MAGIC("Daño Mágico"),
-    DEFENSE("Defensa"),
-    SUPPORT("Soporte"),
-    ACTIVE("Objetos Activos"),
-    BOOTS_T2("Botas Nivel 2"),
-    BOOTS_T3("Botas Nivel 3"),
-    MID_TIER("Nivel Medio"),
-    BASIC("Nivel Básico")
+enum class ItemCategory(val displayName: String, val sectionTitle: String, val iconEmoji: String) {
+    BASIC("Básicos", "ÍTEMS BÁSICOS (BASIC ITEMS)", "🔰"),
+    MID_TIER("Nivel Medio", "ÍTEMS DE NIVEL MEDIO (MID TIER)", "⚔️"),
+    PHYSICAL("Daño Físico", "DAÑO FÍSICO (PHYSICAL DAMAGE)", "🗡️"),
+    MAGIC("Daño Mágico", "DAÑO MÁGICO (MAGIC DAMAGE)", "🔮"),
+    DEFENSE("Defensa", "DEFENSA (DEFENSIVE ITEMS)", "🛡️"),
+    SUPPORT("Soporte", "SOPORTE (SUPPORT ITEMS)", "💚"),
+    BOOTS_T2("Botas N2", "BOTAS NIVEL 2 (BOOTS TIER 2)", "👢"),
+    BOOTS_T3("Botas N3", "BOTAS NIVEL 3 (BOOTS TIER 3)", "⚡"),
+    ACTIVE("Encantamientos", "ENCANTAMIENTOS Y ACTIVOS (ACTIVE ITEMS)", "✨")
 }
 
 

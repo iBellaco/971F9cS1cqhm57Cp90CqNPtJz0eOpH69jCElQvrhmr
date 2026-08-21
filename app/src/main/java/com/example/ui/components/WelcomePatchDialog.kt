@@ -113,7 +113,7 @@ fun WelcomePatchDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
+                                contentDescription = tr("Cerrar"),
                                 tint = Color.Gray,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -137,7 +137,7 @@ fun WelcomePatchDialog(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = tr("Estado del Meta: "),
+                            text = tr("Estado del Parche: "),
                             color = Color(0xFF94A3B8),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
@@ -150,7 +150,7 @@ fun WelcomePatchDialog(
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = patchVersion,
+                                text = tr(patchVersion),
                                 color = HextechCyan,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold

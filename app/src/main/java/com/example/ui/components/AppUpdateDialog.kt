@@ -257,7 +257,7 @@ fun AppUpdateDialog(
                             .padding(14.dp)
                     ) {
                         Text(
-                            text = tr("• Sincronización automática con: ") + com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION + "\n" +
+                            text = tr("• Sincronización automática con: ") + tr(com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION) + "\n" +
                                    tr("• Análisis táctico actualizado con las últimas estadísticas del meta.\n") +
                                    tr("• Ajustes y corrección de íconos rúnicos."),
                             color = Color(0xFFCBD5E1),

@@ -77,7 +77,7 @@ fun InfoScreen(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = WildRiftRepository.CURRENT_PATCH_VERSION,
+                                text = tr(WildRiftRepository.CURRENT_PATCH_VERSION),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -116,7 +116,7 @@ fun InfoScreen(
             ) {
                 Text(
                     text = tr("• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).") + "\n" +
-                           tr("• Parche del juego: ") + "${WildRiftRepository.CURRENT_PATCH_VERSION} " + tr("sincronizado con fuentes de balance.") + "\n" +
+                           tr("• Parche del juego: ") + "${tr(WildRiftRepository.CURRENT_PATCH_VERSION)} " + tr("sincronizado con fuentes de balance.") + "\n" +
                            tr("• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.") + "\n" +
                            tr("• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección."),
                     color = TextSecondary,

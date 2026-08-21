@@ -321,7 +321,7 @@ fun BugReportFeedbackDialog(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "${tr("📱 Dispositivo:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                        text = "${tr("📱 Dispositivo:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${tr(WildRiftRepository.CURRENT_PATCH_VERSION)}",
                         color = TextMuted,
                         fontSize = 10.sp
                     )

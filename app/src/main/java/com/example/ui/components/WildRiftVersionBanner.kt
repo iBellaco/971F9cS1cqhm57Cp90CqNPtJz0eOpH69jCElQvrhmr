@@ -100,7 +100,7 @@ fun WildRiftVersionBanner(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION,
+                            text = tr(com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION),
                             color = HextechCyan,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
