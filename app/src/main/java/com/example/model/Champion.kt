@@ -21,10 +21,14 @@ enum class DamageType(val displayName: String) {
 @Serializable
 enum class ItemCategory(val displayName: String) {
     PHYSICAL("Daño Físico"),
-    MAGIC("Poder Mágico"),
+    MAGIC("Daño Mágico"),
     DEFENSE("Defensa"),
     SUPPORT("Soporte"),
-    BOOTS_ENCHANTMENT("Botas & Encantamientos")
+    ACTIVE("Objetos Activos"),
+    BOOTS_T2("Botas Nivel 2"),
+    BOOTS_T3("Botas Nivel 3"),
+    MID_TIER("Nivel Medio"),
+    BASIC("Nivel Básico")
 }
 
 

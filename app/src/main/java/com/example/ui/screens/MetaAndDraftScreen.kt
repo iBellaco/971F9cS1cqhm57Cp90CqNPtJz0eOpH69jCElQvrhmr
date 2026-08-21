@@ -200,35 +200,7 @@ fun MetaAndDraftScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            allyChampions.clear()
-                            allyChampions.addAll(
-                                listOfNotNull(
-                                    WildRiftRepository.getChampionById("chogath"),
-                                    WildRiftRepository.getChampionById("vayne"),
-                                    WildRiftRepository.getChampionById("janna"),
-                                    WildRiftRepository.getChampionById("viego")
-                                )
-                            )
-                            enemyChampions.clear()
-                            enemyChampions.addAll(
-                                listOfNotNull(
-                                    WildRiftRepository.getChampionById("sett"),
-                                    WildRiftRepository.getChampionById("vi"),
-                                    WildRiftRepository.getChampionById("caitlyn"),
-                                    WildRiftRepository.getChampionById("nautilus")
-                                )
-                            )
-                        },
-                        modifier = Modifier.testTag("refresh_draft_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = tr("Reiniciar Draft"),
-                            tint = HextechCyan
-                        )
-                    }
+                    // Botón superior derecho retirado según solicitud
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
             )
@@ -820,6 +792,40 @@ private fun ItemsCatalogTab() {
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
+
+        // WR-Meta Database Status Banner
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
+                .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(Color(0xFF10B981), CircleShape)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "wr-meta.com / items",
+                    color = HextechGold,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Text(
+                text = "${filteredItems.size} ${tr("Objetos")}",
+                color = HextechCyan,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Search Bar
         OutlinedTextField(

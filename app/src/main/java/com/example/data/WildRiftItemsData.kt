@@ -6,476 +6,244 @@ import com.example.model.WildRiftItem
 object WildRiftItemsData {
     private const val CDN_VERSION = "14.24.1"
     private const val ITEM_IMG = "https://ddragon.leagueoflegends.com/cdn/$CDN_VERSION/img/item"
+    private const val CD_ASSETS = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d"
 
-    val list: List<WildRiftItem> = listOf(
-        // ==========================================
-        // OBJETOS FÍSICOS (AD / CRÍTICO / LUCHADOR / ASESINO)
-        // ==========================================
-        WildRiftItem(
-            id = "infinity_edge",
-            name = "Filo del Infinito",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3400,
-            stats = "+55 Daño de Ataque, +25% Prob. de Golpe Crítico",
-            passive = "Pasiva - Infinito: Los golpes críticos infligen un 205% de daño en lugar del estándar 175%.",
-            iconUrl = "$ITEM_IMG/3031.png"
-        ),
-        WildRiftItem(
-            id = "blade_ruined_king",
-            name = "Hoja del Rey Arruinado",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3200,
-            stats = "+20 Daño de Ataque, +35% Velocidad de Ataque, +10% Vampirismo Físico",
-            passive = "Pasiva - Hoja de la Niebla: Ataques infligen 9% (cuerpo a cuerpo) / 6% (a distancia) de la vida actual del objetivo como daño físico adicional y roban velocidad de movimiento tras 3 impactos.",
-            iconUrl = "$ITEM_IMG/3153.png"
-        ),
-        WildRiftItem(
-            id = "trinity_force",
-            name = "Fuerza de la Trinidad",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3533,
-            stats = "+30 Daño de Ataque, +30% Velocidad de Ataque, +250 Vida Máxima, +25 Aceleración de Habilidad, +5% Velocidad Mov.",
-            passive = "Pasiva - Hoja Encantada: Usar una habilidad potencia tu siguiente ataque básico con un 200% de daño base adicional.",
-            iconUrl = "$ITEM_IMG/3078.png"
-        ),
-        WildRiftItem(
-            id = "black_cleaver",
-            name = "Cuchilla Negra",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3000,
-            stats = "+40 Daño de Ataque, +350 Vida Máxima, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Hendir: Infligir daño físico reduce la armadura del objetivo un 4% durante 6s (acumulable hasta 24%). Otorga velocidad de movimiento al dañar.",
-            iconUrl = "$ITEM_IMG/3071.png"
-        ),
-        WildRiftItem(
-            id = "immortal_shieldbow",
-            name = "Arcoescudo Inmortal",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3200,
-            stats = "+40 Daño de Ataque, +25% Prob. Crítico, +10% Vampirismo Físico",
-            passive = "Pasiva - Salvavidas: Al recibir daño que reduciría tu vida por debajo del 35%, otorga un escudo de 200-650 de absorción y +10% de velocidad de ataque durante 5 segundos.",
-            iconUrl = "$ITEM_IMG/6673.png"
-        ),
-        WildRiftItem(
-            id = "deaths_dance",
-            name = "Baile de la Muerte",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3000,
-            stats = "+35 Daño de Ataque, +40 Armadura, +15 Aceleración de Habilidad",
-            passive = "Pasiva - Digerir: El 35% del daño físico recibido se almacena y se sufre como daño continuo durante 3s. Los derribos purgan el daño acumulado y restauran 10% de vida máxima.",
-            iconUrl = "$ITEM_IMG/6333.png"
-        ),
-        WildRiftItem(
-            id = "the_collector",
-            name = "La Recaudadora",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2900,
-            stats = "+40 Daño de Ataque, +25% Prob. Crítico, +10 Letalidad",
-            passive = "Pasiva - Muerte y Tributo: Infligir daño que deje a un campeón enemigo por debajo del 5% de su vida máxima lo ejecuta instantáneamente y te otorga 25 de oro adicional.",
-            iconUrl = "$ITEM_IMG/6676.png"
-        ),
-        WildRiftItem(
-            id = "rapid_firecannon",
-            name = "Cañón de Fuego Rápido",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2800,
-            stats = "+25% Prob. Crítico, +35% Velocidad de Ataque, +5% Velocidad Mov.",
-            passive = "Pasiva - Francotirador: Moverse y atacar genera cargas energizadas. Al máximo, tu siguiente ataque tiene +150 de alcance adicional e inflige 50-120 de daño mágico.",
-            iconUrl = "$ITEM_IMG/3094.png"
-        ),
-        WildRiftItem(
-            id = "phantom_dancer",
-            name = "Bailarín Espectral",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2800,
-            stats = "+25 Daño de Ataque, +25% Prob. Crítico, +30% Velocidad de Ataque, +7% Velocidad Mov.",
-            passive = "Pasiva - Vals Espectral: Los ataques otorgan efecto fantasmal y hasta un 30% de velocidad de ataque adicional tras 4 ataques consecutivos.",
-            iconUrl = "$ITEM_IMG/3046.png"
-        ),
-        WildRiftItem(
-            id = "mortal_reminder",
-            name = "Recordatorio Mortal",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3000,
-            stats = "+30 Daño de Ataque, +25% Prob. Crítico, +30% Penetración de Armadura",
-            passive = "Pasiva - Sepulturero: Infligir daño físico a campeones enemigos aplica Heridas Graves (50%) durante 3s para anular curaciones masivas.",
-            iconUrl = "$ITEM_IMG/3033.png"
-        ),
-        WildRiftItem(
-            id = "seryldas_grudge",
-            name = "Rencor de Serylda",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3000,
-            stats = "+40 Daño de Ataque, +15 Aceleración de Habilidad, +30% Penetración de Armadura",
-            passive = "Pasiva - Frío Amargo: Las habilidades dañinas ralentizan a los enemigos un 30% durante 1s.",
-            iconUrl = "$ITEM_IMG/6694.png"
-        ),
-        WildRiftItem(
-            id = "serpents_fang",
-            name = "Colmillo de Serpiente",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2800,
-            stats = "+50 Daño de Ataque, +12 Letalidad, +10 Aceleración de Habilidad",
-            passive = "Pasiva - Destructora de Escudos: Dañar a un campeón reduce sus escudos entrantes un 50% (cuerpo a cuerpo) / 35% (a distancia) y destruye escudos activos.",
-            iconUrl = "$ITEM_IMG/6695.png"
-        ),
-        WildRiftItem(
-            id = "youmuus_ghostblade",
-            name = "Espada Fantasma de Youmuu",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2900,
-            stats = "+55 Daño de Ataque, +15 Letalidad, +15 Aceleración de Habilidad",
-            passive = "Pasiva - Impulso: Moverse acumula velocidad de movimiento fuera de combate (hasta +40). A 100 cargas otorga +25% de velocidad de ataque en tu siguiente impacto.",
-            iconUrl = "$ITEM_IMG/3142.png"
-        ),
-        WildRiftItem(
-            id = "edge_of_night",
-            name = "Filo de la Noche",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3150,
-            stats = "+50 Daño de Ataque, +250 Vida Máxima, +10 Letalidad",
-            passive = "Pasiva - Anulación: Otorga un escudo de hechizos pasivo que bloquea la siguiente habilidad enemiga (enfriamiento de 35s).",
-            iconUrl = "$ITEM_IMG/3814.png"
-        ),
-        WildRiftItem(
-            id = "hullbreaker",
-            name = "Rompecascos",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3000,
-            stats = "+55 Daño de Ataque, +325 Vida Máxima, +5% Velocidad Mov.",
-            passive = "Pasiva - Grupo de Abordaje: Si no hay aliados cerca, obtienes hasta 60 de armadura y resistencia mágica y tus súbditos cercanos aumentan un 200% su daño a torretas.",
-            iconUrl = "$ITEM_IMG/3181.png"
-        ),
-        WildRiftItem(
-            id = "divine_sunderer",
-            name = "Desgarrador Divino",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3450,
-            stats = "+25 Daño de Ataque, +400 Vida Máxima, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Hoja Encantada: Tras usar una habilidad, tu siguiente ataque inflige 10% de la vida máxima del enemigo como daño físico y te cura un 7% de tu vida máxima.",
-            iconUrl = "$ITEM_IMG/6632.png"
-        ),
-        WildRiftItem(
-            id = "steraks_gage",
-            name = "Guantelete de Sterak",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 3100,
-            stats = "+400 Vida Máxima",
-            passive = "Pasiva - Furia de Sterak: Otorga 50% de daño de ataque base como daño adicional. Al caer por debajo del 35% de vida otorga un escudo del 75% de tu vida adicional y tenacidad.",
-            iconUrl = "$ITEM_IMG/3053.png"
-        ),
-        WildRiftItem(
-            id = "eclipse",
-            name = "Eclipse",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2900,
-            stats = "+55 Daño de Ataque, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Luna Creciente: Impactar a un campeón con 2 ataques o habilidades individuales en 1.5s inflige 6% de su vida máxima y te otorga un escudo de 160 (+40% de AD extra).",
-            iconUrl = "$ITEM_IMG/6692.png"
-        ),
-        WildRiftItem(
-            id = "manamune",
-            name = "Manamune / Muramana",
-            category = ItemCategory.PHYSICAL,
-            goldCost = 2700,
-            stats = "+25 Daño de Ataque, +1000 Maná Máximo, +10 Aceleración de Habilidad",
-            passive = "Pasiva - Asombro: Otorga daño de ataque adicional equivalente al 1.5% de tu maná máximo. Los ataques y habilidades consumen maná para infligir daño adicional por impacto.",
-            iconUrl = "$ITEM_IMG/3004.png"
-        ),
+    val list: List<WildRiftItem> = buildList {
+        // =========================================================================
+        // 1. OBJETOS DE DAÑO FÍSICO (40 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("infinity_edge", "Filo del Infinito", ItemCategory.PHYSICAL, 3400, "+55 Daño de Ataque, +25% Prob. Crítico", "Pasiva - Infinito: Los impactos críticos infligen 205% de daño en lugar de 175%.", "$ITEM_IMG/3031.png"))
+        add(WildRiftItem("blade_ruined_king", "Hoja del Rey Arruinado", ItemCategory.PHYSICAL, 3200, "+20 Daño de Ataque, +35% Velocidad de Ataque, +10% Vampirismo Físico", "Pasiva - Hoja de la Niebla: Golpes infligen 9% (cuerpo a cuerpo) / 6% (a distancia) de la vida actual del enemigo.", "$ITEM_IMG/3153.png"))
+        add(WildRiftItem("trinity_force", "Fuerza de la Trinidad", ItemCategory.PHYSICAL, 3533, "+30 Daño de Ataque, +30% Velocidad de Ataque, +250 Vida Máxima, +25 Aceleración", "Pasiva - Hoja Encantada: Tras usar una habilidad, tu siguiente ataque inflige 200% de daño base adicional.", "$ITEM_IMG/3078.png"))
+        add(WildRiftItem("black_cleaver", "Cuchilla Negra", ItemCategory.PHYSICAL, 3000, "+40 Daño de Ataque, +350 Vida Máxima, +20 Aceleración", "Pasiva - Hendir: El daño físico reduce la armadura del objetivo un 4% por acumulación (máx 24%).", "$ITEM_IMG/3071.png"))
+        add(WildRiftItem("immortal_shieldbow", "Arcoescudo Inmortal", ItemCategory.PHYSICAL, 3200, "+40 Daño de Ataque, +25% Prob. Crítico, +10% Vampirismo Físico", "Pasiva - Salvavidas: Otorga un escudo de 200-650 de absorción y velocidad de ataque si caes bajo 35% de vida.", "$ITEM_IMG/6673.png"))
+        add(WildRiftItem("bloodthirster", "Sanguinaria", ItemCategory.PHYSICAL, 3300, "+50 Daño de Ataque, +25% Prob. Crítico, +12% Vampirismo Físico", "Pasiva - Juramento: La sobrecuración por vampirismo se almacena como un escudo de 40-320 de vida.", "$ITEM_IMG/3072.png"))
+        add(WildRiftItem("deaths_dance", "Baile de la Muerte", ItemCategory.PHYSICAL, 3000, "+35 Daño de Ataque, +40 Armadura, +15 Aceleración", "Pasiva - Digerir: Almacena 35% del daño físico recibido para sufrirlo como sangrado. Las bajas purgan el sangrado.", "$ITEM_IMG/6333.png"))
+        add(WildRiftItem("the_collector", "La Recaudadora", ItemCategory.PHYSICAL, 2900, "+40 Daño de Ataque, +25% Prob. Crítico, +10 Letalidad", "Pasiva - Muerte y Tributo: Ejecuta a enemigos con menos del 5% de vida y otorga 25 de oro extra.", "$ITEM_IMG/6676.png"))
+        add(WildRiftItem("rapid_firecannon", "Cañón de Fuego Rápido", ItemCategory.PHYSICAL, 2800, "+25% Prob. Crítico, +35% Velocidad de Ataque, +5% Velocidad Mov.", "Pasiva - Francotirador: Cargas energizadas aumentan el alcance de tu siguiente ataque en +150 con daño mágico.", "$ITEM_IMG/3094.png"))
+        add(WildRiftItem("phantom_dancer", "Bailarín Espectral", ItemCategory.PHYSICAL, 2800, "+25% Prob. Crítico, +30% Velocidad de Ataque, +5% Velocidad Mov.", "Pasiva - Vals Espectral: Atacar otorga velocidad de movimiento y velocidad de ataque adicional acumulable.", "$ITEM_IMG/3046.png"))
+        add(WildRiftItem("mortal_reminder", "Recordatorio Mortal", ItemCategory.PHYSICAL, 3000, "+45 Daño de Ataque, +30% Penetración de Armadura", "Pasiva - Sepulturero: Inflige Heridas Graves (40% de reducción de curación) durante 3s.", "$ITEM_IMG/3033.png"))
+        add(WildRiftItem("seryldas_grudge", "Rencor de Serylda", ItemCategory.PHYSICAL, 3000, "+40 Daño de Ataque, +30% Penetración de Armadura, +15 Aceleración", "Pasiva - Frío Extremo: Las habilidades dañinas ralentizan a los enemigos un 30% durante 1s.", "$ITEM_IMG/6694.png"))
+        add(WildRiftItem("youmuus_ghostblade", "Espada Fantasma de Youmuu", ItemCategory.PHYSICAL, 3000, "+55 Daño de Ataque, +15 Letalidad, +15 Aceleración", "Pasiva - Impulso Fantasma: Moverte acumula velocidad de movimiento; otorga velocidad de ataque al atacar con cargas.", "$ITEM_IMG/3142.png"))
+        add(WildRiftItem("duskblade_draktharr", "Filo Fantasma de Draktharr", ItemCategory.PHYSICAL, 3000, "+55 Daño de Ataque, +18 Letalidad, +15 Aceleración", "Pasiva - Acechador Nocturno: Tras ser invisible o no ser visto, tu primer ataque inflige daño físico adicional y ralentiza.", "$ITEM_IMG/3147.png"))
+        add(WildRiftItem("edge_of_night", "Filo de la Noche", ItemCategory.PHYSICAL, 3150, "+50 Daño de Ataque, +250 Vida, +10 Letalidad", "Pasiva - Escudo de Hechizos: Bloquea la siguiente habilidad enemiga (40s de enfriamiento).", "$ITEM_IMG/3814.png"))
+        add(WildRiftItem("serpents_fang", "Colmillo de Serpiente", ItemCategory.PHYSICAL, 2800, "+55 Daño de Ataque, +15 Letalidad, +10 Aceleración", "Pasiva - Rompeescudos: Reduce los escudos recibidos por enemigos dañados en 50% (cuerpo a cuerpo) / 35% (rango).", "$ITEM_IMG/6695.png"))
+        add(WildRiftItem("maw_of_malmortius", "Fauces de Malmortius", ItemCategory.PHYSICAL, 2800, "+45 Daño de Ataque, +45 Resistencia Mágica, +10 Aceleración", "Pasiva - Salvavidas Mágico: Otorga un escudo contra daño mágico al recibir daño letal.", "$ITEM_IMG/3156.png"))
+        add(WildRiftItem("steraks_gage", "Guantelete de Sterak", ItemCategory.PHYSICAL, 3200, "+400 Vida Máxima", "Pasiva - Furia de los Gigantes: Otorga Daño de Ataque equivalente al 50% de tu AD base y un gran escudo al caer bajo 35% vida.", "$ITEM_IMG/3053.png"))
+        add(WildRiftItem("manamune", "Manamune", ItemCategory.PHYSICAL, 2700, "+25 Daño de Ataque, +1000 Maná Máximo, +15 Aceleración", "Pasiva - Asombro: Otorga AD igual al 1.5% de tu maná máximo. Transforma en Muramana con 700 cargas.", "$ITEM_IMG/3004.png"))
+        add(WildRiftItem("muramana", "Muramana", ItemCategory.PHYSICAL, 2700, "+25 Daño de Ataque, +1000 Maná Máximo, +15 Aceleración", "Pasiva - Choque: Ataques y habilidades infligen daño físico adicional según tu maná actual.", "$ITEM_IMG/3042.png"))
+        add(WildRiftItem("stormrazor", "Navaja de Asalto", ItemCategory.PHYSICAL, 2900, "+40 Daño de Ataque, +25% Prob. Crítico, +20% Velocidad de Ataque", "Pasiva - Rayo Energizado: Inflige 65-140 daño mágico adicional y otorga una ráfaga de velocidad de movimiento.", "$ITEM_IMG/3095.png"))
+        add(WildRiftItem("runaans_hurricane", "Huracán de Runaan", ItemCategory.PHYSICAL, 2800, "+25% Prob. Crítico, +45% Velocidad de Ataque", "Pasiva - Furia de Viento: Los ataques a distancia disparan virotes secundarios a 2 enemigos cercanos.", "$ITEM_IMG/3085.png"))
+        add(WildRiftItem("essence_reaver", "Segador de Esencia", ItemCategory.PHYSICAL, 3100, "+40 Daño de Ataque, +25% Prob. Crítico, +20 Aceleración", "Pasiva - Resplandor de Esencia: Habilidades infligen daño crítico adicional y restauran maná.", "$ITEM_IMG/3508.png"))
+        add(WildRiftItem("navori_quickblades", "Filoveloz de Navori", ItemCategory.PHYSICAL, 3400, "+45 Daño de Ataque, +25% Prob. Crítico, +15 Aceleración", "Pasiva - Destreza: Los ataques reducen el enfriamiento restante de las habilidades no definitivas un 15%.", "$ITEM_IMG/6675.png"))
+        add(WildRiftItem("solari_chargeblade", "Cuchilla de Carga Solari", ItemCategory.PHYSICAL, 3000, "+30% Velocidad de Ataque, +25% Prob. Crítico, +20 Aceleración", "Pasiva - Fulgor Solar: Usar habilidades almacena hasta 3 cargas que otorgan daño mágico adicional al impactar.", "$ITEM_IMG/3085.png"))
+        add(WildRiftItem("hullbreaker", "Rompecascos", ItemCategory.PHYSICAL, 3000, "+55 Daño de Ataque, +325 Vida Máxima", "Pasiva - Grupo de Incursión: Otorga armadura y resistencia mágica al estar solo y potencia a los súbditos cercanos.", "$ITEM_IMG/3181.png"))
+        add(WildRiftItem("divine_sunderer", "Devorador Divino", ItemCategory.PHYSICAL, 3450, "+25 Daño de Ataque, +425 Vida, +20 Aceleración", "Pasiva - Hoja Encantada: Ataque tras habilidad inflige 10% (cuerpo a cuerpo) de vida máxima enemiga y te cura.", "$ITEM_IMG/6632.png"))
+        add(WildRiftItem("spear_of_shojin", "Lanza de Shojin", ItemCategory.PHYSICAL, 3200, "+45 Daño de Ataque, +300 Vida, +20 Aceleración", "Pasiva - Despertar del Dragón: Otorga aceleración a habilidades básicas y velocidad de movimiento según vida restante.", "$ITEM_IMG/3161.png"))
+        add(WildRiftItem("eclipse", "Eclipse", ItemCategory.PHYSICAL, 2900, "+55 Daño de Ataque, +12 Letalidad, +7% Vampirismo Físico", "Pasiva - Luna Creciente: Impactar 2 ataques o habilidades otorga daño por vida máxima y un escudo de absorción.", "$ITEM_IMG/6692.png"))
+        add(WildRiftItem("prowlers_claw", "Garra del Merodeador", ItemCategory.PHYSICAL, 3000, "+55 Daño de Ataque, +15 Letalidad, +15 Aceleración", "Pasiva - Golpe de Arena: Tras desplazarte o teletransportarte, tu siguiente ataque inflige daño de ataque adicional.", "$ITEM_IMG/6693.png"))
+        add(WildRiftItem("stridebreaker", "Rompeavances", ItemCategory.PHYSICAL, 3300, "+40 Daño de Ataque, +450 Vida, +20% Velocidad de Ataque, +20 Aceleración", "Pasiva - Paso Halconero: Infligir daño otorga velocidad de movimiento y ralentiza en área a enemigos cercanos.", "$ITEM_IMG/6631.png"))
+        add(WildRiftItem("titanic_hydra", "Hidra Titánica", ItemCategory.PHYSICAL, 3000, "+30 Daño de Ataque, +450 Vida Máxima", "Pasiva - Coloso: Convierte vida adicional en daño de ataque. Ataques infligen daño cónico en área a enemigos tras el objetivo.", "$ITEM_IMG/3748.png"))
+        add(WildRiftItem("ravenous_hydra", "Hidra Voraz", ItemCategory.PHYSICAL, 3300, "+65 Daño de Ataque, +20 Aceleración, +10% Vampirismo Físico", "Pasiva - Hendedura: Ataques y habilidades dañan en área alrededor del objetivo impactado.", "$ITEM_IMG/3074.png"))
+        add(WildRiftItem("terminus", "Arco del Cruzado (Terminus)", ItemCategory.PHYSICAL, 3200, "+40 Daño de Ataque, +30% Velocidad de Ataque", "Pasiva - Juicio: Alterna entre Luz (acumula armadura y RM) y Sombra (acumula penetración física y mágica).", "$ITEM_IMG/3085.png"))
+        add(WildRiftItem("sundered_sky", "Cielo Desgarrado (Sundered Sky)", ItemCategory.PHYSICAL, 3100, "+45 Daño de Ataque, +300 Vida, +15 Aceleración", "Pasiva - Impacto de la Luz: El primer golpe a un campeón genera un golpe crítico garantizado y cura vida faltante.", "$ITEM_IMG/3071.png"))
+        add(WildRiftItem("silvermere_dawn", "Amanecer de Silvermere", ItemCategory.PHYSICAL, 3000, "+35 Daño de Ataque, +300 Vida, +35 Resistencia Mágica", "Pasiva - Purificación Marcial: Otorga tenacidad y resistencia ante efectos de control incapacitantes.", "$ITEM_IMG/6035.png"))
+        add(WildRiftItem("profane_hydra", "Hidra Profana", ItemCategory.PHYSICAL, 3200, "+60 Daño de Ataque, +18 Letalidad, +20 Aceleración", "Pasiva - Ejecución Hereje: Ataques en cono infligen daño aumentado masivamente contra enemigos bajo 50% de vida.", "$ITEM_IMG/3074.png"))
+        add(WildRiftItem("stormcutter", "Hoja de la Tempestad", ItemCategory.PHYSICAL, 2900, "+45 Daño de Ataque, +20% Velocidad de Ataque, +10 Letalidad", "Pasiva - Filo del Rayo: Ráfagas de daño penetrante al acumular golpes continuos sobre el mismo objetivo.", "$ITEM_IMG/3094.png"))
+        add(WildRiftItem("lord_dominiks", "Lord Dominik (Recuerdo)", ItemCategory.PHYSICAL, 3100, "+35 Daño de Ataque, +25% Prob. Crítico, +30% Penetración Armadura", "Pasiva - Asesino de Gigantes: Inflige hasta 15% más de daño físico contra enemigos con mayor vida que tú.", "$ITEM_IMG/3036.png"))
+        add(WildRiftItem("shadowblade", "Espada del Ocaso", ItemCategory.PHYSICAL, 2900, "+50 Daño de Ataque, +15 Letalidad, +5% Velocidad Mov.", "Pasiva - Caza Sombría: Desactiva trampas enemigas y aumenta el daño de apertura desde sigilo.", "$ITEM_IMG/3142.png"))
 
-        // ==========================================
-        // OBJETOS MÁGICOS (PODER DE HABILIDAD / AP)
-        // ==========================================
-        WildRiftItem(
-            id = "rabadons_deathcap",
-            name = "Sombrero Mortal de Rabadon",
-            category = ItemCategory.MAGIC,
-            goldCost = 3400,
-            stats = "+120 Poder de Habilidad",
-            passive = "Pasiva - Opus Mágico: Aumenta tu Poder de Habilidad total en un 40-45% adicional.",
-            iconUrl = "$ITEM_IMG/3089.png"
-        ),
-        WildRiftItem(
-            id = "ludens_echo",
-            name = "Eco de Luden",
-            category = ItemCategory.MAGIC,
-            goldCost = 3000,
-            stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad, +7% Velocidad Mov.",
-            passive = "Pasiva - Tiro Eco: Moverse y lanzar hechizos genera cargas; al llegar a 100, la siguiente habilidad inflige 100 (+10% AP) de daño mágico a 4 objetivos cercanos.",
-            iconUrl = "https://lolwildriftbuild.com/wp-content/uploads/2020/10/Luden_sEcho.jpg"
-        ),
-        WildRiftItem(
-            id = "infinity_orb",
-            name = "Orbe del Infinito",
-            category = ItemCategory.MAGIC,
-            goldCost = 3150,
-            stats = "+85 Poder de Habilidad, +5% Velocidad de Movimiento, +15 Penetración Mágica",
-            passive = "Pasiva - Destino Inevitable: Tus habilidades y ataques potenciados asestan golpes críticos mágicos (120% de daño) contra enemigos con menos del 35% de vida.",
-            iconUrl = "$ITEM_IMG/4628.png"
-        ),
-        WildRiftItem(
-            id = "liandrys_torment",
-            name = "Tormento de Liandry",
-            category = ItemCategory.MAGIC,
-            goldCost = 3000,
-            stats = "+70 Poder de Habilidad, +250 Vida Máxima",
-            passive = "Pasiva - Tormento: Las habilidades queman a los enemigos infligiendo un 2% de su vida máxima como daño mágico cada segundo durante 3s (daño duplicado si están inmovilizados).",
-            iconUrl = "$ITEM_IMG/6653.png"
-        ),
-        WildRiftItem(
-            id = "crown_shattered_queen",
-            name = "Corona de la Reina Ahogada",
-            category = ItemCategory.MAGIC,
-            goldCost = 3000,
-            stats = "+70 Poder de Habilidad, +200 Vida, +200 Maná, +15 Aceleración de Habilidad",
-            passive = "Pasiva - Salvaguardia: Otorga un escudo que reduce un 70% el daño recibido durante 1.5s al ser atacado por campeones. Otorga +20 AP mientras persista.",
-            iconUrl = "$ITEM_IMG/4644.png"
-        ),
-        WildRiftItem(
-            id = "void_staff",
-            name = "Báculo del Vacío",
-            category = ItemCategory.MAGIC,
-            goldCost = 2800,
-            stats = "+70 Poder de Habilidad, +40% Penetración Mágica",
-            passive = "Pasiva - Disolución: Ignora el 40% de la resistencia mágica total de los objetivos.",
-            iconUrl = "$ITEM_IMG/3135.png"
-        ),
-        WildRiftItem(
-            id = "lich_bane",
-            name = "Perdición del Liche",
-            category = ItemCategory.MAGIC,
-            goldCost = 2950,
-            stats = "+80 Poder de Habilidad, +15 Aceleración de Habilidad, +7% Velocidad Mov.",
-            passive = "Pasiva - Hoja Encantada: Tras usar una habilidad, tu siguiente ataque inflige 75 (+50% AP) de daño mágico adicional por impacto.",
-            iconUrl = "$ITEM_IMG/3100.png"
-        ),
-        WildRiftItem(
-            id = "nashors_tooth",
-            name = "Diente de Nashor",
-            category = ItemCategory.MAGIC,
-            goldCost = 3000,
-            stats = "+70 Poder de Habilidad, +45% Velocidad de Ataque, +15 Aceleración de Habilidad",
-            passive = "Pasiva - Mordisco de Icor: Los ataques básicos infligen 15 (+20% AP) de daño mágico adicional en cada impacto.",
-            iconUrl = "$ITEM_IMG/3115.png"
-        ),
-        WildRiftItem(
-            id = "rylais_crystal_scepter",
-            name = "Cetro de Cristal de Rylai",
-            category = ItemCategory.MAGIC,
-            goldCost = 2700,
-            stats = "+70 Poder de Habilidad, +350 Vida Máxima",
-            passive = "Pasiva - Helada Fría: Las habilidades mágicas ralentizan la velocidad de movimiento de los enemigos un 30% durante 1s.",
-            iconUrl = "$ITEM_IMG/3116.png"
-        ),
-        WildRiftItem(
-            id = "morellonomicon",
-            name = "Morellonomicón",
-            category = ItemCategory.MAGIC,
-            goldCost = 2600,
-            stats = "+75 Poder de Habilidad, +150 Vida, +15 Penetración Mágica",
-            passive = "Pasiva - Afligido: Infligir daño mágico aplica Heridas Graves (50%) a los campeones enemigos durante 3 segundos para cortar curaciones.",
-            iconUrl = "$ITEM_IMG/3165.png"
-        ),
+        // =========================================================================
+        // 2. OBJETOS DE DAÑO MÁGICO (28 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("rabadons_deathcap", "Sombrero Mortal de Rabadon", ItemCategory.MAGIC, 3500, "+120 Poder de Habilidad", "Pasiva - Caos Mágico: Aumenta tu Poder de Habilidad total en un 40-45%.", "$ITEM_IMG/3089.png"))
+        add(WildRiftItem("liandrys_torment", "Tormento de Liandry", ItemCategory.MAGIC, 3100, "+70 Poder de Habilidad, +250 Vida Máxima", "Pasiva - Tormento: Las habilidades queman a los enemigos durante 3s infligiendo daño mágico basado en vida máxima.", "$ITEM_IMG/3151.png"))
+        add(WildRiftItem("ludens_echo", "Eco de Luden", ItemCategory.MAGIC, 3000, "+85 Poder de Habilidad, +300 Maná, +20 Aceleración", "Pasiva - Eco: Moverse y lanzar habilidades acumula cargas; al máximo dispara proyectiles a 3 objetivos cercanos.", "$ITEM_IMG/3285.png"))
+        add(WildRiftItem("lich_bane", "Perdición del Liche", ItemCategory.MAGIC, 2950, "+80 Poder de Habilidad, +15 Aceleración, +5% Velocidad Mov.", "Pasiva - Hoja Encantada: Tras usar una habilidad, tu siguiente ataque inflige 75% AD base + 50% AP adicional.", "$ITEM_IMG/3100.png"))
+        add(WildRiftItem("void_staff", "Báculo del Vacío", ItemCategory.MAGIC, 2800, "+70 Poder de Habilidad, +40% Penetración Mágica", "Pasiva - Disolución: Otorga una altísima penetración mágica porcentual para destrozar resistencias enemigas.", "$ITEM_IMG/3135.png"))
+        add(WildRiftItem("infinity_orb", "Orbe del Infinito", ItemCategory.MAGIC, 3150, "+85 Poder de Habilidad, +5% Velocidad Mov., +15 Penetración Mágica", "Pasiva - Destino Inevitable: Las habilidades y ataques infligen golpes críticos mágicos a enemigos con menos del 35% de vida.", "$ITEM_IMG/3165.png"))
+        add(WildRiftItem("archangels_staff", "Bastón del Arcángel", ItemCategory.MAGIC, 2950, "+35 Poder de Habilidad, +1200 Maná, +20 Aceleración", "Pasiva - Asombro: Otorga Poder de Habilidad igual al 3% del maná máximo. Transforma en Abrazo del Serafín con 700 cargas.", "$ITEM_IMG/3003.png"))
+        add(WildRiftItem("seraphs_embrace", "Abrazo del Serafín", ItemCategory.MAGIC, 2950, "+35 Poder de Habilidad, +1200 Maná, +20 Aceleración", "Pasiva - Salvavidas de Maná: Otorga un escudo masivo basado en tu maná actual si caes bajo 35% de vida.", "$ITEM_IMG/3040.png"))
+        add(WildRiftItem("rod_of_ages", "Vara de las Edades", ItemCategory.MAGIC, 2800, "+60 Poder de Habilidad, +250 Vida, +300 Maná", "Pasiva - Veterano: Gana vida, maná y poder de habilidad cada 45 segundos (hasta 10 acumulaciones).", "$ITEM_IMG/3027.png"))
+        add(WildRiftItem("nashors_tooth", "Diente de Nashor", ItemCategory.MAGIC, 3000, "+70 Poder de Habilidad, +45% Velocidad de Ataque, +15 Aceleración", "Pasiva - Mordedura de Icatia: Ataques básicos infligen daño mágico adicional equivalente a 15 + 20% AP.", "$ITEM_IMG/3115.png"))
+        add(WildRiftItem("cosmic_drive", "Impulso Cósmico", ItemCategory.MAGIC, 2900, "+75 Poder de Habilidad, +30 Aceleración, +5% Velocidad Mov.", "Pasiva - Danza del Hechizo: Dañar a un campeón otorga un estallido de velocidad de movimiento acumulable.", "$ITEM_IMG/4629.png"))
+        add(WildRiftItem("crown_shattered_queen", "Corona de la Reina Ahogada", ItemCategory.MAGIC, 3000, "+70 Poder de Habilidad, +200 Maná, +20 Aceleración", "Pasiva - Salvaguarda: Reduce el daño recibido en un 70% durante 1.5s al recibir daño de campeones.", "$ITEM_IMG/4644.png"))
+        add(WildRiftItem("riftmaker", "Creador de Grietas", ItemCategory.MAGIC, 3100, "+80 Poder de Habilidad, +150 Vida, +15 Aceleración, +7% Vampirismo Omnívoro", "Pasiva - Corrupción: Cada segundo en combate aumenta el daño un 3%; al máximo convierte el bono en daño verdadero.", "$ITEM_IMG/4633.png"))
+        add(WildRiftItem("morellonomicon", "Morellonomicon", ItemCategory.MAGIC, 2500, "+75 Poder de Habilidad, +150 Vida, +7% Penetración Mágica", "Pasiva - Maldición: Inflige Heridas Graves (40% reducción de curación) durante 3s al infligir daño mágico.", "$ITEM_IMG/3165.png"))
+        add(WildRiftItem("rylais_crystal_scepter", "Cetro de Cristal de Rylai", ItemCategory.MAGIC, 2700, "+70 Poder de Habilidad, +350 Vida Máxima", "Pasiva - Escarcha: Las habilidades dañinas ralentizan a los enemigos un 30% durante 1 segundo.", "$ITEM_IMG/3116.png"))
+        add(WildRiftItem("horizon_focus", "Enfoque al Horizonte", ItemCategory.MAGIC, 2800, "+80 Poder de Habilidad, +150 Vida, +15 Aceleración", "Pasiva - Disparo Certero: Habilidades a larga distancia revelan al enemigo y aumentan el daño que recibe en 10%.", "$ITEM_IMG/4628.png"))
+        add(WildRiftItem("shadowflame", "Llamasombría", ItemCategory.MAGIC, 3000, "+90 Poder de Habilidad, +12 Penetración Mágica", "Pasiva - Flor de Ceniza: El daño a enemigos con poca vida o con escudos activos se potencia críticamente.", "$ITEM_IMG/4645.png"))
+        add(WildRiftItem("stormsurge", "Sobrecarga de Tormenta", ItemCategory.MAGIC, 2900, "+95 Poder de Habilidad, +12 Penetración Mágica, +5% Velocidad Mov.", "Pasiva - Jinete de Tormentas: Infligir 35% de la vida del enemigo genera un rayo eléctrico de daño en área.", "$ITEM_IMG/3089.png"))
+        add(WildRiftItem("cryptbloom", "Desdén del Dragón (Cryptbloom)", ItemCategory.MAGIC, 2850, "+70 Poder de Habilidad, +15 Aceleración, +30% Penetración Mágica", "Pasiva - Vida tras la Muerte: Participar en un derribo crea una nova curativa para aliados cercanos.", "$ITEM_IMG/3135.png"))
+        add(WildRiftItem("awakened_soulstealer", "Robaalmas Despierto", ItemCategory.MAGIC, 3000, "+85 Poder de Habilidad, +150 Vida, +20 Aceleración", "Pasiva - Llamarada del Alma: Los derribos reducen el enfriamiento restante de la habilidad definitiva.", "$ITEM_IMG/3165.png"))
+        add(WildRiftItem("oceanids_trident", "Tridente del Océano", ItemCategory.MAGIC, 2800, "+80 Poder de Habilidad, +10 Penetración Mágica, +10 Aceleración", "Pasiva - Mareas Devastadoras: Infligir daño a objetivos protegidos con escudos destruye un 50% de la barrera.", "$ITEM_IMG/3116.png"))
+        add(WildRiftItem("mejais_soulstealer", "Robaalmas de Mejai", ItemCategory.MAGIC, 1500, "+20 Poder de Habilidad, +100 Vida", "Pasiva - Gloria: Otorga 4 AP por carga (hasta 25 acumulaciones). Pierde 10 cargas al morir.", "$ITEM_IMG/3041.png"))
+        add(WildRiftItem("hextech_gunblade", "Sable-Pistola Hextech", ItemCategory.MAGIC, 3200, "+30 Daño de Ataque, +60 Poder de Habilidad, +10% Vampirismo Omnívoro", "Pasiva - Relámpago: Ataques y habilidades disparan un rayo que ralentiza e inflige daño mágico.", "$ITEM_IMG/3146.png"))
+        add(WildRiftItem("night_harvester", "Cosechador Nocturno", ItemCategory.MAGIC, 3000, "+80 Poder de Habilidad, +300 Vida, +15 Aceleración", "Pasiva - Rompealmas: Dañar a un campeón inflige daño mágico adicional y otorga 25% de velocidad de movimiento.", "$ITEM_IMG/6655.png"))
+        add(WildRiftItem("banshees_veil", "Velo de la Banshee", ItemCategory.MAGIC, 3000, "+70 Poder de Habilidad, +40 Resistencia Mágica, +15 Aceleración", "Pasiva - Anulación: Otorga un escudo de hechizos que bloquea la siguiente habilidad enemiga.", "$ITEM_IMG/3102.png"))
+        add(WildRiftItem("zhonyas_hourglass", "Reloj de Arena de Zhonya AP", ItemCategory.MAGIC, 3000, "+80 Poder de Habilidad, +45 Armadura, +15 Aceleración", "Pasiva - Éstasis: Te vuelve invulnerable e inalcanzable durante 2.5 segundos (90s enfriamiento).", "$ITEM_IMG/3157.png"))
+        add(WildRiftItem("hextech_alternator_full", "Generador Hextech Supremo", ItemCategory.MAGIC, 2700, "+75 Poder de Habilidad, +15 Aceleración", "Pasiva - Descarga: El primer golpe a un campeón genera una explosión eléctrica con daño de choque.", "$ITEM_IMG/3145.png"))
+        add(WildRiftItem("abyssal_mask_ap", "Máscara Abisal Mágica", ItemCategory.MAGIC, 2800, "+450 Vida, +50 Resistencia Mágica, +10 Aceleración", "Pasiva - Destruir: Reduce la resistencia mágica de enemigos cercanos y amplifica el daño mágico aliado.", "$ITEM_IMG/3001.png"))
 
-        // ==========================================
-        // OBJETOS DEFENSIVOS (ARMADURA / RESISTENCIA MÁGICA / TANQUES)
-        // ==========================================
-        WildRiftItem(
-            id = "heartsteel",
-            name = "Corazón de Acero",
-            category = ItemCategory.DEFENSE,
-            goldCost = 3000,
-            stats = "+700 Vida Máxima, +150% Regeneración de Vida, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Consumo Colosal: Carga un golpe devastador contra campeones enemigos cercanos cada 30s que inflige daño según tu vida e incrementa tu vida máxima de forma permanente.",
-            iconUrl = "$ITEM_IMG/3084.png"
-        ),
-        WildRiftItem(
-            id = "sunfire_aegis",
-            name = "Égida de Fuego Solar",
-            category = ItemCategory.DEFENSE,
-            goldCost = 3000,
-            stats = "+450 Vida Máxima, +40 Armadura, +15 Aceleración de Habilidad",
-            passive = "Pasiva - Inmolar: Inflige daño mágico por segundo a enemigos cercanos. Al acumular 6 cargas, tus ataques básicos queman a los enemigos con daño continuo.",
-            iconUrl = "$ITEM_IMG/3068.png"
-        ),
-        WildRiftItem(
-            id = "thornmail",
-            name = "Malla de Espinas",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2700,
-            stats = "+200 Vida Máxima, +75 Armadura",
-            passive = "Pasiva - Espinas: Al recibir un ataque básico, devuelve daño mágico al atacante y le aplica Heridas Graves (50%) durante 3s.",
-            iconUrl = "$ITEM_IMG/3075.png"
-        ),
-        WildRiftItem(
-            id = "dead_mans_plate",
-            name = "Coraza del Muerto",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2800,
-            stats = "+250 Vida Máxima, +50 Armadura, +5% Velocidad Mov.",
-            passive = "Pasiva - Naufragio: Acumula hasta 50 de velocidad de movimiento al desplazarte. Al máximo, tu siguiente ataque inflige daño adicional y ralentiza un 50% al objetivo.",
-            iconUrl = "$ITEM_IMG/3742.png"
-        ),
-        WildRiftItem(
-            id = "randuins_omen",
-            name = "Presagio de Randuin",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2800,
-            stats = "+400 Vida Máxima, +55 Armadura",
-            passive = "Pasiva - Templanza: Reduce el daño de los golpes críticos recibidos un 16% y ralentiza la velocidad de ataque del agresor un 15% durante 1.5s.",
-            iconUrl = "$ITEM_IMG/3143.png"
-        ),
-        WildRiftItem(
-            id = "force_of_nature",
-            name = "Fuerza de la Naturaleza",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2850,
-            stats = "+350 Vida Máxima, +50 Resistencia Mágica, +5% Velocidad Mov.",
-            passive = "Pasiva - Inamovible: Recibir daño mágico acumula cargas de Firmeza. Al llegar a 6 cargas, ganas 10% de velocidad y reduces un 25% todo el daño mágico recibido.",
-            iconUrl = "$ITEM_IMG/4401.png"
-        ),
-        WildRiftItem(
-            id = "kaenic_rookern",
-            name = "Rookern Kaénico",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2800,
-            stats = "+350 Vida Máxima, +100% Regeneración de Vida, +85 Resistencia Mágica",
-            passive = "Pasiva - Perdición de Mago: Tras no recibir daño mágico durante 12s, obtienes un escudo mágico que absorbe daño igual a 50-150 + 14% de tu Vida Máxima.",
-            iconUrl = "$ITEM_IMG/2504.png"
-        ),
-        WildRiftItem(
-            id = "frozen_heart",
-            name = "Corazón de Hielo",
-            category = ItemCategory.DEFENSE,
-            goldCost = 2700,
-            stats = "+80 Armadura, +400 Maná Máximo, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Abrazo Invernal: Reduce la velocidad de ataque de todos los enemigos cercanos un 20% y reduce el daño recibido por impactos básicos.",
-            iconUrl = "$ITEM_IMG/3110.png"
-        ),
+        // =========================================================================
+        // 3. OBJETOS DE DEFENSA (32 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("sunfire_aegis", "Égida de Fuego Solar", ItemCategory.DEFENSE, 3000, "+500 Vida Máxima, +15 Aceleración de Habilidad", "Pasiva - Inmolar: Inflige daño mágico continuo por segundo a todos los enemigos cercanos.", "$ITEM_IMG/3068.png"))
+        add(WildRiftItem("thornmail", "Malla de Espinas", ItemCategory.DEFENSE, 2700, "+200 Vida, +75 Armadura", "Pasiva - Espinas: Al recibir ataques básicos, devuelve daño mágico al atacante e inflige Heridas Graves.", "$ITEM_IMG/3075.png"))
+        add(WildRiftItem("randuins_omen", "Presagio de Randuin", ItemCategory.DEFENSE, 2800, "+400 Vida, +55 Armadura", "Pasiva - Resiliencia: Reduce el daño de los impactos críticos recibidos en un 16% y ralentiza atacantes.", "$ITEM_IMG/3143.png"))
+        add(WildRiftItem("frozen_heart", "Corazón de Hielo", ItemCategory.DEFENSE, 2700, "+80 Armadura, +400 Maná, +20 Aceleración", "Pasiva - Caricia del Invierno: Reduce la velocidad de ataque de todos los enemigos cercanos en un 36%.", "$ITEM_IMG/3110.png"))
+        add(WildRiftItem("warmogs_armor", "Armadura de Warmog", ItemCategory.DEFENSE, 2850, "+700 Vida Máxima, +10 Aceleración, +200% Regeneración de Vida", "Pasiva - Corazón de Warmog: Si tienes más de 950 de vida adicional, regenera 5% de tu vida máxima por segundo.", "$ITEM_IMG/3083.png"))
+        add(WildRiftItem("force_of_nature", "Fuerza de la Naturaleza", ItemCategory.DEFENSE, 2850, "+350 Vida, +55 Resistencia Mágica, +5% Velocidad Mov.", "Pasiva - Inamovible: Recibir daño mágico otorga acumulaciones; al máximo reduce todo el daño mágico recibido en 25%.", "$ITEM_IMG/4401.png"))
+        add(WildRiftItem("spirit_visage", "Rostro Espiritual", ItemCategory.DEFENSE, 2800, "+350 Vida, +50 Resistencia Mágica, +10 Aceleración, +100% Regen. Vida", "Pasiva - Vitalidad Infinita: Aumenta todas las curaciones y escudos recibidos en un 30%.", "$ITEM_IMG/3065.png"))
+        add(WildRiftItem("dead_mans_plate", "Coraza del Muerto", ItemCategory.DEFENSE, 2800, "+225 Vida, +45 Armadura, +5% Velocidad Mov.", "Pasiva - Naufragio: Moverte acumula velocidad; tu siguiente ataque descarga las cargas con daño físico y ralentización.", "$ITEM_IMG/3742.png"))
+        add(WildRiftItem("iceborn_gauntlet", "Guantelete de Hielo", ItemCategory.DEFENSE, 2700, "+250 Vida, +50 Armadura, +450 Maná, +15 Aceleración", "Pasiva - Hoja Encantada Glacial: Ataque tras habilidad crea una zona de escarcha que ralentiza a enemigos.", "$ITEM_IMG/3025.png"))
+        add(WildRiftItem("heartsteel", "Corazón de Acero", ItemCategory.DEFENSE, 3000, "+700 Vida Máxima, +150% Regen. Vida", "Pasiva - Consumo Colosal: Carga un golpe devastador contra campeones que inflige daño y otorga vida máxima permanente.", "$ITEM_IMG/3083.png"))
+        add(WildRiftItem("amaranth_twinguard", "Armadura del Despertar (Twinguard)", ItemCategory.DEFENSE, 3200, "+55 Armadura, +55 Resistencia Mágica", "Pasiva - Resistencia Gemela: En combate acumulas armadura y resistencia mágica; al máximo ganas tenacidad y tamaño.", "$ITEM_IMG/3001.png"))
+        add(WildRiftItem("jaksho_protean", "Jak'Sho, el Proteico", ItemCategory.DEFENSE, 3100, "+400 Vida, +30 Armadura, +30 Resistencia Mágica", "Pasiva - Comunión del Vacío: Cada segundo en combate acumula defensas y al máximo absorbe vida de enemigos cercanos.", "$ITEM_IMG/3068.png"))
+        add(WildRiftItem("hollow_radiance", "Resplandor Vacuo", ItemCategory.DEFENSE, 2900, "+400 Vida, +40 Resistencia Mágica, +10 Aceleración", "Pasiva - Desolación Lunar: Quema a enemigos cercanos y detona a los súbditos caídos con explosiones de fuego mágico.", "$ITEM_IMG/3068.png"))
+        add(WildRiftItem("kaenic_rookern", "Rookern Kaénico", ItemCategory.DEFENSE, 2900, "+400 Vida, +80 Resistencia Mágica, +150% Regen. Vida", "Pasiva - Mágica Anulación: Otorga un escudo permanente contra daño mágico tras no recibir daño durante 12s.", "$ITEM_IMG/3065.png"))
+        add(WildRiftItem("fimbulwinter", "Protección de Fimbulwinter", ItemCategory.DEFENSE, 2600, "+1200 Maná, +10 Aceleración, +200 Vida", "Pasiva - Firmeza Ártica: Ralentizar o inmovilizar a un campeón enemigo otorga un escudo de absorción.", "$ITEM_IMG/3119.png"))
+        add(WildRiftItem("mantle_twelfth_hour", "Manto de Medianoche (Twelfth Hour)", ItemCategory.DEFENSE, 2900, "+200 Vida, +40 Armadura, +40 Resistencia Mágica", "Pasiva - Salvavidas Nocturno: Al caer bajo 35% de vida, otorga velocidad de movimiento y regenera vida.", "$ITEM_IMG/3001.png"))
+        add(WildRiftItem("unending_despair", "Desesperación Eterna", ItemCategory.DEFENSE, 2800, "+400 Vida, +55 Armadura, +10 Aceleración", "Pasiva - Angustia: Cada 7s en combate inflige daño mágico a campeones cercanos y te cura por el daño infligido.", "$ITEM_IMG/3143.png"))
+        add(WildRiftItem("zekes_convergence", "Convergencia de Zeke", ItemCategory.DEFENSE, 2700, "+350 Vida, +40 Armadura, +150 Maná, +10 Aceleración", "Pasiva - Tormenta de Hielo: Lanzar tu definitiva crea una tormenta de hielo que ralentiza e inflige daño a enemigos.", "$ITEM_IMG/3050.png"))
+        add(WildRiftItem("knights_vow", "Promesa del Caballero", ItemCategory.DEFENSE, 2700, "+300 Vida, +40 Armadura, +10 Aceleración", "Pasiva - Pacto de Sangre: Te vincula a un aliado. Redirige 15% del daño que recibe hacia ti.", "$ITEM_IMG/3109.png"))
+        add(WildRiftItem("gargoyle_stoneplate_tank", "Protector Pétreo de Gárgola", ItemCategory.DEFENSE, 2900, "+40 Armadura, +40 Resistencia Mágica, +15 Aceleración", "Pasiva - Blindaje Masivo: Aumenta las resistencias en un 20% cuando hay 3 o más enemigos cerca.", "$ITEM_IMG/3193.png"))
+        add(WildRiftItem("abyssal_mask_def", "Máscara Abisal Defensiva", ItemCategory.DEFENSE, 2800, "+450 Vida, +50 Resistencia Mágica, +10 Aceleración", "Pasiva - Drenaje Abisal: Restaura maná al recibir daño y restaura vida al gastar maná.", "$ITEM_IMG/3001.png"))
+        add(WildRiftItem("adaptive_helm", "Yelmo Adaptable", ItemCategory.DEFENSE, 2800, "+300 Vida, +55 Resistencia Mágica, +100% Regen. Vida, +10 Aceleración", "Pasiva - Adaptación: Recibir daño mágico repetido reduce el daño de esa habilidad en un 20% durante 4s.", "$ITEM_IMG/3194.png"))
+        add(WildRiftItem("bramble_vest_upgrade", "Malla Reforzada de Zarzas", ItemCategory.DEFENSE, 2600, "+60 Armadura, +200 Vida", "Pasiva - Púas Venenosas: Devuelve daño y reduce la efectividad de las curaciones enemigas.", "$ITEM_IMG/3076.png"))
+        add(WildRiftItem("dawnshroud", "Muro del Alba (Dawnshroud)", ItemCategory.DEFENSE, 2700, "+250 Vida, +50 Armadura, +30 Resistencia Mágica", "Pasiva - Amanecer: Inmovilizar a un campeón revela y daña a todos los enemigos cercanos.", "$ITEM_IMG/3050.png"))
+        add(WildRiftItem("winters_approach", "Escudo del Invierno", ItemCategory.DEFENSE, 2600, "+500 Maná, +15 Aceleración, +200 Vida", "Pasiva - Asombro: Otorga armadura equivalente al 1% de tu maná máximo.", "$ITEM_IMG/3119.png"))
+        add(WildRiftItem("guardians_bastion", "Bastión del Guardián", ItemCategory.DEFENSE, 2800, "+350 Vida, +45 Armadura, +10 Aceleración", "Pasiva - Escudo Sagrado: Protege a los aliados con menor vida en enfrentamientos grupales.", "$ITEM_IMG/3109.png"))
+        add(WildRiftItem("dragonplate_armor", "Armadura de Dragón", ItemCategory.DEFENSE, 2900, "+450 Vida, +40 Armadura, +30 Resistencia Mágica", "Pasiva - Escamas de Dragón: Reduce el daño de habilidades de área en un 15%.", "$ITEM_IMG/3742.png"))
+        add(WildRiftItem("steelcap_carapace", "Cota de Acero de Ionia", ItemCategory.DEFENSE, 2700, "+65 Armadura, +150 Vida, +10 Aceleración", "Pasiva - Bastión Férreo: Reduce el daño de los ataques automáticos directos un 12%.", "$ITEM_IMG/3047.png"))
+        add(WildRiftItem("overgrowth_cuirass", "Coraza de Gigantes", ItemCategory.DEFENSE, 2950, "+600 Vida Máxima, +35 Armadura", "Pasiva - Titán: Incrementa la vida total de forma escalonada con el tiempo en partida.", "$ITEM_IMG/3083.png"))
+        add(WildRiftItem("dawncore_guardian", "Manto de la Aurora", ItemCategory.DEFENSE, 2700, "+300 Vida, +30 Armadura, +30 Resistencia Mágica, +15 Aceleración", "Pasiva - Resplandor Vital: Aumenta la regeneración de vida de aliados cercanos en combate.", "$ITEM_IMG/3065.png"))
+        add(WildRiftItem("bulwark_defense", "Baluarte Antitanque", ItemCategory.DEFENSE, 2600, "+300 Vida, +45 Armadura, +15 Aceleración", "Pasiva - Escudo de Vanguardia: Mitiga el daño inicial de emboscadas enemigas.", "$ITEM_IMG/3097.png"))
+        add(WildRiftItem("crystalline_armor", "Coraza Cristalina", ItemCategory.DEFENSE, 2800, "+400 Vida, +50 Armadura, +200 Maná", "Pasiva - Prisma: Absorbe impactos físicos y los transforma en maná utilizable.", "$ITEM_IMG/3801.png"))
 
-        // ==========================================
-        // OBJETOS DE SOPORTE & UTILIDAD
-        // ==========================================
-        WildRiftItem(
-            id = "spectral_sickle",
-            name = "Hoz Espectral",
-            category = ItemCategory.SUPPORT,
-            goldCost = 500,
-            stats = "+10 Poder de Habilidad o +6 AD, +5 Aceleración Habilidad",
-            passive = "Pasiva - Tributo: Golpear campeones o estructuras enemigas con ataques o habilidades otorga oro. Se transforma en Garra de la Media Luna tras acumular 500 de oro.",
-            iconUrl = "$ITEM_IMG/3854.png"
-        ),
-        WildRiftItem(
-            id = "relic_shield",
-            name = "Escudo Reliquia",
-            category = ItemCategory.SUPPORT,
-            goldCost = 500,
-            stats = "+100 Vida Máxima, +5 Aceleración de Habilidad",
-            passive = "Pasiva - Botín de Guerra: Ejecuta súbditos con menos del 50% de vida otorgando el oro completo tanto a ti como al aliado más cercano. Evoluciona a Broquel de Targon.",
-            iconUrl = "$ITEM_IMG/3858.png"
-        ),
-        WildRiftItem(
-            id = "ardent_censer",
-            name = "Incensario Ardiente",
-            category = ItemCategory.SUPPORT,
-            goldCost = 2800,
-            stats = "+60 Poder de Habilidad, +250 Vida Máxima, +10 Aceleración de Habilidad, +5% Velocidad Mov.",
-            passive = "Pasiva - Fervor: Curar o escudar a un aliado le otorga entre 10-30% de velocidad de ataque y sus ataques infligen 16-30 de daño mágico adicional al impactar.",
-            iconUrl = "$ITEM_IMG/3504.png"
-        ),
-        WildRiftItem(
-            id = "staff_flowing_water",
-            name = "Bastón de Agua Fluyente",
-            category = ItemCategory.SUPPORT,
-            goldCost = 2500,
-            stats = "+65 Poder de Habilidad, +350 Maná, +20 Aceleración de Habilidad",
-            passive = "Pasiva - Rápidos: Curar o escudar a un aliado os otorga a ambos 20 de aceleración de habilidad y entre 20-40 de poder de habilidad adicional durante 4 segundos.",
-            iconUrl = "$ITEM_IMG/6616.png"
-        ),
-        WildRiftItem(
-            id = "redemption_support",
-            name = "Redención",
-            category = ItemCategory.SUPPORT,
-            goldCost = 2600,
-            stats = "+250 Vida Máxima, +15 Aceleración de Habilidad, +100% Regeneración Maná",
-            passive = "Pasiva - Bendición: Invoca un rayo de luz celestial tras 2.5s que cura 200-400 a todos los aliados e inflige 10% de daño verdadero de vida máxima a los enemigos.",
-            iconUrl = "$ITEM_IMG/3107.png"
-        ),
-        WildRiftItem(
-            id = "knights_vow",
-            name = "Promesa del Caballero",
-            category = ItemCategory.SUPPORT,
-            goldCost = 2700,
-            stats = "+300 Vida Máxima, +40 Armadura, +10 Aceleración de Habilidad",
-            passive = "Pasiva - Sacrificio: Designa a un Aliado Digno. Mientras esté cerca, redirige el 15% del daño que reciba hacia ti y te curas un porcentaje del daño que él inflija.",
-            iconUrl = "$ITEM_IMG/3109.png"
-        ),
+        // =========================================================================
+        // 4. OBJETOS DE SOPORTE (17 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("spectral_sickle", "Hoz Espectral", ItemCategory.SUPPORT, 500, "+6 Daño de Ataque o +12 Poder de Habilidad", "Pasiva - Tributo: Golpear campeones u objetivos otorga oro adicional y evoluciona la hoz.", "$ITEM_IMG/3854.png"))
+        add(WildRiftItem("relic_shield", "Escudo Reliquia", ItemCategory.SUPPORT, 500, "+100 Vida Máxima", "Pasiva - Botín de Guerra: Ejecuta súbditos bajo 50% de vida otorgando oro al aliado más cercano.", "$ITEM_IMG/3858.png"))
+        add(WildRiftItem("crescent_sickle", "Media Luna del Ocaso", ItemCategory.SUPPORT, 1500, "+15 Daño de Ataque o +30 Poder de Habilidad, +10 Aceleración", "Pasiva - Tributo Mejorado: Aumenta la ganancia de oro al atacar y reduce el enfriamiento de baratijas.", "$ITEM_IMG/3855.png"))
+        add(WildRiftItem("targons_buckler", "Escudo de Targon", ItemCategory.SUPPORT, 1500, "+150 Vida Máxima, +10 Aceleración", "Pasiva - Botín Mejorado: Mayor recarga de cargas para ejecutar súbditos y compartir oro.", "$ITEM_IMG/3859.png"))
+        add(WildRiftItem("black_mist_scythe", "Agonía del Océano (Black Mist)", ItemCategory.SUPPORT, 2500, "+25 Daño de Ataque o +50 Poder de Habilidad, +15 Aceleración", "Pasiva - Esencia Espectral: Otorga oro de apoyo supremo y reduce tiempos de recarga de encantamientos.", "$ITEM_IMG/3857.png"))
+        add(WildRiftItem("bulwark_of_mountain", "Baluarte de la Montaña", ItemCategory.SUPPORT, 2500, "+300 Vida Máxima, +15 Aceleración", "Pasiva - Cumbre Inquebrantable: Comparte oro masivo y otorga resistencia adicional a tu tirador.", "$ITEM_IMG/3860.png"))
+        add(WildRiftItem("shurelyas_battlesong", "Canción de Batalla de Shurelya", ItemCategory.SUPPORT, 2700, "+40 Poder de Habilidad, +200 Vida, +20 Aceleración, +5% Velocidad Mov.", "Pasiva - Motivación: Curar o proteger a un aliado les otorga 25% de velocidad de movimiento.", "$ITEM_IMG/2065.png"))
+        add(WildRiftItem("ardent_censer", "Incensario Ardiente", ItemCategory.SUPPORT, 2700, "+60 Poder de Habilidad, +250 Vida, +10 Aceleración", "Pasiva - Santificador: Curar o proteger a un aliado otorga a ambos velocidad de ataque y daño mágico adicional.", "$ITEM_IMG/3504.png"))
+        add(WildRiftItem("staff_flowing_water", "Báculo de Agua Fluyente", ItemCategory.SUPPORT, 2700, "+65 Poder de Habilidad, +350 Maná, +20 Aceleración", "Pasiva - Rápidos: Curar o proteger a un aliado les otorga Poder de Habilidad y Aceleración de Habilidad.", "$ITEM_IMG/6616.png"))
+        add(WildRiftItem("moonstone_renewer", "Renovación de Piedra Lunar", ItemCategory.SUPPORT, 2700, "+40 Poder de Habilidad, +200 Vida, +20 Aceleración", "Pasiva - Gracia Estelar: Afectar a campeones en combate cura en cadena al aliado con menos vida cercana.", "$ITEM_IMG/6617.png"))
+        add(WildRiftItem("imperial_mandate", "Mandato Imperial", ItemCategory.SUPPORT, 2600, "+40 Poder de Habilidad, +200 Vida, +20 Aceleración", "Pasiva - Fuego Coordinado: Habilidades que ralenticen o inmovilicen marcan al enemigo para daño aliado detonable.", "$ITEM_IMG/4005.png"))
+        add(WildRiftItem("harmonic_echo", "Eco Armónico", ItemCategory.SUPPORT, 2700, "+75 Poder de Habilidad, +300 Maná, +10 Aceleración", "Pasiva - Eco Armónico: Moverte y lanzar habilidades acumula cargas para curar al objetivo y a 3 aliados cercanos.", "$ITEM_IMG/3003.png"))
+        add(WildRiftItem("echoes_of_helia", "Ecos de Helia", ItemCategory.SUPPORT, 2600, "+40 Poder de Habilidad, +200 Vida, +15 Aceleración", "Pasiva - Sifón de Almas: Dañar enemigos acumula esquirlas; curar a un aliado gasta las esquirlas para sanar y dañar.", "$ITEM_IMG/6617.png"))
+        add(WildRiftItem("ixtali_seedjar", "Espejo de Cristal de Ixtal (Seedjar)", ItemCategory.SUPPORT, 2400, "+45 Armadura, +45 Resistencia Mágica, +5% Velocidad Mov.", "Pasiva - Propagación: Recolecta semillas de plantas del mapa (piña explosiva, fruto de miel, flor del adivino).", "$ITEM_IMG/3801.png"))
+        add(WildRiftItem("protector_vessel", "Protector de la Fuente", ItemCategory.SUPPORT, 2500, "+250 Vida, +30 Poder de Habilidad, +15 Aceleración", "Pasiva - Fuente Vital: Incrementa la potencia de las curaciones aliadas directas.", "$ITEM_IMG/3109.png"))
+        add(WildRiftItem("faerie_harmony", "Amuleto de Armonía de las Hadas", ItemCategory.SUPPORT, 2400, "+35 Poder de Habilidad, +250 Maná, +15 Aceleración", "Pasiva - Serenata: Regenera maná a los aliados circundantes en combate prolongado.", "$ITEM_IMG/3028.png"))
+        add(WildRiftItem("guardians_talisman", "Talismán del Guardián", ItemCategory.SUPPORT, 2450, "+200 Vida, +25 Poder de Habilidad, +10 Aceleración", "Pasiva - Vínculo Sagrado: Reduce el daño letal sufrido por el tirador vinculado.", "$ITEM_IMG/3097.png"))
 
-        // ==========================================
-        // BOTAS & ENCANTAMIENTOS ACTIVOS (EXCLUSIVOS DE WILD RIFT)
-        // ==========================================
-        WildRiftItem(
-            id = "plated_steelcaps",
-            name = "Punteras de Acero",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 1000,
-            stats = "+40 Velocidad de Movimiento, +15 Armadura",
-            passive = "Pasiva - Bloqueo: Reduce el daño de los ataques básicos enemigos un 12%.",
-            iconUrl = "$ITEM_IMG/3047.png"
-        ),
-        WildRiftItem(
-            id = "mercurys_treads",
-            name = "Botas de Mercurio",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 1000,
-            stats = "+40 Velocidad de Movimiento, +15 Resistencia Mágica",
-            passive = "Pasiva - Tenacidad: Reduce la duración de aturdimientos, ralentizaciones, provocaciones, silencios y ceguera en un 35%.",
-            iconUrl = "$ITEM_IMG/3111.png"
-        ),
-        WildRiftItem(
-            id = "zhonya_enchant",
-            name = "Encantamiento de Reloj de Arena de Zhonya",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 800,
-            stats = "Mejora activa para cualquier bota mejorada",
-            passive = "Activa - Éxtasis: Te vuelve invulnerable e inalcanzable durante 2.5s, pero te impide moverte, atacar o lanzar habilidades.",
-            iconUrl = "$ITEM_IMG/3157.png"
-        ),
-        WildRiftItem(
-            id = "quicksilver_enchant",
-            name = "Encantamiento de Fajín de Mercurio",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 800,
-            stats = "Mejora activa para cualquier bota mejorada",
-            passive = "Activa - Mercurio: Elimina al instante todos los efectos de control de masas activos en tu campeón y otorga inmunidad a CC durante 0.75s.",
-            iconUrl = "$ITEM_IMG/3140.png"
-        ),
-        WildRiftItem(
-            id = "gargoyle_enchant",
-            name = "Encantamiento de Gárgola",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 800,
-            stats = "Mejora activa para cualquier bota mejorada",
-            passive = "Activa - Piel Pétrea: Otorga un escudo masivo equivalente al 20% de tu vida máxima (aumentado al 40% si hay 3+ enemigos cerca).",
-            iconUrl = "$ITEM_IMG/3193.png"
-        ),
-        WildRiftItem(
-            id = "teleport_enchant",
-            name = "Encantamiento de Teletransporte",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 800,
-            stats = "Mejora activa para cualquier bota mejorada",
-            passive = "Activa - Teletransporte: Tras canalizar durante 3.5s, te teletransportas a una estructura aliada, centinela o súbdito en cualquier parte del mapa.",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/8000_summoner_teleport.png"
-        ),
-        WildRiftItem(
-            id = "protobelt_enchant",
-            name = "Encantamiento de Cinturón Cohete",
-            category = ItemCategory.BOOTS_ENCHANTMENT,
-            goldCost = 800,
-            stats = "Mejora activa para cualquier bota mejorada",
-            passive = "Activa - Impulso Ígneo: Te deslizas hacia adelante disparando una andanada de misiles que infligen daño mágico en cono.",
-            iconUrl = "$ITEM_IMG/3152.png"
-        )
-    )
+        // =========================================================================
+        // 5. OBJETOS ACTIVOS / ENCANTAMIENTOS (13 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("stasis_enchant", "Encantamiento de Éstasis (Zhonya)", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Éstasis: Te vuelve invulnerable e inalcanzable durante 2.5 segundos, pero no puedes moverte ni atacar (120s cd).", "$ITEM_IMG/3157.png"))
+        add(WildRiftItem("quicksilver_enchant", "Encantamiento de Fajín de Mercurio", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Mercurio: Elimina todos los efectos de control de masas que te afecten e inmuniza contra ellos durante 0.5s.", "$ITEM_IMG/3140.png"))
+        add(WildRiftItem("gargoyle_enchant", "Encantamiento de Gárgola", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Petrificación: Obtienes un escudo equivalente al 20% de tu vida máxima durante 4 segundos.", "$ITEM_IMG/3193.png"))
+        add(WildRiftItem("protobelt_enchant", "Encantamiento de Cinturón Cohete", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Cohete de Fuego: Te deslizas hacia adelante y disparas un cono de misiles que infligen daño mágico.", "$ITEM_IMG/3152.png"))
+        add(WildRiftItem("locket_enchant", "Encantamiento de Relicario (Solari)", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Escudo de Luz: Otorga a ti y a todos los aliados cercanos un escudo de absorción durante 2.5s.", "$ITEM_IMG/3190.png"))
+        add(WildRiftItem("redemption_enchant", "Encantamiento de Redención", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Rayo Sanador: Lanza un haz de luz sobre una zona; tras 2.5s cura a los aliados y quema a los enemigos.", "$ITEM_IMG/3107.png"))
+        add(WildRiftItem("teleport_enchant", "Encantamiento de Teleportación", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Traslado: Tras canalizar durante 3.5 segundos, te teletransportas a una estructura, súbdito o centinela aliado.", "$ITEM_IMG/3172.png"))
+        add(WildRiftItem("glory_enchant", "Encantamiento de Gloria Justiciera", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Carga: Otorga +45% de velocidad de movimiento hacia enemigos durante 4s y emite una onda de choque que ralentiza.", "$ITEM_IMG/3800.png"))
+        add(WildRiftItem("magnetron_enchant", "Encantamiento de Magnetrón", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Enlace Magnético: Te desplazas instantáneamente hacia un campeón aliado cercano y rediriges daño hacia ti.", "$ITEM_IMG/3109.png"))
+        add(WildRiftItem("repulsor_enchant", "Encantamiento de Repulsor", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Onda de Choque: Empuja a todos los enemigos cercanos hacia atrás y otorga velocidad de movimiento.", "$ITEM_IMG/3193.png"))
+        add(WildRiftItem("veil_enchant", "Encantamiento de Velo Espectral", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Escudo Mágico: Otorga un escudo de hechizos a un campeón aliado para bloquear la siguiente habilidad enemiga.", "$ITEM_IMG/3102.png"))
+        add(WildRiftItem("hydra_active_enchant", "Encantamiento de Hidra Activa", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Golpe Creciente: Golpea en área circular infligiendo daño físico según vida máxima.", "$ITEM_IMG/3074.png"))
+        add(WildRiftItem("toxic_mist_enchant", "Encantamiento de Niebla Tóxica", ItemCategory.ACTIVE, 800, "Activa de Botas", "Activa - Humo Cegador: Genera una nube que reduce el rango de visión enemiga.", "$ITEM_IMG/3151.png"))
+
+        // =========================================================================
+        // 6. BOTAS NIVEL 2 (7 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("berserkers_greaves", "Botas Berserker", ItemCategory.BOOTS_T2, 1400, "+30% Velocidad de Ataque, +45 Velocidad Mov.", "Pasiva - Furia de Ataque: Aumenta la velocidad y cadencia de ataques continuos.", "$ITEM_IMG/3006.png"))
+        add(WildRiftItem("plated_steelcaps", "Botas de Acero Revestidas", ItemCategory.BOOTS_T2, 1400, "+20 Armadura, +45 Velocidad Mov.", "Pasiva - Bloqueo de Impactos: Reduce el daño de todos los ataques básicos recibidos en un 12%.", "$ITEM_IMG/3047.png"))
+        add(WildRiftItem("mercurys_treads", "Botas de Mercurio", ItemCategory.BOOTS_T2, 1400, "+35 Resistencia Mágica, +45 Velocidad Mov.", "Pasiva - Tenacidad: Reduce la duración de aturdimientos, ralentizaciones y efectos de control en un 35%.", "$ITEM_IMG/3111.png"))
+        add(WildRiftItem("ionian_boots_lucidity", "Botas de Lucidez", ItemCategory.BOOTS_T2, 1400, "+20 Aceleración de Habilidad, +45 Velocidad Mov.", "Pasiva - Claridad Mental: Reduce el enfriamiento de los hechizos de invocador en un 15%.", "$ITEM_IMG/3158.png"))
+        add(WildRiftItem("boots_of_mana", "Botas de Maná", ItemCategory.BOOTS_T2, 1400, "+60 Poder de Habilidad, +8 Penetración Mágica, +45 Velocidad Mov.", "Pasiva - Fuente Arcana: Aumenta la regeneración de maná y otorga penetración mágica plana.", "$ITEM_IMG/3020.png"))
+        add(WildRiftItem("boots_of_swiftness", "Botas de Rapidez", ItemCategory.BOOTS_T2, 1400, "+55 Velocidad de Movimiento", "Pasiva - Pasos Rápidos: Reduce la efectividad de las ralentizaciones sufridas en un 25%.", "$ITEM_IMG/3009.png"))
+        add(WildRiftItem("gluttonous_greaves", "Botas de Vampirismo", ItemCategory.BOOTS_T2, 1400, "+7% Vampirismo Físico y Mágico, +45 Velocidad Mov.", "Pasiva - Sustento: Cura vida proporcional al daño físico o mágico infligido.", "$ITEM_IMG/3006.png"))
+
+        // =========================================================================
+        // 7. BOTAS NIVEL 3 (7 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("fury_berserkers", "Grebas de Furia Berserker", ItemCategory.BOOTS_T3, 1900, "+40% Velocidad de Ataque, +55 Velocidad Mov.", "Pasiva - Frenesí Superior: Aumenta el daño de ráfagas automáticas en combates extensos.", "$ITEM_IMG/3006.png"))
+        add(WildRiftItem("reinforced_steelcaps", "Grebas de Acero Fortificado", ItemCategory.BOOTS_T3, 1900, "+30 Armadura, +55 Velocidad Mov.", "Pasiva - Armadura Absoluta: Reduce el daño de ataques físicos en un 16%.", "$ITEM_IMG/3047.png"))
+        add(WildRiftItem("tenacious_mercurys", "Pasos de Mercurio Tenaz", ItemCategory.BOOTS_T3, 1900, "+45 Resistencia Mágica, +55 Velocidad Mov.", "Pasiva - Voluntad Inquebrantable: Otorga 40% de Tenacidad constante y resistencia contra derribos.", "$ITEM_IMG/3111.png"))
+        add(WildRiftItem("transcendent_lucidity", "Botas de Lucidez Iluminadas", ItemCategory.BOOTS_T3, 1900, "+30 Aceleración de Habilidad, +55 Velocidad Mov.", "Pasiva - Iluminación: Reduce los enfriamientos de hechizos y habilidades básicas.", "$ITEM_IMG/3158.png"))
+        add(WildRiftItem("archmage_mana_boots", "Botas de Maná Arcano Supremo", ItemCategory.BOOTS_T3, 1900, "+80 Poder de Habilidad, +12 Penetración Mágica, +55 Velocidad Mov.", "Pasiva - Torrente de Maná: Gran amplificación de daño mágico para magos de ráfaga.", "$ITEM_IMG/3020.png"))
+        add(WildRiftItem("unstoppable_swiftness", "Botas de Rapidez Imparables", ItemCategory.BOOTS_T3, 1900, "+65 Velocidad de Movimiento", "Pasiva - Imparable: Inmune a ralentizaciones leves y proporciona máxima movilidad en rotación.", "$ITEM_IMG/3009.png"))
+        add(WildRiftItem("voracious_vampirism", "Botas de Vampirismo Voraz", ItemCategory.BOOTS_T3, 1900, "+10% Vampirismo Omnívoro, +55 Velocidad Mov.", "Pasiva - Hambre Eterna: Convierte una porción elevada del daño en curación inmediata.", "$ITEM_IMG/3006.png"))
+
+        // =========================================================================
+        // 8. OBJETOS DE NIVEL MEDIO (44 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("sheen", "Brillo (Sheen)", ItemCategory.MID_TIER, 900, "+10 Aceleración de Habilidad", "Pasiva - Hoja Encantada: Tras usar una habilidad, tu siguiente ataque básico inflige 100% de daño base adicional.", "$ITEM_IMG/3057.png"))
+        add(WildRiftItem("last_whisper", "Último Suspiro", ItemCategory.MID_TIER, 1300, "+15 Daño de Ataque, +15% Penetración de Armadura", "Pasiva - Perforación: Otorga penetración de armadura porcentual para atravesar defensas.", "$ITEM_IMG/3035.png"))
+        add(WildRiftItem("cloak_of_agility", "Capa de Agilidad", ItemCategory.MID_TIER, 800, "+20% Probabilidad de Golpe Crítico", "Pasiva: Aumenta la probabilidad de asestar golpes críticos.", "$ITEM_IMG/3122.png"))
+        add(WildRiftItem("vampiric_scepter", "Cetro Vampírico", ItemCategory.MID_TIER, 1200, "+20 Daño de Ataque, +7% Vampirismo Físico", "Pasiva: Cura vida al infligir daño físico con ataques básicos.", "$ITEM_IMG/1053.png"))
+        add(WildRiftItem("prophets_pendant", "Pendiente del Profeta", ItemCategory.MID_TIER, 1250, "+30 Poder de Habilidad, +125 Vida, +8 Penetración Mágica", "Pasiva: Otorga penetración mágica plana para magos en fase temprana.", "$ITEM_IMG/3165.png"))
+        add(WildRiftItem("lost_chapter", "Capítulo Perdido", ItemCategory.MID_TIER, 1050, "+30 Poder de Habilidad, +200 Maná, +10 Aceleración", "Pasiva - Revelación: Subir de nivel restaura un 20% del maná máximo durante 3 segundos.", "$ITEM_IMG/3802.png"))
+        add(WildRiftItem("kindlegem", "Gemaluz", ItemCategory.MID_TIER, 1000, "+200 Vida Máxima, +10 Aceleración de Habilidad", "Componente defensivo esencial para builds de aceleración.", "$ITEM_IMG/3067.png"))
+        add(WildRiftItem("chain_vest", "Cota de Malla", ItemCategory.MID_TIER, 900, "+40 Armadura", "Componente que otorga gran resistencia física.", "$ITEM_IMG/1031.png"))
+        add(WildRiftItem("negatron_cloak", "Manto de Negatrones", ItemCategory.MID_TIER, 900, "+40 Resistencia Mágica", "Componente que otorga gran defensa contra daño mágico.", "$ITEM_IMG/1057.png"))
+        add(WildRiftItem("hearthbound_axe", "Fusta de Fuego", ItemCategory.MID_TIER, 1100, "+15 Daño de Ataque, +15% Velocidad de Ataque", "Pasiva - Ágil: Atacar otorga velocidad de movimiento plana durante 2s.", "$ITEM_IMG/3051.png"))
+        add(WildRiftItem("noonquiver", "Filo Cierto (Noonquiver)", ItemCategory.MID_TIER, 1300, "+20 Daño de Ataque, +15% Velocidad de Ataque", "Pasiva - Precisión: Ataques infligen daño adicional a súbditos y monstruos.", "$ITEM_IMG/6670.png"))
+        add(WildRiftItem("zeal", "Celo", ItemCategory.MID_TIER, 1300, "+15% Prob. Crítico, +15% Velocidad de Ataque, +5% Velocidad Mov.", "Componente ágil para tiradores y luchadores de crítico.", "$ITEM_IMG/3086.png"))
+        add(WildRiftItem("caulfields_warhammer", "Martillo de Guerra de Caulfield", ItemCategory.MID_TIER, 1200, "+25 Daño de Ataque, +10 Aceleración de Habilidad", "Componente para asesinos y tiradores de daño directo.", "$ITEM_IMG/3133.png"))
+        add(WildRiftItem("serrated_dirk", "Daga Dentada", ItemCategory.MID_TIER, 1000, "+20 Daño de Ataque, +8 Letalidad", "Pasiva - Hendidura: Otorga penetración de armadura fija (Letalidad).", "$ITEM_IMG/3134.png"))
+        add(WildRiftItem("seekers_armguard", "Brazalete de la Buscadora", ItemCategory.MID_TIER, 1200, "+30 Poder de Habilidad, +25 Armadura", "Componente protector para magos contra asesinos AD.", "$ITEM_IMG/3191.png"))
+        add(WildRiftItem("giants_belt", "Cinturón de Gigante", ItemCategory.MID_TIER, 1000, "+300 Vida Máxima", "Gran aumento de vida para tanques y colosos.", "$ITEM_IMG/1011.png"))
+        add(WildRiftItem("bramble_vest", "Chaleco de Zarzas", ItemCategory.MID_TIER, 1000, "+30 Armadura", "Pasiva - Espinas: Devuelve daño a los atacantes y aplica Heridas Graves.", "$ITEM_IMG/3076.png"))
+        add(WildRiftItem("wardens_mail", "Velo del Guardián", ItemCategory.MID_TIER, 1050, "+40 Armadura", "Pasiva - Acero Duro: Reduce el daño de los ataques automáticos sufridos.", "$ITEM_IMG/3082.png"))
+        add(WildRiftItem("bandleglass_mirror", "Espejo de Cristal de Bandle", ItemCategory.MID_TIER, 950, "+20 Poder de Habilidad, +10 Aceleración, +50% Regen. Maná", "Componente esencial para encantadores y soportes AP.", "$ITEM_IMG/4642.png"))
+        add(WildRiftItem("oblivion_orb", "Orbe del Olvido", ItemCategory.MID_TIER, 800, "+30 Poder de Habilidad", "Pasiva - Maldición: Infligir daño mágico aplica Heridas Graves al objetivo.", "$ITEM_IMG/3916.png"))
+        add(WildRiftItem("executioners_calling", "Llamada del Verdugo", ItemCategory.MID_TIER, 800, "+15 Daño de Ataque", "Pasiva - Heridas: Infligir daño físico aplica Heridas Graves al objetivo.", "$ITEM_IMG/3123.png"))
+        add(WildRiftItem("haunting_guise", "Máscara Encantada", ItemCategory.MID_TIER, 1300, "+30 Poder de Habilidad, +200 Vida", "Pasiva - Locura: Estar en combate aumenta progresivamente el daño infligido.", "$ITEM_IMG/3136.png"))
+        add(WildRiftItem("fiendish_codex", "Códice Diabólico", ItemCategory.MID_TIER, 900, "+35 Poder de Habilidad, +10 Aceleración", "Componente básico de poder mágico y reducción de enfriamientos.", "$ITEM_IMG/3108.png"))
+        add(WildRiftItem("needlessly_large_rod", "Vara Innecesariamente Grande", ItemCategory.MID_TIER, 1400, "+60 Poder de Habilidad", "Mayor concentración de poder de habilidad en un componente.", "$ITEM_IMG/1058.png"))
+        add(WildRiftItem("bf_sword", "Espadón (B.F. Sword)", ItemCategory.MID_TIER, 1500, "+40 Daño de Ataque", "Mayor concentración de daño de ataque en un componente.", "$ITEM_IMG/1038.png"))
+        add(WildRiftItem("glacial_buckler", "Cristal Glacial", ItemCategory.MID_TIER, 900, "+20 Armadura, +150 Maná, +10 Aceleración", "Componente para tanques que necesitan maná y enfriamientos.", "$ITEM_IMG/3024.png"))
+        add(WildRiftItem("phage", "Bacteriófago (Phage)", ItemCategory.MID_TIER, 1100, "+15 Daño de Ataque, +175 Vida", "Pasiva - Furia: Atacar otorga velocidad de movimiento temporal.", "$ITEM_IMG/3044.png"))
+        add(WildRiftItem("recurve_bow", "Arco Recurvo", ItemCategory.MID_TIER, 900, "+20% Velocidad de Ataque", "Pasiva - Punta de Acero: Los ataques infligen daño físico adicional.", "$ITEM_IMG/1043.png"))
+        add(WildRiftItem("bamis_cinder", "Ceniza de Bami", ItemCategory.MID_TIER, 1100, "+200 Vida Máxima", "Pasiva - Inmolar: Quema a enemigos cercanos con daño mágico continuo.", "$ITEM_IMG/3751.png"))
+        add(WildRiftItem("catalyst_of_aeons", "Catalizador de Eones", ItemCategory.MID_TIER, 1100, "+175 Vida, +200 Maná", "Pasiva - Eternidad: Recibir daño restaura maná; gastar maná restaura vida.", "$ITEM_IMG/3010.png"))
+        add(WildRiftItem("tear_of_the_goddess", "Lágrima de la Diosa", ItemCategory.MID_TIER, 900, "+300 Maná Máximo", "Pasiva - Carga de Maná: Usar habilidades incrementa el maná máximo (hasta +700).", "$ITEM_IMG/3070.png"))
+        add(WildRiftItem("spectres_cowl", "Hábito del Espectro", ItemCategory.MID_TIER, 1100, "+200 Vida, +25 Resistencia Mágica", "Pasiva - Regeneración: Recibir daño de un campeón otorga regeneración de vida.", "$ITEM_IMG/3211.png"))
+        add(WildRiftItem("jaurims_fist", "Puño de Jaurim", ItemCategory.MID_TIER, 1100, "+15 Daño de Ataque, +200 Vida", "Componente híbrido para colosos y luchadores.", "$ITEM_IMG/3052.png"))
+        add(WildRiftItem("aegis_of_the_legion", "Égida de la Legión", ItemCategory.MID_TIER, 1100, "+10 Aceleración, +20 Armadura, +20 Resistencia Mágica", "Componente con defensas equilibradas de armadura y resistencia mágica.", "$ITEM_IMG/3105.png"))
+        add(WildRiftItem("ironspike_whip", "Látigo de Picos de Hierro", ItemCategory.MID_TIER, 1100, "+25 Daño de Ataque", "Pasiva - Creciente: Habilita tajos de daño físico en área de corto alcance.", "$ITEM_IMG/6029.png"))
+        add(WildRiftItem("hexdrinker", "Sorbemaleficios (Hexdrinker)", ItemCategory.MID_TIER, 1200, "+20 Daño de Ataque, +30 Resistencia Mágica", "Pasiva - Salvavidas: Otorga un escudo contra daño mágico al recibir daño crítico.", "$ITEM_IMG/3155.png"))
+        add(WildRiftItem("aether_wisp", "Brisa de Éter", ItemCategory.MID_TIER, 850, "+30 Poder de Habilidad, +5% Velocidad Mov.", "Componente de poder mágico con movilidad.", "$ITEM_IMG/3113.png"))
+        add(WildRiftItem("winged_moonplate", "Placa Lunar Alada", ItemCategory.MID_TIER, 800, "+150 Vida, +5% Velocidad Mov.", "Componente que otorga resistencia y rapidez para tanques.", "$ITEM_IMG/3066.png"))
+        add(WildRiftItem("crystalline_bracer", "Brazal Cristalino", ItemCategory.MID_TIER, 650, "+100 Vida, +50% Regeneración de Vida", "Componente para sostenimiento defensivo.", "$ITEM_IMG/3801.png"))
+        add(WildRiftItem("pickaxe", "Pico de Hierro (Pickaxe)", ItemCategory.MID_TIER, 875, "+25 Daño de Ataque", "Componente sólido de daño físico para objetos de ataque.", "$ITEM_IMG/1037.png"))
+        add(WildRiftItem("dueling_dagger", "Daga de Duelo", ItemCategory.MID_TIER, 900, "+20% Velocidad de Ataque, +10 AD", "Componente ágil para duelistas y tiradores.", "$ITEM_IMG/1042.png"))
+        add(WildRiftItem("steel_buckler", "Escudo Redondo de Acero", ItemCategory.MID_TIER, 900, "+35 Armadura", "Componente intermedio de mitigación física.", "$ITEM_IMG/1029.png"))
+        add(WildRiftItem("solar_crest", "Medallón Solar", ItemCategory.MID_TIER, 1000, "+150 Vida, +15 Armadura", "Componente de soporte para armaduras sagradas.", "$ITEM_IMG/3105.png"))
+        add(WildRiftItem("fiendish_fragment", "Fragmento de Cristal Mágico", ItemCategory.MID_TIER, 950, "+25 AP, +100 Maná", "Componente para acelerar objetos de control de magos.", "$ITEM_IMG/3802.png"))
+
+        // =========================================================================
+        // 9. OBJETOS DE NIVEL BÁSICO (13 ITEMS)
+        // =========================================================================
+        add(WildRiftItem("long_sword", "Espada Larga", ItemCategory.BASIC, 500, "+12 Daño de Ataque", "Objeto inicial básico para incrementar el daño de ataque.", "$ITEM_IMG/1036.png"))
+        add(WildRiftItem("dagger", "Daga", ItemCategory.BASIC, 500, "+15% Velocidad de Ataque", "Objeto inicial básico para aumentar la cadencia de golpes.", "$ITEM_IMG/1042.png"))
+        add(WildRiftItem("amplifying_tome", "Tomo Amplificador", ItemCategory.BASIC, 500, "+20 Poder de Habilidad", "Objeto inicial básico para incrementar el poder mágico.", "$ITEM_IMG/1052.png"))
+        add(WildRiftItem("ruby_crystal", "Cristal de Rubí", ItemCategory.BASIC, 500, "+150 Vida Máxima", "Objeto básico para aumentar la salud máxima.", "$ITEM_IMG/1028.png"))
+        add(WildRiftItem("sapphire_crystal", "Cristal de Zafiro", ItemCategory.BASIC, 500, "+250 Maná Máximo", "Objeto básico para expandir la reserva de maná.", "$ITEM_IMG/1027.png"))
+        add(WildRiftItem("cloth_armor", "Armadura de Tela", ItemCategory.BASIC, 500, "+20 Armadura", "Objeto básico para mitigar el daño físico recibido.", "$ITEM_IMG/1029.png"))
+        add(WildRiftItem("null_magic_mantle", "Manto Anulamagia", ItemCategory.BASIC, 500, "+20 Resistencia Mágica", "Objeto básico para defenderte de ataques mágicos.", "$ITEM_IMG/1033.png"))
+        add(WildRiftItem("boots_of_speed", "Botas de Velocidad", ItemCategory.BASIC, 400, "+20 Velocidad de Movimiento", "Calzado básico para desplazarte con mayor rapidez por el mapa.", "$ITEM_IMG/1001.png"))
+        add(WildRiftItem("health_potion", "Poción de Vida", ItemCategory.BASIC, 50, "Consumible", "Restaura 120 de vida a lo largo de 8 segundos.", "$ITEM_IMG/2003.png"))
+        add(WildRiftItem("faerie_charm", "Amuleto de las Hadas", ItemCategory.BASIC, 250, "+25% Regeneración de Maná", "Acelera la recuperación constante de maná.", "$ITEM_IMG/1004.png"))
+        add(WildRiftItem("rejuvenation_bead", "Perla de Rejuvenecimiento", ItemCategory.BASIC, 250, "+50% Regeneración de Vida", "Acelera la recuperación constante de salud.", "$ITEM_IMG/1006.png"))
+        add(WildRiftItem("brawlers_gloves", "Guantes de Pelea", ItemCategory.BASIC, 400, "+10% Probabilidad de Crítico", "Aumenta la probabilidad básica de impacto crítico.", "$ITEM_IMG/1018.png"))
+        add(WildRiftItem("control_ward", "Centinela de Control", ItemCategory.BASIC, 75, "Consumible de Visión", "Otorga visión de área permanente e inhabilita centinelas enemigos.", "$ITEM_IMG/2055.png"))
+    }
 }

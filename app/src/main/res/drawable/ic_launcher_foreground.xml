@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Golden Crest Shield -->
+    <path
+        android:fillColor="#152438"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="2.5"
+        android:pathData="M54,26 L76,38 L76,64 C76,77 54,86 54,86 C54,86 32,77 32,64 L32,38 Z" />
+
+    <!-- Inner Shield Gradient Border -->
+    <path
+        android:fillColor="#091428"
+        android:strokeColor="#0AC8B9"
+        android:strokeWidth="1.2"
+        android:pathData="M54,32 L70,41 L70,62 C70,72 54,79 54,79 C54,79 38,72 38,62 L38,41 Z" />
+
+    <!-- Hextech Central Cyan Core / Gem -->
+    <path
+        android:fillColor="#0AC8B9"
+        android:pathData="M54,46 L60,54 L54,62 L48,54 Z" />
+
+    <!-- Center Vertical Sword / Blade -->
+    <path
+        android:fillColor="#F0E6D2"
+        android:pathData="M52.5,22 L55.5,22 L56,66 L54,72 L52,66 Z" />
+
+    <!-- Sword Crossguard -->
+    <path
+        android:fillColor="#C8AA6E"
+        android:pathData="M43,36 L65,36 L63,40 L45,40 Z" />
+
+    <!-- Left Wing Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="2"
+        android:pathData="M32,45 C24,42 22,54 26,62 C30,70 36,74 42,78" />
+
+    <!-- Right Wing Arc -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#C8AA6E"
+        android:strokeWidth="2"
+        android:pathData="M76,45 C84,42 86,54 82,62 C78,70 72,74 66,78" />
+
+    <!-- Crown Star Tip -->
+    <path
+        android:fillColor="#F0E6D2"
+        android:pathData="M54,18 L56,22 L60,22 L57,25 L58,29 L54,27 L50,29 L51,25 L48,22 L52,22 Z" />
+</vector>

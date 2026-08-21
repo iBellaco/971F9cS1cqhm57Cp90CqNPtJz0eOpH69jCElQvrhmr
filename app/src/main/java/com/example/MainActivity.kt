@@ -172,7 +172,7 @@ fun DashboardScreen(
 fun DraftingApp() {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
-    val isLanguageSet = remember { sharedPrefs.getBoolean("is_language_set", false) }
+    var isLanguageSet by remember { mutableStateOf(sharedPrefs.getBoolean("is_language_set", false)) }
 
     var currentScreen by remember { 
         mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
@@ -193,9 +193,6 @@ fun DraftingApp() {
     }
 
     var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
-    LaunchedEffect(selectedLanguage) {
-        // Just trigger recompose
-    }
 
     CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
         // Modal de Alerta de Actualización Disponible con opción de descarga directa
@@ -208,9 +205,9 @@ fun DraftingApp() {
             }
         }
 
-        if (isLanguageSet && currentScreen == AppScreen.MAIN) {
+        if (currentScreen == AppScreen.MAIN) {
             com.example.ui.components.WelcomePatchDialog(
-                onDismiss = { /* do nothing, handles its own state */ }
+                onDismiss = { /* handles state internally and persists view */ }
             )
         }
 
@@ -248,6 +245,7 @@ fun DraftingApp() {
                             .putBoolean("is_language_set", true)
                             .putString("selected_language", langCode)
                             .apply()
+                        isLanguageSet = true
                         selectedLanguage = langCode
                         currentScreen = AppScreen.MAIN
                         // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)

@@ -843,7 +843,7 @@ private fun OverlayItemsTabContent(
                         .padding(horizontal = 6.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = cat.displayName.substringBefore(" ("),
+                        text = tr(cat.displayName),
                         color = if (isSelected) HextechDarkBg else TextMuted,
                         fontSize = 9.5.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
