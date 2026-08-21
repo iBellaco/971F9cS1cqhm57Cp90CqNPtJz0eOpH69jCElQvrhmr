@@ -300,40 +300,6 @@ fun AdminItemEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Live Item Icon Preview
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(HextechSurface, RoundedCornerShape(8.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppAssetImage(
-                            url = editIconUrl.trim(),
-                            contentDescription = editName,
-                            fallbackText = editName.ifBlank { "IT" },
-                            modifier = Modifier.size(52.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Vista Previa del Ícono",
-                                color = HextechGoldLight,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = if (editIconUrl.isBlank()) "Sin URL (se usa monograma)" else "Cargando imagen remota",
-                                color = TextMuted,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     // ID Field
                     OutlinedTextField(
                         value = editId,
@@ -427,17 +393,13 @@ fun AdminItemEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Icon URL
-                    OutlinedTextField(
-                        value = editIconUrl,
-                        onValueChange = { editIconUrl = it },
-                        label = { Text("URL del Ícono (WebP / PNG)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                    // Image Picker / Uploader / URL Field
+                    AdminImagePickerUploader(
+                        label = "Ícono del Objeto (Galería o URL)",
+                        imageUrl = editIconUrl,
+                        onImageUrlChange = { editIconUrl = it },
+                        imagePrefix = "item_${editId.ifBlank { "new" }}",
+                        accentColor = HextechGold
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

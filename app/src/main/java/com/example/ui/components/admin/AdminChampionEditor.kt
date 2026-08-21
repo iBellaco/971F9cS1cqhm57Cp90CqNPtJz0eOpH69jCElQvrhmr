@@ -313,40 +313,6 @@ fun AdminChampionEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Live Avatar Preview
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(HextechSurface, RoundedCornerShape(8.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppAssetImage(
-                            url = editAvatarUrl.trim(),
-                            contentDescription = editName,
-                            fallbackText = editName.ifBlank { "CH" },
-                            modifier = Modifier.size(54.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Vista Previa de Avatar",
-                                color = HextechGoldLight,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = if (editAvatarUrl.isBlank()) "Sin URL (se usa monograma/gradiente)" else "Cargando desde URL remota",
-                                color = TextMuted,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
                     OutlinedTextField(
                         value = editId,
                         onValueChange = { if (isCreatingNew) editId = it },
@@ -481,24 +447,24 @@ fun AdminChampionEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Avatar URL
-                    OutlinedTextField(
-                        value = editAvatarUrl,
-                        onValueChange = { editAvatarUrl = it },
-                        label = { Text("Avatar URL (WebP / PNG / JPG)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                    // Avatar Image Picker & Uploader
+                    AdminImagePickerUploader(
+                        label = "Avatar del Campeón (Galería o URL)",
+                        imageUrl = editAvatarUrl,
+                        onImageUrlChange = { editAvatarUrl = it },
+                        imagePrefix = "champ_${editId.ifBlank { "new" }}",
+                        accentColor = HextechGold
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    // Primary Rune Icon URL
-                    OutlinedTextField(
-                        value = editRuneIconUrl,
-                        onValueChange = { editRuneIconUrl = it },
-                        label = { Text("Ícono de Runa Principal (URL)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                    // Primary Rune Icon Picker & Uploader
+                    AdminImagePickerUploader(
+                        label = "Ícono de Runa Principal (Galería o URL)",
+                        imageUrl = editRuneIconUrl,
+                        onImageUrlChange = { editRuneIconUrl = it },
+                        imagePrefix = "rune_${editId.ifBlank { "new" }}",
+                        accentColor = HextechCyan
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))

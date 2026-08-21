@@ -484,35 +484,6 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Live Icon Preview
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(HextechSurface, RoundedCornerShape(8.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppAssetImage(
-                            url = editIconUrl.trim(),
-                            contentDescription = editName,
-                            fallbackText = editName.ifBlank { "RN" },
-                            modifier = Modifier.size(50.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text("Vista Previa del Ícono", color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Text(
-                                text = if (editIconUrl.isBlank()) "Sin URL (se usa monograma)" else "Cargando desde URL remota",
-                                color = TextMuted,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     OutlinedTextField(
                         value = editId,
                         onValueChange = { if (isCreatingRune) editId = it },
@@ -552,11 +523,13 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = editIconUrl,
-                        onValueChange = { editIconUrl = it },
-                        label = { Text("URL del Ícono (WebP / PNG / HTTPS)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
+                    // Image Picker & Uploader
+                    AdminImagePickerUploader(
+                        label = "Ícono de la Runa (Galería o URL)",
+                        imageUrl = editIconUrl,
+                        onImageUrlChange = { editIconUrl = it },
+                        imagePrefix = "rune_${editId.ifBlank { "new" }}",
+                        accentColor = HextechGold
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -658,35 +631,6 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Live Icon Preview
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(HextechSurface, RoundedCornerShape(8.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppAssetImage(
-                            url = editIconUrl.trim(),
-                            contentDescription = editName,
-                            fallbackText = editName.ifBlank { "SP" },
-                            modifier = Modifier.size(50.dp),
-                            borderColor = HextechCyan,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text("Vista Previa del Ícono", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Text(
-                                text = if (editIconUrl.isBlank()) "Sin URL (se usa monograma)" else "Cargando desde URL remota",
-                                color = TextMuted,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     OutlinedTextField(
                         value = editId,
                         onValueChange = { if (isCreatingSpell) editId = it },
@@ -718,11 +662,13 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = editIconUrl,
-                        onValueChange = { editIconUrl = it },
-                        label = { Text("URL del Ícono (WebP / PNG / HTTPS)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
+                    // Image Picker & Uploader
+                    AdminImagePickerUploader(
+                        label = "Ícono del Hechizo (Galería o URL)",
+                        imageUrl = editIconUrl,
+                        onImageUrlChange = { editIconUrl = it },
+                        imagePrefix = "spell_${editId.ifBlank { "new" }}",
+                        accentColor = HextechCyan
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -825,35 +771,6 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Live Icon Preview
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(HextechSurface, RoundedCornerShape(8.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppAssetImage(
-                            url = editIconUrl.trim(),
-                            contentDescription = editName,
-                            fallbackText = editName.ifBlank { "OBJ" },
-                            modifier = Modifier.size(50.dp),
-                            borderColor = TierSPlusColor,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text("Vista Previa del Ícono", color = TierSPlusColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Text(
-                                text = if (editIconUrl.isBlank()) "Sin URL (se usa monograma)" else "Cargando desde URL remota",
-                                color = TextMuted,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it },
@@ -886,11 +803,13 @@ fun AdminRunesSpellsEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = editIconUrl,
-                        onValueChange = { editIconUrl = it },
-                        label = { Text("URL del Ícono", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
+                    // Image Picker & Uploader
+                    AdminImagePickerUploader(
+                        label = "Ícono del Objetivo (Galería o URL)",
+                        imageUrl = editIconUrl,
+                        onImageUrlChange = { editIconUrl = it },
+                        imagePrefix = "obj_${editName.replace(" ", "_").lowercase()}",
+                        accentColor = TierSPlusColor
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
