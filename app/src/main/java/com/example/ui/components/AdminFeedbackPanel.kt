@@ -62,6 +62,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -97,11 +101,25 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
+import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Shield
+import com.example.data.WildRiftRepository
+import com.example.ui.components.admin.AdminChampionEditorTab
+import com.example.ui.components.admin.AdminItemEditorTab
+import com.example.ui.components.admin.AdminSupabaseSyncTab
 import com.example.util.tr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+
+enum class AdminTab(val titleKey: String, val icon: ImageVector) {
+    FEEDBACK("Buzón", Icons.Default.Inbox),
+    ITEMS("Objetos", Icons.Default.Shield),
+    CHAMPIONS("Campeones", Icons.Default.Person),
+    SUPABASE("Supabase & Parches", Icons.Default.CloudSync)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,6 +130,7 @@ fun AdminFeedbackBottomSheet(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    var currentAdminTab by remember { mutableStateOf(AdminTab.FEEDBACK) }
     var reports by remember { mutableStateOf<List<FeedbackReport>>(emptyList()) }
     var completedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -266,13 +285,65 @@ fun AdminFeedbackBottomSheet(
                 }
             }
 
-            // Métricas Rápidas y Filtros (Píldoras animadas)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            // Selector de Pestañas del Panel de Administrador
+            ScrollableTabRow(
+                selectedTabIndex = currentAdminTab.ordinal,
+                containerColor = HextechSurface,
+                contentColor = HextechGold,
+                edgePadding = 12.dp,
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[currentAdminTab.ordinal]),
+                        color = HextechGold
+                    )
+                },
+                divider = {}
             ) {
+                AdminTab.entries.forEach { tab ->
+                    val isSelected = currentAdminTab == tab
+                    Tab(
+                        selected = isSelected,
+                        onClick = { currentAdminTab = tab },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = tab.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (isSelected) HextechGold else TextMuted
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = tr(tab.titleKey),
+                                    color = if (isSelected) HextechGold else TextMuted,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            when (currentAdminTab) {
+                AdminTab.ITEMS -> {
+                    AdminItemEditorTab()
+                }
+                AdminTab.CHAMPIONS -> {
+                    AdminChampionEditorTab()
+                }
+                AdminTab.SUPABASE -> {
+                    AdminSupabaseSyncTab()
+                }
+                AdminTab.FEEDBACK -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Métricas Rápidas y Filtros (Píldoras animadas)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
                 MetricPill(
                     label = tr("Total"),
                     count = reports.size,
@@ -504,6 +575,7 @@ fun AdminFeedbackBottomSheet(
             }
         }
     }
+}
 
     // Diálogo de Confirmación de Eliminación
     if (reportToDelete != null) {
@@ -574,6 +646,8 @@ fun AdminFeedbackBottomSheet(
             }
         )
     }
+}
+}
 }
 
 @Composable
