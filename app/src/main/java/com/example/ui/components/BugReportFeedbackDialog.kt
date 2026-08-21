@@ -19,17 +19,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
 import com.example.data.supabase.FeedbackRepository
 import com.example.ui.theme.HextechCardBorder
+import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechSurface
@@ -67,8 +69,7 @@ enum class FeedbackType(
     val label: String
 ) {
     BUG("Reportar Bug", Icons.Default.BugReport, "Bug / Error"),
-    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Mejora"),
-    META_CHAMPION("Campeón/Meta", Icons.Default.SportsEsports, "Meta / Campeón")
+    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Sugerencia")
 }
 
 @Composable
@@ -83,10 +84,11 @@ fun BugReportFeedbackDialog(
     var description by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
+    var showAdminPanel by remember { mutableStateOf(false) }
 
     val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank()
 
-    val sendToSupabase: () -> Unit = {
+    val sendFeedbackMessage: () -> Unit = {
         if (canPublish) {
             isSubmitting = true
             statusMessage = null
@@ -99,7 +101,7 @@ fun BugReportFeedbackDialog(
                 )
                 isSubmitting = false
                 if (result.isSuccess) {
-                    Toast.makeText(context, "✅ ¡Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "✅ ¡Mensaje enviado con éxito!", Toast.LENGTH_LONG).show()
                     onDismiss()
                 } else {
                     val err = result.exceptionOrNull()?.message ?: "Error desconocido"
@@ -110,6 +112,12 @@ fun BugReportFeedbackDialog(
         } else {
             Toast.makeText(context, "Por favor completa el título y la descripción", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    if (showAdminPanel) {
+        AdminFeedbackBottomSheet(
+            onDismiss = { showAdminPanel = false }
+        )
     }
 
     AlertDialog(
@@ -132,14 +140,27 @@ fun BugReportFeedbackDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Reportes & Sugerencias"),
+                        text = tr("Buzón de Reportes & Ideas"),
                         color = TextPrimary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
-                IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { showAdminPanel = true },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings,
+                            contentDescription = tr("Panel de Administrador"),
+                            tint = HextechCyan
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    }
                 }
             }
         },
@@ -151,16 +172,16 @@ fun BugReportFeedbackDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = tr("Envía fallos o sugerencias directamente a la base de datos (con retención automática de 7 días):"),
+                    text = tr("Envía tus reportes de fallos o sugerencias para seguir mejorando la aplicación:"),
                     color = TextMuted,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
                 )
 
-                // Selector de Tipo de Feedback
+                // Selector de Tipo de Feedback (Bug o Sugerencia)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     FeedbackType.values().forEach { type ->
                         val isSelected = selectedType == type
@@ -178,21 +199,23 @@ fun BugReportFeedbackDialog(
                                     shape = RoundedCornerShape(8.dp)
                                 )
                                 .clickable { selectedType = type }
-                                .padding(vertical = 8.dp, horizontal = 4.dp),
+                                .padding(vertical = 8.dp, horizontal = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
                                 Icon(
                                     imageVector = type.icon,
                                     contentDescription = null,
                                     tint = if (isSelected) HextechGold else TextMuted,
                                     modifier = Modifier.size(18.dp)
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = tr(type.label),
                                     color = if (isSelected) HextechGold else TextPrimary,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
@@ -208,9 +231,8 @@ fun BugReportFeedbackDialog(
                     placeholder = {
                         Text(
                             when (selectedType) {
-                                FeedbackType.BUG -> tr("Ej: El overlay no detecta la pantalla")
+                                FeedbackType.BUG -> tr("Ej: El overlay no detecta la pantalla de selección")
                                 FeedbackType.SUGGESTION -> tr("Ej: Agregar temporizador de dragones con audio")
-                                FeedbackType.META_CHAMPION -> tr("Ej: Actualizar build recomendada de Veigar")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -237,7 +259,10 @@ fun BugReportFeedbackDialog(
                     label = { Text(tr("Descripción detallada"), fontSize = 12.sp) },
                     placeholder = {
                         Text(
-                            tr("Describe qué sucedió, cómo reproducirlo o tu idea para mejorar la app..."),
+                            when (selectedType) {
+                                FeedbackType.BUG -> tr("Describe qué sucedió o cómo reproducir el error...")
+                                FeedbackType.SUGGESTION -> tr("Describe tu idea o mejora para la aplicación...")
+                            },
                             fontSize = 11.5.sp,
                             color = TextMuted
                         )
@@ -265,6 +290,28 @@ fun BugReportFeedbackDialog(
                     )
                 }
 
+                // Botón de acceso al Panel de Administrador
+                OutlinedButton(
+                    onClick = { showAdminPanel = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AdminPanelSettings,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = tr("Abrir Panel de Administrador (Leer Reportes)"),
+                        color = HextechCyan,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
                 // Diagnóstico del sistema
                 Box(
                     modifier = Modifier
@@ -274,7 +321,7 @@ fun BugReportFeedbackDialog(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "${tr("📱 Diagnóstico:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                        text = "${tr("📱 Dispositivo:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${WildRiftRepository.CURRENT_PATCH_VERSION}",
                         color = TextMuted,
                         fontSize = 10.sp
                     )
@@ -282,8 +329,13 @@ fun BugReportFeedbackDialog(
             }
         },
         confirmButton = {
+            val buttonText = when (selectedType) {
+                FeedbackType.BUG -> tr("Enviar reporte")
+                FeedbackType.SUGGESTION -> tr("Enviar sugerencia")
+            }
+
             Button(
-                onClick = sendToSupabase,
+                onClick = sendFeedbackMessage,
                 enabled = canPublish && !isSubmitting,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = HextechGold,
@@ -293,7 +345,7 @@ fun BugReportFeedbackDialog(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag("submit_feedback_db_button")
+                    .testTag("submit_feedback_button")
             ) {
                 if (isSubmitting) {
                     CircularProgressIndicator(
@@ -303,7 +355,7 @@ fun BugReportFeedbackDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Enviando a Base de Datos..."),
+                        text = tr("Enviando mensaje..."),
                         color = HextechDarkBg,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
@@ -311,14 +363,14 @@ fun BugReportFeedbackDialog(
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.CloudUpload,
+                            imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = null,
                             tint = if (canPublish) Color.Black else TextMuted,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(17.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = tr("Enviar a Base de Datos"),
+                            text = buttonText,
                             color = if (canPublish) Color.Black else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.5.sp
@@ -330,3 +382,4 @@ fun BugReportFeedbackDialog(
         dismissButton = {}
     )
 }
+

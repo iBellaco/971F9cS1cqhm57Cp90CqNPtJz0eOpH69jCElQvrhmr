@@ -23,31 +23,25 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Verify Java environment
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses & Install Platforms
         run: |
-          echo "=== Java Version Information ==="
-          java -version
-          echo "JAVA_HOME is set to: $JAVA_HOME"
-          if [ -z "$JAVA_HOME" ]; then
-            echo "ERROR: JAVA_HOME is not set!"
-            exit 1
-          fi
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-36" "platforms;android-35" "build-tools;36.0.0" || true
 
-          JAVA_RAW_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-          echo "Detected raw Java version: $JAVA_RAW_VERSION"
-          if [ -z "$JAVA_RAW_VERSION" ]; then
-            echo "ERROR: Unable to detect Java version from 'java -version' output."
-            exit 1
+      - name: Prepare environment files
+        run: |
+          if [ ! -f ".env" ]; then
+            if [ -f ".env.example" ]; then
+              cp .env.example .env
+              echo "Created .env from .env.example"
+            else
+              touch .env
+              echo "Created empty .env"
+            fi
           fi
-
-          JAVA_MAJOR=$(echo "$JAVA_RAW_VERSION" | awk -F '.' '{if ($1 == "1") print $2; else print $1}')
-          echo "Detected Java major version: $JAVA_MAJOR"
-
-          if [ -z "$JAVA_MAJOR" ] || ! [ "$JAVA_MAJOR" -ge 17 ] 2>/dev/null; then
-            echo "ERROR: Java major version must be 17 or higher. Found: $JAVA_MAJOR"
-            exit 1
-          fi
-          echo "Java environment verified successfully: version $JAVA_MAJOR (>= 17)."
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -73,12 +67,13 @@ jobs:
               -keysize 2048 \
               -validity 10000
           fi
+          mkdir -p ~/.android
+          cp ./debug.keystore ~/.android/debug.keystore 2>/dev/null || true
           echo "Keystore verified at ./debug.keystore"
 
       - name: Build Debug APK
         run: |
-          
-          gradle :app:assembleDebug --stacktrace --no-daemon --max-workers=2
+          gradle :app:assembleDebug --stacktrace --no-configuration-cache
 
       - name: Verify APK
         run: |

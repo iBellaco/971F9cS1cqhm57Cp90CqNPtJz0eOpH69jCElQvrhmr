@@ -24,6 +24,7 @@ val TierAColor = Color(0xFFF59E0B)
 
 val DangerRed = Color(0xFFFF4655)
 val DangerRedSurface = Color(0xFF33141B)
+val HextechGreen = Color(0xFF22C55E)
 val AllyBlue = Color(0xFF00D2D3)
 val AllyBlueSurface = Color(0xFF0D253A)
 

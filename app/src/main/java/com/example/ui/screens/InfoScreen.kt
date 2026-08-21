@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
 import com.example.data.supabase.FeedbackRepository
 import com.example.data.supabase.SupabaseClientManager
+import com.example.ui.components.AdminFeedbackBottomSheet
 import com.example.ui.theme.*
 import com.example.util.tr
 import kotlinx.coroutines.launch
@@ -37,6 +39,13 @@ fun InfoScreen(
     var isTestingSupabase by remember { mutableStateOf(false) }
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
+    var showAdminPanel by remember { mutableStateOf(false) }
+
+    if (showAdminPanel) {
+        AdminFeedbackBottomSheet(
+            onDismiss = { showAdminPanel = false }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -180,6 +189,33 @@ fun InfoScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Botón para abrir el Panel de Administrador interactivo
+                Button(
+                    onClick = { showAdminPanel = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = HextechCyan.copy(alpha = 0.2f),
+                        contentColor = HextechCyan
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AdminPanelSettings,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Abrir Panel de Administrador (Buzón de Reportes)"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 // Botón de limpieza de reportes antiguos (> 7 días)
                 OutlinedButton(
                     onClick = {
@@ -197,15 +233,15 @@ fun InfoScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isPurging,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     if (isPurging) {
-                        CircularProgressIndicator(color = HextechCyan, modifier = Modifier.size(18.dp))
+                        CircularProgressIndicator(color = HextechGold, modifier = Modifier.size(18.dp))
                     } else {
                         Text(
                             text = tr("Limpiar Reportes Antiguos (> 7 días)"),
-                            color = HextechCyan,
+                            color = HextechGold,
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.SemiBold
                         )
