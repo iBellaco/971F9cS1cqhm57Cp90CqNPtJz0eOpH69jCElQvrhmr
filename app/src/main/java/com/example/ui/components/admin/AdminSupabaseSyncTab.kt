@@ -353,6 +353,11 @@ fun AdminSupabaseSyncTab() {
             }
         }
 
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // 4. CARD: IMPORTADOR Y EXPORTADOR MASIVO DE JSON / BACKUP
+        AdminJsonBackupManager()
+
         Spacer(modifier = Modifier.height(30.dp))
     }
 }

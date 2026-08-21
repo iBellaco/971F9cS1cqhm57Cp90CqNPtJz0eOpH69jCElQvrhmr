@@ -11,8 +11,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,7 @@ fun AdminImagePickerUploader(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isProcessing by remember { mutableStateOf(false) }
+    var uploadStatusText by remember { mutableStateOf<String?>(null) }
 
     // Selector de galería / archivos del sistema Android
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -48,23 +51,30 @@ fun AdminImagePickerUploader(
     ) { uri: Uri? ->
         if (uri != null) {
             isProcessing = true
+            uploadStatusText = "Procesando y sincronizando imagen..."
             scope.launch {
                 val result = ImageStorageHelper.saveImageFromUri(
                     context = context,
                     uri = uri,
-                    prefix = imagePrefix
+                    prefix = imagePrefix,
+                    uploadToCloud = true
                 )
                 isProcessing = false
                 if (result.isSuccess) {
-                    val savedPath = result.getOrNull().orEmpty()
-                    onImageUrlChange(savedPath)
-                    Toast.makeText(context, "¡Imagen subida y optimizada correctamente!", Toast.LENGTH_SHORT).show()
+                    val saveResult = result.getOrNull()
+                    val savedUrl = saveResult?.url.orEmpty()
+                    onImageUrlChange(savedUrl)
+                    if (saveResult?.isCloudUrl == true) {
+                        uploadStatusText = "☁️ Subido a Supabase Storage con éxito"
+                        Toast.makeText(context, "¡Imagen subida a Supabase Storage!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        uploadStatusText = "💾 Guardado en almacenamiento local"
+                        Toast.makeText(context, "¡Imagen guardada localmente!", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
-                    Toast.makeText(
-                        context,
-                        "Error al procesar la imagen: ${result.exceptionOrNull()?.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    val errorMsg = result.exceptionOrNull()?.message ?: "Error desconocido"
+                    uploadStatusText = "⚠️ Error: $errorMsg"
+                    Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -91,7 +101,10 @@ fun AdminImagePickerUploader(
 
             if (imageUrl.isNotBlank()) {
                 TextButton(
-                    onClick = { onImageUrlChange("") },
+                    onClick = { 
+                        onImageUrlChange("")
+                        uploadStatusText = null
+                    },
                     contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp),
                     modifier = Modifier.height(26.dp)
                 ) {
@@ -137,17 +150,17 @@ fun AdminImagePickerUploader(
                             strokeWidth = 2.dp
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(tr("Subiendo..."), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                        Text(tr("Sincronizando..."), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                     } else {
                         Icon(
-                            Icons.Default.AddPhotoAlternate,
+                            Icons.Default.CloudUpload,
                             contentDescription = null,
                             tint = HextechDarkBg,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = tr("📁 Subir desde Galería / Dispositivo"),
+                            text = tr("📁 Subir Imagen (Cloud / Galería)"),
                             color = HextechDarkBg,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.5.sp
@@ -157,16 +170,38 @@ fun AdminImagePickerUploader(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = when {
-                        imageUrl.startsWith("file://") -> "📍 Imagen guardada en almacenamiento local de la app"
-                        imageUrl.startsWith("http://") || imageUrl.startsWith("https://") -> "🌐 Imagen vinculada por URL remota"
-                        imageUrl.isBlank() -> "Sin imagen seleccionada (usará monograma)"
-                        else -> "Imagen asignada"
-                    },
-                    color = if (imageUrl.startsWith("file://")) HextechCyan else TextMuted,
-                    fontSize = 10.sp
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val isCloud = imageUrl.contains("supabase.co")
+                    val isLocal = imageUrl.startsWith("file://")
+                    val isWeb = imageUrl.startsWith("http") && !isCloud
+
+                    val statusIcon = when {
+                        isCloud -> Icons.Default.CloudDone
+                        isLocal -> Icons.Default.PhoneAndroid
+                        else -> Icons.Default.Link
+                    }
+                    val statusTint = when {
+                        isCloud -> HextechCyan
+                        isLocal -> HextechGold
+                        else -> TextMuted
+                    }
+
+                    Icon(statusIcon, contentDescription = null, tint = statusTint, modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = when {
+                            uploadStatusText != null -> uploadStatusText!!
+                            isCloud -> "☁️ Supabase Cloud Storage"
+                            isLocal -> "💾 Almacenamiento local persistente"
+                            isWeb -> "🌐 Enlace web remoto"
+                            imageUrl.isBlank() -> "Sin imagen (usa monograma)"
+                            else -> "Imagen asignada"
+                        },
+                        color = statusTint,
+                        fontSize = 10.sp,
+                        fontWeight = if (isCloud || isLocal) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                }
             }
         }
 
@@ -175,8 +210,11 @@ fun AdminImagePickerUploader(
         // Campo de texto para pegar URL opcionalmente
         OutlinedTextField(
             value = imageUrl,
-            onValueChange = onImageUrlChange,
-            label = { Text("O ingresar URL web directa (WebP / PNG / JPG)", fontSize = 10.5.sp) },
+            onValueChange = {
+                uploadStatusText = null
+                onImageUrlChange(it)
+            },
+            label = { Text("O ingresar URL web directa (WebP / PNG / JPG / HTTPS)", fontSize = 10.5.sp) },
             leadingIcon = { Icon(Icons.Default.Link, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,

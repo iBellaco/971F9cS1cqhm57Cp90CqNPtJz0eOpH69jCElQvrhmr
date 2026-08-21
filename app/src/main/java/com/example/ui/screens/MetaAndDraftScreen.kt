@@ -104,6 +104,8 @@ import com.example.model.SummonerSpellItem
 import com.example.model.WildRiftItem
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.CooldownTrackerPanel
+import com.example.ui.components.DamagePenetrationCalculator
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.DangerRedSurface
@@ -220,7 +222,9 @@ fun MetaAndDraftScreen(
                 tr("Objetos"),
                 tr("Runas"),
                 tr("Hechizos"),
-                tr("Objetivos")
+                tr("Objetivos"),
+                tr("⏱️ CD Tracker"),
+                tr("🛡️ Math Daño")
             )
 
             ScrollableTabRow(
@@ -308,6 +312,14 @@ fun MetaAndDraftScreen(
                     6 -> {
                         // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
                         MapObjectivesTab()
+                    }
+                    7 -> {
+                        // SECCIÓN: CD TRACKER (TEMPORIZADORES EN TIEMPO REAL)
+                        CooldownTrackerPanel(modifier = Modifier.fillMaxSize())
+                    }
+                    8 -> {
+                        // SECCIÓN: CALCULADORA DE DAÑO Y PENETRACIÓN
+                        DamagePenetrationCalculator(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
@@ -1352,21 +1364,31 @@ private fun RunesTab() {
         ) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Color(0xFF10B981), CircleShape)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "wr-meta.com / runes",
+                            color = HextechGold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Text(
-                        "${tr("Runas del Meta Wild Rift")} (${filteredRunes.size})",
+                        "${filteredRunes.size} ${tr("Runas")} • ${tr(WildRiftRepository.CURRENT_PATCH_VERSION)}",
                         color = HextechCyan,
-                        fontSize = 14.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        tr(WildRiftRepository.CURRENT_PATCH_VERSION),
-                        color = HextechGoldLight,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -1517,21 +1539,31 @@ private fun SpellsTab() {
         ) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Color(0xFF10B981), CircleShape)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "wr-meta.com / spells",
+                            color = HextechGold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Text(
-                        "${tr("Hechizos de Invocador")} (${filteredSpells.size})",
-                        color = HextechGold,
-                        fontSize = 14.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "CDs Oficiales WR",
+                        "${filteredSpells.size} ${tr("Hechizos")} • ${tr("CDs Oficiales WR")}",
                         color = HextechCyan,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }

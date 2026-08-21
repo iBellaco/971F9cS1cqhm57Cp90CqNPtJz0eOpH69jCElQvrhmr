@@ -83,7 +83,10 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.MainActivity
 import com.example.R
 import com.example.data.WildRiftRepository
+import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.CooldownTrackerPanel
+import com.example.ui.components.DamagePenetrationCalculator
 import com.example.util.tr
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
@@ -598,7 +601,7 @@ private fun FloatingOverlayContent(
                             .padding(2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val tabs = listOf(tr("Draft"), tr("Objetivos"), tr("Build"), tr("Runas"), tr("Hechizos"))
+                        val tabs = listOf(tr("Draft"), tr("CDs"), tr("Math"), tr("Obj"), tr("Build"), tr("Runas"), tr("Hechizos"))
                         tabs.forEachIndexed { index, label ->
                             val isTabSelected = selectedTab == index
                             Box(
@@ -613,7 +616,7 @@ private fun FloatingOverlayContent(
                                 Text(
                                     text = label,
                                     color = if (isTabSelected) HextechDarkBg else TextMuted,
-                                    fontSize = 10.sp,
+                                    fontSize = 9.5.sp,
                                     fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -722,6 +725,16 @@ private fun FloatingOverlayContent(
                         }
 
                         1 -> {
+                            // CD TRACKER TAB
+                            CooldownTrackerPanel(isCompactOverlay = true)
+                        }
+
+                        2 -> {
+                            // DAMAGE & PENETRATION MATH TAB
+                            DamagePenetrationCalculator(isCompactOverlay = true)
+                        }
+
+                        3 -> {
                             // OBJETIVOS TAB (SIN IMÁGENES, DISEÑO LIMPIO HEXTECH)
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 WildRiftRepository.mapObjectives.forEach { obj ->
@@ -754,7 +767,7 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        2 -> {
+                        4 -> {
                             // BUILD TAB (SOLO OBJETOS CORE Y SITUACIONALES)
                             val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
                             val itemsToShow = currentChamp.coreItems + currentChamp.situationalItems
@@ -802,7 +815,7 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        3 -> {
+                        5 -> {
                             // RUNAS TAB (EXCLUSIVO RUNAS)
                             val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -842,7 +855,7 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        4 -> {
+                        6 -> {
                             // HECHIZOS TAB (EXCLUSIVO HECHIZOS & MAXEO)
                             val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
