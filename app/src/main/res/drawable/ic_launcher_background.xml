@@ -10,15 +10,9 @@
         <aapt:attr name="android:fillColor">
             <gradient
                 android:angle="315"
-                android:endColor="#050B14"
+                android:endColor="#030810"
                 android:startColor="#091428"
                 android:type="linear" />
         </aapt:attr>
     </path>
-    <!-- Hextech Inner Ring Pattern -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#1E3A5F"
-        android:strokeWidth="1"
-        android:pathData="M54,18 L85,36 L85,72 L54,90 L23,72 L23,36 Z" />
 </vector>

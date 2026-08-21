@@ -20,6 +20,8 @@ object FeedbackRepository {
 
     private const val TAG = "FeedbackRepository"
     private const val TABLE_NAME = "feedbacks"
+    private const val PREFS_NAME = "feedback_admin_prefs"
+    private const val KEY_COMPLETED_IDS = "completed_feedback_ids"
 
     /**
      * Envía un reporte o sugerencia a Supabase y purga automáticamente
@@ -51,7 +53,9 @@ object FeedbackRepository {
                 title = title.trim(),
                 description = description.trim(),
                 appVersion = appVersion,
-                deviceInfo = deviceInfo
+                deviceInfo = deviceInfo,
+                status = "PENDING",
+                isCompleted = false
             )
 
             // 3. Insertar en la tabla feedbacks de Supabase
@@ -65,25 +69,99 @@ object FeedbackRepository {
     }
 
     /**
-     * Obtiene los IDs de los reportes marcados como completados localmente.
+     * Obtiene los IDs y claves de los reportes marcados como completados localmente.
      */
     fun getCompletedFeedbackIds(context: Context): Set<String> {
-        val prefs = context.getSharedPreferences("feedback_admin_prefs", Context.MODE_PRIVATE)
-        return prefs.getStringSet("completed_feedback_ids", emptySet()) ?: emptySet()
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getStringSet(KEY_COMPLETED_IDS, emptySet())?.toSet() ?: emptySet()
     }
 
     /**
-     * Marca o desmarca un reporte como completado.
+     * Marca o desmarca un reporte como completado de forma persistente en SharedPreferences y
+     * sincroniza el estado en la base de datos de Supabase si está disponible.
      */
-    fun setFeedbackCompleted(context: Context, id: String, completed: Boolean) {
-        val prefs = context.getSharedPreferences("feedback_admin_prefs", Context.MODE_PRIVATE)
-        val currentSet = prefs.getStringSet("completed_feedback_ids", emptySet())?.toMutableSet() ?: mutableSetOf()
+    fun setFeedbackCompleted(
+        context: Context,
+        report: FeedbackReport,
+        completed: Boolean
+    ) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val currentSet = prefs.getStringSet(KEY_COMPLETED_IDS, emptySet())?.toMutableSet() ?: mutableSetOf()
+        
+        // Claves identificadoras del reporte (ID UUID, combinada título_fecha y título)
+        val id = report.id
+        val compositeKey = if (report.createdAt != null) "${report.title}_${report.createdAt}" else null
+        val titleKey = report.title
+
         if (completed) {
-            currentSet.add(id)
+            if (!id.isNullOrBlank()) currentSet.add(id)
+            if (!compositeKey.isNullOrBlank()) currentSet.add(compositeKey)
+            if (titleKey.isNotBlank()) currentSet.add("title:$titleKey")
         } else {
-            currentSet.remove(id)
+            if (!id.isNullOrBlank()) currentSet.remove(id)
+            if (!compositeKey.isNullOrBlank()) currentSet.remove(compositeKey)
+            if (titleKey.isNotBlank()) currentSet.remove("title:$titleKey")
         }
-        prefs.edit().putStringSet("completed_feedback_ids", currentSet).apply()
+
+        prefs.edit().putStringSet(KEY_COMPLETED_IDS, currentSet).apply()
+    }
+
+    /**
+     * Comprueba si un reporte está completado (ya sea por dato remoto de Supabase o guardado local permanente).
+     */
+    fun isReportCompleted(report: FeedbackReport, completedIds: Set<String>): Boolean {
+        if (report.status.equals("COMPLETED", ignoreCase = true)) return true
+        if (report.isCompleted == true) return true
+        
+        val id = report.id
+        if (!id.isNullOrBlank() && completedIds.contains(id)) return true
+
+        val compositeKey = if (report.createdAt != null) "${report.title}_${report.createdAt}" else null
+        if (!compositeKey.isNullOrBlank() && completedIds.contains(compositeKey)) return true
+
+        if (completedIds.contains("title:${report.title}")) return true
+
+        return false
+    }
+
+    /**
+     * Sincroniza el cambio de estado en la nube de Supabase.
+     */
+    suspend fun updateFeedbackStatusInCloud(id: String, completed: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val client = SupabaseClientManager.client
+            val postgrest = client.postgrest
+            val statusString = if (completed) "COMPLETED" else "PENDING"
+
+            // Intentar actualizar status e is_completed en Supabase
+            try {
+                postgrest.from(TABLE_NAME).update(
+                    mapOf(
+                        "status" to statusString,
+                        "is_completed" to completed
+                    )
+                ) {
+                    filter {
+                        eq("id", id)
+                    }
+                }
+            } catch (ignored: Exception) {
+                // Fallback por si la columna is_completed no existe
+                postgrest.from(TABLE_NAME).update(
+                    mapOf("status" to statusString)
+                ) {
+                    filter {
+                        eq("id", id)
+                    }
+                }
+            }
+
+            Log.d(TAG, "Estado de reporte $id actualizado en nube a $statusString")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.w(TAG, "No se pudo actualizar en nube el estado del reporte $id: ${e.message}")
+            Result.failure(e)
+        }
     }
 
     /**
@@ -178,4 +256,3 @@ object FeedbackRepository {
         }
     }
 }
-

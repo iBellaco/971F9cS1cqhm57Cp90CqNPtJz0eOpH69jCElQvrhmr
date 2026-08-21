@@ -142,14 +142,12 @@ fun AdminFeedbackBottomSheet(
 
     val pendingCount = remember(reports, completedIds) {
         reports.count { rep ->
-            val id = rep.id ?: "${rep.title}_${rep.createdAt}"
-            !completedIds.contains(id)
+            !FeedbackRepository.isReportCompleted(rep, completedIds)
         }
     }
     val completedCount = remember(reports, completedIds) {
         reports.count { rep ->
-            val id = rep.id ?: "${rep.title}_${rep.createdAt}"
-            completedIds.contains(id)
+            FeedbackRepository.isReportCompleted(rep, completedIds)
         }
     }
     val bugCount = remember(reports) { reports.count { it.type.equals("BUG", ignoreCase = true) } }
@@ -158,8 +156,7 @@ fun AdminFeedbackBottomSheet(
     // Filtrado de reportes
     val filteredReports = remember(reports, searchQuery, selectedFilter, completedIds) {
         reports.filter { item ->
-            val itemId = item.id ?: "${item.title}_${item.createdAt}"
-            val isItemCompleted = completedIds.contains(itemId)
+            val isItemCompleted = FeedbackRepository.isReportCompleted(item, completedIds)
 
             val matchFilter = when (selectedFilter) {
                 "PENDING" -> !isItemCompleted
@@ -465,20 +462,24 @@ fun AdminFeedbackBottomSheet(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(filteredReports, key = { it.id ?: it.hashCode().toString() }) { report ->
-                            val reportKey = report.id ?: "${report.title}_${report.createdAt}"
-                            val isCompleted = completedIds.contains(reportKey)
+                            val isCompleted = FeedbackRepository.isReportCompleted(report, completedIds)
 
                             ReportItemCard(
                                 report = report,
                                 isCompleted = isCompleted,
                                 onToggleCompleted = {
                                     val newStatus = !isCompleted
-                                    FeedbackRepository.setFeedbackCompleted(context, reportKey, newStatus)
-                                    completedIds = if (newStatus) {
-                                        completedIds + reportKey
-                                    } else {
-                                        completedIds - reportKey
+                                    FeedbackRepository.setFeedbackCompleted(context, report, newStatus)
+                                    completedIds = FeedbackRepository.getCompletedFeedbackIds(context)
+                                    
+                                    // Sincronizar en Supabase si tiene ID en la nube
+                                    val reportId = report.id
+                                    if (!reportId.isNullOrBlank()) {
+                                        scope.launch {
+                                            FeedbackRepository.updateFeedbackStatusInCloud(reportId, newStatus)
+                                        }
                                     }
+
                                     val msg = if (newStatus) "✅ Marcado como Completado" else "⏳ Marcado como Por resolver"
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 },
