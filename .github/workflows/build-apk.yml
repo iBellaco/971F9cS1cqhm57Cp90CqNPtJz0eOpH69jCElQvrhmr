@@ -26,14 +26,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses & Install Platforms
-        run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" || true
-
       - name: Prepare environment files
         run: |
           if [ ! -f ".env" ]; then
@@ -76,7 +68,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          gradle :app:assembleDebug --no-daemon --stacktrace
+          gradle :app:assembleDebug --stacktrace --max-workers=2
 
       - name: Verify APK
         run: |
@@ -102,7 +94,7 @@ jobs:
         run: |
           ASSET_DIR="${RUNNER_TEMP}/apk_release_asset"
           mkdir -p "$ASSET_DIR"
-          ASSET_NAME="Wild-Rift-Coach-v1.75-build-${{ github.run_number }}.apk"
+          ASSET_NAME="Wild-Rift-Coach-v1.76-build-${{ github.run_number }}.apk"
           ASSET_PATH="${ASSET_DIR}/${ASSET_NAME}"
           cp app/build/outputs/apk/debug/app-debug.apk "$ASSET_PATH"
           echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
@@ -113,11 +105,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: v1.75-build-${{ github.run_number }}
+          tag_name: v1.76-build-${{ github.run_number }}
           name: Wild Rift Coach Debug APK #${{ github.run_number }}
           body: |
             ### 🎮 Wild Rift Coach - APK de Pruebas (Debug)
-            - **Versión de la app:** v1.75
+            - **Versión de la app:** v1.76
             - **Build:** #${{ github.run_number }}
             - **Commit:** `${{ github.sha }}`
             
