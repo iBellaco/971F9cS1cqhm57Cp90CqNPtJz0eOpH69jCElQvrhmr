@@ -254,67 +254,6 @@ fun MainDraftingScreen(
                     onSecondRoleChange = onSecondRoleChange
                 )
 
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // Acceso a Meta & Catálogo de Campeones
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable { onNavigateToMeta() }
-                        .testTag("open_meta_catalog_card"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(HextechCyan.copy(alpha = 0.15f))
-                                    .border(1.dp, HextechCyan, RoundedCornerShape(8.dp)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.GridView,
-                                    contentDescription = null,
-                                    tint = HextechCyan,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = tr("Meta & Catálogo de Campeones"),
-                                    color = TextPrimary,
-                                    fontSize = 13.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = tr("Tier list, counters, sinergias, runas y objetos"),
-                                    color = TextMuted,
-                                    fontSize = 11.5.sp
-                                )
-                            }
-                        }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Ver",
-                            tint = HextechGold,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Botón Orbe Hextech 3D Central de Activación Inmediata

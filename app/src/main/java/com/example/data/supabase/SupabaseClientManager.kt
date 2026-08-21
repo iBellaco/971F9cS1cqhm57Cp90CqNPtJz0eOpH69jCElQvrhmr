@@ -11,10 +11,16 @@ import io.github.jan.supabase.auth.Auth
  */
 object SupabaseClientManager {
 
+    private const val DEFAULT_URL = "https://yreknglctxujpetgqhnw.supabase.co"
+    private const val DEFAULT_KEY = "sb_publishable_bQJGpyYVR-uxtBmN03F5yA_ZuibUcAr"
+
     val client by lazy {
+        val url = BuildConfig.SUPABASE_URL.takeIf { it.isNotBlank() } ?: DEFAULT_URL
+        val key = BuildConfig.SUPABASE_ANON_KEY.takeIf { it.isNotBlank() } ?: DEFAULT_KEY
+
         createSupabaseClient(
-            supabaseUrl = BuildConfig.SUPABASE_URL,
-            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
+            supabaseUrl = url,
+            supabaseKey = key
         ) {
             install(Postgrest)
             install(Auth)

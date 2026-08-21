@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                         DraftingApp()
                         
                         Text(
-                            text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                            text = "Alfa v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                             color = Color.White.copy(alpha = 0.5f),
                             fontSize = 10.sp,
                             modifier = Modifier

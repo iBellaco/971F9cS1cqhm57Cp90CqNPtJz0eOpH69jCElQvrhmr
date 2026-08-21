@@ -9,6 +9,26 @@ val LocalLanguage = compositionLocalOf { "es" }
 
 val translations = mapOf(
     "pt" to mapOf(
+        "Envía fallos o sugerencias. Se guardarán directamente en la base de datos (con retención automática de 7 días):" to "Envie falhas ou sugestões. Elas serão salvas diretamente no banco de dados (com retenção automática de 7 dias):",
+        "Enviar a Base de Datos" to "Enviar para o Banco de Dados",
+        "Enviando a Base de Datos..." to "Enviando para o Banco de Dados...",
+        "Limpiar Reportes Antiguos (> 7 días)" to "Limpar Relatórios Antigos (> 7 dias)",
+        "Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase o gestionar la retención de reportes." to "Módulo de sincronização do banco de dados na nuvem. Pressione o botão para testar a conexão com Supabase ou gerenciar a retenção de relatórios.",
+
+        "Estado del Servidor (Supabase)" to "Status do Servidor (Supabase)",
+        "Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase." to "Módulo de sincronização do banco de dados na nuvem. Pressione o botão para testar a conexão com Supabase.",
+        "Conectando con Supabase..." to "Conectando ao Supabase...",
+        "✅ Conexión exitosa. Cliente inicializado." to "✅ Conexão bem-sucedida. Cliente inicializado.",
+        "❌ Error de conexión: " to "❌ Erro de conexão: ",
+        "Verificar Conexión Supabase" to "Verificar Conexão Supabase",
+
+
+        // Draft UI Extra
+        "Equipo Aliado" to "Equipe Aliada",
+        "Equipo Rival" to "Equipe Inimiga",
+        "Seleccionar Campeón Aliado" to "Selecionar Campeão Aliado",
+        "Seleccionar Campeón Rival" to "Selecionar Campeão Inimigo",
+
         "¡Bienvenidos!" to "Bem-vindos!",
         "Notas del Nuevo Parche" to "Notas do Novo Patch",
         "• Sincronización automática con: " to "• Sincronização automática com: ",
@@ -351,6 +371,26 @@ val translations = mapOf(
         "Asistente Hextech Activo • Toca la cámara flotante" to "Assistente Hextech Ativo • Toque na câmera flutuante"
     ),
     "en" to mapOf(
+        "Envía fallos o sugerencias. Se guardarán directamente en la base de datos (con retención automática de 7 días):" to "Submit bugs or suggestions. They will be saved directly to the database (with automatic 7-day retention):",
+        "Enviar a Base de Datos" to "Send to Database",
+        "Enviando a Base de Datos..." to "Sending to Database...",
+        "Limpiar Reportes Antiguos (> 7 días)" to "Clean Old Reports (> 7 days)",
+        "Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase o gestionar la retención de reportes." to "Cloud database synchronization module. Press the button to test the connection with Supabase or manage report retention.",
+
+        "Estado del Servidor (Supabase)" to "Server Status (Supabase)",
+        "Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase." to "Cloud database synchronization module. Press the button to test the connection with Supabase.",
+        "Conectando con Supabase..." to "Connecting to Supabase...",
+        "✅ Conexión exitosa. Cliente inicializado." to "✅ Successful connection. Client initialized.",
+        "❌ Error de conexión: " to "❌ Connection error: ",
+        "Verificar Conexión Supabase" to "Verify Supabase Connection",
+
+
+        // Draft UI Extra
+        "Equipo Aliado" to "Ally Team",
+        "Equipo Rival" to "Enemy Team",
+        "Seleccionar Campeón Aliado" to "Select Ally Champion",
+        "Seleccionar Campeón Rival" to "Select Enemy Champion",
+
         "¡Bienvenidos!" to "Welcome!",
         "Notas del Nuevo Parche" to "New Patch Notes",
         "• Sincronización automática con: " to "• Automatic synchronization with: ",

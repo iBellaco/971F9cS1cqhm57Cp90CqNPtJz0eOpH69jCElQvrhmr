@@ -1,4 +1,6 @@
-package com.example.ui.screens
+import os
+
+content = """package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
-import com.example.data.supabase.FeedbackRepository
 import com.example.data.supabase.SupabaseClientManager
 import com.example.ui.theme.*
 import com.example.util.tr
@@ -35,8 +36,6 @@ fun InfoScreen(
     val scope = rememberCoroutineScope()
     var supabaseStatus by remember { mutableStateOf("") }
     var isTestingSupabase by remember { mutableStateOf(false) }
-    var isPurging by remember { mutableStateOf(false) }
-    var purgeStatus by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -98,9 +97,9 @@ fun InfoScreen(
                 icon = Icons.Default.Info
             ) {
                 Text(
-                    text = tr("• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).") + "\n" +
-                           tr("• Parche del juego: ") + "${WildRiftRepository.CURRENT_PATCH_VERSION} " + tr("sincronizado con fuentes de balance.") + "\n" +
-                           tr("• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.") + "\n" +
+                    text = tr("• Compatibilidad: Diseñado exclusivamente para Wild Rift (habilidades móviles, runas de Wild Rift, balance y objetos móviles).") + "\\n" +
+                           tr("• Parche del juego: ") + "${WildRiftRepository.CURRENT_PATCH_VERSION} " + tr("sincronizado con fuentes de balance.") + "\\n" +
+                           tr("• Motor Hextech: Botón de activación directa con cálculo de composiciones, counters y sinergias.") + "\\n" +
                            tr("• Sistema Flotante: Ventana superpuesta en pantalla con controles táctiles para la fase de selección."),
                     color = TextSecondary,
                     fontSize = 13.sp,
@@ -131,13 +130,13 @@ fun InfoScreen(
                 )
             }
 
-            // Section 3: Supabase Connection & Feedback Maintenance Test
+            // Section 3: Supabase Connection Test
             InfoCard(
-                title = tr("Estado del Servidor (Supabase)"),
+                title = "Estado del Servidor (Supabase)",
                 icon = Icons.Default.CheckCircle
             ) {
                 Text(
-                    text = tr("Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase o gestionar la retención de reportes."),
+                    text = "Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase.",
                     color = TextSecondary,
                     fontSize = 13.sp
                 )
@@ -149,6 +148,7 @@ fun InfoScreen(
                         scope.launch {
                             try {
                                 val client = SupabaseClientManager.client
+                                // Simulación / Inicialización de cliente
                                 kotlinx.coroutines.delay(800)
                                 supabaseStatus = "✅ Conexión exitosa. Cliente inicializado."
                             } catch (e: Exception) {
@@ -163,61 +163,18 @@ fun InfoScreen(
                     enabled = !isTestingSupabase
                 ) {
                     if (isTestingSupabase) {
-                        CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(20.dp))
+                        CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(24.dp))
                     } else {
-                        Text(tr("Verificar Conexión Supabase"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                        Text("Verificar Conexión Supabase", color = HextechDarkBg, fontWeight = FontWeight.Bold)
                     }
                 }
                 if (supabaseStatus.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = supabaseStatus,
-                        color = if (supabaseStatus.contains("✅")) AllyBlue else DangerRed,
-                        fontSize = 12.5.sp,
+                        color = if (supabaseStatus.contains("✅")) SuccessGreen else DangerRed,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Botón de limpieza de reportes antiguos (> 7 días)
-                OutlinedButton(
-                    onClick = {
-                        isPurging = true
-                        purgeStatus = "Purgando reportes antiguos (> 7 días)..."
-                        scope.launch {
-                            val res = FeedbackRepository.purgeOldReports(days = 7)
-                            isPurging = false
-                            purgeStatus = if (res.isSuccess) {
-                                "✅ Reportes antiguos (> 7 días) purgados con éxito."
-                            } else {
-                                "⚠️ Error en la purga: ${res.exceptionOrNull()?.message}"
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isPurging,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    if (isPurging) {
-                        CircularProgressIndicator(color = HextechCyan, modifier = Modifier.size(18.dp))
-                    } else {
-                        Text(
-                            text = tr("Limpiar Reportes Antiguos (> 7 días)"),
-                            color = HextechCyan,
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-
-                if (purgeStatus.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = purgeStatus,
-                        color = if (purgeStatus.contains("✅")) AllyBlue else DangerRed,
-                        fontSize = 12.sp
                     )
                 }
             }
@@ -237,7 +194,7 @@ fun InfoCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.5f)),
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+        border = border.Stroke(1.dp, HextechGold.copy(alpha = 0.3f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -268,3 +225,9 @@ fun InfoStep(title: String, description: String) {
         Text(text = description, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
     }
 }
+"""
+
+with open("app/src/main/java/com/example/ui/screens/InfoScreen.kt", "w") as f:
+    f.write(content)
+
+print("Generated InfoScreen.kt")

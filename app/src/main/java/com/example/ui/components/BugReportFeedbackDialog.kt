@@ -1,10 +1,5 @@
 package com.example.ui.components
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -24,30 +19,25 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,97 +50,66 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.WildRiftRepository
-import com.example.ui.theme.DangerRed
+import com.example.data.supabase.FeedbackRepository
 import com.example.ui.theme.HextechCardBorder
-import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
-import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import com.example.util.tr
+import kotlinx.coroutines.launch
 
 enum class FeedbackType(
     val title: String,
     val icon: ImageVector,
-    val label: String,
-    val githubLabel: String,
-    val prefix: String
+    val label: String
 ) {
-    BUG("Reportar Bug", Icons.Default.BugReport, "Bug / Error", "bug", "[BUG] "),
-    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Mejora", "enhancement", "[SUGERENCIA] "),
-    META_CHAMPION("Campeón/Meta", Icons.Default.SportsEsports, "Meta / Campeón", "gameplay", "[META] ")
+    BUG("Reportar Bug", Icons.Default.BugReport, "Bug / Error"),
+    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Mejora"),
+    META_CHAMPION("Campeón/Meta", Icons.Default.SportsEsports, "Meta / Campeón")
 }
 
 @Composable
 fun BugReportFeedbackDialog(
-    onDismiss: () -> Unit,
-    defaultRepo: String = "iBellaco/Wild-Rift-Drafting-"
+    onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var selectedType by remember { mutableStateOf(FeedbackType.BUG) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var githubRepo by remember { mutableStateOf(defaultRepo) }
-    var isCopied by remember { mutableStateOf(false) }
-
-    val buildReportMarkdown: () -> String = {
-        """
-        ## ${selectedType.prefix}${title.ifBlank { "Sin título especificado" }}
-        
-        **Tipo:** ${selectedType.title}
-        **Fecha:** ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())}
-        
-        ### 📝 Descripción
-        ${description.ifBlank { "No se proporcionó descripción detallada." }}
-        
-        ---
-        ### 📱 Información del Entorno
-        - **App:** Wild Rift Drafting Assistant
-        - **Versión de Parche:** ${WildRiftRepository.CURRENT_PATCH_VERSION}
-        - **Dispositivo:** ${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE}, API ${Build.VERSION.SDK_INT})
-        """.trimIndent()
-    }
+    var isSubmitting by remember { mutableStateOf(false) }
+    var statusMessage by remember { mutableStateOf<String?>(null) }
 
     val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank()
-    val canCopy = title.trim().isNotBlank() || description.trim().isNotBlank()
 
-    val openGitHubIssue: () -> Unit = {
+    val sendToSupabase: () -> Unit = {
         if (canPublish) {
-            try {
-                val formattedTitle = "${selectedType.prefix}${title.trim()}"
-                val formattedBody = buildReportMarkdown()
-                val cleanRepo = githubRepo.trim().removePrefix("https://github.com/").removeSuffix("/")
-
-                val encodedTitle = URLEncoder.encode(formattedTitle, StandardCharsets.UTF_8.toString())
-                val encodedBody = URLEncoder.encode(formattedBody, StandardCharsets.UTF_8.toString())
-                val encodedLabels = URLEncoder.encode(selectedType.githubLabel, StandardCharsets.UTF_8.toString())
-
-                val githubUrl = "https://github.com/$cleanRepo/issues/new?title=$encodedTitle&body=$encodedBody&labels=$encodedLabels"
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl)).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            isSubmitting = true
+            statusMessage = null
+            scope.launch {
+                val result = FeedbackRepository.submitFeedback(
+                    type = selectedType.name,
+                    title = title,
+                    description = description,
+                    retentionDays = 7
+                )
+                isSubmitting = false
+                if (result.isSuccess) {
+                    Toast.makeText(context, "✅ ¡Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
+                    onDismiss()
+                } else {
+                    val err = result.exceptionOrNull()?.message ?: "Error desconocido"
+                    statusMessage = "❌ Error al enviar: $err"
+                    Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
                 }
-                context.startActivity(intent)
-                Toast.makeText(context, "Abriendo GitHub Issues...", Toast.LENGTH_SHORT).show()
-                onDismiss()
-            } catch (e: Exception) {
-                Toast.makeText(context, "Error al abrir GitHub: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         } else {
             Toast.makeText(context, "Por favor completa el título y la descripción", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    val copyToClipboard: () -> Unit = {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("Wild Rift Bug Report", buildReportMarkdown())
-        clipboard.setPrimaryClip(clip)
-        isCopied = true
-        Toast.makeText(context, "Reporte copiado al portapapeles ✓", Toast.LENGTH_SHORT).show()
     }
 
     AlertDialog(
@@ -192,7 +151,7 @@ fun BugReportFeedbackDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = tr("Reporta fallos o envía sugerencias para mejorar el asistente:"),
+                    text = tr("Envía fallos o sugerencias directamente a la base de datos (con retención automática de 7 días):"),
                     color = TextMuted,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
@@ -298,6 +257,14 @@ fun BugReportFeedbackDialog(
                     )
                 )
 
+                if (statusMessage != null) {
+                    Text(
+                        text = statusMessage!!,
+                        color = Color(0xFFFF5252),
+                        fontSize = 11.sp
+                    )
+                }
+
                 // Diagnóstico del sistema
                 Box(
                     modifier = Modifier
@@ -316,58 +283,50 @@ fun BugReportFeedbackDialog(
         },
         confirmButton = {
             Button(
-                onClick = openGitHubIssue,
-                enabled = canPublish,
+                onClick = sendToSupabase,
+                enabled = canPublish && !isSubmitting,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = HextechGold,
                     disabledContainerColor = HextechGold.copy(alpha = 0.25f),
                     disabledContentColor = TextMuted
                 ),
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.testTag("submit_github_issue_button")
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("submit_feedback_db_button")
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                        contentDescription = null,
-                        tint = if (canPublish) Color.Black else TextMuted,
-                        modifier = Modifier.size(16.dp)
+                if (isSubmitting) {
+                    CircularProgressIndicator(
+                        color = HextechDarkBg,
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Publicar en GitHub"),
-                        color = if (canPublish) Color.Black else TextMuted,
+                        text = tr("Enviando a Base de Datos..."),
+                        color = HextechDarkBg,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CloudUpload,
+                            contentDescription = null,
+                            tint = if (canPublish) Color.Black else TextMuted,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Enviar a Base de Datos"),
+                            color = if (canPublish) Color.Black else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.5.sp
+                        )
+                    }
                 }
             }
         },
-        dismissButton = {
-            OutlinedButton(
-                onClick = copyToClipboard,
-                enabled = canCopy,
-                shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    if (canCopy) HextechCardBorder else HextechCardBorder.copy(alpha = 0.3f)
-                )
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-                        contentDescription = null,
-                        tint = if (isCopied) HextechCyan else if (canCopy) TextPrimary else TextMuted,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (isCopied) tr("Copiado") else tr("Copiar"),
-                        color = if (canCopy) TextPrimary else TextMuted,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-        }
+        dismissButton = {}
     )
 }
