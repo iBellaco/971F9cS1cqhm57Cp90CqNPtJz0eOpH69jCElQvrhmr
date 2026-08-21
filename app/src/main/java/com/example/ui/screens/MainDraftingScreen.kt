@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -124,6 +125,12 @@ fun MainDraftingScreen(
                 isAssistantActive = true
             }
         }
+    }
+
+    // Si hay un diálogo o modal abierto en la pantalla de inicio, el botón atrás lo cierra primero
+    BackHandler(enabled = showPermissionDialog || showBugReportDialog) {
+        if (showPermissionDialog) showPermissionDialog = false
+        if (showBugReportDialog) showBugReportDialog = false
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

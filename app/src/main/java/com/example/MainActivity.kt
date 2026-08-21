@@ -106,6 +106,22 @@ fun DashboardScreen(
     onLanguageChange: (String) -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(0) }
+    var showExitDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    if (showExitDialog) {
+        com.example.ui.components.ExitConfirmationDialog(
+            onConfirmExit = {
+                val activity = context as? android.app.Activity
+                activity?.finish()
+            },
+            onDismiss = { showExitDialog = false }
+        )
+    }
+
+    BackHandler(enabled = selectedTab == 0) {
+        showExitDialog = true
+    }
 
     Scaffold(
         bottomBar = {

@@ -94,12 +94,32 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
+      - name: Extract App Version from Gradle
+        id: app_version
+        run: |
+          VERSION_NAME=$(grep 'versionName =' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' | tr -d '[:space:]')
+          VERSION_CODE=$(grep 'versionCode =' app/build.gradle.kts | head -n 1 | sed -E 's/.*=[[:space:]]*([0-9]+).*/\1/' | tr -d '[:space:]')
+          
+          if [ -z "$VERSION_NAME" ]; then
+            VERSION_NAME="1.0"
+          fi
+          if [ -z "$VERSION_CODE" ]; then
+            VERSION_CODE="${{ github.run_number }}"
+          fi
+          
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "App Version Name: $VERSION_NAME"
+          echo "App Version Code: $VERSION_CODE"
+
       - name: Prepare APK release asset
         id: prepare_asset
         run: |
           ASSET_DIR="${RUNNER_TEMP}/apk_release_asset"
           mkdir -p "$ASSET_DIR"
-          ASSET_NAME="Wild-Rift-Coach-v1.84-build-${{ github.run_number }}.apk"
+          VERSION_NAME="${{ steps.app_version.outputs.version_name }}"
+          VERSION_CODE="${{ steps.app_version.outputs.version_code }}"
+          ASSET_NAME="Wild-Rift-Coach-v${VERSION_NAME}-build-${VERSION_CODE}.apk"
           ASSET_PATH="${ASSET_DIR}/${ASSET_NAME}"
           cp app/build/outputs/apk/debug/app-debug.apk "$ASSET_PATH"
           echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
@@ -110,12 +130,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: v1.84-build-${{ github.run_number }}
-          name: Wild Rift Coach Debug APK #${{ github.run_number }}
+          tag_name: v${{ steps.app_version.outputs.version_name }}-b${{ steps.app_version.outputs.version_code }}
+          name: Wild Rift Coach v${{ steps.app_version.outputs.version_name }} (Build #${{ steps.app_version.outputs.version_code }})
           body: |
             ### 🎮 Wild Rift Coach - APK de Pruebas (Debug)
-            - **Versión de la app:** v1.84
-            - **Build:** #${{ github.run_number }}
+            - **Versión de la app:** v${{ steps.app_version.outputs.version_name }}
+            - **Código de versión (versionCode):** ${{ steps.app_version.outputs.version_code }}
+            - **Ejecución GitHub Actions:** #${{ github.run_number }}
             - **Commit:** `${{ github.sha }}`
             
             Descarga el archivo APK directamente en tu teléfono Android desde los archivos adjuntos (Assets) abajo.

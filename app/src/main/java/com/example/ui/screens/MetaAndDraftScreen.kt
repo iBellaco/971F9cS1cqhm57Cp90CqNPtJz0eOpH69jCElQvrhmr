@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
@@ -168,6 +169,27 @@ fun MetaAndDraftScreen(
             isFirstPick = isFirstPick,
             lang = lang
         )
+    }
+
+    // Manejo inteligente del botón Atrás dentro de la pantalla de Catálogo / Drafting
+    BackHandler {
+        when {
+            selectedDetailChampion != null -> {
+                selectedDetailChampion = null
+            }
+            pickingForTeam != null -> {
+                pickingForTeam = null
+            }
+            showRoleChangeDialog -> {
+                showRoleChangeDialog = false
+            }
+            selectedTabIndex != 0 -> {
+                selectedTabIndex = 0
+            }
+            else -> {
+                onNavigateBack()
+            }
+        }
     }
 
     Scaffold(
