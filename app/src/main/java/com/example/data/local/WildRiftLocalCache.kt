@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
+import com.example.model.MapObjectiveItem
 import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 import com.example.model.WildRiftItem
@@ -18,6 +19,7 @@ object WildRiftLocalCache {
     private const val KEY_CHAMPIONS = "cached_champions"
     private const val KEY_RUNES = "cached_runes"
     private const val KEY_SPELLS = "cached_spells"
+    private const val KEY_OBJECTIVES = "cached_objectives"
     private const val KEY_PATCH_VERSION = "cached_patch_version"
     private const val KEY_LAST_SYNC_TIME = "cached_last_sync_time"
 
@@ -33,6 +35,7 @@ object WildRiftLocalCache {
         champions: List<Champion>? = null,
         runes: List<RuneItem>? = null,
         spells: List<SummonerSpellItem>? = null,
+        objectives: List<MapObjectiveItem>? = null,
         patchVersion: String? = null
     ) {
         try {
@@ -50,6 +53,9 @@ object WildRiftLocalCache {
             }
             spells?.let {
                 editor.putString(KEY_SPELLS, json.encodeToString(it))
+            }
+            objectives?.let {
+                editor.putString(KEY_OBJECTIVES, json.encodeToString(it))
             }
             patchVersion?.let {
                 editor.putString(KEY_PATCH_VERSION, it)
@@ -105,6 +111,15 @@ object WildRiftLocalCache {
                 val loadedSpells = json.decodeFromString<List<SummonerSpellItem>>(spellsJson)
                 if (loadedSpells.isNotEmpty()) {
                     WildRiftRepository.summonerSpells = loadedSpells
+                    hasLoadedAny = true
+                }
+            }
+
+            val objectivesJson = prefs.getString(KEY_OBJECTIVES, null)
+            if (!objectivesJson.isNullOrBlank()) {
+                val loadedObjectives = json.decodeFromString<List<MapObjectiveItem>>(objectivesJson)
+                if (loadedObjectives.isNotEmpty()) {
+                    WildRiftRepository.mapObjectives = loadedObjectives
                     hasLoadedAny = true
                 }
             }

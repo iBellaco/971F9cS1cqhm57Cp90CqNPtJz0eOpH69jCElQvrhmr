@@ -2,6 +2,7 @@ package com.example.ui.components.admin
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -275,6 +276,9 @@ fun AdminChampionEditorTab() {
         var editCounters by remember { mutableStateOf(currentChamp.counteredBy.joinToString(", ")) }
         var editSynergies by remember { mutableStateOf(currentChamp.synergies.joinToString(", ")) }
         var editCoreItems by remember { mutableStateOf(currentChamp.coreItems.joinToString(", ")) }
+        var editRuneIconUrl by remember { mutableStateOf(currentChamp.primaryRuneIconUrl) }
+        var editRecommendedRunes by remember { mutableStateOf(currentChamp.recommendedRunes) }
+        var editSpellsIcons by remember { mutableStateOf(currentChamp.spellsIcons.joinToString(", ")) }
 
         Dialog(onDismissRequest = { if (!isSaving) champToEdit = null }) {
             Card(
@@ -309,6 +313,40 @@ fun AdminChampionEditorTab() {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    // Live Avatar Preview
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HextechSurface, RoundedCornerShape(8.dp))
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppAssetImage(
+                            url = editAvatarUrl.trim(),
+                            contentDescription = editName,
+                            fallbackText = editName.ifBlank { "CH" },
+                            modifier = Modifier.size(54.dp),
+                            borderColor = HextechGold,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Vista Previa de Avatar",
+                                color = HextechGoldLight,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = if (editAvatarUrl.isBlank()) "Sin URL (se usa monograma/gradiente)" else "Cargando desde URL remota",
+                                color = TextMuted,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
                     OutlinedTextField(
                         value = editId,
                         onValueChange = { if (isCreatingNew) editId = it },
@@ -334,6 +372,16 @@ fun AdminChampionEditorTab() {
                             focusedBorderColor = HextechCyan,
                             unfocusedBorderColor = HextechCardBorder
                         )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = editTitle,
+                        onValueChange = { editTitle = it },
+                        label = { Text("Título (ej. La Espada de los Oscuros)", fontSize = 11.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -433,12 +481,45 @@ fun AdminChampionEditorTab() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    // Avatar URL
                     OutlinedTextField(
                         value = editAvatarUrl,
                         onValueChange = { editAvatarUrl = it },
-                        label = { Text("Avatar URL", fontSize = 11.sp) },
+                        label = { Text("Avatar URL (WebP / PNG / JPG)", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Primary Rune Icon URL
+                    OutlinedTextField(
+                        value = editRuneIconUrl,
+                        onValueChange = { editRuneIconUrl = it },
+                        label = { Text("Ícono de Runa Principal (URL)", fontSize = 11.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Recommended Runes text
+                    OutlinedTextField(
+                        value = editRecommendedRunes,
+                        onValueChange = { editRecommendedRunes = it },
+                        label = { Text("Runas Recomendadas (ej. Conquistador + Dominación)", fontSize = 11.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Spells Icons URLs
+                    OutlinedTextField(
+                        value = editSpellsIcons,
+                        onValueChange = { editSpellsIcons = it },
+                        label = { Text("URLs de Íconos de Hechizos (separados por coma)", fontSize = 11.sp) },
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -461,6 +542,9 @@ fun AdminChampionEditorTab() {
                                 banRate = editBanrate.toDoubleOrNull() ?: 2.0,
                                 damageType = editDamageType,
                                 avatarUrl = editAvatarUrl.trim(),
+                                primaryRuneIconUrl = editRuneIconUrl.trim(),
+                                recommendedRunes = editRecommendedRunes.trim(),
+                                spellsIcons = editSpellsIcons.split(",").map { it.trim() }.filter { it.isNotEmpty() },
                                 counteredBy = editCounters.split(",").map { it.trim() }.filter { it.isNotEmpty() },
                                 synergies = editSynergies.split(",").map { it.trim() }.filter { it.isNotEmpty() },
                                 coreItems = editCoreItems.split(",").map { it.trim() }.filter { it.isNotEmpty() }

@@ -230,6 +230,16 @@ object WildRiftSupabaseRepository {
         }
     }
 
+    suspend fun deleteSpell(spellId: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            postgrest.from(TABLE_SPELLS).delete { filter { eq("id", spellId) } }
+            WildRiftRepository.summonerSpells = WildRiftRepository.summonerSpells.filterNot { it.id == spellId }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // =========================================================================
     // 5. SINCRONIZACIÓN COMPLETA (CLOUD -> APP -> CACHÉ LOCAL)
     // =========================================================================
