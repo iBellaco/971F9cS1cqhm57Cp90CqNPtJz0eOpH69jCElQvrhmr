@@ -200,10 +200,12 @@ fun DraftingApp() {
     CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
         // Modal de Alerta de Actualización Disponible con opción de descarga directa
         activeUpdateInfo?.let { update ->
-            AppUpdateDialog(
-                updateInfo = update,
-                onDismiss = { AppUpdateManager.dismissAlert() }
-            )
+            if (update.isUpdateAvailable) {
+                AppUpdateDialog(
+                    updateInfo = update,
+                    onDismiss = { AppUpdateManager.dismissAlert() }
+                )
+            }
         }
 
         if (isLanguageSet && currentScreen == AppScreen.MAIN) {

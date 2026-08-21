@@ -397,7 +397,7 @@ val translations = mapOf(
         "• Análisis táctico actualizado con las últimas estadísticas del meta.\n" to "• Tactical analysis updated with the latest meta stats.\n",
         "• Ajustes y corrección de íconos rúnicos." to "• Rune icon adjustments and fixes.",
         "Organización: Coach de Élite (Wild Rift Drafting)" to "Organization: Elite Coach (Wild Rift Drafting)",
-        "Entendido" to "Got it",
+        "Entendido" to "Understood",
         "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad." to "The enemy has high CC engage with Sett and Vi. Recommend disengage, anti-magic shields or tenacity.",
         "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank." to "Enemy Caitlyn has range advantage in Dragon Lane. Prioritize shutdown with Viego or hooks with Nautilus/Blitzcrank.",
         "Peligro de asesinos de burst" to "Danger of burst assassins",

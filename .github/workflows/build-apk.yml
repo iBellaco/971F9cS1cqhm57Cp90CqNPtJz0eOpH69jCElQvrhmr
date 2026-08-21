@@ -20,6 +20,10 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Remove any legacy wrapper binaries
+        run: |
+          rm -f gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties gradlew gradlew.bat || true
+
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
@@ -39,13 +43,11 @@ jobs:
           fi
           cp .env app/.env 2>/dev/null || true
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew || true
-
-      - name: Set up Gradle
+      - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-disabled: false
+          gradle-version: '9.3.1'
+          validate-wrappers: false
 
       - name: Restore persistent debug keystore
         run: |
@@ -71,7 +73,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          ./gradlew :app:assembleDebug --stacktrace
+          gradle :app:assembleDebug --stacktrace
 
       - name: Verify APK
         run: |
@@ -97,7 +99,7 @@ jobs:
         run: |
           ASSET_DIR="${RUNNER_TEMP}/apk_release_asset"
           mkdir -p "$ASSET_DIR"
-          ASSET_NAME="Wild-Rift-Coach-v1.79-build-${{ github.run_number }}.apk"
+          ASSET_NAME="Wild-Rift-Coach-v1.82-build-${{ github.run_number }}.apk"
           ASSET_PATH="${ASSET_DIR}/${ASSET_NAME}"
           cp app/build/outputs/apk/debug/app-debug.apk "$ASSET_PATH"
           echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
@@ -108,11 +110,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: v1.79-build-${{ github.run_number }}
+          tag_name: v1.82-build-${{ github.run_number }}
           name: Wild Rift Coach Debug APK #${{ github.run_number }}
           body: |
             ### 🎮 Wild Rift Coach - APK de Pruebas (Debug)
-            - **Versión de la app:** v1.79
+            - **Versión de la app:** v1.82
             - **Build:** #${{ github.run_number }}
             - **Commit:** `${{ github.sha }}`
             

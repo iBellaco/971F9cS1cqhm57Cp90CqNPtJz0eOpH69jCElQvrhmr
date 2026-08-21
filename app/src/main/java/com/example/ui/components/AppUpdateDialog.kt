@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -213,52 +214,76 @@ fun AppUpdateDialog(
                         }
                     }
                 } else {
-                    // Up To Date UI
+                    // Patch Notes / Info UI matching Image 1
                     Box(
                         modifier = Modifier
                             .size(56.dp)
                             .background(
-                                brush = Brush.radialGradient(
-                                    listOf(HextechCyan.copy(alpha = 0.3f), Color.Transparent)
-                                ),
+                                brush = Brush.radialGradient(listOf(HextechGold.copy(alpha = 0.3f), Color.Transparent)),
                                 shape = RoundedCornerShape(28.dp)
                             )
-                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(28.dp)),
+                            .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(28.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Up to date",
-                            tint = HextechCyan,
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Patch Info",
+                            tint = HextechGold,
                             modifier = Modifier.size(28.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = tr("¡Aplicación Actualizada!"),
+                        text = tr("¡Bienvenidos!"),
                         color = Color.White,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = tr("Estás utilizando la versión más reciente") + " (v${BuildConfig.VERSION_NAME}).",
-                        color = Color(0xFFCBD5E1),
-                        fontSize = 14.sp,
+                        text = tr("Notas del Nuevo Parche"),
+                        color = HextechCyan,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF0F1522), RoundedCornerShape(10.dp))
+                            .border(0.5.dp, Color(0xFF2A364F), RoundedCornerShape(10.dp))
+                            .padding(14.dp)
+                    ) {
+                        Text(
+                            text = tr("• Sincronización automática con: ") + com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION + "\n" +
+                                   tr("• Análisis táctico actualizado con las últimas estadísticas del meta.\n") +
+                                   tr("• Ajustes y corrección de íconos rúnicos."),
+                            color = Color(0xFFCBD5E1),
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = tr("Organización: Coach de Élite (Wild Rift Drafting)"),
+                        color = HextechGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
                     Button(
                         onClick = onDismiss,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = tr("Continuar"),
+                            text = tr("Entendido"),
                             color = HextechDarkBg,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
