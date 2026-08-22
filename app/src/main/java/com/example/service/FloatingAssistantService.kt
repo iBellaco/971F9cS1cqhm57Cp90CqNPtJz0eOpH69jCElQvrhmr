@@ -656,7 +656,13 @@ private fun FloatingOverlayContent(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Tab Content
-                    when (selectedTab) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        when (selectedTab) {
                         0 -> {
                             // DRAFT TAB
                             // Selector de Líneas
@@ -942,6 +948,7 @@ private fun FloatingOverlayContent(
                                 }
                             }
                         }
+                    }
                     }
                     }
 
