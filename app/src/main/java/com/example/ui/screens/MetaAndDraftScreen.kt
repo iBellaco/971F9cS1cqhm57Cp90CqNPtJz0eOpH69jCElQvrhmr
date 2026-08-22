@@ -77,6 +77,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -110,6 +114,7 @@ import kotlinx.coroutines.launch
 import com.example.model.Champion
 import com.example.model.DamageType
 import com.example.model.DraftAnalysisResult
+import com.example.model.DraftSlot
 import com.example.model.ItemCategory
 import com.example.model.LaneRole
 import com.example.model.MapObjectiveItem
@@ -150,36 +155,41 @@ fun MetaAndDraftScreen(
     var activeRole by remember { mutableStateOf(userMainRole) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
-    // Draft State
-    val allyChampions = remember {
+    // Draft State con asignación explícita de línea
+    val allySlots = remember {
         mutableStateListOf(
-            WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions[8],
-            WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions[3],
-            WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions[4],
-            WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions[1]
+            DraftSlot(WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions[8], LaneRole.TOP),
+            DraftSlot(WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions[1], LaneRole.JUNGLE),
+            DraftSlot(WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions[3], LaneRole.ADC),
+            DraftSlot(WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions[4], LaneRole.SUPPORT)
         )
     }
 
-    val enemyChampions = remember {
+    val enemySlots = remember {
         mutableStateListOf(
-            WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions[2],
-            WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions[7],
-            WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions[6],
-            WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions[5]
+            DraftSlot(WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions[2], LaneRole.TOP),
+            DraftSlot(WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions[7], LaneRole.JUNGLE),
+            DraftSlot(WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions[6], LaneRole.ADC),
+            DraftSlot(WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions[5], LaneRole.SUPPORT)
         )
     }
 
     // Modal Champion Picker & Detail State
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY", "MYSELF"
-    var myChampion by remember { mutableStateOf<Champion?>(null) }
+    var suggestedPickingRole by remember { mutableStateOf<LaneRole?>(null) }
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
     var isFirstPick by remember { mutableStateOf(false) }
 
-    val analysis = remember(activeRole, isFirstPick, allyChampions.toList(), enemyChampions.toList(), lang) {
+    // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
+    val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
+    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion
+
+    val analysis = remember(activeRole, isFirstPick, allySlots.toList(), enemySlots.toList(), lang) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
-            allies = allyChampions,
-            enemies = enemyChampions,
+            allies = allySlots.map { it.champion },
+            enemies = enemySlots.map { it.champion },
+            enemyLaneOpponent = enemyLaneOpponent,
             isFirstPick = isFirstPick,
             lang = lang
         )
@@ -307,18 +317,56 @@ fun MetaAndDraftScreen(
                         DraftAnalysisTab(
                             myChampion = myChampion,
                             activeRole = activeRole,
-                            allies = allyChampions,
-                            enemies = enemyChampions,
+                            allySlots = allySlots,
+                            enemySlots = enemySlots,
                             analysis = analysis,
                             isFirstPick = isFirstPick,
+                            enemyLaneOpponent = enemyLaneOpponent,
                             onToggleFirstPick = { isFirstPick = !isFirstPick },
                             onChangeRole = { showRoleChangeDialog = true },
-                            onAddMyChampion = { pickingForTeam = "MYSELF" },
-                            onRemoveMyChampion = { myChampion = null },
-                            onAddAlly = { pickingForTeam = "ALLY" },
-                            onAddEnemy = { pickingForTeam = "ENEMY" },
-                            onRemoveAlly = { allyChampions.remove(it) },
-                            onRemoveEnemy = { enemyChampions.remove(it) },
+                            onAddMyChampion = {
+                                suggestedPickingRole = activeRole
+                                pickingForTeam = "MYSELF"
+                            },
+                            onRemoveMyChampion = {
+                                val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                                if (idx >= 0) allySlots.removeAt(idx)
+                            },
+                            onAddAlly = {
+                                val freeRole = LaneRole.entries.firstOrNull { r -> !allySlots.any { it.assignedRole == r } }
+                                suggestedPickingRole = freeRole
+                                pickingForTeam = "ALLY"
+                            },
+                            onAddEnemy = {
+                                val freeRole = LaneRole.entries.firstOrNull { r -> !enemySlots.any { it.assignedRole == r } }
+                                suggestedPickingRole = freeRole
+                                pickingForTeam = "ENEMY"
+                            },
+                            onRemoveAllySlot = { slot -> allySlots.remove(slot) },
+                            onRemoveEnemySlot = { slot -> enemySlots.remove(slot) },
+                            onChangeAllyRole = { slot, newRole ->
+                                val idx = allySlots.indexOf(slot)
+                                if (idx >= 0) {
+                                    allySlots[idx] = slot.copy(assignedRole = newRole)
+                                }
+                            },
+                            onChangeEnemyRole = { slot, newRole ->
+                                val idx = enemySlots.indexOf(slot)
+                                if (idx >= 0) {
+                                    enemySlots[idx] = slot.copy(assignedRole = newRole)
+                                }
+                            },
+                            onPickRecommendation = { champ ->
+                                val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                                if (existingIndex >= 0) {
+                                    allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                                } else {
+                                    if (allySlots.size >= 5) {
+                                        allySlots.removeAt(allySlots.size - 1)
+                                    }
+                                    allySlots.add(0, DraftSlot(champ, activeRole))
+                                }
+                            },
                             onSelectChampion = { selectedDetailChampion = it }
                         )
                     }
@@ -367,12 +415,29 @@ fun MetaAndDraftScreen(
     if (pickingForTeam != null) {
         DraftChampionPickerSheet(
             team = pickingForTeam!!,
-            alreadySelected = (allyChampions + enemyChampions).map { it.id },
-            onChampionPicked = { champ ->
-                if (pickingForTeam == "ALLY" && allyChampions.size < 5) {
-                    allyChampions.add(champ)
-                } else if (pickingForTeam == "ENEMY" && enemyChampions.size < 5) {
-                    enemyChampions.add(champ)
+            suggestedRole = suggestedPickingRole,
+            alreadySelected = (allySlots + enemySlots).map { it.champion.id },
+            onChampionPicked = { champ, chosenRole ->
+                when (pickingForTeam) {
+                    "MYSELF" -> {
+                        val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                        if (idx >= 0) {
+                            allySlots[idx] = DraftSlot(champ, activeRole)
+                        } else {
+                            if (allySlots.size >= 5) allySlots.removeAt(allySlots.size - 1)
+                            allySlots.add(0, DraftSlot(champ, activeRole))
+                        }
+                    }
+                    "ALLY" -> {
+                        if (allySlots.size < 5) {
+                            allySlots.add(DraftSlot(champ, chosenRole))
+                        }
+                    }
+                    "ENEMY" -> {
+                        if (enemySlots.size < 5) {
+                            enemySlots.add(DraftSlot(champ, chosenRole))
+                        }
+                    }
                 }
                 pickingForTeam = null
             },
@@ -456,7 +521,7 @@ private fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // PANEL DE SINCRONIZACIÓN Y SCRAPING DEL SERVIDOR CHINO (TENCENT / LOLM)
+        // PANEL DE ESTADÍSTICAS Y METAGAME OFICIAL EN VIVO
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -470,16 +535,17 @@ private fun ChampionsCatalogTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("🇨🇳 ", fontSize = 14.sp)
+                        Icon(Icons.Default.TrendingUp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Column {
                             Text(
-                                text = tr("Servidor Chino (Tencent / LOLM)"),
+                                text = tr("Meta Oficial en Vivo"),
                                 color = HextechGold,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Win Rate, Pick, Ban y Variación Diaria (Vs. Ayer)",
+                                text = tr("Win Rate, Pick, Ban y Variación Diaria (Vs. Ayer)"),
                                 color = HextechCyan,
                                 fontSize = 10.sp
                             )
@@ -519,7 +585,7 @@ private fun ChampionsCatalogTab(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Selector de Rango de Elo Chino
+                // Selector de Rango de Elo Oficial
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -547,10 +613,11 @@ private fun ChampionsCatalogTab(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = tier.cnName,
+                                text = tr(tier.shortName),
                                 color = if (isSelected) HextechCyan else TextMuted,
                                 fontSize = 10.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1
                             )
                         }
                     }
@@ -567,9 +634,9 @@ private fun ChampionsCatalogTab(
                 ) {
                     Text(
                         text = when (val s = syncState) {
-                            is ChineseSyncState.Syncing -> "⚡ Sincronizando con Tencent China..."
-                            is ChineseSyncState.Success -> "🟢 En vivo: ${s.timestamp} (${s.tier.displayName})"
-                            is ChineseSyncState.Error -> "⚠️ Datos en caché local: ${lastSyncInfo.second}"
+                            is ChineseSyncState.Syncing -> tr("⚡ Sincronizando estadísticas oficiales...")
+                            is ChineseSyncState.Success -> "${tr("🟢 En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                            is ChineseSyncState.Error -> "${tr("⚠️ Datos en caché local:")} ${lastSyncInfo.second}"
                             ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
                         },
                         color = when (syncState) {
@@ -582,7 +649,7 @@ private fun ChampionsCatalogTab(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Instantáneo 24/7",
+                        text = tr("Instantáneo 24/7"),
                         color = HextechGold,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
@@ -610,7 +677,7 @@ private fun ChampionsCatalogTab(
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "Rango Activo: ${currentTier.displayName}",
+                text = "${tr("Rango Activo:")} ${tr(currentTier.displayName)}",
                 color = HextechGoldLight,
                 fontSize = 10.sp
             )
@@ -2298,18 +2365,22 @@ private fun MapObjectivesTab() {
 private fun DraftAnalysisTab(
     myChampion: Champion?,
     activeRole: LaneRole,
-    allies: List<Champion>,
-    enemies: List<Champion>,
+    allySlots: List<DraftSlot>,
+    enemySlots: List<DraftSlot>,
     analysis: DraftAnalysisResult,
     isFirstPick: Boolean,
+    enemyLaneOpponent: Champion?,
     onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
     onAddMyChampion: () -> Unit,
     onRemoveMyChampion: () -> Unit,
     onAddAlly: () -> Unit,
     onAddEnemy: () -> Unit,
-    onRemoveAlly: (Champion) -> Unit,
-    onRemoveEnemy: (Champion) -> Unit,
+    onRemoveAllySlot: (DraftSlot) -> Unit,
+    onRemoveEnemySlot: (DraftSlot) -> Unit,
+    onChangeAllyRole: (DraftSlot, LaneRole) -> Unit,
+    onChangeEnemyRole: (DraftSlot, LaneRole) -> Unit,
+    onPickRecommendation: (Champion) -> Unit,
     onSelectChampion: (Champion) -> Unit
 ) {
     Column(
@@ -2342,7 +2413,7 @@ private fun DraftAnalysisTab(
                     Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Column {
-                        Text(tr("Línea:"), color = TextMuted, fontSize = 10.5.sp)
+                        Text(tr("Mi Línea:"), color = TextMuted, fontSize = 10.5.sp)
                         Text(com.example.util.tr(activeRole.displayName), color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -2380,7 +2451,7 @@ private fun DraftAnalysisTab(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Team Drafting Slots (Allies & Enemies)
+        // Team Drafting Slots (Allies & Enemies con roles y slots editables)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -2388,22 +2459,25 @@ private fun DraftAnalysisTab(
             // Allies Column
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = tr("Equipo Aliado") + " (${allies.size}/5)",
+                    text = tr("Equipo Aliado") + " (${allySlots.size}/5)",
                     color = AllyBlue,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                allies.forEach { champ ->
+                allySlots.forEach { slot ->
+                    val isMyPick = slot.assignedRole == activeRole
                     TeamChampionSlot(
-                        champion = champ,
+                        slot = slot,
                         isEnemy = false,
-                        onRemove = { onRemoveAlly(champ) },
-                        onClick = { onSelectChampion(champ) }
+                        isMyPick = isMyPick,
+                        onRoleChanged = { newRole -> onChangeAllyRole(slot, newRole) },
+                        onRemove = { onRemoveAllySlot(slot) },
+                        onClick = { onSelectChampion(slot.champion) }
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                 }
-                if (allies.size < 5) {
+                if (allySlots.size < 5) {
                     AddChampionSlotButton(isEnemy = false, onClick = onAddAlly)
                 }
             }
@@ -2411,22 +2485,24 @@ private fun DraftAnalysisTab(
             // Enemies Column
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = tr("Equipo Rival") + " (${enemies.size}/5)",
+                    text = tr("Equipo Rival") + " (${enemySlots.size}/5)",
                     color = DangerRed,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                enemies.forEach { champ ->
+                enemySlots.forEach { slot ->
                     TeamChampionSlot(
-                        champion = champ,
+                        slot = slot,
                         isEnemy = true,
-                        onRemove = { onRemoveEnemy(champ) },
-                        onClick = { onSelectChampion(champ) }
+                        isMyPick = false,
+                        onRoleChanged = { newRole -> onChangeEnemyRole(slot, newRole) },
+                        onRemove = { onRemoveEnemySlot(slot) },
+                        onClick = { onSelectChampion(slot.champion) }
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                 }
-                if (enemies.size < 5) {
+                if (enemySlots.size < 5) {
                     AddChampionSlotButton(isEnemy = true, onClick = onAddEnemy)
                 }
             }
@@ -2434,7 +2510,7 @@ private fun DraftAnalysisTab(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Warnings & Matchup
+        // Warnings & Matchup Directo
         if (analysis.directMatchupWarning != null) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -2449,7 +2525,7 @@ private fun DraftAnalysisTab(
                     Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
-                        Text(tr("Alerta de Composición Rival"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(tr("Alerta Táctica de Matchup"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         Text(analysis.directMatchupWarning, color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
                     }
                 }
@@ -2457,9 +2533,8 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        // --- INICIO INYECCIÓN ---
         // Damage distribution
-        if (enemies.isNotEmpty()) {
+        if (enemySlots.isNotEmpty()) {
             Text(tr("Balance de Daño Rival"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(6.dp))
             Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp))) {
@@ -2481,53 +2556,105 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(14.dp))
         }
 
-        // My Champion Evaluation
+        // My Champion Evaluation (Sincronizado automáticamente sin selecciones duplicadas)
         if (myChampion != null) {
             val myChamp = myChampion
-            val myEval = com.example.data.WildRiftRepository.evaluateChampion(myChamp, activeRole, allies, enemies, "es")
+            val myEval = WildRiftRepository.evaluateChampion(
+                champ = myChamp,
+                myRole = activeRole,
+                allies = allySlots.map { it.champion },
+                enemies = enemySlots.map { it.champion },
+                enemyLaneOpponent = enemyLaneOpponent,
+                lang = "es"
+            )
             val shouldChange = myEval.estimatedWinrate < 49.0 || myEval.advantageBadge.contains("PELIGRO")
             
             Card(
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).border(1.5.dp, if (shouldChange) DangerRed else HextechCyan, RoundedCornerShape(14.dp)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(1.5.dp, if (shouldChange) DangerRed else HextechGold, RoundedCornerShape(14.dp)),
                 colors = CardDefaults.cardColors(containerColor = HextechSurface)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(tr("TU ELECCIÓN ACTUAL"), color = if (shouldChange) DangerRed else HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Black)
-                        Text(tr("Winrate Est.:") + " ${myEval.estimatedWinrate}%", color = if (shouldChange) DangerRed else HextechCyan, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tr("TU ELECCIÓN EN") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
+                            color = if (shouldChange) DangerRed else HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = tr("Winrate Est.:") + " ${myEval.estimatedWinrate}%",
+                            color = if (shouldChange) DangerRed else HextechCyan,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        ChampionAvatar(champion = myEval.champion, size = 48.dp)
+                        ChampionAvatar(champion = myEval.champion, size = 50.dp)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(myEval.champion.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text(if (shouldChange) tr("⚠️ Considera cambiarlo") else tr("✅ Buena elección"), color = if (shouldChange) DangerRed else Color(0xFF81C784), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(myEval.champion.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Tier ${myEval.champion.tier}",
+                                    color = HextechGold,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Text(
+                                text = if (shouldChange) tr("⚠️ Considera cambiarlo") else tr("✅ Buena elección para tu línea"),
+                                color = if (shouldChange) DangerRed else Color(0xFF81C784),
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-                        IconButton(onClick = onRemoveMyChampion, modifier = Modifier.size(24.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                        IconButton(onClick = onRemoveMyChampion, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(18.dp))
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(myEval.tacticalReason, color = TextMuted, fontSize = 12.sp, lineHeight = 16.sp)
+                    Text(myEval.tacticalReason, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = tr("🔮 Runas:") + " ${myEval.champion.recommendedRunes} • " + tr("Toca para ver build completa"),
+                        color = HextechGoldLight,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             Button(
                 onClick = onAddMyChampion,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha=0.15f), contentColor = HextechCyan),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha=0.5f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.15f), contentColor = HextechGold),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
                 shape = RoundedCornerShape(10.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(tr("SELECCIONAR MI CAMPEÓN"), fontWeight = FontWeight.Bold)
+                Text(
+                    text = tr("SELECCIONAR MI PICK PARA") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
-        // --- FIN INYECCIÓN ---
+
         // Live Recommendations Header
         Text(
             text = if (isFirstPick) tr("★ Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("★ Mejor Opción según tu Equipo y el Rival"),
@@ -2616,12 +2743,27 @@ private fun DraftAnalysisTab(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = tr("🔮 Runas recomendadas:") + " ${topPick.champion.recommendedRunes} • " + tr("Toca para ver build"),
-                        color = HextechGoldLight,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tr("🔮 Runas:") + " ${topPick.champion.recommendedRunes}",
+                            color = HextechGoldLight,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Button(
+                            onClick = { onPickRecommendation(topPick.champion) },
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text(tr("Elegir como mi Pick"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -2668,6 +2810,18 @@ private fun DraftAnalysisTab(
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(rec.tacticalReason, color = TextMuted, fontSize = 11.sp, lineHeight = 14.sp)
                         }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        IconButton(
+                            onClick = { onPickRecommendation(rec.champion) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = tr("Elegir como mi Pick"),
+                                tint = HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -2679,35 +2833,130 @@ private fun DraftAnalysisTab(
 
 @Composable
 private fun TeamChampionSlot(
-    champion: Champion,
+    slot: DraftSlot,
     isEnemy: Boolean,
+    isMyPick: Boolean = false,
+    onRoleChanged: (LaneRole) -> Unit,
     onRemove: () -> Unit,
     onClick: () -> Unit
 ) {
+    var showRoleMenu by remember { mutableStateOf(false) }
+    val isOffMeta = slot.assignedRole != slot.champion.primaryRole && !slot.champion.secondaryRoles.contains(slot.assignedRole)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .clickable { onClick() },
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (isEnemy) DangerRed.copy(alpha = 0.6f) else AllyBlue.copy(alpha = 0.6f))
+        colors = CardDefaults.cardColors(
+            containerColor = if (isMyPick) HextechGold.copy(alpha = 0.12f) else HextechSurface
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            if (isMyPick) 1.5.dp else 1.dp,
+            when {
+                isMyPick -> HextechGold
+                isEnemy -> DangerRed.copy(alpha = 0.7f)
+                else -> AllyBlue.copy(alpha = 0.7f)
+            }
+        )
     ) {
         Row(
             modifier = Modifier.padding(6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ChampionAvatar(champion = champion, size = 36.dp, showTierBadge = false)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                ChampionAvatar(champion = slot.champion, size = 38.dp, showTierBadge = false)
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
-                    Text(champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                    Text(com.example.util.tr(champion.primaryRole.shortName), color = if (isEnemy) DangerRed else AllyBlue, fontSize = 10.5.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = slot.champion.name,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (isMyPick) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "👑 TÚ",
+                                color = HextechGold,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    
+                    // Chip interactivo para cambiar la línea asignada de este campeón
+                    Box {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(
+                                    if (isMyPick) HextechGold.copy(alpha = 0.2f)
+                                    else if (isEnemy) DangerRed.copy(alpha = 0.15f)
+                                    else AllyBlue.copy(alpha = 0.15f)
+                                )
+                                .clickable { showRoleMenu = true }
+                                .padding(horizontal = 5.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val roleLabel = com.example.util.tr(slot.assignedRole.shortName) +
+                                    if (isOffMeta) " [${com.example.util.tr(slot.champion.primaryRole.shortName)}]" else ""
+                            Text(
+                                text = roleLabel,
+                                color = if (isMyPick) HextechGold else if (isEnemy) DangerRed else AllyBlue,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Icon(
+                                Icons.Default.ArrowDropDown,
+                                contentDescription = tr("Cambiar línea"),
+                                tint = if (isMyPick) HextechGold else if (isEnemy) DangerRed else AllyBlue,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showRoleMenu,
+                            onDismissRequest = { showRoleMenu = false },
+                            modifier = Modifier.background(HextechSurfaceVariant)
+                        ) {
+                            LaneRole.entries.forEach { role ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = com.example.util.tr(role.displayName),
+                                            color = if (role == slot.assignedRole) HextechCyan else TextPrimary,
+                                            fontWeight = if (role == slot.assignedRole) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 12.sp
+                                        )
+                                    },
+                                    onClick = {
+                                        onRoleChanged(role)
+                                        showRoleMenu = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
             IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = tr("Eliminar"),
+                    tint = TextMuted,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
@@ -2744,13 +2993,14 @@ private fun AddChampionSlotButton(
 @Composable
 private fun DraftChampionPickerSheet(
     team: String,
+    suggestedRole: LaneRole?,
     alreadySelected: List<String>,
-    onChampionPicked: (Champion) -> Unit,
+    onChampionPicked: (Champion, LaneRole) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var search by remember { mutableStateOf("") }
-    var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
+    var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(suggestedRole) }
 
     val availableChamps = remember(search, alreadySelected, selectedRoleFilter) {
         val list = WildRiftRepository.champions.filter { champ ->
@@ -2790,8 +3040,16 @@ private fun DraftChampionPickerSheet(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = if (team == "ALLY") tr("Seleccionar Campeón Aliado") else tr("Seleccionar Campeón Rival"),
-                color = if (team == "ALLY") AllyBlue else DangerRed,
+                text = when (team) {
+                    "MYSELF" -> tr("Seleccionar Mi Campeón") + if (suggestedRole != null) " (${com.example.util.tr(suggestedRole.displayName)})" else ""
+                    "ALLY" -> tr("Seleccionar Campeón Aliado")
+                    else -> tr("Seleccionar Campeón Rival")
+                },
+                color = when (team) {
+                    "MYSELF" -> HextechGold
+                    "ALLY" -> AllyBlue
+                    else -> DangerRed
+                },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -2850,7 +3108,10 @@ private fun DraftChampionPickerSheet(
                     Column(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { onChampionPicked(champ) }
+                            .clickable {
+                                val assignedRole = selectedRoleFilter ?: suggestedRole ?: champ.primaryRole
+                                onChampionPicked(champ, assignedRole)
+                            }
                             .padding(4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {

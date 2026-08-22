@@ -224,6 +224,7 @@ object WildRiftRepository {
         myRole: LaneRole,
         allies: List<Champion>,
         enemies: List<Champion>,
+        enemyLaneOpponent: Champion? = null,
         lang: String = "es"
     ): DraftRecommendation {
         val otherAllies = allies.filter { it.id != champ.id }
@@ -234,9 +235,10 @@ object WildRiftRepository {
         val frontlineAllies = otherAllies.count { it.isFrontline }
         var score = champ.winrate
         var badge = ""
-        var reasonParts = mutableListOf<String>()
+        val reasonParts = mutableListOf<String>()
         var synergyText = ""
         var counterText = ""
+        
         val directCounters = champ.advantageAgainst.filter { adv ->
             enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
         }
@@ -246,41 +248,73 @@ object WildRiftRepository {
         val directSynergies = champ.synergies.filter { syn ->
             otherAllies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
         }
+        
+        // Ponderación de counters y sinergias generales
         score += (directCounters.size * 2.8)
         score -= (directWeaknesses.size * 2.2)
         score += (directSynergies.size * 2.2)
+        
+        // Análisis específico del rival directo de línea (Matchup de carril)
+        if (enemyLaneOpponent != null) {
+            val opponent = enemyLaneOpponent
+            val isDirectLaneCounter = champ.advantageAgainst.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) }
+            val isDirectLaneWeakness = champ.counteredBy.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) }
+            
+            if (isDirectLaneCounter) {
+                score += 4.5
+                badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
+                reasonParts.add("Ventaja directa de carril contra ${opponent.name}. Tienes superioridad en tradeos y escalado.")
+            } else if (isDirectLaneWeakness) {
+                score -= 4.0
+                badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"
+                reasonParts.add("Línea difícil contra ${opponent.name}. Evita tradeos largos en early y solicita apoyo del jungla.")
+            }
+            
+            // Caso especial: ADC / Rango en línea de Barón (Top)
+            if (myRole == LaneRole.TOP && opponent.isRanged && !champ.isRanged) {
+                reasonParts.add("Rival con rango (${opponent.name} en Top): Juega pasivo niveles 1-3, compra Escudo de Doran / Segundo Aire y all-in cuando gaste su habilidad de escape.")
+            } else if (myRole == LaneRole.TOP && champ.isRanged && !opponent.isRanged) {
+                reasonParts.add("Ventaja de rango en Top: Acosa a ${opponent.name} en niveles 1-2 pero congela cerca de tu torre para evitar gankeos.")
+            }
+        }
+        
         if (isAllyFullAd && champ.damageType == DamageType.MAGIC) { score += 3.5 }
         else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) { score += 3.5 }
         if (frontlineAllies == 0 && champ.isFrontline) { score += 2.8 }
-        if (directCounters.isNotEmpty() && directWeaknesses.isEmpty()) {
-            badge = "⚡ COUNTER FUERTE (+" + directCounters.size + ")"
-            reasonParts.add("Tienes ventaja sobre " + directCounters.joinToString(", ") + ".")
-        } else if (directWeaknesses.isNotEmpty()) {
-            badge = "⚠️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
-            reasonParts.add("Cuidado: Sufres contra " + directWeaknesses.joinToString(", ") + ".")
-        } else if (directSynergies.isNotEmpty()) {
-            badge = "⚡ SINERGIA CON EQUIPO (+" + directSynergies.size + ")"
-            reasonParts.add("Sinergia óptima con " + directSynergies.joinToString(", ") + ".")
-        } else if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
-            badge = "🔮 APERTURA MÁGICA"
-            reasonParts.add("Aportas daño mágico necesario.")
-        } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
-            badge = "🗡️ APERTURA FÍSICA"
-            reasonParts.add("Aportas daño físico necesario.")
-        } else if (frontlineAllies == 0 && champ.isFrontline) {
-            badge = "🛡️ SALVADOR FRONTLINE"
-            reasonParts.add("Cubres la falta de tanques.")
-        } else {
-            badge = "⚖️ SELECCIÓN ESTÁNDAR"
-            reasonParts.add("Opción neutral en este escenario.")
+        
+        if (badge.isBlank()) {
+            if (directCounters.isNotEmpty() && directWeaknesses.isEmpty()) {
+                badge = "⚡ COUNTER FUERTE (+" + directCounters.size + ")"
+                reasonParts.add("Tienes ventaja sobre " + directCounters.joinToString(", ") + ".")
+            } else if (directWeaknesses.isNotEmpty()) {
+                badge = "⚠️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
+                reasonParts.add("Cuidado: Sufres contra " + directWeaknesses.joinToString(", ") + ".")
+            } else if (directSynergies.isNotEmpty()) {
+                badge = "⚡ SINERGIA CON EQUIPO (+" + directSynergies.size + ")"
+                reasonParts.add("Sinergia óptima con " + directSynergies.joinToString(", ") + ".")
+            } else if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
+                badge = "🔮 APERTURA MÁGICA"
+                reasonParts.add("Aportas el daño mágico necesario para evitar que apilen armadura.")
+            } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
+                badge = "🗡️ APERTURA FÍSICA"
+                reasonParts.add("Aportas daño físico para evitar resistencia mágica.")
+            } else if (frontlineAllies == 0 && champ.isFrontline) {
+                badge = "🛡️ SALVADOR FRONTLINE"
+                reasonParts.add("Cubres la falta de tanques e iniciación.")
+            } else {
+                badge = "⚖️ SELECCIÓN ESTÁNDAR"
+                reasonParts.add("Opción neutral y consistente en este escenario.")
+            }
         }
-        synergyText = if (directSynergies.isNotEmpty()) "Buena combinación con: " + directSynergies.joinToString(", ") else "Autosuficiente."
+        
+        synergyText = if (directSynergies.isNotEmpty()) "Buena combinación con: " + directSynergies.joinToString(", ") else "Autosuficiente en rotaciones."
         counterText = if (directCounters.isNotEmpty()) "Anula a: " + directCounters.joinToString(", ") else if (directWeaknesses.isNotEmpty()) "Juega seguro contra: " + directWeaknesses.joinToString(", ") else "Enfrentamiento parejo."
+        
         return DraftRecommendation(
             champion = champ,
-            estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(70.0),
+            estimatedWinrate = ((score * 10).toInt() / 10.0).coerceIn(35.0, 72.0),
             advantageBadge = badge,
-            tacticalReason = champ.tacticalAdvice + " " + reasonParts.joinToString(" "),
+            tacticalReason = (champ.tacticalAdvice + " " + reasonParts.joinToString(" ")).trim(),
             runes = champ.recommendedRunes,
             synergyDetails = synergyText,
             counterDetails = counterText
@@ -291,6 +325,7 @@ object WildRiftRepository {
         myRole: LaneRole,
         allies: List<Champion>,
         enemies: List<Champion>,
+        enemyLaneOpponent: Champion? = null,
         isFirstPick: Boolean = false,
         lang: String = "es"
     ): DraftAnalysisResult {
@@ -342,27 +377,41 @@ object WildRiftRepository {
         val enemyTanks = enemies.filter { it.isFrontline }
         val enemyRangedAdvantage = enemies.filter { it.id in listOf("caitlyn", "lux", "xerath", "varus", "ezreal") }
         
-        if (isAllyFullAd && myRole != LaneRole.SUPPORT && myRole != LaneRole.ADC) {
-            directMatchupWarning = com.example.util.trStr(lang, "Nuestra composición es full Daño Físico (AD). El enemigo acumulará armadura.")
-            directCounterBestPick = com.example.util.trStr(lang, "Selecciona daño mágico (AP) para balancear")
-        } else if (isAllyFullAp && myRole != LaneRole.SUPPORT) {
-            directMatchupWarning = com.example.util.trStr(lang, "Nuestra composición es full Daño Mágico (AP). El enemigo acumulará resistencia mágica.")
-            directCounterBestPick = com.example.util.trStr(lang, "Selecciona daño físico (AD) para balancear")
-        } else if (physPct >= 80) {
-            directMatchupWarning = com.example.util.trStr(lang, "El enemigo es predominantemente daño Físico (AD).")
-            directCounterBestPick = "Rammus, Malphite, o " + com.example.util.trStr(lang, "apilar armadura (Corazón Helado/Malla de Espinas)")
-        } else if (magicPct >= 75) {
-            directMatchupWarning = com.example.util.trStr(lang, "El enemigo es predominantemente daño Mágico (AP).")
-            directCounterBestPick = "Galio, Dr. Mundo, o " + com.example.util.trStr(lang, "apilar resistencia (Fuerza de la Naturaleza)")
-        } else if (enemyAssassins.size >= 2) {
-            directMatchupWarning = com.example.util.trStr(lang, "Peligro de asesinos de burst") + " (${enemyAssassins.joinToString { it.name }}). " + com.example.util.trStr(lang, "Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Nautilus).")
-            directCounterBestPick = "Lulu, Nautilus, Janna"
-        } else if (enemyTanks.size >= 2) {
-            directMatchupWarning = com.example.util.trStr(lang, "Composición rival pesada/tanque") + " (${enemyTanks.joinToString { it.name }}). " + com.example.util.trStr(lang, "Requiere daño verdadero, % vida máxima y penetración.")
-            directCounterBestPick = "Vayne, Gwen, Lilia, o Liandry"
-        } else if (enemyRangedAdvantage.size >= 2) {
-            directMatchupWarning = com.example.util.trStr(lang, "Composición rival de pokeo y rango") + " (${enemyRangedAdvantage.joinToString { it.name }}). " + com.example.util.trStr(lang, "Evita asedios lentos. Requiere hard engage, emboscada o flanqueos rápidos.")
-            directCounterBestPick = "Malphite, Vi, Jarvan IV, Hecarim"
+        if (enemyLaneOpponent != null) {
+            val opponent = enemyLaneOpponent
+            if (myRole == LaneRole.TOP && opponent.isRanged) {
+                directMatchupWarning = com.example.util.trStr(lang, "¡Alerta en Top! Enfrentas a un rival con rango/ADC (${opponent.name}). Prioriza sustain (Segundo Aire), control de oleada y espera al jungla.")
+                directCounterBestPick = "Malphite, Irelia, Pantheon, Wukong"
+            } else if (opponent.counteredBy.isNotEmpty()) {
+                val countersList = opponent.counteredBy.take(3).joinToString(", ")
+                directMatchupWarning = com.example.util.trStr(lang, "Rival directo en tu línea: ${opponent.name}. Picks ideales para anularlo: $countersList.")
+                directCounterBestPick = countersList
+            }
+        }
+        
+        if (directMatchupWarning == null) {
+            if (isAllyFullAd && myRole != LaneRole.SUPPORT && myRole != LaneRole.ADC) {
+                directMatchupWarning = com.example.util.trStr(lang, "Nuestra composición es full Daño Físico (AD). El enemigo acumulará armadura.")
+                directCounterBestPick = com.example.util.trStr(lang, "Selecciona daño mágico (AP) para balancear")
+            } else if (isAllyFullAp && myRole != LaneRole.SUPPORT) {
+                directMatchupWarning = com.example.util.trStr(lang, "Nuestra composición es full Daño Mágico (AP). El enemigo acumulará resistencia mágica.")
+                directCounterBestPick = com.example.util.trStr(lang, "Selecciona daño físico (AD) para balancear")
+            } else if (physPct >= 80) {
+                directMatchupWarning = com.example.util.trStr(lang, "El enemigo es predominantemente daño Físico (AD).")
+                directCounterBestPick = "Rammus, Malphite, o " + com.example.util.trStr(lang, "apilar armadura (Corazón Helado/Malla de Espinas)")
+            } else if (magicPct >= 75) {
+                directMatchupWarning = com.example.util.trStr(lang, "El enemigo es predominantemente daño Mágico (AP).")
+                directCounterBestPick = "Galio, Dr. Mundo, o " + com.example.util.trStr(lang, "apilar resistencia (Fuerza de la Naturaleza)")
+            } else if (enemyAssassins.size >= 2) {
+                directMatchupWarning = com.example.util.trStr(lang, "Peligro de asesinos de burst") + " (${enemyAssassins.joinToString { it.name }}). " + com.example.util.trStr(lang, "Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Nautilus).")
+                directCounterBestPick = "Lulu, Nautilus, Janna"
+            } else if (enemyTanks.size >= 2) {
+                directMatchupWarning = com.example.util.trStr(lang, "Composición rival pesada/tanque") + " (${enemyTanks.joinToString { it.name }}). " + com.example.util.trStr(lang, "Requiere daño verdadero, % vida máxima y penetración.")
+                directCounterBestPick = "Vayne, Gwen, Lilia, o Liandry"
+            } else if (enemyRangedAdvantage.size >= 2) {
+                directMatchupWarning = com.example.util.trStr(lang, "Composición rival de pokeo y rango") + " (${enemyRangedAdvantage.joinToString { it.name }}). " + com.example.util.trStr(lang, "Evita asedios lentos. Requiere hard engage, emboscada o flanqueos rápidos.")
+                directCounterBestPick = "Malphite, Vi, Jarvan IV, Hecarim"
+            }
         }
 
         val availableChampions = champions.filter { champ ->

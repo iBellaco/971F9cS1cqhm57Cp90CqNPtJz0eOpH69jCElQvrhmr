@@ -20,11 +20,11 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
-enum class TencentRankTier(val code: String, val cnName: String, val displayName: String) {
-    CHALLENGER("3", "王者", "Retador / Soberano"),
-    MASTER_PLUS("2", "大师/宗师", "Gran Maestro / Maestro+"),
-    DIAMOND_PLUS("1", "钻石+", "Diamante+"),
-    ALL_RANKS("0", "全分段", "Todas las Ligas")
+enum class TencentRankTier(val code: String, val shortName: String, val displayName: String) {
+    CHALLENGER("3", "Soberano", "Retador / Soberano"),
+    MASTER_PLUS("2", "Maestro+", "Gran Maestro / Maestro+"),
+    DIAMOND_PLUS("1", "Diamante+", "Diamante+"),
+    ALL_RANKS("0", "Todas", "Todas las Ligas")
 }
 
 sealed class ChineseSyncState {
@@ -188,7 +188,7 @@ object ChineseMetaSyncService {
                     tier = targetTier,
                     updatedCount = updatedChampions.size,
                     timestamp = nowTimestamp,
-                    source = if (onlineDataFetched) "API Tencent CN (lolm.qq.com)" else "Servidor Chino Oficial (En Vivo)",
+                    source = if (onlineDataFetched) "API Oficial (lolm.qq.com)" else "Meta Oficial (En Vivo)",
                     hasDeltasVsYesterday = true
                 )
 

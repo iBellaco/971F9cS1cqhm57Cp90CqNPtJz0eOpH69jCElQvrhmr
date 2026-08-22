@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -286,9 +287,10 @@ fun ChampionDetailSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("🇨🇳 ", fontSize = 12.sp)
+                            Icon(Icons.Default.TrendingUp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = tr("Estadísticas Servidor CN (Tencent)"),
+                                text = tr("Estadísticas del Meta Oficial"),
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
