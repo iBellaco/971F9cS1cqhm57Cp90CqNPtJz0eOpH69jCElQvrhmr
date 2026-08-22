@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -595,6 +596,7 @@ private fun ChampionsCatalogTab(
                         Box(
                             modifier = Modifier
                                 .weight(1f)
+                                .heightIn(min = 34.dp)
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(
                                     if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
@@ -609,15 +611,17 @@ private fun ChampionsCatalogTab(
                                         ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
                                     }
                                 }
-                                .padding(vertical = 4.dp),
+                                .padding(horizontal = 2.dp, vertical = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = tr(tier.shortName),
                                 color = if (isSelected) HextechCyan else TextMuted,
-                                fontSize = 10.sp,
+                                fontSize = 8.5.sp,
+                                lineHeight = 10.5.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1
+                                maxLines = 2
                             )
                         }
                     }
@@ -789,8 +793,9 @@ private fun ChampionsCatalogTab(
                                         fontSize = 10.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
+                                    val formattedWr = if (champion.winrate % 1.0 == 0.0) "${champion.winrate.toInt()}" else String.format(java.util.Locale.US, "%.2f", champion.winrate).trimEnd('0').trimEnd('.')
                                     Text(
-                                        text = "WR: ${champion.winrate}%",
+                                        text = "WR: $formattedWr%",
                                         color = HextechGold,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold

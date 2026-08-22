@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 enum class TencentRankTier(val code: String, val shortName: String, val displayName: String) {
-    CHALLENGER("3", "Soberano", "Retador / Soberano"),
-    MASTER_PLUS("2", "Maestro+", "Gran Maestro / Maestro+"),
-    DIAMOND_PLUS("1", "Diamante+", "Diamante+"),
-    ALL_RANKS("0", "Todas", "Todas las Ligas")
+    CHALLENGER("3", "Retador / Soberano", "Retador / Soberano"),
+    MASTER_PLUS("2", "Maestro / Gran Maestro", "Maestro / Gran Maestro"),
+    DIAMOND_PLUS("1", "Esmeralda / Diamante", "Esmeralda / Diamante"),
+    ALL_RANKS("0", "General", "General")
 }
 
 sealed class ChineseSyncState {
@@ -134,9 +134,9 @@ object ChineseMetaSyncService {
                     val stat = cnStatsSnapshot[champ.id.lowercase()] ?: cnStatsSnapshot[champ.name.lowercase()]
                     
                     if (stat != null) {
-                        val currentWinrate = stat.winRate
-                        val currentPickRate = stat.pickRate
-                        val currentBanRate = stat.banRate
+                        val currentWinrate = roundTwoDecimals(stat.winRate)
+                        val currentPickRate = roundTwoDecimals(stat.pickRate)
+                        val currentBanRate = roundTwoDecimals(stat.banRate)
                         val cnTier = stat.cnTier
 
                         // Obtener datos guardados previos para calcular la variación
