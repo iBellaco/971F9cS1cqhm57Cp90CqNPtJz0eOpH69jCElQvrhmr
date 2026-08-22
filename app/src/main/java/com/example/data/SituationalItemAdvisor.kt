@@ -167,6 +167,69 @@ object SituationalItemAdvisor {
             bestAgainst = listOf("Lulu", "Vayne", "Syndra", "Vex", "Poppy", "Gragas"),
             keyEffect = "Anular: Escudo de hechizos que bloquea la siguiente habilidad enemiga.",
             recommendationTip = "Permite a los asesinos saltar sobre el Carry sin ser interrumpidos por habilidades de desenganche."
+        ),
+        "Protección Gemela de Amaranth" to SituationalItemInfo(
+            name = "Protección Gemela de Amaranth",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389236_amaranths-twinguard.webp",
+            categoryName = "Resistencia Híbrida & Tenacidad",
+            purpose = "Aumenta un 30% la armadura y resistencia mágica en combate prolongado, otorgando además tenacidad masiva.",
+            bestAgainst = listOf("Composiciones de daño mixto (AD + AP)", "Peleas grupales largas 5v5"),
+            keyEffect = "Resistencia: A cargas máximas otorga +30% Armadura, +30% Resistencia Mágica y +20% Tenacidad.",
+            recommendationTip = "El mejor objeto defensivo de late-game para tanques e iniciadores frente a daño variado."
+        ),
+        "Rookern Kaénico" to SituationalItemInfo(
+            name = "Rookern Kaénico",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389228_kaenic-rookern.webp",
+            categoryName = "Anti-Mágico Puro & Escudo AP",
+            purpose = "Genera un escudo de absorción mágica masivo fuera de combate que mitiga por completo el daño de ráfaga AP.",
+            bestAgainst = listOf("Syndra", "Veigar", "Zoe", "Evelynn", "Kassadin", "Lux", "Brand"),
+            keyEffect = "Ruina de Magos: Tras 12s sin daño mágico, otorga un escudo mágico del 14% de tu vida máxima.",
+            recommendationTip = "Prioridad absoluta contra composiciones de doble mago o hipercarry mágico."
+        ),
+        "Manto de la Duodécima Hora" to SituationalItemInfo(
+            name = "Manto de la Duodécima Hora",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389204_mantle-of-the-twelfth-hour.webp",
+            categoryName = "Supervivencia Crítica & Desenganche",
+            purpose = "Otorga una inyección masiva de vida adicional y velocidad al caer por debajo del 35% de vida.",
+            bestAgainst = listOf("Asesinos de ejecución rápida", "Peleas cerradas al límite de vida"),
+            keyEffect = "Línea de Vida: Otorga hasta 45% de vida adicional y 50% de resistencia a ralentizaciones al bajar del 35% HP.",
+            recommendationTip = "Perfecto para colosos e iniciadores que se sumergen en la línea trasera enemiga."
+        ),
+        "Corona Abrasadora" to SituationalItemInfo(
+            name = "Corona Abrasadora",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389203_searing-crown.webp",
+            categoryName = "Quemadura Porcentual para Tanques",
+            purpose = "Quema a los enemigos por porcentaje de su vida máxima con cada ataque y habilidad.",
+            bestAgainst = listOf("Sion", "Dr. Mundo", "Cho'Gath", "Ornn", "Heartsteel Users"),
+            keyEffect = "Toque Ardiente: Inflige 1.4% de la vida máxima del objetivo como daño mágico por segundo.",
+            recommendationTip = "Excelente en tanques para derretir a otros colosos con mucha vida sin sacrificar defensas."
+        ),
+        "Tridente de Oceánida" to SituationalItemInfo(
+            name = "Tridente de Oceánida",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp",
+            categoryName = "Anti-Escudos para Magos (AP)",
+            purpose = "Destruye y reduce los escudos enemigos al infligir daño mágico con habilidades de área o impacto individual.",
+            bestAgainst = listOf("Karma", "Lulu", "Sett", "Shen", "Janna", "Lux", "Tahm Kench"),
+            keyEffect = "Arma Letal: Reduce la potencia de los escudos enemigos hasta un 60% (45% en área).",
+            recommendationTip = "Imprescindible para magos cuando el rival cuenta con soportes de escudos o Sterak/Arcoescudo."
+        ),
+        "Espada Sierra Quimopunk" to SituationalItemInfo(
+            name = "Espada Sierra Quimopunk",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6609.png",
+            categoryName = "Anti-Curación para Luchadores (AD)",
+            purpose = "Otorga daño, vida y aceleración de habilidad mientras aplica reducción de curación continua.",
+            bestAgainst = listOf("Aatrox", "Warwick", "Vladimir", "Soraka", "Dr. Mundo", "Olaf"),
+            keyEffect = "Heridas Graves: Aplica 40% de reducción de curación a campeones enemigos al golpearlos con daño físico.",
+            recommendationTip = "El objeto anti-sanación óptimo para luchadores que necesitan durabilidad y daño balanceado."
+        ),
+        "Cimitarra Mercurial" to SituationalItemInfo(
+            name = "Cimitarra Mercurial",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp",
+            categoryName = "Purificación de CC para Carries AD",
+            purpose = "Elimina todo el control de masas inmediatamente y otorga tenacidad para reposicionarse.",
+            bestAgainst = listOf("Malzahar", "Skarner", "Warwick", "Ashe", "Leona", "Twisted Fate"),
+            keyEffect = "Fajín de Mercurio: Limpia todo el CC activo y otorga 30% de tenacidad durante 1.5s.",
+            recommendationTip = "Indispensable para tiradores cuando el rival tiene aturdimientos o supresiones directas."
         )
     )
 
@@ -178,14 +241,29 @@ object SituationalItemAdvisor {
             it.key.contains(itemName, ignoreCase = true)
         }
         
-        return matched?.value ?: SituationalItemInfo(
-            name = itemName,
-            iconUrl = "",
-            categoryName = "Objeto Situacional Adaptativo",
-            purpose = "Objeto estratégico seleccionado para contrarrestar amenazas específicas de la composición rival.",
-            bestAgainst = listOf("Composiciones especializadas", "Campeones con ventajas de daño o sustain"),
-            keyEffect = "Mejora estadísticas críticas para neutralizar las condiciones de victoria del enemigo.",
-            recommendationTip = "Constrúyelo según las necesidades de la partida (daño, penetración o defensa adaptada)."
-        )
+        val baseAdvice = matched?.value ?: run {
+            val itemData = WildRiftItemsData.getItemByName(itemName)
+            val effectText = if (!itemData?.passive.isNullOrBlank()) itemData!!.passive else "Objeto estratégico seleccionado para contrarrestar amenazas específicas de la composición rival."
+            val statsText = if (!itemData?.stats.isNullOrBlank()) itemData!!.stats else "Mejora estadísticas y pasivas críticas para neutralizar las condiciones de victoria del rival."
+            SituationalItemInfo(
+                name = itemData?.name ?: itemName,
+                iconUrl = itemData?.iconUrl ?: WildRiftItemsData.getItemIconByName(itemName),
+                categoryName = itemData?.category?.displayName ?: "Objeto Situacional Adaptativo",
+                purpose = effectText,
+                bestAgainst = listOf("Composiciones rivales especializadas", "Amenazas prioritarias de la partida"),
+                keyEffect = statsText,
+                recommendationTip = "Constrúyelo según el estado de la partida para contrarrestar el daño o mecánicas del enemigo."
+            )
+        }
+
+        // Ensure iconUrl is populated from WildRiftItemsData if blank or placeholder
+        val finalIcon = if (baseAdvice.iconUrl.isBlank() || baseAdvice.iconUrl.contains("1001.png")) {
+            val repoIcon = WildRiftItemsData.getItemIconByName(baseAdvice.name)
+            if (repoIcon.isNotBlank()) repoIcon else baseAdvice.iconUrl
+        } else {
+            baseAdvice.iconUrl
+        }
+
+        return baseAdvice.copy(iconUrl = finalIcon)
     }
 }

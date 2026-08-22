@@ -17,24 +17,49 @@ object CoachingGenerator {
 
                 return when (type) {
             "Ventaja" -> {
-                if (isEs) "Este campeón tiene una fuerte ventaja sobre $target en la fase de líneas, aprovéchalo."
-                else if (isPt) "Este campeão tem uma forte vantagem sobre $target na fase de rotas, aproveite."
-                else "This champion has a strong advantage over $target in the laning phase, use it."
+                if (isEs) {
+                    if (targetChamp != null) {
+                        "${champion.name} (${champion.damageType.displayName}) tiene ventaja táctica sobre $target (${targetDamage}). Aprovecha tus ventanas de tradeo y enfriamientos para dominar la línea y forzarlo bajo su torre."
+                    } else {
+                        "Este campeón tiene una fuerte ventaja sobre $target en la fase de líneas, aprovéchalo para conseguir prioridad de mapa."
+                    }
+                } else if (isPt) {
+                    "${champion.name} tem forte vantagem sobre $target na fase de rotas. Use suas trocas favoráveis para dominar e garantir visão."
+                } else {
+                    "${champion.name} has a strong tactical advantage over $target in the laning phase. Leverage power spikes to control the lane."
+                }
             }
             "Debilidad" -> {
-                if (isEs) "Este campeón es débil contra $target. Juega con seguridad y espera ayuda de tu equipo."
-                else if (isPt) "Este campeão é fraco contra $target. Jogue com segurança e espere ajuda da sua equipe."
-                else "This champion is weak against $target. Play safely and wait for team assistance."
+                if (isEs) {
+                    if (targetChamp != null) {
+                        "$target (${targetDamage}) representa una amenaza alta para ${champion.name}. Respeta su rango y all-in, farmea pacientemente y espera el apoyo de tu jungla antes de pelear."
+                    } else {
+                        "Este campeón es vulnerable contra $target. Juega con seguridad, congela la oleada y espera asistencia de tu equipo."
+                    }
+                } else if (isPt) {
+                    "$target é perigoso contra ${champion.name}. Jogue recuado, farme com segurança e espere a ajuda do seu caçador."
+                } else {
+                    "$target poses a high threat to ${champion.name}. Play cautiously, manage your wave, and wait for team rotations."
+                }
             }
             "Situacional" -> {
-                if (isEs) "Este es un objeto situacional. Cómpralo contra $target para ganar ventaja."
-                else if (isPt) "Este é um item situacional. Compre-o contra $target para ganhar vantagem."
-                else "This is a situational item. Buy it against $target to gain an advantage."
+                val advice = com.example.data.SituationalItemAdvisor.getAdvice(target)
+                if (isEs) {
+                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Efectivo contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efecto clave:** ${advice.keyEffect}\n\n💡 **Consejo:** ${advice.recommendationTip}"
+                } else if (isPt) {
+                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Eficaz contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efeito chave:** ${advice.keyEffect}\n\n💡 **Dica:** ${advice.recommendationTip}"
+                } else {
+                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Effective against:** ${advice.bestAgainst.joinToString(", ")}\n• **Key effect:** ${advice.keyEffect}\n\n💡 **Coach Tip:** ${advice.recommendationTip}"
+                }
             }
             else -> { // Sinergia
-                if (isEs) "Excelente sinergia con $target para ganar las peleas de equipo."
-                else if (isPt) "Excelente sinergia com $target para vencer as lutas de equipe."
-                else "Excellent synergy with $target to win teamfights."
+                if (isEs) {
+                    "Excelente sinergia con $target. La combinación de control de masas, daño y protección de ambos campeones garantiza una superioridad aplastante en peleas de equipo y toma de objetivos."
+                } else if (isPt) {
+                    "Excelente sinergia com $target. A combinação de habilidades garante grande vantagem nas lutas de equipe e objetivos neutros."
+                } else {
+                    "High synergy with $target. The combined crowd control, burst, and utility create immense teamfight superiority."
+                }
             }
         }
     }

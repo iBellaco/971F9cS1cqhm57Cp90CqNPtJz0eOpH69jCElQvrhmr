@@ -620,6 +620,44 @@ fun ChampionDetailSheet(
                         }
                     }
 
+                    if (roleProfile.situationalItems.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Text(tr("Objetos Situacionales Recomendados:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            roleProfile.situationalItems.forEachIndexed { idx, rawName ->
+                                val iconUrl = roleProfile.situationalItemsIcons.getOrNull(idx) ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName)
+                                val itemName = tr(rawName)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechSurfaceVariant)
+                                        .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            selectedSituationalItem = rawName
+                                        }
+                                        .padding(horizontal = 8.dp, vertical = 5.dp)
+                                ) {
+                                    AppAssetImage(
+                                        url = iconUrl,
+                                        contentDescription = itemName,
+                                        fallbackText = itemName,
+                                        modifier = Modifier.size(28.dp),
+                                        borderColor = HextechCyan,
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(itemName, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+                    }
+
                     if (roleProfile.itemSwaps.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(14.dp))
                         Text(tr("CAMBIOS SITUACIONALES"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Black)
@@ -632,8 +670,7 @@ fun ChampionDetailSheet(
                                     .padding(bottom = 12.dp)
                                     .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
                                     .clickable {
-                                        matchupExplanationTarget = swap.altItem
-                                        matchupExplanationType = "Situacional"
+                                        selectedSituationalItem = swap.altItem
                                     },
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF07121A)),
                                 shape = RoundedCornerShape(12.dp)

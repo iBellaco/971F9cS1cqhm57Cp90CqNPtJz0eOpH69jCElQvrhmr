@@ -26,19 +26,56 @@ object SupportChampions {
             counteredBy = listOf("Janna", "Lulu", "Morgana"),
             synergies = listOf("Yasuo", "Samira", "Tristana"),
             tacticalAdvice = "Aprovecha el escalado y combos de Alistar en SUPPORT. Coordina el uso de su Voluntad inquebrantable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-            recommendedRunes = "Réplica",
+            recommendedRunes = "Réplica (Valor)",
             runeTreeDetails = "Valor: Fuente de Vida • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Escudo Reliquia", "Coraza del Muerto", "Manto del Amanecer", "Botas de Placas de Acero", "Convergencia de Zeke", "Fuerza de la Naturaleza"),
-            coreItemsIcons = listOf("https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp", "https://wr-meta.com/uploads/posts/2025-07/1753331165_dead-mans-plate.webp", "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp", "https://wr-meta.com/uploads/posts/2025-07/1753390145_plated-steelcaps.webp", "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp", "https://wr-meta.com/uploads/posts/2025-07/1753331238_force-of-nature.webp"),
-            situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            coreItems = listOf("Baluarte de la Montaña", "Coraza del Muerto", "Manto del Amanecer", "Punteras Revestidas", "Convergencia de Zeke", "Fuerza de la Naturaleza"),
+            coreItemsIcons = listOf(
+                "https://wr-meta.com/uploads/posts/2025-07/1753389518_bulwark-of-the-mountain.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389106_dead-mans-plate.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389651_plated-steelcaps.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389153_force-of-nature.webp"
+            ),
+            situationalItems = listOf("Malla de Espinas", "Presagio de Randuin", "Protector Pétreo", "Protección Gemela de Amaranth"),
+            situationalItemsIcons = listOf(
+                "https://wr-meta.com/uploads/posts/2025-07/1753389035_thornmail.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389031_randuins-omen.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp",
+                "https://wr-meta.com/uploads/posts/2025-07/1753389236_amaranths-twinguard.webp"
+            ),
             itemSwaps = listOf(
-ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
-ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
-),
-            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
+                ItemSwap(
+                    coreItem = "Fuerza de la Naturaleza",
+                    coreItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389153_force-of-nature.webp",
+                    altItem = "Malla de Espinas",
+                    altItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389035_thornmail.webp",
+                    reasonTitle = "ANTI-CURACIÓN & ARMADURA",
+                    reasonDesc = "Aplica Heridas Graves para mitigar curaciones masivas y devuelve daño mágico a atacantes físicos.",
+                    againstWho = "Aatrox, Warwick, Soraka, Yuumi, Samira"
+                ),
+                ItemSwap(
+                    coreItem = "Coraza del Muerto",
+                    coreItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389106_dead-mans-plate.webp",
+                    altItem = "Presagio de Randuin",
+                    altItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389031_randuins-omen.webp",
+                    reasonTitle = "ANTI-CRÍTICO",
+                    reasonDesc = "Reduce el impacto de los golpes críticos y ralentiza la velocidad de ataque enemiga.",
+                    againstWho = "Yasuo, Yone, Jinx, Tristana, Caitlyn"
+                ),
+                ItemSwap(
+                    coreItem = "Manto del Amanecer",
+                    coreItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp",
+                    altItem = "Protector Pétreo",
+                    altItemIcon = "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp",
+                    reasonTitle = "ESCUDO MASIVO EN TEAMFIGHT",
+                    reasonDesc = "Otorga un escudo enorme tras iniciar con combo W+Q para resistir el foco del equipo rival.",
+                    againstWho = "Composiciones con alto daño combinado en 5v5"
+                )
+            ),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
             isFrontline = true,

@@ -1,8 +1,10 @@
 package com.example.util
 
+import com.example.data.WildRiftItemsData
 import com.example.data.WildRiftSpellsAndRunes
 import com.example.model.Champion
 import com.example.model.DamageType
+import com.example.model.ItemSwap
 import com.example.model.LaneRole
 
 data class ChampionRoleProfile(
@@ -15,7 +17,7 @@ data class ChampionRoleProfile(
     val coreItemsIcons: List<String>,
     val situationalItems: List<String>,
     val situationalItemsIcons: List<String>,
-    val itemSwaps: List<com.example.model.ItemSwap>,
+    val itemSwaps: List<ItemSwap>,
     val recommendedRunes: String,
     val runeTreeDetails: String,
     val primaryRuneIconUrl: String,
@@ -30,373 +32,402 @@ data class ChampionRoleProfile(
 object ChampionRoleAdapter {
 
     fun getProfile(champion: Champion, targetRole: LaneRole): ChampionRoleProfile {
-        val resolvedSpellsIcons = if (champion.recommendedSpells.isNotEmpty()) {
-            champion.recommendedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
-        } else {
-            champion.spellsIcons
-        }
-
         val isPrimary = targetRole == champion.primaryRole
 
         if (isPrimary) {
-            return ChampionRoleProfile(
-                role = targetRole,
-                winrate = champion.winrate,
-                pickRate = champion.pickRate,
-                banRate = champion.banRate,
-                tier = champion.tier,
-                coreItems = champion.coreItems,
-                coreItemsIcons = champion.coreItemsIcons,
-                situationalItems = champion.situationalItems,
-                situationalItemsIcons = champion.situationalItemsIcons,
-                itemSwaps = champion.itemSwaps,
-                recommendedRunes = champion.recommendedRunes,
-                runeTreeDetails = champion.runeTreeDetails,
-                primaryRuneIconUrl = champion.primaryRuneIconUrl,
-                recommendedSpells = champion.recommendedSpells,
-                spellsIcons = resolvedSpellsIcons,
-                advantageAgainst = champion.advantageAgainst,
-                counteredBy = champion.counteredBy,
-                synergies = champion.synergies,
-                tacticalAdvice = champion.tacticalAdvice
+            return buildPrimaryProfile(champion)
+        }
+
+        return buildFlexRoleProfile(champion, targetRole)
+    }
+
+    private fun buildPrimaryProfile(champ: Champion): ChampionRoleProfile {
+        val completedCoreItems = ensureSixItems(champ.coreItems, champ.damageType, champ.isFrontline, champ.isRanged, champ.primaryRole)
+        val coreIcons = completedCoreItems.map { WildRiftItemsData.getItemIconByName(it) }
+
+        val situationalIcons = champ.situationalItems.map { WildRiftItemsData.getItemIconByName(it) }
+
+        val resolvedSpellsIcons = if (champ.recommendedSpells.isNotEmpty()) {
+            champ.recommendedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+        } else {
+            listOf(WildRiftSpellsAndRunes.SPELL_FLASH, WildRiftSpellsAndRunes.SPELL_IGNITE)
+        }
+
+        val primaryRuneIcon = if (champ.primaryRuneIconUrl.isNotBlank() && !champ.primaryRuneIconUrl.contains("item/")) {
+            champ.primaryRuneIconUrl
+        } else {
+            WildRiftSpellsAndRunes.getRuneIconByName(extractMainRune(champ.recommendedRunes))
+        }
+
+        val syncedSwaps = if (champ.itemSwaps.isNotEmpty()) {
+            champ.itemSwaps.map { swap ->
+                swap.copy(
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(swap.coreItem),
+                    altItemIcon = WildRiftItemsData.getItemIconByName(swap.altItem)
+                )
+            }
+        } else {
+            generateDefaultSwaps(completedCoreItems, champ.situationalItems, champ.damageType, champ.isFrontline)
+        }
+
+        return ChampionRoleProfile(
+            role = champ.primaryRole,
+            winrate = champ.winrate,
+            pickRate = champ.pickRate,
+            banRate = champ.banRate,
+            tier = champ.tier,
+            coreItems = completedCoreItems,
+            coreItemsIcons = coreIcons,
+            situationalItems = champ.situationalItems.ifEmpty { getDefaultSituationalItems(champ.damageType, champ.isFrontline) },
+            situationalItemsIcons = situationalIcons.ifEmpty { getDefaultSituationalItems(champ.damageType, champ.isFrontline).map { WildRiftItemsData.getItemIconByName(it) } },
+            itemSwaps = syncedSwaps,
+            recommendedRunes = champ.recommendedRunes,
+            runeTreeDetails = champ.runeTreeDetails,
+            primaryRuneIconUrl = primaryRuneIcon,
+            recommendedSpells = champ.recommendedSpells.ifEmpty { listOf("Destello", "Ignición") },
+            spellsIcons = resolvedSpellsIcons,
+            advantageAgainst = champ.advantageAgainst,
+            counteredBy = champ.counteredBy,
+            synergies = champ.synergies,
+            tacticalAdvice = champ.tacticalAdvice
+        )
+    }
+
+    private fun buildFlexRoleProfile(champ: Champion, role: LaneRole): ChampionRoleProfile {
+        val isAp = champ.damageType == DamageType.MAGIC
+        val isTank = champ.isFrontline || champ.primaryRole == LaneRole.SUPPORT || (champ.primaryRole == LaneRole.TOP && !champ.isRanged)
+        val isMarksman = champ.isRanged && champ.damageType == DamageType.PHYSICAL
+        val isSupportEnchanter = champ.primaryRole == LaneRole.SUPPORT && !champ.isFrontline
+
+        // 1. Spells for flex role
+        val (recommendedSpells, spellsIcons) = when (role) {
+            LaneRole.JUNGLE -> Pair(
+                listOf("Castigo", "Destello"),
+                listOf(WildRiftSpellsAndRunes.SPELL_SMITE, WildRiftSpellsAndRunes.SPELL_FLASH)
+            )
+            LaneRole.SUPPORT -> Pair(
+                listOf("Destello", "Ignición"),
+                listOf(WildRiftSpellsAndRunes.SPELL_FLASH, WildRiftSpellsAndRunes.SPELL_IGNITE)
+            )
+            LaneRole.ADC -> Pair(
+                listOf("Destello", "Barrera"),
+                listOf(WildRiftSpellsAndRunes.SPELL_FLASH, WildRiftSpellsAndRunes.SPELL_BARRIER)
+            )
+            LaneRole.TOP -> Pair(
+                listOf("Destello", "Teleportación"),
+                listOf(WildRiftSpellsAndRunes.SPELL_FLASH, WildRiftSpellsAndRunes.SPELL_TELEPORT)
+            )
+            LaneRole.MID -> Pair(
+                listOf("Destello", "Ignición"),
+                listOf(WildRiftSpellsAndRunes.SPELL_FLASH, WildRiftSpellsAndRunes.SPELL_IGNITE)
             )
         }
 
-        return getSpecificRoleConfig(champion, targetRole)
-    }
-
-    private fun getSpecificRoleConfig(champ: Champion, role: LaneRole): ChampionRoleProfile {
-        val isAp = champ.damageType == DamageType.MAGIC
-        val isTank = champ.isFrontline || champ.primaryRole == LaneRole.SUPPORT || champ.primaryRole == LaneRole.TOP
-
-        return when (role) {
+        // 2. Dynamic 6 Core Items for flex role
+        val coreItems: List<String> = when (role) {
             LaneRole.JUNGLE -> {
                 if (isAp) {
-                    ChampionRoleProfile(
-                        role = LaneRole.JUNGLE,
-                        winrate = adjustRate(champ.winrate, -0.6),
-                        pickRate = adjustRate(champ.pickRate * 0.5, 0.6),
-                        banRate = champ.banRate,
-                        tier = if (champ.tier == "S+") "S" else champ.tier,
-                        coreItems = listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4637.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png"
-                        ),
-                        situationalItems = listOf("Reloj de Arena de Zhonya", "Báculo del Vacío", "Morellonomicón"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Electrocutar (Impacto Repentino • Cazador Titánico • Capa del Nimbo)",
-                        runeTreeDetails = "Limpieza explosiva de campamentos en jungla y daño de emboscada rápido.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                        recommendedSpells = listOf("Castigo", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_SMITE,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Amumu", "Shyvana", "Master Yi", "Evelynn"),
-                        counteredBy = listOf("Lee Sin", "Xin Zhao", "Kha'Zix", "Olaf"),
-                        synergies = listOf("Yasuo", "Orianna", "Galio", "Malphite"),
-                        tacticalAdvice = "Empieza con Castigo en campamentos múltiples (Pájaros/Lobos) y embosca líneas empujadas."
-                    )
+                    listOf("Diente de Nashor", "Eco de Luden", "Orbe del Infinito", "Botas Jonias de la Lucidez", "Sombrero Mortal de Rabadon", "Báculo del Vacío")
+                } else if (isTank) {
+                    listOf("Coraza del Muerto", "Malla de Espinas", "Fuerza de la Naturaleza", "Punteras Revestidas", "Corona Abrasadora", "Protector Pétreo")
+                } else if (isMarksman) {
+                    listOf("Fuerza de la Trinidad", "Recaudadora", "Filo del Infinito", "Grebas Berserker", "Recuerdos de Lord Dominik", "Ángel Guardián")
                 } else {
-                    ChampionRoleProfile(
-                        role = LaneRole.JUNGLE,
-                        winrate = adjustRate(champ.winrate, -0.4),
-                        pickRate = adjustRate(champ.pickRate * 0.6, 0.8),
-                        banRate = champ.banRate,
-                        tier = if (champ.tier == "S+") "S" else champ.tier,
-                        coreItems = listOf("Fuerza de la Trinidad", "Danza de la Muerte", "Cuchilla Negra"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png"
-                        ),
-                        situationalItems = listOf("Coraza del Muerto", "Malla de Espinas", "Ángel Guardián"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Conquistador (Triunfo • Cazador Titánico • Pionero)",
-                        runeTreeDetails = "Optimizado para escaramuzas tempranas por los Cangrejos del Río y control de Dragones.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
-                        recommendedSpells = listOf("Castigo", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_SMITE,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Master Yi", "Kayn", "Wukong", "Vi"),
-                        counteredBy = listOf("Lee Sin", "Olaf", "Warwick", "Xin Zhao"),
-                        synergies = listOf("Orianna", "Lulu", "Yasuo", "Ahri"),
-                        tacticalAdvice = "Realiza la ruta Rojo -> Pájaros -> Azul y asegura visión profunda en la jungla rival."
-                    )
+                    listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte", "Punteras Revestidas", "Calibrador de Sterak", "Ángel Guardián")
                 }
             }
             LaneRole.SUPPORT -> {
-                if (isAp) {
-                    ChampionRoleProfile(
-                        role = LaneRole.SUPPORT,
-                        winrate = adjustRate(champ.winrate, -0.8),
-                        pickRate = adjustRate(champ.pickRate * 0.4, 0.5),
-                        banRate = champ.banRate,
-                        tier = "A",
-                        coreItems = listOf("Hoz Espectral", "Eco de Luden", "Morellonomicón"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3860.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"
-                        ),
-                        situationalItems = listOf("Reloj de Arena de Zhonya", "Velo de la Banshee", "Báculo del Vacío"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3102.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Primer Golpe (Quemadura • Trascendencia • Banda de Flujo de Maná)",
-                        runeTreeDetails = "Hostigamiento a distancia y generación de oro acelerada para la botlane.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3860.png",
-                        recommendedSpells = listOf("Extenuación", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_EXHAUST,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Braum", "Alistar", "Sona", "Yuumi"),
-                        counteredBy = listOf("Blitzcrank", "Nautilus", "Pyke", "Leona"),
-                        synergies = listOf("Jhin", "Caitlyn", "Varus", "Ezreal"),
-                        tacticalAdvice = "Aprovecha el rango para pokear a los rivales desde los arbustos y guarda Extenuación para el all-in."
-                    )
+                if (isAp && !isSupportEnchanter) {
+                    listOf("Hoz Espectral", "Eco de Luden", "Orbe del Infinito", "Botas Jonias de la Lucidez", "Sombrero Mortal de Rabadon", "Morellonomicón")
+                } else if (isTank) {
+                    listOf("Baluarte de la Montaña", "Coraza del Muerto", "Manto del Amanecer", "Punteras Revestidas", "Convergencia de Zeke", "Fuerza de la Naturaleza")
+                } else if (isSupportEnchanter) {
+                    listOf("Hoz Espectral", "Incensario Ardiente", "Bastón de Aguas Fluidas", "Botas Jonias de la Lucidez", "Redención", "Promesa del Caballero")
                 } else {
-                    ChampionRoleProfile(
-                        role = LaneRole.SUPPORT,
-                        winrate = adjustRate(champ.winrate, -1.0),
-                        pickRate = adjustRate(champ.pickRate * 0.35, 0.4),
-                        banRate = champ.banRate,
-                        tier = "A",
-                        coreItems = listOf("Escudo Reliquia", "Coraza del Muerto", "Protector Pétreo"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3858.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"
-                        ),
-                        situationalItems = listOf("Malla de Espinas", "Presagio de Randuin", "Fuerza de la Naturaleza"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Réplica (Fuente de Vida • Condicionamiento • Demolición)",
-                        runeTreeDetails = "Iniciación resistente y protección directa para el tirador aliado.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3858.png",
-                        recommendedSpells = listOf("Ignición", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_IGNITE,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Pyke", "Rakan", "Yuumi", "Sona"),
-                        counteredBy = listOf("Morgana", "Janna", "Lulu", "Thresh"),
-                        synergies = listOf("Samira", "Kai'Sa", "Draven", "Tristana"),
-                        tacticalAdvice = "Busca el engage a nivel 2 o 3 con Ignición para forzar los hechizos del tirador rival."
-                    )
+                    listOf("Hoz Espectral", "Cuchilla Negra", "Filoscuro de Draktharr", "Punteras Revestidas", "Colmillo de Serpiente", "Ángel Guardián")
+                }
+            }
+            LaneRole.TOP -> {
+                if (champ.id == "alistar" || (isTank && !champ.isRanged)) {
+                    listOf("Guantelete de Hielo", "Coraza del Muerto", "Malla de Espinas", "Punteras Revestidas", "Fuerza de la Naturaleza", "Protección Gemela de Amaranth")
+                } else if (isAp) {
+                    listOf("Creagrietas", "Diente de Nashor", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                } else if (isMarksman) {
+                    listOf("Hoja del Rey Arruinado", "Bailarín Espectral", "Filo del Infinito", "Grebas Berserker", "Recuerdos de Lord Dominik", "Ángel Guardián")
+                } else {
+                    listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte", "Punteras Revestidas", "Calibrador de Sterak", "Rompecascos")
                 }
             }
             LaneRole.MID -> {
                 if (isAp) {
-                    ChampionRoleProfile(
-                        role = LaneRole.MID,
-                        winrate = adjustRate(champ.winrate, +0.3),
-                        pickRate = adjustRate(champ.pickRate * 0.75, 1.2),
-                        banRate = champ.banRate,
-                        tier = champ.tier,
-                        coreItems = listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4637.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png"
-                        ),
-                        situationalItems = listOf("Reloj de Arena de Zhonya", "Báculo del Vacío", "Morellonomicón"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Electrocutar (Impacto Repentino • Golpe de Gracia • Trascendencia)",
-                        runeTreeDetails = "Maximiza el daño de ráfaga y rotaciones veloces hacia las líneas laterales.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                        recommendedSpells = listOf("Ignición", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_IGNITE,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Katarina", "Akali", "Yasuo", "Zed"),
-                        counteredBy = listOf("Orianna", "Syndra", "Vex", "Galio"),
-                        synergies = listOf("Jarvan IV", "Vi", "Wukong", "Malphite"),
-                        tacticalAdvice = "Limpia la oleada rápido con tus habilidades principales y rota al Dragón o botlane para ganks."
-                    )
+                    listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                } else if (isMarksman) {
+                    listOf("Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik", "Grebas Berserker", "Sanguinaria", "Ángel Guardián")
+                } else if (isTank) {
+                    listOf("Corona de la Reina Ahogada", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
                 } else {
-                    ChampionRoleProfile(
-                        role = LaneRole.MID,
-                        winrate = adjustRate(champ.winrate, +0.2),
-                        pickRate = adjustRate(champ.pickRate * 0.7, 1.0),
-                        banRate = champ.banRate,
-                        tier = champ.tier,
-                        coreItems = listOf("Espada Fantasma de Youmuu", "El Recolector", "Filo del Infinito"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6676.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png"
-                        ),
-                        situationalItems = listOf("Colmillo de Serpiente", "Danza de la Muerte", "Filo de la Noche"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6695.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Electrocutar (Impacto Repentino • Verdugo de Gigantes • Capa del Nimbo)",
-                        runeTreeDetails = "Eliminación letal de campeones débiles en 1 segundo mediante combos sorpresa.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png",
-                        recommendedSpells = listOf("Ignición", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_IGNITE,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Veigar", "Lux", "Ziggs", "Aurelion Sol"),
-                        counteredBy = listOf("Pantheon", "Malphite", "Vex", "Lissandra"),
-                        synergies = listOf("Diana", "Lee Sin", "Nautilus", "Amumu"),
-                        tacticalAdvice = "Aprovecha la ventaja de movilidad para castigar al jungla rival en su propio territorio."
-                    )
+                    listOf("Filoscuro de Draktharr", "Filo Fantasma de Youmuu", "Colmillo de Serpiente", "Grebas Berserker", "Rencor de Serylda", "Ángel Guardián")
                 }
-            }
-            LaneRole.TOP -> {
-                ChampionRoleProfile(
-                    role = LaneRole.TOP,
-                    winrate = adjustRate(champ.winrate, +0.1),
-                    pickRate = adjustRate(champ.pickRate * 0.8, 1.2),
-                    banRate = champ.banRate,
-                    tier = champ.tier,
-                    coreItems = if (isAp) {
-                        listOf("Creador de Grietas", "Diente de Nashor", "Sombrero Mortal de Rabadon")
-                    } else {
-                        listOf("Cuchilla Negra", "Corazón de Acero", "Hidra Titánica")
-                    },
-                    coreItemsIcons = if (isAp) {
-                        listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3115.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png"
-                        )
-                    } else {
-                        listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3084.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3748.png"
-                        )
-                    },
-                    situationalItems = listOf("Malla de Espinas", "Fuerza de la Naturaleza", "Presagio de Randuin"),
-                    situationalItemsIcons = listOf(
-                        "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
-                        "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png",
-                        "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"
-                    ),
-                        itemSwaps = emptyList(),
-                    recommendedRunes = "Agarre del Perpetuo (Revestimiento de Huesos • Sobrecrecimiento • Demolición)",
-                    runeTreeDetails = "Resistencia superior en el 1v1 aislado, demolición de torretas y escalado de vida máxima.",
-                    primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png",
-                    recommendedSpells = listOf("Ignición", "Destello"),
-                    spellsIcons = listOf(
-                        WildRiftSpellsAndRunes.SPELL_IGNITE,
-                        WildRiftSpellsAndRunes.SPELL_FLASH
-                    ),
-                    advantageAgainst = listOf("Jax", "Irelia", "Tryndamere", "Riven"),
-                    counteredBy = listOf("Fiora", "Gwen", "Darius", "Mordekaiser"),
-                    synergies = listOf("Orianna", "Lulu", "Seraphine", "Yuumi"),
-                    tacticalAdvice = "Gestiona la congelación de oleada frente a tu torre. Rota al Heraldo de la Grieta al minuto 5:00."
-                )
             }
             LaneRole.ADC -> {
                 if (isAp) {
-                    ChampionRoleProfile(
-                        role = LaneRole.ADC,
-                        winrate = adjustRate(champ.winrate, -0.3),
-                        pickRate = adjustRate(champ.pickRate * 0.45, 0.7),
-                        banRate = champ.banRate,
-                        tier = "A",
-                        coreItems = listOf("Tormento de Liandry", "Eco de Luden", "Sombrero Mortal de Rabadon"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3151.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png"
-                        ),
-                        situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón", "Báculo del Vacío"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Primer Golpe (Trascendencia • Quemadura • Banda de Flujo de Maná)",
-                        runeTreeDetails = "Daño mágico masivo continuo y poke opresivo en la línea de Dragón.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3151.png",
-                        recommendedSpells = listOf("Barrera", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_BARRIER,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Jinx", "Vayne", "Kai'Sa", "Ashe"),
-                        counteredBy = listOf("Draven", "Tristana", "Samira", "Lucian"),
-                        synergies = listOf("Nautilus", "Leona", "Pyke", "Thresh"),
-                        tacticalAdvice = "Empuja oleadas y hostiga bajo torre obligando al tirador rival a perder súbditos."
-                    )
+                    listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
                 } else {
-                    ChampionRoleProfile(
-                        role = LaneRole.ADC,
-                        winrate = adjustRate(champ.winrate, -0.4),
-                        pickRate = adjustRate(champ.pickRate * 0.6, 0.8),
-                        banRate = champ.banRate,
-                        tier = "A",
-                        coreItems = listOf("Filo del Infinito", "Bailarín Espectral", "Arcoescudo Inmortal"),
-                        coreItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3046.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6673.png"
-                        ),
-                        situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián", "Rencor de Serylda"),
-                        situationalItemsIcons = listOf(
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png",
-                            "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png"
-                        ),
-                        itemSwaps = emptyList(),
-                        recommendedRunes = "Cadencia Letal (Triunfo • Golpe de Gracia • Dulces Frutos)",
-                        runeTreeDetails = "Potencia el rango efectivo de autoataques y el daño por segundo continuo en peleas.",
-                        primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png",
-                        recommendedSpells = listOf("Barrera", "Destello"),
-                        spellsIcons = listOf(
-                            WildRiftSpellsAndRunes.SPELL_BARRIER,
-                            WildRiftSpellsAndRunes.SPELL_FLASH
-                        ),
-                        advantageAgainst = listOf("Jinx", "Ashe", "Varus", "Miss Fortune"),
-                        counteredBy = listOf("Draven", "Caitlyn", "Samira", "Tristana"),
-                        synergies = listOf("Lulu", "Thresh", "Nami", "Braum"),
-                        tacticalAdvice = "Mantén siempre el espaciado y kitea a los enemigos manteniéndote detrás de la primera línea de tanques."
-                    )
+                    listOf("Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik", "Grebas Berserker", "Sanguinaria", "Ángel Guardián")
                 }
             }
         }
+
+        val coreItemsIcons = coreItems.map { WildRiftItemsData.getItemIconByName(it) }
+
+        // 3. Situational Items for flex role
+        val situationalItems = when {
+            isAp -> listOf("Reloj de Arena de Zhonya", "Báculo del Vacío", "Morellonomicón", "Velo de la Banshee", "Tridente de Oceánida")
+            isTank -> listOf("Malla de Espinas", "Presagio de Randuin", "Protector Pétreo", "Protección Gemela de Amaranth", "Rookern Kaénico")
+            isMarksman -> listOf("Recordatorio Mortal", "Fajín de Mercurio", "Ángel Guardián", "Filo de la Noche", "Cimitarra Mercurial")
+            else -> listOf("Malla de Espinas", "Danza de la Muerte", "Colmillo de Serpiente", "Fuerza de la Naturaleza", "Espada Sierra Quimopunk")
+        }
+        val situationalItemsIcons = situationalItems.map { WildRiftItemsData.getItemIconByName(it) }
+
+        // 4. Runes for flex role
+        val (recommendedRunes, runeTreeDetails, primaryRuneName) = when (role) {
+            LaneRole.JUNGLE -> {
+                if (isAp) {
+                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Colección de Ojos • Pionero", "Electrocutar")
+                } else if (isTank) {
+                    Triple("Réplica (Valor)", "Valor: Fuente de Vida • Acondicionamiento • Sobrecrecimiento • Pionero", "Réplica")
+                } else {
+                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Leyenda: Presteza • Cazador Titánico • Pionero", "Conquistador")
+                }
+            }
+            LaneRole.SUPPORT -> {
+                if (isTank || champ.id == "alistar") {
+                    Triple("Réplica (Valor)", "Valor: Fuente de Vida • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos", "Réplica")
+                } else if (isSupportEnchanter) {
+                    Triple("Invocar a Aery (Brujería)", "Brujería: Banda de Maná • Trascendencia • Tormenta Creciente • Dulces Frutos", "Invocar a Aery")
+                } else {
+                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Cazador Ingenioso • Dulces Frutos", "Electrocutar")
+                }
+            }
+            LaneRole.TOP -> {
+                if (champ.id == "alistar" || isTank) {
+                    Triple("Agarre del Perpetuo (Valor)", "Valor: Demolición • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos", "Agarre del Perpetuo")
+                } else if (isAp) {
+                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
+                } else {
+                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Último Esfuerzo • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
+                }
+            }
+            LaneRole.MID -> {
+                if (isAp) {
+                    Triple("Primer Golpe (Inspiración)", "Dominación: Impacto Repentino • Marca del Verdugo • Cazador Ingenioso • Banda de Maná", "Primer Golpe")
+                } else {
+                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Colección de Ojos • Cazador Voraz", "Electrocutar")
+                }
+            }
+            LaneRole.ADC -> {
+                if (isAp) {
+                    Triple("Primer Golpe (Inspiración)", "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Banda de Maná", "Primer Golpe")
+                } else {
+                    Triple("Cadencia Letal (Precisión)", "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos", "Cadencia Letal")
+                }
+            }
+        }
+
+        val primaryRuneIconUrl = WildRiftSpellsAndRunes.getRuneIconByName(primaryRuneName)
+
+        // 5. Dynamic Swaps for flex role
+        val itemSwaps = generateDefaultSwaps(coreItems, situationalItems, champ.damageType, isTank)
+
+        // 6. Matchups & synergies
+        val flexAdvantage = when (role) {
+            LaneRole.JUNGLE -> listOf("Master Yi", "Amumu", "Shyvana", "Evelynn")
+            LaneRole.SUPPORT -> listOf("Leona", "Nautilus", "Blitzcrank", "Pyke")
+            LaneRole.TOP -> listOf("Sion", "Nasus", "Malphite", "Garen")
+            LaneRole.MID -> listOf("Kassadin", "Veigar", "Ziggs", "Twisted Fate")
+            LaneRole.ADC -> listOf("Jinx", "Ashe", "Miss Fortune", "Sivir")
+        }
+        val flexCountered = when (role) {
+            LaneRole.JUNGLE -> listOf("Lee Sin", "Kha'Zix", "Olaf", "Xin Zhao")
+            LaneRole.SUPPORT -> listOf("Morgana", "Janna", "Lulu", "Karma")
+            LaneRole.TOP -> listOf("Fiora", "Darius", "Gwen", "Vayne")
+            LaneRole.MID -> listOf("Zed", "Ahri", "Syndra", "Akali")
+            LaneRole.ADC -> listOf("Draven", "Lucian", "Samira", "Caitlyn")
+        }
+        val flexSynergies = when (role) {
+            LaneRole.JUNGLE -> listOf("Yasuo", "Orianna", "Galio", "Malphite")
+            LaneRole.SUPPORT -> listOf("Samira", "Kai'Sa", "Tristana", "Yasuo")
+            LaneRole.TOP -> listOf("Jarvan IV", "Vi", "Orianna", "Sejuani")
+            LaneRole.MID -> listOf("Lee Sin", "Malphite", "Wukong", "Amumu")
+            LaneRole.ADC -> listOf("Nautilus", "Thresh", "Lulu", "Leona")
+        }
+
+        val tacticalAdvice = when (role) {
+            LaneRole.JUNGLE -> "Aprovecha la limpieza de campamentos con ${champ.skills.firstOrNull()?.name ?: "habilidades"} y busca ganks en líneas con control de masas aliado."
+            LaneRole.SUPPORT -> "Protege a tu tirador en fase de líneas y aprovecha tu utilidad en peleas por Dragón y Heraldo."
+            LaneRole.TOP -> "Controla la oleada cerca de tu torre y escala hacia el juego medio para actuar como pilar en peleas de equipo."
+            LaneRole.MID -> "Gana prioridad con empuje de oleada y rota rápidamente para apoyar las invasiones de tu jungla en el río."
+            LaneRole.ADC -> "Mantén una posición segura en retaguardia, farmea de forma constante y maximiza tu daño sostenido."
+        }
+
+        return ChampionRoleProfile(
+            role = role,
+            winrate = adjustRate(champ.winrate, -0.7),
+            pickRate = adjustRate(champ.pickRate * 0.45, 0.5),
+            banRate = champ.banRate,
+            tier = if (champ.tier == "S+") "S" else if (champ.tier == "S") "A" else champ.tier,
+            coreItems = coreItems,
+            coreItemsIcons = coreItemsIcons,
+            situationalItems = situationalItems,
+            situationalItemsIcons = situationalItemsIcons,
+            itemSwaps = itemSwaps,
+            recommendedRunes = recommendedRunes,
+            runeTreeDetails = runeTreeDetails,
+            primaryRuneIconUrl = primaryRuneIconUrl,
+            recommendedSpells = recommendedSpells,
+            spellsIcons = spellsIcons,
+            advantageAgainst = flexAdvantage,
+            counteredBy = flexCountered,
+            synergies = flexSynergies,
+            tacticalAdvice = tacticalAdvice
+        )
+    }
+
+    private fun ensureSixItems(
+        currentItems: List<String>,
+        damageType: DamageType,
+        isTank: Boolean,
+        isRanged: Boolean,
+        role: LaneRole
+    ): List<String> {
+        val result = currentItems.toMutableList()
+        val defaultFillers = when {
+            isTank || role == LaneRole.SUPPORT -> listOf(
+                "Coraza del Muerto", "Malla de Espinas", "Fuerza de la Naturaleza",
+                "Punteras Revestidas", "Manto del Amanecer", "Protector Pétreo", "Protección Gemela de Amaranth"
+            )
+            damageType == DamageType.MAGIC -> listOf(
+                "Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon",
+                "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya", "Morellonomicón"
+            )
+            isRanged -> listOf(
+                "Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik",
+                "Grebas Berserker", "Sanguinaria", "Ángel Guardián", "Bailarín Espectral"
+            )
+            else -> listOf(
+                "Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte",
+                "Punteras Revestidas", "Calibrador de Sterak", "Ángel Guardián", "Malla de Espinas"
+            )
+        }
+
+        for (item in defaultFillers) {
+            if (result.size >= 6) break
+            if (!result.contains(item)) {
+                result.add(item)
+            }
+        }
+        return result.take(6)
+    }
+
+    private fun getDefaultSituationalItems(damageType: DamageType, isTank: Boolean): List<String> {
+        return when {
+            damageType == DamageType.MAGIC -> listOf("Reloj de Arena de Zhonya", "Morellonomicón", "Báculo del Vacío", "Velo de la Banshee")
+            isTank -> listOf("Malla de Espinas", "Presagio de Randuin", "Protector Pétreo", "Protección Gemela de Amaranth")
+            else -> listOf("Malla de Espinas", "Colmillo de Serpiente", "Danza de la Muerte", "Ángel Guardián")
+        }
+    }
+
+    private fun generateDefaultSwaps(
+        coreItems: List<String>,
+        situationalItems: List<String>,
+        damageType: DamageType,
+        isTank: Boolean
+    ): List<ItemSwap> {
+        val swaps = mutableListOf<ItemSwap>()
+
+        if (damageType == DamageType.MAGIC) {
+            val coreTarget = coreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: coreItems.firstOrNull() ?: "Eco de Luden"
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Morellonomicón",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Morellonomicón"),
+                    reasonTitle = "ANTI-CURACIÓN (HERIDAS GRAVES)",
+                    reasonDesc = "Reduce las curaciones y regeneraciones masivas de campeones enemigos.",
+                    againstWho = "Soraka, Dr. Mundo, Aatrox, Warwick, Vladimir"
+                )
+            )
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Reloj de Arena de Zhonya",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Reloj de Arena de Zhonya"),
+                    reasonTitle = "SUPERVIVENCIA & INVULNERABILIDAD",
+                    reasonDesc = "Otorga éxtasis temporal de 2.5s para esquivar combos letales de asesinos.",
+                    againstWho = "Zed, Talon, Fizz, Kayn, Syndra"
+                )
+            )
+        } else if (isTank) {
+            val coreTarget = coreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: coreItems.firstOrNull() ?: "Coraza del Muerto"
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Malla de Espinas",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Malla de Espinas"),
+                    reasonTitle = "ANTI-CURACIÓN & ARMADURA",
+                    reasonDesc = "Aplica Heridas Graves al recibir daño y devuelve daño mágico.",
+                    againstWho = "Aatrox, Warwick, Soraka, Yuumi, Samira"
+                )
+            )
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Presagio de Randuin",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Presagio de Randuin"),
+                    reasonTitle = "ANTI-CRÍTICO",
+                    reasonDesc = "Reduce el daño de golpes críticos y frena hipercarries de autoataques.",
+                    againstWho = "Yasuo, Yone, Jinx, Tristana, Caitlyn"
+                )
+            )
+        } else {
+            val coreTarget = coreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: coreItems.firstOrNull() ?: "Cuchilla Negra"
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Colmillo de Serpiente",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Colmillo de Serpiente"),
+                    reasonTitle = "DESTRUCTOR DE ESCUDOS",
+                    reasonDesc = "Reduce drásticamente la absorción de escudos enemigos al impactar con daño físico.",
+                    againstWho = "Sett, Shen, Karma, Lulu, Sterak"
+                )
+            )
+            swaps.add(
+                ItemSwap(
+                    coreItem = coreTarget,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    altItem = "Malla de Espinas",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Malla de Espinas"),
+                    reasonTitle = "ARMADURA & ANTI-CURACIÓN",
+                    reasonDesc = "Corta el sustain enemigo y resiste composiciones de alto daño físico.",
+                    againstWho = "Aatrox, Warwick, Master Yi, Samira"
+                )
+            )
+        }
+
+        return swaps
+    }
+
+    private fun extractMainRune(runeText: String): String {
+        return runeText.substringBefore("(").substringBefore("•").trim()
     }
 
     private fun adjustRate(base: Double, delta: Double): Double {
-        val result = (base + delta)
-        return Math.round(result * 10.0) / 10.0
+        val result = base + delta
+        return (Math.round(result * 100.0) / 100.0).coerceIn(40.0, 65.0)
     }
 }

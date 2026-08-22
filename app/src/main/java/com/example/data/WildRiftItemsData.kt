@@ -249,4 +249,23 @@ object WildRiftItemsData {
         add(WildRiftItem("relic_shield_basic", "Escudo Reliquia", ItemCategory.BASIC, 500, "+125 Max Health", "Kill minions to earn bonus gold | Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80 : | Quest: After earning 750 gold , this item upgrades into Bulwark of the Mountain and binds you and the ally with the most Tribute stacks as Perfect Partners .", "https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp"))
         add(WildRiftItem("spectral_sickle_basic", "Hoz Espectral", ItemCategory.BASIC, 500, "Quest:", "Attack champions and structures to gain bonus gold | Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive). | Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80 :", "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"))
     }
+
+    fun getItemIconByName(name: String): String {
+        val clean = name.trim()
+        if (clean.isEmpty()) return ""
+        val exact = list.find { it.name.equals(clean, ignoreCase = true) }
+        if (exact != null && exact.iconUrl.isNotBlank()) return exact.iconUrl
+        val partial = list.find { it.name.contains(clean, ignoreCase = true) || clean.contains(it.name, ignoreCase = true) }
+        return partial?.iconUrl ?: ""
+    }
+
+    fun getItemByName(name: String): WildRiftItem? {
+        val clean = name.trim()
+        if (clean.isEmpty()) return null
+        return list.find { 
+            it.name.equals(clean, ignoreCase = true) || 
+            it.name.contains(clean, ignoreCase = true) || 
+            clean.contains(it.name, ignoreCase = true) 
+        }
+    }
 }

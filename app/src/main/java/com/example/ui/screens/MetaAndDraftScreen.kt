@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -1298,21 +1299,24 @@ private fun ItemListCard(
 // ====================================================================
 // TAB 4: CATÁLOGO EXCLUSIVO DE RUNAS (BÚSQUEDA Y RAMAS)
 // ====================================================================
+// TAB 4: CATÁLOGO EXCLUSIVO DE RUNAS
+// ====================================================================
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun RunesTab() {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("TODOS") }
     var isGridView by remember { mutableStateOf(true) }
+    var selectedRune by remember { mutableStateOf<RuneItem?>(null) }
 
     val filterOptions = listOf(
         "TODOS" to tr("Todos"),
         "KEYSTONE" to tr("Runas Clave"),
+        "SORCERY" to tr("Brujería"),
         "DOMINATION" to tr("Dominación"),
         "PRECISION" to tr("Precisión"),
         "RESOLVE" to tr("Valor"),
-        "INSPIRATION" to tr("Inspiración"),
-        "SORCERY" to tr("Brujería")
+        "INSPIRATION" to tr("Inspiración")
     )
 
     val filteredRunes = remember(searchQuery, selectedFilter) {
@@ -1320,11 +1324,11 @@ private fun RunesTab() {
             val matchesCategory = when (selectedFilter) {
                 "TODOS" -> true
                 "KEYSTONE" -> rune.category.contains("Clave", ignoreCase = true) || rune.category.contains("Keystone", ignoreCase = true)
+                "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true) || rune.category.contains("Sorcery", ignoreCase = true)
                 "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true) || rune.category.contains("Domination", ignoreCase = true)
                 "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true) || rune.category.contains("Precision", ignoreCase = true)
                 "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true) || rune.category.contains("Resolve", ignoreCase = true)
                 "INSPIRATION" -> rune.category.contains("Inspiración", ignoreCase = true) || rune.category.contains("Inspiration", ignoreCase = true)
-                "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true) || rune.category.contains("Sorcery", ignoreCase = true)
                 else -> true
             }
             val matchesSearch = searchQuery.isBlank() ||
@@ -1335,13 +1339,21 @@ private fun RunesTab() {
         }
     }
 
+    val treeCategories = remember(filteredRunes) {
+        listOf("Runa Clave", "Brujería", "Dominación", "Precisión", "Valor", "Inspiración")
+            .mapNotNull { cat ->
+                val list = filteredRunes.filter { it.category.equals(cat, ignoreCase = true) }
+                if (list.isNotEmpty()) cat to list else null
+            }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        // Database Status Banner
+        // Status & View Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1351,63 +1363,59 @@ private fun RunesTab() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Left side empty
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${filteredRunes.size} " + tr("Runas"),
-                    color = HextechCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                
-                // View mode toggle
-                Row(
+            Text(
+                text = "${filteredRunes.size} " + tr("Runas Oficiales"),
+                color = HextechCyan,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            
+            // View mode toggle
+            Row(
+                modifier = Modifier
+                    .background(HextechSurface, RoundedCornerShape(6.dp))
+                    .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                    .padding(2.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .background(HextechSurface, RoundedCornerShape(6.dp))
-                        .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
-                        .padding(2.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (isGridView) HextechCyan else Color.Transparent)
+                        .clickable { isGridView = true }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (isGridView) HextechCyan else Color.Transparent)
-                            .clickable { isGridView = true }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = tr("Cuadrícula"),
-                            color = if (isGridView) HextechDarkBg else TextMuted,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (!isGridView) HextechCyan else Color.Transparent)
-                            .clickable { isGridView = false }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = tr("Detallado"),
-                            color = if (!isGridView) HextechDarkBg else TextMuted,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = tr("Árbol / Grid"),
+                        color = if (isGridView) HextechDarkBg else TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (!isGridView) HextechCyan else Color.Transparent)
+                        .clickable { isGridView = false }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = tr("Detallado"),
+                        color = if (!isGridView) HextechDarkBg else TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(tr("Buscar runa..."), color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar runa (ej. Conquistador, Banda de Flujo)..."), color = TextMuted, fontSize = 12.5.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
@@ -1437,7 +1445,7 @@ private fun RunesTab() {
                 FilterChip(
                     selected = selectedFilter == key,
                     onClick = { selectedFilter = key },
-                    label = { Text(label, fontSize = 11.5.sp) },
+                    label = { Text(label, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1448,60 +1456,240 @@ private fun RunesTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        if (isGridView) {
+            // GRID / TREE VIEW LIKE WR-META
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                treeCategories.forEach { (categoryName, runesInCat) ->
+                    item(key = categoryName) {
+                        val (iconPrefix, catColor) = when (categoryName.lowercase()) {
+                            "brujería" -> "🌀" to Color(0xFF6C75F0)
+                            "runa clave" -> "💎" to HextechGold
+                            "dominación" -> "🗡️" to Color(0xFFE84057)
+                            "precisión" -> "⚔️" to Color(0xFFF3C258)
+                            "valor" -> "🛡️" to Color(0xFF4AC27E)
+                            else -> "🔮" to HextechCyan
+                        }
 
-            items(filteredRunes) { rune ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        AppAssetImage(
-                            url = rune.iconUrl,
-                            contentDescription = rune.name,
-                            fallbackText = rune.name,
-                            modifier = Modifier.size(42.dp),
-                            borderColor = HextechCyan,
-                            shape = CircleShape
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(HextechCyan.copy(alpha = 0.12f))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, catColor.copy(alpha = 0.35f))
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(bottom = 10.dp)
                                 ) {
-                                    Text(rune.category, color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(iconPrefix, fontSize = 14.sp)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = categoryName.uppercase(),
+                                        color = catColor,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 13.5.sp,
+                                        letterSpacing = 1.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "(${runesInCat.size})",
+                                        color = TextMuted,
+                                        fontSize = 11.sp
+                                    )
+                                }
+
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    runesInCat.forEach { rune ->
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .width(68.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable { selectedRune = rune }
+                                                .background(Color(0xFF0C1322).copy(alpha = 0.6f))
+                                                .border(0.5.dp, HextechCardBorder.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
+                                                .padding(6.dp)
+                                        ) {
+                                            AppAssetImage(
+                                                url = rune.iconUrl,
+                                                contentDescription = rune.name,
+                                                fallbackText = rune.name,
+                                                modifier = Modifier.size(42.dp),
+                                                borderColor = catColor,
+                                                shape = CircleShape
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = rune.name,
+                                                color = TextPrimary,
+                                                fontSize = 9.5.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                maxLines = 2,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                                lineHeight = 11.sp
+                                            )
+                                        }
+                                    }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                         }
                     }
                 }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(30.dp))
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
+            }
+        } else {
+            // DETAILED LIST VIEW
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filteredRunes) { rune ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedRune = rune },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            AppAssetImage(
+                                url = rune.iconUrl,
+                                contentDescription = rune.name,
+                                fallbackText = rune.name,
+                                modifier = Modifier.size(44.dp),
+                                borderColor = HextechCyan,
+                                shape = CircleShape
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(HextechCyan.copy(alpha = 0.12f))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(rune.category, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
     }
+
+    // Rune Detail Dialog
+    selectedRune?.let { rune ->
+        AlertDialog(
+            onDismissRequest = { selectedRune = null },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AppAssetImage(
+                        url = rune.iconUrl,
+                        contentDescription = rune.name,
+                        fallbackText = rune.name,
+                        modifier = Modifier.size(48.dp),
+                        borderColor = HextechGold,
+                        shape = CircleShape
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = rune.name,
+                            color = HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = "Rama: ${rune.category}",
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF0C1322), RoundedCornerShape(8.dp))
+                            .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = rune.description,
+                            color = TextPrimary,
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "💡 Consejo del Coach:",
+                        color = HextechGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = when (rune.category.lowercase()) {
+                            "brujería" -> "Excelente para magos, soportes de utilidad y campeones que requieren aceleración de habilidades y maná continuo en fase de líneas."
+                            "runa clave" -> "Pilar fundamental de tu estilo de juego. Elige según busques intercambios cortos (Electrocutar/Primer Golpe) o peleas largas (Conquistador/Cadencia Letal)."
+                            "dominación" -> "Ideal para amplificar daño explosivo, penetración rápida y acumulación de daño por bajas o visión."
+                            "precisión" -> "Máxima eficiencia en tiradores (ADC) y duelistas para potenciar daño sostenido, velocidad de ataque y remate de objetivos."
+                            "valor" -> "Imprescindible para tanques y luchadores contra líneas difíciles para absorber daño y escalar vida máxima."
+                            else -> "Aporta versatilidad, aceleración de hechizos de invocador y movilidad táctica por el mapa."
+                        },
+                        color = TextMuted,
+                        fontSize = 11.5.sp,
+                        lineHeight = 16.sp
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { selectedRune = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Cerrar"), fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 }
+
 
 // ====================================================================
 // TAB 5: CATÁLOGO EXCLUSIVO DE HECHIZOS DE INVOCADOR
@@ -1512,6 +1700,7 @@ private fun SpellsTab() {
     var searchQuery by remember { mutableStateOf("") }
     var isGridView by remember { mutableStateOf(true) }
     var selectedFilter by remember { mutableStateOf("TODOS") }
+    var selectedSpell by remember { mutableStateOf<SummonerSpellItem?>(null) }
 
     val filterOptions = listOf(
         "TODOS" to tr("Todos"),
@@ -1531,7 +1720,9 @@ private fun SpellsTab() {
                             spell.name.contains("Barrera", true)
                 "UTILITY" -> spell.name.contains("Destello", true) || 
                              spell.name.contains("Fantasma", true) || 
-                             spell.name.contains("Teleport", true)
+                             spell.name.contains("Teleport", true) ||
+                             spell.name.contains("Claridad", true) ||
+                             spell.name.contains("Marca", true)
                 else -> true
             }
             val matchesSearch = searchQuery.isBlank() ||
@@ -1547,7 +1738,7 @@ private fun SpellsTab() {
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        // Database Status Banner
+        // Status Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1557,63 +1748,59 @@ private fun SpellsTab() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Left side empty
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${filteredSpells.size} " + tr("Hechizos"),
-                    color = HextechCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                
-                // View mode toggle
-                Row(
+            Text(
+                text = "${filteredSpells.size} " + tr("Hechizos de Invocador"),
+                color = HextechGold,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            
+            // View mode toggle
+            Row(
+                modifier = Modifier
+                    .background(HextechSurface, RoundedCornerShape(6.dp))
+                    .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                    .padding(2.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .background(HextechSurface, RoundedCornerShape(6.dp))
-                        .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
-                        .padding(2.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (isGridView) HextechGold else Color.Transparent)
+                        .clickable { isGridView = true }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (isGridView) HextechCyan else Color.Transparent)
-                            .clickable { isGridView = true }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = tr("Cuadrícula"),
-                            color = if (isGridView) HextechDarkBg else TextMuted,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (!isGridView) HextechCyan else Color.Transparent)
-                            .clickable { isGridView = false }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = tr("Detallado"),
-                            color = if (!isGridView) HextechDarkBg else TextMuted,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = tr("Cuadrícula"),
+                        color = if (isGridView) HextechDarkBg else TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (!isGridView) HextechGold else Color.Transparent)
+                        .clickable { isGridView = false }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = tr("Detallado"),
+                        color = if (!isGridView) HextechDarkBg else TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Search Bar
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(tr("Buscar hechizo..."), color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar hechizo (ej. Destello, Prender, Castigo)..."), color = TextMuted, fontSize = 12.5.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
@@ -1643,7 +1830,7 @@ private fun SpellsTab() {
                 FilterChip(
                     selected = selectedFilter == key,
                     onClick = { selectedFilter = key },
-                    label = { Text(label, fontSize = 11.5.sp) },
+                    label = { Text(label, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechGold,
                         selectedLabelColor = HextechDarkBg
@@ -1654,58 +1841,205 @@ private fun SpellsTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            items(filteredSpells) { spell ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.Top
+        if (isGridView) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        AppAssetImage(
-                            url = spell.iconUrl,
-                            contentDescription = spell.name,
-                            fallbackText = spell.name,
-                            modifier = Modifier.size(44.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                        filteredSpells.forEach { spell ->
+                            Card(
+                                modifier = Modifier
+                                    .width(105.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable { selectedSpell = spell },
+                                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                             ) {
-                                Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(HextechGold.copy(alpha = 0.15f))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(8.dp)
                                 ) {
-                                    Text("CD: ${spell.cooldown}", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    AppAssetImage(
+                                        url = spell.iconUrl,
+                                        contentDescription = spell.name,
+                                        fallbackText = spell.name,
+                                        modifier = Modifier.size(50.dp),
+                                        borderColor = HextechGold,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = spell.name,
+                                        color = HextechGoldLight,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        maxLines = 1
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "CD ${spell.cooldown}",
+                                        color = HextechCyan,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
                         }
                     }
                 }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(30.dp))
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filteredSpells) { spell ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedSpell = spell },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            AppAssetImage(
+                                url = spell.iconUrl,
+                                contentDescription = spell.name,
+                                fallbackText = spell.name,
+                                modifier = Modifier.size(44.dp),
+                                borderColor = HextechGold,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(HextechGold.copy(alpha = 0.15f))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("CD: ${spell.cooldown}", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
+    }
+
+    // Spell Detail Dialog
+    selectedSpell?.let { spell ->
+        AlertDialog(
+            onDismissRequest = { selectedSpell = null },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AppAssetImage(
+                        url = spell.iconUrl,
+                        contentDescription = spell.name,
+                        fallbackText = spell.name,
+                        modifier = Modifier.size(48.dp),
+                        borderColor = HextechGold,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = spell.name,
+                            color = HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = "Enfriamiento: ${spell.cooldown}",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF0C1322), RoundedCornerShape(8.dp))
+                            .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = spell.description,
+                            color = TextPrimary,
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "💡 Recomendación de Invocador:",
+                        color = HextechCyan,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = when (spell.id) {
+                            "flash" -> "Imprescindible en el 99% de las partidas para reposicionarse, iniciar peleas de equipo o escapar por encima de muros."
+                            "ignite" -> "Clave para asesinos y soportes agresivos para asegurar asesinatos en juego temprano y anular curaciones de campeones como Aatrox, Soraka o Dr. Mundo."
+                            "smite" -> "Obligatorio para el rol de Jungla para asegurar monstruos épicos (Dragones, Heraldo, Barón) y farmear eficientemente."
+                            "exhaust" -> "Vital para neutralizar a hipercarries o asesinos rivales en peleas grupales reduciendo su daño y movilidad drásticamente."
+                            "barrier" -> "Excelente para tiradores o magos de ráfaga para resistir emboscadas o burst sorpresa en línea."
+                            "ghost" -> "Ideal para campeones con movilidad continua como Darius, Olaf, Singed o Gwen para evitar que los enemigos escapen."
+                            "teleport" -> "Potente para campeones de carril de Barón para mantener presión dividida y unirse inmediatamente a peleas de objetivos."
+                            else -> "Uso situacional según la composición y mapa."
+                        },
+                        color = TextMuted,
+                        fontSize = 11.5.sp,
+                        lineHeight = 16.sp
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { selectedSpell = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Cerrar"), fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 }
 
