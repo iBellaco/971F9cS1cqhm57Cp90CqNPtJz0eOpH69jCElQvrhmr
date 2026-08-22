@@ -565,7 +565,7 @@ fun ChampionDetailSheet(
                         }
                         Column {
                             Text(
-                                text = roleProfile.recommendedRunes,
+                                text = tr(roleProfile.recommendedRunes),
                                 color = HextechGoldLight,
                                 fontSize = 13.5.sp,
                                 fontWeight = FontWeight.Bold
@@ -590,7 +590,7 @@ fun ChampionDetailSheet(
                                                 if (foundRune != null) {
                                                     com.example.ui.components.AppAssetImage(
                                                         url = foundRune.iconUrl,
-                                                        contentDescription = foundRune.name,
+                                                        contentDescription = tr(foundRune.name),
                                                         fallbackText = "",
                                                         modifier = Modifier.size(20.dp),
                                                         shape = CircleShape
@@ -600,14 +600,14 @@ fun ChampionDetailSheet(
                                                     Box(modifier = Modifier.size(4.dp).background(HextechCyan, CircleShape))
                                                     Spacer(modifier = Modifier.width(4.dp))
                                                 }
-                                                Text(rName, color = TextMuted, fontSize = 11.5.sp)
+                                                Text(tr(rName), color = TextMuted, fontSize = 11.5.sp)
                                             }
                                         }
                                     }
                                 } else {
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = roleProfile.runeTreeDetails,
+                                        text = tr(roleProfile.runeTreeDetails),
                                         color = TextMuted,
                                         fontSize = 12.sp,
                                         lineHeight = 16.sp

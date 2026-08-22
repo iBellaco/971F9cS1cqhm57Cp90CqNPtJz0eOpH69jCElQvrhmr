@@ -221,12 +221,6 @@ fun DraftingApp() {
             }
         }
 
-        if (currentScreen == AppScreen.MAIN) {
-            com.example.ui.components.WelcomePatchDialog(
-                onDismiss = { /* handles state internally and persists view */ }
-            )
-        }
-
     BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
         currentScreen = AppScreen.MAIN
     }

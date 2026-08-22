@@ -40,14 +40,6 @@ fun InfoScreen(
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
     var showAdminPanel by remember { mutableStateOf(false) }
-    var showWelcomeModal by remember { mutableStateOf(false) }
-
-    if (showWelcomeModal) {
-        com.example.ui.components.WelcomePatchDialog(
-            onDismiss = { showWelcomeModal = false },
-            forceShow = true
-        )
-    }
 
     if (showAdminPanel) {
         AdminFeedbackBottomSheet(
@@ -123,30 +115,6 @@ fun InfoScreen(
                     fontSize = 13.sp,
                     lineHeight = 20.sp
                 )
-                Spacer(modifier = Modifier.height(10.dp))
-                Button(
-                    onClick = { showWelcomeModal = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = HextechGold.copy(alpha = 0.15f),
-                        contentColor = HextechGold
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = HextechGold,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tr("Novedades"),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.5.sp
-                    )
-                }
             }
 
             // Section 2: Modo de Uso
