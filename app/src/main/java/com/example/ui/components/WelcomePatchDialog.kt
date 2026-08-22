@@ -144,8 +144,8 @@ fun WelcomePatchDialog(
                         PatchFeatureRow(
                             icon = Icons.Default.RocketLaunch,
                             tint = HextechCyan,
-                            title = tr("Wild Rift Coach v2.11") + " (" + tr("Actual") + ")",
-                            description = tr("Renombre oficial, contadores dinámicos en catálogos y evaluación táctica de tu pick en tiempo real.")
+                            title = tr("Wild Rift Coach v2.13") + " (" + tr("Actual") + ")",
+                            description = tr("Items situacionales dinámicos en build con alternativas, razones y counter-matchups. Expansión a Build Completa de 6 objetos.")
                         )
                         HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
                         PatchFeatureRow(

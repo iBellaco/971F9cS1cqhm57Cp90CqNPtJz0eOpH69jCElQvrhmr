@@ -30,6 +30,8 @@ import com.example.model.LaneRole
 import com.example.ui.theme.*
 import com.example.util.tr
 import kotlinx.coroutines.delay
+import com.example.data.WildRiftRepository
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 data class TrackedCooldown(
     val id: String,
@@ -54,6 +56,8 @@ val DEFAULT_TRACKED_SPELLS = listOf(
 object CooldownTrackerStateHolder {
     // Map of role name -> Map of spell id -> expiry timestamp in millis
     val activeTimers = mutableStateMapOf<String, Long>()
+    val enemyChampions = mutableStateMapOf<String, com.example.model.Champion>()
+    val ultimateRanks = mutableStateMapOf<String, Int>()
 
     fun startTimer(roleKey: String, spellId: String, durationSeconds: Int) {
         val key = "${roleKey}_$spellId"
@@ -82,6 +86,7 @@ object CooldownTrackerStateHolder {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CooldownTrackerPanel(
     modifier: Modifier = Modifier,
@@ -89,6 +94,7 @@ fun CooldownTrackerPanel(
 ) {
     var selectedRole by remember { mutableStateOf(LaneRole.MID) }
     var currentTimeMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var showChampionPicker by remember { mutableStateOf(false) }
 
     // Tick en tiempo real cada 500ms
     LaunchedEffect(Unit) {

@@ -42,6 +42,18 @@ data class ChampionSkill(
     val cooldown: String = ""
 )
 
+
+@Serializable
+data class ItemSwap(
+    val coreItem: String,
+    val coreItemIcon: String,
+    val altItem: String,
+    val altItemIcon: String,
+    val reasonTitle: String,
+    val reasonDesc: String,
+    val againstWho: String
+)
+
 @Serializable
 data class Champion(
     val id: String = "",
@@ -70,6 +82,7 @@ data class Champion(
     val coreItemsIcons: List<String> = emptyList(),
     val situationalItems: List<String> = emptyList(),
     val situationalItemsIcons: List<String> = emptyList(),
+    val itemSwaps: List<ItemSwap> = emptyList(),
     val skillOrder: String = "",
     val skills: List<ChampionSkill> = emptyList(),
     val isRanged: Boolean = false,

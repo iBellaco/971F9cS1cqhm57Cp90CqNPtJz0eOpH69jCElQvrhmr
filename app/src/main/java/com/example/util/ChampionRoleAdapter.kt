@@ -15,6 +15,7 @@ data class ChampionRoleProfile(
     val coreItemsIcons: List<String>,
     val situationalItems: List<String>,
     val situationalItemsIcons: List<String>,
+    val itemSwaps: List<com.example.model.ItemSwap>,
     val recommendedRunes: String,
     val runeTreeDetails: String,
     val primaryRuneIconUrl: String,
@@ -48,6 +49,7 @@ object ChampionRoleAdapter {
                 coreItemsIcons = champion.coreItemsIcons,
                 situationalItems = champion.situationalItems,
                 situationalItemsIcons = champion.situationalItemsIcons,
+                itemSwaps = champion.itemSwaps,
                 recommendedRunes = champion.recommendedRunes,
                 runeTreeDetails = champion.runeTreeDetails,
                 primaryRuneIconUrl = champion.primaryRuneIconUrl,
@@ -88,6 +90,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Electrocutar (Impacto Repentino • Cazador Titánico • Capa del Nimbo)",
                         runeTreeDetails = "Limpieza explosiva de campamentos en jungla y daño de emboscada rápido.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
@@ -120,6 +123,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Conquistador (Triunfo • Cazador Titánico • Pionero)",
                         runeTreeDetails = "Optimizado para escaramuzas tempranas por los Cangrejos del Río y control de Dragones.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -155,6 +159,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3102.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Primer Golpe (Quemadura • Trascendencia • Banda de Flujo de Maná)",
                         runeTreeDetails = "Hostigamiento a distancia y generación de oro acelerada para la botlane.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3860.png",
@@ -187,6 +192,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Réplica (Fuente de Vida • Condicionamiento • Demolición)",
                         runeTreeDetails = "Iniciación resistente y protección directa para el tirador aliado.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3858.png",
@@ -222,6 +228,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Electrocutar (Impacto Repentino • Golpe de Gracia • Trascendencia)",
                         runeTreeDetails = "Maximiza el daño de ráfaga y rotaciones veloces hacia las líneas laterales.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png",
@@ -254,6 +261,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Electrocutar (Impacto Repentino • Verdugo de Gigantes • Capa del Nimbo)",
                         runeTreeDetails = "Eliminación letal de campeones débiles en 1 segundo mediante combos sorpresa.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png",
@@ -300,6 +308,7 @@ object ChampionRoleAdapter {
                         "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png",
                         "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"
                     ),
+                        itemSwaps = emptyList(),
                     recommendedRunes = "Agarre del Perpetuo (Revestimiento de Huesos • Sobrecrecimiento • Demolición)",
                     runeTreeDetails = "Resistencia superior en el 1v1 aislado, demolición de torretas y escalado de vida máxima.",
                     primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png",
@@ -334,6 +343,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Primer Golpe (Trascendencia • Quemadura • Banda de Flujo de Maná)",
                         runeTreeDetails = "Daño mágico masivo continuo y poke opresivo en la línea de Dragón.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3151.png",
@@ -366,6 +376,7 @@ object ChampionRoleAdapter {
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png",
                             "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png"
                         ),
+                        itemSwaps = emptyList(),
                         recommendedRunes = "Cadencia Letal (Triunfo • Golpe de Gracia • Dulces Frutos)",
                         runeTreeDetails = "Potencia el rango efectivo de autoataques y el daño por segundo continuo en peleas.",
                         primaryRuneIconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png",

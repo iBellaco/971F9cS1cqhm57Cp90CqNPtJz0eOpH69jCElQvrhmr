@@ -4,6 +4,7 @@ import com.example.model.Champion
 import com.example.model.ChampionSkill
 import com.example.model.DamageType
 import com.example.model.LaneRole
+import com.example.model.ItemSwap
 
 object DragonLaneChampions {
     val list: List<Champion> = listOf(
@@ -30,9 +31,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
             recommendedSpells = listOf("Destello", "Fantasmal"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/a/ab/Ghost.png/revision/latest?cb=20180514003209"),
-            coreItems = listOf("Espadafuria de Guinsoo", "Huracán de Runaan", "Filo del Infinito"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3124.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3085.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png"),
+            coreItems = listOf("Espadafuria de Guinsoo", "Huracán de Runaan", "Filo del Infinito", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3124.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3085.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Botas de Mercurio", "La Sanguinaria", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3111.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3072.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 3 > Habilidad 2 (Priorizar Definitiva)",
             isRanged = true,
@@ -107,9 +112,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -184,9 +193,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -261,9 +274,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -338,9 +355,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -415,9 +436,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -492,9 +517,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -569,9 +598,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -646,9 +679,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -723,9 +760,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -800,9 +841,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -877,9 +922,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -954,9 +1003,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1031,9 +1084,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1108,9 +1165,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1185,9 +1246,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1262,9 +1327,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1339,9 +1408,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1416,9 +1489,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1493,9 +1570,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1570,9 +1651,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1647,9 +1732,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1724,9 +1813,13 @@ object DragonLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
             situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,

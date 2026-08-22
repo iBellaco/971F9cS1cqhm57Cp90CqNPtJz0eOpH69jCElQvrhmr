@@ -81,12 +81,6 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.MainActivity
-import com.example.service.screen.ScreenCaptureManager
-import com.example.service.screen.DraftVisionScanner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.example.R
 import com.example.data.WildRiftRepository
 import com.example.ui.components.AppAssetImage
@@ -112,7 +106,6 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
-    private var screenCaptureManager: ScreenCaptureManager? = null
 
     private var windowManager: WindowManager? = null
     private var floatingComposeView: ComposeView? = null
@@ -129,7 +122,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     override fun onCreate() {
         super.onCreate()
         try {
-            screenCaptureManager = ScreenCaptureManager(this)
             savedStateRegistryController.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
@@ -141,7 +133,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 startForeground(
                     NOTIFICATION_ID,
                     notification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or 32
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                 )
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(
@@ -163,16 +155,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         if (intent?.action == ACTION_STOP) {
             stopSelf()
             return START_NOT_STICKY
-        }
-        if (ScreenCaptureManager.pendingMediaProjectionData != null) {
-            val success = screenCaptureManager?.initializeProjection(
-                ScreenCaptureManager.pendingMediaProjectionResultCode,
-                ScreenCaptureManager.pendingMediaProjectionData!!
-            )
-            if (success == true) {
-                com.example.util.AppLogger.d("FloatingService", "ScreenCaptureManager initialized from pending intent.")
-            }
-            ScreenCaptureManager.pendingMediaProjectionData = null
         }
         return START_STICKY
     }
@@ -291,7 +273,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 androidx.compose.runtime.CompositionLocalProvider(com.example.util.LocalLanguage provides selectedLanguage) {
                     MyApplicationTheme {
                         FloatingOverlayContent(
-                            screenCaptureManager = screenCaptureManager,
                             onClose = { stopSelf() },
                             onDragDelta = { dx, dy ->
                                 val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
@@ -348,7 +329,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
 @Composable
 private fun FloatingOverlayContent(
-    screenCaptureManager: ScreenCaptureManager?,
     onClose: () -> Unit,
     onDragDelta: (Int, Int) -> Unit,
     onExpandedChange: (Boolean) -> Unit
@@ -359,8 +339,20 @@ private fun FloatingOverlayContent(
     var isFirstPick by remember { mutableStateOf(false) }
     var lockedChampion by remember { mutableStateOf<Champion?>(null) }
 
-    val allies = remember { androidx.compose.runtime.mutableStateListOf<Champion>() }
-    val enemies = remember { androidx.compose.runtime.mutableStateListOf<Champion>() }
+    val allies = remember {
+        listOfNotNull(
+            WildRiftRepository.getChampionById("vayne"),
+            WildRiftRepository.getChampionById("janna"),
+            WildRiftRepository.getChampionById("viego")
+        )
+    }
+    val enemies = remember {
+        listOfNotNull(
+            WildRiftRepository.getChampionById("sett"),
+            WildRiftRepository.getChampionById("vi"),
+            WildRiftRepository.getChampionById("caitlyn")
+        )
+    }
 
     val analysis = remember(activeRole, isFirstPick, allies, enemies) {
         WildRiftRepository.analyzeDraft(
@@ -416,28 +408,12 @@ private fun FloatingOverlayContent(
                     if (!isExpanded) {
                         isScanning = true
                         selectedTab = 0
-                        
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val bitmap = screenCaptureManager?.captureCurrentFrame()
-                            if (bitmap != null) {
-                                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
-                                withContext(Dispatchers.Main) {
-                                    allies.clear()
-                                    allies.addAll(result.allies)
-                                    enemies.clear()
-                                    enemies.addAll(result.enemies)
-                                    isScanning = false
-                                    isExpanded = true
-                                    onExpandedChange(true)
-                                }
-                            } else {
-                                withContext(Dispatchers.Main) {
-                                    isScanning = false
-                                    isExpanded = true
-                                    onExpandedChange(true)
-                                }
-                            }
-                        }
+                        // Simular escaneo de 1.2s antes de abrir
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            isScanning = false
+                            isExpanded = true
+                            onExpandedChange(true)
+                        }, 1200)
                     } else {
                         isExpanded = false
                         onExpandedChange(false)

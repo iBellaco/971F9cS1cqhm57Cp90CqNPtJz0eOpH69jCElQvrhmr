@@ -4,6 +4,7 @@ import com.example.model.Champion
 import com.example.model.ChampionSkill
 import com.example.model.DamageType
 import com.example.model.LaneRole
+import com.example.model.ItemSwap
 
 object SupportChampions {
     val list: List<Champion> = listOf(
@@ -30,9 +31,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -107,9 +112,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -184,9 +193,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -261,9 +274,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -338,9 +355,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -415,9 +436,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -492,9 +517,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -569,9 +598,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -646,9 +679,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -723,9 +760,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -800,9 +841,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -877,9 +922,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -954,9 +1003,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1031,9 +1084,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1108,9 +1165,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Promesa del Caballero", "Convergencia de Zeke", "Medallón de los Solari"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3109.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3050.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3190.png"),
+            coreItems = listOf("Promesa del Caballero", "Convergencia de Zeke", "Medallón de los Solari", "Botas Jonias", "Promesa del Caballero", "Convergencia de Zeke"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3109.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3050.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3190.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3158.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3109.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3050.png"),
             situationalItems = listOf("Malla de Espinas", "Protector Pétreo"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Convergencia de Zeke", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3050.png", altItem="Pebetero Ardiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3504.png", reasonTitle="MEJORA DE ATAQUE", reasonDesc="Otorga velocidad de ataque a tus aliados.", againstWho="Ideal para ADCs de autoataques (Jinx, Vayne)"),
+ItemSwap(coreItem="Promesa del Caballero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3109.png", altItem="Relicario de los Solari", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3190.png", reasonTitle="ESCUDO EN ÁREA", reasonDesc="Protege contra ráfagas de daño de área.", againstWho="Kennen, Katarina, Fiddlesticks")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1185,9 +1246,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1262,9 +1327,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1339,9 +1408,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1416,9 +1489,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1493,9 +1570,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1570,9 +1651,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1647,9 +1732,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1724,9 +1813,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1801,9 +1894,13 @@ object SupportChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,

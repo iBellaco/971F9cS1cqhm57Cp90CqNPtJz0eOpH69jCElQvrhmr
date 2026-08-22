@@ -4,6 +4,7 @@ import com.example.model.Champion
 import com.example.model.ChampionSkill
 import com.example.model.DamageType
 import com.example.model.LaneRole
+import com.example.model.ItemSwap
 
 object BaronLaneChampions {
     val list: List<Champion> = listOf(
@@ -30,9 +31,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -107,9 +112,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -184,9 +193,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -261,9 +274,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -338,9 +355,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -415,9 +436,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -492,9 +517,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Coraza del Muerto", "Protector Pétreo"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -569,9 +598,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -646,9 +679,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -723,9 +760,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -800,9 +841,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -877,9 +922,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Coraza del Muerto", "Protector Pétreo"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -954,9 +1003,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Rencor de Serylda", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1031,9 +1084,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1108,9 +1165,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Rencor de Serylda", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1185,9 +1246,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -1262,9 +1327,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1339,9 +1408,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1416,9 +1489,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1493,9 +1570,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1570,9 +1651,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1647,9 +1732,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1724,9 +1813,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1801,9 +1894,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1878,9 +1975,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -1955,9 +2056,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2032,9 +2137,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2109,9 +2218,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2186,9 +2299,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Creagrietas", "Égida de Fuego Solar", "Rostro Espiritual", "Botas de Hechicero", "Sombrero Mortífero de Rabadon", "Báculo del Vacío"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png"),
             situationalItems = listOf("Reloj de Arena de Zhonya", "Presagio de Randuin"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3135.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3089.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2263,9 +2380,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2340,9 +2461,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Filo Fantasma de Youmuu", "Filo de la Noche", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3142.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Rencor de Serylda", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -2417,9 +2542,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2494,9 +2623,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = true,
@@ -2571,9 +2704,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Coraza del Muerto", "Protector Pétreo"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2648,9 +2785,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png"),
+            coreItems = listOf("Égida de Fuego Solar", "Malla de Espinas", "Rostro Espiritual", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3065.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Coraza del Muerto", "Protector Pétreo"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,
@@ -2725,9 +2866,13 @@ object BaronLaneChampions {
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
             recommendedSpells = listOf("Destello", "Ignición"),
             spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png"),
+            coreItems = listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Guantelete de Sterak", "Botas Blindadas", "Ángel Guardián", "Danza de la Muerte"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3071.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3053.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png"),
             situationalItems = listOf("Danza de la Muerte", "Malla de Espinas"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Danza de la Muerte", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6333.png", altItem="Malla de Espinas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3075.png", reasonTitle="CORTACURAS FÍSICO", reasonDesc="Devuelve daño y reduce la curación de atacantes.", againstWho="Maestro Yi, Irelia, Yasuo"),
+ItemSwap(coreItem="Ángel Guardián", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3026.png", altItem="Fuerza de la Naturaleza", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/4401.png", reasonTitle="RESISTENCIA MÁGICA", reasonDesc="Gran velocidad de movimiento y defensa AP.", againstWho="Evelynn, Teemo, Brand")
+),
             situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png"),
             skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
             isRanged = false,

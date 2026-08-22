@@ -77,6 +77,11 @@ import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.util.SystemPermissionHelper
+import android.media.projection.MediaProjectionManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.service.screen.ScreenCaptureManager
+import android.content.Context
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,6 +118,20 @@ fun MainDraftingScreen(
         }
     }
 
+    val mediaProjectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            ScreenCaptureManager.pendingMediaProjectionResultCode = result.resultCode
+            ScreenCaptureManager.pendingMediaProjectionData = result.data
+            SystemPermissionHelper.startFloatingService(context)
+            isAssistantActive = true
+        } else {
+            // Permiso de captura denegado
+            isAssistantActive = false
+        }
+    }
+
     val toggleAssistant: () -> Unit = {
         if (isAssistantActive) {
             SystemPermissionHelper.stopFloatingService(context)
@@ -121,8 +140,8 @@ fun MainDraftingScreen(
             if (!SystemPermissionHelper.hasOverlayPermission(context)) {
                 showPermissionDialog = true
             } else {
-                SystemPermissionHelper.startFloatingService(context)
-                isAssistantActive = true
+                val mediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                mediaProjectionLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
             }
         }
     }

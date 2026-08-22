@@ -73,6 +73,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -158,7 +160,8 @@ fun MetaAndDraftScreen(
     }
 
     // Modal Champion Picker & Detail State
-    var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY"
+    var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY", "MYSELF"
+    var myChampion by remember { mutableStateOf<Champion?>(null) }
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
     var isFirstPick by remember { mutableStateOf(false) }
 
@@ -245,9 +248,7 @@ fun MetaAndDraftScreen(
                 tr("Objetos"),
                 tr("Runas"),
                 tr("Hechizos"),
-                tr("Objetivos"),
-                tr("⏱️ CD Tracker"),
-                tr("🛡️ Math Daño")
+                tr("Objetivos")
             )
 
             ScrollableTabRow(
@@ -294,6 +295,7 @@ fun MetaAndDraftScreen(
                     0 -> {
                         // SECCIÓN: ANÁLISIS DE DRAFTING & COUNTERS
                         DraftAnalysisTab(
+                            myChampion = myChampion,
                             activeRole = activeRole,
                             allies = allyChampions,
                             enemies = enemyChampions,
@@ -301,6 +303,8 @@ fun MetaAndDraftScreen(
                             isFirstPick = isFirstPick,
                             onToggleFirstPick = { isFirstPick = !isFirstPick },
                             onChangeRole = { showRoleChangeDialog = true },
+                            onAddMyChampion = { pickingForTeam = "MYSELF" },
+                            onRemoveMyChampion = { myChampion = null },
                             onAddAlly = { pickingForTeam = "ALLY" },
                             onAddEnemy = { pickingForTeam = "ENEMY" },
                             onRemoveAlly = { allyChampions.remove(it) },
@@ -335,14 +339,6 @@ fun MetaAndDraftScreen(
                     6 -> {
                         // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
                         MapObjectivesTab()
-                    }
-                    7 -> {
-                        // SECCIÓN: CD TRACKER (TEMPORIZADORES EN TIEMPO REAL)
-                        CooldownTrackerPanel(modifier = Modifier.fillMaxSize())
-                    }
-                    8 -> {
-                        // SECCIÓN: CALCULADORA DE DAÑO Y PENETRACIÓN
-                        DamagePenetrationCalculator(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
@@ -1741,6 +1737,7 @@ private fun MapObjectivesTab() {
 // ====================================================================
 @Composable
 private fun DraftAnalysisTab(
+    myChampion: Champion?,
     activeRole: LaneRole,
     allies: List<Champion>,
     enemies: List<Champion>,
@@ -1748,6 +1745,8 @@ private fun DraftAnalysisTab(
     isFirstPick: Boolean,
     onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
+    onAddMyChampion: () -> Unit,
+    onRemoveMyChampion: () -> Unit,
     onAddAlly: () -> Unit,
     onAddEnemy: () -> Unit,
     onRemoveAlly: (Champion) -> Unit,
@@ -1924,8 +1923,8 @@ private fun DraftAnalysisTab(
         }
 
         // My Champion Evaluation
-        val myChamp = allies.find { it.primaryRole == activeRole || it.secondaryRoles.contains(activeRole) }
-        if (myChamp != null) {
+        if (myChampion != null) {
+            val myChamp = myChampion
             val myEval = com.example.data.WildRiftRepository.evaluateChampion(myChamp, activeRole, allies, enemies, "es")
             val shouldChange = myEval.estimatedWinrate < 49.0 || myEval.advantageBadge.contains("PELIGRO")
             
@@ -1946,10 +1945,26 @@ private fun DraftAnalysisTab(
                             Text(myEval.champion.name, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Text(if (shouldChange) tr("⚠️ Considera cambiarlo") else tr("✅ Buena elección"), color = if (shouldChange) DangerRed else Color(0xFF81C784), fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         }
+                        IconButton(onClick = onRemoveMyChampion, modifier = Modifier.size(24.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(myEval.tacticalReason, color = TextMuted, fontSize = 12.sp, lineHeight = 16.sp)
                 }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        } else {
+            Button(
+                onClick = onAddMyChampion,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha=0.15f), contentColor = HextechCyan),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha=0.5f)),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(tr("SELECCIONAR MI CAMPEÓN"), fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }

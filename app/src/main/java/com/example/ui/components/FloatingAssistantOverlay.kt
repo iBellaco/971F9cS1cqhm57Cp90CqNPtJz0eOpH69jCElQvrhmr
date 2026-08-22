@@ -115,7 +115,9 @@ enum class OverlayTab(val title: String, val icon: @Composable () -> Unit) {
     OBJECTIVES("Objetivos", { Icon(Icons.Default.Alarm, contentDescription = null, modifier = Modifier.size(16.dp)) }),
     ITEMS("Objetos", { Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp)) }),
     RUNES("Runas", { Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(16.dp)) }),
-    SPELLS("Hechizos", { Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp)) })
+    SPELLS("Hechizos", { Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(16.dp)) }),
+    CD_TRACKER("CD Tracker", { Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp)) }),
+    DAMAGE_MATH("Daño", { Icon(Icons.Default.FlashOn, contentDescription = null, modifier = Modifier.size(16.dp)) })
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -402,6 +404,12 @@ fun FloatingAssistantOverlay(
                                             onSelectChampion = { lockedChampion = it },
                                             onClearChampion = { lockedChampion = null }
                                         )
+                                    }
+                                    OverlayTab.CD_TRACKER -> {
+                                        CooldownTrackerPanel(modifier = Modifier.fillMaxSize(), isCompactOverlay = true)
+                                    }
+                                    OverlayTab.DAMAGE_MATH -> {
+                                        DamagePenetrationCalculator(modifier = Modifier.fillMaxSize())
                                     }
                                 }
                             }
