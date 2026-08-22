@@ -69,14 +69,22 @@ object ChineseMetaSyncService {
 
     fun getLastSyncInfo(context: Context): Pair<String, String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val lastTime = prefs.getString(KEY_LAST_SYNC, "Sincronizado en tiempo real") ?: "Sincronizado en tiempo real"
         val tierCode = prefs.getString(KEY_SELECTED_TIER, TencentRankTier.DIAMOND_PLUS.name)
         val tier = try {
             TencentRankTier.valueOf(tierCode ?: TencentRankTier.DIAMOND_PLUS.name)
         } catch (e: Exception) {
             TencentRankTier.DIAMOND_PLUS
         }
-        return Pair(tier.displayName, lastTime)
+        val lastTime = prefs.getString(KEY_LAST_SYNC, null)
+        val formattedTime = if (lastTime != null) {
+            lastTime
+        } else {
+            val nowFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getDefault()
+            }
+            "${nowFormat.format(Date())} (${tier.displayName})"
+        }
+        return Pair(tier.displayName, formattedTime)
     }
 
     /**
@@ -126,7 +134,9 @@ object ChineseMetaSyncService {
                 val cnStatsSnapshot = generateChineseStatsSnapshot(targetTier)
                 val editor = prefs.edit()
 
-                val nowFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                val nowFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).apply {
+                    timeZone = java.util.TimeZone.getDefault()
+                }
                 val nowTimestamp = nowFormat.format(Date())
 
                 // Actualizar campeones en memoria con los nuevos Win Rate, Pick Rate, Ban Rate y Deltas

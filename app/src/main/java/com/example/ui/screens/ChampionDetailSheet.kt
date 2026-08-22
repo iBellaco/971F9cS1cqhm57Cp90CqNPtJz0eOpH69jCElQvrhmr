@@ -297,7 +297,7 @@ fun ChampionDetailSheet(
                             )
                         }
                         Text(
-                            text = tr("Vs. Ayer"),
+                            text = tr("Tendencia en Vivo"),
                             color = HextechCyan,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold

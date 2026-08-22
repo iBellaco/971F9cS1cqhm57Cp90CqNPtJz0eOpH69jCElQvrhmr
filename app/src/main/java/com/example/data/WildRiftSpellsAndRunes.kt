@@ -34,8 +34,45 @@ object WildRiftSpellsAndRunes {
     fun getRuneIconByName(name: String): String {
         val clean = name.trim()
         if (clean.isEmpty()) return "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png"
+        
+        // Direct match
         val exact = runes.find { it.name.equals(clean, ignoreCase = true) }
         if (exact != null) return exact.iconUrl
+
+        // Check canonical aliases
+        val canonicalName = when (clean.lowercase()) {
+            "cadencia letal", "lethal tempo", "compas letal" -> "Compás Letal"
+            "sobre la marcha", "fleet footwork", "pies veloces" -> "Pies Veloces"
+            "estrategia ofensiva", "press the attack", "fortalecimiento", "ataque intensificado", "matakrakens", "kraken slayer" -> "Fortalecimiento"
+            "invocar a aery", "summon aery", "aery" -> "Aery"
+            "agarre del perpetuo", "grasp of the undying", "garras del inmortal", "replica", "réplica", "aftershock" -> "Garras del Inmortal"
+            "aumento glacial", "glacial augment", "soberano gelido", "soberano gélido" -> "Soberano Gélido"
+            "guardian" -> "Guardián"
+            "dark harvest" -> "Cosecha Oscura"
+            "electrocute" -> "Electrocutar"
+            "phase rush", "irrupcion de fase", "irrupción de fase" -> "Irrupción de Fase"
+            "first strike" -> "Primer Golpe"
+            "conqueror" -> "Conquistador"
+            "arcane comet", "cometa arcano" -> "Cometa Arcano"
+            // Brujería / Sorcery aliases
+            "arcanólogo axiomático", "arcanologo axiomatico", "arcanólogo", "arcanologo", "axiomatic arcanist" -> "Arcanólogo Axiomático"
+            "banda de maná", "banda de mana", "banda de flujo de mana", "banda de flujo de maná", "manaflow band", "flujo de mana" -> "Banda de Maná"
+            "botanista", "dulces frutos", "sweet tooth", "sweettooth" -> "Botanista"
+            "hextello", "destello hextech", "hextech flashtraption", "hexflash" -> "Hextello"
+            "trascendencia", "transcendence" -> "Trascendencia"
+            "celeridad", "celerity" -> "Celeridad"
+            "concentración absoluta", "concentracion absoluta", "absolute focus" -> "Concentración Absoluta"
+            "piroláser", "pirolaser", "quemadura", "scorch" -> "Piroláser"
+            "capa del nimbo", "nimbus cloak" -> "Capa del Nimbo"
+            "se avecina tormenta", "tormenta creciente", "gathering storm" -> "Se Avecina Tormenta"
+            "semillero ixtalí", "semillero ixtali", "ixtali seedjar", "semillero", "ixtali" -> "Semillero Ixtalí"
+            else -> null
+        }
+        if (canonicalName != null) {
+            val target = runes.find { it.name.equals(canonicalName, ignoreCase = true) }
+            if (target != null) return target.iconUrl
+        }
+
         val partial = runes.find { clean.contains(it.name, ignoreCase = true) || it.name.contains(clean, ignoreCase = true) }
         return partial?.iconUrl ?: "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png"
     }
@@ -43,7 +80,42 @@ object WildRiftSpellsAndRunes {
     fun getRuneByName(name: String): RuneItem? {
         val clean = name.trim()
         if (clean.isEmpty()) return null
-        return runes.find { it.name.equals(clean, ignoreCase = true) || clean.contains(it.name, ignoreCase = true) || it.name.contains(clean, ignoreCase = true) }
+        val exact = runes.find { it.name.equals(clean, ignoreCase = true) }
+        if (exact != null) return exact
+
+        val canonicalName = when (clean.lowercase()) {
+            "cadencia letal", "lethal tempo", "compas letal" -> "Compás Letal"
+            "sobre la marcha", "fleet footwork", "pies veloces" -> "Pies Veloces"
+            "estrategia ofensiva", "press the attack", "fortalecimiento", "ataque intensificado", "matakrakens", "kraken slayer" -> "Fortalecimiento"
+            "invocar a aery", "summon aery", "aery" -> "Aery"
+            "agarre del perpetuo", "grasp of the undying", "garras del inmortal", "replica", "réplica", "aftershock" -> "Garras del Inmortal"
+            "aumento glacial", "glacial augment", "soberano gelido", "soberano gélido" -> "Soberano Gélido"
+            "guardian" -> "Guardián"
+            "dark harvest" -> "Cosecha Oscura"
+            "electrocute" -> "Electrocutar"
+            "phase rush", "irrupcion de fase", "irrupción de fase" -> "Irrupción de Fase"
+            "first strike" -> "Primer Golpe"
+            "conqueror" -> "Conquistador"
+            "arcane comet", "cometa arcano" -> "Cometa Arcano"
+            // Brujería / Sorcery aliases
+            "arcanólogo axiomático", "arcanologo axiomatico", "arcanólogo", "arcanologo", "axiomatic arcanist" -> "Arcanólogo Axiomático"
+            "banda de maná", "banda de mana", "banda de flujo de mana", "banda de flujo de maná", "manaflow band", "flujo de mana" -> "Banda de Maná"
+            "botanista", "dulces frutos", "sweet tooth", "sweettooth" -> "Botanista"
+            "hextello", "destello hextech", "hextech flashtraption", "hexflash" -> "Hextello"
+            "trascendencia", "transcendence" -> "Trascendencia"
+            "celeridad", "celerity" -> "Celeridad"
+            "concentración absoluta", "concentracion absoluta", "absolute focus" -> "Concentración Absoluta"
+            "piroláser", "pirolaser", "quemadura", "scorch" -> "Piroláser"
+            "capa del nimbo", "nimbus cloak" -> "Capa del Nimbo"
+            "se avecina tormenta", "tormenta creciente", "gathering storm" -> "Se Avecina Tormenta"
+            "semillero ixtalí", "semillero ixtali", "ixtali seedjar", "semillero", "ixtali" -> "Semillero Ixtalí"
+            else -> null
+        }
+        if (canonicalName != null) {
+            return runes.find { it.name.equals(canonicalName, ignoreCase = true) }
+        }
+
+        return runes.find { clean.contains(it.name, ignoreCase = true) || it.name.contains(clean, ignoreCase = true) }
     }
 
     val summonerSpells: List<SummonerSpellItem> = listOf(
@@ -121,186 +193,179 @@ object WildRiftSpellsAndRunes {
 
     val runes: List<RuneItem> = listOf(
         // =========================================================================
-        // 1. RUNAS CLAVE (KEYSTONES)
+        // 1. RUNAS CLAVE (KEYSTONES - OFICIALES WILD RIFT)
         // =========================================================================
-        RuneItem(
-            id = "conqueror",
-            name = "Conquistador",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
-            description = "Acumula Fuerza Adaptable al golpear con ataques y habilidades a campeones (hasta 6 cargas). Al máximo de cargas, otorga un bonus sustancial de daño adaptativo y omnivampirismo adicional en peleas prolongadas."
-        ),
-        RuneItem(
-            id = "kraken_slayer",
-            name = "Matakrakens",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
-            description = "Cada 3 ataques básicos consecutivos inflige daño verdadero adicional creciente a campeones enemigos. Ideal para tiradores y duelistas de alta velocidad de ataque."
-        ),
-        RuneItem(
-            id = "lethal_tempo",
-            name = "Cadencia Letal",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
-            description = "Atacar a un campeón enemigo otorga velocidad de ataque acumulable hasta 6 veces. A cargas máximas, rompe el límite de velocidad de ataque y aumenta el rango de alcance básico."
-        ),
-        RuneItem(
-            id = "fleet_footwork",
-            name = "Sobre la Marcha",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
-            description = "Moverse y atacar genera cargas de energía. A 100 cargas, tu siguiente ataque restaura vida y otorga una bonificación de +20% de velocidad de movimiento durante 1s."
-        ),
-        RuneItem(
-            id = "press_the_attack",
-            name = "Estrategia Ofensiva",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
-            description = "Golpear a un campeón con 3 ataques consecutivos inflige daño adaptativo adicional y expone al objetivo, haciendo que reciba un 8% de daño adicional de todas las fuentes durante 6s."
-        ),
         RuneItem(
             id = "electrocute",
             name = "Electrocutar",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
-            description = "Golpear a un campeón con 3 ataques o habilidades individuales en un lapso de 3s desata un rayo con daño adaptativo explosivo. La runa por excelencia para asesinos y magos de ráfaga."
-        ),
-        RuneItem(
-            id = "first_strike",
-            name = "Primer Golpe",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
-            description = "Iniciar combate antes de recibir daño otorga 9% de daño verdadero adicional durante 3s y genera oro equivalente al 100% (70% a distancia) del daño adicional infligido."
-        ),
-        RuneItem(
-            id = "phase_rush",
-            name = "Irrupción de Fase",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/stormraiderssurgeruneicon2.png",
-            description = "Golpear a un campeón con 3 ataques o habilidades separadas en 4s otorga hasta 60% de velocidad de movimiento y 75% de resistencia a ralentizaciones durante 3s."
-        ),
-        RuneItem(
-            id = "aery",
-            name = "Invocar a Aery",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
-            description = "Tus ataques y habilidades envían a Aery hacia un objetivo, dañando a enemigos o proporcionando un escudo protector a los aliados seleccionados."
-        ),
-        RuneItem(
-            id = "arcane_comet",
-            name = "Cometa Arcano",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
-            description = "Dañar a un campeón con una habilidad dispara un cometa hacia su posición que inflige daño mágico adaptativo en área. Dañar con habilidades reduce el enfriamiento del cometa."
-        ),
-        RuneItem(
-            id = "grasp_undying",
-            name = "Agarre del Perpetuo",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
-            description = "Cada 4s en combate, tu siguiente ataque básico inflige daño mágico adicional basado en tu vida máxima, te cura un porcentaje de tu salud y aumenta permanentemente tu vida máxima."
-        ),
-        RuneItem(
-            id = "aftershock",
-            name = "Réplica",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
-            description = "Inmovilizar a un campeón enemigo otorga +35 armadura y +35 resistencia mágica durante 2.5s, detonando luego una explosión mágica en área que inflige daño adaptativo."
-        ),
-        RuneItem(
-            id = "glacial_augment",
-            name = "Aumento Glacial",
-            category = "Runa Clave",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
-            description = "Inmovilizar a un campeón enemigo crea 3 rayos congelados que ralentizan a los enemigos un 20% (+2% por cada 10 AP/AD) y reducen su daño infligido a tus aliados un 15%."
+            description = "Golpear a un campeón con 3 ataques o habilidades individuales en 3 s inflige daño adaptable adicional.\nDaño: 35-189 + 40% adicional DA + 25% PH.\nEnfriamiento: 20 s."
         ),
         RuneItem(
             id = "dark_harvest",
             name = "Cosecha Oscura",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/darkharvest/darkharvest.png",
-            description = "Dañar a un campeón con menos del 50% de vida inflige daño adaptativo y cosecha su alma, aumentando permanentemente el daño de Cosecha Oscura en 5 por cada alma recolectada."
+            description = "Al infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\n(20 s de enfriamiento. Se reinicia a 1 s con asesinatos o asistencias)."
+        ),
+        RuneItem(
+            id = "empowerment",
+            name = "Fortalecimiento",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
+            description = "Al asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165. Enfriamiento: 4 s.\nLa amplificación de daño solo surtirá efecto contra campeones."
+        ),
+        RuneItem(
+            id = "lethal_tempo",
+            name = "Compás Letal",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
+            description = "Obtienes velocidad de ataque acumulable al atacar a campeones enemigos. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes alcance adicional y puedes superar el límite de velocidad de ataque.\nCada acumulación aumenta la velocidad de ataque un 6-14% (cuerpo a cuerpo) o un 3,5-8% (a distancia) durante 6 s.\nCon el máximo de acumulaciones, obtienes 25 (cuerpo a cuerpo) o 50 (a distancia) de alcance."
+        ),
+        RuneItem(
+            id = "fleet_footwork",
+            name = "Pies Veloces",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
+            description = "Moverse, atacar y utilizar habilidades generan acumulaciones de energía. Con 100 acumulaciones, tu siguiente ataque obtiene velocidad de ataque, te cura y te otorga velocidad de movimiento adicional. Si el ataque tiene como objetivo a un campeón, también restaura maná o energía.\nVelocidad de ataque adicional: 40%.\nVida restaurada: 15-110 + 15% adicional DA + 10% PH.\nVelocidad de movimiento adicional: 20% durante 1 s.\nAl atacar a un campeón, restaura un 8% del maná que falte o un 8% de la energía que falte.\nAl atacar a súbditos o monstruos, restaura un 35% (cuerpo a cuerpo) o un 15% (a distancia) de la curación original."
+        ),
+        RuneItem(
+            id = "conqueror",
+            name = "Conquistador",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
+            description = "Golpear a un campeón con ataques o habilidades diferentes otorga acumulaciones de fuerza adaptable. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes omnisucción adicional.\nPor acumulación: 3-5 de daño de ataque o 4-8 de poder de habilidad adicionales durante 6 s.\nMejora al máximo de acumulaciones: 9% (cuerpo a cuerpo) o un 5% (a distancia) de omnisucción adicional."
+        ),
+        RuneItem(
+            id = "grasp_undying",
+            name = "Garras del Inmortal",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
+            description = "Cada 3 s que pases en combate, se potenciará tu siguiente ataque contra un campeón.\nDaño mágico adicional: 3,3% de vida máxima.\nCuración: 1,3% de vida máxima.\nAumento de vida permanente: 10.\nCon campeones a distancia, los efectos se reducen un 60%."
+        ),
+        RuneItem(
+            id = "guardian",
+            name = "Guardián",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/guardian/guardian.png",
+            description = "Protege a los aliados que se encuentren a 350 unidades de ti y a los aliados que sean objetivos de tus habilidades durante 2,5 s. Si a lo largo de su duración tu aliado o tú recibís más que una pequeña cantidad de daño, ambos obtenéis un escudo durante 1,5 s.\nEnfriamiento: 55-25 s.\nEscudo: 40-165 + 6% adicional de vida + 15% PH.\nUmbral de daño: 70-240 de daño recibido."
+        ),
+        RuneItem(
+            id = "aery",
+            name = "Aery",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
+            description = "Tus ataques y habilidades envían a Aery a un objetivo para dañar a los enemigos u otorgar un escudo a los aliados.\nDaño: 15 - 70 + 10% adicional DA + 5% PH.\nEscudo: 25 - 120 + 10% adicional DA + 5% PH.\nNo se puede enviar a Aery de nuevo hasta que vuelva a ti."
+        ),
+        RuneItem(
+            id = "arcane_comet",
+            name = "Cometa Arcano",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
+            description = "Infligir daño con una habilidad a un campeón proyecta un cometa hacia su ubicación. Cuando un cometa golpea a un campeón enemigo, aumenta el daño del siguiente.\nDaño: (15 a 100) + (2 × golpes totales a campeones enemigos) + 10% adicional DA + 5% PH.\nEnfriamiento: 16-8 s."
+        ),
+        RuneItem(
+            id = "phase_rush",
+            name = "Irrupción de Fase",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/stormraiderssurgeruneicon2.png",
+            description = "Golpear a un campeón enemigo con ataques básicos o habilidades 3 veces en 4 s otorga velocidad de movimiento y velocidad de habilidades básicas, y reduce el enfriamiento restante de las habilidades básicas en un 20%.\nDuración: 3 s.\nVelocidad de movimiento: 40%-60% para los campeones cuerpo a cuerpo; 20%-35% para los campeones a distancia.\nVelocidad de habilidades básicas: 10.\nEnfriamiento: 21-7 s."
+        ),
+        RuneItem(
+            id = "first_strike",
+            name = "Primer Golpe",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
+            description = "Iniciar un combate contra un campeón enemigo o infligirle daño durante los 0,25 s después de entrar en combate contra él te otorga 10 de oro y el efecto de Primer golpe durante 3 s, lo que te permite infligirle un 7% de daño verdadero adicional. Cuando el efecto desaparece, obtienes oro según el daño adicional infligido durante la duración del mismo.\nSi no infliges daño al campeón enemigo durante los 0,25 s después de entrar en combate contra él, Primer golpe entrará en enfriamiento durante 10 s.\nOro adicional: Cuerpo a cuerpo: 60% de daño adicional. A distancia: 45% de daño adicional.\nEnfriamiento: 20-13 s."
+        ),
+        RuneItem(
+            id = "glacial_augment",
+            name = "Soberano Gélido",
+            category = "Runa Clave",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
+            description = "Al inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales. Dura 2,5 s.\nDaño mágico: 15–100 + 5% vida adicional.\nEnfriamiento: 20 s."
         ),
 
         // =========================================================================
-        // 2. BRUJERÍA (SORCERY) - ÁRBOL COMPLETO DE WR-META
+        // 2. BRUJERÍA / INSPIRACIÓN (SORCERY) - 11 RUNAS OFICIALES DE WILD RIFT
         // =========================================================================
+        RuneItem(
+            id = "axiomatic_arcanist",
+            name = "Arcanólogo Axiomático",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nullifyingorb/nullifyingorb.png",
+            description = "Tu habilidad definitiva obtiene un 10% de daño, curación y escudos adicionales. El aumento del daño en área se reduce un 5%.\nParticipar en el asesinato de un campeón enemigo reduce un 7% el enfriamiento restante de la definitiva."
+        ),
+        RuneItem(
+            id = "manaflow_band",
+            name = "Banda de Maná",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/manaflowband/manaflowband.png",
+            description = "Golpear a un campeón enemigo con una habilidad o ataque potenciado aumenta permanentemente tu maná máximo en 30, hasta 300 de maná."
+        ),
+        RuneItem(
+            id = "botanist",
+            name = "Botanista",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/biscuitdelivery/biscuitdelivery.png",
+            description = "Cuando destruyes una planta, obtienes 10 de oro y efectos potenciados de la planta.\nFrutos de miel: Cuando se consumen, aumenta el efecto curativo un 20%.\nFlor del adivino: Cuando se destruye, la visión que otorga dura un 20% más.\nPiña explosiva: Tras el empujón, otorga un 40% de velocidad de movimiento durante 2,5 s."
+        ),
+        RuneItem(
+            id = "hextech_flashtraption",
+            name = "Hextello",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/hextechflashtraption/hextechflashtraption.png",
+            description = "Cuando Destello está en enfriamiento, se reemplaza por Hextello. Tras una canalización de hasta 2 s, te trasladas a una ubicación nueva. La distancia varía en función el tiempo de canalización (18 s de enfriamiento).\nPasa a 6 s de enfriamiento al entrar en combate con campeones."
+        ),
         RuneItem(
             id = "transcendence",
             name = "Trascendencia",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/transcendence/transcendence.png",
-            description = "Otorga bonificaciones al alcanzar ciertos niveles: nivel 1 (+6 aceleración de habilidad), nivel 6 (+6 aceleración adicional). Al nivel 11, conseguir derribos reduce un 15% los enfriamientos activos de habilidades básicas."
+            description = "Otorga una bonificación al alcanzar los siguientes niveles:\nEn el nivel 1, otorga 5 de velocidad de habilidades.\nEn el nivel 5, otorga 5 de velocidad de habilidades.\nEn el nivel 9, reduce un 8% el enfriamiento de las habilidades básicas cuando golpeen a un objetivo (8 s de enfriamiento)."
         ),
         RuneItem(
-            id = "manaflow_band",
-            name = "Banda de Flujo de Maná",
+            id = "celerity",
+            name = "Celeridad",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/manaflowband/manaflowband.png",
-            description = "Golpear a un campeón enemigo con una habilidad aumenta permanentemente tu maná máximo en 30 (hasta un límite de 300 de maná extra). Al alcanzar el máximo, regenera un 1% de maná faltante por segundo."
-        ),
-        RuneItem(
-            id = "sweet_tooth",
-            name = "Dulces Frutos",
-            category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/biscuitdelivery/biscuitdelivery.png",
-            description = "Aumenta la curación proporcionada por los Frutos de Miel en un 25% y otorga 20 de oro adicional por cada fruto consumido por ti o por un aliado cercano."
-        ),
-        RuneItem(
-            id = "hextech_flashtraption",
-            name = "Acelerador Hextech / Destello Hextech",
-            category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/hextechflashtraption/hextechflashtraption.png",
-            description = "Cuando Destello está en enfriamiento, se reemplaza por Destello Hextech: tras canalizar durante 1.5s, te teletransportas hacia una nueva ubicación estratégica para emboscadas."
-        ),
-        RuneItem(
-            id = "presence_of_mind",
-            name = "Claridad Mental / Mente Presente",
-            category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presenceofmind/presenceofmind.png",
-            description = "Dañar a un campeón enemigo aumenta tu regeneración de maná o energía durante 4s. Conseguir un derribo restaura inmediatamente el 15% de tu maná o energía máxima."
-        ),
-        RuneItem(
-            id = "waterwalking",
-            name = "Caminante del Agua",
-            category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/waterwalking/waterwalking.png",
-            description = "En el río, obtienes una bonificación de +25 de velocidad de movimiento y ganas hasta +18 de daño de ataque o +36 de poder de habilidad adaptable para pelear objetivos neutrales."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/celerity/celeritytemp.png",
+            description = "Obtiene un 2% de velocidad de movimiento. Aumentan un 7% todas las bonificaciones de velocidad de movimiento que recibas."
         ),
         RuneItem(
             id = "absolute_focus",
             name = "Concentración Absoluta",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/absolutefocus/absolutefocus.png",
-            description = "Mientras te encuentres por encima del 70% de vida, obtienes una bonificación adaptativa de hasta +16 de daño de ataque o +32 de poder de habilidad adicional."
+            description = "Con más del 65% de la vida, obtienes 2-20 de daño de ataque o 4-40 de poder de habilidad adicional (adaptable)."
         ),
         RuneItem(
             id = "scorch",
-            name = "Quemadura",
+            name = "Piroláser",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/scorch/scorch.png",
-            description = "Tu siguiente impacto con habilidad quema a los campeones enemigos, infligiendo entre 28 y 42 de daño mágico adaptativo adicional tras 1 segundo (enfriamiento: 8s)."
+            description = "Infligir daño a un campeón enemigo con una habilidad lo quema y le inflige entre 21 y 49 de daño mágico adicional (según el nivel) tras 1 s (8 s de enfriamiento)."
         ),
         RuneItem(
             id = "nimbus_cloak",
             name = "Capa del Nimbo",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nimbuscloak/6361.png",
-            description = "Lanzar cualquier Hechizo de Invocador otorga una ráfaga inmediata de hasta +25% de velocidad de movimiento e ignorar colisiones de unidades durante 2.5s."
+            description = "Tras usar un hechizo (Destello, Prender, etc.), obtienes un 10-40% de velocidad de movimiento adicional durante 3 s. La eficacia de esta mejora depende del enfriamiento del hechizo utilizado."
         ),
         RuneItem(
             id = "gathering_storm",
-            name = "Tormenta Creciente",
+            name = "Se Avecina Tormenta",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/gatheringstorm/gatheringstorm.png",
-            description = "Cada 3 minutos de partida transcurridos, obtienes daño de ataque o poder de habilidad adaptativo creciente. Conviértete en una amenaza imparable en el juego tardío."
+            description = "Tras 6 min de partida, otorga 2 de daño de ataque o 4 de poder de habilidad (adaptable), que aumentan cada 3 minutos a 5 o 10, 9 o 18, 14 o 28, etc."
         ),
         RuneItem(
-            id = "time_warp_tonic",
-            name = "Tónico de Distorsión Temporal",
+            id = "ixtali_seedjar",
+            name = "Semillero Ixtalí",
             category = "Brujería",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/timewarptonic/timewarptonic.png",
-            description = "Consumir una poción o fruto restaura inmediatamente el 50% de la vida y maná que otorga, y concede un +5% de velocidad de movimiento mientras el efecto esté activo."
+            description = "Al destruir una planta, obtienes una semilla al instante que reemplaza tu talismán durante 60 s. La semilla madura y se autodestruye poco después tras plantarla en la ubicación objetivo. (Cuando un aliado destruye una planta, también aparecerán semillas que puedes recoger).\nLas semillas están disponibles a partir del minuto 2 de la partida.\nCada planta tiene un enfriamiento de 30 s.\nLas piñas explosivas que plantes te lanzan más lejos al detonar."
         ),
 
         // =========================================================================
