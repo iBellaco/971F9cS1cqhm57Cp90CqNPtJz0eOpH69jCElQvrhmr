@@ -41,13 +41,13 @@ data class TrackedCooldown(
 )
 
 val DEFAULT_TRACKED_SPELLS = listOf(
-    TrackedCooldown("flash", "Destello (Flash)", 150, "FL", com.example.data.WildRiftSpellsAndRunes.SPELL_FLASH, HextechGold),
-    TrackedCooldown("ignite", "Prender (Ignite)", 90, "IGN", com.example.data.WildRiftSpellsAndRunes.SPELL_IGNITE, DangerRed),
+    TrackedCooldown("flash", "Destello", 150, "FL", com.example.data.WildRiftSpellsAndRunes.SPELL_FLASH, HextechGold),
+    TrackedCooldown("ignite", "Prender", 90, "IGN", com.example.data.WildRiftSpellsAndRunes.SPELL_IGNITE, DangerRed),
     TrackedCooldown("exhaust", "Extenuación", 105, "EXT", com.example.data.WildRiftSpellsAndRunes.SPELL_EXHAUST, Color(0xFFE5A500)),
     TrackedCooldown("barrier", "Barrera", 90, "BAR", com.example.data.WildRiftSpellsAndRunes.SPELL_BARRIER, Color(0xFF4FC3F7)),
-    TrackedCooldown("heal", "Curar (Heal)", 120, "HEA", com.example.data.WildRiftSpellsAndRunes.SPELL_HEAL, Color(0xFF66BB6A)),
-    TrackedCooldown("ghost", "Fantasma (Ghost)", 90, "GHO", com.example.data.WildRiftSpellsAndRunes.SPELL_GHOST, Color(0xFF26C6DA)),
-    TrackedCooldown("zhonya", "Estasis (Zhonya)", 120, "ZHO", "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/item/3157.png", HextechGoldLight),
+    TrackedCooldown("heal", "Curar", 120, "HEA", com.example.data.WildRiftSpellsAndRunes.SPELL_HEAL, Color(0xFF66BB6A)),
+    TrackedCooldown("ghost", "Fantasma", 90, "GHO", com.example.data.WildRiftSpellsAndRunes.SPELL_GHOST, Color(0xFF26C6DA)),
+    TrackedCooldown("zhonya", "Estasis", 120, "ZHO", "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/item/3157.png", HextechGoldLight),
     TrackedCooldown("ult", "Definitiva", 60, "R", "", TierSPlusColor)
 )
 

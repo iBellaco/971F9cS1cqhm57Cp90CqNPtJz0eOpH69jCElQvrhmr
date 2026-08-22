@@ -1,0 +1,145 @@
+private fun RunesTab() {
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf("TODOS") }
+
+    val filterOptions = listOf(
+        "TODOS" to tr("Todos"),
+        "KEYSTONE" to tr("Runas Clave"),
+        "DOMINATION" to tr("Dominación"),
+        "PRECISION" to tr("Precisión"),
+        "RESOLVE" to tr("Valor"),
+        "INSPIRATION" to tr("Inspiración"),
+        "SORCERY" to tr("Brujería")
+    )
+
+    val filteredRunes = remember(searchQuery, selectedFilter) {
+        WildRiftRepository.runes.filter { rune ->
+            val matchesCategory = when (selectedFilter) {
+                "TODOS" -> true
+                "KEYSTONE" -> rune.category.contains("Clave", ignoreCase = true) || rune.category.contains("Keystone", ignoreCase = true)
+                "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true) || rune.category.contains("Domination", ignoreCase = true)
+                "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true) || rune.category.contains("Precision", ignoreCase = true)
+                "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true) || rune.category.contains("Resolve", ignoreCase = true)
+                "INSPIRATION" -> rune.category.contains("Inspiración", ignoreCase = true) || rune.category.contains("Inspiration", ignoreCase = true)
+                "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true) || rune.category.contains("Sorcery", ignoreCase = true)
+                else -> true
+            }
+            val matchesSearch = searchQuery.isBlank() ||
+                    rune.name.contains(searchQuery, ignoreCase = true) ||
+                    rune.description.contains(searchQuery, ignoreCase = true) ||
+                    rune.category.contains(searchQuery, ignoreCase = true)
+            matchesCategory && matchesSearch
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(tr("Buscar runa..."), color = TextMuted, fontSize = 13.sp) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    }
+                }
+            },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = HextechCyan,
+                unfocusedBorderColor = HextechCardBorder,
+                focusedContainerColor = HextechSurface,
+                unfocusedContainerColor = HextechSurface
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Category Filter Chips
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            filterOptions.forEach { (key, label) ->
+                FilterChip(
+                    selected = selectedFilter == key,
+                    onClick = { selectedFilter = key },
+                    label = { Text(label, fontSize = 11.5.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Color(0xFF10B981), CircleShape)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "wr-meta.com / runes",
+                            color = HextechGold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        "${filteredRunes.size} ${tr("Runas")} • ${tr(WildRiftRepository.CURRENT_PATCH_VERSION)}",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            items(filteredRunes) { rune ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        AppAssetImage(
+                            url = rune.iconUrl,
+                            contentDescription = rune.name,
+                            fallbackText = rune.name,
+                            modifier = Modifier.size(42.dp),
+                            borderColor = HextechCyan,
+                            shape = CircleShape
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),

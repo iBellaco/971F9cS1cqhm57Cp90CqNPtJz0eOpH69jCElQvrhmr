@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER_EOF' > app/src/main/java/com/example/ui/components/WelcomePatchDialog.kt
 package com.example.ui.components
 
 import android.content.Context
@@ -240,3 +242,4 @@ private fun PatchFeatureRow(
         }
     }
 }
+INNER_EOF

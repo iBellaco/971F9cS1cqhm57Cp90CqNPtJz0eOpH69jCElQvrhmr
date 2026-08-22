@@ -1,5 +1,5 @@
 {
-  "name": "Wild Rift Drafting",
+  "name": "Wild Rift Coach",
   "description": "Wild Rift Drafting Coach v2.02 (Build 103) - Asistente táctico de drafting, counters, sinergias, calculadoras de daño, CD tracker y builds en tiempo real exclusivo para Wild Rift.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -617,7 +617,7 @@ private fun OverlayDraftTabContent(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN ABSOLUTA"),
+                            text = if (isFirstPick) "★ " + tr("1ª Elección Segura") else "★ " + tr("MEJOR OPCIÓN ABSOLUTA"),
                             color = HextechGold,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Black
@@ -1278,7 +1278,7 @@ private fun OverlaySpellsTabContent(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "🎯 " + tr("Prioridad de Habilidades (Skill Order)"),
+                        text = "🎯 " + tr("Prioridad de Habilidades"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold

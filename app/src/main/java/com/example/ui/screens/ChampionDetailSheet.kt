@@ -586,7 +586,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text(tr("Core Items (Obligatorios):"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Objetos Básicos:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -739,7 +739,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechGoldLight.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text(tr("Mejores Sinergias (Composición):"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Mejores Sinergias:"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     val synergyList = roleProfile.synergies.take(5)
 

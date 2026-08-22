@@ -205,7 +205,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Wild Rift Drafting Activo")
+            .setContentTitle("Wild Rift Coach Activo")
             .setContentText("Superposición en vivo sobre Wild Rift • Toca para abrir")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
@@ -666,7 +666,7 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
+                                    text = if (isFirstPick) "★ " + tr("1ª Elección Segura") else "★ " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold

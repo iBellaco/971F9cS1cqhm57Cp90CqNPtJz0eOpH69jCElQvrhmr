@@ -267,7 +267,7 @@ fun AppUpdateDialog(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = tr("Organización: Coach de Élite (Wild Rift Drafting)"),
+                        text = tr("Organización: Coach de Élite"),
                         color = HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,

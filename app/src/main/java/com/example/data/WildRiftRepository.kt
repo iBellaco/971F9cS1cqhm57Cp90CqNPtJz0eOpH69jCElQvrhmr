@@ -219,6 +219,74 @@ object WildRiftRepository {
         }
     }
 
+    fun evaluateChampion(
+        champ: Champion,
+        myRole: LaneRole,
+        allies: List<Champion>,
+        enemies: List<Champion>,
+        lang: String = "es"
+    ): DraftRecommendation {
+        val otherAllies = allies.filter { it.id != champ.id }
+        val allyPhysCount = otherAllies.count { it.damageType == DamageType.PHYSICAL }
+        val allyMagicCount = otherAllies.count { it.damageType == DamageType.MAGIC }
+        val isAllyFullAd = otherAllies.isNotEmpty() && allyPhysCount >= 3 && allyMagicCount == 0
+        val isAllyFullAp = otherAllies.isNotEmpty() && allyMagicCount >= 3 && allyPhysCount == 0
+        val frontlineAllies = otherAllies.count { it.isFrontline }
+        var score = champ.winrate
+        var badge = ""
+        var reasonParts = mutableListOf<String>()
+        var synergyText = ""
+        var counterText = ""
+        val directCounters = champ.advantageAgainst.filter { adv ->
+            enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
+        }
+        val directWeaknesses = champ.counteredBy.filter { weak ->
+            enemies.any { it.name.equals(weak, ignoreCase = true) || it.id.equals(weak, ignoreCase = true) }
+        }
+        val directSynergies = champ.synergies.filter { syn ->
+            otherAllies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
+        }
+        score += (directCounters.size * 2.8)
+        score -= (directWeaknesses.size * 2.2)
+        score += (directSynergies.size * 2.2)
+        if (isAllyFullAd && champ.damageType == DamageType.MAGIC) { score += 3.5 }
+        else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) { score += 3.5 }
+        if (frontlineAllies == 0 && champ.isFrontline) { score += 2.8 }
+        if (directCounters.isNotEmpty() && directWeaknesses.isEmpty()) {
+            badge = "⚡ COUNTER FUERTE (+" + directCounters.size + ")"
+            reasonParts.add("Tienes ventaja sobre " + directCounters.joinToString(", ") + ".")
+        } else if (directWeaknesses.isNotEmpty()) {
+            badge = "⚠️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
+            reasonParts.add("Cuidado: Sufres contra " + directWeaknesses.joinToString(", ") + ".")
+        } else if (directSynergies.isNotEmpty()) {
+            badge = "⚡ SINERGIA CON EQUIPO (+" + directSynergies.size + ")"
+            reasonParts.add("Sinergia óptima con " + directSynergies.joinToString(", ") + ".")
+        } else if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
+            badge = "🔮 APERTURA MÁGICA"
+            reasonParts.add("Aportas daño mágico necesario.")
+        } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
+            badge = "🗡️ APERTURA FÍSICA"
+            reasonParts.add("Aportas daño físico necesario.")
+        } else if (frontlineAllies == 0 && champ.isFrontline) {
+            badge = "🛡️ SALVADOR FRONTLINE"
+            reasonParts.add("Cubres la falta de tanques.")
+        } else {
+            badge = "⚖️ SELECCIÓN ESTÁNDAR"
+            reasonParts.add("Opción neutral en este escenario.")
+        }
+        synergyText = if (directSynergies.isNotEmpty()) "Buena combinación con: " + directSynergies.joinToString(", ") else "Autosuficiente."
+        counterText = if (directCounters.isNotEmpty()) "Anula a: " + directCounters.joinToString(", ") else if (directWeaknesses.isNotEmpty()) "Juega seguro contra: " + directWeaknesses.joinToString(", ") else "Enfrentamiento parejo."
+        return DraftRecommendation(
+            champion = champ,
+            estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(70.0),
+            advantageBadge = badge,
+            tacticalReason = champ.tacticalAdvice + " " + reasonParts.joinToString(" "),
+            runes = champ.recommendedRunes,
+            synergyDetails = synergyText,
+            counterDetails = counterText
+        )
+    }
+
     fun analyzeDraft(
         myRole: LaneRole,
         allies: List<Champion>,

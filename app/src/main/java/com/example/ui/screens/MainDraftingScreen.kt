@@ -139,7 +139,7 @@ fun MainDraftingScreen(
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = "Wild Rift Drafting",
+                            text = "Wild Rift Coach",
                             color = TextPrimary,
                             fontSize = 19.sp,
                             fontWeight = FontWeight.Black,

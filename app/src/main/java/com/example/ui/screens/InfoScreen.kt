@@ -142,7 +142,7 @@ fun InfoScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Ver Notas de Bienvenida y Novedades del Parche"),
+                        text = tr("Novedades"),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.5.sp
                     )
@@ -163,7 +163,7 @@ fun InfoScreen(
                     description = tr("Pulsa el botón central 'ACTIVAR'. Se desplegará la burbuja flotante en pantalla para acompañarte en tu partida.")
                 )
                 InfoStep(
-                    title = tr("Paso 3: Selección de Campeones (Champ Select)"),
+                    title = tr("Paso 3: Selección de Campeones"),
                     description = tr("Abre Wild Rift y entra a la fase de selección. Toca el botón flotante en cualquier momento para ver recomendaciones, counters y sinergias tácticas en directo.")
                 )
                 InfoStep(
@@ -174,7 +174,7 @@ fun InfoScreen(
 
             // Section 3: Supabase Connection & Feedback Maintenance Test
             InfoCard(
-                title = tr("Estado del Servidor (Supabase)"),
+                title = tr("Estado del Servidor"),
                 icon = Icons.Default.CheckCircle
             ) {
                 Text(
