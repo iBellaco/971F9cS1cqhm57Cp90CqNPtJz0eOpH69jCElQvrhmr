@@ -198,7 +198,7 @@ fun MetaAndDraftScreen(
                 title = {
                     Column {
                         Text(
-                            text = tr("Meta & Catálogo de Campeones"),
+                            text = tr("Tier List & Catálogo de Campeones"),
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -553,7 +553,7 @@ private fun ChampionsCatalogTab(
                                             .padding(horizontal = 5.dp, vertical = 1.dp)
                                     ) {
                                         Text(
-                                            text = "⭐ Flex en ${roleFilter.shortName}",
+                                            text = "⭐ " + tr("Flex en ") + tr(roleFilter.shortName),
                                             color = HextechGold,
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold
@@ -578,8 +578,9 @@ private fun ChampionsCatalogTab(
                                                 .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
                                                 .padding(horizontal = 4.dp, vertical = 1.dp)
                                         ) {
+                                            val lang = com.example.util.LocalLanguage.current
                                             Text(
-                                                text = "Flex: " + champion.secondaryRoles.joinToString("/") { it.shortName },
+                                                text = tr("Flex: ") + champion.secondaryRoles.joinToString("/") { com.example.util.translations[lang]?.get(it.shortName) ?: it.shortName },
                                                 color = HextechCyan,
                                                 fontSize = 9.5.sp,
                                                 fontWeight = FontWeight.Medium
@@ -705,7 +706,7 @@ private fun TierListTab(
             if (tierS.isNotEmpty()) {
                 item {
                     TierSectionCard(
-                        tierName = "TIER S (Meta)",
+                        tierName = "TIER S",
                         tierColor = TierSColor,
                         champions = tierS,
                         onSelectChampion = onSelectChampion
@@ -2037,7 +2038,7 @@ private fun TeamChampionSlot(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                    Text(champion.primaryRole.shortName, color = if (isEnemy) DangerRed else AllyBlue, fontSize = 10.5.sp)
+                    Text(com.example.util.tr(champion.primaryRole.shortName), color = if (isEnemy) DangerRed else AllyBlue, fontSize = 10.5.sp)
                 }
             }
             IconButton(onClick = onRemove, modifier = Modifier.size(24.dp)) {
@@ -2161,7 +2162,7 @@ private fun DraftChampionPickerSheet(
                     FilterChip(
                         selected = selectedRoleFilter == role,
                         onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
-                        label = { Text(role.shortName, fontSize = 11.sp) },
+                        label = { Text(com.example.util.tr(role.shortName), fontSize = 11.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = HextechCyan,
                             selectedLabelColor = HextechDarkBg

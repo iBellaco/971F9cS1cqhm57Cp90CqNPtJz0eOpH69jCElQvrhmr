@@ -507,13 +507,48 @@ fun ChampionDetailSheet(
                                 fontWeight = FontWeight.Bold
                             )
                             if (roleProfile.runeTreeDetails.isNotBlank()) {
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = roleProfile.runeTreeDetails,
-                                    color = TextMuted,
-                                    fontSize = 12.sp,
-                                    lineHeight = 16.sp
-                                )
+                                val parsedRunes = roleProfile.runeTreeDetails
+                                    .replace(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+:\\s*"), "")
+                                    .split("•")
+                                    .map { it.trim() }
+                                    .filter { it.isNotEmpty() }
+                                
+                                if (parsedRunes.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        parsedRunes.forEach { rName ->
+                                            val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
+                                            val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name) }
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                if (foundRune != null) {
+                                                    com.example.ui.components.AppAssetImage(
+                                                        url = foundRune.iconUrl,
+                                                        contentDescription = foundRune.name,
+                                                        fallbackText = "",
+                                                        modifier = Modifier.size(20.dp),
+                                                        shape = CircleShape
+                                                    )
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                } else {
+                                                    Box(modifier = Modifier.size(4.dp).background(HextechCyan, CircleShape))
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                }
+                                                Text(rName, color = TextMuted, fontSize = 11.5.sp)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = roleProfile.runeTreeDetails,
+                                        color = TextMuted,
+                                        fontSize = 12.sp,
+                                        lineHeight = 16.sp
+                                    )
+                                }
                             }
                         }
                     }

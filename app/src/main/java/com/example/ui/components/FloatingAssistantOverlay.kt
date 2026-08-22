@@ -415,7 +415,7 @@ fun FloatingAssistantOverlay(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Detener Asistente",
+                                    text = tr("Detener Asistente"),
                                     color = DangerRed,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
@@ -424,7 +424,7 @@ fun FloatingAssistantOverlay(
                                         .padding(8.dp)
                                 )
                                 Text(
-                                    text = "Minimizar HUD",
+                                    text = tr("Minimizar HUD"),
                                     color = HextechCyan,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
@@ -519,7 +519,7 @@ private fun OverlayDraftTabContent(
             // First Pick Toggle
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Primer Pick:",
+                    text = tr("1er Pick") + ":",
                     color = HextechGold,
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold
@@ -617,7 +617,7 @@ private fun OverlayDraftTabContent(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (isFirstPick) "★ MEJOR PRIMER PICK (SEGURO)" else "★ MEJOR OPCIÓN ABSOLUTA",
+                            text = if (isFirstPick) "★ " + tr("1er Pick (Seguro)") else "★ " + tr("MEJOR OPCIÓN ABSOLUTA"),
                             color = HextechGold,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Black
@@ -657,7 +657,7 @@ private fun OverlayDraftTabContent(
                                 )
                             }
                             Text(
-                                text = topRec.advantageBadge,
+                                text = tr(topRec.advantageBadge),
                                 color = HextechCyan,
                                 fontSize = 10.5.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -691,7 +691,7 @@ private fun OverlayDraftTabContent(
                         Icon(Icons.Default.Check, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Fijar ${topRec.champion.name} y Ver Runas / Build",
+                            text = tr("Fijar") + " ${topRec.champion.name} " + tr("y Ver Runas / Build"),
                             color = HextechGold,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -705,7 +705,7 @@ private fun OverlayDraftTabContent(
 
         // Secondary Options
         Text(
-            text = "Otras Alternativas en ${activeRole.shortName}:",
+            text = tr("Otras Alternativas en ") + tr(activeRole.shortName) + ":",
             color = HextechCyan,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold
@@ -729,7 +729,7 @@ private fun OverlayDraftTabContent(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(rec.champion.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text(rec.advantageBadge, color = TextMuted, fontSize = 10.sp)
+                        Text(tr(rec.advantageBadge), color = TextMuted, fontSize = 10.sp)
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -930,7 +930,7 @@ private fun OverlayRunesTabContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Selecciona un campeón para ver su página de runas óptima",
+                    text = tr("Selecciona un campeón para ver su página de runas óptima"),
                     color = HextechCyan,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
@@ -978,7 +978,7 @@ private fun OverlayRunesTabContent(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(champ.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text("${champ.primaryRole.shortName} • Runas: ${champ.recommendedRunes}", color = HextechGold, fontSize = 10.sp)
+                                Text("${tr(champ.primaryRole.shortName)} • ${tr("Runas")}: ${champ.recommendedRunes}", color = HextechGold, fontSize = 10.sp)
                             }
                         }
                         Icon(Icons.Default.Check, contentDescription = "Seleccionar", tint = HextechCyan, modifier = Modifier.size(16.dp))
@@ -1008,13 +1008,13 @@ private fun OverlayRunesTabContent(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = "${lockedChampion.name} (Fijado)",
+                            text = "${lockedChampion.name} (${tr("Fijado")})",
                             color = HextechCyan,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${lockedChampion.primaryRole.displayName} • Página de Runas",
+                            text = "${tr(lockedChampion.primaryRole.displayName)} • ${tr("Página de Runas")}",
                             color = HextechGoldLight,
                             fontSize = 10.sp
                         )
@@ -1040,7 +1040,7 @@ private fun OverlayRunesTabContent(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🔮 Runa Clave Recomendada",
+                        text = "🔮 " + tr("Runa Clave Recomendada"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -1053,13 +1053,49 @@ private fun OverlayRunesTabContent(
                         fontWeight = FontWeight.Black
                     )
                     if (lockedChampion.runeTreeDetails.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = lockedChampion.runeTreeDetails,
-                            color = TextPrimary.copy(alpha = 0.9f),
-                            fontSize = 11.sp,
-                            lineHeight = 15.sp
-                        )
+                        val parsedRunes = lockedChampion.runeTreeDetails
+                            .replace(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+:\\s*"), "")
+                            .split("•")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() }
+                        
+                        if (parsedRunes.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            @OptIn(ExperimentalLayoutApi::class)
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                parsedRunes.forEach { rName ->
+                                    val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
+                                    val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name) }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (foundRune != null) {
+                                            AppAssetImage(
+                                                url = foundRune.iconUrl,
+                                                contentDescription = foundRune.name,
+                                                fallbackText = "",
+                                                modifier = Modifier.size(18.dp),
+                                                shape = CircleShape
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                        } else {
+                                            Box(modifier = Modifier.size(4.dp).background(HextechCyan, CircleShape))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                        }
+                                        Text(rName, color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.sp)
+                                    }
+                                }
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = lockedChampion.runeTreeDetails,
+                                color = TextPrimary.copy(alpha = 0.9f),
+                                fontSize = 11.sp,
+                                lineHeight = 15.sp
+                            )
+                        }
                     }
                 }
             }
@@ -1099,7 +1135,7 @@ private fun OverlaySpellsTabContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Selecciona un campeón para ver sus hechizos de invocador recomendados",
+                    text = tr("Selecciona un campeón para ver sus hechizos de invocador recomendados"),
                     color = HextechGold,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
@@ -1147,7 +1183,7 @@ private fun OverlaySpellsTabContent(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(champ.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text("${champ.primaryRole.shortName} • Hechizos: ${champ.recommendedSpells.joinToString("+")}", color = HextechGold, fontSize = 10.sp)
+                                Text("${tr(champ.primaryRole.shortName)} • ${tr("Hechizos")}: ${champ.recommendedSpells.joinToString("+")}", color = HextechGold, fontSize = 10.sp)
                             }
                         }
                         Icon(Icons.Default.Check, contentDescription = "Seleccionar", tint = HextechGold, modifier = Modifier.size(16.dp))
@@ -1177,13 +1213,13 @@ private fun OverlaySpellsTabContent(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = "${lockedChampion.name} (Fijado)",
+                            text = "${lockedChampion.name} (${tr("Fijado")})",
                             color = HextechGold,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "${lockedChampion.primaryRole.displayName} • Hechizos & Orden de Habilidades",
+                            text = "${tr(lockedChampion.primaryRole.displayName)} • ${tr("Hechizos & Orden de Habilidades")}",
                             color = HextechCyan,
                             fontSize = 10.sp
                         )
@@ -1209,7 +1245,7 @@ private fun OverlaySpellsTabContent(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "⚡ Hechizos de Invocador Recomendados",
+                        text = "⚡ " + tr("Hechizos de Invocador Recomendados"),
                         color = HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -1242,14 +1278,14 @@ private fun OverlaySpellsTabContent(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "🎯 Prioridad de Habilidades (Skill Order)",
+                        text = "🎯 " + tr("Prioridad de Habilidades (Skill Order)"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Maxeo: ${lockedChampion.skillOrder}",
+                        text = tr("Maxeo:") + " ${lockedChampion.skillOrder}",
                         color = TextPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold

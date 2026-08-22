@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 import com.example.model.LaneRole
 import com.example.ui.theme.*
 import com.example.util.tr
@@ -39,14 +41,14 @@ data class TrackedCooldown(
 )
 
 val DEFAULT_TRACKED_SPELLS = listOf(
-    TrackedCooldown("flash", "Destello (Flash)", 150, "FL", "", HextechGold),
-    TrackedCooldown("ignite", "Prender (Ignite)", 90, "IGN", "", DangerRed),
-    TrackedCooldown("exhaust", "Extenuación", 105, "EXT", "", Color(0xFFE5A500)),
-    TrackedCooldown("barrier", "Barrera", 90, "BAR", "", Color(0xFF4FC3F7)),
-    TrackedCooldown("heal", "Curar (Heal)", 120, "HEA", "", Color(0xFF66BB6A)),
-    TrackedCooldown("ghost", "Fantasma (Ghost)", 90, "GHO", "", Color(0xFF26C6DA)),
-    TrackedCooldown("zhonya", "Éxtasis (Zhonya)", 120, "ZHO", "", HextechGoldLight),
-    TrackedCooldown("ult", "Definitiva (R)", 60, "R", "", TierSPlusColor)
+    TrackedCooldown("flash", "Destello (Flash)", 150, "FL", com.example.data.WildRiftSpellsAndRunes.SPELL_FLASH, HextechGold),
+    TrackedCooldown("ignite", "Prender (Ignite)", 90, "IGN", com.example.data.WildRiftSpellsAndRunes.SPELL_IGNITE, DangerRed),
+    TrackedCooldown("exhaust", "Extenuación", 105, "EXT", com.example.data.WildRiftSpellsAndRunes.SPELL_EXHAUST, Color(0xFFE5A500)),
+    TrackedCooldown("barrier", "Barrera", 90, "BAR", com.example.data.WildRiftSpellsAndRunes.SPELL_BARRIER, Color(0xFF4FC3F7)),
+    TrackedCooldown("heal", "Curar (Heal)", 120, "HEA", com.example.data.WildRiftSpellsAndRunes.SPELL_HEAL, Color(0xFF66BB6A)),
+    TrackedCooldown("ghost", "Fantasma (Ghost)", 90, "GHO", com.example.data.WildRiftSpellsAndRunes.SPELL_GHOST, Color(0xFF26C6DA)),
+    TrackedCooldown("zhonya", "Estasis (Zhonya)", 120, "ZHO", "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/item/3157.png", HextechGoldLight),
+    TrackedCooldown("ult", "Definitiva", 60, "R", "", TierSPlusColor)
 )
 
 object CooldownTrackerStateHolder {
@@ -161,7 +163,7 @@ fun CooldownTrackerPanel(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "⏱️ CD Tracker: Rival ${tr(selectedRole.displayName)}",
+                text = "⏱️ " + tr("CD Tracker:") + " " + tr("Rival") + " " + tr(selectedRole.displayName),
                 color = HextechGoldLight,
                 fontSize = if (isCompactOverlay) 11.5.sp else 13.sp,
                 fontWeight = FontWeight.Bold
@@ -231,19 +233,28 @@ fun CooldownTrackerPanel(
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = spell.iconFallback,
-                                    color = if (isActive) DangerRed else spell.accentColor,
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = if (isCompactOverlay) 9.sp else 11.sp
-                                )
+                                if (spell.iconUrl.isNotEmpty()) {
+                                    AsyncImage(
+                                        model = spell.iconUrl,
+                                        contentDescription = tr(spell.name),
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Text(
+                                        text = spell.iconFallback,
+                                        color = if (isActive) DangerRed else spell.accentColor,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = if (isCompactOverlay) 9.sp else 11.sp
+                                    )
+                                }
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
 
                             Column {
                                 Text(
-                                    text = spell.name,
+                                    text = tr(spell.name),
                                     color = if (isActive) DangerRed else TextPrimary,
                                     fontSize = if (isCompactOverlay) 11.sp else 12.5.sp,
                                     fontWeight = FontWeight.Bold,
@@ -251,7 +262,7 @@ fun CooldownTrackerPanel(
                                     overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
-                                    text = if (isActive) "Enfriamiento: ${remainingSeconds}s restante" else "Base: ${spell.baseCooldownSeconds}s • ¡Listo para usar!",
+                                    text = if (isActive) tr("Enfriamiento:") + " ${remainingSeconds}s " + tr("restante") else tr("Base:") + " ${spell.baseCooldownSeconds}s • " + tr("¡Listo para usar!"),
                                     color = if (isActive) HextechGold else TextMuted,
                                     fontSize = if (isCompactOverlay) 9.sp else 10.5.sp
                                 )

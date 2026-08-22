@@ -601,7 +601,7 @@ private fun FloatingOverlayContent(
                             .padding(2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        val tabs = listOf(tr("Draft"), tr("CDs"), tr("Math"), tr("Obj"), tr("Build"), tr("Runas"), tr("Hechizos"))
+                        val tabs = listOf(tr("Draft"), tr("CDs"), tr("Daño"), tr("Obj"), tr("Build"), tr("Runas"), tr("Hechizos"))
                         tabs.forEachIndexed { index, label ->
                             val isTabSelected = selectedTab == index
                             Box(
