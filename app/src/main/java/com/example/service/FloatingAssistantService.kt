@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.height
@@ -376,11 +377,44 @@ private fun FloatingOverlayContent(
 
     val topPick = analysis.recommendations.firstOrNull()
 
-    Column(
-        horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(2.dp)
-    ) {
-        var dragDownY by remember { mutableFloatStateOf(0f) }
+    Box(modifier = Modifier.padding(2.dp)) {
+        // Notification Manager
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            while (true) {
+                val now = System.currentTimeMillis()
+                val expiredKeys = com.example.ui.components.CooldownTrackerStateHolder.activeTimers.filter { it.value < now }.keys.toList()
+                expiredKeys.forEach { key ->
+                    com.example.ui.components.CooldownTrackerStateHolder.activeTimers.remove(key)
+                    val parts = key.split("_")
+                    if (parts.size == 2) {
+                        val roleName = parts[0]
+                        val spellId = parts[1]
+                        val spell = com.example.ui.components.DEFAULT_TRACKED_SPELLS.find { it.id == spellId }
+                        if (spell != null) {
+                            val roleLabel = LaneRole.valueOf(roleName).shortName
+                            val notif = com.example.ui.components.CDNotification(
+                                id = java.util.UUID.randomUUID().toString(),
+                                message = "${spell.name} de $roleLabel disponible",
+                                iconUrl = spell.iconUrl,
+                                fallbackIcon = spell.iconFallback,
+                                color = spell.accentColor
+                            )
+                            com.example.ui.components.CooldownTrackerStateHolder.notifications.add(notif)
+                            launch {
+                                kotlinx.coroutines.delay(5000)
+                                com.example.ui.components.CooldownTrackerStateHolder.notifications.remove(notif)
+                            }
+                        }
+                    }
+                }
+                kotlinx.coroutines.delay(500)
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.Start
+        ) {
+            var dragDownY by remember { mutableFloatStateOf(0f) }
         var isScanning by remember { mutableStateOf(false) }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -985,5 +1019,73 @@ private fun FloatingOverlayContent(
                 }
             }
         }
-    }
+    } // End of Column (Main layout)
 
+    // Notificaciones sobrepuestas (siempre visibles, incluso si esta minimizado)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .padding(start = 64.dp, top = 8.dp) // Empuja a la derecha de la burbuja (52dp)
+    ) {
+        com.example.ui.components.CooldownTrackerStateHolder.notifications.forEach { notif ->
+            androidx.compose.animation.AnimatedVisibility(
+                visible = true,
+                enter = androidx.compose.animation.slideInHorizontally { it } + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.slideOutHorizontally { it } + androidx.compose.animation.fadeOut()
+            ) {
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.95f)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, notif.color),
+                    modifier = Modifier.widthIn(max = 240.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(notif.color.copy(alpha = 0.2f))
+                                .border(1.dp, notif.color, RoundedCornerShape(4.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (notif.iconUrl.isNotEmpty()) {
+                                coil.compose.AsyncImage(
+                                    model = notif.iconUrl,
+                                    contentDescription = null,
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Text(
+                                    text = notif.fallbackIcon,
+                                    color = notif.color,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 8.sp
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        val parts = notif.message.split(" de ")
+                        val textStr = if (parts.size == 2) {
+                            tr(parts[0]) + " de " + parts[1]
+                        } else {
+                            notif.message
+                        }
+                        Text(
+                            text = textStr,
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+} // End of Box
+ // End of FloatingOverlayContent

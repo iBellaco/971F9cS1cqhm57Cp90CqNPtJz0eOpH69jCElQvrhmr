@@ -53,7 +53,16 @@ val DEFAULT_TRACKED_SPELLS = listOf(
     TrackedCooldown("ult", "Definitiva", 60, "R", "", TierSPlusColor)
 )
 
+data class CDNotification(
+    val id: String,
+    val message: String,
+    val iconUrl: String,
+    val fallbackIcon: String,
+    val color: Color
+)
+
 object CooldownTrackerStateHolder {
+    val notifications = androidx.compose.runtime.mutableStateListOf<CDNotification>()
     // Map of role name -> Map of spell id -> expiry timestamp in millis
     val activeTimers = mutableStateMapOf<String, Long>()
     val enemyChampions = mutableStateMapOf<String, com.example.model.Champion>()
