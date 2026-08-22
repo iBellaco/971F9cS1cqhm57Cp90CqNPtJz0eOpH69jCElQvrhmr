@@ -1,4 +1,9 @@
-package com.example.service
+import re
+
+with open('app/src/main/java/com/example/service/MetaScrapingWorker.kt', 'r') as f:
+    content = f.read()
+
+new_content = """package com.example.service
 
 import android.content.Context
 import android.util.Log
@@ -151,3 +156,7 @@ class MetaScrapingWorker(
                normName.contains(normTencent) || normTencent.contains(normName)
     }
 }
+"""
+
+with open('app/src/main/java/com/example/service/MetaScrapingWorker.kt', 'w') as f:
+    f.write(new_content)
