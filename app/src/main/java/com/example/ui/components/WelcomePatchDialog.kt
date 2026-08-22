@@ -144,29 +144,22 @@ fun WelcomePatchDialog(
                         PatchFeatureRow(
                             icon = Icons.Default.RocketLaunch,
                             tint = HextechCyan,
-                            title = tr("Parche 7.2c") + " (" + tr("Actual") + ")",
-                            description = tr("Nuevos ítems de luchador, balances en jungla y adición de evaluación en tiempo real de tu propio campeón durante el draft.")
+                            title = tr("Wild Rift Coach v2.11") + " (" + tr("Actual") + ")",
+                            description = tr("Renombre oficial, contadores dinámicos en catálogos y evaluación táctica de tu pick en tiempo real.")
                         )
                         HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
                         PatchFeatureRow(
                             icon = Icons.Default.History,
                             tint = HextechGold,
-                            title = tr("Parche 7.2b"),
-                            description = tr("Ajustes de daño en campeones ADC y mejoras de estabilidad en el catálogo de runas.")
+                            title = tr("Wild Rift Coach v2.0"),
+                            description = tr("Lanzamiento del asistente táctico flotante, catálogo de objetos completo y soporte multi-idioma.")
                         )
                         HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
                         PatchFeatureRow(
-                            icon = Icons.Default.History,
+                            icon = Icons.Default.Sync,
                             tint = Color(0xFF10B981),
-                            title = tr("Parche 7.2a"),
-                            description = tr("Sincronización oficial del metajuego, estadísticas base y nuevos encantamientos.")
-                        )
-                        HorizontalDivider(color = Color(0xFF1E293B), thickness = 0.5.dp)
-                        PatchFeatureRow(
-                            icon = Icons.Default.History,
-                            tint = Color(0xFF94A3B8),
-                            title = tr("Parche 7.2"),
-                            description = tr("Gran parche de temporada: Rediseño completo de la grieta y adición del asistente overlay flotante.")
+                            title = tr("Sincronización Oficial"),
+                            description = tr("Base de datos de campeones actualizada al parche del juego: ") + tr(patchVersion)
                         )
                     }
 
