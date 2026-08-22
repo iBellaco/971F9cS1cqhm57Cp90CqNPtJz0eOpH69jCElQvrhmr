@@ -3,26 +3,21 @@ import re
 with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'r') as f:
     content = f.read()
 
-# Update ChampionsCatalogTab
-champions_tab_start = content.find('private fun ChampionsCatalogTab(')
-champions_tab_end = content.find('private fun ItemsCatalogTab()', champions_tab_start)
-champions_tab_content = content[champions_tab_start:champions_tab_end]
+spells_tab_start = content.find('private fun SpellsTab()')
+spells_tab_end = content.find('private fun MapObjectivesTab()', spells_tab_start)
+spells_tab_content = content[spells_tab_start:spells_tab_end]
 
 # 1. Add `isGridView` state
-if 'var isGridView by remember' not in champions_tab_content:
-    champions_tab_content = champions_tab_content.replace(
-        'var selectedTierFilter by remember { mutableStateOf<String?>(null) }',
-        'var selectedTierFilter by remember { mutableStateOf<String?>(null) }\n    var isGridView by remember { mutableStateOf(true) }'
+if 'var isGridView by remember' not in spells_tab_content:
+    spells_tab_content = spells_tab_content.replace(
+        'var searchQuery by remember { mutableStateOf("") }',
+        'var searchQuery by remember { mutableStateOf("") }\n    var isGridView by remember { mutableStateOf(true) }'
     )
 
 # 2. Update Banner
-# Target:
-#         // WR-Meta Database Status Banner
-#         Row( ... ) { ... }
-# To replace with the banner including view mode toggle.
+banner_pattern = re.compile(r"        // WR-Meta Database Status Banner\n        Row\([\s\S]*?            Text\(\n                text = \"\$\{filteredSpells\.size\} \" \+ tr\(\"Hechizos\"\),\n                color = HextechCyan,\n                fontSize = 11\.sp,\n                fontWeight = FontWeight\.SemiBold\n            \)\n        \}")
 
-banner_pattern = re.compile(r"        // WR-Meta Database Status Banner\n        Row\([\s\S]*?        Spacer\(modifier = Modifier.height\(12\.dp\)\)")
-new_banner = """        // WR-Meta Database Status Banner
+new_banner = """        // Database Status Banner
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -33,8 +28,11 @@ new_banner = """        // WR-Meta Database Status Banner
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                // Left side empty
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "${filteredChampions.size} " + tr("Campeones"),
+                    text = "${filteredSpells.size} " + tr("Hechizos"),
                     color = HextechCyan,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold
@@ -78,38 +76,27 @@ new_banner = """        // WR-Meta Database Status Banner
                     }
                 }
             }
-        }
-        Spacer(modifier = Modifier.height(12.dp))"""
-
-champions_tab_content = re.sub(banner_pattern, new_banner, champions_tab_content)
+        }"""
+spells_tab_content = re.sub(banner_pattern, new_banner, spells_tab_content)
 
 # 3. Update the list to support grid view
-# Target:
-#         // Champions List
-#         LazyColumn(
-#             modifier = Modifier.fillMaxSize(),
-#             verticalArrangement = Arrangement.spacedBy(10.dp)
-#         ) {
-#             items(filteredChampions) { champion ->
-# ... (up to the end of the LazyColumn)
+list_pattern = re.compile(r"        // Spells List\n        LazyColumn\(\n            modifier = Modifier\.fillMaxSize\(\),\n            verticalArrangement = Arrangement\.spacedBy\(10\.dp\)\n        \) \{[\s\S]*?            \}\n        \}\n        Spacer\(modifier = Modifier\.height\(30\.dp\)\)\n    \}")
 
-list_pattern = re.compile(r"        // Champions List\n        LazyColumn\(\n            modifier = Modifier\.fillMaxSize\(\),\n            verticalArrangement = Arrangement\.spacedBy\(10\.dp\)\n        \) \{[\s\S]*?            \}\n        \}\n        Spacer\(modifier = Modifier\.height\(30\.dp\)\)\n    \}")
-
-new_list = """        // Champions List
+new_list = """        // Spells List
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (isGridView) {
-                val chunkedItems = filteredChampions.chunked(3)
+                val chunkedItems = filteredSpells.chunked(3)
                 items(chunkedItems) { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        for (item in rowItems) {
+                        for (spell in rowItems) {
                             Box(modifier = Modifier.weight(1f)) {
-                                ChampionGridCard(champion = item, onClick = { onSelectChampion(item) })
+                                SpellGridCard(spell = spell, onClick = { /* TODO if detail needed */ })
                             }
                         }
                         for (i in 0 until (3 - rowItems.size)) {
@@ -118,13 +105,10 @@ new_list = """        // Champions List
                     }
                 }
             } else {
-                items(filteredChampions) { champion ->
+                items(filteredSpells) { spell ->
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .clickable { onSelectChampion(champion) }
-                            .testTag("champion_item_${champion.id}"),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = HextechSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                     ) {
@@ -134,56 +118,40 @@ new_list = """        // Champions List
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            ChampionAvatar(champion = champion, size = 58.dp)
+                            AppAssetImage(
+                                url = spell.iconUrl,
+                                contentDescription = spell.name,
+                                fallbackText = spell.name,
+                                modifier = Modifier.size(52.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                borderColor = HextechGold.copy(alpha = 0.7f)
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = champion.name,
-                                        color = TextPrimary,
-                                        fontSize = 16.sp,
+                                        text = tr(spell.name),
+                                        color = HextechGoldLight,
+                                        fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "WR: ${champion.winrate}%",
+                                        text = spell.cooldown,
                                         color = HextechGold,
-                                        fontSize = 13.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "${champion.primaryRole.displayName}",
-                                        color = HextechCyan,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "•",
-                                        color = TextMuted,
-                                        fontSize = 12.sp
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "Tier ${champion.tier}",
-                                        color = if (champion.tier.contains("S")) Color(0xFF10B981) else HextechGold,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = champion.title,
+                                    text = tr(spell.description),
                                     color = TextMuted,
                                     fontSize = 11.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    lineHeight = 14.sp
                                 )
                             }
                         }
@@ -194,9 +162,9 @@ new_list = """        // Champions List
         Spacer(modifier = Modifier.height(30.dp))
     }"""
 
-champions_tab_content = re.sub(list_pattern, new_list, champions_tab_content)
-
-content = content[:champions_tab_start] + champions_tab_content + content[champions_tab_end:]
+spells_tab_content = re.sub(list_pattern, new_list, spells_tab_content)
+content = content[:spells_tab_start] + spells_tab_content + content[spells_tab_end:]
 
 with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'w') as f:
     f.write(content)
+

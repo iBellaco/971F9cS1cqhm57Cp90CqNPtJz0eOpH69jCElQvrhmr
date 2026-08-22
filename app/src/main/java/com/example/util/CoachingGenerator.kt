@@ -15,92 +15,26 @@ object CoachingGenerator {
         val targetRole = targetChamp?.primaryRole ?: LaneRole.MID
         val targetDamage = targetChamp?.damageType?.displayName ?: "mixto"
 
-        return when (type) {
+                return when (type) {
             "Ventaja" -> {
-                if (isEs) {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$champName saca ventaja contra $target mediante intercambios sostenidos, aprovechando que $target sufre contra la presión constante en solitario."
-                        LaneRole.JUNGLE -> "El daño y movilidad de $champName le permite invadir o emboscar a $target fácilmente, arruinando su ruta de jungla o escalado."
-                        LaneRole.MID -> "La capacidad de empuje y rotación de $champName asfixia a $target, impidiéndole farmear o rotar a tiempo para ayudar a su equipo."
-                        LaneRole.ADC -> "$champName tiene mejor escalado o rango que $target, lo que le permite dominar los enfrentamientos directos en la línea del Dragón."
-                        LaneRole.SUPPORT -> "Las herramientas de control o protección de $champName neutralizan perfectamente el estilo de juego de $target."
-                    }
-                } else if (isPt) {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$champName tem vantagem contra $target através de trocas contínuas, explorando a fraqueza de $target contra pressão solo constante."
-                        LaneRole.JUNGLE -> "O dano e a mobilidade de $champName permitem invadir ou gankar $target facilmente, arruinando sua rota de selva ou escalonamento."
-                        LaneRole.MID -> "A capacidade de empurrar e rotacionar de $champName sufoca $target, impedindo-o de farmar ou rotacionar a tempo para ajudar sua equipe."
-                        LaneRole.ADC -> "$champName tem melhor escalonamento ou alcance que $target, permitindo dominar as trocas diretas na rota do Dragão."
-                        LaneRole.SUPPORT -> "As ferramentas de controle ou proteção de $champName neutralizam perfeitamente o estilo de jogo de $target."
-                    }
-                } else {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$champName gains an advantage against $target through sustained trades, exploiting $target's weakness to constant solo pressure."
-                        LaneRole.JUNGLE -> "$champName's damage and mobility allow them to easily invade or gank $target, ruining their jungle pathing or scaling."
-                        LaneRole.MID -> "$champName's push and roam potential suffocates $target, preventing them from farming or roaming in time to help their team."
-                        LaneRole.ADC -> "$champName has better scaling or range than $target, allowing them to dominate direct trades in the Dragon lane."
-                        LaneRole.SUPPORT -> "$champName's control or peel tools perfectly neutralize $target's playstyle."
-                    }
-                }
+                if (isEs) "Este campeón tiene una fuerte ventaja sobre $target en la fase de líneas, aprovéchalo."
+                else if (isPt) "Este campeão tem uma forte vantagem sobre $target na fase de rotas, aproveite."
+                else "This champion has a strong advantage over $target in the laning phase, use it."
             }
             "Debilidad" -> {
-                if (isEs) {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$target tiene el rango o el daño explosivo necesario para castigar los acercamientos de $champName, forzándolo a jugar bajo torre."
-                        LaneRole.JUNGLE -> "$target controla mejor el mapa y puede hacer counter-gank a $champName o ganar los 1v1 en el río."
-                        LaneRole.MID -> "El rango o la movilidad de $target hace que $champName tenga problemas para aplicar su daño o farmear sin recibir castigo."
-                        LaneRole.ADC -> "$target tiene un mejor juego temprano o mayor rango, haciendo que la fase de líneas de $champName sea muy difícil."
-                        LaneRole.SUPPORT -> "$target puede ignorar la iniciación de $champName o tiene suficiente asedio para desgastarlo antes de pelear."
-                    }
-                } else if (isPt) {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$target tem o alcance ou dano explosivo necessário para punir as iniciações de $champName, forçando-o a jogar debaixo da torre."
-                        LaneRole.JUNGLE -> "$target tem melhor controle de mapa e pode fazer counter-gank em $champName ou vencer os 1v1 no rio."
-                        LaneRole.MID -> "O alcance ou a mobilidade de $target faz com que $champName tenha problemas para aplicar seu dano ou farmar sem ser punido."
-                        LaneRole.ADC -> "$target tem um jogo inicial melhor ou maior alcance, dificultando muito a fase de rotas de $champName."
-                        LaneRole.SUPPORT -> "$target pode ignorar a iniciação de $champName ou tem poke suficiente para desgastá-lo antes de lutar."
-                    }
-                } else {
-                    when (sourceRole) {
-                        LaneRole.TOP -> "$target has the range or burst damage needed to punish $champName's engages, forcing them to play under turret."
-                        LaneRole.JUNGLE -> "$target has better map control and can counter-gank $champName or win 1v1s in the river."
-                        LaneRole.MID -> "$target's range or mobility makes it hard for $champName to deal damage or farm without being punished."
-                        LaneRole.ADC -> "$target has a better early game or longer range, making $champName's laning phase very difficult."
-                        LaneRole.SUPPORT -> "$target can ignore $champName's engage or has enough poke to wear them down before fights."
-                    }
-                }
+                if (isEs) "Este campeón es débil contra $target. Juega con seguridad y espera ayuda de tu equipo."
+                else if (isPt) "Este campeão é fraco contra $target. Jogue com segurança e espere ajuda da sua equipe."
+                else "This champion is weak against $target. Play safely and wait for team assistance."
             }
             "Situacional" -> {
-                if (isEs) "Compra $target si el equipo enemigo tiene mucho daño $targetDamage, curaciones excesivas, o si necesitas sobrevivir a la iniciación rival."
-                else if (isPt) "Compre $target se a equipe inimiga tiver muito dano $targetDamage, curas excessivas, ou se você precisar sobreviver à iniciação rival."
-                else "Buy $target if the enemy team has high $targetDamage damage, excessive healing, or if you need to survive enemy engages."
+                if (isEs) "Este es un objeto situacional. Cómpralo contra $target para ganar ventaja."
+                else if (isPt) "Este é um item situacional. Compre-o contra $target para ganhar vantagem."
+                else "This is a situational item. Buy it against $target to gain an advantage."
             }
             else -> { // Sinergia
-                if (isEs) {
-                    when (targetRole) {
-                        LaneRole.ADC -> "$champName complementa perfectamente el estilo de $target, dándole el espacio para infligir daño."
-                        LaneRole.SUPPORT -> "$target provee el control de masas y la supervivencia que $champName necesita para brillar en las peleas."
-                        LaneRole.JUNGLE -> "La iniciación de $target facilita enormemente que $champName pueda asegurar eliminaciones o aplicar todo su daño."
-                        LaneRole.TOP -> "$target actúa como una sólida línea frontal (frontline), atrayendo la atención enemiga mientras $champName hace su trabajo."
-                        LaneRole.MID -> "El daño de área o el control de masas de $target encaja de maravilla con el kit de habilidades de $champName."
-                    }
-                } else if (isPt) {
-                    when (targetRole) {
-                        LaneRole.ADC -> "$champName complementa perfeitamente o estilo de $target, dando-lhe espaço para causar dano."
-                        LaneRole.SUPPORT -> "$target fornece o controle de grupo e a sobrevivência que $champName precisa para brilhar nas lutas."
-                        LaneRole.JUNGLE -> "A iniciação de $target facilita muito para $champName garantir eliminações ou aplicar todo o seu dano."
-                        LaneRole.TOP -> "$target atua como uma linha de frente sólida, atraindo a atenção inimiga enquanto $champName faz o seu trabalho."
-                        LaneRole.MID -> "O dano em área ou controle de grupo de $target se encaixa maravilhosamente com o kit de habilidades de $champName."
-                    }
-                } else {
-                    when (targetRole) {
-                        LaneRole.ADC -> "$champName perfectly complements $target's style, giving them the space to deal damage."
-                        LaneRole.SUPPORT -> "$target provides the crowd control and survivability that $champName needs to shine in fights."
-                        LaneRole.JUNGLE -> "$target's engage makes it incredibly easy for $champName to secure takedowns or apply all their damage."
-                        LaneRole.TOP -> "$target acts as a solid frontline, drawing enemy attention while $champName does their job."
-                        LaneRole.MID -> "$target's area damage or crowd control fits wonderfully with $champName's ability kit."
-                    }
-                }
+                if (isEs) "Excelente sinergia con $target para ganar las peleas de equipo."
+                else if (isPt) "Excelente sinergia com $target para vencer as lutas de equipe."
+                else "Excellent synergy with $target to win teamfights."
             }
         }
     }

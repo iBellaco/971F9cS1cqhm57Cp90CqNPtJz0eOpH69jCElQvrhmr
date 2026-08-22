@@ -464,7 +464,7 @@ fun ChampionDetailSheet(
             // SECCIÓN SEPARADA: RUNAS META & ÁRBOL
             // ==========================================
             Text(
-                text = "${tr("Runas Meta")} • ${selectedRole.shortName}",
+                text = "${tr("Runas")} • ${selectedRole.shortName}",
                 color = HextechGold,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
@@ -588,7 +588,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text(tr("Objetos Básicos:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Build Completa (6 Objetos):"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -630,7 +630,11 @@ fun ChampionDetailSheet(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 12.dp)
-                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        matchupExplanationTarget = swap.altItem
+                                        matchupExplanationType = "Situacional"
+                                    },
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF07121A)),
                                 shape = RoundedCornerShape(12.dp)
                             ) {

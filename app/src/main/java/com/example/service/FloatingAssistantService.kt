@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,6 +63,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.ComposeView
@@ -504,6 +507,7 @@ private fun FloatingOverlayContent(
             Card(
                 modifier = Modifier
                     .widthIn(min = 280.dp, max = 320.dp)
+                    .heightIn(max = 480.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
@@ -970,6 +974,7 @@ private fun FloatingOverlayContent(
                                 .padding(4.dp)
                         )
                     }
+                    // End Scrollable Column
                 }
             }
         }
