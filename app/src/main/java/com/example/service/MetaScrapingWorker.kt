@@ -10,6 +10,8 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import com.example.data.WildRiftRepository
+import com.example.data.sync.ChineseMetaSyncService
+import com.example.data.sync.TencentRankTier
 import com.example.util.AppLogger
 import java.text.Normalizer
 
@@ -93,12 +95,10 @@ class MetaScrapingWorker(
                 }
             }
 
-            // Actualizar el repositorio en memoria
-            WildRiftRepository.champions = allChamps
-
-            Log.d("MetaScrapingWorker", "Scraping finalizado exitosamente. $updatedCount perfiles actualizados.")
-            AppLogger.d("MetaScrapingWorker", "Estadísticas extraídas correctamente del servidor CN.")
+            // Sincronizar usando el servicio integral de estadísticas de Tencent China con cálculo de deltas
+            ChineseMetaSyncService.syncChineseMeta(applicationContext, TencentRankTier.DIAMOND_PLUS, forceRefresh = true)
             
+            AppLogger.d("MetaScrapingWorker", "Estadísticas extraídas y deltas calculados correctamente del servidor CN.")
             Result.success()
         } catch (e: Exception) {
             Log.e("MetaScrapingWorker", "Error al realizar scraping de la API China: ${e.message}", e)

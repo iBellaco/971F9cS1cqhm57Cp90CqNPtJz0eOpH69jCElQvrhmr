@@ -271,28 +271,88 @@ fun ChampionDetailSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             // ==========================================
-            // ESTADÍSTICAS ADAPTADAS A LA LÍNEA (TRADUCIDAS)
+            // ESTADÍSTICAS ADAPTADAS A LA LÍNEA (CON COMPARATIVA VS. AYER)
             // ==========================================
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, HextechCardBorder, RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.SpaceAround
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(tr("Tasa de Victoria"), color = TextMuted, fontSize = 11.sp)
-                    Text("${roleProfile.winrate}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(tr("Tasa de Selección"), color = TextMuted, fontSize = 11.sp)
-                    Text("${roleProfile.pickRate}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(tr("Tasa de Bloqueo"), color = TextMuted, fontSize = 11.sp)
-                    Text("${roleProfile.banRate}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("🇨🇳 ", fontSize = 12.sp)
+                            Text(
+                                text = tr("Estadísticas Servidor CN (Tencent)"),
+                                color = HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Text(
+                            text = tr("Vs. Ayer"),
+                            color = HextechCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        // Winrate + Delta
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Tasa de Victoria"), color = TextMuted, fontSize = 11.sp)
+                            Text("${roleProfile.winrate}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            val winDelta = roleProfile.winrateDelta
+                            val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                            val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
+                            Text(
+                                text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
+                                color = winDeltaColor,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // Pick Rate + Delta
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Tasa de Selección"), color = TextMuted, fontSize = 11.sp)
+                            Text("${roleProfile.pickRate}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            val pickDelta = roleProfile.pickRateDelta
+                            val pickDeltaText = if (pickDelta >= 0) "+${pickDelta}%" else "${pickDelta}%"
+                            val pickDeltaColor = if (pickDelta >= 0) Color(0xFF29B6F6) else Color(0xFFFFA726)
+                            Text(
+                                text = if (pickDelta >= 0) "▲ $pickDeltaText" else "▼ $pickDeltaText",
+                                color = pickDeltaColor,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // Ban Rate + Delta
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Tasa de Bloqueo"), color = TextMuted, fontSize = 11.sp)
+                            Text("${roleProfile.banRate}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            val banDelta = roleProfile.banRateDelta
+                            val banDeltaText = if (banDelta >= 0) "+${banDelta}%" else "${banDelta}%"
+                            val banDeltaColor = if (banDelta >= 0) DangerRed else Color(0xFF4CAF50)
+                            Text(
+                                text = if (banDelta >= 0) "▲ $banDeltaText" else "▼ $banDeltaText",
+                                color = banDeltaColor,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 

@@ -9,39 +9,63 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import android.util.Log
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import java.util.concurrent.TimeUnit
 import com.example.service.MetaScrapingWorker
+import com.example.data.sync.ChineseMetaSyncService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class WildRiftApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         
-        setupDailyScraping()
+        setupInstantAndPeriodicScraping()
     }
     
-    private fun setupDailyScraping() {
-        // Ejecutar diariamente solo si hay red (ahorra batería)
+    private fun setupInstantAndPeriodicScraping() {
+        // 1. Ejecutar sincronización instantánea inmediata en segundo plano al iniciar
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                ChineseMetaSyncService.syncChineseMeta(this@WildRiftApplication, forceRefresh = true)
+            } catch (e: Exception) {
+                Log.e("WildRiftApp", "Error en auto-sincronización instantánea", e)
+            }
+        }
+
+        // 2. Encolar tarea de scraping WorkManager inmediata
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
             .build()
+
+        val instantWorkRequest = OneTimeWorkRequestBuilder<MetaScrapingWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            "InstantMetaScrape",
+            ExistingWorkPolicy.REPLACE,
+            instantWorkRequest
+        )
             
-        val dailyWorkRequest = PeriodicWorkRequestBuilder<MetaScrapingWorker>(
-            24, TimeUnit.HOURS, 
-            2, TimeUnit.HOURS
+        // 3. Mantener worker periódico activo
+        val periodicWorkRequest = PeriodicWorkRequestBuilder<MetaScrapingWorker>(
+            1, TimeUnit.HOURS,
+            15, TimeUnit.MINUTES
         )
         .setConstraints(constraints)
         .build()
         
-        // Política KEEP mantiene la solicitud actual si ya existe
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "DailyMetaScrape",
-            ExistingPeriodicWorkPolicy.KEEP,
-            dailyWorkRequest
+            "PeriodicMetaScrape",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            periodicWorkRequest
         )
     }
     override fun newImageLoader(): ImageLoader {

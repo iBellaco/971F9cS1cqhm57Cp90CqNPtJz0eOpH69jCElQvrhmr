@@ -76,10 +76,13 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.util.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -91,13 +94,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.WildRiftRepository
+import com.example.data.sync.ChineseMetaSyncService
+import com.example.data.sync.ChineseSyncState
+import com.example.data.sync.TencentRankTier
+import kotlinx.coroutines.launch
 import com.example.model.Champion
 import com.example.model.DamageType
 import com.example.model.DraftAnalysisResult
@@ -392,12 +401,22 @@ fun MetaAndDraftScreen(
 private fun ChampionsCatalogTab(
     onSelectChampion: (Champion) -> Unit
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
+    val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
+
+    // Sincronización automática instantánea en cuanto el usuario entra al catálogo
+    LaunchedEffect(Unit) {
+        ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+    }
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
     var isGridView by remember { mutableStateOf(true) }
 
-    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter) {
+    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState) {
         val list = WildRiftRepository.champions.filter { champ ->
             val matchesQuery = searchQuery.isBlank() ||
                     champ.name.contains(searchQuery, ignoreCase = true) ||
@@ -437,13 +456,150 @@ private fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // WR-Meta Database Status Banner
+        // PANEL DE SINCRONIZACIÓN Y SCRAPING DEL SERVIDOR CHINO (TENCENT / LOLM)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+        ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("🇨🇳 ", fontSize = 14.sp)
+                        Column {
+                            Text(
+                                text = tr("Servidor Chino (Tencent / LOLM)"),
+                                color = HextechGold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Win Rate, Pick, Ban y Variación Diaria (Vs. Ayer)",
+                                color = HextechCyan,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+
+                    // Botón Sincronizar en Vivo
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (syncState is ChineseSyncState.Syncing) HextechSurfaceVariant else HextechGold
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        enabled = syncState !is ChineseSyncState.Syncing,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        if (syncState is ChineseSyncState.Syncing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                color = HextechCyan,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(tr("Sincronizando..."), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        } else {
+                            Icon(Icons.Default.Sync, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(tr("Sincronizar"), color = HextechDarkBg, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Selector de Rango de Elo Chino
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    TencentRankTier.entries.forEach { tier ->
+                        val isSelected = currentTier == tier
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(
+                                    if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
+                                )
+                                .border(
+                                    width = if (isSelected) 1.dp else 0.5.dp,
+                                    color = if (isSelected) HextechCyan else HextechCardBorder,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .clickable {
+                                    coroutineScope.launch {
+                                        ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
+                                    }
+                                }
+                                .padding(vertical = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = tier.cnName,
+                                color = if (isSelected) HextechCyan else TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Estado de sincronización instantánea en vivo
+                val lastSyncInfo = remember(syncState) { ChineseMetaSyncService.getLastSyncInfo(context) }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = when (val s = syncState) {
+                            is ChineseSyncState.Syncing -> "⚡ Sincronizando con Tencent China..."
+                            is ChineseSyncState.Success -> "🟢 En vivo: ${s.timestamp} (${s.tier.displayName})"
+                            is ChineseSyncState.Error -> "⚠️ Datos en caché local: ${lastSyncInfo.second}"
+                            ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
+                        },
+                        color = when (syncState) {
+                            is ChineseSyncState.Syncing -> HextechCyan
+                            is ChineseSyncState.Success -> Color(0xFF4CAF50)
+                            is ChineseSyncState.Error -> Color(0xFFFFA726)
+                            ChineseSyncState.Idle -> TextMuted
+                        },
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Instantáneo 24/7",
+                        color = HextechGold,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Total count
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
                 .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = 10.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -452,6 +608,11 @@ private fun ChampionsCatalogTab(
                 color = HextechCyan,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Rango Activo: ${currentTier.displayName}",
+                color = HextechGoldLight,
+                fontSize = 10.sp
             )
         }
 
@@ -548,12 +709,26 @@ private fun ChampionsCatalogTab(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
-                                Text(
-                                    text = "WR: ${champion.winrate}%",
-                                    color = HextechGold,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    val winDelta = champion.winrateDelta
+                                    val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                                    val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
+                                    Text(
+                                        text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
+                                        color = winDeltaColor,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "WR: ${champion.winrate}%",
+                                        color = HextechGold,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.height(2.dp))
                             val roleFilter = selectedRoleFilter
@@ -808,7 +983,21 @@ private fun TierSectionCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(horizontalAlignment = Alignment.End) {
-                                Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    val winDelta = champ.winrateDelta
+                                    val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                                    val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
+                                    Text(
+                                        text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
+                                        color = winDeltaColor,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                                }
                                 Text("Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.5.sp)
                             }
                             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
