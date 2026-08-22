@@ -31,6 +31,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
@@ -98,6 +99,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.example.ui.components.FormattedWildRiftText
+import com.example.ui.components.formatWildRiftDescription
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -750,6 +753,13 @@ private fun ChampionsCatalogTab(
 // ====================================================================
 // TAB 2: TIER LIST OFICIAL WILD RIFT (POR LÍNEAS Y TIERS)
 // ====================================================================
+enum class TierSortOption(val displayName: String, val shortLabel: String) {
+    BY_TIER("Por Tier", "Tier 👑"),
+    WIN_RATE("Win Rate", "Win Rate 📈"),
+    PICK_RATE("Pick Rate", "Pick Rate 🎯"),
+    BAN_RATE("Ban Rate", "Ban Rate 🚫")
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TierListTab(
@@ -761,10 +771,20 @@ private fun TierListTab(
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
 
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
+    var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
 
-    val championsToDisplay = remember(selectedLane, syncState) {
+    val rawChampionsToDisplay = remember(selectedLane, syncState) {
         if (selectedLane == null) WildRiftRepository.champions
         else WildRiftRepository.getChampionsByRole(selectedLane!!)
+    }
+
+    val championsToDisplay = remember(rawChampionsToDisplay, selectedSort) {
+        when (selectedSort) {
+            TierSortOption.BY_TIER -> rawChampionsToDisplay
+            TierSortOption.WIN_RATE -> rawChampionsToDisplay.sortedByDescending { it.winrate }
+            TierSortOption.PICK_RATE -> rawChampionsToDisplay.sortedByDescending { it.pickRate }
+            TierSortOption.BAN_RATE -> rawChampionsToDisplay.sortedByDescending { it.banRate }
+        }
     }
 
     val tierSPlus = championsToDisplay.filter { it.tier == "S+" }
@@ -947,50 +967,184 @@ private fun TierListTab(
             }
         }
 
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Sorting Selector (Por Tier, Win Rate, Pick Rate, Ban Rate)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                text = tr("Ordenar:"),
+                color = HextechGoldLight,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+            TierSortOption.entries.forEach { sortOpt ->
+                val isSelected = selectedSort == sortOpt
+                FilterChip(
+                    selected = isSelected,
+                    onClick = { selectedSort = sortOpt },
+                    label = { Text(tr(sortOpt.shortLabel), fontSize = 10.5.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechGold,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            // Tier S+
-            if (tierSPlus.isNotEmpty()) {
+        if (selectedSort == TierSortOption.BY_TIER) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                // Tier S+
+                if (tierSPlus.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
+                            tierColor = TierSPlusColor,
+                            champions = tierSPlus,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+
+                // Tier S
+                if (tierS.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER S (Meta Muy Fuerte / Alta Prioridad)",
+                            tierColor = TierSColor,
+                            champions = tierS,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+
+                // Tier A
+                if (tierA.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER A (Opciones Sólidas y Balanceadas)",
+                            tierColor = TierAColor,
+                            champions = tierA,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+
                 item {
-                    TierSectionCard(
-                        tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
-                        tierColor = TierSPlusColor,
-                        champions = tierSPlus,
-                        onSelectChampion = onSelectChampion
-                    )
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
             }
-
-            // Tier S
-            if (tierS.isNotEmpty()) {
+        } else {
+            // Sorted Ranked List by Win Rate, Pick Rate, or Ban Rate
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 item {
-                    TierSectionCard(
-                        tierName = "TIER S",
-                        tierColor = TierSColor,
-                        champions = tierS,
-                        onSelectChampion = onSelectChampion
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${tr("Clasificación por")} ${tr(selectedSort.displayName)} (${championsToDisplay.size})",
+                            color = HextechGold,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
-            }
 
-            // Tier A
-            if (tierA.isNotEmpty()) {
+                itemsIndexed(championsToDisplay) { index, champ ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable { onSelectChampion(champ) },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            when {
+                                index == 0 -> HextechGold
+                                index < 3 -> HextechCyan
+                                else -> HextechCardBorder
+                            }
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Rank Badge
+                                Box(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            when (index) {
+                                                0 -> HextechGold
+                                                1 -> HextechCyan
+                                                2 -> Color(0xFFCD7F32)
+                                                else -> HextechSurfaceVariant
+                                            }
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "${index + 1}",
+                                        color = if (index < 3) HextechDarkBg else TextMuted,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                ChampionAvatar(champion = champ, size = 44.dp, showTierBadge = true)
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(
+                                        text = "${com.example.util.tr(champ.primaryRole.shortName)} • ${com.example.util.tr(champ.damageType.displayName)}",
+                                        color = HextechCyan,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+
+                            Column(horizontalAlignment = Alignment.End) {
+                                when (selectedSort) {
+                                    TierSortOption.WIN_RATE -> {
+                                        Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("Pick: ${champ.pickRate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
+                                    }
+                                    TierSortOption.PICK_RATE -> {
+                                        Text("Pick: ${champ.pickRate}%", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("WR: ${champ.winrate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
+                                    }
+                                    TierSortOption.BAN_RATE -> {
+                                        Text("Ban: ${champ.banRate}%", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("WR: ${champ.winrate}% • Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.sp)
+                                    }
+                                    else -> {}
+                                }
+                            }
+                        }
+                    }
+                }
+
                 item {
-                    TierSectionCard(
-                        tierName = "TIER A (Opciones Sólidas y Balanceadas)",
-                        tierColor = TierAColor,
-                        champions = tierA,
-                        onSelectChampion = onSelectChampion
-                    )
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(30.dp))
             }
         }
     }
@@ -1068,7 +1222,7 @@ private fun TierSectionCard(
                                     )
                                     Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                                 }
-                                Text("Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.5.sp)
+                                Text("Pick: ${champ.pickRate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
                             }
                             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
                         }
@@ -1424,7 +1578,7 @@ private fun ItemsCatalogTab() {
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(
+                        FormattedWildRiftText(
                             text = tr(item.passive),
                             color = TextMuted,
                             fontSize = 12.sp,
@@ -1548,7 +1702,14 @@ private fun ItemListCard(
                 }
                 if (item.passive.isNotBlank()) {
                     Spacer(modifier = Modifier.height(3.dp))
-                    Text(tr(item.passive), color = TextMuted, fontSize = 11.5.sp, lineHeight = 15.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                    FormattedWildRiftText(
+                        text = tr(item.passive),
+                        color = TextMuted,
+                        fontSize = 11.5.sp,
+                        lineHeight = 15.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
@@ -1851,7 +2012,12 @@ private fun RunesTab() {
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(rune.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                                FormattedWildRiftText(
+                                    text = rune.description,
+                                    color = TextPrimary.copy(alpha = 0.9f),
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
                             }
                         }
                     }
@@ -1906,7 +2072,7 @@ private fun RunesTab() {
                             .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                             .padding(10.dp)
                     ) {
-                        Text(
+                        FormattedWildRiftText(
                             text = rune.description,
                             color = TextPrimary,
                             fontSize = 13.sp,
@@ -2202,7 +2368,12 @@ private fun SpellsTab() {
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(spell.description, color = TextPrimary.copy(alpha = 0.9f), fontSize = 12.sp, lineHeight = 16.sp)
+                                FormattedWildRiftText(
+                                    text = spell.description,
+                                    color = TextPrimary.copy(alpha = 0.9f),
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
                             }
                         }
                     }
@@ -2257,7 +2428,7 @@ private fun SpellsTab() {
                             .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                             .padding(10.dp)
                     ) {
-                        Text(
+                        FormattedWildRiftText(
                             text = spell.description,
                             color = TextPrimary,
                             fontSize = 13.sp,

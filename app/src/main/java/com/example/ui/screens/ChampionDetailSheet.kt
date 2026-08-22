@@ -55,6 +55,7 @@ import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.FormattedWildRiftText
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -378,7 +379,12 @@ fun ChampionDetailSheet(
                     val fullAnalysis = remember(champion.id, currentLang, selectedRole) {
                         CoachingGenerator.generateTacticalAnalysis(champion, selectedRole, currentLang)
                     }
-                    Text(fullAnalysis, color = TextPrimary, fontSize = 13.sp, lineHeight = 18.sp)
+                    FormattedWildRiftText(
+                        text = fullAnalysis,
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp
+                    )
                 }
             }
 
@@ -446,7 +452,7 @@ fun ChampionDetailSheet(
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
-                                    Text(
+                                    FormattedWildRiftText(
                                         text = skill.description,
                                         color = TextPrimary.copy(alpha = 0.9f),
                                         fontSize = 12.sp,
@@ -957,7 +963,7 @@ fun ChampionDetailSheet(
                             fontSize = 13.sp
                         )
                         Spacer(modifier = Modifier.height(3.dp))
-                        Text(
+                        FormattedWildRiftText(
                             text = advice.purpose,
                             color = TextPrimary,
                             fontSize = 12.5.sp,
@@ -1006,7 +1012,7 @@ fun ChampionDetailSheet(
                             fontSize = 13.sp
                         )
                         Spacer(modifier = Modifier.height(3.dp))
-                        Text(
+                        FormattedWildRiftText(
                             text = advice.keyEffect,
                             color = TextPrimary.copy(alpha = 0.9f),
                             fontSize = 12.sp,

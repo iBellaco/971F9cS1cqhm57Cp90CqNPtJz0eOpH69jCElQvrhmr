@@ -200,21 +200,21 @@ object WildRiftSpellsAndRunes {
             name = "Electrocutar",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
-            description = "Golpear a un campeón con 3 ataques o habilidades individuales en 3 s inflige daño adaptable adicional.\nDaño: 35-189 + 40% adicional DA + 25% PH.\nEnfriamiento: 20 s."
+            description = "En 3 s, golpea a un mismo campeón enemigo con 3 ataques básicos o habilidades para infligirle daño adaptable adicional.\nDaño: 40-210 (🔺) + 10% adicional DA + 5% PH.\nEnfriamiento: 20-13 s (🔺)."
         ),
         RuneItem(
             id = "dark_harvest",
             name = "Cosecha Oscura",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/darkharvest/darkharvest.png",
-            description = "Al infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\n(20 s de enfriamiento. Se reinicia a 1 s con asesinatos o asistencias)."
+            description = "Al infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\nEnfriamiento: 20 s (Se reinicia a 1 s con asesinatos o asistencias)."
         ),
         RuneItem(
             id = "empowerment",
             name = "Fortalecimiento",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
-            description = "Al asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165. Enfriamiento: 4 s.\nLa amplificación de daño solo surtirá efecto contra campeones."
+            description = "Al asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165 (🔺).\nEnfriamiento: 4 s.\nLa amplificación de daño solo surtirá efecto contra campeones."
         ),
         RuneItem(
             id = "lethal_tempo",
@@ -228,7 +228,7 @@ object WildRiftSpellsAndRunes {
             name = "Pies Veloces",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
-            description = "Moverse, atacar y utilizar habilidades generan acumulaciones de energía. Con 100 acumulaciones, tu siguiente ataque obtiene velocidad de ataque, te cura y te otorga velocidad de movimiento adicional. Si el ataque tiene como objetivo a un campeón, también restaura maná o energía.\nVelocidad de ataque adicional: 40%.\nVida restaurada: 15-110 + 15% adicional DA + 10% PH.\nVelocidad de movimiento adicional: 20% durante 1 s.\nAl atacar a un campeón, restaura un 8% del maná que falte o un 8% de la energía que falte.\nAl atacar a súbditos o monstruos, restaura un 35% (cuerpo a cuerpo) o un 15% (a distancia) de la curación original."
+            description = "Moverse, atacar y utilizar habilidades generan acumulaciones de energía. Con 100 acumulaciones, tu siguiente ataque obtiene velocidad de ataque, te cura y te otorga velocidad de movimiento adicional. Si el ataque tiene como objetivo a un campeón, también restaura maná o energía.\nVelocidad de ataque adicional: 40%.\nVida restaurada: 15-110 (🔺) + 15% adicional DA + 10% PH.\nVelocidad de movimiento adicional: 20% durante 1 s.\nAl atacar a un campeón, restaura un 8% del maná que falte o un 8% de la energía que falte.\nAl atacar a súbditos o monstruos, restaura un 35% (campeones cuerpo a cuerpo) o un 15% (campeones a distancia) de la curación original."
         ),
         RuneItem(
             id = "conqueror",
@@ -249,42 +249,42 @@ object WildRiftSpellsAndRunes {
             name = "Guardián",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/guardian/guardian.png",
-            description = "Protege a los aliados que se encuentren a 350 unidades de ti y a los aliados que sean objetivos de tus habilidades durante 2,5 s. Si a lo largo de su duración tu aliado o tú recibís más que una pequeña cantidad de daño, ambos obtenéis un escudo durante 1,5 s.\nEnfriamiento: 55-25 s.\nEscudo: 40-165 + 6% adicional de vida + 15% PH.\nUmbral de daño: 70-240 de daño recibido."
+            description = "Protege a los aliados que se encuentren a 350 unidades de ti y a los aliados que sean objetivos de tus habilidades durante 2,5 s. Si a lo largo de su duración tu aliado o tú recibís más que una pequeña cantidad de daño, ambos obtenéis un escudo durante 1,5 s.\nEnfriamiento: 55-25 s (🔺).\nEscudo: 40-165 (🔺) + 6% de vida adicional + 15% PH.\nUmbral de daño: 70-240 de daño recibido (🔺)."
         ),
         RuneItem(
             id = "aery",
             name = "Aery",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
-            description = "Tus ataques y habilidades envían a Aery a un objetivo para dañar a los enemigos u otorgar un escudo a los aliados.\nDaño: 15 - 70 + 10% adicional DA + 5% PH.\nEscudo: 25 - 120 + 10% adicional DA + 5% PH.\nNo se puede enviar a Aery de nuevo hasta que vuelva a ti."
+            description = "Tus ataques y habilidades envían a Aery a un objetivo para dañar a los enemigos u otorgar un escudo a los aliados.\nDaño: 15 - 70 (🔺) + 10% adicional DA + 5% PH.\nEscudo: 25 - 120 (🔺) + 10% adicional DA + 5% PH.\nNo se puede enviar a Aery de nuevo hasta que vuelva a ti."
         ),
         RuneItem(
             id = "arcane_comet",
             name = "Cometa Arcano",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
-            description = "Infligir daño con una habilidad a un campeón proyecta un cometa hacia su ubicación. Cuando un cometa golpea a un campeón enemigo, aumenta el daño del siguiente.\nDaño: (15 a 100) + (2 × golpes totales a campeones enemigos) + 10% adicional DA + 5% PH.\nEnfriamiento: 16-8 s."
+            description = "Infligir daño con una habilidad a un campeón proyecta un cometa hacia su ubicación. Cuando un cometa golpea a un campeón enemigo, aumenta el daño del siguiente.\nDaño: (15 a 100) + (2 × golpes totales a campeones enemigos) + 10% adicional DA + 5% PH.\nEnfriamiento: 16-8 s (🔺)."
         ),
         RuneItem(
             id = "phase_rush",
             name = "Irrupción de Fase",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/stormraiderssurgeruneicon2.png",
-            description = "Golpear a un campeón enemigo con ataques básicos o habilidades 3 veces en 4 s otorga velocidad de movimiento y velocidad de habilidades básicas, y reduce el enfriamiento restante de las habilidades básicas en un 20%.\nDuración: 3 s.\nVelocidad de movimiento: 40%-60% para los campeones cuerpo a cuerpo; 20%-35% para los campeones a distancia.\nVelocidad de habilidades básicas: 10.\nEnfriamiento: 21-7 s."
+            description = "Golpear a un campeón enemigo con ataques básicos o habilidades 3 veces en 4 s otorga velocidad de movimiento y velocidad de habilidades básicas, y reduce el enfriamiento restante de las habilidades básicas en un 20%.\nDuración: 3 s.\nVelocidad de movimiento: 40%-60% (🔺) para los campeones cuerpo a cuerpo; 20%-35% (🔺) para los campeones a distancia.\nVelocidad de habilidades básicas: 10.\nEnfriamiento: 21-7 s (🔺)."
         ),
         RuneItem(
             id = "first_strike",
             name = "Primer Golpe",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
-            description = "Iniciar un combate contra un campeón enemigo o infligirle daño durante los 0,25 s después de entrar en combate contra él te otorga 10 de oro y el efecto de Primer golpe durante 3 s, lo que te permite infligirle un 7% de daño verdadero adicional. Cuando el efecto desaparece, obtienes oro según el daño adicional infligido durante la duración del mismo.\nSi no infliges daño al campeón enemigo durante los 0,25 s después de entrar en combate contra él, Primer golpe entrará en enfriamiento durante 10 s.\nOro adicional: Cuerpo a cuerpo: 60% de daño adicional. A distancia: 45% de daño adicional.\nEnfriamiento: 20-13 s."
+            description = "Iniciar un combate contra un campeón enemigo o infligirle daño durante los 0,25 s después de entrar en combate contra él te otorga 10 de oro y el efecto de Primer golpe durante 3 s, lo que te permite infligirle un 7% de daño verdadero adicional. Cuando el efecto desaparece, obtienes oro según el daño adicional infligido durante la duración del mismo.\nSi no infliges daño al campeón enemigo durante los 0,25 s después de entrar en combate contra él, Primer golpe entrará en enfriamiento durante 10 s.\nOro adicional: Cuerpo a cuerpo: 60% de daño adicional | A distancia: 45% de daño adicional.\nEnfriamiento: 20-13 s (🔺)."
         ),
         RuneItem(
             id = "glacial_augment",
             name = "Soberano Gélido",
             category = "Runa Clave",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
-            description = "Al inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales. Dura 2,5 s.\nDaño mágico: 15–100 + 5% vida adicional.\nEnfriamiento: 20 s."
+            description = "Al inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales (Dura 2,5 s).\nDaño mágico: 15–100 (🔺) + 5% de vida adicional.\nEnfriamiento: 20 s."
         ),
 
         // =========================================================================
