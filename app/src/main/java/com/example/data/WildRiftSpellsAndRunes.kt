@@ -15,6 +15,26 @@ object WildRiftSpellsAndRunes {
     const val SPELL_MARK = "https://static.wikia.nocookie.net/leagueoflegends/images/5/55/Marca.png/revision/latest?cb=20150802150053&path-prefix=es"
     const val SPELL_TELEPORT = "https://wr-meta.com/uploads/posts/2025-07/1753389748_teleport-enchant.webp"
 
+    fun getRuneDrawableRes(nameOrId: String): Int? {
+        val clean = nameOrId.trim().lowercase()
+        return when {
+            clean.contains("electrocut") -> com.example.R.drawable.ic_wr_rune_electrocute
+            clean.contains("cosecha") || clean.contains("harvest") -> com.example.R.drawable.ic_wr_rune_dark_harvest
+            clean.contains("fortalecimiento") || clean.contains("empower") || clean.contains("press the attack") || clean.contains("krakens") -> com.example.R.drawable.ic_wr_rune_empowerment
+            clean.contains("compás") || clean.contains("compas") || clean.contains("lethal tempo") || clean.contains("cadencia") -> com.example.R.drawable.ic_wr_rune_lethal_tempo
+            clean.contains("pies veloces") || clean.contains("fleet") || clean.contains("marcha") -> com.example.R.drawable.ic_wr_rune_fleet_footwork
+            clean.contains("conquistador") || clean.contains("conqueror") -> com.example.R.drawable.ic_wr_rune_conqueror
+            clean.contains("garras") || clean.contains("inmortal") || clean.contains("grasp") -> com.example.R.drawable.ic_wr_rune_grasp
+            clean.contains("guardián") || clean.contains("guardian") -> com.example.R.drawable.ic_wr_rune_guardian
+            clean.contains("aery") -> com.example.R.drawable.ic_wr_rune_aery
+            clean.contains("cometa") || clean.contains("comet") -> com.example.R.drawable.ic_wr_rune_arcane_comet
+            clean.contains("fase") || clean.contains("phase rush") || clean.contains("irrupción") || clean.contains("irrupcion") -> com.example.R.drawable.ic_wr_rune_phase_rush
+            clean.contains("primer golpe") || clean.contains("first strike") -> com.example.R.drawable.ic_wr_rune_first_strike
+            clean.contains("soberano") || clean.contains("gélido") || clean.contains("gelido") || clean.contains("glacial") -> com.example.R.drawable.ic_wr_rune_glacial_augment
+            else -> null
+        }
+    }
+
     fun getSpellIconByName(name: String): String {
         return when (name.trim().lowercase()) {
             "destello", "flash" -> SPELL_FLASH

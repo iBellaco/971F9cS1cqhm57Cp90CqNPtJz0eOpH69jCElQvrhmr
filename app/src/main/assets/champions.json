@@ -1217,7 +1217,7 @@
   },
   {
     "id": "bard",
-    "name": "Bard",
+    "name": "Bardo",
     "title": "El Guardián Errante",
     "ddragonId": "Bard",
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Bard.png",
@@ -1244,7 +1244,7 @@
       "Malphite",
       "Lulu"
     ],
-    "tacticalAdvice": "Aprovecha el escalado y combos de Bard en SUPPORT. Coordina el uso de su Destino maleable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+    "tacticalAdvice": "Aprovecha el escalado y combos de Bardo en SUPPORT. Coordina el uso de su Destino maleable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Invocación: Aery (Brujería)",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -4759,7 +4759,7 @@
     "advantageAgainst": [
       "Sion",
       "Lux",
-      "Master Yi"
+      "Maestro Yi"
     ],
     "counteredBy": [
       "Fiora",
@@ -4853,7 +4853,7 @@
   },
   {
     "id": "k_sante",
-    "name": "K'Santé",
+    "name": "K'Sante",
     "title": "el Orgullo de Nazumah",
     "ddragonId": "KSante",
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/KSante.png",
@@ -4880,7 +4880,7 @@
       "Malphite",
       "Lulu"
     ],
-    "tacticalAdvice": "Aprovecha el escalado y combos de K'Santé en TOP. Coordina el uso de su Órdago para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+    "tacticalAdvice": "Aprovecha el escalado y combos de K'Sante en TOP. Coordina el uso de su Órdago para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
     "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -6846,7 +6846,7 @@
     "advantageAgainst": [
       "Sion",
       "Jinx",
-      "Master Yi"
+      "Maestro Yi"
     ],
     "counteredBy": [
       "Fiora",
@@ -7164,7 +7164,7 @@
   },
   {
     "id": "master_yi",
-    "name": "Master Yi",
+    "name": "Maestro Yi",
     "title": "El Espadachín Wuju",
     "ddragonId": "MasterYi",
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/MasterYi.png",
@@ -7191,7 +7191,7 @@
       "Malphite",
       "Lulu"
     ],
-    "tacticalAdvice": "Aprovecha el escalado y combos de Master Yi en JUNGLE. Coordina el uso de su Imparable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+    "tacticalAdvice": "Aprovecha el escalado y combos de Maestro Yi en JUNGLE. Coordina el uso de su Imparable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
     "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -8595,7 +8595,7 @@
   },
   {
     "id": "nunu_willump",
-    "name": "Nunu & Willump",
+    "name": "Nunu y Willump",
     "title": "Un Niño y su Yeti",
     "ddragonId": "Nunu",
     "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Nunu.png",
@@ -8622,7 +8622,7 @@
       "Malphite",
       "Lulu"
     ],
-    "tacticalAdvice": "Aprovecha el escalado y combos de Nunu & Willump en JUNGLE. Coordina el uso de su Cero absoluto para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+    "tacticalAdvice": "Aprovecha el escalado y combos de Nunu y Willump en JUNGLE. Coordina el uso de su Cero absoluto para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Reverberacción (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
@@ -11037,7 +11037,7 @@
     "advantageAgainst": [
       "Jinx",
       "Lux",
-      "Master Yi"
+      "Maestro Yi"
     ],
     "counteredBy": [
       "Fiora",

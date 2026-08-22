@@ -247,7 +247,7 @@ object ChampionRoleAdapter {
 
         // 6. Matchups & synergies
         val flexAdvantage = when (role) {
-            LaneRole.JUNGLE -> listOf("Master Yi", "Amumu", "Shyvana", "Evelynn")
+            LaneRole.JUNGLE -> listOf("Maestro Yi", "Amumu", "Shyvana", "Evelynn")
             LaneRole.SUPPORT -> listOf("Leona", "Nautilus", "Blitzcrank", "Pyke")
             LaneRole.TOP -> listOf("Sion", "Nasus", "Malphite", "Garen")
             LaneRole.MID -> listOf("Kassadin", "Veigar", "Ziggs", "Twisted Fate")
@@ -263,7 +263,7 @@ object ChampionRoleAdapter {
         val flexSynergies = when (role) {
             LaneRole.JUNGLE -> listOf("Yasuo", "Orianna", "Galio", "Malphite")
             LaneRole.SUPPORT -> listOf("Samira", "Kai'Sa", "Tristana", "Yasuo")
-            LaneRole.TOP -> listOf("Jarvan IV", "Vi", "Orianna", "Sejuani")
+            LaneRole.TOP -> listOf("Jarvan IV", "Vi", "Orianna", "Amumu")
             LaneRole.MID -> listOf("Lee Sin", "Malphite", "Wukong", "Amumu")
             LaneRole.ADC -> listOf("Nautilus", "Thresh", "Lulu", "Leona")
         }
@@ -423,7 +423,7 @@ object ChampionRoleAdapter {
                     altItemIcon = WildRiftItemsData.getItemIconByName("Malla de Espinas"),
                     reasonTitle = "ARMADURA & ANTI-CURACIÓN",
                     reasonDesc = "Corta el sustain enemigo y resiste composiciones de alto daño físico.",
-                    againstWho = "Aatrox, Warwick, Master Yi, Samira"
+                    againstWho = "Aatrox, Warwick, Maestro Yi, Samira"
                 )
             )
         }

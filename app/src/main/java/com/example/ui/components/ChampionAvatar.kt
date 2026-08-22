@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -179,6 +180,9 @@ fun AppAssetImage(
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(8.dp)
 ) {
     val context = LocalContext.current
+    val runeDrawableRes = com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(contentDescription ?: "")
+        ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(fallbackText)
+        ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url)
 
     Box(
         modifier = modifier
@@ -187,7 +191,16 @@ fun AppAssetImage(
             .border(1.dp, borderColor, shape),
         contentAlignment = Alignment.Center
     ) {
-        if (url.isNotBlank()) {
+        if (runeDrawableRes != null) {
+            Image(
+                painter = androidx.compose.ui.res.painterResource(id = runeDrawableRes),
+                contentDescription = contentDescription ?: fallbackText,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape)
+            )
+        } else if (url.isNotBlank()) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(url)

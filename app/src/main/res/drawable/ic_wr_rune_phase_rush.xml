@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer Glow Circle -->
+    <path
+        android:fillColor="#335E5CE6"
+        android:pathData="M32,32m-30,0a30,30 0,1,1 60,0a30,30 0,1,1 -60,0" />
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#0D1024"
+        android:strokeColor="#5E5CE6"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-27,0a27,27 0,1,1 54,0a27,27 0,1,1 -54,0" />
+    <!-- Phase Rush Wing Back Magenta -->
+    <path
+        android:fillColor="#FF2D55"
+        android:pathData="M16,42 C20,32 30,22 46,14 C48,22 42,36 34,44 C26,50 18,48 16,42 Z" />
+    <!-- Middle Wing Electric Violet -->
+    <path
+        android:fillColor="#BF5AF2"
+        android:pathData="M20,40 C24,32 32,24 44,18 C45,24 40,36 34,42 C28,46 22,44 20,40 Z" />
+    <!-- Front Wing Cyan/Azure Speed -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M24,38 C28,32 34,26 42,22 C43,26 39,36 34,40 C30,42 26,40 24,38 Z" />
+    <!-- Wing White Blade Edge -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,36 C32,32 36,28 42,25 C40,29 36,36 32,38 Z" />
+</vector>

@@ -1,0 +1,31 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer Glow Circle -->
+    <path
+        android:fillColor="#33FF3B30"
+        android:pathData="M32,32m-30,0a30,30 0,1,1 60,0a30,30 0,1,1 -60,0" />
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#1A0D0D"
+        android:strokeColor="#FF453A"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-27,0a27,27 0,1,1 54,0a27,27 0,1,1 -54,0" />
+    <!-- Inner Red Flame Aura -->
+    <path
+        android:fillColor="#CCFF2D55"
+        android:pathData="M24,48 C20,40 22,30 26,24 C28,30 32,34 32,40 C32,44 30,48 24,48 Z" />
+    <path
+        android:fillColor="#CCFF3B30"
+        android:pathData="M40,48 C44,40 42,30 38,24 C36,30 32,34 32,40 C32,44 34,48 40,48 Z" />
+    <!-- Electrocute Lightning Bolt Center -->
+    <path
+        android:fillColor="#FFE600"
+        android:pathData="M36,12 L22,33 L31,33 L27,52 L43,28 L33,28 Z" />
+    <!-- Inner Hot White Core -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,18 L26,32 L31,32 L29,44 L39,29 L33,29 Z" />
+</vector>

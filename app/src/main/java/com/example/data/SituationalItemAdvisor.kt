@@ -20,7 +20,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
             categoryName = "Anti-Curación & Armadura",
             purpose = "Mitiga curaciones y robo de vida de atacantes físicos continuos mientras refleja daño mágico.",
-            bestAgainst = listOf("Aatrox", "Warwick", "Master Yi", "Tryndamere", "Jinx", "Yone", "Olaf", "Irelia"),
+            bestAgainst = listOf("Aatrox", "Warwick", "Maestro Yi", "Tryndamere", "Jinx", "Yone", "Olaf", "Irelia"),
             keyEffect = "Aplica 40% de Heridas Graves al recibir ataques de los rivales e inmovilizarlos.",
             recommendationTip = "Cómpralo si el equipo rival tiene 2 o más campeones basados en robo de vida o duelistas AD."
         ),
@@ -38,7 +38,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png",
             categoryName = "Anti-Curación AP",
             purpose = "Aplica reducción de sanación a múltiples enemigos simultáneamente con daño mágico en área.",
-            bestAgainst = listOf("Vladimir", "Soraka", "Swain", "Warwick", "Yuumi", "Samira", "Sylas"),
+            bestAgainst = listOf("Vladimir", "Soraka", "Swain", "Warwick", "Yuumi", "Samira", "Ekko"),
             keyEffect = "Insignia Maldita: Infligir daño mágico aplica 40% de Heridas Graves por 3 segundos.",
             recommendationTip = "Imprescindible para magos de poke o daño en área (Ziggs, Brand, Lux, Morgana) frente a healers."
         ),
@@ -47,7 +47,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6695.png",
             categoryName = "Anti-Escudos (Letalidad)",
             purpose = "Destruye y reduce drásticamente la potencia de los escudos defensivos enemigos.",
-            bestAgainst = listOf("Sett", "Karma", "Lulu", "Shen", "Janna", "Tahm Kench", "Sion", "Lux", "Riven"),
+            bestAgainst = listOf("Sett", "Karma", "Lulu", "Shen", "Janna", "Braum", "Sion", "Lux", "Riven"),
             keyEffect = "Destructor de Escudos: Reduce la ganancia de escudos en 50% (35% a distancia) y drena escudos activos.",
             recommendationTip = "Compra obligatoria contra composiciones 'Proteger al Carry' con soportes de escudos dobles o Sterak."
         ),
@@ -65,7 +65,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png",
             categoryName = "Anti-Daño Mágico Continuo",
             purpose = "Otorga la máxima resistencia mágica y reducción porcentual frente a magos de daño en el tiempo.",
-            bestAgainst = listOf("Brand", "Cassiopeia", "Aurelion Sol", "Teemo", "Gwen", "Katarina", "Kassadin", "Lillia"),
+            bestAgainst = listOf("Brand", "Swain", "Aurelion Sol", "Teemo", "Gwen", "Katarina", "Kassadin", "Lillia"),
             keyEffect = "Absorción: Acumula stacks al recibir daño mágico hasta otorgar 25% de reducción de daño mágico.",
             recommendationTip = "Cómpralo cuando los rivales tengan 2 o más fuentes de daño AP continuo o quemaduras."
         ),
@@ -146,7 +146,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3110.png",
             categoryName = "Aura Reductora de Ataque",
             purpose = "Reduce de forma pasiva continua la velocidad de ataque de todos los enemigos en un radio cercano.",
-            bestAgainst = listOf("Master Yi", "Jinx", "Tryndamere", "Tristana", "Bel'Veth", "Vayne", "Kai'Sa"),
+            bestAgainst = listOf("Maestro Yi", "Jinx", "Tryndamere", "Tristana", "Maestro Yi", "Vayne", "Kai'Sa"),
             keyEffect = "Aura Helada: Reduce la velocidad de ataque de los enemigos cercanos en un 20%.",
             recommendationTip = "Fantástico en tanques de primera línea cuando los rivales dependen de acumular autoataques."
         ),
@@ -209,7 +209,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp",
             categoryName = "Anti-Escudos para Magos (AP)",
             purpose = "Destruye y reduce los escudos enemigos al infligir daño mágico con habilidades de área o impacto individual.",
-            bestAgainst = listOf("Karma", "Lulu", "Sett", "Shen", "Janna", "Lux", "Tahm Kench"),
+            bestAgainst = listOf("Karma", "Lulu", "Sett", "Shen", "Janna", "Lux", "Braum"),
             keyEffect = "Arma Letal: Reduce la potencia de los escudos enemigos hasta un 60% (45% en área).",
             recommendationTip = "Imprescindible para magos cuando el rival cuenta con soportes de escudos o Sterak/Arcoescudo."
         ),
@@ -227,7 +227,7 @@ object SituationalItemAdvisor {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp",
             categoryName = "Purificación de CC para Carries AD",
             purpose = "Elimina todo el control de masas inmediatamente y otorga tenacidad para reposicionarse.",
-            bestAgainst = listOf("Malzahar", "Skarner", "Warwick", "Ashe", "Leona", "Twisted Fate"),
+            bestAgainst = listOf("Veigar", "Skarner", "Warwick", "Ashe", "Leona", "Twisted Fate"),
             keyEffect = "Fajín de Mercurio: Limpia todo el CC activo y otorga 30% de tenacidad durante 1.5s.",
             recommendationTip = "Indispensable para tiradores cuando el rival tiene aturdimientos o supresiones directas."
         )

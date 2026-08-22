@@ -1,0 +1,37 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer Glow Circle -->
+    <path
+        android:fillColor="#33FFD60A"
+        android:pathData="M32,32m-30,0a30,30 0,1,1 60,0a30,30 0,1,1 -60,0" />
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#1C180E"
+        android:strokeColor="#FFD60A"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-27,0a27,27 0,1,1 54,0a27,27 0,1,1 -54,0" />
+    <!-- Sun Ring Outer Spikes -->
+    <path
+        android:fillColor="#FFD60A"
+        android:pathData="M32,12 L34,18 L32,20 L30,18 Z M32,52 L34,46 L32,44 L30,46 Z M12,32 L18,34 L20,32 L18,30 Z M52,32 L46,34 L44,32 L46,30 Z" />
+    <!-- Diagonal Spikes -->
+    <path
+        android:fillColor="#FF9F0A"
+        android:pathData="M18,18 L23,21 L22,23 L19,22 Z M46,18 L45,22 L42,23 L41,21 Z M18,46 L22,45 L23,42 L21,41 Z M46,46 L41,45 L42,42 L45,41 Z" />
+    <!-- Middle Sun Wheel Ring -->
+    <path
+        android:strokeColor="#FFD60A"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-13,0a13,13 0,1,1 26,0a13,13 0,1,1 -26,0" />
+    <!-- Center Core Eye / Glow -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,32m-5,0a5,5 0,1,1 10,0a5,5 0,1,1 -10,0" />
+    <!-- Tri-Spike Focus -->
+    <path
+        android:fillColor="#FFE600"
+        android:pathData="M32,22 L34,30 L30,30 Z M22,37 L29,32 L27,36 Z M42,37 L37,36 L35,32 Z" />
+</vector>

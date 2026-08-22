@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer Glow Circle -->
+    <path
+        android:fillColor="#335E5CE6"
+        android:pathData="M32,32m-30,0a30,30 0,1,1 60,0a30,30 0,1,1 -60,0" />
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#0D1024"
+        android:strokeColor="#706BF5"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-27,0a27,27 0,1,1 54,0a27,27 0,1,1 -54,0" />
+    <!-- Comet Plasma Trail Violet -->
+    <path
+        android:fillColor="#AF52DE"
+        android:pathData="M24,14 C20,20 20,28 26,30 C32,32 40,24 38,16 C34,12 28,12 24,14 Z" />
+    <path
+        android:fillColor="#5856D6"
+        android:pathData="M38,16 C46,24 44,36 38,44 C32,50 20,48 18,38 C16,28 26,20 38,16 Z" />
+    <!-- Comet Core Cyan/Blue -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M32,38m-11,0a11,11 0,1,1 22,0a11,11 0,1,1 -22,0" />
+    <!-- Hot Core White / Arcane Fire -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,38m-6,0a6,6 0,1,1 12,0a6,6 0,1,1 -12,0" />
+    <!-- Starlight Glint -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,24 L34,29 L39,31 L34,33 L32,38 L30,33 L25,31 L30,29 Z" />
+</vector>

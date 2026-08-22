@@ -551,7 +551,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bard",
+    "championName": "Bardo",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Llamada del viajero",
@@ -561,7 +561,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bard",
+    "championName": "Bardo",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Cadenas cósmicas",
@@ -571,7 +571,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bard",
+    "championName": "Bardo",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "Santuario del protector",
@@ -581,7 +581,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bard",
+    "championName": "Bardo",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Periplo mágico",
@@ -591,7 +591,7 @@
   },
   {
     "championId": "bard",
-    "championName": "Bard",
+    "championName": "Bardo",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Destino maleable",
@@ -2201,7 +2201,7 @@
   },
   {
     "championId": "k_sante",
-    "championName": "K'Santé",
+    "championName": "K'Sante",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Instinto intrépido",
@@ -2211,7 +2211,7 @@
   },
   {
     "championId": "k_sante",
-    "championName": "K'Santé",
+    "championName": "K'Sante",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Golpes de ntofo",
@@ -2221,7 +2221,7 @@
   },
   {
     "championId": "k_sante",
-    "championName": "K'Santé",
+    "championName": "K'Sante",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "Pionero",
@@ -2231,7 +2231,7 @@
   },
   {
     "championId": "k_sante",
-    "championName": "K'Santé",
+    "championName": "K'Sante",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Juego de pies",
@@ -2241,7 +2241,7 @@
   },
   {
     "championId": "k_sante",
-    "championName": "K'Santé",
+    "championName": "K'Sante",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Órdago",
@@ -3251,7 +3251,7 @@
   },
   {
     "championId": "master_yi",
-    "championName": "Master Yi",
+    "championName": "Maestro Yi",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Golpe doble",
@@ -3261,7 +3261,7 @@
   },
   {
     "championId": "master_yi",
-    "championName": "Master Yi",
+    "championName": "Maestro Yi",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Golpe fulgurante",
@@ -3271,7 +3271,7 @@
   },
   {
     "championId": "master_yi",
-    "championName": "Master Yi",
+    "championName": "Maestro Yi",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "Meditar",
@@ -3281,7 +3281,7 @@
   },
   {
     "championId": "master_yi",
-    "championName": "Master Yi",
+    "championName": "Maestro Yi",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Estilo Wuju",
@@ -3291,7 +3291,7 @@
   },
   {
     "championId": "master_yi",
-    "championName": "Master Yi",
+    "championName": "Maestro Yi",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Imparable",
@@ -3901,7 +3901,7 @@
   },
   {
     "championId": "nunu_willump",
-    "championName": "Nunu & Willump",
+    "championName": "Nunu y Willump",
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Llamada de Freljord",
@@ -3911,7 +3911,7 @@
   },
   {
     "championId": "nunu_willump",
-    "championName": "Nunu & Willump",
+    "championName": "Nunu y Willump",
     "slot": "1",
     "slotName": "Habilidad 1",
     "name": "Voracidad",
@@ -3921,7 +3921,7 @@
   },
   {
     "championId": "nunu_willump",
-    "championName": "Nunu & Willump",
+    "championName": "Nunu y Willump",
     "slot": "2",
     "slotName": "Habilidad 2",
     "name": "¡La bola más grande de la historia!",
@@ -3931,7 +3931,7 @@
   },
   {
     "championId": "nunu_willump",
-    "championName": "Nunu & Willump",
+    "championName": "Nunu y Willump",
     "slot": "3",
     "slotName": "Habilidad 3",
     "name": "Alud de bolas",
@@ -3941,7 +3941,7 @@
   },
   {
     "championId": "nunu_willump",
-    "championName": "Nunu & Willump",
+    "championName": "Nunu y Willump",
     "slot": "4",
     "slotName": "Definitiva",
     "name": "Cero absoluto",

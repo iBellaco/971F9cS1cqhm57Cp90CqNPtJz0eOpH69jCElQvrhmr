@@ -9,87 +9,6 @@ import com.example.model.ItemSwap
 object DragonLaneChampions {
     val list: List<Champion> = listOf(
         Champion(
-            id = "yunara",
-            name = "Yunara",
-            title = "La Trascendencia Híbrida",
-            ddragonId = "Yunara",
-            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yunara.png",
-            primaryRole = LaneRole.ADC,
-            secondaryRoles = listOf(LaneRole.MID),
-            tier = "S",
-            winrate = 52.02,
-            pickRate = 13.16,
-            banRate = 12.25,
-            damageType = DamageType.TRUE_HYBRID,
-            summary = "Yunara es una tiradora hipercarry híbrida que transforma sus golpes críticos en daño mágico adicional. Se vuelve imparable en juego tardío y su Trascendencia la convierte en una pesadilla para los tanques tradicionales.",
-            advantageAgainst = listOf("Vayne", "Ezreal", "Lucian"),
-            counteredBy = listOf("Draven", "Tristana", "Samira"),
-            synergies = listOf("Thresh", "Leona", "Nautilus"),
-            tacticalAdvice = "🔥 ÍTEMS OBLIGATORIOS (Core):\n1. Espadafuria de Guinsoo: Acelera drásticamente sus autoataques y mejora su perfil de daño híbrido.\n2. Huracán de Runaan: Permite que su daño mágico pasivo por golpes críticos barra con el equipo enemigo en peleas de equipo.\n3. Filo del Infinito: Al convertir probabilidad de crítico en daño mágico bruto a través de su pasiva (Promesa de las Tierras Originarias), este ítem es el pico de poder absoluto para derretir a cualquiera.\n\n🛡️ ÍTEMS SITUACIONALES (Por qué y Contra Quién):\n• Botas de Mercurio: Obligatorias contra composiciones con mucho CC (Leona, Nautilus) o asesinos AP (Evelynn, Akali) para evitar ser eliminada instantáneamente.\n• La Sanguinaria: Cómprala cuando no tengas una Yuumi/Soraka y necesites sobrevivir al desgaste o daño explosivo (ej. contra Zed, Rengar, Caitlyn).\n• Ángel Guardián: Ideal en el juego tardío contra asesinos que siempre te buscan (Kha'Zix, Talon), obligándolos a gastar todo su combo en ti sin lograr sacarte de la pelea.\n\n🤝 SINERGIAS CLAVE:\n• Yuumi/Lulu: Yunara necesita sobrevivir a su débil fase de líneas. Estos soportes la mantienen con vida y le otorgan velocidad de ataque (buffs de enchanters), permitiendo que escale hasta convertirse en el monstruo del 1v5 en juego medio/tardío.\n• Nami: El Mandato Imperial y la bendición de agua potencian de forma absurda los intercambios iniciales de Yunara.",
-            recommendedRunes = "Compás Letal (Precisión)",
-            runeTreeDetails = "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Revestimiento de Huesos",
-            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
-            recommendedSpells = listOf("Destello", "Fantasmal"),
-            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/a/ab/Ghost.png/revision/latest?cb=20180514003209"),
-            coreItems = listOf("Espadafuria de Guinsoo", "Huracán de Runaan", "Filo del Infinito", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3124.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3085.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
-            situationalItems = listOf("Botas de Mercurio", "La Sanguinaria", "Ángel Guardián"),
-            itemSwaps = listOf(
-ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
-ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
-),
-            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3111.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3072.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
-            skillOrder = "Habilidad 1 > Habilidad 3 > Habilidad 2 (Priorizar Definitiva)",
-            isRanged = true,
-            isFrontline = false,
-            wildRiftFireUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
-            wrMetaUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
-            wildRiftCoreUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
-            bestBuildWrUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
-            skills = listOf(
-                ChampionSkill(
-                    slot = "P",
-                    slotName = "Pasiva",
-                    name = "Promesa de las Tierras Originarias",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yunara.png",
-                    description = "Los golpes críticos de Yunara no infligen daño físico adicional, sino que se convierten en ráfagas de daño mágico verdadero en función de su probabilidad de impacto crítico.",
-                    cooldown = ""
-                ),
-                ChampionSkill(
-                    slot = "1",
-                    slotName = "Habilidad 1",
-                    name = "Cultivo de Espíritu",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraQ.png",
-                    description = "Dispara una onda de energía espiritual que daña a los enemigos en línea recta, otorgando velocidad de ataque adicional si golpea a un campeón.",
-                    cooldown = "6s"
-                ),
-                ChampionSkill(
-                    slot = "2",
-                    slotName = "Habilidad 2",
-                    name = "Arco del Juicio / Arco de la Ruina",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraW.png",
-                    description = "Yunara lanza un tajo circular curándose por un porcentaje del daño mágico infligido. Alterna entre dos tipos de arcos dependiendo de sus cargas pasivas.",
-                    cooldown = "10s"
-                ),
-                ChampionSkill(
-                    slot = "3",
-                    slotName = "Habilidad 3",
-                    name = "Pasos de Kanmei / Sombra Intocable",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraE.png",
-                    description = "Se desliza rápidamente en una dirección. Durante 1.5 segundos tras el deslizamiento, los ataques básicos que reciba tienen un porcentaje de fallar.",
-                    cooldown = "14s"
-                ),
-                ChampionSkill(
-                    slot = "4",
-                    slotName = "Definitiva",
-                    name = "Trascender a uno mismo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraR.png",
-                    description = "Yunara entra en Estado Trascendental durante 10 segundos, eliminando los costos de maná, aumentando su alcance y haciendo que sus ataques básicos reboten a enemigos cercanos.",
-                    cooldown = "80s"
-                )
-            )
-        ),
-        Champion(
             id = "ashe",
             name = "Ashe",
             title = "La Arquera de Hielo",
@@ -996,7 +915,7 @@ ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueofleg
             summary = "Nilah es una guerrera ascética proveniente de tierras lejanas que busca a los adversarios más mortíferos y gigantescos para poder desafiarlos y destruirlos. Tras obtener sus poderes en un encuentro con el demonio de la alegría, confinado desde hace una...",
             advantageAgainst = listOf("Samira", "Vayne", "Kai'Sa"),
             counteredBy = listOf("Caitlyn", "Ashe", "Xayah"),
-            synergies = listOf("Taric", "Rakan", "Soraka"),
+            synergies = listOf("Braum", "Rakan", "Soraka"),
             tacticalAdvice = "Aprovecha el escalado y combos de Nilah en ADC. Coordina el uso de su Apoteosis para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
             recommendedRunes = "Primer Golpe (Inspiración)",
             runeTreeDetails = "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
@@ -1141,87 +1060,6 @@ ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueofleg
             wrMetaUrl = "https://wr-meta.com/champion/samira/",
             wildRiftCoreUrl = "https://wildriftcore.com/es/champions/samira/",
             bestBuildWrUrl = "https://bestbuildwr.com/champion/samira"
-        ),
-        Champion(
-            id = "senna",
-            name = "Senna",
-            title = "la Redentora",
-            ddragonId = "Senna",
-            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Senna.png",
-            primaryRole = LaneRole.ADC,
-            secondaryRoles = listOf(LaneRole.SUPPORT),
-            tier = "B",
-            winrate = 52.46,
-            pickRate = 4.9,
-            banRate = 0.84,
-            damageType = DamageType.PHYSICAL,
-            summary = "Maldita desde que era apenas una niña y perseguida por la Niebla Negra, Senna se unió a una orden sagrada conocida como los Centinelas de la Luz y pasó años luchando sin descanso hasta que fue asesinada y encerrada en el interior de la linterna del...",
-            advantageAgainst = listOf("Leona", "Alistar", "Braum"),
-            counteredBy = listOf("Sona", "Soraka", "Nami"),
-            synergies = listOf("Lucian", "Jhin", "Tahm Kench"),
-            tacticalAdvice = "Aprovecha el escalado y combos de Senna en ADC. Coordina el uso de su Sombra del amanecer para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-            recommendedRunes = "Cadencia Letal (Precisión)",
-            runeTreeDetails = "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
-            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
-            recommendedSpells = listOf("Destello", "Ignición"),
-            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
-            situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
-            itemSwaps = listOf(
-ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
-ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
-),
-            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
-            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
-            isRanged = true,
-            isFrontline = false,
-            skills = listOf(
-                ChampionSkill(
-                    slot = "P",
-                    slotName = "Pasiva",
-                    name = "Absolución",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Senna_Passive.png",
-                    description = "Cuando mueren unidades cerca de Senna, la Niebla Negra atrapa sus almas en intervalos periódicos. Senna puede atacar a estas almas para liberarlas y absorber la niebla que las retiene. La Niebla Negra aumenta el poder de su cañón reliquia: daño de ataque, alcance y probabilidad de impacto crítico aumentados. Los ataques del cañón reliquia de Senna tardan más en dispararse, infligen daño adicional y le otorgan una parte de la velocidad de movimiento de su objetivo durante un breve periodo de tiempo.",
-                    cooldown = ""
-                ),
-                ChampionSkill(
-                    slot = "1",
-                    slotName = "Habilidad 1",
-                    name = "Oscuridad lacerante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaQ.png",
-                    description = "Senna lanza un rayo de luz y sombra de los cañones gemelos de su arma reliquia que atraviesa la zona objetivo, cura a los aliados e inflige daño a los enemigos.",
-                    cooldown = "15s"
-                ),
-                ChampionSkill(
-                    slot = "2",
-                    slotName = "Habilidad 2",
-                    name = "Último abrazo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaW.png",
-                    description = "Senna lanza una ola de Niebla Negra. Si golpea a un enemigo, se queda enganchada a él, lo inmoviliza y, poco después, inmoviliza a todas las unidades cercanas.",
-                    cooldown = "11s"
-                ),
-                ChampionSkill(
-                    slot = "3",
-                    slotName = "Habilidad 3",
-                    name = "Maldición de la Niebla Negra",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaE.png",
-                    description = "Senna reúne la niebla que ha acumulado en su arma e invoca una tormenta a su alrededor, entregándose a la oscuridad y convirtiéndose en un espectro. Los aliados que entran en la zona quedan camuflados y adoptan la apariencia de espectros mientras están envueltos en niebla. Los espectros aumentan su velocidad de movimiento, no se pueden seleccionar como objetivos y ocultan su identidad.",
-                    cooldown = "26/24.5/23/21.5/20s"
-                ),
-                ChampionSkill(
-                    slot = "4",
-                    slotName = "Definitiva",
-                    name = "Sombra del amanecer",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaR.png",
-                    description = "Senna invoca la fuerza de las reliquias de los Centinelas caídos y su cañón despliega una mezcla sagrada de luz y oscuridad. Entonces, dispara un rayo global que otorga un escudo a sus aliados e inflige daño a los enemigos que estén en el centro del impacto.",
-                    cooldown = "140/120/100s"
-                )
-            ),
-            wildRiftFireUrl = "https://www.wildriftfire.com/guide/senna",
-            wrMetaUrl = "https://wr-meta.com/champion/senna/",
-            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/senna/",
-            bestBuildWrUrl = "https://bestbuildwr.com/champion/senna"
         ),
         Champion(
             id = "sivir",
@@ -1789,6 +1627,87 @@ ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueofleg
             wrMetaUrl = "https://wr-meta.com/champion/xayah/",
             wildRiftCoreUrl = "https://wildriftcore.com/es/champions/xayah/",
             bestBuildWrUrl = "https://bestbuildwr.com/champion/xayah"
+        ),
+        Champion(
+            id = "yunara",
+            name = "Yunara",
+            title = "La Trascendencia Híbrida",
+            ddragonId = "Yunara",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yunara.png",
+            primaryRole = LaneRole.ADC,
+            secondaryRoles = listOf(LaneRole.MID),
+            tier = "S",
+            winrate = 52.02,
+            pickRate = 13.16,
+            banRate = 12.25,
+            damageType = DamageType.TRUE_HYBRID,
+            summary = "Yunara es una tiradora hipercarry híbrida que transforma sus golpes críticos en daño mágico adicional. Se vuelve imparable en juego tardío y su Trascendencia la convierte en una pesadilla para los tanques tradicionales.",
+            advantageAgainst = listOf("Vayne", "Ezreal", "Lucian"),
+            counteredBy = listOf("Draven", "Tristana", "Samira"),
+            synergies = listOf("Thresh", "Leona", "Nautilus"),
+            tacticalAdvice = "🔥 ÍTEMS OBLIGATORIOS (Core):\n1. Espadafuria de Guinsoo: Acelera drásticamente sus autoataques y mejora su perfil de daño híbrido.\n2. Huracán de Runaan: Permite que su daño mágico pasivo por golpes críticos barra con el equipo enemigo en peleas de equipo.\n3. Filo del Infinito: Al convertir probabilidad de crítico en daño mágico bruto a través de su pasiva (Promesa de las Tierras Originarias), este ítem es el pico de poder absoluto para derretir a cualquiera.\n\n🛡️ ÍTEMS SITUACIONALES (Por qué y Contra Quién):\n• Botas de Mercurio: Obligatorias contra composiciones con mucho CC (Leona, Nautilus) o asesinos AP (Evelynn, Akali) para evitar ser eliminada instantáneamente.\n• La Sanguinaria: Cómprala cuando no tengas una Yuumi/Soraka y necesites sobrevivir al desgaste o daño explosivo (ej. contra Zed, Rengar, Caitlyn).\n• Ángel Guardián: Ideal en el juego tardío contra asesinos que siempre te buscan (Kha'Zix, Talon), obligándolos a gastar todo su combo en ti sin lograr sacarte de la pelea.\n\n🤝 SINERGIAS CLAVE:\n• Yuumi/Lulu: Yunara necesita sobrevivir a su débil fase de líneas. Estos soportes la mantienen con vida y le otorgan velocidad de ataque (buffs de enchanters), permitiendo que escale hasta convertirse en el monstruo del 1v5 en juego medio/tardío.\n• Nami: El Mandato Imperial y la bendición de agua potencian de forma absurda los intercambios iniciales de Yunara.",
+            recommendedRunes = "Compás Letal (Precisión)",
+            runeTreeDetails = "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Revestimiento de Huesos",
+            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
+            recommendedSpells = listOf("Destello", "Fantasmal"),
+            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/a/ab/Ghost.png/revision/latest?cb=20180514003209"),
+            coreItems = listOf("Espadafuria de Guinsoo", "Huracán de Runaan", "Filo del Infinito", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3124.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3085.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
+            situationalItems = listOf("Botas de Mercurio", "La Sanguinaria", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
+            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3111.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3072.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
+            skillOrder = "Habilidad 1 > Habilidad 3 > Habilidad 2 (Priorizar Definitiva)",
+            isRanged = true,
+            isFrontline = false,
+            wildRiftFireUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            wrMetaUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            wildRiftCoreUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            bestBuildWrUrl = "https://wildrift.leagueoflegends.com/es-es/champions/yunara/",
+            skills = listOf(
+                ChampionSkill(
+                    slot = "P",
+                    slotName = "Pasiva",
+                    name = "Promesa de las Tierras Originarias",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yunara.png",
+                    description = "Los golpes críticos de Yunara no infligen daño físico adicional, sino que se convierten en ráfagas de daño mágico verdadero en función de su probabilidad de impacto crítico.",
+                    cooldown = ""
+                ),
+                ChampionSkill(
+                    slot = "1",
+                    slotName = "Habilidad 1",
+                    name = "Cultivo de Espíritu",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraQ.png",
+                    description = "Dispara una onda de energía espiritual que daña a los enemigos en línea recta, otorgando velocidad de ataque adicional si golpea a un campeón.",
+                    cooldown = "6s"
+                ),
+                ChampionSkill(
+                    slot = "2",
+                    slotName = "Habilidad 2",
+                    name = "Arco del Juicio / Arco de la Ruina",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraW.png",
+                    description = "Yunara lanza un tajo circular curándose por un porcentaje del daño mágico infligido. Alterna entre dos tipos de arcos dependiendo de sus cargas pasivas.",
+                    cooldown = "10s"
+                ),
+                ChampionSkill(
+                    slot = "3",
+                    slotName = "Habilidad 3",
+                    name = "Pasos de Kanmei / Sombra Intocable",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraE.png",
+                    description = "Se desliza rápidamente en una dirección. Durante 1.5 segundos tras el deslizamiento, los ataques básicos que reciba tienen un porcentaje de fallar.",
+                    cooldown = "14s"
+                ),
+                ChampionSkill(
+                    slot = "4",
+                    slotName = "Definitiva",
+                    name = "Trascender a uno mismo",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraR.png",
+                    description = "Yunara entra en Estado Trascendental durante 10 segundos, eliminando los costos de maná, aumentando su alcance y haciendo que sus ataques básicos reboten a enemigos cercanos.",
+                    cooldown = "80s"
+                )
+            )
         ),
         Champion(
             id = "zeri",

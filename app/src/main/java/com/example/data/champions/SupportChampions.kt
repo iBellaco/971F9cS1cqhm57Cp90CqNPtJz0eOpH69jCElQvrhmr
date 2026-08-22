@@ -128,7 +128,7 @@ object SupportChampions {
         ),
         Champion(
             id = "bard",
-            name = "Bard",
+            name = "Bardo",
             title = "El Guardián Errante",
             ddragonId = "Bard",
             avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Bard.png",
@@ -143,7 +143,7 @@ object SupportChampions {
             advantageAgainst = listOf("Sona", "Soraka", "Nami"),
             counteredBy = listOf("Leona", "Nautilus", "Blitzcrank"),
             synergies = listOf("Caitlyn", "Jhin", "Ezreal"),
-            tacticalAdvice = "Aprovecha el escalado y combos de Bard en SUPPORT. Coordina el uso de su Destino maleable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+            tacticalAdvice = "Aprovecha el escalado y combos de Bardo en SUPPORT. Coordina el uso de su Destino maleable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
             recommendedRunes = "Invocación: Aery (Brujería)",
             runeTreeDetails = "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
             primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -287,87 +287,6 @@ ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddrago
             wrMetaUrl = "https://wr-meta.com/champion/blitzcrank/",
             wildRiftCoreUrl = "https://wildriftcore.com/es/champions/blitzcrank/",
             bestBuildWrUrl = "https://bestbuildwr.com/champion/blitzcrank"
-        ),
-        Champion(
-            id = "brand",
-            name = "Brand",
-            title = "La Venganza Ardiente",
-            ddragonId = "Brand",
-            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Brand.png",
-            primaryRole = LaneRole.SUPPORT,
-            secondaryRoles = listOf(LaneRole.MID, LaneRole.JUNGLE),
-            tier = "S",
-            winrate = 51.83,
-            pickRate = 9.49,
-            banRate = 10.79,
-            damageType = DamageType.MAGIC,
-            summary = "Brand, antiguo miembro de la tribu Kegan Rodhe del helado Freljord, es una lección sobre la tentación de un poder mayor. En busca de una de las legendarias Runas Geogénicas, Kegan traicionó a sus compañeros y se quedó con la runa. El hombre desapareció...",
-            advantageAgainst = listOf("Annie", "Malzahar", "Veigar"),
-            counteredBy = listOf("Fizz", "Zed", "Katarina"),
-            synergies = listOf("Amumu", "Leona", "Nautilus"),
-            tacticalAdvice = "Aprovecha el escalado y combos de Brand en SUPPORT. Coordina el uso de su Detonación ígnea para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-            recommendedRunes = "Invocación: Aery (Brujería)",
-            runeTreeDetails = "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
-            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
-            recommendedSpells = listOf("Destello", "Ignición"),
-            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
-            situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
-            itemSwaps = listOf(
-ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
-ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
-),
-            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
-            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
-            isRanged = true,
-            isFrontline = false,
-            skills = listOf(
-                ChampionSkill(
-                    slot = "P",
-                    slotName = "Pasiva",
-                    name = "Nube de fuego",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/BrandP.png",
-                    description = "Los hechizos de Brand prenden fuego a sus objetivos, lo que inflige daño durante 4 s. Puede acumularse hasta 3 veces. Si Brand asesina a un enemigo que esté en llamas, recupera maná. Cuando Nube de fuego alcanza el máximo de acumulaciones en un campeón o monstruo gigante, se vuelve inestable. Explota al cabo de 2 s, aplica efectos de hechizo e inflige una gran cantidad de daño en la zona que rodea a la víctima.",
-                    cooldown = ""
-                ),
-                ChampionSkill(
-                    slot = "1",
-                    slotName = "Habilidad 1",
-                    name = "Abrasar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/BrandQ.png",
-                    description = "Brand lanza una bola de fuego que inflige daño mágico. Si el objetivo está en llamas, Abrasar lo dejará aturdido durante 1,5 s.",
-                    cooldown = "8/7.5/7/6.5/6s"
-                ),
-                ChampionSkill(
-                    slot = "2",
-                    slotName = "Habilidad 2",
-                    name = "Pilar de llamas",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/BrandW.png",
-                    description = "Tras un breve retardo, Brand crea un Pilar de llamas en la ubicación del objetivo que inflige daño mágico a las unidades enemigas dentro de la misma. Las unidades que estén en llamas recibirán un 25% de daño adicional.",
-                    cooldown = "10/9.5/9/8.5/8s"
-                ),
-                ChampionSkill(
-                    slot = "3",
-                    slotName = "Habilidad 3",
-                    name = "Incendio",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/BrandE.png",
-                    description = "Brand lanza un ataque poderoso a su objetivo que se extiende a los enemigos cercanos e inflige daño mágico. Si el objetivo está en llamas, se duplica la propagación de Incendio.",
-                    cooldown = "13/12/11/10/9s"
-                ),
-                ChampionSkill(
-                    slot = "4",
-                    slotName = "Definitiva",
-                    name = "Detonación ígnea",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/BrandR.png",
-                    description = "Brand libera un torrente de fuego devastador que rebota hasta 5 veces entre Brand y los enemigos cercanos, e inflige daño mágico a los enemigos cada vez que rebota. Estos rebotes priorizan acumular al máximo Nube de fuego en los campeones. Si un objetivo está en llamas, Detonación ígnea lo ralentizará brevemente.",
-                    cooldown = "110/100/90s"
-                )
-            ),
-            wildRiftFireUrl = "https://www.wildriftfire.com/guide/brand",
-            wrMetaUrl = "https://wr-meta.com/champion/brand/",
-            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/brand/",
-            bestBuildWrUrl = "https://bestbuildwr.com/champion/brand"
         ),
         Champion(
             id = "braum",
@@ -775,6 +694,87 @@ ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueofle
             bestBuildWrUrl = "https://bestbuildwr.com/champion/lulu"
         ),
         Champion(
+            id = "lux",
+            name = "Lux",
+            title = "La Dama Luminosa",
+            ddragonId = "Lux",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Lux.png",
+            primaryRole = LaneRole.SUPPORT,
+            secondaryRoles = listOf(LaneRole.SUPPORT),
+            tier = "S+",
+            winrate = 50.43,
+            pickRate = 12.9,
+            banRate = 18.17,
+            damageType = DamageType.MAGIC,
+            summary = "Luxanna Crownguard procede de Demacia, un reino insular en el que las habilidades mágicas se observan con temor y suspicacia. Capaz de manipular la luz a su voluntad, creció temiendo que la descubriesen y la exiliaran, por lo que se vio obligada a...",
+            advantageAgainst = listOf("Leona", "Alistar", "Braum"),
+            counteredBy = listOf("Sona", "Soraka", "Nami"),
+            synergies = listOf("Caitlyn", "Ezreal", "Ashe"),
+            tacticalAdvice = "Aprovecha el escalado y combos de Lux en MID. Coordina el uso de su Chispa final para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+            recommendedRunes = "Primer Golpe (Inspiración)",
+            runeTreeDetails = "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
+            recommendedSpells = listOf("Destello", "Ignición"),
+            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
+            situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
+            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
+            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
+            isRanged = true,
+            isFrontline = false,
+            skills = listOf(
+                ChampionSkill(
+                    slot = "P",
+                    slotName = "Pasiva",
+                    name = "Iluminación",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/LuxIlluminatingFraulein.png",
+                    description = "Las habilidades de Lux que infligen daño cargan de energía al objetivo durante unos segundos. Su siguiente ataque desata la energía e inflige daño mágico adicional (según el nivel de Lux) al objetivo.",
+                    cooldown = ""
+                ),
+                ChampionSkill(
+                    slot = "1",
+                    slotName = "Habilidad 1",
+                    name = "Enlace de luz",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LuxLightBinding.png",
+                    description = "Lux lanza una esfera de luz que inmoviliza y causa daño a un máximo de 2 unidades enemigas.",
+                    cooldown = "11/10.5/10/9.5/9s"
+                ),
+                ChampionSkill(
+                    slot = "2",
+                    slotName = "Habilidad 2",
+                    name = "Barrera prismática",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LuxPrismaticWave.png",
+                    description = "Lux lanza su varita y concentra la luz alrededor de los objetivos aliados a los que alcanza, protegiéndolos de cualquier daño.",
+                    cooldown = "14/13/12/11/10s"
+                ),
+                ChampionSkill(
+                    slot = "3",
+                    slotName = "Habilidad 3",
+                    name = "Singularidad brillante",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LuxLightStrikeKugel.png",
+                    description = "Lanza una anomalía de luz entrelazada a un área, que ralentiza a los enemigos cercanos. Lux puede activarla para dañar a los enemigos dentro del área de efecto.",
+                    cooldown = "10/9.5/9/8.5/8s"
+                ),
+                ChampionSkill(
+                    slot = "4",
+                    slotName = "Definitiva",
+                    name = "Chispa final",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LuxR.png",
+                    description = "Tras reunir la energía necesaria, Lux lanza un rayo de luz que inflige daño a todos los objetivos de la zona. Además, activa la pasiva de Lux y reinicia la duración de la debilitación de Iluminación.",
+                    cooldown = "60/50/40s"
+                )
+            ),
+            wildRiftFireUrl = "https://www.wildriftfire.com/guide/lux",
+            wrMetaUrl = "https://wr-meta.com/champion/lux/",
+            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/lux/",
+            bestBuildWrUrl = "https://bestbuildwr.com/champion/lux"
+        ),
+        Champion(
             id = "maokai",
             name = "Maokai",
             title = "El Treant Retorcido",
@@ -871,7 +871,7 @@ ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddrago
             summary = "Milio es un jovencito amable de Ixtal que, a pesar de su corta edad, ha conseguido dominar el axioma ígneo y ha descubierto las llamas de la calma. Con este nuevo poder, Milio pretende ayudar a su familia y poner fin a su exilio uniéndose a los Yun Tal...",
             advantageAgainst = listOf("Leona", "Alistar", "Braum"),
             counteredBy = listOf("Sona", "Soraka", "Nami"),
-            synergies = listOf("Jinx", "Lucian", "Aphelios"),
+            synergies = listOf("Jinx", "Lucian", "Varus"),
             tacticalAdvice = "Aprovecha el escalado y combos de Milio en SUPPORT. Coordina el uso de su Aliento vital para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
             recommendedRunes = "Invocación: Aery (Brujería)",
             runeTreeDetails = "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
@@ -1180,6 +1180,87 @@ ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddrago
             bestBuildWrUrl = "https://bestbuildwr.com/champion/nautilus"
         ),
         Champion(
+            id = "norra",
+            name = "Norra",
+            title = "la Maestra de los Portales",
+            ddragonId = "norra",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+            primaryRole = LaneRole.SUPPORT,
+            secondaryRoles = listOf(LaneRole.SUPPORT),
+            tier = "D",
+            winrate = 48.07,
+            pickRate = 1.47,
+            banRate = 5.71,
+            damageType = DamageType.MAGIC,
+            summary = "Norra abre fisuras hacia la Ciudad de Bandle para dotar de hipermovilidad a su equipo y desorientar a los adversarios con proyectiles cósmicos.",
+            advantageAgainst = listOf("Yasuo", "Katarina", "Akali"),
+            counteredBy = listOf("Syndra", "Orianna", "Ziggs"),
+            synergies = listOf("Jhin", "Caitlyn", "Ashe"),
+            tacticalAdvice = "Aprovecha el escalado y combos de Norra en MID. Coordina el uso de su Puerta de Bandle para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+            recommendedRunes = "Primer Golpe (Inspiración)",
+            runeTreeDetails = "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
+            recommendedSpells = listOf("Destello", "Ignición"),
+            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
+            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
+            situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
+ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
+),
+            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
+            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
+            isRanged = true,
+            isFrontline = false,
+            skills = listOf(
+                ChampionSkill(
+                    slot = "P",
+                    slotName = "Pasiva",
+                    name = "Portales del Reino Espiritual",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+                    description = "Al lanzar hechizos crea vórtices efímeros que potencian las curaciones, escudos y movilidad del equipo aliado.",
+                    cooldown = ""
+                ),
+                ChampionSkill(
+                    slot = "1",
+                    slotName = "Habilidad 1",
+                    name = "Proyectil Astral",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+                    description = "Lanza una esfera de energía espiritual que rebota entre enemigos infligiendo daño mágico creciente.",
+                    cooldown = "7s"
+                ),
+                ChampionSkill(
+                    slot = "2",
+                    slotName = "Habilidad 2",
+                    name = "Distorsión Dimensional",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+                    description = "Desplaza a un objetivo aliado o a sí misma a través de una grieta hacia una posición segura con velocidad extra.",
+                    cooldown = "14s"
+                ),
+                ChampionSkill(
+                    slot = "3",
+                    slotName = "Habilidad 3",
+                    name = "Vínculo de Bandle",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+                    description = "Enlaza a un aliado otorgándole maná continuo y daño mágico adicional en sus siguientes impactos.",
+                    cooldown = "10s"
+                ),
+                ChampionSkill(
+                    slot = "4",
+                    slotName = "Definitiva",
+                    name = "Puerta de Bandle",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yuumi.png",
+                    description = "Abre un portal cósmico masivo que succiona a los enemigos hacia el vórtice central, aturdiéndolos e infligiendo daño masivo.",
+                    cooldown = "75s"
+                )
+            ),
+            wildRiftFireUrl = "https://www.wildriftfire.com/guide/norra",
+            wrMetaUrl = "https://wr-meta.com/champion/norra/",
+            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/norra/",
+            bestBuildWrUrl = "https://bestbuildwr.com/champion/norra"
+        ),
+        Champion(
             id = "pyke",
             name = "Pyke",
             title = "el Destripador de los Puertos",
@@ -1421,6 +1502,87 @@ ItemSwap(coreItem="Sombrero Mortífero de Rabadon", coreItemIcon="https://ddrago
             wrMetaUrl = "https://wr-meta.com/champion/rell/",
             wildRiftCoreUrl = "https://wildriftcore.com/es/champions/rell/",
             bestBuildWrUrl = "https://bestbuildwr.com/champion/rell"
+        ),
+        Champion(
+            id = "senna",
+            name = "Senna",
+            title = "la Redentora",
+            ddragonId = "Senna",
+            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Senna.png",
+            primaryRole = LaneRole.SUPPORT,
+            secondaryRoles = listOf(LaneRole.SUPPORT),
+            tier = "B",
+            winrate = 52.46,
+            pickRate = 4.9,
+            banRate = 0.84,
+            damageType = DamageType.PHYSICAL,
+            summary = "Maldita desde que era apenas una niña y perseguida por la Niebla Negra, Senna se unió a una orden sagrada conocida como los Centinelas de la Luz y pasó años luchando sin descanso hasta que fue asesinada y encerrada en el interior de la linterna del...",
+            advantageAgainst = listOf("Leona", "Alistar", "Braum"),
+            counteredBy = listOf("Sona", "Soraka", "Nami"),
+            synergies = listOf("Lucian", "Jhin", "Braum"),
+            tacticalAdvice = "Aprovecha el escalado y combos de Senna en ADC. Coordina el uso de su Sombra del amanecer para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
+            recommendedRunes = "Cadencia Letal (Precisión)",
+            runeTreeDetails = "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
+            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
+            recommendedSpells = listOf("Destello", "Ignición"),
+            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
+            coreItems = listOf("Filo del Infinito", "Hoja del Rey Arruinado", "Cañón de Fuego Rápido", "Botas Blindadas", "Filo del Infinito", "Recuerdos de Lord Dominik"),
+            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3153.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3094.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3047.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png"),
+            situationalItems = listOf("Recordatorio Mortal", "Ángel Guardián"),
+            itemSwaps = listOf(
+ItemSwap(coreItem="Recuerdos de Lord Dominik", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3036.png", altItem="Recordatorio Mortal", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3033.png", reasonTitle="PENETRACIÓN Y ANTI-CURACIÓN", reasonDesc="Aplica cortacuras a los enemigos tanque.", againstWho="Soraka, Dr. Mundo, Vladimir"),
+ItemSwap(coreItem="Filo del Infinito", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3031.png", altItem="Colmillo de Serpiente", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/6695.png", reasonTitle="ANTI-ESCUDOS", reasonDesc="Reduce enormemente los escudos.", againstWho="Karma, Janna, Sett, Lulu")
+),
+            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png"),
+            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
+            isRanged = true,
+            isFrontline = false,
+            skills = listOf(
+                ChampionSkill(
+                    slot = "P",
+                    slotName = "Pasiva",
+                    name = "Absolución",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Senna_Passive.png",
+                    description = "Cuando mueren unidades cerca de Senna, la Niebla Negra atrapa sus almas en intervalos periódicos. Senna puede atacar a estas almas para liberarlas y absorber la niebla que las retiene. La Niebla Negra aumenta el poder de su cañón reliquia: daño de ataque, alcance y probabilidad de impacto crítico aumentados. Los ataques del cañón reliquia de Senna tardan más en dispararse, infligen daño adicional y le otorgan una parte de la velocidad de movimiento de su objetivo durante un breve periodo de tiempo.",
+                    cooldown = ""
+                ),
+                ChampionSkill(
+                    slot = "1",
+                    slotName = "Habilidad 1",
+                    name = "Oscuridad lacerante",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaQ.png",
+                    description = "Senna lanza un rayo de luz y sombra de los cañones gemelos de su arma reliquia que atraviesa la zona objetivo, cura a los aliados e inflige daño a los enemigos.",
+                    cooldown = "15s"
+                ),
+                ChampionSkill(
+                    slot = "2",
+                    slotName = "Habilidad 2",
+                    name = "Último abrazo",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaW.png",
+                    description = "Senna lanza una ola de Niebla Negra. Si golpea a un enemigo, se queda enganchada a él, lo inmoviliza y, poco después, inmoviliza a todas las unidades cercanas.",
+                    cooldown = "11s"
+                ),
+                ChampionSkill(
+                    slot = "3",
+                    slotName = "Habilidad 3",
+                    name = "Maldición de la Niebla Negra",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaE.png",
+                    description = "Senna reúne la niebla que ha acumulado en su arma e invoca una tormenta a su alrededor, entregándose a la oscuridad y convirtiéndose en un espectro. Los aliados que entran en la zona quedan camuflados y adoptan la apariencia de espectros mientras están envueltos en niebla. Los espectros aumentan su velocidad de movimiento, no se pueden seleccionar como objetivos y ocultan su identidad.",
+                    cooldown = "26/24.5/23/21.5/20s"
+                ),
+                ChampionSkill(
+                    slot = "4",
+                    slotName = "Definitiva",
+                    name = "Sombra del amanecer",
+                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SennaR.png",
+                    description = "Senna invoca la fuerza de las reliquias de los Centinelas caídos y su cañón despliega una mezcla sagrada de luz y oscuridad. Entonces, dispara un rayo global que otorga un escudo a sus aliados e inflige daño a los enemigos que estén en el centro del impacto.",
+                    cooldown = "140/120/100s"
+                )
+            ),
+            wildRiftFireUrl = "https://www.wildriftfire.com/guide/senna",
+            wrMetaUrl = "https://wr-meta.com/champion/senna/",
+            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/senna/",
+            bestBuildWrUrl = "https://bestbuildwr.com/champion/senna"
         ),
         Champion(
             id = "seraphine",
@@ -1681,7 +1843,7 @@ ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueofle
             summary = "Thresh, un ser sádico y astuto, es un ambicioso y trastornado espíritu de las Islas de la Sombra. Otrora guardián de innumerables secretos arcanos, acabó sucumbiendo a un poder por encima de la vida y la muerte. Ahora sobrevive torturando a sus víctimas...",
             advantageAgainst = listOf("Sona", "Soraka", "Nami"),
             counteredBy = listOf("Morgana", "Zyra", "Brand"),
-            synergies = listOf("Aphelios", "Jinx", "Draven"),
+            synergies = listOf("Varus", "Jinx", "Draven"),
             tacticalAdvice = "Aprovecha el escalado y combos de Thresh en SUPPORT. Coordina el uso de su La caja para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
             recommendedRunes = "Réplica",
             runeTreeDetails = "Valor: Fuente de Vida • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos",
@@ -1826,87 +1988,6 @@ ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueofle
             wrMetaUrl = "https://wr-meta.com/champion/yuumi/",
             wildRiftCoreUrl = "https://wildriftcore.com/es/champions/yuumi/",
             bestBuildWrUrl = "https://bestbuildwr.com/champion/yuumi"
-        ),
-        Champion(
-            id = "zilean",
-            name = "Zilean",
-            title = "El Guardián del Tiempo",
-            ddragonId = "Zilean",
-            avatarUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Zilean.png",
-            primaryRole = LaneRole.SUPPORT,
-            secondaryRoles = listOf(LaneRole.MID),
-            tier = "D",
-            winrate = 49.42,
-            pickRate = 1.2,
-            banRate = 0.77,
-            damageType = DamageType.MAGIC,
-            summary = "Zilean, el que un día fuera un poderoso mago de Icathia, se obsesionó con el paso del tiempo tras ser testigo de la destrucción de su tierra natal a manos del Vacío. Incapaz de parar un minuto a llorar tan catastrófica pérdida, se entregó a la vetusta...",
-            advantageAgainst = listOf("Leona", "Alistar", "Braum"),
-            counteredBy = listOf("Sona", "Soraka", "Nami"),
-            synergies = listOf("Hecarim", "Olaf", "Master Yi"),
-            tacticalAdvice = "Aprovecha el escalado y combos de Zilean en SUPPORT. Coordina el uso de su Alteración del tiempo para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-            recommendedRunes = "Invocación: Aery (Brujería)",
-            runeTreeDetails = "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
-            primaryRuneIconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
-            recommendedSpells = listOf("Destello", "Ignición"),
-            spellsIcons = listOf("https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es", "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"),
-            coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon", "Báculo del Vacío", "Botas de Hechicero"),
-            coreItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3285.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3089.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", "https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png"),
-            situationalItems = listOf("Reloj de Arena de Zhonya", "Morellonomicón"),
-            itemSwaps = listOf(
-ItemSwap(coreItem="Botas de Hechicero", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3020.png", altItem="Morellonomicón", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3165.png", reasonTitle="ANTI-CURACIÓN", reasonDesc="Reduce la curación del enemigo.", againstWho="Soraka, Dr. Mundo, Aatrox"),
-ItemSwap(coreItem="Báculo del Vacío", coreItemIcon="https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png", altItem="Despertar del Robaalmas", altItemIcon="https://ddragon.leagueoflegends.com/cdn/14.3.1/img/item/3041.png", reasonTitle="REDUCCIÓN DE ENFRIAMIENTO", reasonDesc="Más spam de definitivas tras asistencias.", againstWho="Equipos frágiles / Teamfights")
-),
-            situationalItemsIcons = listOf("https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png", "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png"),
-            skillOrder = "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
-            isRanged = true,
-            isFrontline = false,
-            skills = listOf(
-                ChampionSkill(
-                    slot = "P",
-                    slotName = "Pasiva",
-                    name = "Tiempo embotellado",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Zilean_Passive.png",
-                    description = "Zilean almacena el tiempo como experiencia y puede otorgársela a sus aliados. Cuando tiene suficiente experiencia para terminar el nivel de un aliado, puede hacer clic derecho sobre él para entregársela. Zilean recibe tanta experiencia como da.",
-                    cooldown = ""
-                ),
-                ChampionSkill(
-                    slot = "1",
-                    slotName = "Habilidad 1",
-                    name = "Bomba de relojería",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZileanQ.png",
-                    description = "Arroja una bomba a una zona. El artefacto, que se adhiere a las unidades cercanas (prioriza a los campeones), detona pasados 3 s e inflige daño de área. Además, si la Bomba de relojería detona antes de tiempo por la acción de otra, aturde a los enemigos afectados.",
-                    cooldown = "10/9.5/9/8.5/8s"
-                ),
-                ChampionSkill(
-                    slot = "2",
-                    slotName = "Habilidad 2",
-                    name = "Retroceder",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZileanW.png",
-                    description = "Zilean puede prepararse para futuros enfrentamientos reduciendo el enfriamiento de sus demás habilidades básicas.",
-                    cooldown = "14/12/10/8/6s"
-                ),
-                ChampionSkill(
-                    slot = "3",
-                    slotName = "Habilidad 3",
-                    name = "Distorsión temporal",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TimeWarp.png",
-                    description = "Zilean pliega el tiempo alrededor de cualquier unidad, lo que reduce la velocidad de movimiento de un enemigo o aumenta la de un aliado durante un breve periodo.",
-                    cooldown = "15s"
-                ),
-                ChampionSkill(
-                    slot = "4",
-                    slotName = "Definitiva",
-                    name = "Alteración del tiempo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ChronoShift.png",
-                    description = "Zilean coloca sobre un campeón aliado una runa temporal protectora que lo lleva atrás en el tiempo en caso de sufrir daño letal.",
-                    cooldown = "120/90/60s"
-                )
-            ),
-            wildRiftFireUrl = "https://www.wildriftfire.com/guide/zilean",
-            wrMetaUrl = "https://wr-meta.com/champion/zilean/",
-            wildRiftCoreUrl = "https://wildriftcore.com/es/champions/zilean/",
-            bestBuildWrUrl = "https://bestbuildwr.com/champion/zilean"
         ),
         Champion(
             id = "zyra",

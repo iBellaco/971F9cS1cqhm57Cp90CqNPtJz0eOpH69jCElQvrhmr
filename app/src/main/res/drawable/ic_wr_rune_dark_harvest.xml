@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer Glow Circle -->
+    <path
+        android:fillColor="#33AF52DE"
+        android:pathData="M32,32m-30,0a30,30 0,1,1 60,0a30,30 0,1,1 -60,0" />
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#15081A"
+        android:strokeColor="#FF2D55"
+        android:strokeWidth="2.5"
+        android:pathData="M32,32m-27,0a27,27 0,1,1 54,0a27,27 0,1,1 -54,0" />
+    <!-- Hood Shape / Dark Soul -->
+    <path
+        android:fillColor="#FF2D55"
+        android:pathData="M32,14 C24,14 18,22 18,34 C18,44 24,50 28,52 C26,48 24,42 26,38 C28,34 32,34 32,34 C32,34 36,34 38,38 C40,42 38,48 36,52 C40,50 46,44 46,34 C46,22 40,14 32,14 Z" />
+    <!-- Soul Fire Center -->
+    <path
+        android:fillColor="#FF375F"
+        android:pathData="M32,20 C27,20 23,26 23,35 C23,43 27,48 32,50 C37,48 41,43 41,35 C41,26 37,20 32,20 Z" />
+    <!-- Skull Void Eyes / Inner Darkness -->
+    <path
+        android:fillColor="#0E0512"
+        android:pathData="M27,33 L30,31 L29,38 Z" />
+    <path
+        android:fillColor="#0E0512"
+        android:pathData="M37,33 L34,31 L35,38 Z" />
+    <!-- Glowing Center Soul Spike -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,26 L30,36 L32,44 L34,36 Z" />
+</vector>
