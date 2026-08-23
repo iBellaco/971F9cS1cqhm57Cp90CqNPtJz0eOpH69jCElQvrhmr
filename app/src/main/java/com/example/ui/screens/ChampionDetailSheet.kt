@@ -97,6 +97,9 @@ fun ChampionDetailSheet(
     var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
     var matchupExplanationType by remember { mutableStateOf<String?>(null) }
     var selectedSituationalItem by remember { mutableStateOf<String?>(null) }
+    var itemForDetail by remember { mutableStateOf<com.example.model.WildRiftItem?>(null) }
+    var runeForDetail by remember { mutableStateOf<com.example.model.RuneItem?>(null) }
+    var spellForDetail by remember { mutableStateOf<com.example.model.SummonerSpellItem?>(null) }
 
     // Perfil dinámico de estadísticas, build, runas y counters adaptados a la línea elegida
     val roleProfile = remember(champion.id, selectedRole) {
@@ -563,7 +566,12 @@ fun ChampionDetailSheet(
                                 url = roleProfile.primaryRuneIconUrl,
                                 contentDescription = roleProfile.recommendedRunes,
                                 fallbackText = "Runa",
-                                modifier = Modifier.size(38.dp),
+                                modifier = Modifier.size(38.dp).clickable { 
+                                    val dbRune = com.example.data.WildRiftSpellsAndRunes.runes.find {
+                                        it.name.equals(roleProfile.recommendedRunes, ignoreCase = true) || roleProfile.recommendedRunes.contains(it.name, ignoreCase = true)
+                                    }
+                                    if (dbRune != null) runeForDetail = dbRune
+                                },
                                 borderColor = HextechCyan,
                                 shape = CircleShape
                             )
@@ -592,7 +600,7 @@ fun ChampionDetailSheet(
                                         parsedRunes.forEach { rName ->
                                             val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
                                             val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name) }
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { if (foundRune != null) runeForDetail = foundRune }) {
                                                 if (foundRune != null) {
                                                     com.example.ui.components.AppAssetImage(
                                                         url = foundRune.iconUrl,
@@ -664,14 +672,18 @@ fun ChampionDetailSheet(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         roleProfile.coreItems.forEachIndexed { idx, rawName ->
-                            val iconUrl = roleProfile.coreItemsIcons.getOrNull(idx) ?: ""
-                            val itemName = tr(rawName)
+                            val dbItem = com.example.data.WildRiftRepository.items.find { 
+                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase=true)
+                            }
+                            val iconUrl = dbItem?.iconUrl ?: roleProfile.coreItemsIcons.getOrNull(idx) ?: ""
+                            val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurfaceVariant)
                                     .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                    .clickable { if (dbItem != null) itemForDetail = dbItem }
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 AppAssetImage(
@@ -1096,4 +1108,210 @@ fun ChampionDetailSheet(
             textContentColor = TextPrimary
         )
     }
+
+
+    itemForDetail?.let { item ->
+        androidx.compose.ui.window.Dialog(onDismissRequest = { itemForDetail = null }) {
+            androidx.compose.material3.Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechDarkBg),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, com.example.ui.theme.HextechGold)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    com.example.ui.components.AppAssetImage(
+                        url = item.iconUrl,
+                        contentDescription = item.name,
+                        fallbackText = item.name,
+                        modifier = Modifier.size(72.dp),
+                        borderColor = com.example.ui.theme.HextechGold,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = tr(item.name),
+                        color = com.example.ui.theme.HextechGoldLight,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.2f), androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = tr(item.category.displayName),
+                                color = com.example.ui.theme.HextechCyan,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(com.example.ui.theme.HextechGold.copy(alpha = 0.2f), androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = "🟡 ${item.goldCost} ${tr("Oro")}",
+                                color = com.example.ui.theme.HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    if (item.stats.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = tr("Estadísticas:"),
+                            color = com.example.ui.theme.HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = tr(item.stats),
+                            color = com.example.ui.theme.TextPrimary,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    if (item.passive.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = tr("Efecto / Pasiva:"),
+                            color = com.example.ui.theme.HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = tr(item.passive),
+                            color = com.example.ui.theme.TextMuted,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                            .background(com.example.ui.theme.HextechCyan)
+                            .clickable { itemForDetail = null }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(tr("Cerrar"), color = com.example.ui.theme.HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+                }
+            }
+        }
+    }
+
+    runeForDetail?.let { rune ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { runeForDetail = null },
+            containerColor = com.example.ui.theme.HextechSurface,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    com.example.ui.components.AppAssetImage(
+                        url = rune.iconUrl,
+                        contentDescription = rune.name,
+                        fallbackText = rune.name,
+                        modifier = Modifier.size(48.dp),
+                        borderColor = com.example.ui.theme.HextechGold,
+                        shape = androidx.compose.foundation.shape.CircleShape
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = rune.name,
+                            color = com.example.ui.theme.HextechGoldLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = rune.category,
+                            color = com.example.ui.theme.HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            },
+            text = {
+                Text(
+                    text = rune.description,
+                    color = com.example.ui.theme.TextPrimary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { runeForDetail = null }) {
+                    Text(tr("Cerrar"), color = com.example.ui.theme.HextechCyan, fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
+    spellForDetail?.let { spell ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { spellForDetail = null },
+            containerColor = com.example.ui.theme.HextechSurface,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    com.example.ui.components.AppAssetImage(
+                        url = spell.iconUrl,
+                        contentDescription = spell.name,
+                        fallbackText = spell.name,
+                        modifier = Modifier.size(48.dp),
+                        borderColor = com.example.ui.theme.HextechGold,
+                        shape = androidx.compose.foundation.shape.CircleShape
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = spell.name,
+                        color = com.example.ui.theme.HextechGoldLight,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            },
+            text = {
+                Text(
+                    text = spell.description,
+                    color = com.example.ui.theme.TextPrimary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { spellForDetail = null }) {
+                    Text(tr("Cerrar"), color = com.example.ui.theme.HextechCyan, fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
 }

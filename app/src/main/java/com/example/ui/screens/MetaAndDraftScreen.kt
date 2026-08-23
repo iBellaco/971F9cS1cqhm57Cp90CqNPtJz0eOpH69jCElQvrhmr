@@ -447,6 +447,8 @@ fun MetaAndDraftScreen(
 private fun ChampionsCatalogTab(
     onSelectChampion: (Champion) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
 
@@ -499,10 +501,7 @@ private fun ChampionsCatalogTab(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
-                .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 10.dp, vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 4.dp, vertical = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -511,12 +510,9 @@ private fun ChampionsCatalogTab(
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold
             )
-            Text(
-                text = "${tr("Rango Activo:")} ${tr(currentTier.displayName)}",
-                color = HextechGoldLight,
-                fontSize = 10.sp
-            )
         }
+        Spacer(modifier = Modifier.height(6.dp))
+        TierSelectionPanel(currentTier, syncState, context, coroutineScope)
 
 
         // Search Bar
@@ -775,145 +771,7 @@ private fun TierListTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // PANEL DE ESTADÍSTICAS Y METAGAME OFICIAL EN VIVO EN TIER LIST
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
-        ) {
-            Column(modifier = Modifier.padding(10.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.TrendingUp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Column {
-                            Text(
-                                text = tr("Meta Oficial en Vivo"),
-                                color = HextechGold,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = tr("Win Rate, Pick, Ban y Tendencia en Tiempo Real"),
-                                color = HextechCyan,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-
-                    // Botón Sincronizar en Vivo
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (syncState is ChineseSyncState.Syncing) HextechSurfaceVariant else HextechGold
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        enabled = syncState !is ChineseSyncState.Syncing,
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        if (syncState is ChineseSyncState.Syncing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                color = HextechCyan,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(tr("Sincronizando..."), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        } else {
-                            Icon(Icons.Default.Sync, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(tr("Sincronizar"), color = HextechDarkBg, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Selector de Rango de Elo Oficial
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    TencentRankTier.entries.forEach { tier ->
-                        val isSelected = currentTier == tier
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .heightIn(min = 34.dp)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(
-                                    if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
-                                )
-                                .border(
-                                    width = if (isSelected) 1.dp else 0.5.dp,
-                                    color = if (isSelected) HextechCyan else HextechCardBorder,
-                                    shape = RoundedCornerShape(6.dp)
-                                )
-                                .clickable {
-                                    coroutineScope.launch {
-                                        ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
-                                    }
-                                }
-                                .padding(horizontal = 2.dp, vertical = 4.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = tr(tier.shortName),
-                                color = if (isSelected) HextechCyan else TextMuted,
-                                fontSize = 8.5.sp,
-                                lineHeight = 10.5.sp,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 2
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Estado de sincronización instantánea en vivo
-                val lastSyncInfo = remember(syncState) { ChineseMetaSyncService.getLastSyncInfo(context) }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = when (val s = syncState) {
-                            is ChineseSyncState.Syncing -> tr("⚡ Sincronizando estadísticas oficiales...")
-                            is ChineseSyncState.Success -> "${tr("🟢 En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
-                            is ChineseSyncState.Error -> "${tr("⚠️ Datos en caché local:")} ${lastSyncInfo.second}"
-                            ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
-                        },
-                        color = when (syncState) {
-                            is ChineseSyncState.Syncing -> HextechCyan
-                            is ChineseSyncState.Success -> Color(0xFF4CAF50)
-                            is ChineseSyncState.Error -> Color(0xFFFFA726)
-                            ChineseSyncState.Idle -> TextMuted
-                        },
-                        fontSize = 9.5.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = tr("Instantáneo 24/7"),
-                        color = HextechGold,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
+        TierSelectionPanel(currentTier, syncState, context, coroutineScope)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -1347,7 +1205,7 @@ private fun ItemsCatalogTab() {
                 FilterChip(
                     selected = selectedCategory == cat,
                     onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
-                    label = { Text("${cat.iconEmoji} ${com.example.util.tr(cat.displayName)} ($count)", fontSize = 11.5.sp) },
+                    label = { Text("${com.example.util.tr(cat.displayName)} ($count)", fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1380,8 +1238,7 @@ private fun ItemsCatalogTab() {
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(category.iconEmoji, fontSize = 14.sp)
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    
                                     Text(
                                         text = tr(category.sectionTitle),
                                         color = HextechGoldLight,
@@ -1506,7 +1363,7 @@ private fun ItemsCatalogTab() {
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "${item.category.iconEmoji} ${tr(item.category.displayName)}",
+                                text = tr(item.category.displayName),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1672,7 +1529,7 @@ private fun ItemListCard(
                     Text(tr(item.name), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                 }
-                Text("${item.category.iconEmoji} ${tr(item.category.displayName)}", color = HextechCyan, fontSize = 11.sp)
+                Text(tr(item.category.displayName), color = HextechCyan, fontSize = 11.sp)
                 if (item.stats.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(tr(item.stats), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
@@ -2168,7 +2025,7 @@ private fun SpellsTab() {
         ) {
             Text(
                 text = "${filteredSpells.size} " + tr("Hechizos de Invocador"),
-                color = HextechGold,
+                color = HextechCyan,
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -2229,7 +2086,7 @@ private fun SpellsTab() {
             },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = HextechGold,
+                focusedBorderColor = HextechCyan,
                 unfocusedBorderColor = HextechCardBorder,
                 focusedContainerColor = HextechSurface,
                 unfocusedContainerColor = HextechSurface
@@ -2250,7 +2107,7 @@ private fun SpellsTab() {
                     onClick = { selectedFilter = key },
                     label = { Text(label, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechGold,
+                        selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
@@ -2288,7 +2145,7 @@ private fun SpellsTab() {
                                         contentDescription = spell.name,
                                         fallbackText = spell.name,
                                         modifier = Modifier.size(50.dp),
-                                        borderColor = HextechGold,
+                                        borderColor = HextechCyan,
                                         shape = RoundedCornerShape(10.dp)
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
@@ -2340,7 +2197,7 @@ private fun SpellsTab() {
                                 contentDescription = spell.name,
                                 fallbackText = spell.name,
                                 modifier = Modifier.size(44.dp),
-                                borderColor = HextechGold,
+                                borderColor = HextechCyan,
                                 shape = RoundedCornerShape(8.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
@@ -2357,7 +2214,7 @@ private fun SpellsTab() {
                                             .background(HextechGold.copy(alpha = 0.15f))
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
-                                        Text("CD: ${spell.cooldown}", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("CD: ${spell.cooldown}", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -2392,7 +2249,7 @@ private fun SpellsTab() {
                         contentDescription = spell.name,
                         fallbackText = spell.name,
                         modifier = Modifier.size(48.dp),
-                        borderColor = HextechGold,
+                        borderColor = HextechCyan,
                         shape = RoundedCornerShape(10.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -2405,7 +2262,7 @@ private fun SpellsTab() {
                         )
                         Text(
                             text = "Enfriamiento: ${spell.cooldown}",
-                            color = HextechGold,
+                            color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -3498,6 +3355,94 @@ private fun SpellGridCard(
                     text = spell.cooldown,
                     color = HextechGold,
                     fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun TierSelectionPanel(
+    currentTier: TencentRankTier,
+    syncState: ChineseSyncState,
+    context: android.content.Context,
+    coroutineScope: kotlinx.coroutines.CoroutineScope
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TencentRankTier.entries.forEach { tier ->
+                    val isSelected = currentTier == tier
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 34.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(
+                                if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
+                            )
+                            .border(
+                                width = if (isSelected) 1.dp else 0.5.dp,
+                                color = if (isSelected) HextechCyan else HextechCardBorder,
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                            .clickable {
+                                coroutineScope.launch {
+                                    ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
+                                }
+                            }
+                            .padding(horizontal = 2.dp, vertical = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = tr(tier.shortName),
+                            color = if (isSelected) HextechCyan else TextMuted,
+                            fontSize = 8.5.sp,
+                            lineHeight = 10.5.sp,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 2
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            val lastSyncInfo = remember(syncState) { ChineseMetaSyncService.getLastSyncInfo(context) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = when (val s = syncState) {
+                        is ChineseSyncState.Syncing -> tr("Sincronizando...")
+                        is ChineseSyncState.Success -> "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                        is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
+                        ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
+                    },
+                    color = when (syncState) {
+                        is ChineseSyncState.Syncing -> HextechCyan
+                        is ChineseSyncState.Success -> Color(0xFF4CAF50)
+                        is ChineseSyncState.Error -> Color(0xFFFFA726)
+                        ChineseSyncState.Idle -> TextMuted
+                    },
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    text = tr("Instantáneo 24/7"),
+                    color = HextechGold,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
