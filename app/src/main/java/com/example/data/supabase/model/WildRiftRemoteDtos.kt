@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 data class WrPatchDto(
     val id: String = "current",
     val version: String,
-    val notes: String = "",
+    val notes: String,
     @SerialName("updated_at") val updatedAt: String? = null
 )
 
@@ -24,9 +24,9 @@ data class WrItemDto(
     val name: String,
     val category: String,
     @SerialName("gold_cost") val goldCost: Int,
-    val stats: String = "",
-    val passive: String = "",
-    @SerialName("icon_url") val iconUrl: String = ""
+    val stats: String,
+    val passive: String,
+    @SerialName("icon_url") val iconUrl: String
 ) {
     fun toModel(): WildRiftItem {
         val cat = try {
@@ -64,21 +64,21 @@ data class WrItemDto(
 data class WrChampionDto(
     val id: String,
     val name: String,
-    val title: String = "",
-    @SerialName("primary_role") val primaryRole: String = "BARON",
-    @SerialName("secondary_roles") val secondaryRoles: String = "",
-    val tier: String = "A",
-    val winrate: Double = 50.0,
-    val pickrate: Double = 5.0,
-    val banrate: Double = 2.0,
-    @SerialName("damage_type") val damageType: String = "PHYSICAL",
-    @SerialName("avatar_url") val avatarUrl: String = "",
-    val counters: String = "",
-    val synergies: String = "",
-    @SerialName("core_items") val coreItems: String = "",
-    @SerialName("situational_items") val situationalItems: String = "",
-    @SerialName("is_ranged") val isRanged: Boolean = false,
-    @SerialName("is_frontline") val isFrontline: Boolean = false
+    val title: String,
+    @SerialName("primary_role") val primaryRole: String,
+    @SerialName("secondary_roles") val secondaryRoles: String,
+    val tier: String,
+    val winrate: Double,
+    val pickrate: Double,
+    val banrate: Double,
+    @SerialName("damage_type") val damageType: String,
+    @SerialName("avatar_url") val avatarUrl: String,
+    val counters: String,
+    val synergies: String,
+    @SerialName("core_items") val coreItems: String,
+    @SerialName("situational_items") val situationalItems: String,
+    @SerialName("is_ranged") val isRanged: Boolean,
+    @SerialName("is_frontline") val isFrontline: Boolean
 ) {
     fun toModel(existingFallback: Champion? = null): Champion {
         val pRole = try { LaneRole.valueOf(primaryRole) } catch (_: Exception) { LaneRole.TOP }
@@ -160,8 +160,8 @@ data class WrRuneDto(
     val id: String,
     val name: String,
     val category: String,
-    @SerialName("icon_url") val iconUrl: String = "",
-    val description: String = ""
+    @SerialName("icon_url") val iconUrl: String,
+    val description: String
 ) {
     fun toModel(): RuneItem = RuneItem(id, name, category, iconUrl, description)
 
@@ -180,9 +180,9 @@ data class WrRuneDto(
 data class WrSpellDto(
     val id: String,
     val name: String,
-    val cooldown: String = "",
-    @SerialName("icon_url") val iconUrl: String = "",
-    val description: String = ""
+    val cooldown: String,
+    @SerialName("icon_url") val iconUrl: String,
+    val description: String
 ) {
     fun toModel(): SummonerSpellItem = SummonerSpellItem(id, name, cooldown, iconUrl, description)
 
