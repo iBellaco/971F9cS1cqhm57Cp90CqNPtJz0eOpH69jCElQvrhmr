@@ -168,6 +168,19 @@ object WildRiftSupabaseRepository {
         }
     }
 
+    suspend fun saveAllChampionsToSupabase(champions: List<Champion>): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val champDtos = champions.map { WrChampionDto.fromModel(it) }
+            champDtos.chunked(20).forEach { batch ->
+                postgrest.from(TABLE_CHAMPIONS).upsert(batch)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error guardando todos los campeones en Supabase: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
     // =========================================================================
     // 4. GESTIÓN DE RUNAS Y HECHIZOS
     // =========================================================================

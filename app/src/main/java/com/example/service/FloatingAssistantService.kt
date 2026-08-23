@@ -892,8 +892,8 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Cambiar"), color = HextechGold, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
+                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
                                 }
 
                                 Card(

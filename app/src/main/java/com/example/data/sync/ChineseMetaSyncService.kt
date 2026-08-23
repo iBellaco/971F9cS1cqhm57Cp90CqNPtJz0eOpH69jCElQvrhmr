@@ -194,6 +194,15 @@ object ChineseMetaSyncService {
                 // Actualizar repositorio
                 WildRiftRepository.champions = updatedChampions
 
+                // Guardar en Supabase y Caché Local para persistencia y sincronización global
+                try {
+                    com.example.data.supabase.WildRiftSupabaseRepository.saveAllChampionsToSupabase(updatedChampions)
+                    com.example.data.local.WildRiftLocalCache.saveToLocalCache(context, champions = updatedChampions)
+                    Log.d(TAG, "Estadísticas guardadas exitosamente en Supabase y Caché Local.")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error guardando estadísticas en BD: ${e.message}", e)
+                }
+
                 _syncState.value = ChineseSyncState.Success(
                     tier = targetTier,
                     updatedCount = updatedChampions.size,

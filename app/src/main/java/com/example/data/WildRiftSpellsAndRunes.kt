@@ -396,66 +396,72 @@ object WildRiftSpellsAndRunes {
             id = "sudden_impact",
             name = "Impacto Repentino",
             category = "Dominación",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391561_sudden-impact.webp",
-            description = "Inflige daño verdadero adicional tras usar un deslizamiento, salto, teleportación o al salir de sigilo."
+            iconUrl = "https://i.postimg.cc/zXh6HwFd/sudden-impact.webp",
+            description = "Inflige daño verdadero adicional tras usar un deslizamiento, salto, teleportación o al salir de sigilo.\n\n💡 Consejo Coach: Aprovecha el pico de daño de esta runa para intercambios cortos inmediatamente después de usar tu habilidad de movilidad."
         ),
         RuneItem(
             id = "cheap_shot",
             name = "Golpe Bajo",
             category = "Dominación",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391621_cheap-shot.webp",
-            description = "Infliges daño verdadero adicional a campeones enemigos que tengan su movimiento impedido."
+            iconUrl = "https://i.postimg.cc/pXj45QJZ/cheap-shot.webp",
+            description = "Infliges daño verdadero adicional a campeones enemigos que tengan su movimiento impedido.\n\n💡 Consejo Coach: Sinergiza perfectamente con campeones que tienen ralentizaciones o inmovilizaciones fiables para asegurar daño verdadero gratis en fase de líneas."
         ),
         RuneItem(
-            id = "taste_of_blood",
-            name = "Sabor a Sangre",
+            id = "empowered_attack",
+            name = "Ataque Potenciado",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/tasteofblood/greenterror_tasteofblood.png",
-            description = "Cúrate entre 18-35 (+20% AD extra / +10% AP) de vida cuando infliges daño a un campeón enemigo (enfriamiento: 20s)."
+            iconUrl = "https://i.postimg.cc/WbZCqmwX/empowered-attack.webp",
+            description = "Cada 10 segundos, tu siguiente ataque inflige daño adaptable adicional.\n\n💡 Consejo Coach: Excelente para el pokeo constante en la línea. Sincroniza tus agresiones cada vez que esta runa esté disponible para maximizar la presión."
         ),
         RuneItem(
             id = "eyeball_collection",
             name = "Colección de Ojos",
             category = "Dominación",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391605_eyeball-collector.webp",
-            description = "Los derribos de campeones y monstruos épicos otorgan daño adaptable adicional, acumulable hasta 8 veces."
+            iconUrl = "https://i.postimg.cc/X75mBKk1/eyeball-collector.webp",
+            description = "Los derribos de campeones y monstruos épicos otorgan daño adaptable adicional, acumulable hasta 8 veces.\n\n💡 Consejo Coach: Prioriza las peleas tempranas y rotaciones conjuntas para alcanzar tu pico de estadísticas adicionales lo antes posible."
         ),
         RuneItem(
-            id = "zombie_ward",
-            name = "Centinela Zombi",
+            id = "hubris",
+            name = "Arrogancia",
             category = "Dominación",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391650_zombie-ward.webp",
-            description = "Derribar centinelas enemigos otorga daño adaptable adicional y genera un centinela zombi."
-        ),
-        RuneItem(
-            id = "ghost_poro",
-            name = "Poro Fantasma",
-            category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/ghostporo/ghostporo.png",
-            description = "Cuando tus centinelas expiran, dejan atrás un Poro Fantasma que otorga visión del sector hasta que un campeón enemigo lo espante."
+            iconUrl = "https://i.postimg.cc/5NzTQ5S7/hubris.webp",
+            description = "Tras conseguir un derribo de campeón, obtienes daño adaptable adicional durante unos segundos.\n\n💡 Consejo Coach: Perfecta para asesinos en peleas de equipo; busca asegurar el primer derribo rápido para encadenar tu daño contra los siguientes objetivos."
         ),
         RuneItem(
             id = "ingenious_hunter",
             name = "Cazador Ingenioso",
             category = "Dominación",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391664_ingenious-hunter.webp",
-            description = "Otorgar derribos a campeones y monstruos épicos aumenta tu aceleración de objetos, acumulable hasta 5 veces."
+            iconUrl = "https://i.postimg.cc/02SFKG0H/ingenious-hunter.webp",
+            description = "Otorgar derribos a campeones y monstruos épicos aumenta tu aceleración de objetos.\n\n💡 Consejo Coach: Imprescindible si dependes de objetos activos potentes (como Estasis o Protocinturón), te permitirá usarlos con mucha más frecuencia."
         ),
         RuneItem(
-            id = "ultimate_hunter",
-            name = "Cazador Supremo",
+            id = "relentless_hunter",
+            name = "Cazador Implacable",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/ultimatehunter/ultimatehunter.png",
-            description = "Tu habilidad definitiva obtiene +6 de aceleración de habilidad, más +5 de aceleración adicional por cada derribo único de campeón enemigo."
+            iconUrl = "https://i.postimg.cc/PrD9vbQR/relentless-hunter.webp",
+            description = "Los derribos únicos de campeones otorgan velocidad de movimiento fuera de combate.\n\n💡 Consejo Coach: Ideal para junglas y soportes de rotación (roaming), usa la velocidad para generar presión global constante."
         ),
         RuneItem(
-            id = "shield_breaker",
-            name = "Rompeescudos",
+            id = "tyrant",
+            name = "Tirano",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/relentlesshunter/relentlesshunter.png",
-            description = "Inflige un 15% de daño adicional a enemigos que posean escudos activos y destruye rápidamente defensas temporales enemigas."
+            iconUrl = "https://i.postimg.cc/J4XvH35K/tyrant.webp",
+            description = "Infligir daño a campeones con menos de 50% de vida máxima otorga daño adaptable adicional.\n\n💡 Consejo Coach: Runa letal para ejecutar objetivos. Úsala si tu campeón destaca finalizando combates a corta y media distancia."
         ),
-
+        RuneItem(
+            id = "chain_assault",
+            name = "Asalto en Cadena",
+            category = "Dominación",
+            iconUrl = "https://i.postimg.cc/wTNZR5Qw/chain-assault.webp",
+            description = "Después de golpear con una habilidad, tu siguiente ataque básico inflige daño adaptable extra.\n\n💡 Consejo Coach: Excelente opción para luchadores o asesinos que intercalan ataques básicos entre sus habilidades para maximizar el DPS continuo."
+        ),
+        RuneItem(
+            id = "zombie_ward",
+            name = "Centinela Zombi",
+            category = "Dominación",
+            iconUrl = "https://i.postimg.cc/28WMLd7t/zombie-ward.webp",
+            description = "Derribar centinelas enemigos otorga daño adaptable adicional y genera un centinela zombi.\n\n💡 Consejo Coach: Aumenta exponencialmente el control de visión. Ideal para junglas o soportes que abusan de Lentes del Oráculo."
+        ),
         // =========================================================================
         // 4. PRECISIÓN (PRECISION)
         // =========================================================================
