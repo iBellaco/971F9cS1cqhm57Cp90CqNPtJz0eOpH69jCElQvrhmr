@@ -219,92 +219,92 @@ object WildRiftSpellsAndRunes {
             id = "electrocute",
             name = "Electrocutar",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/XqmjT2tX/IMG-20260822-184232.jpg",
-            description = "En 3 s, golpea a un mismo campeón enemigo con 3 ataques básicos o habilidades para infligirle daño adaptable adicional.\nDaño: 40-210 (🔺) + 10% adicional DA + 5% PH.\nEnfriamiento: 20-13 s (🔺)."
+            iconUrl = "undefined",
+            description = "After channeling for 3.5 seconds, teleport your champion to an allied champion, structure, or ward (excludes areas in range of enemy inhibitors). You can only teleport to structures during the first 6 minutes of the game.Cooldown: 150s"
         ),
         RuneItem(
             id = "dark_harvest",
             name = "Cosecha Oscura",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/T1FdZkBL/IMG-20260822-184331.jpg",
-            description = "Al infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\nEnfriamiento: 20 s (Se reinicia a 1 s con asesinatos o asistencias)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1760126804_dark_harvest_rune.webp",
+            description = "Bonus Damage, Stack AmplificationDamaging a champion below 50% health deals adaptive damage and harvests their soul, permanently increasing Dark Harvest's damage by 11.Dark Harvest damage: 35+ 11 per soul + 10% bonus AD + 5% AP Cooldown: 20s (Resets to 1s on takedown)"
         ),
         RuneItem(
             id = "empowerment",
             name = "Fortalecimiento",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/8k0zJ5cB/IMG-20260822-184359.jpg",
-            description = "Al asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165 (🔺).\nEnfriamiento: 4 s.\nLa amplificación de daño solo surtirá efecto contra campeones."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729601_8005.webp",
+            description = "Increased damage against championsHitting an enemy champion with 3 consecutive attacks deals bonus adaptive damage and amplifies your damage dealt by 8% until you leave combat with champions.Adaptive Damage: 40-165 ()Cooldown: 4s.Damage amplification will only take effect against champions."
         ),
         RuneItem(
             id = "lethal_tempo",
             name = "Compás Letal",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/pV6LhTrJ/IMG-20260822-184441.jpg",
-            description = "Obtienes velocidad de ataque acumulable al atacar a campeones enemigos. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes alcance adicional y puedes superar el límite de velocidad de ataque.\nCada acumulación aumenta la velocidad de ataque un 6-14% (cuerpo a cuerpo) o un 3,5-8% (a distancia) durante 6 s.\nCon el máximo de acumulaciones, obtienes 25 (cuerpo a cuerpo) o 50 (a distancia) de alcance."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729643_8008.webp",
+            description = "Attack SpeedGain stacks of Attack Speed when attacking enemy champions. Stacks up to 6 times. At max stacks, you gain bonus range and can exceed the Attack Speed cap.Each stack: increase 6-14% (Melee) or 3.5-8% (Ranged) Attack Speed for 6 seconds.At max stack bonus: Gain 25 (Melee) or 50 (Ranged) Attack Distance."
         ),
         RuneItem(
             id = "fleet_footwork",
             name = "Pies Veloces",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/HWhkcxnt/IMG-20260822-184520.jpg",
-            description = "Moverse, atacar y utilizar habilidades generan acumulaciones de energía. Con 100 acumulaciones, tu siguiente ataque obtiene velocidad de ataque, te cura y te otorga velocidad de movimiento adicional. Si el ataque tiene como objetivo a un campeón, también restaura maná o energía.\nVelocidad de ataque adicional: 40%.\nVida restaurada: 15-110 (🔺) + 15% adicional DA + 10% PH.\nVelocidad de movimiento adicional: 20% durante 1 s.\nAl atacar a un campeón, restaura un 8% del maná que falte o un 8% de la energía que falte.\nAl atacar a súbditos o monstruos, restaura un 35% (campeones cuerpo a cuerpo) o un 15% (campeones a distancia) de la curación original."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-06/1749148113_17377296298021.webp",
+            description = "Mobility, HealMoving, attacking and casting builds Energy stacks. At 100 stacks, your next attack gains Attack Speed, heals you, grants bonus MS Movement Speed. If the attack is again st a champion, it also restores Mana or Energy.Bonus Attack Speed: 40%Health Restore: 15-110 () + 15% bonus AD + 10% AP .Bonus Movement Speed: 20% for 1s.When attacking a champion, restore 8% missing mana or 8% missing energy.When attacking minions or monsters, heals for 35% (Melee champions) or 15% (Ranged champions) of the original heal amount."
         ),
         RuneItem(
             id = "conqueror",
             name = "Conquistador",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/XNzYGJq8/IMG-20260822-184544.jpg",
-            description = "Golpear a un campeón con ataques o habilidades diferentes otorga acumulaciones de fuerza adaptable. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes omnisucción adicional.\nPor acumulación: 3-5 de daño de ataque o 4-8 de poder de habilidad adicionales durante 6 s.\nMejora al máximo de acumulaciones: 9% (cuerpo a cuerpo) o un 5% (a distancia) de omnisucción adicional."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729565_8010.webp",
+            description = "Stacking Damage, VampGain stacks of Adaptive Force when hitting a champion with separate attacks or abilities. Stacks up to 6 times. When fully stacked, gain bonus omnivamp.Per stack: 3-5 bonus AD or 4-8 AP for 6s.Fully stacked bonus: Melee - 9%, Ranged - 5% bonus Omnivamp ."
         ),
         RuneItem(
             id = "grasp_undying",
             name = "Garras del Inmortal",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/05ByMQjc/IMG-20260822-184814.jpg",
-            description = "Cada 3 s que pases en combate, se potenciará tu siguiente ataque contra un campeón.\nDaño mágico adicional: 3,3% de vida máxima.\nCuración: 1,3% de vida máxima.\nAumento de vida permanente: 10.\nCon campeones a distancia, los efectos se reducen un 60%."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729699_8437.webp",
+            description = "Tank, HealEvery 3s in combat, your next attack on a champion will be enhanced.Bonus magic damage: 3.3% HP Heal: 1.3% HP Permanently health increase: 10On Ranged champions, the effects are reduced by 60%."
         ),
         RuneItem(
             id = "guardian",
             name = "Guardián",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/L4b8YX5x/IMG-20260822-184847.jpg",
-            description = "Protege a los aliados que se encuentren a 350 unidades de ti y a los aliados que sean objetivos de tus habilidades durante 2,5 s. Si a lo largo de su duración tu aliado o tú recibís más que una pequeña cantidad de daño, ambos obtenéis un escudo durante 1,5 s.\nEnfriamiento: 55-25 s (🔺).\nEscudo: 40-165 (🔺) + 6% de vida adicional + 15% PH.\nUmbral de daño: 70-240 de daño recibido (🔺)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774950298_guardian.webp",
+            description = "Protect, ShieldGuard allies within 350 units of you and allies you target with abilities for 2.5 second(s). While guarding, if you or the ally take more than a certain amount of damage, both of you gain a shield for 1.5 second(s).Shield: 40–165 () + 6% bonus HP + 15% AP Damage threshold: 70–240 damage taken ()Cooldown: 55–25s ()"
         ),
         RuneItem(
             id = "aery",
             name = "Aery",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/1Rj3ntXW/IMG-20260822-184921.jpg",
-            description = "Tus ataques y habilidades envían a Aery a un objetivo para dañar a los enemigos u otorgar un escudo a los aliados.\nDaño: 15 - 70 (🔺) + 10% adicional DA + 5% PH.\nEscudo: 25 - 120 (🔺) + 10% adicional DA + 5% PH.\nNo se puede enviar a Aery de nuevo hasta que vuelva a ti."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729544_8214.webp",
+            description = "Poke, ProtectYour attacks and abilities send Aery to a target, damaging enemies or shielding allies.Damage: 15-70 () + 10% bonus AD + 5% AP Shield: 25-120 () + 10% bonus AD + 5% AP Aery cannot be sent out again until she returns to you."
         ),
         RuneItem(
             id = "arcane_comet",
             name = "Cometa Arcano",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/wxGjyvMf/IMG-20260822-184948.jpg",
-            description = "Infligir daño con una habilidad a un campeón proyecta un cometa hacia su ubicación. Cuando un cometa golpea a un campeón enemigo, aumenta el daño del siguiente.\nDaño: (15 a 100) + (2 × golpes totales a campeones enemigos) + 10% adicional DA + 5% PH.\nEnfriamiento: 16-8 s (🔺)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729714_8229.webp",
+            description = "Poke, Stack AmplificationDamaging a champion with an ability hurls a comet at their location. When a comet hits an enemy champion, the next comet's damage increases.Damage: (15 to 100) + (2 x total hits on enemy champions) + 10% bonus AD + 5% AP .Cooldown: 16-8s ()"
         ),
         RuneItem(
             id = "phase_rush",
             name = "Irrupción de Fase",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/jqFSw523/IMG-20260822-185012.jpg",
-            description = "Golpear a un campeón enemigo con ataques básicos o habilidades 3 veces en 4 s otorga velocidad de movimiento y velocidad de habilidades básicas, y reduce el enfriamiento restante de las habilidades básicas en un 20%.\nDuración: 3 s.\nVelocidad de movimiento: 40%-60% (🔺) para los campeones cuerpo a cuerpo; 20%-35% (🔺) para los campeones a distancia.\nVelocidad de habilidades básicas: 10.\nEnfriamiento: 21-7 s (🔺)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729570_8230.webp",
+            description = "Mobility, Ability HasteUsing basic attacks or abilities on an enemy champion 3 time(s) within 4s grants MS Movement Speed and reduces the remaining cooldown of basic abilities by 20%.Duration: 3s.Movement Speed bonus: Melee - 40%-60% () | Ranged - 20-35% ().Ability Haste: 10.Slow Resist: 60%.Cooldown: 21-7s ()"
         ),
         RuneItem(
             id = "first_strike",
             name = "Primer Golpe",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/bYBwDJrB/IMG-20260822-185036.jpg",
-            description = "Iniciar un combate contra un campeón enemigo o infligirle daño durante los 0,25 s después de entrar en combate contra él te otorga 10 de oro y el efecto de Primer golpe durante 3 s, lo que te permite infligirle un 7% de daño verdadero adicional. Cuando el efecto desaparece, obtienes oro según el daño adicional infligido durante la duración del mismo.\nSi no infliges daño al campeón enemigo durante los 0,25 s después de entrar en combate contra él, Primer golpe entrará en enfriamiento durante 10 s.\nOro adicional: Cuerpo a cuerpo: 60% de daño adicional | A distancia: 45% de daño adicional.\nEnfriamiento: 20-13 s (🔺)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729700_8369.webp",
+            description = "Initiate, Damage Amplification, Bonus GoldInitiating combat with an enemy champion or dealing damage to them within 0.25s of engaging them in combat grants 10 gold and First Strike for 3s, allowing you to deal 7% bonus true damage to them. After the effect ends, gain bonus gold based on the bonus damage dealt for its duration.If you do not deal damage to the enemy champion within 0.25s of engaging them in combat, First Strike will go into a 10-second cooldown.Bonus gold:Melee: 65% of bonus damage.Ranged: 45% of bonus damage.Cooldown: 20-30s"
         ),
         RuneItem(
             id = "glacial_augment",
             name = "Soberano Gélido",
             category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/sfNgQXx0/IMG-20260822-185114.jpg",
-            description = "Al inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales (Dura 2,5 s).\nDaño mágico: 15–100 (🔺) + 5% de vida adicional.\nEnfriamiento: 20 s."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774949508_frost-sovereign.webp",
+            description = "Control, SlowImmobilizing an enemy champion causes 3 beams to form around them, creating ice beneath them for 3 second(s) and slowing enemies inside. The slow lingers on enemies for 1.5 second(s) after they’ve left the ice zone. Gain a protective layer of ice around yourself, increasing your defenses. After a brief delay, the ice explodes, dealing a burst of magic damage around you.Slow: (1% of your bonus Health + 15%).Defenses: 35 + 75% bonus Armor and Magic Resist. Lasts 2.5 second(s).Magic damage: 15–100 () + 5% max HP Cooldown: 20s"
         ),
 
         // =========================================================================
@@ -314,78 +314,78 @@ object WildRiftSpellsAndRunes {
             id = "axiomatic_arcanist",
             name = "Arcanólogo Axiomático",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nullifyingorb/nullifyingorb.png",
-            description = "Tu habilidad definitiva obtiene un 10% de daño, curación y escudos adicionales. El aumento del daño en área se reduce un 5%.\nParticipar en el asesinato de un campeón enemigo reduce un 7% el enfriamiento restante de la definitiva."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1761189941_axiom-arcanist.webp",
+            description = "Empowered Ultimate AbilityYour ultimate ability has 10% increased damage, healing, and shielding. (AoE damage is reduced to a 5% increase.)Scoring a takedown on an enemy champion reduces your ultimate ability's remaining cooldown by 7%."
         ),
         RuneItem(
             id = "manaflow_band",
             name = "Banda de Maná",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/manaflowband/manaflowband.png",
-            description = "Golpear a un campeón enemigo con una habilidad o ataque potenciado aumenta permanentemente tu maná máximo en 30, hasta 300 de maná."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392903_manaflow-band.webp",
+            description = "Increase ManaHitting an enemy champion with and ability or empowered attack permanently increases your max mana by 30, up to 300 mana."
         ),
         RuneItem(
             id = "botanist",
             name = "Botanista",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/biscuitdelivery/biscuitdelivery.png",
-            description = "Cuando destruyes una planta, obtienes 10 de oro y efectos potenciados de la planta.\nFrutos de miel: Cuando se consumen, aumenta el efecto curativo un 20%.\nFlor del adivino: Cuando se destruye, la visión que otorga dura un 20% más.\nPiña explosiva: Tras el empujón, otorga un 40% de velocidad de movimiento durante 2,5 s."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952316_botanist.webp",
+            description = "Empowered plant effectsWhen you destroy a plant, gain 10 gold and empowered plant effects. Soulflowers near the turrets also grant additional bonuses.Honeyfruit: Heal is increased by 20% when consumed.Scryer's Bloom: Vision granted lasts 20% longer when destroyed.Blast Cone: Gain 40% Movement Speed for 2.5 second(s) after the knockback."
         ),
         RuneItem(
             id = "hextech_flashtraption",
             name = "Hextello",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/hextechflashtraption/hextechflashtraption.png",
-            description = "Cuando Destello está en enfriamiento, se reemplaza por Hextello. Tras una canalización de hasta 2 s, te trasladas a una ubicación nueva. La distancia varía en función el tiempo de canalización (18 s de enfriamiento).\nPasa a 6 s de enfriamiento al entrar en combate con campeones."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392779_hextech-flashtraption.webp",
+            description = "Gain short-range movement while Flash is on cooldownWhile Flash is on cooldown, it is replaced by Hexflash. Dash a distance based on charge time (max 2s). Entering combat with enemy champions to trigger a 6-second cooldown. Cooldown: 18s"
         ),
         RuneItem(
             id = "transcendence",
             name = "Trascendencia",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/transcendence/transcendence.png",
-            description = "Otorga una bonificación al alcanzar los siguientes niveles:\nEn el nivel 1, otorga 5 de velocidad de habilidades.\nEn el nivel 5, otorga 5 de velocidad de habilidades.\nEn el nivel 9, reduce un 8% el enfriamiento de las habilidades básicas cuando golpeen a un objetivo (8 s de enfriamiento)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392866_transcendence.webp",
+            description = "Reduces ability cooldownsGain a bonus when reaching the following levels:At level 1, gain 5 Ability Haste;at level 5, gain bonus 5 Ability Haste;at level 9, after Basic Ability hit the target, reduce 8% the ability's cooldown time.Cooldown: 8s"
         ),
         RuneItem(
             id = "celerity",
             name = "Celeridad",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/celerity/celeritytemp.png",
-            description = "Obtiene un 2% de velocidad de movimiento. Aumentan un 7% todas las bonificaciones de velocidad de movimiento que recibas."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1761189545_celerity.webp",
+            description = "Increase Movement SpeedGain 2% Movement Speed. All Movement Speed bonuses on you are also increased by 7%."
         ),
         RuneItem(
             id = "absolute_focus",
             name = "Concentración Absoluta",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/absolutefocus/absolutefocus.png",
-            description = "Con más del 65% de la vida, obtienes 2-20 de daño de ataque o 4-40 de poder de habilidad adicional (adaptable)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952466_absolute-focus.webp",
+            description = "Gain Attack Damage/Ability Power at high HealthWhile above 65% Health, gain a bonus 2–20 Attack Damage () or 2–30 Ability Power () (Adaptive)."
         ),
         RuneItem(
             id = "scorch",
             name = "Piroláser",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/scorch/scorch.png",
-            description = "Infligir daño a un campeón enemigo con una habilidad lo quema y le inflige entre 21 y 49 de daño mágico adicional (según el nivel) tras 1 s (8 s de enfriamiento)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952748_scorch.webp",
+            description = "Abilities deal bonus damageDamaging an enemy champion with an ability burns them, dealing 21-49 bonus magic damage () after 1 seconds.Cooldown: 8s"
         ),
         RuneItem(
             id = "nimbus_cloak",
             name = "Capa del Nimbo",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nimbuscloak/6361.png",
-            description = "Tras usar un hechizo (Destello, Prender, etc.), obtienes un 10-40% de velocidad de movimiento adicional durante 3 s. La eficacia de esta mejora depende del enfriamiento del hechizo utilizado."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392930_nimbus-cloak.webp",
+            description = "Spells increase Movement SpeedAfter using a Spell (Flash, Ignite, etc.), 10% - 40% movement bonus for 3 seconds. The speedup effectiveness depends on the Spell's cooldown."
         ),
         RuneItem(
             id = "gathering_storm",
             name = "Se Avecina Tormenta",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/gatheringstorm/gatheringstorm.png",
-            description = "Tras 6 min de partida, otorga 2 de daño de ataque o 4 de poder de habilidad (adaptable), que aumentan cada 3 minutos a 5 o 10, 9 o 18, 14 o 28, etc."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952894_gathering-storm.webp",
+            description = "Increase Attack Damage/Ability Power over timeStarting from 6 minutes into the game, gain increasing Attack Damage or Ability Power (Adaptive). Bonuses increase time, totaling 2/5/9/14/etc. AD or 4/10/18/28/etc. AP based on game time."
         ),
         RuneItem(
             id = "ixtali_seedjar",
             name = "Semillero Ixtalí",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/timewarptonic/timewarptonic.png",
-            description = "Al destruir una planta, obtienes una semilla al instante que reemplaza tu talismán durante 60 s. La semilla madura y se autodestruye poco después tras plantarla en la ubicación objetivo. (Cuando un aliado destruye una planta, también aparecerán semillas que puedes recoger).\nLas semillas están disponibles a partir del minuto 2 de la partida.\nCada planta tiene un enfriamiento de 30 s.\nLas piñas explosivas que plantes te lanzan más lejos al detonar."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392953_ixtali-seedjar.webp",
+            description = "Plant fruits after destroying oneAfter destroying a plant, immediately gain a seeds that replaces your trinket for 60 seconds. The seed matures and self-destructs after it is planted at a target location. (Seeds you can pick up will also drop when an ally destroys a plant.)Seeds become obtainable 2 minutes after the game starts.Cooldown: Each plant has a unique 30s"
         ),
 
         // =========================================================================
@@ -395,15 +395,15 @@ object WildRiftSpellsAndRunes {
             id = "sudden_impact",
             name = "Impacto Repentino",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/suddenimpact/suddenimpact.png",
-            description = "Usar un deslizamiento, salto, destello, teletransporte o salir de sigilo otorga +10 de penetración de armadura y +10 de penetración mágica adicionales durante 4 segundos."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391561_sudden-impact.webp",
+            description = "Triggers when in stealth or dashingDamaging an enemy champion deals a bonus 15-65 true damage after using a dash, leap, blink, teleport, or when exiting stealth for 4s.The damaging attack/ability gains bonuses at higher levels:Level 5: Deal an additional 5 true damage.Level 9: Deal an additional 5 true damage and gain 10% Movement Speed for 1.5s after dealing the damage.Cooldown: 10s"
         ),
         RuneItem(
             id = "cheap_shot",
             name = "Golpe Bajo",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/cheapshot/cheapshot.png",
-            description = "Dañar a campeones con movimiento o acciones reducidas (ralentizados, inmovilizados, aturdidos) inflige 10-45 de daño verdadero adicional."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391621_cheap-shot.webp",
+            description = "Targets movement-impaired enemiesDeals 10-45 bonus true damage to enemies whose movement is impaired.Cooldown: 7s"
         ),
         RuneItem(
             id = "taste_of_blood",
@@ -416,15 +416,15 @@ object WildRiftSpellsAndRunes {
             id = "eyeball_collection",
             name = "Colección de Ojos",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/eyeballcollection/eyeballcollection.png",
-            description = "Consigue ojos por cada derribo de campeón enemigo (hasta 10 cargas). Otorga +2 AD o +4 AP por carga, y un bono adicional de +10 AD / +20 AP al completar la colección."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391605_eyeball-collector.webp",
+            description = "Kills increase Attack Damage/Ability PowerGains 1.5 AD or 3 AP after scoring a champion or epic monster takedown, stacking up to 8 times."
         ),
         RuneItem(
             id = "zombie_ward",
             name = "Centinela Zombi",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/zombieward/zombieward.png",
-            description = "Destruir centinelas enemigos engendra un centinela zombi aliado visible en su lugar que otorga visión extendida en el mapa y fuerza adaptativa."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391650_zombie-ward.webp",
+            description = "Vision control increases Attack Damage/Ability PowerTakedowns on enemy wards spawn a Zombie Ward in its place, granting vision of the surrounding area for 120 seconds. Additionally gain 3 AD or 6 AP (max 5 stacks). (Assists on enemy wards also grant stacks and spawn Zombie Wards.)"
         ),
         RuneItem(
             id = "ghost_poro",
@@ -437,8 +437,8 @@ object WildRiftSpellsAndRunes {
             id = "ingenious_hunter",
             name = "Cazador Ingenioso",
             category = "Dominación",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/ingenioushunter/ingenioushunter.png",
-            description = "Otorga aceleración de objetos activos y pasivas de equipamiento, reduciendo sustancialmente los enfriamientos de Éxtasis, Fajín, Corona y similares."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753391664_ingenious-hunter.webp",
+            description = "Kills increase Item Ability HasteGains 20 Item Ability Haste. For each champion or epic monster takedown you score, gain an additional 5 Item Ability Haste. Stacks up to 5 times."
         ),
         RuneItem(
             id = "ultimate_hunter",
@@ -462,22 +462,22 @@ object WildRiftSpellsAndRunes {
             id = "triumph",
             name = "Triunfo",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/triumph.png",
-            description = "Los derribos de campeones restauran un 10% de la vida faltante e infligen un 5% de daño adicional a campeones enemigos que tengan menos del 35% de vida."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392053_triumph.webp",
+            description = "Increase damage when low in HealthChampion takedowns restore 10% of lost health and 10% of maximum Mana Energyand grant 35 Movement Speed for 2 second(s)."
         ),
         RuneItem(
             id = "coup_de_grace",
             name = "Golpe de Gracia",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/coupdegrace/coupdegrace.png",
-            description = "Inflige un 7% de daño adicional a campeones enemigos que tengan menos del 40% de vida máxima. La mejor opción para rematar objetivos frágiles."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392209_coup-de-grace.webp",
+            description = "Increase damage to low Health enemiesYour attacks deal 8% bonus adaptive damage to enemy champions with less than 40% Health."
         ),
         RuneItem(
             id = "last_stand",
             name = "Último Esfuerzo",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/laststand/laststand.png",
-            description = "Inflige entre 5% y 11% de daño adicional a campeones enemigos mientras estés por debajo del 60% de tu propia vida (máximo al 30% de salud)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392114_last-stand.webp",
+            description = "Increase damage when low in HealthWhen health is lower than 60% HP , attacks launched at enemy champions deal 5-11% bonus adaptive damage.Grants maximum bonus damage when Health is lower than 30% HP"
         ),
         RuneItem(
             id = "giant_slayer",
@@ -490,29 +490,29 @@ object WildRiftSpellsAndRunes {
             id = "legend_alacrity",
             name = "Leyenda: Celeridad",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendalacrity/legendalacrity.png",
-            description = "Otorga un 3% de velocidad de ataque más un 1.5% adicional por cada carga de Leyenda (hasta +18% de velocidad de ataque total)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392174_legend-alacrity.webp",
+            description = "Increase bonus Attack SpeedGains 3% Attack Speed. Takedown monsters, enemy champions, or minions to gain up to an additional 18% Attack Speed."
         ),
         RuneItem(
             id = "legend_bloodline",
             name = "Leyenda: Linaje",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendbloodline/legendbloodline.png",
-            description = "Otorga omnivampirismo y robo de vida permanente al acumular derribos de campeones, monstruos grandes y súbditos (hasta +7% de robo de vida)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392254_legend-bloodline.webp",
+            description = "Increase OmnivampGains 1% Omnivamp . Takedown monsters, enemy champions, or minions to gain up to an additional 7% Omnivamp ."
         ),
         RuneItem(
             id = "legend_tenacity",
             name = "Leyenda: Tenacidad",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendtenacity/legendtenacity.png",
-            description = "Otorga un 5% de tenacidad más un 2.5% adicional por cada carga de Leyenda (hasta +20% de tenacidad y resistencia a ralentizaciones)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392264_legend-tenacity.webp",
+            description = "Increase Tenacity and Slow ResistGains 3% Tenacity and 3% Slow Resist. Takedown monsters, enemy champions, or minions to gain up to an additional 15% Tenacity and 20% Slow Resist."
         ),
         RuneItem(
             id = "brutal",
             name = "Brutalidad / Brutal",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
-            description = "Los ataques básicos infligen 12-19 de daño adaptativo adicional al impacto contra campeones enemigos."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392016_brutal.webp",
+            description = "Attacks deal on-hit damageAttacks deal (5 + 6% bonus AD + 3% AP ) bonus adaptive damage to enemy champions."
         ),
 
         // =========================================================================
@@ -522,15 +522,15 @@ object WildRiftSpellsAndRunes {
             id = "bone_plating",
             name = "Revestimiento de Huesos",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/boneplating/boneplating.png",
-            description = "Tras recibir daño de un campeón enemigo, los siguientes 3 ataques o habilidades del enemigo infligen entre 35-65 menos de daño durante 1.5s (enfriamiento: 35s)."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392660_bone-plating.webp",
+            description = "Anti-Burst DamageWhen taking damage from a champion, the current and next 3 champion abilities or attacks against you and within 1.5s deal 30-60 () less damage.Cooldown: 40s"
         ),
         RuneItem(
             id = "second_wind",
             name = "Segundo Aire",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/secondwind/secondwind.png",
-            description = "Tras recibir daño de un campeón rival, regenera 6 (+2% de tu vida faltante) a lo largo de 5 segundos. Se duplica para campeones cuerpo a cuerpo."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392641_second-wind.webp",
+            description = "Increase sustainGain 5 Health HP every 5 seconds.After taking damage from an enemy champion, regenerate 3 + (1.5% of your missing health) HP over the next 5 seconds. This effect is doubled for melee champions."
         ),
         RuneItem(
             id = "conditioning",
@@ -543,36 +543,36 @@ object WildRiftSpellsAndRunes {
             id = "overgrowth",
             name = "Sobrecrecimiento",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/overgrowth/overgrowth.png",
-            description = "Absorbe la esencia vital de súbditos o monstruos que mueran cerca de ti para aumentar permanentemente tu vida máxima en 3. Al alcanzar 120 súbditos, ganas +3.5% de vida máxima adicional."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392435_overgrowth.webp",
+            description = "Increase max HealthFor every 3 enemy minions or 3 monster(s) killed nearby, permanently gain 3 max Health. Max Health can be increased indefinitely this way. Gain an additional 3% max Health upon reaching 30 stacks."
         ),
         RuneItem(
             id = "font_of_life",
             name = "Fuente de Vida",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/fontoflife/fontoflife.png",
-            description = "Ralentizar o inmovilizar a un campeón enemigo lo marca durante 3s. Los aliados que ataquen al enemigo marcado se curan un porcentaje de tu vida máxima a lo largo de 2 segundos."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392605_font-of-life.webp",
+            description = "Team HealWhen your attacks or abilities hit an enemy champion, heal yourself and the lowest Health allied champion nearby.Ally: Heals for 1.5% of your max HP + 5% of your AP You: Heal for 1% of your max HP + 5% of your AP Healing is 130% effective if you're a melee champion. (Does not trigger if you or nearby allies are at full Health, or if no allies are nearby.)Cooldown: 15s"
         ),
         RuneItem(
             id = "demolish",
             name = "Demolición",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/demolish/demolish.png",
-            description = "Carga un ataque demoledor contra estructuras enemigas cuando estás a menos de 550 de distancia durante 3s, infligiendo 200 (+30% de tu vida máxima) como daño físico demoledor a torretas."
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774951923_demolish.webp",
+            description = "Destroy turrets fasterWhen within 550 range of an enemy turret, gain a charge every 0.5s, up to 6 times.When fully charged, your next attack against the turret deals an additional (100 + 22% max Health HP ) physical damage.Cooldown: 30s"
         ),
         RuneItem(
             id = "perseverance",
             name = "Perseverancia",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/unflinching/unflinching.png",
-            description = "Otorga +10% de tenacidad pasiva. Aumenta hasta +20% de tenacidad adicional y resistencia a ralentizaciones según la vida faltante de tu campeón."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392452_perseverance.webp",
+            description = "Increase survivability when crowd controlledGain 10% Tenacity. Gain 10-15 Armor and Magic Resistance () for 1.5 seconds when mmobilized. Refresh duration time when immobilized multiple times."
         ),
         RuneItem(
             id = "revitalize",
             name = "Revitalizar",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/revitalize/revitalize.png",
-            description = "Las curaciones y escudos que lanzas o recibes son un 5% más potentes. Aumenta un 10% adicional sobre objetivos con menos del 40% de vida."
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392494_revitalize.webp",
+            description = "Empowered heals and shieldsGains a 5% amplification effect when Healing or granting Shields. If the target's Health is lower than 40%, the effect is amplified by an additional 10%."
         ),
         RuneItem(
             id = "loyalty",
