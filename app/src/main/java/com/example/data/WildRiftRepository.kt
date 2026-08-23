@@ -1,5 +1,10 @@
 package com.example.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+
+
 import com.example.model.Champion
 import com.example.model.ChampionSkill
 import com.example.model.DamageType
@@ -73,22 +78,22 @@ object WildRiftRepository {
 
     // CATÁLOGO DE HECHIZOS DE INVOCADOR (SUMMONER SPELLS)
     // ==========================================
-    var summonerSpells: List<SummonerSpellItem> = WildRiftSpellsAndRunes.summonerSpells
+    var summonerSpells: List<SummonerSpellItem> by mutableStateOf(WildRiftSpellsAndRunes.summonerSpells)
 
     // ==========================================
     // CATÁLOGO DE RUNAS DE WILD RIFT
     // ==========================================
-    var runes: List<RuneItem> = WildRiftSpellsAndRunes.runes
+    var runes: List<RuneItem> by mutableStateOf(WildRiftSpellsAndRunes.runes)
 
     // ==========================================
     // CATÁLOGO DE OBJETOS DE WILD RIFT
     // ==========================================
-    var items: List<WildRiftItem> = WildRiftItemsData.list
+    var items: List<WildRiftItem> by mutableStateOf(WildRiftItemsData.list)
 
     // ==========================================
     // CATÁLOGO DE OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS DE WILD RIFT)
     // ==========================================
-    var mapObjectives: List<MapObjectiveItem> = listOf(
+    var mapObjectives: List<MapObjectiveItem> by mutableStateOf(listOf(
         MapObjectiveItem(
             id = "infernal_dragon",
             name = "Dragón Infernal (Fuego)",
@@ -179,18 +184,18 @@ object WildRiftRepository {
             buffDescription = "Otorga Perspicacia Espiritual: regeneración masiva de maná/energía y aceleración de habilidad adicional.",
             tactics = "Cédelo a tu carrilero central mágico para asegurar empuje continuo de oleadas antes de los objetivos."
         )
-    )
+    ))
 
     // ==========================================
     // ROSTER INTEGRAL DE CAMPEONES DE WILD RIFT
     // ==========================================
-    var champions: List<Champion> = (
+    var champions: List<Champion> by mutableStateOf((
         com.example.data.champions.BaronLaneChampions.list +
         com.example.data.champions.JungleChampions.list +
         com.example.data.champions.MidLaneChampions.list +
         com.example.data.champions.DragonLaneChampions.list +
         com.example.data.champions.SupportChampions.list
-    ).distinctBy { it.id }
+    ).distinctBy { it.id })
 
     fun getChampionByName(name: String): Champion? {
         return champions.find { it.name.equals(name, ignoreCase = true) }

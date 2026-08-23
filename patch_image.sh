@@ -1,0 +1,1 @@
+sed -i 's/val imageModel: Any? = runeDrawableRes ?: url.takeIf { it.isNotBlank() }/val parsedUrl = url.trim()\n    val imageModel: Any? = runeDrawableRes ?: if (parsedUrl.startsWith("file:\/\/")) android.net.Uri.parse(parsedUrl) else parsedUrl.takeIf { it.isNotBlank() }/g' app/src/main/java/com/example/ui/components/ChampionAvatar.kt
