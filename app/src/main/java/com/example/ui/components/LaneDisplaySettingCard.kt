@@ -186,7 +186,7 @@ fun LaneDisplaySettingCard(
                         // Nombre de Rol y Nivel Traducido
                         Text(
                             text = tr(labelKey),
-                            color = if (isSelected) TextPrimary else TextMuted,
+                            color = if (isSelected) Color(0xFFF0E6D2) else Color(0xFF94A3B8),
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             maxLines = 1,

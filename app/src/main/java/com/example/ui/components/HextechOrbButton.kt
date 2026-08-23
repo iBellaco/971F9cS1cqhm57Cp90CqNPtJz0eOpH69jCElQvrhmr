@@ -307,13 +307,13 @@ fun HextechOrbButton(
                             listOf(
                                 Color(0xFF02364F), // Azul eléctrico activo central
                                 Color(0xFF051D2D), // Azul profundo intermedio
-                                HextechDarkBg      // Borde exterior oscuro
+                                Color(0xFF000000)      // Borde exterior oscuro
                             )
                         } else {
                             listOf(
                                 Color(0xFF1E170A), // Ámbar oscuro forja inactivo
                                 Color(0xFF0F1724), // Azul marino oscuro
-                                HextechDarkBg
+                                Color(0xFF000000)
                             )
                         }
                     )

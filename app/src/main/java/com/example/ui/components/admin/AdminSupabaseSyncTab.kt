@@ -71,7 +71,7 @@ fun AdminSupabaseSyncTab() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.RocketLaunch, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(tr("Publicador de Parche de Wild Rift"), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(tr("Publicador de Parche de Wild Rift"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -256,7 +256,7 @@ fun AdminSupabaseSyncTab() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Settings, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(tr("Credenciales de Supabase (URL y Clave)"), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(tr("Credenciales de Supabase (URL y Clave)"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

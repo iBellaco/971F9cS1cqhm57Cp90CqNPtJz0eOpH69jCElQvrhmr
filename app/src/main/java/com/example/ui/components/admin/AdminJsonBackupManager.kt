@@ -84,7 +84,7 @@ fun AdminJsonBackupManager(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "📤 Exportar Base de Datos a JSON",
-                        color = HextechGoldLight,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )

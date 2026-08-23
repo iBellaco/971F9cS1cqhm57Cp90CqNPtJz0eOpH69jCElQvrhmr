@@ -67,7 +67,7 @@ fun DamagePenetrationCalculator(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = tr("Calculadora de Daño & Penetración"),
-                    color = HextechGoldLight,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = if (isCompactOverlay) 12.sp else 15.sp
                 )
@@ -213,7 +213,7 @@ fun DamagePenetrationCalculator(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Veredicto del Coach de Élite:",
-                        color = HextechGoldLight,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.5.sp
                     )

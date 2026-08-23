@@ -125,7 +125,7 @@ fun AdminRunesSpellsEditorTab() {
                     SubSection.SPELLS -> tr("Edición de Hechizos e Íconos")
                     SubSection.OBJECTIVES -> tr("Edición de Objetivos e Íconos")
                 },
-                color = HextechGoldLight,
+                color = TextPrimary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -240,7 +240,7 @@ fun AdminRunesSpellsEditorTab() {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = rune.name,
-                                        color = HextechGoldLight,
+                                        color = TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.5.sp
                                     )
@@ -322,7 +322,7 @@ fun AdminRunesSpellsEditorTab() {
                                     ) {
                                         Text(
                                             text = spell.name,
-                                            color = HextechGoldLight,
+                                            color = TextPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 13.5.sp
                                         )
@@ -407,7 +407,7 @@ fun AdminRunesSpellsEditorTab() {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = obj.name,
-                                        color = HextechGoldLight,
+                                        color = TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 13.5.sp
                                     )

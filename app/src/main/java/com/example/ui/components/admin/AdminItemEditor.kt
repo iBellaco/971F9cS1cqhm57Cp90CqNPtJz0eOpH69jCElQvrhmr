@@ -202,7 +202,7 @@ fun AdminItemEditorTab() {
                             ) {
                                 Text(
                                     text = tr(item.name),
-                                    color = HextechGoldLight,
+                                    color = TextPrimary,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.5.sp,
                                     maxLines = 1,

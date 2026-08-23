@@ -152,7 +152,7 @@ fun ChampionDetailSheet(
                         if (champion.title.isNotBlank()) {
                             Text(
                                 text = tr(champion.title),
-                                color = HextechGoldLight,
+                                color = TextPrimary,
                                 fontSize = 12.sp
                             )
                         }
@@ -247,7 +247,7 @@ fun ChampionDetailSheet(
                                     if (isPrimary) {
                                         Text("Main", color = HextechCyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                     } else {
-                                        Text("Flex", color = HextechGoldLight, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+                                        Text("Flex", color = TextPrimary, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -265,7 +265,7 @@ fun ChampionDetailSheet(
                         ) {
                             Text(
                                 text = "⭐ ${tr("Estadísticas, hechizos, runas y build adaptadas a")} ${tr(selectedRole.displayName)}.",
-                                color = HextechGoldLight,
+                                color = TextPrimary,
                                 fontSize = 11.sp
                             )
                         }
@@ -441,7 +441,7 @@ fun ChampionDetailSheet(
                                         }
                                         Text(
                                             text = "$slotTranslation ${skill.name}",
-                                            color = HextechGoldLight,
+                                            color = TextPrimary,
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -580,7 +580,7 @@ fun ChampionDetailSheet(
                         Column {
                             Text(
                                 text = tr(roleProfile.recommendedRunes),
-                                color = HextechGoldLight,
+                                color = TextPrimary,
                                 fontSize = 13.5.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -740,7 +740,7 @@ fun ChampionDetailSheet(
 
                     if (roleProfile.itemSwaps.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(14.dp))
-                        Text(tr("CAMBIOS SITUACIONALES"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Black)
+                        Text(tr("CAMBIOS SITUACIONALES"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Black)
                         Spacer(modifier = Modifier.height(10.dp))
                         
                         roleProfile.itemSwaps.forEach { swap ->
@@ -806,7 +806,7 @@ fun ChampionDetailSheet(
                                     Spacer(modifier = Modifier.height(12.dp))
                                     Text(tr(swap.reasonDesc), color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Text(tr("Bueno contra:") + " " + tr(swap.againstWho), color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(tr("Bueno contra:") + " " + tr(swap.againstWho), color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                                 }
                             }
                         }
@@ -890,7 +890,7 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechGoldLight.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text(tr("Mejores Sinergias:"), color = HextechGoldLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("Mejores Sinergias:"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     val synergyList = roleProfile.synergies.take(5)
 
@@ -970,7 +970,7 @@ fun ChampionDetailSheet(
                     Column {
                         Text(
                             text = tr("¿Por qué comprar este objeto?"),
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp
                         )
@@ -1043,7 +1043,7 @@ fun ChampionDetailSheet(
                     ) {
                         Text(
                             text = "💡 ${advice.recommendationTip}",
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontSize = 11.5.sp,
                             lineHeight = 15.sp
                         )
@@ -1138,7 +1138,7 @@ fun ChampionDetailSheet(
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = tr(item.name),
-                        color = com.example.ui.theme.HextechGoldLight,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1177,7 +1177,7 @@ fun ChampionDetailSheet(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Estadísticas:"),
-                            color = com.example.ui.theme.HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -1195,7 +1195,7 @@ fun ChampionDetailSheet(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Efecto / Pasiva:"),
-                            color = com.example.ui.theme.HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -1245,7 +1245,7 @@ fun ChampionDetailSheet(
                     Column {
                         Text(
                             text = rune.name,
-                            color = com.example.ui.theme.HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -1292,7 +1292,7 @@ fun ChampionDetailSheet(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = spell.name,
-                        color = com.example.ui.theme.HextechGoldLight,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )

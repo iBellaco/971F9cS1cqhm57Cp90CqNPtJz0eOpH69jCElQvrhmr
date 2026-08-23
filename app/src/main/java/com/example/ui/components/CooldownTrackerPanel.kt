@@ -179,7 +179,7 @@ fun CooldownTrackerPanel(
         ) {
             Text(
                 text = "⏱️ " + tr("CD Tracker:") + " " + tr("Rival") + " " + tr(selectedRole.displayName),
-                color = HextechGoldLight,
+                color = TextPrimary,
                 fontSize = if (isCompactOverlay) 11.5.sp else 13.sp,
                 fontWeight = FontWeight.Bold
             )

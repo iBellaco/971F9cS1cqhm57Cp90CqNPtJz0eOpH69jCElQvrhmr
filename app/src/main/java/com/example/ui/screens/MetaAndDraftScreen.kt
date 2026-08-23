@@ -708,7 +708,7 @@ private fun ChampionsCatalogTab(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Toca para ver build y runas",
-                                    color = HextechGoldLight,
+                                    color = TextPrimary,
                                     fontSize = 10.5.sp
                                 )
                             }
@@ -812,7 +812,7 @@ private fun TierListTab(
         ) {
             Text(
                 text = tr("Ordenar:"),
-                color = HextechGoldLight,
+                color = TextPrimary,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -1108,17 +1108,13 @@ private fun ItemsCatalogTab() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            Text(
+                text = "${filteredItems.size} ${tr("Ítems")}",
+                color = HextechCyan,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Empty or something else if needed. We can just remove the whole left side.
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "${filteredItems.size} ${tr("Ítems")}",
-                    color = HextechCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
                 // View mode toggle
                 Row(
                     modifier = Modifier
@@ -1241,7 +1237,7 @@ private fun ItemsCatalogTab() {
                                     
                                     Text(
                                         text = tr(category.sectionTitle),
-                                        color = HextechGoldLight,
+                                        color = TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.5.sp
                                     )
@@ -1347,7 +1343,7 @@ private fun ItemsCatalogTab() {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = tr(item.name),
-                        color = HextechGoldLight,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1387,7 +1383,7 @@ private fun ItemsCatalogTab() {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Estadísticas:"),
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -1406,7 +1402,7 @@ private fun ItemsCatalogTab() {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Efecto / Pasiva:"),
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -1526,7 +1522,7 @@ private fun ItemListCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(tr(item.name), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                 }
                 Text(tr(item.category.displayName), color = HextechCyan, fontSize = 11.sp)
@@ -1834,7 +1830,7 @@ private fun RunesTab() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(rune.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                    Text(rune.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
@@ -1883,7 +1879,7 @@ private fun RunesTab() {
                     Column {
                         Text(
                             text = rune.name,
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -2040,7 +2036,7 @@ private fun SpellsTab() {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(if (isGridView) HextechGold else Color.Transparent)
+                        .background(if (isGridView) HextechCyan else Color.Transparent)
                         .clickable { isGridView = true }
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
@@ -2054,7 +2050,7 @@ private fun SpellsTab() {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(if (!isGridView) HextechGold else Color.Transparent)
+                        .background(if (!isGridView) HextechCyan else Color.Transparent)
                         .clickable { isGridView = false }
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
@@ -2151,7 +2147,7 @@ private fun SpellsTab() {
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = spell.name,
-                                        color = HextechGoldLight,
+                                        color = TextPrimary,
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -2207,7 +2203,7 @@ private fun SpellsTab() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(spell.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(spell.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
@@ -2256,7 +2252,7 @@ private fun SpellsTab() {
                     Column {
                         Text(
                             text = spell.name,
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -2372,7 +2368,7 @@ private fun MapObjectivesTab() {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(tr("Mejora:") + " ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(tr("Táctica:") + " ${obj.tactics}", color = HextechGoldLight.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
+                        Text(tr("Táctica:") + " ${obj.tactics}", color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
                     }
                 }
             }
@@ -2677,7 +2673,7 @@ private fun DraftAnalysisTab(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = tr("🔮 Runas:") + " ${myEval.champion.recommendedRunes} • " + tr("Toca para ver build completa"),
-                        color = HextechGoldLight,
+                        color = TextPrimary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -2800,7 +2796,7 @@ private fun DraftAnalysisTab(
                     ) {
                         Text(
                             text = tr("🔮 Runas:") + " ${topPick.champion.recommendedRunes}",
-                            color = HextechGoldLight,
+                            color = TextPrimary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f)

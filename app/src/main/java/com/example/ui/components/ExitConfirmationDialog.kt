@@ -106,7 +106,7 @@ fun ExitConfirmationDialog(
                 // Title
                 Text(
                     text = tr("¿Salir de la aplicación?"),
-                    color = HextechGoldLight,
+                    color = TextPrimary,
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center

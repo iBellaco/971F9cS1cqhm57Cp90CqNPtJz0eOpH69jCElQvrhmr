@@ -206,7 +206,7 @@ fun AdminChampionEditorTab() {
                             ) {
                                 Text(
                                     text = champ.name,
-                                    color = HextechGoldLight,
+                                    color = TextPrimary,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.5.sp,
                                     maxLines = 1,
