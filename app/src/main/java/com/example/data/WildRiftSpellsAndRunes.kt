@@ -219,14 +219,14 @@ object WildRiftSpellsAndRunes {
             id = "electrocute",
             name = "Electrocutar",
             category = "Runa Clave",
-            iconUrl = "undefined",
+            iconUrl = "https://i.postimg.cc/zXhRSMyc/electrocutar-hanu.png",
             description = "After channeling for 3.5 seconds, teleport your champion to an allied champion, structure, or ward (excludes areas in range of enemy inhibitors). You can only teleport to structures during the first 6 minutes of the game.Cooldown: 150s"
         ),
         RuneItem(
             id = "dark_harvest",
             name = "Cosecha Oscura",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1760126804_dark_harvest_rune.webp",
+            iconUrl = "https://i.postimg.cc/VvC5grkT/dark-harvest.png",
             description = "Bonus Damage, Stack AmplificationDamaging a champion below 50% health deals adaptive damage and harvests their soul, permanently increasing Dark Harvest's damage by 11.Dark Harvest damage: 35+ 11 per soul + 10% bonus AD + 5% AP Cooldown: 20s (Resets to 1s on takedown)"
         ),
         RuneItem(
@@ -240,28 +240,28 @@ object WildRiftSpellsAndRunes {
             id = "lethal_tempo",
             name = "Compás Letal",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729643_8008.webp",
+            iconUrl = "https://i.postimg.cc/kGbDs65r/compas-letal-hanu.png",
             description = "Attack SpeedGain stacks of Attack Speed when attacking enemy champions. Stacks up to 6 times. At max stacks, you gain bonus range and can exceed the Attack Speed cap.Each stack: increase 6-14% (Melee) or 3.5-8% (Ranged) Attack Speed for 6 seconds.At max stack bonus: Gain 25 (Melee) or 50 (Ranged) Attack Distance."
         ),
         RuneItem(
             id = "fleet_footwork",
             name = "Pies Veloces",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-06/1749148113_17377296298021.webp",
+            iconUrl = "https://i.postimg.cc/Znd0HBqt/pies-veloces-hanu.png",
             description = "Mobility, HealMoving, attacking and casting builds Energy stacks. At 100 stacks, your next attack gains Attack Speed, heals you, grants bonus MS Movement Speed. If the attack is again st a champion, it also restores Mana or Energy.Bonus Attack Speed: 40%Health Restore: 15-110 () + 15% bonus AD + 10% AP .Bonus Movement Speed: 20% for 1s.When attacking a champion, restore 8% missing mana or 8% missing energy.When attacking minions or monsters, heals for 35% (Melee champions) or 15% (Ranged champions) of the original heal amount."
         ),
         RuneItem(
             id = "conqueror",
             name = "Conquistador",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729565_8010.webp",
+            iconUrl = "https://i.postimg.cc/HnyjzcL1/conqueror-hanu.png",
             description = "Stacking Damage, VampGain stacks of Adaptive Force when hitting a champion with separate attacks or abilities. Stacks up to 6 times. When fully stacked, gain bonus omnivamp.Per stack: 3-5 bonus AD or 4-8 AP for 6s.Fully stacked bonus: Melee - 9%, Ranged - 5% bonus Omnivamp ."
         ),
         RuneItem(
             id = "grasp_undying",
             name = "Garras del Inmortal",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729699_8437.webp",
+            iconUrl = "https://i.postimg.cc/hvdhszGq/desgarrador-hanu.png",
             description = "Tank, HealEvery 3s in combat, your next attack on a champion will be enhanced.Bonus magic damage: 3.3% HP Heal: 1.3% HP Permanently health increase: 10On Ranged champions, the effects are reduced by 60%."
         ),
         RuneItem(
@@ -275,28 +275,28 @@ object WildRiftSpellsAndRunes {
             id = "aery",
             name = "Aery",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729544_8214.webp",
+            iconUrl = "https://i.postimg.cc/prFyChdH/aery-hanu.png",
             description = "Poke, ProtectYour attacks and abilities send Aery to a target, damaging enemies or shielding allies.Damage: 15-70 () + 10% bonus AD + 5% AP Shield: 25-120 () + 10% bonus AD + 5% AP Aery cannot be sent out again until she returns to you."
         ),
         RuneItem(
             id = "arcane_comet",
             name = "Cometa Arcano",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729714_8229.webp",
+            iconUrl = "https://i.postimg.cc/t7GJMqsm/cometa-hanu-bbwr.png",
             description = "Poke, Stack AmplificationDamaging a champion with an ability hurls a comet at their location. When a comet hits an enemy champion, the next comet's damage increases.Damage: (15 to 100) + (2 x total hits on enemy champions) + 10% bonus AD + 5% AP .Cooldown: 16-8s ()"
         ),
         RuneItem(
             id = "phase_rush",
             name = "Irrupción de Fase",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729570_8230.webp",
+            iconUrl = "https://i.postimg.cc/Hj1nhYrN/324314341234123-hanu-wr-bb.png",
             description = "Mobility, Ability HasteUsing basic attacks or abilities on an enemy champion 3 time(s) within 4s grants MS Movement Speed and reduces the remaining cooldown of basic abilities by 20%.Duration: 3s.Movement Speed bonus: Melee - 40%-60% () | Ranged - 20-35% ().Ability Haste: 10.Slow Resist: 60%.Cooldown: 21-7s ()"
         ),
         RuneItem(
             id = "first_strike",
             name = "Primer Golpe",
             category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729700_8369.webp",
+            iconUrl = "https://i.postimg.cc/hhRv5DXw/8369.png",
             description = "Initiate, Damage Amplification, Bonus GoldInitiating combat with an enemy champion or dealing damage to them within 0.25s of engaging them in combat grants 10 gold and First Strike for 3s, allowing you to deal 7% bonus true damage to them. After the effect ends, gain bonus gold based on the bonus damage dealt for its duration.If you do not deal damage to the enemy champion within 0.25s of engaging them in combat, First Strike will go into a 10-second cooldown.Bonus gold:Melee: 65% of bonus damage.Ranged: 45% of bonus damage.Cooldown: 20-30s"
         ),
         RuneItem(
