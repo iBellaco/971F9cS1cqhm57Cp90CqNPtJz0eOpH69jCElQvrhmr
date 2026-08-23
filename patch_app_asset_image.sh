@@ -1,3 +1,4 @@
+cat << 'INNER_EOF' > app/src/main/java/com/example/ui/components/ChampionAvatar.kt
 package com.example.ui.components
 
 import androidx.compose.foundation.Image
@@ -249,3 +250,4 @@ fun AppAssetImage(
         }
     }
 }
+INNER_EOF

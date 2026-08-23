@@ -17,6 +17,7 @@ object WildRiftSpellsAndRunes {
 
     fun getRuneDrawableRes(nameOrId: String): Int? {
         val clean = nameOrId.trim().lowercase()
+        return null
         return when {
             clean.contains("electrocut") -> com.example.R.drawable.ic_wr_rune_electrocute
             clean.contains("cosecha") || clean.contains("harvest") -> com.example.R.drawable.ic_wr_rune_dark_harvest

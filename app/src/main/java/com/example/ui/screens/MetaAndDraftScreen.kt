@@ -151,6 +151,7 @@ import com.example.util.LocalLanguage
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MetaAndDraftScreen(
+    showOnlyDrafting: Boolean = false,
     userMainRole: LaneRole,
     onNavigateBack: () -> Unit
 ) {
@@ -264,143 +265,119 @@ fun MetaAndDraftScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Scrollable Tab Row with all requested sections
-            val tabs = listOf(
-                tr("Drafting"),
-                tr("Campeones"),
-                tr("Tier List"),
-                tr("Objetos"),
-                tr("Runas"),
-                tr("Hechizos"),
-                tr("Objetivos")
-            )
-
-            ScrollableTabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = HextechSurface,
-                contentColor = HextechCyan,
-                edgePadding = 12.dp,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = HextechCyan,
-                        height = 3.dp
-                    )
-                }
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTabIndex == index) HextechCyan else TextMuted,
-                                fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.sp
-                            )
+            if (showOnlyDrafting) {
+                DraftAnalysisTab(
+                    myChampion = myChampion,
+                    activeRole = activeRole,
+                    allySlots = allySlots,
+                    enemySlots = enemySlots,
+                    analysis = analysis,
+                    isFirstPick = isFirstPick,
+                    enemyLaneOpponent = enemyLaneOpponent,
+                    onToggleFirstPick = { isFirstPick = !isFirstPick },
+                    onChangeRole = { showRoleChangeDialog = true },
+                    onAddMyChampion = {
+                        suggestedPickingRole = activeRole
+                        pickingForTeam = "MYSELF"
+                    },
+                    onRemoveMyChampion = {
+                        val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                        if (idx >= 0) allySlots.removeAt(idx)
+                    },
+                    onAddAlly = {
+                        val freeRole = LaneRole.entries.firstOrNull { r -> !allySlots.any { it.assignedRole == r } }
+                        suggestedPickingRole = freeRole
+                        pickingForTeam = "ALLY"
+                    },
+                    onAddEnemy = {
+                        val freeRole = LaneRole.entries.firstOrNull { r -> !enemySlots.any { it.assignedRole == r } }
+                        suggestedPickingRole = freeRole
+                        pickingForTeam = "ENEMY"
+                    },
+                    onRemoveAllySlot = { slot -> allySlots.remove(slot) },
+                    onRemoveEnemySlot = { slot -> enemySlots.remove(slot) },
+                    onChangeAllyRole = { slot, newRole ->
+                        val idx = allySlots.indexOf(slot)
+                        if (idx >= 0) {
+                            allySlots[idx] = slot.copy(assignedRole = newRole)
                         }
-                    )
-                }
-            }
+                    },
+                    onChangeEnemyRole = { slot, newRole ->
+                        val idx = enemySlots.indexOf(slot)
+                        if (idx >= 0) {
+                            enemySlots[idx] = slot.copy(assignedRole = newRole)
+                        }
+                    },
+                    onPickRecommendation = { champ ->
+                        val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                        if (existingIndex >= 0) {
+                            allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                        } else {
+                            if (allySlots.size >= 5) {
+                                allySlots.removeAt(allySlots.size - 1)
+                            }
+                            allySlots.add(0, DraftSlot(champ, activeRole))
+                        }
+                    },
+                    onSelectChampion = { selectedDetailChampion = it }
+                )
+            } else {
+                val catalogTabs = listOf(
+                    tr("Campeones"),
+                    tr("Tier List"),
+                    tr("Objetos"),
+                    tr("Runas"),
+                    tr("Hechizos"),
+                    tr("Objetivos")
+                )
 
-            AnimatedContent(
-                targetState = selectedTabIndex,
-                transitionSpec = {
-                    if (targetState > initialState) {
-                        (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
-                    } else {
-                        (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
-                    }
-                },
-                label = "tab_animation"
-            ) { targetIndex ->
-                when (targetIndex) {
-                    0 -> {
-                        // SECCIÓN: ANÁLISIS DE DRAFTING & COUNTERS
-                        DraftAnalysisTab(
-                            myChampion = myChampion,
-                            activeRole = activeRole,
-                            allySlots = allySlots,
-                            enemySlots = enemySlots,
-                            analysis = analysis,
-                            isFirstPick = isFirstPick,
-                            enemyLaneOpponent = enemyLaneOpponent,
-                            onToggleFirstPick = { isFirstPick = !isFirstPick },
-                            onChangeRole = { showRoleChangeDialog = true },
-                            onAddMyChampion = {
-                                suggestedPickingRole = activeRole
-                                pickingForTeam = "MYSELF"
-                            },
-                            onRemoveMyChampion = {
-                                val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
-                                if (idx >= 0) allySlots.removeAt(idx)
-                            },
-                            onAddAlly = {
-                                val freeRole = LaneRole.entries.firstOrNull { r -> !allySlots.any { it.assignedRole == r } }
-                                suggestedPickingRole = freeRole
-                                pickingForTeam = "ALLY"
-                            },
-                            onAddEnemy = {
-                                val freeRole = LaneRole.entries.firstOrNull { r -> !enemySlots.any { it.assignedRole == r } }
-                                suggestedPickingRole = freeRole
-                                pickingForTeam = "ENEMY"
-                            },
-                            onRemoveAllySlot = { slot -> allySlots.remove(slot) },
-                            onRemoveEnemySlot = { slot -> enemySlots.remove(slot) },
-                            onChangeAllyRole = { slot, newRole ->
-                                val idx = allySlots.indexOf(slot)
-                                if (idx >= 0) {
-                                    allySlots[idx] = slot.copy(assignedRole = newRole)
-                                }
-                            },
-                            onChangeEnemyRole = { slot, newRole ->
-                                val idx = enemySlots.indexOf(slot)
-                                if (idx >= 0) {
-                                    enemySlots[idx] = slot.copy(assignedRole = newRole)
-                                }
-                            },
-                            onPickRecommendation = { champ ->
-                                val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
-                                if (existingIndex >= 0) {
-                                    allySlots[existingIndex] = DraftSlot(champ, activeRole)
-                                } else {
-                                    if (allySlots.size >= 5) {
-                                        allySlots.removeAt(allySlots.size - 1)
-                                    }
-                                    allySlots.add(0, DraftSlot(champ, activeRole))
-                                }
-                            },
-                            onSelectChampion = { selectedDetailChampion = it }
+                ScrollableTabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    containerColor = HextechSurface,
+                    contentColor = HextechCyan,
+                    edgePadding = 12.dp,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                            color = HextechCyan,
+                            height = 3.dp
                         )
                     }
-                    1 -> {
-                        // SECCIÓN: CATÁLOGO DE CAMPEONES
-                        ChampionsCatalogTab(
-                            onSelectChampion = { selectedDetailChampion = it }
+                ) {
+                    catalogTabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = if (selectedTabIndex == index) HextechCyan else TextMuted,
+                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 13.sp
+                                )
+                            }
                         )
                     }
-                    2 -> {
-                        // SECCIÓN: TIER LIST OFICIAL WILD RIFT
-                        TierListTab(
-                            onSelectChampion = { selectedDetailChampion = it }
-                        )
-                    }
-                    3 -> {
-                        // SECCIÓN: OBJETOS (ITEMS) DE WILD RIFT
-                        ItemsCatalogTab()
-                    }
-                    4 -> {
-                        // SECCIÓN SEPARADA: RUNAS DE WILD RIFT
-                        RunesTab()
-                    }
-                    5 -> {
-                        // SECCIÓN SEPARADA: HECHIZOS DE INVOCADOR
-                        SpellsTab()
-                    }
-                    6 -> {
-                        // SECCIÓN: OBJETIVOS DE MAPA (MONSTRUOS ÉPICOS)
-                        MapObjectivesTab()
+                }
+
+                AnimatedContent(
+                    targetState = selectedTabIndex,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                        } else {
+                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                        }
+                    },
+                    label = "tab_animation"
+                ) { targetIndex ->
+                    when (targetIndex) {
+                        0 -> ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                        1 -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
+                        2 -> ItemsCatalogTab()
+                        3 -> RunesTab()
+                        4 -> SpellsTab()
+                        5 -> MapObjectivesTab()
                     }
                 }
             }

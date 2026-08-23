@@ -145,6 +145,19 @@ fun DashboardScreen(
                 NavigationBarItem(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
+                    icon = { Icon(Icons.Default.Groups, contentDescription = "Drafting") },
+                    label = { Text(tr("Drafting")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = HextechDarkBg,
+                        selectedTextColor = HextechGold,
+                        indicatorColor = HextechGold,
+                        unselectedIconColor = Color.Gray,
+                        unselectedTextColor = Color.Gray
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 },
                     icon = { Icon(Icons.Default.MenuBook, contentDescription = "Catálogo") },
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -162,7 +175,7 @@ fun DashboardScreen(
             if (selectedTab == 0) {
                 MainDraftingScreen(
                     onNavigateToInfo = onNavigateToInfo,
-                    onNavigateToMeta = { selectedTab = 1 }, // Navigates to Catalog tab
+                    onNavigateToMeta = { selectedTab = 2 }, // Navigates to Catalog tab
                     onNavigateToLogin = onNavigateToLogin,
                     mainRole = mainRole,
                     onMainRoleChange = onMainRoleChange,
@@ -173,8 +186,15 @@ fun DashboardScreen(
                     currentLanguage = currentLanguage,
                     onLanguageChange = onLanguageChange
                 )
+            } else if (selectedTab == 1) {
+                MetaAndDraftScreen(
+                    showOnlyDrafting = true,
+                    userMainRole = mainRole,
+                    onNavigateBack = { selectedTab = 0 }
+                )
             } else {
                 MetaAndDraftScreen(
+                    showOnlyDrafting = false,
                     userMainRole = mainRole,
                     onNavigateBack = { selectedTab = 0 }
                 )
