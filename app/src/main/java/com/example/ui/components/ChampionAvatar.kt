@@ -185,7 +185,7 @@ fun AppAssetImage(
         ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url)
 
     val parsedUrl = url.trim()
-    val imageModel: Any? = runeDrawableRes ?: if (parsedUrl.startsWith("file://")) android.net.Uri.parse(parsedUrl) else parsedUrl.takeIf { it.isNotBlank() }
+    val imageModel: Any? = runeDrawableRes ?: if (parsedUrl.startsWith("file://")) java.io.File(parsedUrl.removePrefix("file://")) else parsedUrl.takeIf { it.isNotBlank() }
 
     Box(
         modifier = modifier
@@ -231,3 +231,4 @@ fun AppAssetImage(
         }
     }
 }
+// force rebuild 2
