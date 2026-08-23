@@ -959,16 +959,16 @@ private fun TierListTab(
                             Column(horizontalAlignment = Alignment.End) {
                                 when (selectedSort) {
                                     TierSortOption.WIN_RATE -> {
-                                        Text("WR: ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("Pick: ${champ.pickRate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
+                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
                                     }
                                     TierSortOption.PICK_RATE -> {
-                                        Text("Pick: ${champ.pickRate}%", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("WR: ${champ.winrate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
+                                        Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
                                     }
                                     TierSortOption.BAN_RATE -> {
-                                        Text("Ban: ${champ.banRate}%", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("WR: ${champ.winrate}% • Pick: ${champ.pickRate}%", color = TextMuted, fontSize = 10.sp)
+                                        Text("Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = TextMuted, fontSize = 10.sp)
                                     }
                                     else -> {}
                                 }
@@ -1055,9 +1055,9 @@ private fun TierSectionCard(
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    Text(tr("WR") + ": ${champ.winrate}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                                    Text(tr("WR") + ": ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                                 }
-                                Text("Pick: ${champ.pickRate}% • Ban: ${champ.banRate}%", color = TextMuted, fontSize = 10.sp)
+                                Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
                             }
                             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
                         }
@@ -1102,7 +1102,7 @@ private fun ItemsCatalogTab() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
+                .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
                 .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -1611,7 +1611,7 @@ private fun RunesTab() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
+                .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
                 .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -1921,30 +1921,30 @@ private fun RunesTab() {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when {
-                            rune.category.lowercase().contains("clave") -> {
-                                when (rune.name.lowercase()) {
-                                    "electrocutar" -> "💡 Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
-                                    "cosecha oscura" -> "💡 Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
-                                    "fortalecimiento" -> "💡 Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
-                                    "compás letal" -> "💡 Fundamental en hypercarries como Jinx o Vayne para dominar las peleas largas."
-                                    "pies veloces" -> "💡 Útil para sobrevivir líneas difíciles gracias a su curación y movilidad al kitear."
-                                    "conquistador" -> "💡 La mejor opción para luchadores y duelistas que buscan intercambios prolongados (ej. Darius, Riven)."
-                                    "garras del inmortal" -> "💡 Indispensable en tanques y colosos para tener sustain y escalar vida máxima."
-                                    "guardián" -> "💡 Selecciona esta runa en soportes protectores (ej. Braum, Lulu) para mitigar burst enemigo."
-                                    "aery" -> "💡 Muy versátil para soportes encantadores o magos de pokeo constante (ej. Karma, Orianna)."
-                                    "cometa arcano" -> "💡 Ideal para magos de artillería que pokean a distancia (ej. Ziggs, Lux)."
-                                    "irrupción de fase" -> "💡 Perfecta para magos de combo que necesitan reposicionarse rápido (ej. Orianna, Vladimir)."
-                                    "primer golpe" -> "💡 Útil en asesinos o magos de ráfaga para escalar en oro rápidamente y explotar objetivos."
-                                    "soberano gélido" -> "💡 Excelente para soportes de iniciación (ej. Leona, Nautilus) para potenciar su CC."
-                                    else -> "Elige esta runa clave basándote en tu condición de victoria en la fase de líneas."
-                                }
-                            }
-                            rune.category.lowercase() == "brujería" -> "Excelente para magos, soportes de utilidad y campeones que requieren aceleración de habilidades y maná continuo en fase de líneas."
-                            rune.category.lowercase() == "dominación" -> "Ideal para amplificar daño explosivo, penetración rápida y acumulación de daño por bajas o visión."
-                            rune.category.lowercase() == "precisión" -> "Máxima eficiencia en tiradores (ADC) y duelistas para potenciar daño sostenido, velocidad de ataque y remate de objetivos."
-                            rune.category.lowercase() == "valor" -> "Imprescindible para tanques y luchadores contra líneas difíciles para absorber daño y escalar vida máxima."
-                            else -> "Aporta versatilidad, aceleración de hechizos de invocador y movilidad táctica por el mapa."
+                        text = when (rune.name.lowercase()) {
+                            "electrocutar" -> "💡 Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
+                            "cosecha oscura" -> "💡 Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
+                            "fortalecimiento" -> "💡 Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
+                            "compás letal", "cadencia letal" -> "💡 Fundamental en hypercarries como Jinx o Vayne para dominar las peleas largas."
+                            "pies veloces" -> "💡 Útil para sobrevivir líneas difíciles gracias a su curación y movilidad al kitear."
+                            "conquistador" -> "💡 La mejor opción para luchadores y duelistas que buscan intercambios prolongados (ej. Darius, Riven)."
+                            "garras del inmortal" -> "💡 Indispensable en tanques y colosos para tener sustain y escalar vida máxima."
+                            "guardián" -> "💡 Selecciona esta runa en soportes protectores (ej. Braum, Lulu) para mitigar burst enemigo."
+                            "aery", "invocar a aery" -> "💡 Muy versátil para soportes encantadores o magos de pokeo constante (ej. Karma, Orianna)."
+                            "cometa arcano" -> "💡 Ideal para magos de artillería que pokean a distancia (ej. Ziggs, Lux)."
+                            "irrupción de fase" -> "💡 Perfecta para magos de combo que necesitan reposicionarse rápido (ej. Orianna, Vladimir)."
+                            "primer golpe" -> "💡 Útil en asesinos o magos de ráfaga para escalar en oro rápidamente y explotar objetivos."
+                            "soberano gélido" -> "💡 Excelente para soportes de iniciación (ej. Leona, Nautilus) para potenciar su CC."
+                            "réplica" -> "💡 Runa perfecta para tanques de iniciación masiva (ej. Amumu, Alistar) que necesitan resistir el focus enemigo post-combo."
+                            "triunfo" -> "💡 Ideal en peleas de equipo cerradas. Te recompensa con vida vital tras cada eliminación o asistencia."
+                            "fervor de batalla" -> "💡 Útil en intercambios sostenidos cortos, incrementa tu daño para asegurar duelos tempranos."
+                            "derribado" -> "💡 Obligatorio si el equipo enemigo tiene muchos tanques y campeones con mucha vida extra."
+                            "golpe de gracia" -> "💡 Para asesinos o ADC que buscan asegurar la baja (ejecutar) a enemigos que intenten escapar a baja vida."
+                            "leyenda: presteza" -> "💡 Escoge esta runa si priorizas maximizar tu DPS (daño por segundo) a través de ataques básicos rápidos."
+                            "leyenda: tenacidad" -> "💡 Vital si el equipo enemigo está lleno de control de masas (Stun, Inmovilización, etc). Evitará que te eliminen encadenado."
+                            "leyenda: linaje" -> "💡 Si tu campeón no armará Robo de Vida temprano pero necesita sustento para sobrevivir y farmear."
+                            "último esfuerzo" -> "💡 Excelente en duelistas como Olaf o Tryndamere que se vuelven más letales cuando se acercan a la muerte."
+                            else -> "💡 Runa situacional: Úsala para complementar el estilo de juego de tu campeón frente a esta composición específica."
                         },
                         color = TextMuted,
                         fontSize = 11.5.sp,
@@ -2017,7 +2017,7 @@ private fun SpellsTab() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF0F1522), RoundedCornerShape(8.dp))
+                .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
                 .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -2552,6 +2552,32 @@ private fun DraftAnalysisTab(
                         Text(tr("Alerta Táctica de Matchup"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         Text(analysis.directMatchupWarning, color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
                     }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        // Ally Damage distribution
+        if (allySlots.isNotEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(tr("Balance de Daño Aliado"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                if (analysis.allyCompositionWarning != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(analysis.allyCompositionWarning, color = DangerRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp))) {
+                if (analysis.allyPhysicalDamagePercent > 0) {
+                    Box(modifier = Modifier.weight(analysis.allyPhysicalDamagePercent.toFloat()).fillMaxHeight().background(Color(0xFFE57373)))
+                }
+                if (analysis.allyMagicDamagePercent > 0) {
+                    Box(modifier = Modifier.weight(analysis.allyMagicDamagePercent.toFloat()).fillMaxHeight().background(Color(0xFF64B5F6)))
+                }
+                if (analysis.allyTrueDamagePercent > 0) {
+                    Box(modifier = Modifier.weight(analysis.allyTrueDamagePercent.toFloat()).fillMaxHeight().background(Color.White))
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -3242,7 +3268,7 @@ private fun ChampionGridCard(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "WR: ${champion.winrate}%",
+                    text = "WR: ${String.format(java.util.Locale.US, "%.2f", champion.winrate)}%",
                     color = HextechGold,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold

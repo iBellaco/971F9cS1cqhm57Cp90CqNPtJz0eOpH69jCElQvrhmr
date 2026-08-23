@@ -356,6 +356,33 @@ object WildRiftRepository {
         val allyMagicCount = allies.count { it.damageType == DamageType.MAGIC }
         val isAllyFullAd = allies.isNotEmpty() && allyPhysCount >= 3 && allyMagicCount == 0
         val isAllyFullAp = allies.isNotEmpty() && allyMagicCount >= 3 && allyPhysCount == 0
+        
+        var allyPhysPct = 0
+        var allyMagicPct = 0
+        var allyTruePct = 0
+        var allyCompositionWarning: String? = null
+        if (allies.isNotEmpty()) {
+            var aPhys = 0
+            var aMag = 0
+            var aTrue = 0
+            allies.forEach { 
+                when (it.damageType) {
+                    DamageType.PHYSICAL -> aPhys++
+                    DamageType.MAGIC -> aMag++
+                    DamageType.TRUE_HYBRID -> aTrue++
+                }
+            }
+            val totalAlly = (aPhys + aMag + aTrue).coerceAtLeast(1)
+            allyPhysPct = (aPhys * 100) / totalAlly
+            allyMagicPct = (aMag * 100) / totalAlly
+            allyTruePct = (100 - (allyPhysPct + allyMagicPct)).coerceAtLeast(0)
+            
+            if (allyPhysPct >= 80) {
+                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Físico aliado (AD).")
+            } else if (allyMagicPct >= 75) {
+                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Mágico aliado (AP).")
+            }
+        }
 
         val frontlineAllies = allies.count { it.isFrontline }
         val frontlineStatus = when {
@@ -592,6 +619,10 @@ object WildRiftRepository {
             physicalDamagePercent = physPct,
             magicDamagePercent = magicPct,
             trueDamagePercent = truePct,
+            allyPhysicalDamagePercent = allyPhysPct,
+            allyMagicDamagePercent = allyMagicPct,
+            allyTrueDamagePercent = allyTruePct,
+            allyCompositionWarning = allyCompositionWarning,
             frontlineStatus = frontlineStatus,
             directMatchupWarning = directMatchupWarning,
             directCounterBestPick = directCounterBestPick,

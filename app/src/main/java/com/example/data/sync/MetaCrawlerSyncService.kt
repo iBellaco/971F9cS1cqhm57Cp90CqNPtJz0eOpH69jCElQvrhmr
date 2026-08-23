@@ -90,6 +90,11 @@ object MetaCrawlerSyncService {
                 val nowStr = timestampFormat.format(Date())
 
                 // Supabase dynamic data fetching will be implemented here
+                com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(context)
+                
+                // Recargar desde la cache recien sincronizada
+                com.example.data.local.WildRiftLocalCache.loadFromLocalCache(context)
+
 
                 // Guardar en caché local persistente
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

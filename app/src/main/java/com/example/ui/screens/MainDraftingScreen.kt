@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -182,6 +184,23 @@ fun MainDraftingScreen(
                                 Icon(
                                     imageVector = Icons.Default.Info,
                                     contentDescription = "Acerca De",
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(
+                                onClick = { isLightAppTheme = !isLightAppTheme },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
+                                    .size(38.dp)
+                                    .testTag("nav_theme_button")
+                            ) {
+                                Icon(
+                                    imageVector = if (isLightAppTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+                                    contentDescription = "Toggle Theme",
                                     tint = HextechGold,
                                     modifier = Modifier.size(22.dp)
                                 )

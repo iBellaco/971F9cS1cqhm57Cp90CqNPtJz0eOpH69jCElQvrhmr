@@ -317,7 +317,7 @@ fun ChampionDetailSheet(
                         // Winrate + Delta
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(tr("Tasa de Victoria"), color = TextMuted, fontSize = 11.sp)
-                            Text("${roleProfile.winrate}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.winrate)}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val winDelta = roleProfile.winrateDelta
                             val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
                             val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
@@ -332,7 +332,7 @@ fun ChampionDetailSheet(
                         // Pick Rate + Delta
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(tr("Tasa de Selección"), color = TextMuted, fontSize = 11.sp)
-                            Text("${roleProfile.pickRate}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.pickRate)}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val pickDelta = roleProfile.pickRateDelta
                             val pickDeltaText = if (pickDelta >= 0) "+${pickDelta}%" else "${pickDelta}%"
                             val pickDeltaColor = if (pickDelta >= 0) Color(0xFF29B6F6) else Color(0xFFFFA726)
@@ -347,7 +347,7 @@ fun ChampionDetailSheet(
                         // Ban Rate + Delta
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(tr("Tasa de Bloqueo"), color = TextMuted, fontSize = 11.sp)
-                            Text("${roleProfile.banRate}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                            Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.banRate)}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val banDelta = roleProfile.banRateDelta
                             val banDeltaText = if (banDelta >= 0) "+${banDelta}%" else "${banDelta}%"
                             val banDeltaColor = if (banDelta >= 0) DangerRed else Color(0xFF4CAF50)

@@ -19,3 +19,9 @@ debug.keystore
 gradle/wrapper/gradle-wrapper.jar
 gradlew
 gradlew.bat
+venv/
+node_modules/
+venv/
+app/build/
+.build-outputs/
+tmp/
