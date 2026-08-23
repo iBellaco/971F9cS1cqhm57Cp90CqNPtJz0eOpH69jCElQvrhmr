@@ -17,7 +17,7 @@ object DynamicTranslations {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 if (enMap == null) {
-                    val jsonStr = context.resources.openRawResource(R.raw.translations_en).bufferedReader().use { it.readText() }
+                    val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
                     val json = JSONObject(jsonStr)
                     val map = mutableMapOf<String, String>()
                     val iter = json.keys()
@@ -28,7 +28,7 @@ object DynamicTranslations {
                     enMap = map
                 }
                 if (ptMap == null) {
-                    val jsonStr = context.resources.openRawResource(R.raw.translations_pt).bufferedReader().use { it.readText() }
+                    val jsonStr = context.assets.open("translations_pt.json").bufferedReader().use { it.readText() }
                     val json = JSONObject(jsonStr)
                     val map = mutableMapOf<String, String>()
                     val iter = json.keys()
