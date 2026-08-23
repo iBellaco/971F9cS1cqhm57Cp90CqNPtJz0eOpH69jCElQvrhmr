@@ -73,7 +73,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          gradle :app:assembleDebug --stacktrace
+          gradle :app:assembleDebug
 
       - name: Verify APK
         run: |
