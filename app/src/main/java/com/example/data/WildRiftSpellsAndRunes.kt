@@ -4,16 +4,18 @@ import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 
 object WildRiftSpellsAndRunes {
-    const val SPELL_FLASH = "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
-    const val SPELL_IGNITE = "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
+    const val SPELL_FLASH = "https://i.postimg.cc/6qHRh6Gt/1691694210-flash.webp"
+    const val SPELL_IGNITE = "https://i.postimg.cc/4y8t14hN/1691695236-ignite.webp"
     const val SPELL_SMITE = "https://static.wikia.nocookie.net/leagueoflegends/images/0/05/Smite.png/revision/latest?cb=20180514003641"
-    const val SPELL_BARRIER = "https://static.wikia.nocookie.net/leagueoflegends/images/c/cc/Barrier.png/revision/latest?cb=20180514002510"
-    const val SPELL_EXHAUST = "https://static.wikia.nocookie.net/leagueoflegends/images/4/4a/Exhaust.png/revision/latest?cb=20180514003128"
-    const val SPELL_GHOST = "https://static.wikia.nocookie.net/leagueoflegends/images/a/ab/Ghost.png/revision/latest?cb=20180514003209"
-    const val SPELL_HEAL = "https://static.wikia.nocookie.net/leagueoflegends/images/6/6e/Heal.png/revision/latest?cb=20180514003319"
+    const val SPELL_BARRIER = "https://i.postimg.cc/2yHvxjBV/1691695152-barrier.webp"
+    const val SPELL_EXHAUST = "https://i.postimg.cc/gjMRKc6r/1691695333-exhaust.webp"
+    const val SPELL_GHOST = "https://i.postimg.cc/RhPfTCnS/1691694862-ghost.webp"
+    const val SPELL_HEAL = "https://i.postimg.cc/d3Wd9QT3/1691695008-heal.webp"
     const val SPELL_CLARITY = "https://static.wikia.nocookie.net/leagueoflegends/images/7/71/Claridad.png/revision/latest?cb=20141013024826&path-prefix=es"
     const val SPELL_MARK = "https://static.wikia.nocookie.net/leagueoflegends/images/5/55/Marca.png/revision/latest?cb=20150802150053&path-prefix=es"
-    const val SPELL_TELEPORT = "https://i.postimg.cc/13w5fnWb/1611110740-teleport-enchant.png"
+    const val SPELL_TELEPORT = "https://i.postimg.cc/J0TJQ7B7/1611110740-teleport-enchant.png"
+    const val SPELL_CLEANSE = "https://i.postimg.cc/kGj8yMt5/1735511112-cleanse.webp"
+    const val SPELL_CHILLING_SMITE = "https://i.postimg.cc/NFNTxGrg/1691695722-chilling-smite.png"
 
     fun getRuneDrawableRes(nameOrId: String): Int? {
         val clean = nameOrId.trim().lowercase()
@@ -145,56 +147,70 @@ object WildRiftSpellsAndRunes {
             name = "Destello",
             cooldown = "150s",
             iconUrl = SPELL_FLASH,
-            description = "Teletransporta a tu campeón una corta distancia hacia la ubicación objetivo. El hechizo universal imprescindible en Wild Rift para esquivar habilidades, reposicionarse o realizar jugadas ofensivas sorpresa."
-        ),
-        SummonerSpellItem(
-            id = "ignite",
-            name = "Prender",
-            cooldown = "100s",
-            iconUrl = SPELL_IGNITE,
-            description = "Prende fuego a un campeón enemigo infligiendo 72-420 de daño verdadero durante 5s y aplicando Heridas Graves (60%) que reducen drásticamente todas las curaciones y regeneraciones."
-        ),
-        SummonerSpellItem(
-            id = "smite",
-            name = "Castigo",
-            cooldown = "45s",
-            iconUrl = SPELL_SMITE,
-            description = "Inflige daño verdadero masivo a monstruos de la jungla y súbditos. Evoluciona a Castigo Desafiante o Helador tras asegurar 4 campamentos grandes, ralentizando o reduciendo el daño del campeón rival."
-        ),
-        SummonerSpellItem(
-            id = "barrier",
-            name = "Barrera",
-            cooldown = "110s",
-            iconUrl = SPELL_BARRIER,
-            description = "Otorga un escudo temporal de 115-465 de absorción de daño durante 2 segundos. Ideal para tiradores (ADC) y magos de carril central para sobrevivir a ráfagas de daño de asesinos."
-        ),
-        SummonerSpellItem(
-            id = "exhaust",
-            name = "Extenuación",
-            cooldown = "105s",
-            iconUrl = SPELL_EXHAUST,
-            description = "Ralentiza a un campeón enemigo un 60% y reduce su daño infligido un 40% durante 2.5s. Esencial para soportes y carrileros contra asesinos, duelistas e hipercarries enemigos."
+            description = "Teletransporta una corta distancia hacia adelante o hacia la dirección apuntada."
         ),
         SummonerSpellItem(
             id = "ghost",
             name = "Fantasma",
             cooldown = "90s",
             iconUrl = SPELL_GHOST,
-            description = "Otorga una aceleración masiva de velocidad de movimiento (hasta +45%) e inmunidad a colisiones de unidades durante 6s. Cada derribo de campeón reinicia su duración."
+            description = "Obtienes un gran impulso de velocidad de movimiento, que decae a un 25% de velocidad de movimiento adicional durante 8 segundos. Con cada derribo, la duración de Fantasma se extiende 6 segundos, reiniciando sus efectos, hasta la cantidad original."
         ),
         SummonerSpellItem(
             id = "heal",
             name = "Curar",
-            cooldown = "120s",
+            cooldown = "100s",
             iconUrl = SPELL_HEAL,
-            description = "Restaura vida inmediatamente a tu campeón y al aliado más cercano con menor salud, otorgando +30% de velocidad de movimiento durante 1s a ambos."
+            description = "Restaura 110 de Vida (110-400) a ti y al campeón aliado cercano más herido, y les otorga a ambos un 30% de Velocidad de Movimiento adicional durante 2 segundo(s). La curación se reduce a la mitad en campeones afectados recientemente por Curar."
+        ),
+        SummonerSpellItem(
+            id = "barrier",
+            name = "Barrera",
+            cooldown = "100s",
+            iconUrl = SPELL_BARRIER,
+            description = "Obtienes un escudo que absorbe 120 (120-560) de daño durante 2.5 segundos."
+        ),
+        SummonerSpellItem(
+            id = "ignite",
+            name = "Prender",
+            cooldown = "100s",
+            iconUrl = SPELL_IGNITE,
+            description = "Prende fuego al campeón enemigo objetivo, infligiendo 72 de daño verdadero (72-380) durante 5s y aplicando un 60% de Heridas Graves durante ese tiempo. Las Heridas Graves reducen la efectividad de las curaciones y regeneraciones."
+        ),
+        SummonerSpellItem(
+            id = "exhaust",
+            name = "Extenuación",
+            cooldown = "100s",
+            iconUrl = SPELL_EXHAUST,
+            description = "Extenúa al campeón enemigo objetivo, reduciendo su Velocidad de Movimiento un 35% y su daño infligido un 40% durante 2.5 segundos."
+        ),
+        SummonerSpellItem(
+            id = "smite",
+            name = "Castigo",
+            cooldown = "10s",
+            iconUrl = SPELL_SMITE,
+            description = "Inflige 600 de daño verdadero a monstruos, monstruos épicos o súbditos enemigos. Lanzar Castigo a un monstruo restaura 127 de Vida (70 + 10% Vida). Castigo se mejora a Castigo Helador después de 3 usos.\n\nEspecialización en Jungla:\nGanas 20% de oro y XP adicional de los monstruos, pero ganas 60% menos de oro y XP de súbditos temporalmente.\nInfliges 15% más de daño de ataque y 30% más de daño de habilidad contra monstruos.\nRestaura 40 de Vida durante 5 segundos al infligir daño a monstruos.\nRestaura 4 de Maná por segundo en la jungla o el río.\nA partir del minuto 11:00, los monstruos no darán oro adicional.\nAl minuto 2:00, la bonificación de daño contra monstruos empieza a decaer y al 5:00 desaparece.\nGana una carga cada 45 segundos, hasta un máximo de 2."
+        ),
+        SummonerSpellItem(
+            id = "chilling_smite",
+            name = "Castigo Helador",
+            cooldown = "10s",
+            iconUrl = SPELL_CHILLING_SMITE,
+            description = "Inflige 1000 de daño verdadero a un monstruo grande, épico o súbdito. Lanzar Castigo a monstruos restaura 152 de Vida (70 + 10% Vida).\n\nContra campeones: Inflige 40 de daño verdadero a Campeones enemigos y roba el 25% de su Velocidad de Movimiento durante 2 segundos."
+        ),
+        SummonerSpellItem(
+            id = "cleanse",
+            name = "Purificación",
+            cooldown = "110s",
+            iconUrl = SPELL_CLEANSE,
+            description = "Elimina inmovilizaciones (incluyendo debilitaciones de hechizos) que afecten a tu campeón y otorga inmunidad a inmovilizaciones por 0.25 segundos."
         ),
         SummonerSpellItem(
             id = "teleport",
             name = "Teleportación",
-            cooldown = "180s",
+            cooldown = "150s",
             iconUrl = SPELL_TELEPORT,
-            description = "Tras canalizar durante 4s, teletransporta a tu campeón hacia una torreta, súbdito o centinela aliado. Permite split-pushing global y presencia instantánea en objetivos neutrales."
+            description = "Después de canalizar durante 3.5 segundos, teletransporta a tu campeón a un campeón, estructura o centinela aliado (excluye áreas dentro del alcance de inhibidores enemigos). Solo puedes teletransportarte a estructuras durante los primeros 6 minutos de la partida."
         ),
         SummonerSpellItem(
             id = "clarity",
@@ -211,6 +227,7 @@ object WildRiftSpellsAndRunes {
             description = "Lanza una bola de nieve en línea recta; si impacta a un enemigo, inflige daño verdadero y permite reactivar el hechizo para deslizarse instantáneamente hacia él."
         )
     )
+    
 
     val runes: List<RuneItem> = listOf(
         // =========================================================================

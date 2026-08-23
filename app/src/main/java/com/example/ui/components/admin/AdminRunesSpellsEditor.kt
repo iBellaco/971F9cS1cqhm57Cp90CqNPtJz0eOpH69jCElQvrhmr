@@ -41,11 +41,11 @@ private enum class SubSection {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminRunesSpellsEditorTab() {
+private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var activeSubSection by remember { mutableStateOf(SubSection.RUNES) }
+    var activeSubSection by remember { mutableStateOf(initialSection) }
     var searchQuery by remember { mutableStateOf("") }
 
     // State for Rune Editing
@@ -73,43 +73,6 @@ fun AdminRunesSpellsEditorTab() {
             .padding(horizontal = 16.dp)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-
-        // Sub-tabs switch (Runas / Hechizos / Objetivos)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = activeSubSection == SubSection.RUNES,
-                onClick = { activeSubSection = SubSection.RUNES },
-                label = { Text("✨ Runas (${allRunes.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechGold,
-                    selectedLabelColor = HextechDarkBg
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            FilterChip(
-                selected = activeSubSection == SubSection.SPELLS,
-                onClick = { activeSubSection = SubSection.SPELLS },
-                label = { Text("⚡ Hechizos (${allSpells.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            FilterChip(
-                selected = activeSubSection == SubSection.OBJECTIVES,
-                onClick = { activeSubSection = SubSection.OBJECTIVES },
-                label = { Text("🐉 Objetivos (${allObjectives.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = TierSPlusColor,
-                    selectedLabelColor = HextechDarkBg
-                ),
-                modifier = Modifier.weight(1f)
-            )
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -925,4 +888,20 @@ fun AdminRunesSpellsEditorTab() {
             containerColor = HextechDarkBg
         )
     }
+}
+
+
+@Composable
+fun AdminRunesEditorTab() {
+    AdminRunesSpellsEditorTabBase(SubSection.RUNES)
+}
+
+@Composable
+fun AdminSpellsEditorTab() {
+    AdminRunesSpellsEditorTabBase(SubSection.SPELLS)
+}
+
+@Composable
+fun AdminObjectivesEditorTab() {
+    AdminRunesSpellsEditorTabBase(SubSection.OBJECTIVES)
 }

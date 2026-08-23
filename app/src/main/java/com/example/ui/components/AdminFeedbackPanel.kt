@@ -102,13 +102,17 @@ import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Shield
 import com.example.data.WildRiftRepository
 import com.example.ui.components.admin.AdminChampionEditorTab
 import com.example.ui.components.admin.AdminItemEditorTab
-import com.example.ui.components.admin.AdminRunesSpellsEditorTab
+import com.example.ui.components.admin.AdminRunesEditorTab
+import com.example.ui.components.admin.AdminSpellsEditorTab
+import com.example.ui.components.admin.AdminObjectivesEditorTab
 import com.example.ui.components.admin.AdminSupabaseSyncTab
 import com.example.util.tr
 import kotlinx.coroutines.launch
@@ -120,7 +124,9 @@ enum class AdminTab(val titleKey: String, val icon: ImageVector) {
     FEEDBACK("Buzón", Icons.Default.Inbox),
     ITEMS("Objetos", Icons.Default.Shield),
     CHAMPIONS("Campeones", Icons.Default.Person),
-    RUNES_SPELLS("Runas & Hechizos", Icons.Default.AutoAwesome),
+    RUNES("Runas", Icons.Default.AutoAwesome),
+    SPELLS("Hechizos", Icons.Default.Bolt),
+    OBJECTIVES("Objetivos", Icons.Default.Map),
     SUPABASE("Supabase & Parches", Icons.Default.CloudSync)
 }
 
@@ -335,9 +341,9 @@ fun AdminFeedbackBottomSheet(
                 AdminTab.CHAMPIONS -> {
                     AdminChampionEditorTab()
                 }
-                AdminTab.RUNES_SPELLS -> {
-                    AdminRunesSpellsEditorTab()
-                }
+                AdminTab.RUNES -> { AdminRunesEditorTab() }
+                AdminTab.SPELLS -> { AdminSpellsEditorTab() }
+                AdminTab.OBJECTIVES -> { AdminObjectivesEditorTab() }
                 AdminTab.SUPABASE -> {
                     AdminSupabaseSyncTab()
                 }
