@@ -13,7 +13,7 @@ object WildRiftSpellsAndRunes {
     const val SPELL_HEAL = "https://static.wikia.nocookie.net/leagueoflegends/images/6/6e/Heal.png/revision/latest?cb=20180514003319"
     const val SPELL_CLARITY = "https://static.wikia.nocookie.net/leagueoflegends/images/7/71/Claridad.png/revision/latest?cb=20141013024826&path-prefix=es"
     const val SPELL_MARK = "https://static.wikia.nocookie.net/leagueoflegends/images/5/55/Marca.png/revision/latest?cb=20150802150053&path-prefix=es"
-    const val SPELL_TELEPORT = "https://wr-meta.com/uploads/posts/2025-07/1753389748_teleport-enchant.webp"
+    const val SPELL_TELEPORT = "https://i.postimg.cc/13w5fnWb/1611110740-teleport-enchant.png"
 
     fun getRuneDrawableRes(nameOrId: String): Int? {
         val clean = nameOrId.trim().lowercase()
