@@ -184,6 +184,8 @@ fun AppAssetImage(
         ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(fallbackText)
         ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url)
 
+    val imageModel: Any? = runeDrawableRes ?: url.takeIf { it.isNotBlank() }
+
     Box(
         modifier = modifier
             .clip(shape)
@@ -191,22 +193,13 @@ fun AppAssetImage(
             .border(1.dp, borderColor, shape),
         contentAlignment = Alignment.Center
     ) {
-        if (runeDrawableRes != null) {
-            Image(
-                painter = androidx.compose.ui.res.painterResource(id = runeDrawableRes),
-                contentDescription = contentDescription ?: fallbackText,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(shape)
-            )
-        } else if (url.isNotBlank()) {
+        if (imageModel != null) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(url)
+                    .data(imageModel)
                     .crossfade(true)
                     .build(),
-                contentDescription = contentDescription,
+                contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
