@@ -9,6 +9,40 @@ val LocalLanguage = compositionLocalOf { "es" }
 
 val translations = mapOf(
     "pt" to mapOf(
+        "Bueno contra:" to "Bom contra:",
+        "Verdadero" to "Verdadeiro",
+        "Hechizos Recomendados para esta Línea:" to "Feitiços Recomendados para esta Rota:",
+        "Paso 4: Consulta de Builds y Runas" to "Passo 4: Consulta de Builds e Runas",
+        "En vivo:" to "Ao vivo:",
+        "Seleccionar Mi Campeón" to "Selecionar Meu Campeão",
+        "Objetos Situacionales Recomendados:" to "Itens Situacionais Recomendados:",
+        "Toca para ver build completa" to "Toque para ver a build completa",
+        "CAMBIOS SITUACIONALES" to "MUDANÇAS SITUACIONAIS",
+        "Buscar runa (ej. Conquistador, Banda de Flujo)..." to "Buscar runa (ex: Conquistador, Faixa de Fluxo)...",
+        "Wild Rift Coach" to "Wild Rift Coach",
+        "Configuración de Runas para esta Línea:" to "Configuração de Runas para esta Rota:",
+        "Selecciona tu Línea para esta Partida" to "Selecione sua Rota para esta Partida",
+        "Táctica:" to "Tática:",
+        "Abrir Panel de Administrador (Buzón de Reportes)" to "Abrir Painel de Administrador (Caixa de Relatórios)",
+        "Estadísticas, hechizos, runas y build adaptadas a" to "Estatísticas, feitiços, runas e build adaptadas para",
+        "Blind Pick" to "Blind Pick",
+        "Mi Línea:" to "Minha Rota:",
+        "Mejora:" to "Melhoria:",
+        "Ordenar:" to "Ordenar por:",
+        "Runas Oficiales" to "Runas Oficiais",
+        "✅ Buena elección para tu línea" to "✅ Boa escolha para sua rota",
+        "🔮 Runas:" to "🔮 Runas:",
+        "Alerta Táctica de Matchup" to "Alerta Tático de Matchup",
+        "Build Completa (6 Objetos):" to "Build Completa (6 Itens):",
+        "⚠️ Considera cambiarlo" to "⚠️ Considere trocar",
+        "Balance de Daño Rival" to "Balanço de Dano Inimigo",
+        "Buscar hechizo (ej. Destello, Prender, Castigo)..." to "Buscar feitiço (ex: Flash, Incendiar, Golpear)...",
+        "Revisa los consejos tácticos, orden de habilidades móviles (Pasiva, 1, 2, 3, Definitiva) y armado de objetos recomendado para tu línea." to "Revise as dicas táticas, ordem de habilidades (Passiva, 1, 2, 3, Ultimate) e itens recomendados para sua rota.",
+        "Clasificación por" to "Classificação por",
+        "Counter" to "Counter",
+        "WR" to "WR",
+        "Caché:" to "Cache:",
+
         "Línea:" to "Rota:",
         "1er Pick" to "1º Pick",
         "1ª Elección Segura" to "1º Pick (Seguro)",
@@ -562,6 +596,40 @@ val translations = mapOf(
         "Semillero Ixtalí" to "Sementeira Ixtali"
     ),
     "en" to mapOf(
+        "Bueno contra:" to "Good against:",
+        "Verdadero" to "True",
+        "Hechizos Recomendados para esta Línea:" to "Recommended Spells for this Lane:",
+        "Paso 4: Consulta de Builds y Runas" to "Step 4: Check Builds and Runes",
+        "En vivo:" to "Live:",
+        "Seleccionar Mi Campeón" to "Select My Champion",
+        "Objetos Situacionales Recomendados:" to "Recommended Situational Items:",
+        "Toca para ver build completa" to "Tap to view full build",
+        "CAMBIOS SITUACIONALES" to "SITUATIONAL CHANGES",
+        "Buscar runa (ej. Conquistador, Banda de Flujo)..." to "Search rune (e.g. Conqueror, Manaflow Band)...",
+        "Wild Rift Coach" to "Wild Rift Coach",
+        "Configuración de Runas para esta Línea:" to "Rune Setup for this Lane:",
+        "Selecciona tu Línea para esta Partida" to "Select your Lane for this Match",
+        "Táctica:" to "Tactics:",
+        "Abrir Panel de Administrador (Buzón de Reportes)" to "Open Admin Panel (Report Inbox)",
+        "Estadísticas, hechizos, runas y build adaptadas a" to "Stats, spells, runes and build adapted for",
+        "Blind Pick" to "Blind Pick",
+        "Mi Línea:" to "My Lane:",
+        "Mejora:" to "Improvement:",
+        "Ordenar:" to "Sort by:",
+        "Runas Oficiales" to "Official Runes",
+        "✅ Buena elección para tu línea" to "✅ Good choice for your lane",
+        "🔮 Runas:" to "🔮 Runes:",
+        "Alerta Táctica de Matchup" to "Matchup Tactical Alert",
+        "Build Completa (6 Objetos):" to "Full Build (6 Items):",
+        "⚠️ Considera cambiarlo" to "⚠️ Consider changing it",
+        "Balance de Daño Rival" to "Enemy Damage Balance",
+        "Buscar hechizo (ej. Destello, Prender, Castigo)..." to "Search spell (e.g. Flash, Ignite, Smite)...",
+        "Revisa los consejos tácticos, orden de habilidades móviles (Pasiva, 1, 2, 3, Definitiva) y armado de objetos recomendado para tu línea." to "Review tactical tips, mobile skill order (Passive, 1, 2, 3, Ultimate) and recommended item build for your lane.",
+        "Clasificación por" to "Sort by",
+        "Counter" to "Counter",
+        "WR" to "WR",
+        "Caché:" to "Cache:",
+
         "Línea:" to "Lane:",
         "1er Pick" to "1st Pick",
         "1ª Elección Segura" to "1st Pick (Safe)",
@@ -1124,18 +1192,72 @@ fun trStr(lang: String, key: String): String {
     if (lang == "es" || lang == "auto") return key
     val direct = translations[lang]?.get(key)
     if (direct != null) return direct
+    
+    val dynamic = DynamicTranslations.get(lang, key)
+    if (dynamic != null) return dynamic
 
-    // Dynamic patch replacement fallback
-    if (lang == "en" || lang == "pt") {
-        if (key.startsWith("Parche ")) {
-            return "Patch " + key.substring("Parche ".length)
-        } else if (key.startsWith("parche ")) {
-            return "patch " + key.substring("parche ".length)
-        } else if (key == "Parche") {
-            return "Patch"
-        } else if (key == "parche") {
-            return "patch"
-        }
+    // Dynamic text replacement for untranslated lore/stats
+    var replaced = key
+    if (lang == "en") {
+        replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+        replaced = replaced.replace("Vida Máxima", "Max Health", ignoreCase = true)
+        replaced = replaced.replace("Daño de Ataque", "Attack Damage", ignoreCase = true)
+        replaced = replaced.replace("Daño Físico", "Physical Damage", ignoreCase = true)
+        replaced = replaced.replace("Daño Mágico", "Magic Damage", ignoreCase = true)
+        replaced = replaced.replace("Poder de Habilidad", "Ability Power", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Ataque", "Attack Speed", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Movimiento", "Movement Speed", ignoreCase = true)
+        replaced = replaced.replace("Aceleración de Habilidad", "Ability Haste", ignoreCase = true)
+        replaced = replaced.replace("Probabilidad de Crítico", "Critical Chance", ignoreCase = true)
+        replaced = replaced.replace("Daño Crítico", "Critical Damage", ignoreCase = true)
+        replaced = replaced.replace("Penetración de Armadura", "Armor Penetration", ignoreCase = true)
+        replaced = replaced.replace("Penetración Mágica", "Magic Penetration", ignoreCase = true)
+        replaced = replaced.replace("Resistencia Mágica", "Magic Resist", ignoreCase = true)
+        replaced = replaced.replace("Armadura", "Armor", ignoreCase = true)
+        replaced = replaced.replace("Robo de Vida", "Life Steal", ignoreCase = true)
+        replaced = replaced.replace("Omnivampirismo", "Omnivamp", ignoreCase = true)
+        replaced = replaced.replace("Vampirismo", "Vamp", ignoreCase = true)
+        replaced = replaced.replace("Daño Verdadero", "True Damage", ignoreCase = true)
+        replaced = replaced.replace("Curación", "Healing", ignoreCase = true)
+        replaced = replaced.replace("Escudo", "Shield", ignoreCase = true)
+        replaced = replaced.replace("Enfriamiento", "Cooldown", ignoreCase = true)
+        replaced = replaced.replace("Pasiva", "Passive", ignoreCase = true)
+        replaced = replaced.replace("Habilidad", "Ability", ignoreCase = true)
+        replaced = replaced.replace("Definitiva", "Ultimate", ignoreCase = true)
+        replaced = replaced.replace("Inflige", "Deals", ignoreCase = true)
+        replaced = replaced.replace("Aumenta", "Increases", ignoreCase = true)
+        replaced = replaced.replace("Reduce", "Reduces", ignoreCase = true)
+        replaced = replaced.replace("Otorga", "Grants", ignoreCase = true)
+    } else if (lang == "pt") {
+        replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+        replaced = replaced.replace("Vida Máxima", "Vida Máxima", ignoreCase = true)
+        replaced = replaced.replace("Daño de Ataque", "Dano de Ataque", ignoreCase = true)
+        replaced = replaced.replace("Daño Físico", "Dano Físico", ignoreCase = true)
+        replaced = replaced.replace("Daño Mágico", "Dano Mágico", ignoreCase = true)
+        replaced = replaced.replace("Poder de Habilidad", "Poder de Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Ataque", "Velocidade de Ataque", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Movimiento", "Velocidade de Movimento", ignoreCase = true)
+        replaced = replaced.replace("Aceleración de Habilidad", "Aceleração de Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Probabilidad de Crítico", "Chance de Crítico", ignoreCase = true)
+        replaced = replaced.replace("Daño Crítico", "Dano Crítico", ignoreCase = true)
+        replaced = replaced.replace("Penetración de Armadura", "Penetração de Armadura", ignoreCase = true)
+        replaced = replaced.replace("Penetración Mágica", "Penetração Mágica", ignoreCase = true)
+        replaced = replaced.replace("Resistencia Mágica", "Resistência Mágica", ignoreCase = true)
+        replaced = replaced.replace("Armadura", "Armadura", ignoreCase = true)
+        replaced = replaced.replace("Robo de Vida", "Roubo de Vida", ignoreCase = true)
+        replaced = replaced.replace("Omnivampirismo", "Vampirismo Universal", ignoreCase = true)
+        replaced = replaced.replace("Vampirismo", "Vampirismo", ignoreCase = true)
+        replaced = replaced.replace("Daño Verdadero", "Dano Verdadeiro", ignoreCase = true)
+        replaced = replaced.replace("Curación", "Cura", ignoreCase = true)
+        replaced = replaced.replace("Escudo", "Escudo", ignoreCase = true)
+        replaced = replaced.replace("Enfriamiento", "Tempo de Recarga", ignoreCase = true)
+        replaced = replaced.replace("Pasiva", "Passiva", ignoreCase = true)
+        replaced = replaced.replace("Habilidad", "Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Definitiva", "Ultimate", ignoreCase = true)
+        replaced = replaced.replace("Inflige", "Causa", ignoreCase = true)
+        replaced = replaced.replace("Aumenta", "Aumenta", ignoreCase = true)
+        replaced = replaced.replace("Reduce", "Reduz", ignoreCase = true)
+        replaced = replaced.replace("Otorga", "Concede", ignoreCase = true)
     }
-    return key
+    return replaced
 }

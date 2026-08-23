@@ -151,7 +151,7 @@ fun ChampionDetailSheet(
                         }
                         if (champion.title.isNotBlank()) {
                             Text(
-                                text = champion.title,
+                                text = tr(champion.title),
                                 color = HextechGoldLight,
                                 fontSize = 12.sp
                             )
@@ -456,7 +456,7 @@ fun ChampionDetailSheet(
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
                                     FormattedWildRiftText(
-                                        text = skill.description,
+                                        text = tr(skill.description),
                                         color = TextPrimary.copy(alpha = 0.9f),
                                         fontSize = 12.sp,
                                         lineHeight = 16.sp

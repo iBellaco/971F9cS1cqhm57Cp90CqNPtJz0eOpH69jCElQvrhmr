@@ -1,73 +1,89 @@
+import re
+
 with open('app/src/main/java/com/example/util/Translator.kt', 'r') as f:
-    c = f.read()
+    text = f.read()
 
-pt_map = '''    "pt" to mapOf(
-        "Elige tu idioma" to "Escolha seu idioma",
-        "Automático (Sistema)" to "Padrão do sistema",
-        "Español" to "Espanhol",
-        "Inglés" to "Inglês",
-        "Continuar / Continue" to "Continuar",
-        "Firestore & Logs Test Panel" to "Painel de Teste do Firestore e Logs",
-        "Add Data" to "Adicionar Dados",
-        "Read Data" to "Ler Dados",
-        "Delete Data" to "Excluir Dados",
-        "Continuar a la App" to "Continuar para o App",
-        "Copy Logs" to "Copiar Logs",
-        "Logs:" to "Logs:",
-        "Permiso de Superposición" to "Permissão de Sobreposição",
-        "Para que el asistente inteligente funcione en segundo plano sobre Wild Rift, Android requiere habilitar 'Aparecer encima' (Superposición)." to "Para que o assistente inteligente funcione em segundo plano sobre o Wild Rift, o Android requer a ativação da permissão 'Aparecer sobre outros apps'.",
-        "El asistente proporciona lecturas de pantalla y sugerencias en tiempo real sin salir del juego." to "O assistente fornece leituras de tela e sugestões em tempo real sem sair do jogo.",
-        "Conceder Permiso" to "Conceder Permissão",
-        "Cancelar" to "Cancelar",
-        "Base de Datos Meta (Parche 16.16.1)" to "Banco de Dados Meta (Patch 16.16.1)",
-        "Campeones" to "Campeões",
-        "Sinergias" to "Sinergias",
-        "Items" to "Itens",
-        "Runas" to "Runas",
-        "Ver Guía & Estadísticas en Fuentes Meta:" to "Ver Guia e Estatísticas em Fontes Meta:",
-        "Hechizos de Invocador:" to "Feitiços de Invocador:",
-        "Árbol de Runas Meta:" to "Árvore de Runas Meta:",
-        "Core Items (Obligatorios):" to "Itens Principais (Core):",
-        "Objetos Situacionales:" to "Itens Situacionais:",
-        "Mejores Sinergias (Composición):" to "Melhores Sinergias (Composição):",
-        "Ventaja Contra:" to "Forte Contra:",
-        "Débil Contra:" to "Fraco Contra:",
-        "Entendido" to "Entendido",
-        "Añadir Datos" to "Adicionar Dados",
-        "Leer Datos" to "Ler Dados",
-        "Borrar Datos" to "Excluir Dados",
-        "Copiar Logs" to "Copiar Logs",
-        "Logs Copied" to "Logs Copiados",
-        "Data Added" to "Dados Adicionados",
-        "Data Read Success" to "Dados Lidos com Sucesso",
-        "Data Deleted" to "Dados Excluídos",
-        "No se pudo cargar la información" to "Não foi possível carregar a informação",
-        "Analizando Draft..." to "Analisando Draft...",
-        "Activar Asistente (Superposición)" to "Ativar Assistente (Sobreposição)",
-        "Buscando composiciones óptimas y counters..." to "Buscando composições ideais e counters...",
-        "Asistente Wild Rift" to "Assistente Wild Rift",
-        "Cerrar" to "Fechar",
-        "Error" to "Erro",
-        "Información" to "Informação",
-        "MID" to "MID",
-        "TOP" to "TOP",
-        "JUNGLE" to "JUNGLE",
-        "ADC" to "ADC",
-        "SUPPORT" to "SUPPORT",
-        "Daño" to "Dano",
-        "Roles" to "Funções",
-        "Buscando composiciones..." to "Buscando composições...",
-        "PermisoSuperposicionTexto" to "1. Toque em 'Conceder Permissão'.\\n2. Ative o interruptor para o Wild Rift Drafting.\\n3. Volte ao aplicativo e pressione ATIVAR.",
-        "Línea Main" to "Rota Principal",
-        "Segunda Línea" to "Segunda Rota",
-        "Rol Autofill" to "Função Preenchimento Automático",
-        "Meta & Catálogo de Campeones" to "Meta & Catálogo de Campeões",
-        "Tier list, counters, sinergias, runas y objetos" to "Tier list, counters, sinergias, runas e itens",
-        "Asistente Hextech Activo • Toca la cámara flotante" to "Assistente Hextech Ativo • Toque na câmera flutuante",
-        "Presiona ACTIVAR para iniciar el Asistente Flotante" to "Pressione ATIVAR para iniciar o Assistente Flutuante"
-    ),'''
+fallback_logic_old = """    // Dynamic patch replacement fallback
+    if (lang == "en" || lang == "pt") {
+        if (key.startsWith("Parche ")) {
+            return "Patch " + key.substring("Parche ".length)
+        } else if (key.startsWith("parche ")) {
+            return "patch " + key.substring("parche ".length)
+        } else if (key == "Parche") {
+            return "Patch"
+        } else if (key == "parche") {
+            return "patch"
+        }
+    }
+    return key"""
 
-c = c.replace('val translations = mapOf(', 'val translations = mapOf(\n' + pt_map)
+fallback_logic_new = """    // Dynamic text replacement for untranslated lore/stats
+    var replaced = key
+    if (lang == "en") {
+        replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+        replaced = replaced.replace("Vida Máxima", "Max Health", ignoreCase = true)
+        replaced = replaced.replace("Daño de Ataque", "Attack Damage", ignoreCase = true)
+        replaced = replaced.replace("Daño Físico", "Physical Damage", ignoreCase = true)
+        replaced = replaced.replace("Daño Mágico", "Magic Damage", ignoreCase = true)
+        replaced = replaced.replace("Poder de Habilidad", "Ability Power", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Ataque", "Attack Speed", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Movimiento", "Movement Speed", ignoreCase = true)
+        replaced = replaced.replace("Aceleración de Habilidad", "Ability Haste", ignoreCase = true)
+        replaced = replaced.replace("Probabilidad de Crítico", "Critical Chance", ignoreCase = true)
+        replaced = replaced.replace("Daño Crítico", "Critical Damage", ignoreCase = true)
+        replaced = replaced.replace("Penetración de Armadura", "Armor Penetration", ignoreCase = true)
+        replaced = replaced.replace("Penetración Mágica", "Magic Penetration", ignoreCase = true)
+        replaced = replaced.replace("Resistencia Mágica", "Magic Resist", ignoreCase = true)
+        replaced = replaced.replace("Armadura", "Armor", ignoreCase = true)
+        replaced = replaced.replace("Robo de Vida", "Life Steal", ignoreCase = true)
+        replaced = replaced.replace("Omnivampirismo", "Omnivamp", ignoreCase = true)
+        replaced = replaced.replace("Vampirismo", "Vamp", ignoreCase = true)
+        replaced = replaced.replace("Daño Verdadero", "True Damage", ignoreCase = true)
+        replaced = replaced.replace("Curación", "Healing", ignoreCase = true)
+        replaced = replaced.replace("Escudo", "Shield", ignoreCase = true)
+        replaced = replaced.replace("Enfriamiento", "Cooldown", ignoreCase = true)
+        replaced = replaced.replace("Pasiva", "Passive", ignoreCase = true)
+        replaced = replaced.replace("Habilidad", "Ability", ignoreCase = true)
+        replaced = replaced.replace("Definitiva", "Ultimate", ignoreCase = true)
+        replaced = replaced.replace("Inflige", "Deals", ignoreCase = true)
+        replaced = replaced.replace("Aumenta", "Increases", ignoreCase = true)
+        replaced = replaced.replace("Reduce", "Reduces", ignoreCase = true)
+        replaced = replaced.replace("Otorga", "Grants", ignoreCase = true)
+    } else if (lang == "pt") {
+        replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+        replaced = replaced.replace("Vida Máxima", "Vida Máxima", ignoreCase = true)
+        replaced = replaced.replace("Daño de Ataque", "Dano de Ataque", ignoreCase = true)
+        replaced = replaced.replace("Daño Físico", "Dano Físico", ignoreCase = true)
+        replaced = replaced.replace("Daño Mágico", "Dano Mágico", ignoreCase = true)
+        replaced = replaced.replace("Poder de Habilidad", "Poder de Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Ataque", "Velocidade de Ataque", ignoreCase = true)
+        replaced = replaced.replace("Velocidad de Movimiento", "Velocidade de Movimento", ignoreCase = true)
+        replaced = replaced.replace("Aceleración de Habilidad", "Aceleração de Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Probabilidad de Crítico", "Chance de Crítico", ignoreCase = true)
+        replaced = replaced.replace("Daño Crítico", "Dano Crítico", ignoreCase = true)
+        replaced = replaced.replace("Penetración de Armadura", "Penetração de Armadura", ignoreCase = true)
+        replaced = replaced.replace("Penetración Mágica", "Penetração Mágica", ignoreCase = true)
+        replaced = replaced.replace("Resistencia Mágica", "Resistência Mágica", ignoreCase = true)
+        replaced = replaced.replace("Armadura", "Armadura", ignoreCase = true)
+        replaced = replaced.replace("Robo de Vida", "Roubo de Vida", ignoreCase = true)
+        replaced = replaced.replace("Omnivampirismo", "Vampirismo Universal", ignoreCase = true)
+        replaced = replaced.replace("Vampirismo", "Vampirismo", ignoreCase = true)
+        replaced = replaced.replace("Daño Verdadero", "Dano Verdadeiro", ignoreCase = true)
+        replaced = replaced.replace("Curación", "Cura", ignoreCase = true)
+        replaced = replaced.replace("Escudo", "Escudo", ignoreCase = true)
+        replaced = replaced.replace("Enfriamiento", "Tempo de Recarga", ignoreCase = true)
+        replaced = replaced.replace("Pasiva", "Passiva", ignoreCase = true)
+        replaced = replaced.replace("Habilidad", "Habilidade", ignoreCase = true)
+        replaced = replaced.replace("Definitiva", "Ultimate", ignoreCase = true)
+        replaced = replaced.replace("Inflige", "Causa", ignoreCase = true)
+        replaced = replaced.replace("Aumenta", "Aumenta", ignoreCase = true)
+        replaced = replaced.replace("Reduce", "Reduz", ignoreCase = true)
+        replaced = replaced.replace("Otorga", "Concede", ignoreCase = true)
+    }
+    return replaced"""
+
+text = text.replace(fallback_logic_old, fallback_logic_new)
 
 with open('app/src/main/java/com/example/util/Translator.kt', 'w') as f:
-    f.write(c)
+    f.write(text)
+

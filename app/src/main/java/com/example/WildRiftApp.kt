@@ -25,5 +25,6 @@ class WildRiftApp : Application() {
         }
         
         AppLogger.d("APP", "Application started successfully.")
+        com.example.util.DynamicTranslations.load(this)
     }
 }

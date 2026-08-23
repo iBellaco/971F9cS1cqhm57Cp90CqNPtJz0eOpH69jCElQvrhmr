@@ -895,9 +895,9 @@ private fun OverlayItemsTabContent(
                                 Text(item.name, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 Text("${item.goldCost} ${tr("Oro")}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
-                            Text(item.stats, color = HextechCyan, fontSize = 10.sp)
+                            Text(tr(item.stats), color = HextechCyan, fontSize = 10.sp)
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text(item.passive, color = TextPrimary.copy(alpha = 0.85f), fontSize = 10.sp, lineHeight = 13.sp)
+                            Text(tr(item.passive), color = TextPrimary.copy(alpha = 0.85f), fontSize = 10.sp, lineHeight = 13.sp)
                         }
                     }
                 }

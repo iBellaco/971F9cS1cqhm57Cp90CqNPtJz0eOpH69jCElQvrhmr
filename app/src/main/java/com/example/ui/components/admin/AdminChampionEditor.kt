@@ -265,20 +265,23 @@ fun AdminChampionEditorTab() {
     champToEdit?.let { currentChamp ->
         var editId by remember { mutableStateOf(currentChamp.id) }
         var editName by remember { mutableStateOf(currentChamp.name) }
-        var editTitle by remember { mutableStateOf(currentChamp.title) }
-        var editRole by remember { mutableStateOf(currentChamp.primaryRole) }
-        var editTier by remember { mutableStateOf(currentChamp.tier) }
-        var editWinrate by remember { mutableStateOf(currentChamp.winrate.toString()) }
-        var editPickrate by remember { mutableStateOf(currentChamp.pickRate.toString()) }
-        var editBanrate by remember { mutableStateOf(currentChamp.banRate.toString()) }
-        var editDamageType by remember { mutableStateOf(currentChamp.damageType) }
         var editAvatarUrl by remember { mutableStateOf(currentChamp.avatarUrl) }
-        var editCounters by remember { mutableStateOf(currentChamp.counteredBy.joinToString(", ")) }
-        var editSynergies by remember { mutableStateOf(currentChamp.synergies.joinToString(", ")) }
-        var editCoreItems by remember { mutableStateOf(currentChamp.coreItems.joinToString(", ")) }
-        var editRuneIconUrl by remember { mutableStateOf(currentChamp.primaryRuneIconUrl) }
-        var editRecommendedRunes by remember { mutableStateOf(currentChamp.recommendedRunes) }
-        var editSpellsIcons by remember { mutableStateOf(currentChamp.spellsIcons.joinToString(", ")) }
+        var editSummary by remember { mutableStateOf(currentChamp.summary) }
+        
+        // Abilities
+        var editSkills by remember { mutableStateOf(
+            if (currentChamp.skills.isEmpty()) {
+                listOf(
+                    com.example.model.ChampionSkill(slot = "P", slotName = "Pasiva"),
+                    com.example.model.ChampionSkill(slot = "1", slotName = "Habilidad 1"),
+                    com.example.model.ChampionSkill(slot = "2", slotName = "Habilidad 2"),
+                    com.example.model.ChampionSkill(slot = "3", slotName = "Habilidad 3"),
+                    com.example.model.ChampionSkill(slot = "4", slotName = "Definitiva")
+                )
+            } else {
+                currentChamp.skills
+            }
+        ) }
 
         Dialog(onDismissRequest = { if (!isSaving) champToEdit = null }) {
             Card(
@@ -315,181 +318,34 @@ fun AdminChampionEditorTab() {
 
                     OutlinedTextField(
                         value = editId,
-                        onValueChange = { if (isCreatingNew) editId = it },
-                        readOnly = !isCreatingNew,
-                        label = { Text("ID Único (ej. aatrox)", fontSize = 11.sp) },
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("ID del Campeón", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
+                            focusedBorderColor = HextechCardBorder,
                             unfocusedBorderColor = HextechCardBorder
                         )
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
-
                     OutlinedTextField(
                         value = editName,
-                        onValueChange = { editName = it },
-                        label = { Text("Nombre del Campeón", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = editTitle,
-                        onValueChange = { editTitle = it },
-                        label = { Text("Título (ej. La Espada de los Oscuros)", fontSize = 11.sp) },
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Nombre", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    // Role Selector
-                    Text("Rol Primario:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(LaneRole.entries) { r ->
-                            FilterChip(
-                                selected = editRole == r,
-                                onClick = { editRole = r },
-                                label = { Text(r.displayName, fontSize = 10.5.sp) }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Tier Selector
-                    Text("Tier del Meta:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    val tiers = listOf("S+", "S", "A", "B", "C", "D")
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(tiers) { t ->
-                            FilterChip(
-                                selected = editTier == t,
-                                onClick = { editTier = t },
-                                label = { Text(t, fontSize = 10.5.sp) }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Winrate, Pickrate, Banrate
-                    Row(
+                    OutlinedTextField(
+                        value = editSummary,
+                        onValueChange = { editSummary = it },
+                        label = { Text("Descripción (Lore/Resumen)", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = editWinrate,
-                            onValueChange = { editWinrate = it },
-                            label = { Text("Winrate %", fontSize = 10.sp) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        OutlinedTextField(
-                            value = editPickrate,
-                            onValueChange = { editPickrate = it },
-                            label = { Text("Pickrate %", fontSize = 10.sp) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        OutlinedTextField(
-                            value = editBanrate,
-                            onValueChange = { editBanrate = it },
-                            label = { Text("Banrate %", fontSize = 10.sp) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = editCounters,
-                        onValueChange = { editCounters = it },
-                        label = { Text("Counters (separados por coma)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
+                        minLines = 3
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = editSynergies,
-                        onValueChange = { editSynergies = it },
-                        label = { Text("Sinergias (separadas por coma)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = editCoreItems,
-                        onValueChange = { editCoreItems = it },
-                        label = { Text("Ítems Core Recomendados (separados por coma)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Avatar Image Picker & Uploader
-                    AdminImagePickerUploader(
-                        label = "Avatar del Campeón (Galería o URL)",
-                        imageUrl = editAvatarUrl,
-                        onImageUrlChange = { editAvatarUrl = it },
-                        imagePrefix = "champ_${editId.ifBlank { "new" }}",
-                        accentColor = HextechGold
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Primary Rune Icon Picker & Uploader
-                    AdminImagePickerUploader(
-                        label = "Ícono de Runa Principal (Galería o URL)",
-                        imageUrl = editRuneIconUrl,
-                        onImageUrlChange = { editRuneIconUrl = it },
-                        imagePrefix = "rune_${editId.ifBlank { "new" }}",
-                        accentColor = HextechCyan
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Recommended Runes text
-                    OutlinedTextField(
-                        value = editRecommendedRunes,
-                        onValueChange = { editRecommendedRunes = it },
-                        label = { Text("Runas Recomendadas (ej. Conquistador + Dominación)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Spells Icons URLs
-                    OutlinedTextField(
-                        value = editSpellsIcons,
-                        onValueChange = { editSpellsIcons = it },
-                        label = { Text("URLs de Íconos de Hechizos (separados por coma)", fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
                     Spacer(modifier = Modifier.height(16.dp))
-
                     Button(
                         onClick = {
                             if (editId.isBlank() || editName.isBlank()) {
@@ -498,22 +354,8 @@ fun AdminChampionEditorTab() {
                             }
                             isSaving = true
                             val updatedChamp = currentChamp.copy(
-                                id = editId.trim(),
-                                name = editName.trim(),
-                                title = editTitle.trim(),
-                                primaryRole = editRole,
-                                tier = editTier,
-                                winrate = editWinrate.toDoubleOrNull() ?: 50.0,
-                                pickRate = editPickrate.toDoubleOrNull() ?: 5.0,
-                                banRate = editBanrate.toDoubleOrNull() ?: 2.0,
-                                damageType = editDamageType,
-                                avatarUrl = editAvatarUrl.trim(),
-                                primaryRuneIconUrl = editRuneIconUrl.trim(),
-                                recommendedRunes = editRecommendedRunes.trim(),
-                                spellsIcons = editSpellsIcons.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                                counteredBy = editCounters.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                                synergies = editSynergies.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                                coreItems = editCoreItems.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                summary = editSummary.trim(),
+                                skills = editSkills
                             )
                             scope.launch {
                                 val result = WildRiftSupabaseRepository.saveChampion(updatedChamp)
