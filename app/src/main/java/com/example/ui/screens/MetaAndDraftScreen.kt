@@ -1713,7 +1713,7 @@ private fun RunesTab() {
         "DOMINATION" to tr("Dominación"),
         "PRECISION" to tr("Precisión"),
         "RESOLVE" to tr("Valor"),
-        "INSPIRATION" to tr("Inspiración")
+        
     )
 
     val filteredRunes = remember(searchQuery, selectedFilter) {
@@ -1725,7 +1725,7 @@ private fun RunesTab() {
                 "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true) || rune.category.contains("Domination", ignoreCase = true)
                 "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true) || rune.category.contains("Precision", ignoreCase = true)
                 "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true) || rune.category.contains("Resolve", ignoreCase = true)
-                "INSPIRATION" -> rune.category.contains("Inspiración", ignoreCase = true) || rune.category.contains("Inspiration", ignoreCase = true)
+                
                 else -> true
             }
             val matchesSearch = searchQuery.isBlank() ||
@@ -1737,7 +1737,7 @@ private fun RunesTab() {
     }
 
     val treeCategories = remember(filteredRunes) {
-        listOf("Runa Clave", "Brujería", "Dominación", "Precisión", "Valor", "Inspiración")
+        listOf("Runa Clave", "Brujería", "Dominación", "Precisión", "Valor",)
             .mapNotNull { cat ->
                 val list = filteredRunes.filter { it.category.equals(cat, ignoreCase = true) }
                 if (list.isNotEmpty()) cat to list else null
@@ -1782,7 +1782,7 @@ private fun RunesTab() {
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = tr("Árbol / Grid"),
+                        text = tr("Cuadrícula"),
                         color = if (isGridView) HextechDarkBg else TextMuted,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
@@ -1861,13 +1861,13 @@ private fun RunesTab() {
             ) {
                 treeCategories.forEach { (categoryName, runesInCat) ->
                     item(key = categoryName) {
-                        val (iconPrefix, catColor) = when (categoryName.lowercase()) {
-                            "brujería" -> "🌀" to Color(0xFF6C75F0)
-                            "runa clave" -> "💎" to HextechGold
-                            "dominación" -> "🗡️" to Color(0xFFE84057)
-                            "precisión" -> "⚔️" to Color(0xFFF3C258)
-                            "valor" -> "🛡️" to Color(0xFF4AC27E)
-                            else -> "🔮" to HextechCyan
+                        val catColor = when (categoryName.lowercase()) {
+                            "brujería" -> Color(0xFF6C75F0)
+                            "runa clave" -> HextechGold
+                            "dominación" -> Color(0xFFE84057)
+                            "precisión" -> Color(0xFFF3C258)
+                            "valor" -> Color(0xFF4AC27E)
+                            else -> HextechCyan
                         }
 
                         Card(
@@ -1881,8 +1881,7 @@ private fun RunesTab() {
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(bottom = 10.dp)
                                 ) {
-                                    Text(iconPrefix, fontSize = 14.sp)
-                                    Spacer(modifier = Modifier.width(6.dp))
+                                    
                                     Text(
                                         text = categoryName.uppercase(),
                                         color = catColor,
@@ -2065,12 +2064,29 @@ private fun RunesTab() {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when (rune.category.lowercase()) {
-                            "brujería" -> "Excelente para magos, soportes de utilidad y campeones que requieren aceleración de habilidades y maná continuo en fase de líneas."
-                            "runa clave" -> "Pilar fundamental de tu estilo de juego. Elige según busques intercambios cortos (Electrocutar/Primer Golpe) o peleas largas (Conquistador/Cadencia Letal)."
-                            "dominación" -> "Ideal para amplificar daño explosivo, penetración rápida y acumulación de daño por bajas o visión."
-                            "precisión" -> "Máxima eficiencia en tiradores (ADC) y duelistas para potenciar daño sostenido, velocidad de ataque y remate de objetivos."
-                            "valor" -> "Imprescindible para tanques y luchadores contra líneas difíciles para absorber daño y escalar vida máxima."
+                        text = when {
+                            rune.category.lowercase().contains("clave") -> {
+                                when (rune.name.lowercase()) {
+                                    "electrocutar" -> "💡 Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
+                                    "cosecha oscura" -> "💡 Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
+                                    "fortalecimiento" -> "💡 Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
+                                    "compás letal" -> "💡 Fundamental en hypercarries como Jinx o Vayne para dominar las peleas largas."
+                                    "pies veloces" -> "💡 Útil para sobrevivir líneas difíciles gracias a su curación y movilidad al kitear."
+                                    "conquistador" -> "💡 La mejor opción para luchadores y duelistas que buscan intercambios prolongados (ej. Darius, Riven)."
+                                    "garras del inmortal" -> "💡 Indispensable en tanques y colosos para tener sustain y escalar vida máxima."
+                                    "guardián" -> "💡 Selecciona esta runa en soportes protectores (ej. Braum, Lulu) para mitigar burst enemigo."
+                                    "aery" -> "💡 Muy versátil para soportes encantadores o magos de pokeo constante (ej. Karma, Orianna)."
+                                    "cometa arcano" -> "💡 Ideal para magos de artillería que pokean a distancia (ej. Ziggs, Lux)."
+                                    "irrupción de fase" -> "💡 Perfecta para magos de combo que necesitan reposicionarse rápido (ej. Orianna, Vladimir)."
+                                    "primer golpe" -> "💡 Útil en asesinos o magos de ráfaga para escalar en oro rápidamente y explotar objetivos."
+                                    "soberano gélido" -> "💡 Excelente para soportes de iniciación (ej. Leona, Nautilus) para potenciar su CC."
+                                    else -> "Elige esta runa clave basándote en tu condición de victoria en la fase de líneas."
+                                }
+                            }
+                            rune.category.lowercase() == "brujería" -> "Excelente para magos, soportes de utilidad y campeones que requieren aceleración de habilidades y maná continuo en fase de líneas."
+                            rune.category.lowercase() == "dominación" -> "Ideal para amplificar daño explosivo, penetración rápida y acumulación de daño por bajas o visión."
+                            rune.category.lowercase() == "precisión" -> "Máxima eficiencia en tiradores (ADC) y duelistas para potenciar daño sostenido, velocidad de ataque y remate de objetivos."
+                            rune.category.lowercase() == "valor" -> "Imprescindible para tanques y luchadores contra líneas difíciles para absorber daño y escalar vida máxima."
                             else -> "Aporta versatilidad, aceleración de hechizos de invocador y movilidad táctica por el mapa."
                         },
                         color = TextMuted,
