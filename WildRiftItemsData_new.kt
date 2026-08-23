@@ -1935,25 +1935,5 @@ object WildRiftItemsData {
             passive = "Teleport\nAfter channeling for 3.5 seconds, teleport your champion to an allied champion, structure, or ward (excludes areas in range of enemy inhibitors). You can only teleport to structures during the first 6 minutes of the game.\nCooldown: 150s",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611110740_teleport-enchant.jpg"
         ))
-    
-    }
-
-    fun getItemIconByName(name: String): String {
-        val clean = name.trim()
-        if (clean.isEmpty()) return ""
-        val exact = list.find { it.name.equals(clean, ignoreCase = true) }
-        if (exact != null && exact.iconUrl.isNotBlank()) return exact.iconUrl
-        val partial = list.find { it.name.contains(clean, ignoreCase = true) || clean.contains(it.name, ignoreCase = true) }
-        return partial?.iconUrl ?: ""
-    }
-
-    fun getItemByName(name: String): WildRiftItem? {
-        val clean = name.trim()
-        if (clean.isEmpty()) return null
-        return list.find { 
-            it.name.equals(clean, ignoreCase = true) || 
-            it.name.contains(clean, ignoreCase = true) || 
-            clean.contains(it.name, ignoreCase = true) 
-        }
     }
 }
