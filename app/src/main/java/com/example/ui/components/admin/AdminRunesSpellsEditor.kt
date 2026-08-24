@@ -47,6 +47,7 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
 
     var activeSubSection by remember { mutableStateOf(initialSection) }
     var searchQuery by remember { mutableStateOf("") }
+    var selectedRuneCategory by remember { mutableStateOf<String?>(null) }
 
     // State for Rune Editing
     var runeToEdit by remember { mutableStateOf<RuneItem?>(null) }
@@ -148,74 +149,221 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
         // Content Lists
         when (activeSubSection) {
             SubSection.RUNES -> {
-                val filteredRunes = remember(allRunes, searchQuery) {
-                    if (searchQuery.isBlank()) allRunes
-                    else allRunes.filter { it.name.contains(searchQuery, true) || it.id.contains(searchQuery, true) || it.category.contains(searchQuery, true) }
+                val runeCategoriesWithIcons = listOf(
+                    "Clave" to "👑",
+                    "Dominación" to "🗡️",
+                    "Precisión" to "🎯",
+                    "Brujería" to "🔮",
+                    "Valor" to "🛡️",
+                    "Inspiración" to "💡"
+                )
+
+                // Category Filter chips
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedRuneCategory == null,
+                            onClick = { selectedRuneCategory = null },
+                            label = { Text("${tr("Todas")} (${allRunes.size})", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechCyan,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                    }
+                    items(runeCategoriesWithIcons) { (cat, emoji) ->
+                        val count = allRunes.count { it.category.equals(cat, ignoreCase = true) }
+                        FilterChip(
+                            selected = selectedRuneCategory?.equals(cat, ignoreCase = true) == true,
+                            onClick = {
+                                selectedRuneCategory = if (selectedRuneCategory?.equals(cat, ignoreCase = true) == true) null else cat
+                            },
+                            label = { Text("$emoji $cat ($count)", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechGold,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                val filteredRunes = remember(allRunes, searchQuery, selectedRuneCategory) {
+                    allRunes.filter { rune ->
+                        val matchCat = selectedRuneCategory == null || rune.category.equals(selectedRuneCategory, ignoreCase = true)
+                        val matchSearch = searchQuery.isBlank() ||
+                                rune.name.contains(searchQuery, true) ||
+                                rune.id.contains(searchQuery, true) ||
+                                rune.category.contains(searchQuery, true) ||
+                                rune.description.contains(searchQuery, true)
+                        matchCat && matchSearch
+                    }
+                }
+
+                val standardCategoryOrder = listOf("Clave", "Dominación", "Precisión", "Brujería", "Valor", "Inspiración")
+                val groupedRunes = remember(filteredRunes) {
+                    val map = mutableMapOf<String, MutableList<RuneItem>>()
+                    filteredRunes.forEach { rune ->
+                        val matchedKey = standardCategoryOrder.firstOrNull { it.equals(rune.category, ignoreCase = true) } ?: rune.category.ifBlank { "Otras" }
+                        map.getOrPut(matchedKey) { mutableListOf() }.add(rune)
+                    }
+                    // Sort keys according to standard order
+                    map.toList().sortedWith(
+                        compareBy { (cat, _) ->
+                            val idx = standardCategoryOrder.indexOfFirst { it.equals(cat, ignoreCase = true) }
+                            if (idx >= 0) idx else 999
+                        }
+                    )
                 }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(filteredRunes, key = { it.id }) { rune ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                            border = BorderStroke(1.dp, HextechCardBorder)
-                        ) {
-                            Row(
+                    if (groupedRunes.isEmpty()) {
+                        item {
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(32.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                AppAssetImage(
-                                    url = rune.iconUrl,
-                                    contentDescription = rune.name,
-                                    fallbackText = rune.name,
-                                    modifier = Modifier.size(44.dp),
-                                    borderColor = HextechGold,
-                                    shape = RoundedCornerShape(8.dp)
+                                Text(
+                                    text = tr("No se encontraron runas con ese filtro"),
+                                    color = TextMuted,
+                                    fontSize = 13.sp
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = rune.name,
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 13.5.sp
-                                    )
-                                    Text(
-                                        text = "Rama: ${rune.category} • ID: ${rune.id}",
-                                        color = HextechCyan,
-                                        fontSize = 10.5.sp
-                                    )
-                                    if (rune.description.isNotBlank()) {
-                                        Text(
-                                            text = rune.description,
-                                            color = TextPrimary,
-                                            fontSize = 11.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                            }
+                        }
+                    } else {
+                        groupedRunes.forEach { (categoryName, runesInCategory) ->
+                            item(key = "header_$categoryName") {
+                                val catEmoji = when {
+                                    categoryName.contains("Clave", ignoreCase = true) -> "👑"
+                                    categoryName.contains("Dominación", ignoreCase = true) -> "🗡️"
+                                    categoryName.contains("Precisión", ignoreCase = true) -> "🎯"
+                                    categoryName.contains("Brujería", ignoreCase = true) -> "🔮"
+                                    categoryName.contains("Valor", ignoreCase = true) -> "🛡️"
+                                    categoryName.contains("Inspiración", ignoreCase = true) -> "💡"
+                                    else -> "✨"
+                                }
+                                val headerColor = when {
+                                    categoryName.contains("Clave", ignoreCase = true) -> HextechGold
+                                    categoryName.contains("Dominación", ignoreCase = true) -> DangerRed
+                                    categoryName.contains("Precisión", ignoreCase = true) -> HextechGold
+                                    categoryName.contains("Brujería", ignoreCase = true) -> Color(0xFFB388FF)
+                                    categoryName.contains("Valor", ignoreCase = true) -> HextechGreen
+                                    categoryName.contains("Inspiración", ignoreCase = true) -> HextechCyan
+                                    else -> HextechCyan
+                                }
+
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 4.dp, bottom = 2.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = headerColor.copy(alpha = 0.12f),
+                                    border = BorderStroke(1.dp, headerColor.copy(alpha = 0.4f))
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(text = catEmoji, fontSize = 14.sp)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                text = "RAMA ${categoryName.uppercase()}",
+                                                color = headerColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 12.sp,
+                                                letterSpacing = 0.5.sp
+                                            )
+                                        }
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = headerColor.copy(alpha = 0.25f)
+                                        ) {
+                                            Text(
+                                                text = "${runesInCategory.size} runas",
+                                                color = headerColor,
+                                                fontWeight = FontWeight.SemiBold,
+                                                fontSize = 10.sp,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
                                     }
                                 }
-                                Row {
-                                    IconButton(
-                                        onClick = {
-                                            isCreatingRune = false
-                                            runeToEdit = rune
-                                        },
-                                        modifier = Modifier.size(32.dp)
+                            }
+
+                            items(runesInCategory, key = { it.id }) { rune ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp),
+                                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                                    border = BorderStroke(1.dp, HextechCardBorder)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                                    }
-                                    IconButton(
-                                        onClick = { runeToDelete = rune },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                        AppAssetImage(
+                                            url = rune.iconUrl,
+                                            contentDescription = rune.name,
+                                            fallbackText = rune.name,
+                                            modifier = Modifier.size(44.dp),
+                                            borderColor = HextechGold,
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = rune.name,
+                                                color = TextPrimary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.5.sp
+                                            )
+                                            Text(
+                                                text = "Rama: ${rune.category} • ID: ${rune.id}",
+                                                color = HextechCyan,
+                                                fontSize = 10.5.sp
+                                            )
+                                            if (rune.description.isNotBlank()) {
+                                                Text(
+                                                    text = rune.description,
+                                                    color = TextSecondary,
+                                                    fontSize = 11.sp,
+                                                    maxLines = 2,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
+                                        Row {
+                                            IconButton(
+                                                onClick = {
+                                                    isCreatingRune = false
+                                                    runeToEdit = rune
+                                                },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                            }
+                                            IconButton(
+                                                onClick = { runeToDelete = rune },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -361,7 +509,7 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
 
                     // Category selection
                     Text("Rama de la Runa:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    val categories = listOf("Clave", "Dominación", "Precisión", "Valor", "Inspiración")
+                    val categories = listOf("Clave", "Dominación", "Precisión", "Brujería", "Valor", "Inspiración")
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.fillMaxWidth()

@@ -225,6 +225,28 @@ enum class AppTheme(
         textSecondary = Color(0xFF495057),
         textMuted = Color(0xFF868E96),
         isDark = false
+    ),
+    BLUR(
+        id = "BLUR",
+        titleKey = "Blur Glassmorphism",
+        regionTag = "Cristal Blur",
+        descKey = "Efecto traslúcido de cristal esmerilado con cian escarcha, violeta etéreo y sombras de neón.",
+        background = Color(0xFF080D1A),
+        surface = Color(0xFF101C33),
+        surfaceVariant = Color(0xFF192B4D),
+        cardBorder = Color(0xFF2B4C7E),
+        primary = Color(0xFF38BDF8),
+        primaryLight = Color(0xFF7DD3FC),
+        primaryDark = Color(0xFF0284C7),
+        primaryGlow = Color(0xFF00E5FF),
+        secondary = Color(0xFFA78BFA),
+        secondaryLight = Color(0xFFDDD6FE),
+        secondaryDark = Color(0xFF7C3AED),
+        secondaryGlow = Color(0xFFC084FC),
+        textPrimary = Color(0xFFF0F9FF),
+        textSecondary = Color(0xFF93C5FD),
+        textMuted = Color(0xFF64748B),
+        isDark = true
     )
 }
 
@@ -338,6 +360,14 @@ enum class NavBarColorOption(
         colorHex = Color(0xFF64748B),
         containerColor = Color(0xFF1E2124),
         accentColor = Color(0xFFCBD5E1),
+        isAutomatic = false
+    ),
+    BLUR_FROST(
+        id = "BLUR_FROST",
+        titleKey = "Cristal Blur Escarcha",
+        colorHex = Color(0xFF38BDF8),
+        containerColor = Color(0xFF0C1628),
+        accentColor = Color(0xFF38BDF8),
         isAutomatic = false
     )
 }

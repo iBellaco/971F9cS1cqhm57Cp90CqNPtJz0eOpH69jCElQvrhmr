@@ -260,7 +260,15 @@ fun AdminFeedbackBottomSheet(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = tr("Gestión de Mensajes & Reportes"),
+                            text = when (currentAdminTab) {
+                                AdminTab.FEEDBACK -> tr("Gestión de Mensajes & Reportes")
+                                AdminTab.ITEMS -> tr("Catálogo y Clasificación de Objetos")
+                                AdminTab.CHAMPIONS -> tr("Campeones por Líneas y Roles")
+                                AdminTab.RUNES -> tr("Runas por Ramas (Clave, Dominación, etc.)")
+                                AdminTab.OBJECTIVES -> tr("Objetivos de Mapa y Tácticas")
+                                AdminTab.SUPABASE -> tr("Sincronización y Respaldo Supabase")
+                                AdminTab.DATABASE -> tr("Visor de Tablas de Base de Datos")
+                            },
                             color = TextMuted,
                             fontSize = 11.5.sp
                         )

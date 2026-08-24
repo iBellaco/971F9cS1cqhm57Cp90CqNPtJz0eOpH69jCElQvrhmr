@@ -167,85 +167,176 @@ fun AdminItemEditorTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Items list
+        // Items list grouped by category
+        val categoryDisplayOrder = listOf(
+            ItemCategory.PHYSICAL,
+            ItemCategory.MAGIC,
+            ItemCategory.DEFENSE,
+            ItemCategory.SUPPORT,
+            ItemCategory.BOOTS_T2,
+            ItemCategory.BOOTS_T3,
+            ItemCategory.ACTIVE,
+            ItemCategory.MID_TIER,
+            ItemCategory.BASIC
+        )
+
+        val groupedItems = remember(filteredItems) {
+            categoryDisplayOrder.mapNotNull { cat ->
+                val itemsInCat = filteredItems.filter { it.category == cat }.sortedByDescending { it.goldCost }
+                if (itemsInCat.isNotEmpty()) cat to itemsInCat else null
+            }
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(filteredItems, key = { it.id }) { item ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Row(
+            if (groupedItems.isEmpty()) {
+                item {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        AppAssetImage(
-                            url = item.iconUrl,
-                            contentDescription = item.name,
-                            fallbackText = item.name,
-                            modifier = Modifier.size(46.dp),
-                            borderColor = HextechGold,
-                            shape = RoundedCornerShape(8.dp)
+                        Text(
+                            text = tr("No se encontraron objetos con ese filtro"),
+                            color = TextMuted,
+                            fontSize = 13.sp
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                    }
+                }
+            } else {
+                groupedItems.forEach { (category, itemsInCat) ->
+                    item(key = "header_${category.name}") {
+                        val headerColor = when (category) {
+                            ItemCategory.PHYSICAL -> Color(0xFFFF6B6B)
+                            ItemCategory.MAGIC -> Color(0xFFB388FF)
+                            ItemCategory.DEFENSE -> HextechGreen
+                            ItemCategory.SUPPORT -> Color(0xFF48CAE4)
+                            ItemCategory.BOOTS_T2, ItemCategory.BOOTS_T3 -> HextechGold
+                            ItemCategory.ACTIVE -> Color(0xFF00E5FF)
+                            ItemCategory.MID_TIER, ItemCategory.BASIC -> HextechCyan
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 2.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = headerColor.copy(alpha = 0.12f),
+                            border = BorderStroke(1.dp, headerColor.copy(alpha = 0.4f))
+                        ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = tr(item.name),
-                                    color = TextPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 13.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "🟡 ${item.goldCost} G",
-                                    color = HextechGold,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 11.sp
-                                )
-                            }
-                            Text(
-                                text = "${item.category.iconEmoji} ${tr(item.category.displayName)} • ID: ${item.id}",
-                                color = HextechCyan,
-                                fontSize = 10.5.sp
-                            )
-                            if (item.stats.isNotBlank()) {
-                                Text(
-                                    text = tr(item.stats),
-                                    color = TextPrimary,
-                                    fontSize = 11.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = category.iconEmoji, fontSize = 14.sp)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = tr(category.sectionTitle),
+                                        color = headerColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = headerColor.copy(alpha = 0.25f)
+                                ) {
+                                    Text(
+                                        text = "${itemsInCat.size} ${tr("ítems")}",
+                                        color = headerColor,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 10.sp,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Row {
-                            IconButton(
-                                onClick = {
-                                    isCreatingNew = false
-                                    itemToEdit = item
-                                },
-                                modifier = Modifier.size(32.dp)
+                    }
+
+                    items(itemsInCat, key = { it.id }) { item ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                            border = BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(
-                                onClick = { itemToDelete = item },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                AppAssetImage(
+                                    url = item.iconUrl,
+                                    contentDescription = item.name,
+                                    fallbackText = item.name,
+                                    modifier = Modifier.size(46.dp),
+                                    borderColor = HextechGold,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = tr(item.name),
+                                            color = TextPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.5.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = "🟡 ${item.goldCost} G",
+                                            color = HextechGold,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                    Text(
+                                        text = "${item.category.iconEmoji} ${tr(item.category.displayName)} • ID: ${item.id}",
+                                        color = HextechCyan,
+                                        fontSize = 10.5.sp
+                                    )
+                                    if (item.stats.isNotBlank()) {
+                                        Text(
+                                            text = tr(item.stats),
+                                            color = TextPrimary,
+                                            fontSize = 11.5.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            isCreatingNew = false
+                                            itemToEdit = item
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                    }
+                                    IconButton(
+                                        onClick = { itemToDelete = item },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                    }
+                                }
                             }
                         }
                     }

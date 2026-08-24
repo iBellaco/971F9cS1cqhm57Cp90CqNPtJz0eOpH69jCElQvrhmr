@@ -158,12 +158,19 @@ fun AdminChampionEditorTab() {
             }
             items(LaneRole.entries) { role ->
                 val count = allChamps.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
+                val emoji = when (role) {
+                    LaneRole.TOP -> "🛡️"
+                    LaneRole.JUNGLE -> "🌲"
+                    LaneRole.MID -> "⚡"
+                    LaneRole.ADC -> "🏹"
+                    LaneRole.SUPPORT -> "💚"
+                }
                 FilterChip(
                     selected = selectedRole == role,
                     onClick = { selectedRole = if (selectedRole == role) null else role },
-                    label = { Text("${role.displayName} ($count)", fontSize = 11.sp) },
+                    label = { Text("$emoji ${role.displayName} ($count)", fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
+                        selectedContainerColor = HextechGold,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
@@ -172,84 +179,171 @@ fun AdminChampionEditorTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Group champions by role
+        val roleDisplayOrder = listOf(
+            LaneRole.TOP,
+            LaneRole.JUNGLE,
+            LaneRole.MID,
+            LaneRole.ADC,
+            LaneRole.SUPPORT
+        )
+
+        val groupedChamps = remember(filteredChamps, selectedRole) {
+            val rolesToDisplay = if (selectedRole != null) listOf(selectedRole!!) else roleDisplayOrder
+            rolesToDisplay.mapNotNull { role ->
+                val champsInRole = filteredChamps.filter { it.primaryRole == role || it.secondaryRoles.contains(role) }
+                if (champsInRole.isNotEmpty()) role to champsInRole else null
+            }
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(filteredChamps, key = { it.id }) { champ ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = BorderStroke(1.dp, HextechCardBorder)
-                ) {
-                    Row(
+            if (groupedChamps.isEmpty()) {
+                item {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        AppAssetImage(
-                            url = champ.avatarUrl,
-                            contentDescription = champ.name,
-                            fallbackText = champ.name,
-                            modifier = Modifier.size(46.dp),
-                            borderColor = if (champ.tier == "S+" || champ.tier == "S") HextechGold else HextechCyan,
-                            shape = RoundedCornerShape(8.dp)
+                        Text(
+                            text = tr("No se encontraron campeones con ese filtro"),
+                            color = TextMuted,
+                            fontSize = 13.sp
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                    }
+                }
+            } else {
+                groupedChamps.forEach { (role, champsInRole) ->
+                    item(key = "header_${role.name}") {
+                        val (roleEmoji, roleColor) = when (role) {
+                            LaneRole.TOP -> "🛡️" to Color(0xFFFF9F1C)
+                            LaneRole.JUNGLE -> "🌲" to HextechGreen
+                            LaneRole.MID -> "⚡" to Color(0xFF9D4EDD)
+                            LaneRole.ADC -> "🏹" to Color(0xFFFF595E)
+                            LaneRole.SUPPORT -> "💚" to Color(0xFF1982C4)
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 2.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = roleColor.copy(alpha = 0.12f),
+                            border = BorderStroke(1.dp, roleColor.copy(alpha = 0.4f))
+                        ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(
-                                    text = champ.name,
-                                    color = TextPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 13.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = "Tier ${champ.tier}",
-                                    color = if (champ.tier.startsWith("S")) HextechGold else HextechCyan,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 11.5.sp
-                                )
-                            }
-                            Text(
-                                text = "${champ.primaryRole.displayName} • WR: ${champ.winrate}% | PR: ${champ.pickRate}%",
-                                color = TextPrimary,
-                                fontSize = 11.sp
-                            )
-                            if (champ.counteredBy.isNotEmpty()) {
-                                Text(
-                                    text = "Counters: ${champ.counteredBy.take(3).joinToString(", ")}",
-                                    color = TextMuted,
-                                    fontSize = 10.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = roleEmoji, fontSize = 14.sp)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = role.displayName.uppercase(),
+                                        color = roleColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = roleColor.copy(alpha = 0.25f)
+                                ) {
+                                    Text(
+                                        text = "${champsInRole.size} ${tr("campeones")}",
+                                        color = roleColor,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 10.sp,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Row {
-                            IconButton(
-                                onClick = {
-                                    isCreatingNew = false
-                                    champToEdit = champ
-                                },
-                                modifier = Modifier.size(32.dp)
+                    }
+
+                    items(champsInRole, key = { "${role.name}_${it.id}" }) { champ ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                            border = BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(
-                                onClick = { champToDelete = champ },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                AppAssetImage(
+                                    url = champ.avatarUrl,
+                                    contentDescription = champ.name,
+                                    fallbackText = champ.name,
+                                    modifier = Modifier.size(46.dp),
+                                    borderColor = if (champ.tier == "S+" || champ.tier == "S") HextechGold else HextechCyan,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = champ.name,
+                                            color = TextPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.5.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Text(
+                                            text = "Tier ${champ.tier}",
+                                            color = if (champ.tier.startsWith("S")) HextechGold else HextechCyan,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.5.sp
+                                        )
+                                    }
+                                    Text(
+                                        text = "${champ.primaryRole.displayName} • WR: ${champ.winrate}% | PR: ${champ.pickRate}%",
+                                        color = TextPrimary,
+                                        fontSize = 11.sp
+                                    )
+                                    if (champ.counteredBy.isNotEmpty()) {
+                                        Text(
+                                            text = "Counters: ${champ.counteredBy.take(3).joinToString(", ")}",
+                                            color = TextMuted,
+                                            fontSize = 10.5.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Row {
+                                    IconButton(
+                                        onClick = {
+                                            isCreatingNew = false
+                                            champToEdit = champ
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                    }
+                                    IconButton(
+                                        onClick = { champToDelete = champ },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed, modifier = Modifier.size(18.dp))
+                                    }
+                                }
                             }
                         }
                     }
