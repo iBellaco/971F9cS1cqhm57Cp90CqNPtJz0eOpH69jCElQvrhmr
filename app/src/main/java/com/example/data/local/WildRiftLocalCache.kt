@@ -102,7 +102,8 @@ object WildRiftLocalCache {
             if (!runesJson.isNullOrBlank()) {
                 val loadedRunes = json.decodeFromString<List<RuneItem>>(runesJson)
                 val hasOutdatedKeystones = loadedRunes.any { it.id == "empowerment" }
-                if (hasOutdatedKeystones || loadedRunes.isEmpty()) {
+                val hasKeystones = loadedRunes.any { it.category.trim().equals("Clave", ignoreCase = true) || it.category.trim().contains("Clave", ignoreCase = true) }
+                if (hasOutdatedKeystones || loadedRunes.isEmpty() || !hasKeystones) {
                     WildRiftRepository.runes = WildRiftSpellsAndRunes.runes
                     saveToLocalCache(context, runes = WildRiftSpellsAndRunes.runes)
                 } else {

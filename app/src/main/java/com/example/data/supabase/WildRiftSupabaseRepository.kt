@@ -239,7 +239,9 @@ object WildRiftSupabaseRepository {
             val allRunes = WildRiftRepository.runes
             val runeDtos = allRunes.map { WrRuneDto.fromModel(it) }
             if (runeDtos.isNotEmpty()) {
-                postgrest.from(TABLE_RUNES).upsert(runeDtos)
+                runeDtos.chunked(25).forEach { chunk ->
+                    postgrest.from(TABLE_RUNES).upsert(chunk)
+                }
             }
             Result.success(runeDtos.size)
         } catch (e: Exception) { Result.failure(e) }
@@ -249,10 +251,9 @@ object WildRiftSupabaseRepository {
         try {
             val spellDtos = WildRiftRepository.summonerSpells.map { WrSpellDto.fromModel(it) }
             if (spellDtos.isNotEmpty()) {
-                try {
-                    postgrest.from(TABLE_SPELLS).delete { filter { neq("id", "invalid_placeholder") } }
-                } catch(e: Exception) { }
-                postgrest.from(TABLE_SPELLS).upsert(spellDtos)
+                spellDtos.chunked(25).forEach { chunk ->
+                    postgrest.from(TABLE_SPELLS).upsert(chunk)
+                }
             }
             Result.success(spellDtos.size)
         } catch (e: Exception) { Result.failure(e) }

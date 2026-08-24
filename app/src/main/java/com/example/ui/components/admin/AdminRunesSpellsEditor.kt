@@ -158,6 +158,19 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                     "Inspiración" to "💡"
                 )
 
+                fun normalizeCat(cat: String): String {
+                    val c = cat.trim().lowercase()
+                    return when {
+                        c.contains("clave") || c.contains("keystone") || c == "key" -> "Clave"
+                        c.contains("dominac") || c.contains("domination") -> "Dominación"
+                        c.contains("precis") || c.contains("precision") -> "Precisión"
+                        c.contains("brujer") || c.contains("sorcery") || c.contains("magia") -> "Brujería"
+                        c.contains("valor") || c.contains("resolve") -> "Valor"
+                        c.contains("inspirac") || c.contains("inspiration") -> "Inspiración"
+                        else -> cat.trim().ifBlank { "Otras" }
+                    }
+                }
+
                 // Category Filter chips
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -175,7 +188,7 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                         )
                     }
                     items(runeCategoriesWithIcons) { (cat, emoji) ->
-                        val count = allRunes.count { it.category.equals(cat, ignoreCase = true) }
+                        val count = allRunes.count { normalizeCat(it.category).equals(cat, ignoreCase = true) }
                         FilterChip(
                             selected = selectedRuneCategory?.equals(cat, ignoreCase = true) == true,
                             onClick = {
@@ -194,7 +207,8 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
 
                 val filteredRunes = remember(allRunes, searchQuery, selectedRuneCategory) {
                     allRunes.filter { rune ->
-                        val matchCat = selectedRuneCategory == null || rune.category.equals(selectedRuneCategory, ignoreCase = true)
+                        val norm = normalizeCat(rune.category)
+                        val matchCat = selectedRuneCategory == null || norm.equals(selectedRuneCategory, ignoreCase = true)
                         val matchSearch = searchQuery.isBlank() ||
                                 rune.name.contains(searchQuery, true) ||
                                 rune.id.contains(searchQuery, true) ||
@@ -208,7 +222,7 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                 val groupedRunes = remember(filteredRunes) {
                     val map = mutableMapOf<String, MutableList<RuneItem>>()
                     filteredRunes.forEach { rune ->
-                        val matchedKey = standardCategoryOrder.firstOrNull { it.equals(rune.category, ignoreCase = true) } ?: rune.category.ifBlank { "Otras" }
+                        val matchedKey = normalizeCat(rune.category)
                         map.getOrPut(matchedKey) { mutableListOf() }.add(rune)
                     }
                     // Sort keys according to standard order
