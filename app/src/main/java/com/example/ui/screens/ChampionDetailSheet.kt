@@ -1244,7 +1244,7 @@ fun ChampionDetailSheet(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = rune.name,
+                            text = tr(rune.name),
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
@@ -1260,7 +1260,7 @@ fun ChampionDetailSheet(
             },
             text = {
                 Text(
-                    text = rune.description,
+                    text = tr(rune.description),
                     color = com.example.ui.theme.TextPrimary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp
@@ -1291,7 +1291,7 @@ fun ChampionDetailSheet(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = spell.name,
+                        text = tr(spell.name),
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
@@ -1300,7 +1300,7 @@ fun ChampionDetailSheet(
             },
             text = {
                 Text(
-                    text = spell.description,
+                    text = tr(spell.description),
                     color = com.example.ui.theme.TextPrimary,
                     fontSize = 13.sp,
                     lineHeight = 18.sp

@@ -1789,7 +1789,7 @@ private fun RunesTab() {
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
                                             Text(
-                                                text = rune.name,
+                                                text = tr(rune.name),
                                                 color = TextPrimary,
                                                 fontSize = 9.5.sp,
                                                 fontWeight = FontWeight.Medium,
@@ -1843,19 +1843,19 @@ private fun RunesTab() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(rune.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                                    Text(tr(rune.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
                                             .background(HextechCyan.copy(alpha = 0.12f))
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
-                                        Text(rune.category, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                        Text(tr(rune.category), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 FormattedWildRiftText(
-                                    text = rune.description,
+                                    text = tr(rune.description),
                                     color = TextPrimary.copy(alpha = 0.9f),
                                     fontSize = 12.sp,
                                     lineHeight = 16.sp
@@ -1891,13 +1891,13 @@ private fun RunesTab() {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = rune.name,
+                            text = tr(rune.name),
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "Rama: ${rune.category}",
+                            text = tr("Rama") + ": " + tr(rune.category),
                             color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
@@ -1915,7 +1915,7 @@ private fun RunesTab() {
                             .padding(10.dp)
                     ) {
                         FormattedWildRiftText(
-                            text = rune.description,
+                            text = tr(rune.description),
                             color = TextPrimary,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
@@ -2152,7 +2152,7 @@ private fun SpellsTab() {
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = spell.name,
+                                        text = tr(spell.name),
                                         color = TextPrimary,
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold,
@@ -2209,7 +2209,7 @@ private fun SpellsTab() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(spell.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text(tr(spell.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(4.dp))
@@ -2229,7 +2229,7 @@ private fun SpellsTab() {
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 FormattedWildRiftText(
-                                    text = spell.description,
+                                    text = tr(spell.description),
                                     color = TextPrimary.copy(alpha = 0.9f),
                                     fontSize = 12.sp,
                                     lineHeight = 16.sp
@@ -2265,7 +2265,7 @@ private fun SpellsTab() {
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = spell.name,
+                            text = tr(spell.name),
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
@@ -2289,7 +2289,7 @@ private fun SpellsTab() {
                             .padding(10.dp)
                     ) {
                         FormattedWildRiftText(
-                            text = spell.description,
+                            text = tr(spell.description),
                             color = TextPrimary,
                             fontSize = 13.sp,
                             lineHeight = 18.sp
