@@ -144,73 +144,73 @@ object WildRiftSpellsAndRunes {
     val summonerSpells: List<SummonerSpellItem> = listOf(
         SummonerSpellItem(
             id = "flash",
-            name = "Destello",
+            name = "Flash",
             cooldown = "150s",
             iconUrl = SPELL_FLASH,
-            description = "Teletransporta una corta distancia hacia adelante o hacia la dirección apuntada."
+            description = "Teleport a short distance forward or towards the aimed direction."
         ),
         SummonerSpellItem(
             id = "ghost",
-            name = "Fantasma",
+            name = "Ghost",
             cooldown = "90s",
             iconUrl = SPELL_GHOST,
-            description = "Obtienes un gran impulso de velocidad de movimiento, que decae a un 25% de velocidad de movimiento adicional durante 8 segundos. Con cada derribo, la duración de Fantasma se extiende 6 segundos, reiniciando sus efectos, hasta la cantidad original."
+            description = "Gain a large burst of movement speed, that decays to 25% bonus movement speed for 8 seconds. With each takedown, Ghost's duration is extended by 6 seconds, refreshing its effects, up to the original amount."
         ),
         SummonerSpellItem(
             id = "heal",
-            name = "Curar",
+            name = "Heal",
             cooldown = "100s",
             iconUrl = SPELL_HEAL,
-            description = "Restaura 110 de Vida (110-400) a ti y al campeón aliado cercano más herido, y les otorga a ambos un 30% de Velocidad de Movimiento adicional durante 2 segundo(s). La curación se reduce a la mitad en campeones afectados recientemente por Curar."
+            description = "Restore 110 Health (110-400) to you and the most wounded nearby ally champion, and grants both of you 30% bonus Movement Speed for 2 second(s).\n\nHealing is halved for champions recently affected by Heal."
         ),
         SummonerSpellItem(
             id = "barrier",
-            name = "Barrera",
+            name = "Barrier",
             cooldown = "100s",
             iconUrl = SPELL_BARRIER,
-            description = "Obtienes un escudo que absorbe 120 (120-560) de daño durante 2.5 segundos."
+            description = "Gain a shield that absorbs 120 (120-560) damage for 2.5 seconds."
         ),
         SummonerSpellItem(
             id = "ignite",
-            name = "Prender",
+            name = "Ignite",
             cooldown = "100s",
             iconUrl = SPELL_IGNITE,
-            description = "Prende fuego al campeón enemigo objetivo, infligiendo 72 de daño verdadero (72-380) durante 5s y aplicando un 60% de Heridas Graves durante ese tiempo. Las Heridas Graves reducen la efectividad de las curaciones y regeneraciones."
+            description = "Ignites target enemy champion, dealing 72 true damage (72-380) over 5 and applying 60% Grievous Wounds for the duration.\n\nGrievous Wound reduces the effectiveness of Healing and Regeneration effects."
         ),
         SummonerSpellItem(
             id = "exhaust",
-            name = "Extenuación",
+            name = "Exhaust",
             cooldown = "100s",
             iconUrl = SPELL_EXHAUST,
-            description = "Extenúa al campeón enemigo objetivo, reduciendo su Velocidad de Movimiento un 35% y su daño infligido un 40% durante 2.5 segundos."
+            description = "Exhausts target enemy champion, reducing their Movement Speed by 35% and their damage dealt by 40% for 2.5 seconds."
         ),
         SummonerSpellItem(
             id = "smite",
-            name = "Castigo",
+            name = "Smite",
             cooldown = "10s",
             iconUrl = SPELL_SMITE,
-            description = "Inflige 600 de daño verdadero a monstruos, monstruos épicos o súbditos enemigos. Lanzar Castigo a un monstruo restaura 127 de Vida (70 + 10% Vida). Castigo se mejora a Castigo Helador después de 3 usos.\n\nEspecialización en Jungla:\nGanas 20% de oro y XP adicional de los monstruos, pero ganas 60% menos de oro y XP de súbditos temporalmente.\nInfliges 15% más de daño de ataque y 30% más de daño de habilidad contra monstruos.\nRestaura 40 de Vida durante 5 segundos al infligir daño a monstruos.\nRestaura 4 de Maná por segundo en la jungla o el río.\nA partir del minuto 11:00, los monstruos no darán oro adicional.\nAl minuto 2:00, la bonificación de daño contra monstruos empieza a decaer y al 5:00 desaparece.\nGana una carga cada 45 segundos, hasta un máximo de 2."
+            description = "Deal 600 true damage to monsters, epic monsters or enemy minions. Smiting a monster restore 127 Health (70 + 10%). Smite upgrades to Chilling Smite after 3 uses.\n\nJungle Expertise:\nEarn 20% bonus gold and 20% bonus XP from monsters kills, but temporarily earn 60% less gold and XP from minions kills.\nDeal 15% more attack damage and 30% more ability damage against monsters.\nRestore 40 Health over 5 seconds after dealing damage to monsters.\nRestore 4 Mana every second while in the jungle or river.\nFrom 11:00 onward, monster kills will no longer grant bonus gold.\nAt 2:00, the attack damage bonus against monsters will start to decay. At 5:00, it will be removed.\nGains one charge every 45 seconds, up to a max of 2."
         ),
         SummonerSpellItem(
             id = "chilling_smite",
-            name = "Castigo Helador",
+            name = "Chilling Smite",
             cooldown = "10s",
             iconUrl = SPELL_CHILLING_SMITE,
-            description = "Inflige 1000 de daño verdadero a un monstruo grande, épico o súbdito. Lanzar Castigo a monstruos restaura 152 de Vida (70 + 10% Vida).\n\nContra campeones: Inflige 40 de daño verdadero a Campeones enemigos y roba el 25% de su Velocidad de Movimiento durante 2 segundos."
+            description = "Deal 1000 true damage to a large or epic monster or minion. Smiting monsters restore 152 Health (70 + 10%).\n\nAgainst champions: Deal 40 true damage to enemy Champions and steals 25% of their Movement Speed for 2 seconds."
         ),
         SummonerSpellItem(
             id = "cleanse",
-            name = "Purificación",
+            name = "Cleanse",
             cooldown = "110s",
             iconUrl = SPELL_CLEANSE,
-            description = "Elimina inmovilizaciones (incluyendo debilitaciones de hechizos) que afecten a tu campeón y otorga inmunidad a inmovilizaciones por 0.25 segundos."
+            description = "Removes disables (including spell debuffs) affecting your champion and grants immunity to disables for 0.25 seconds."
         ),
         SummonerSpellItem(
             id = "teleport",
-            name = "Teleportación",
+            name = "Teleport",
             cooldown = "150s",
             iconUrl = SPELL_TELEPORT,
-            description = "Después de canalizar durante 3.5 segundos, teletransporta a tu campeón a un campeón, estructura o centinela aliado (excluye áreas dentro del alcance de inhibidores enemigos). Solo puedes teletransportarte a estructuras durante los primeros 6 minutos de la partida."
+            description = "After channeling for 3.5 seconds, teleport your champion to an allied champion, structure, or ward (excludes areas in range of enemy inhibitors). You can only teleport to structures during the first 6 minutes of the game."
         ),
         SummonerSpellItem(
             id = "clarity",
@@ -220,14 +220,13 @@ object WildRiftSpellsAndRunes {
             description = "Restaura el 50% del maná máximo a tu campeón y el 25% del maná a todos los aliados cercanos en el área de efecto (disponible en modos especiales y ARAM)."
         ),
         SummonerSpellItem(
-            id = "mark_dash",
+            id = "mark",
             name = "Marca / Lanzamiento",
             cooldown = "80s",
             iconUrl = SPELL_MARK,
-            description = "Lanza una bola de nieve en línea recta; si impacta a un enemigo, inflige daño verdadero y permite reactivar el hechizo para deslizarse instantáneamente hacia él."
+            description = "Lanza una bola de nieve en línea recta. Si golpea a un enemigo, lo marca. Puedes reactivar esta habilidad (Lanzamiento) para desplazarte hacia el enemigo marcado (Exclusivo del modo ARAM)."
         )
     )
-    
 
     val runes: List<RuneItem> = listOf(
         // =========================================================================
