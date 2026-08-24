@@ -37,8 +37,12 @@ import com.example.model.LaneRole
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
+import com.example.ui.theme.HextechSurface
+import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.isLightAppTheme
 import com.example.util.tr
 
 /**
@@ -67,14 +71,14 @@ fun LaneDisplaySettingCard(
             .fillMaxWidth()
             .testTag("lane_display_setting_card"),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF07111E)),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
         border = BorderStroke(
             width = 1.5.dp,
             brush = Brush.linearGradient(
-                listOf(HextechGold, Color(0xFF785A28), HextechGold)
+                listOf(HextechGold, HextechGold.copy(alpha = 0.5f), HextechGold)
             )
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier
@@ -85,7 +89,7 @@ fun LaneDisplaySettingCard(
             // Header Bar Traducido
             Text(
                 text = tr("Ajustes de Posición").uppercase(),
-                color = HextechGoldLight,
+                color = HextechGold,
                 fontSize = 14.5.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.2.sp,
@@ -96,7 +100,7 @@ fun LaneDisplaySettingCard(
 
             Text(
                 text = tr("Se pueden seleccionar hasta 2 posiciones"),
-                color = Color(0xFF94A3B8),
+                color = TextSecondary,
                 fontSize = 11.5.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -118,25 +122,25 @@ fun LaneDisplaySettingCard(
                         targetValue = when {
                             isMain -> HextechGold
                             isSecond -> HextechCyan
-                            else -> Color(0xFF1E2A3A)
+                            else -> HextechCardBorder
                         },
                         label = "roleBorderColor"
                     )
 
                     val bgColor by animateColorAsState(
                         targetValue = when {
-                            isMain -> Color(0xFF152238)
-                            isSecond -> Color(0xFF0F1E2E)
-                            else -> Color(0xFF0A121D)
+                            isMain -> HextechGold.copy(alpha = if (isLightAppTheme) 0.18f else 0.25f)
+                            isSecond -> HextechCyan.copy(alpha = if (isLightAppTheme) 0.18f else 0.25f)
+                            else -> if (isLightAppTheme) Color(0xFFF1F5F9) else Color(0xFF0A121D)
                         },
                         label = "roleBgColor"
                     )
 
                     val iconTint by animateColorAsState(
                         targetValue = when {
-                            isMain -> Color(0xFFF0E6D2)
+                            isMain -> HextechGold
                             isSecond -> HextechCyan
-                            else -> Color(0xFF6B7280)
+                            else -> TextMuted
                         },
                         label = "roleIconTint"
                     )
@@ -186,7 +190,7 @@ fun LaneDisplaySettingCard(
                         // Nombre de Rol y Nivel Traducido
                         Text(
                             text = tr(labelKey),
-                            color = if (isSelected) Color(0xFFF0E6D2) else Color(0xFF94A3B8),
+                            color = if (isSelected) TextPrimary else TextSecondary,
                             fontSize = 9.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             maxLines = 1,
@@ -204,7 +208,7 @@ fun LaneDisplaySettingCard(
                                     when {
                                         isMain -> HextechGold.copy(alpha = 0.25f)
                                         isSecond -> HextechCyan.copy(alpha = 0.25f)
-                                        else -> Color(0xFF070D15)
+                                        else -> if (isLightAppTheme) Color(0xFFE2E8F0) else Color(0xFF070D15)
                                     }
                                 )
                                 .border(
@@ -212,7 +216,7 @@ fun LaneDisplaySettingCard(
                                     color = when {
                                         isMain -> HextechGold
                                         isSecond -> HextechCyan
-                                        else -> Color(0xFF334155)
+                                        else -> HextechCardBorder
                                     },
                                     shape = RoundedCornerShape(4.dp)
                                 ),

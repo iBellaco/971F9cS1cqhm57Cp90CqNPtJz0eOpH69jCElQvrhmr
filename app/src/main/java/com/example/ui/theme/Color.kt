@@ -6,15 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 // Global theme toggle (compatibility bridge)
-var isLightAppTheme: Boolean
-    get() = AppThemeManager.currentTheme == AppTheme.LIGHT_HEXTECH
-    set(value) {
-        if (value) {
-            AppThemeManager.setTheme(AppTheme.LIGHT_HEXTECH)
-        } else if (AppThemeManager.currentTheme == AppTheme.LIGHT_HEXTECH) {
-            AppThemeManager.setTheme(AppTheme.HEXTECH)
-        }
-    }
+val isLightAppTheme: Boolean
+    get() = !AppThemeManager.currentTheme.isDark
 
 val HextechDarkBg: Color get() = AppThemeManager.currentTheme.background
 val HextechSurface: Color get() = AppThemeManager.currentTheme.surface

@@ -209,50 +209,29 @@ enum class AppTheme(
         titleKey = "Hextech Día (Claro)",
         regionTag = "Modo Claro",
         descKey = "Interfaz diurna de alto contraste con blanco puro y acentos dorados.",
-        background = Color(0xFFF8F9FA),
+        background = Color(0xFFF1F5F9),
         surface = Color(0xFFFFFFFF),
-        surfaceVariant = Color(0xFFF1F3F5),
-        cardBorder = Color(0xFFDEE2E6),
-        primary = Color(0xFF028090),
-        primaryLight = Color(0xFF00A896),
-        primaryDark = Color(0xFF05668D),
-        primaryGlow = Color(0xFF02C39A),
-        secondary = Color(0xFFB08D46),
-        secondaryLight = Color(0xFFC8AA6E),
-        secondaryDark = Color(0xFF785A28),
-        secondaryGlow = Color(0xFFD4AF37),
-        textPrimary = Color(0xFF212529),
-        textSecondary = Color(0xFF495057),
-        textMuted = Color(0xFF868E96),
-        isDark = false
-    ),
-    BLUR(
-        id = "BLUR",
-        titleKey = "Blur Glassmorphism",
-        regionTag = "Cristal Blur",
-        descKey = "Efecto traslúcido de cristal esmerilado con cian escarcha, violeta etéreo y sombras de neón.",
-        background = Color(0xFF080D1A),
-        surface = Color(0xFF101C33),
-        surfaceVariant = Color(0xFF192B4D),
-        cardBorder = Color(0xFF2B4C7E),
-        primary = Color(0xFF38BDF8),
-        primaryLight = Color(0xFF7DD3FC),
-        primaryDark = Color(0xFF0284C7),
-        primaryGlow = Color(0xFF00E5FF),
-        secondary = Color(0xFFA78BFA),
-        secondaryLight = Color(0xFFDDD6FE),
-        secondaryDark = Color(0xFF7C3AED),
-        secondaryGlow = Color(0xFFC084FC),
-        textPrimary = Color(0xFFF0F9FF),
-        textSecondary = Color(0xFF93C5FD),
+        surfaceVariant = Color(0xFFE2E8F0),
+        cardBorder = Color(0xFFCBD5E1),
+        primary = Color(0xFF0284C7),
+        primaryLight = Color(0xFF0369A1),
+        primaryDark = Color(0xFF075985),
+        primaryGlow = Color(0xFF38BDF8),
+        secondary = Color(0xFFB45309),
+        secondaryLight = Color(0xFFD97706),
+        secondaryDark = Color(0xFF78350F),
+        secondaryGlow = Color(0xFFF59E0B),
+        textPrimary = Color(0xFF0F172A),
+        textSecondary = Color(0xFF334155),
         textMuted = Color(0xFF64748B),
-        isDark = true
+        isDark = false
     )
 }
 
 enum class NavBarColorOption(
     val id: String,
     val titleKey: String,
+    val descKey: String,
     val colorHex: Color,
     val containerColor: Color,
     val accentColor: Color,
@@ -261,14 +240,34 @@ enum class NavBarColorOption(
     THEME_AUTO(
         id = "THEME_AUTO",
         titleKey = "Automático (Igual al Tema)",
+        descKey = "Sigue dinámicamente el tema actual",
         colorHex = Color(0xFF38BDF8),
         containerColor = Color.Unspecified,
         accentColor = Color.Unspecified,
         isAutomatic = true
     ),
+    BLUR_TRANSLUCENT(
+        id = "BLUR_TRANSLUCENT",
+        titleKey = "Cristal Blur (Medio Transparente)",
+        descKey = "Efecto blur semi-transparente que deja entrever el fondo",
+        colorHex = Color(0xFF38BDF8),
+        containerColor = Color(0x990F172A),
+        accentColor = Color(0xFF38BDF8),
+        isAutomatic = false
+    ),
+    BLUR_FROST(
+        id = "BLUR_FROST",
+        titleKey = "Cristal Blur Escarcha (Traslúcido)",
+        descKey = "Vidrio esmerilado medio transparente con reflejos cian",
+        colorHex = Color(0xFF00F2FE),
+        containerColor = Color(0x8010243E),
+        accentColor = Color(0xFF00F2FE),
+        isAutomatic = false
+    ),
     HEXTECH_GOLD(
         id = "HEXTECH_GOLD",
         titleKey = "Hextech Dorado",
+        descKey = "Elegante oro piltover",
         colorHex = Color(0xFFC8AA6E),
         containerColor = Color(0xFF140F05),
         accentColor = Color(0xFFC8AA6E),
@@ -277,6 +276,7 @@ enum class NavBarColorOption(
     HEXTECH_CYAN(
         id = "HEXTECH_CYAN",
         titleKey = "Hextech Cian",
+        descKey = "Resplandor cian arcano",
         colorHex = Color(0xFF0AC8B9),
         containerColor = Color(0xFF021B1C),
         accentColor = Color(0xFF0AC8B9),
@@ -285,6 +285,7 @@ enum class NavBarColorOption(
     NOXUS_CRIMSON(
         id = "NOXUS_CRIMSON",
         titleKey = "Noxus Carmesí",
+        descKey = "Rojo carmesí bélico",
         colorHex = Color(0xFFFF2A42),
         containerColor = Color(0xFF1F0408),
         accentColor = Color(0xFFFF2A42),
@@ -293,6 +294,7 @@ enum class NavBarColorOption(
     ZAUN_GREEN(
         id = "ZAUN_GREEN",
         titleKey = "Zaun Neón",
+        descKey = "Verde tóxico radioactivo",
         colorHex = Color(0xFF00FF7F),
         containerColor = Color(0xFF041C0F),
         accentColor = Color(0xFF00FF7F),
@@ -301,6 +303,7 @@ enum class NavBarColorOption(
     TARGON_PURPLE(
         id = "TARGON_PURPLE",
         titleKey = "Targon Cósmico",
+        descKey = "Púrpura estelar astral",
         colorHex = Color(0xFFB388FF),
         containerColor = Color(0xFF150A2E),
         accentColor = Color(0xFFB388FF),
@@ -309,6 +312,7 @@ enum class NavBarColorOption(
     SHADOW_JADE(
         id = "SHADOW_JADE",
         titleKey = "Niebla Espectral",
+        descKey = "Jade fantasmal sombrío",
         colorHex = Color(0xFF00F5D4),
         containerColor = Color(0xFF031C1A),
         accentColor = Color(0xFF00F5D4),
@@ -317,6 +321,7 @@ enum class NavBarColorOption(
     SHURIMA_AMBER(
         id = "SHURIMA_AMBER",
         titleKey = "Ámbar Solar",
+        descKey = "Oro del disco solar",
         colorHex = Color(0xFFFFB703),
         containerColor = Color(0xFF211300),
         accentColor = Color(0xFFFFB703),
@@ -325,6 +330,7 @@ enum class NavBarColorOption(
     SPIRIT_PINK(
         id = "SPIRIT_PINK",
         titleKey = "Flor Rosa",
+        descKey = "Pétalos rosa sakura",
         colorHex = Color(0xFFFF85A1),
         containerColor = Color(0xFF240E1B),
         accentColor = Color(0xFFFF85A1),
@@ -333,6 +339,7 @@ enum class NavBarColorOption(
     KDA_MAGENTA(
         id = "KDA_MAGENTA",
         titleKey = "K/DA Magenta",
+        descKey = "Magenta neón pop",
         colorHex = Color(0xFFFF007F),
         containerColor = Color(0xFF24001A),
         accentColor = Color(0xFFFF007F),
@@ -341,6 +348,7 @@ enum class NavBarColorOption(
     DEEP_NAVY(
         id = "DEEP_NAVY",
         titleKey = "Azul Abisal",
+        descKey = "Azul marino profundo",
         colorHex = Color(0xFF38BDF8),
         containerColor = Color(0xFF03142B),
         accentColor = Color(0xFF38BDF8),
@@ -349,6 +357,7 @@ enum class NavBarColorOption(
     PURE_BLACK(
         id = "PURE_BLACK",
         titleKey = "Negro OLED",
+        descKey = "Negro absoluto para ahorro de batería",
         colorHex = Color(0xFF111111),
         containerColor = Color(0xFF000000),
         accentColor = Color(0xFFE2E8F0),
@@ -357,17 +366,10 @@ enum class NavBarColorOption(
     CARBON_GRAY(
         id = "CARBON_GRAY",
         titleKey = "Gris Carbón",
+        descKey = "Gris industrial mate",
         colorHex = Color(0xFF64748B),
         containerColor = Color(0xFF1E2124),
         accentColor = Color(0xFFCBD5E1),
-        isAutomatic = false
-    ),
-    BLUR_FROST(
-        id = "BLUR_FROST",
-        titleKey = "Cristal Blur Escarcha",
-        colorHex = Color(0xFF38BDF8),
-        containerColor = Color(0xFF0C1628),
-        accentColor = Color(0xFF38BDF8),
         isAutomatic = false
     )
 }
@@ -389,12 +391,10 @@ object AppThemeManager {
 
         currentTheme = AppTheme.entries.find { it.id == savedThemeId } ?: AppTheme.HEXTECH
         currentNavBarOption = NavBarColorOption.entries.find { it.id == savedNavId } ?: NavBarColorOption.THEME_AUTO
-        isLightAppTheme = (currentTheme == AppTheme.LIGHT_HEXTECH)
     }
 
     fun setTheme(theme: AppTheme, context: Context? = null) {
         currentTheme = theme
-        isLightAppTheme = (theme == AppTheme.LIGHT_HEXTECH)
         context?.let {
             val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
             prefs.edit().putString(PREFS_KEY_THEME, theme.id).apply()
@@ -438,6 +438,6 @@ object AppThemeManager {
     }
 
     fun getNavBarUnselectedColor(): Color {
-        return if (currentTheme.isDark) Color(0xFF888888) else Color(0xFF666666)
+        return if (currentTheme.isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
     }
 }

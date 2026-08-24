@@ -481,7 +481,7 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                                 fontSize = 13.5.sp
                             )
                             Text(
-                                text = if (option.isAutomatic) tr("Sigue dinámicamente el tema actual") else tr("Color personalizado fijado"),
+                                text = tr(option.descKey),
                                 color = TextSecondary,
                                 fontSize = 11.sp
                             )
