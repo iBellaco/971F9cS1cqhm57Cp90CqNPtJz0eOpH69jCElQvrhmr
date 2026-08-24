@@ -226,95 +226,88 @@ object WildRiftSpellsAndRunes {
         // 1. RUNAS CLAVE (KEYSTONES - OFICIALES WILD RIFT)
         // =========================================================================
         RuneItem(
-            id = "electrocute",
-            name = "Electrocutar",
-            category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/zXhRSMyc/electrocutar-hanu.png",
-            description = "Golpear a un campeón con 3 ataques o habilidades diferentes en 3s inflige daño adaptable adicional. Ideal para asesinos y combos rápidos."
-        ),
-        RuneItem(
             id = "dark_harvest",
             name = "Cosecha Oscura",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/VvC5grkT/dark-harvest.png",
-            description = "Dañar a un campeón con menos del 50% de vida inflige daño adaptable adicional y cosecha su alma, aumentando permanentemente el daño de esta runa."
+            description = "Daño adicional, amplificación de acumulaciones\n\nAl infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\n(20 s de enfriamiento. Se reinicia a 1 s con asesinatos o asistencias)."
         ),
         RuneItem(
-            id = "empowerment",
-            name = "Fortalecimiento",
-            category = "Runa Clave",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-01/1737729601_8005.webp",
-            description = "Impactar a un campeón con 3 ataques básicos consecutivos inflige daño adaptable adicional y amplifica tu daño contra campeones."
+            id = "electrocute",
+            name = "Electrocutar",
+            category = "Clave",
+            iconUrl = "https://i.postimg.cc/zXhRSMyc/electrocutar-hanu.png",
+            description = "Daño explosivo\n\nEn 3 s, golpea a un mismo campeón enemigo con 3 ataques básicos o habilidades para infligirle daño adaptable adicional.\nDaño: 40-210 (nivel) + 10% adicional DA + 5% PH.\nEnfriamiento: 20-13 s (nivel)."
         ),
         RuneItem(
             id = "lethal_tempo",
             name = "Compás Letal",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/kGbDs65r/compas-letal-hanu.png",
-            description = "Ganas velocidad de ataque acumulable al atacar campeones. Al máximo de acumulaciones, ganas alcance de ataque adicional."
+            description = "Velocidad de ataque\n\nObtienes velocidad de ataque acumulable al atacar a campeones enemigos. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes alcance adicional y puedes superar el límite de velocidad de ataque.\nCada acumulación aumenta la velocidad de ataque un 6-14% (cuerpo a cuerpo) o un 3,5-8% (a distancia) durante 6 s.\nCon el máximo de acumulaciones, obtienes 25 (cuerpo a cuerpo) o 50 (a distancia) de alcance."
         ),
         RuneItem(
             id = "fleet_footwork",
             name = "Pies Veloces",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/Znd0HBqt/pies-veloces-hanu.png",
-            description = "Moverte y atacar genera acumulaciones de Energía. A las 100 acumulaciones, tu próximo ataque cura y otorga velocidad de movimiento."
+            description = "Movilidad, curación\n\nMoverse, atacar y utilizar habilidades generan acumulaciones de energía. Con 100 acumulaciones, tu siguiente ataque obtiene velocidad de ataque, te cura y te otorga velocidad de movimiento adicional. Si el ataque tiene como objetivo a un campeón, también restaura maná o energía.\nVelocidad de ataque adicional: 40%.\nVida restaurada: 15-110 (nivel) + 15% adicional DA + 10% PH.\nVelocidad de movimiento adicional: 20% durante 1 s.\nAl atacar a un campeón, restaura un 8% del maná que falte o un 8% de la energía que falte.\nAl atacar a súbditos o monstruos, restaura un 35% (campeones cuerpo a cuerpo) o un 15% (campeones a distancia) de la curación original."
         ),
         RuneItem(
             id = "conqueror",
             name = "Conquistador",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/HnyjzcL1/conqueror-hanu.png",
-            description = "Ganas daño adaptable al golpear a un campeón enemigo con ataques o habilidades. Al máximo de acumulaciones otorga omnivampirismo."
+            description = "Acumula daño y succión\n\nGolpear a un campeón con ataques o habilidades diferentes otorga acumulaciones de fuerza adaptable. Se acumula hasta 6 veces. Con el máximo de acumulaciones, obtienes omnisucción adicional.\nPor acumulación: 3-5 de daño de ataque o 4-8 de poder de habilidad adicionales durante 6 s.\nMejora al máximo de acumulaciones: 9% (cuerpo a cuerpo) o un 5% (a distancia) de omnisucción adicional."
         ),
         RuneItem(
             id = "grasp_undying",
             name = "Garras del Inmortal",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/hvdhszGq/desgarrador-hanu.png",
-            description = "Cada 3s en combate, tu próximo ataque básico contra un campeón inflige daño mágico adicional, te cura y aumenta tu vida máxima permanentemente."
+            description = "Tanque, curación\n\nCada 3 s que pases en combate, se potenciará tu siguiente ataque contra un campeón..\nDaño mágico adicional: 3,3% vida máx.\nCuración: 1,3% vida máx.\nAumento de vida permanente: 10\nCon campeones a distancia, los efectos se reducen un 60%."
         ),
         RuneItem(
             id = "guardian",
             name = "Guardián",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774950298_guardian.webp",
-            description = "Proteges a aliados dentro de 350 unidades de ti. Si tú o el aliado reciben daño por encima de un umbral, ambos reciben un escudo."
-        ),
-        RuneItem(
-            id = "aery",
-            name = "Aery",
-            category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/prFyChdH/aery-hanu.png",
-            description = "Tus ataques y habilidades envían a Aery a dañar enemigos o dar un escudo a aliados. No puede volver a enviarse hasta que regrese."
-        ),
-        RuneItem(
-            id = "arcane_comet",
-            name = "Cometa Arcano",
-            category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/t7GJMqsm/cometa-hanu-bbwr.png",
-            description = "Dañar a un campeón con una habilidad lanza un cometa que inflige daño adaptable en su ubicación."
-        ),
-        RuneItem(
-            id = "phase_rush",
-            name = "Irrupción de Fase",
-            category = "Runa Clave",
-            iconUrl = "https://i.postimg.cc/Hj1nhYrN/324314341234123-hanu-wr-bb.png",
-            description = "Usar 3 ataques o habilidades contra un campeón en 4s otorga velocidad de movimiento masiva y resistencia a ralentizaciones."
+            description = "Protección, escudo\n\nProtege a los aliados que se encuentren a 350 unidades de ti y a los aliados que sean objetivos de tus habilidades durante 2,5 s. Si a lo largo de su duración tu aliado o tú recibís más que una pequeña cantidad de daño, ambos obtenéis un escudo durante 1,5 s.\nEnfriamiento: 55-25 s (nivel).\nEscudo: 40-165 (nivel) + 6% adicional vida + 15% PH.\nUmbral de daño: 70-240 de daño recibido (nivel)."
         ),
         RuneItem(
             id = "first_strike",
             name = "Primer Golpe",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://i.postimg.cc/hhRv5DXw/8369.png",
-            description = "Iniciar el combate contra un campeón enemigo otorga oro adicional y aumenta tu daño verdadero un 7% durante 3s. Otorga oro según el daño."
+            description = "Iniciación, amplificación de daño, oro adicional\n\nIniciar un combate contra un campeón enemigo o infligirle daño durante los 0,25 s después de entrar en combate contra él te otorga 10 de oro y el efecto de Primer golpe durante 3 s, lo que te permite infligirle un 7% de daño verdadero adicional. Cuando el efecto desaparece, obtienes oro según el daño adicional infligido durante la duración del mismo.\nSi no infliges daño al campeón enemigo durante los 0,25 s después de entrar en combate contra él, Primer golpe entrará en enfriamiento durante 10 s.\nOro adicional:\nCuerpo a cuerpo: 60% de daño adicional.\nA distancia: 45% de daño adicional.\nEnfriamiento: 20-13 s (nivel)."
+        ),
+        RuneItem(
+            id = "aery",
+            name = "Aery",
+            category = "Clave",
+            iconUrl = "https://i.postimg.cc/prFyChdH/aery-hanu.png",
+            description = "Desgaste, protección\n\nTus ataques y habilidades envían a Aery a un objetivo para dañar a los enemigos u otorgar un escudo a los aliados.\nDaño: 15 - 70 (nivel) + 10% adicional DA + 5% PH.\nEscudo: 25 - 120 (nivel) + 10% adicional DA + 5% PH.\nNo se puede enviar a Aery de nuevo hasta que vuelva a ti."
+        ),
+        RuneItem(
+            id = "arcane_comet",
+            name = "Cometa Arcano",
+            category = "Clave",
+            iconUrl = "https://i.postimg.cc/t7GJMqsm/cometa-hanu-bbwr.png",
+            description = "Hostigar desde lejos, amplificación de acumulaciones\n\nInfligir daño con una habilidad a un campeón proyecta un cometa hacia su ubicación. Cuando un cometa golpea a un campeón enemigo, aumenta el daño del siguiente.\nDaño: (15 a 100) + (2 × golpes totales a campeones enemigos) + 10% adicional DA + 5% PH.\nEnfriamiento: 16-8 s (nivel)."
+        ),
+        RuneItem(
+            id = "phase_rush",
+            name = "Irrupción de Fase",
+            category = "Clave",
+            iconUrl = "https://i.postimg.cc/Hj1nhYrN/324314341234123-hanu-wr-bb.png",
+            description = "Movilidad, velocidad de habilidades\n\nGolpear a un campeón enemigo con ataques básicos o habilidades 3 veces en 4 s otorga velocidad de movimiento y velocidad de habilidades básicas, y reduce el enfriamiento restante de las habilidades básicas en un 20%.\nDuración: 3 s.\nVelocidad de movimiento: 40%-60% (nivel) para los campeones cuerpo a cuerpo; 20%-35% (nivel) para los campeones a distancia.\nVelocidad de habilidades básicas: 10.\nEnfriamiento: 21-7 s (nivel)."
         ),
         RuneItem(
             id = "glacial_augment",
             name = "Soberano Gélido",
-            category = "Runa Clave",
+            category = "Clave",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774949508_frost-sovereign.webp",
-            description = "Inmovilizar a un enemigo crea áreas de hielo que ralentizan a los enemigos dentro del área y aumentan tus defensas."
+            description = "Control, ralentización\n\nAl inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales. Dura 2,5 s.\nDaño mágico: 15–100 (nivel) + 5% vida adicional.\nEnfriamiento: 20 s."
         ),
 
         // =========================================================================

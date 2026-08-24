@@ -26,12 +26,23 @@ class WildRiftApplication : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
         
+        try {
+            com.example.data.local.WildRiftLocalCache.loadFromLocalCache(this)
+        } catch (e: Exception) {
+            Log.e("WildRiftApp", "Error cargando caché inicial", e)
+        }
+
         setupInstantAndPeriodicScraping()
     }
     
     private fun setupInstantAndPeriodicScraping() {
         // 1. Ejecutar sincronización instantánea inmediata en segundo plano al iniciar
         CoroutineScope(Dispatchers.IO).launch {
+            try {
+                com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(this@WildRiftApplication)
+            } catch (e: Exception) {
+                Log.e("WildRiftApp", "Error sincronizando desde Supabase", e)
+            }
             try {
                 ChineseMetaSyncService.syncChineseMeta(this@WildRiftApplication, forceRefresh = true)
             } catch (e: Exception) {

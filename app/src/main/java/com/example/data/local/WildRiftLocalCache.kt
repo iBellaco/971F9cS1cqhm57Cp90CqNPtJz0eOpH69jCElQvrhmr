@@ -3,6 +3,7 @@ package com.example.data.local
 import android.content.Context
 import android.util.Log
 import com.example.data.WildRiftRepository
+import com.example.data.WildRiftSpellsAndRunes
 import com.example.model.Champion
 import com.example.model.MapObjectiveItem
 import com.example.model.RuneItem
@@ -100,10 +101,17 @@ object WildRiftLocalCache {
             val runesJson = prefs.getString(KEY_RUNES, null)
             if (!runesJson.isNullOrBlank()) {
                 val loadedRunes = json.decodeFromString<List<RuneItem>>(runesJson)
-                if (loadedRunes.isNotEmpty()) {
+                val hasOutdatedKeystones = loadedRunes.any { it.id == "empowerment" }
+                if (hasOutdatedKeystones || loadedRunes.isEmpty()) {
+                    WildRiftRepository.runes = WildRiftSpellsAndRunes.runes
+                    saveToLocalCache(context, runes = WildRiftSpellsAndRunes.runes)
+                } else {
                     WildRiftRepository.runes = loadedRunes
-                    hasLoadedAny = true
                 }
+                hasLoadedAny = true
+            } else {
+                WildRiftRepository.runes = WildRiftSpellsAndRunes.runes
+                saveToLocalCache(context, runes = WildRiftSpellsAndRunes.runes)
             }
 
             val spellsJson = prefs.getString(KEY_SPELLS, null)

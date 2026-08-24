@@ -560,16 +560,20 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                                 iconUrl = editIconUrl.trim(),
                                 description = editDescription.trim()
                             )
+                            val currentList = WildRiftRepository.runes.toMutableList()
+                            val idx = currentList.indexOfFirst { it.id == updatedRune.id }
+                            if (idx != -1) currentList[idx] = updatedRune else currentList.add(updatedRune)
+                            WildRiftRepository.runes = currentList
+                            WildRiftLocalCache.saveToLocalCache(context, runes = WildRiftRepository.runes)
+
                             scope.launch {
                                 val result = WildRiftSupabaseRepository.saveRune(updatedRune)
                                 isSaving = false
                                 if (result.isSuccess) {
-                                    WildRiftLocalCache.saveToLocalCache(context, runes = WildRiftRepository.runes)
                                     Toast.makeText(context, "¡Runa guardada en Supabase y localmente!", Toast.LENGTH_SHORT).show()
                                     runeToEdit = null
                                 } else {
                                     Toast.makeText(context, "Guardada localmente (Error Supabase: ${result.exceptionOrNull()?.message})", Toast.LENGTH_LONG).show()
-                                    WildRiftLocalCache.saveToLocalCache(context, runes = WildRiftRepository.runes)
                                     runeToEdit = null
                                 }
                             }
@@ -699,16 +703,20 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                                 iconUrl = editIconUrl.trim(),
                                 description = editDescription.trim()
                             )
+                            val currentList = WildRiftRepository.summonerSpells.toMutableList()
+                            val idx = currentList.indexOfFirst { it.id == updatedSpell.id }
+                            if (idx != -1) currentList[idx] = updatedSpell else currentList.add(updatedSpell)
+                            WildRiftRepository.summonerSpells = currentList
+                            WildRiftLocalCache.saveToLocalCache(context, spells = WildRiftRepository.summonerSpells)
+
                             scope.launch {
                                 val result = WildRiftSupabaseRepository.saveSpell(updatedSpell)
                                 isSaving = false
                                 if (result.isSuccess) {
-                                    WildRiftLocalCache.saveToLocalCache(context, spells = WildRiftRepository.summonerSpells)
                                     Toast.makeText(context, "¡Hechizo guardado en Supabase y localmente!", Toast.LENGTH_SHORT).show()
                                     spellToEdit = null
                                 } else {
                                     Toast.makeText(context, "Guardado localmente (Error Supabase: ${result.exceptionOrNull()?.message})", Toast.LENGTH_LONG).show()
-                                    WildRiftLocalCache.saveToLocalCache(context, spells = WildRiftRepository.summonerSpells)
                                     spellToEdit = null
                                 }
                             }
@@ -877,9 +885,11 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                     onClick = {
                         val id = rune.id
                         runeToDelete = null
+                        val currentList = WildRiftRepository.runes.filter { it.id != id }
+                        WildRiftRepository.runes = currentList
+                        WildRiftLocalCache.saveToLocalCache(context, runes = WildRiftRepository.runes)
                         scope.launch {
                             WildRiftSupabaseRepository.deleteRune(id)
-                            WildRiftLocalCache.saveToLocalCache(context, runes = WildRiftRepository.runes)
                             Toast.makeText(context, "Runa eliminada", Toast.LENGTH_SHORT).show()
                         }
                     },
@@ -908,9 +918,11 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                     onClick = {
                         val id = spell.id
                         spellToDelete = null
+                        val currentList = WildRiftRepository.summonerSpells.filter { it.id != id }
+                        WildRiftRepository.summonerSpells = currentList
+                        WildRiftLocalCache.saveToLocalCache(context, spells = WildRiftRepository.summonerSpells)
                         scope.launch {
                             WildRiftSupabaseRepository.deleteSpell(id)
-                            WildRiftLocalCache.saveToLocalCache(context, spells = WildRiftRepository.summonerSpells)
                             Toast.makeText(context, "Hechizo eliminado", Toast.LENGTH_SHORT).show()
                         }
                     },
