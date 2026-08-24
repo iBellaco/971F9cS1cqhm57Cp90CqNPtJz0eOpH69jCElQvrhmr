@@ -125,14 +125,16 @@ fun DashboardScreen(
 
     val navBg = AppThemeManager.getNavBarBackgroundColor()
     val navAccent = AppThemeManager.getNavBarAccentColor()
+    val navIndicator = AppThemeManager.getNavBarIndicatorColor()
     val navSelectedIcon = AppThemeManager.getNavBarSelectedIconColor()
+    val navSelectedText = AppThemeManager.getNavBarSelectedTextColor()
     val navUnselected = AppThemeManager.getNavBarUnselectedColor()
 
     Scaffold(
         bottomBar = {
             NavigationBar(
                 containerColor = navBg,
-                contentColor = navAccent
+                contentColor = navSelectedText
             ) {
                 NavigationBarItem(
                     selected = selectedTab == 0,
@@ -141,8 +143,8 @@ fun DashboardScreen(
                     label = { Text(tr("Inicio")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navAccent,
-                        indicatorColor = navAccent,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
                         unselectedIconColor = navUnselected,
                         unselectedTextColor = navUnselected
                     )
@@ -154,8 +156,8 @@ fun DashboardScreen(
                     label = { Text(tr("Drafting")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navAccent,
-                        indicatorColor = navAccent,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
                         unselectedIconColor = navUnselected,
                         unselectedTextColor = navUnselected
                     )
@@ -167,8 +169,8 @@ fun DashboardScreen(
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navAccent,
-                        indicatorColor = navAccent,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
                         unselectedIconColor = navUnselected,
                         unselectedTextColor = navUnselected
                     )

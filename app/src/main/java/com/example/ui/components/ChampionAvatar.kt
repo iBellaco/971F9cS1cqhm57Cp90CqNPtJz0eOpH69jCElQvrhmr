@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -161,7 +162,7 @@ fun AppAssetImage(
     val context = LocalContext.current
     val runeDrawableRes = com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(contentDescription ?: "")
         ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(fallbackText)
-        ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url)
+        ?: if (url.isBlank() || url.startsWith("res://") || url.contains("rune_")) com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url) else null
 
     val parsedUrl = url.trim()
     val isLocalFile = parsedUrl.startsWith("file://")
@@ -194,11 +195,8 @@ fun AppAssetImage(
         contentAlignment = Alignment.Center
     ) {
         if (runeDrawableRes != null) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(runeDrawableRes)
-                    .crossfade(true)
-                    .build(),
+            Image(
+                painter = painterResource(id = runeDrawableRes),
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize().clip(shape)

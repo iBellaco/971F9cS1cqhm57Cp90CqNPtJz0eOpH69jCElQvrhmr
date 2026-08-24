@@ -427,17 +427,36 @@ object AppThemeManager {
 
     fun getNavBarAccentColor(): Color {
         return if (currentNavBarOption.isAutomatic) {
-            currentTheme.secondary
+            currentTheme.primary
         } else {
             currentNavBarOption.accentColor
         }
     }
 
+    fun getNavBarIndicatorColor(): Color {
+        val accent = getNavBarAccentColor()
+        return accent.copy(alpha = 0.22f)
+    }
+
     fun getNavBarSelectedIconColor(): Color {
-        return if (currentTheme.isDark) Color(0xFF000000) else Color(0xFFFFFFFF)
+        return getNavBarAccentColor()
+    }
+
+    fun getNavBarSelectedTextColor(): Color {
+        val bg = getNavBarBackgroundColor()
+        val isBgDark = (0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue) < 0.5f
+        val accent = getNavBarAccentColor()
+        return if (isBgDark) {
+            accent
+        } else {
+            val accentLum = 0.299f * accent.red + 0.587f * accent.green + 0.114f * accent.blue
+            if (accentLum > 0.5f) Color(0xFF0369A1) else accent
+        }
     }
 
     fun getNavBarUnselectedColor(): Color {
-        return if (currentTheme.isDark) Color(0xFF94A3B8) else Color(0xFF64748B)
+        val bg = getNavBarBackgroundColor()
+        val isBgDark = (0.299f * bg.red + 0.587f * bg.green + 0.114f * bg.blue) < 0.5f
+        return if (isBgDark) Color(0xFF94A3B8) else Color(0xFF475569)
     }
 }

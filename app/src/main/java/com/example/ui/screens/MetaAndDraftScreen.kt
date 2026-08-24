@@ -1590,11 +1590,21 @@ private fun RunesTab() {
     }
 
     val treeCategories = remember(filteredRunes) {
-        listOf("Runa Clave", "Brujería", "Dominación", "Precisión", "Valor",)
-            .mapNotNull { cat ->
-                val list = filteredRunes.filter { it.category.equals(cat, ignoreCase = true) }
-                if (list.isNotEmpty()) cat to list else null
+        val standardCategories = listOf(
+            "Clave" to "RUNAS CLAVE",
+            "Brujería" to "BRUJERÍA",
+            "Dominación" to "DOMINACIÓN",
+            "Precisión" to "PRECISIÓN",
+            "Valor" to "VALOR",
+            "Inspiración" to "INSPIRACIÓN"
+        )
+        standardCategories.mapNotNull { (catKey, displayTitle) ->
+            val list = filteredRunes.filter { rune ->
+                rune.category.contains(catKey, ignoreCase = true) ||
+                (catKey.equals("Clave", ignoreCase = true) && (rune.category.contains("Keystone", ignoreCase = true) || rune.category.contains("Clave", ignoreCase = true)))
             }
+            if (list.isNotEmpty()) displayTitle to list else null
+        }
     }
 
     Column(
@@ -1714,12 +1724,13 @@ private fun RunesTab() {
             ) {
                 treeCategories.forEach { (categoryName, runesInCat) ->
                     item(key = categoryName) {
-                        val catColor = when (categoryName.lowercase()) {
-                            "brujería" -> Color(0xFF6C75F0)
-                            "runa clave" -> HextechGold
-                            "dominación" -> Color(0xFFE84057)
-                            "precisión" -> Color(0xFFF3C258)
-                            "valor" -> Color(0xFF4AC27E)
+                        val catColor = when {
+                            categoryName.contains("clave", ignoreCase = true) -> HextechGold
+                            categoryName.contains("brujer", ignoreCase = true) -> Color(0xFF6C75F0)
+                            categoryName.contains("dominac", ignoreCase = true) -> Color(0xFFE84057)
+                            categoryName.contains("precis", ignoreCase = true) -> Color(0xFFF3C258)
+                            categoryName.contains("valor", ignoreCase = true) -> Color(0xFF4AC27E)
+                            categoryName.contains("inspirac", ignoreCase = true) -> HextechCyan
                             else -> HextechCyan
                         }
 

@@ -20,19 +20,18 @@ object WildRiftSpellsAndRunes {
     fun getRuneDrawableRes(nameOrId: String): Int? {
         val clean = nameOrId.trim().lowercase()
         return when {
-            clean.contains("electrocut") -> com.example.R.drawable.ic_wr_rune_electrocute
-            clean.contains("cosecha") || clean.contains("harvest") -> com.example.R.drawable.ic_wr_rune_dark_harvest
-            clean.contains("fortalecimiento") || clean.contains("empower") || clean.contains("press the attack") || clean.contains("krakens") -> com.example.R.drawable.ic_wr_rune_empowerment
-            clean.contains("compás") || clean.contains("compas") || clean.contains("lethal tempo") || clean.contains("cadencia") -> com.example.R.drawable.ic_wr_rune_lethal_tempo
-            clean.contains("pies veloces") || clean.contains("fleet") || clean.contains("marcha") -> com.example.R.drawable.ic_wr_rune_fleet_footwork
-            clean.contains("conquistador") || clean.contains("conqueror") -> com.example.R.drawable.ic_wr_rune_conqueror
-            clean.contains("garras") || clean.contains("inmortal") || clean.contains("grasp") -> com.example.R.drawable.ic_wr_rune_grasp
-            clean.contains("guardián") || clean.contains("guardian") -> com.example.R.drawable.ic_wr_rune_guardian
-            clean.contains("aery") -> com.example.R.drawable.ic_wr_rune_aery
-            clean.contains("cometa") || clean.contains("comet") -> com.example.R.drawable.ic_wr_rune_arcane_comet
-            clean.contains("fase") || clean.contains("phase rush") || clean.contains("irrupción") || clean.contains("irrupcion") -> com.example.R.drawable.ic_wr_rune_phase_rush
-            clean.contains("primer golpe") || clean.contains("first strike") -> com.example.R.drawable.ic_wr_rune_first_strike
-            clean.contains("soberano") || clean.contains("gélido") || clean.contains("gelido") || clean.contains("glacial") -> com.example.R.drawable.ic_wr_rune_glacial_augment
+            clean == "dark_harvest" || clean.contains("cosecha") || clean.contains("harvest") -> com.example.R.drawable.ic_wr_rune_dark_harvest
+            clean == "electrocute" || clean.contains("electrocut") -> com.example.R.drawable.ic_wr_rune_electrocute
+            clean == "lethal_tempo" || clean.contains("compás") || clean.contains("compas") || clean.contains("cadencia") || clean.contains("lethal tempo") -> com.example.R.drawable.ic_wr_rune_lethal_tempo
+            clean == "fleet_footwork" || clean.contains("pies veloces") || clean.contains("fleet footwork") -> com.example.R.drawable.ic_wr_rune_fleet_footwork
+            clean == "conqueror" || clean.contains("conquistador") -> com.example.R.drawable.ic_wr_rune_conqueror
+            clean == "grasp_undying" || clean == "grasp" || clean.contains("garras") || (clean.contains("inmortal") && !clean.contains("escudo")) -> com.example.R.drawable.ic_wr_rune_grasp
+            clean == "guardian" || clean == "guardián" || clean == "guardian" -> com.example.R.drawable.ic_wr_rune_guardian
+            clean == "aery" || clean.contains("aery") -> com.example.R.drawable.ic_wr_rune_aery
+            clean == "arcane_comet" || clean.contains("cometa") || clean.contains("comet") -> com.example.R.drawable.ic_wr_rune_arcane_comet
+            clean == "phase_rush" || clean.contains("fase") || clean.contains("phase rush") || clean.contains("irrupción") || clean.contains("irrupcion") -> com.example.R.drawable.ic_wr_rune_phase_rush
+            clean == "first_strike" || clean.contains("primer golpe") || clean.contains("first strike") -> com.example.R.drawable.ic_wr_rune_first_strike
+            clean == "glacial_augment" || clean.contains("soberano") || clean.contains("gélido") || clean.contains("gelido") || clean.contains("glacial") -> com.example.R.drawable.ic_wr_rune_glacial_augment
             else -> null
         }
     }
