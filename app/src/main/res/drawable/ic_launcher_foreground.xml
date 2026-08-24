@@ -1,9 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- URL del icono original (Backup): https://i.postimg.cc/DyhRg51R/1787359139694.png -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:width="76dp"
-        android:height="76dp"
-        android:drawable="@drawable/app_icon_user"
-        android:gravity="center" />
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Central Outer Hextech Shield Ring -->
+    <path
+        android:pathData="M54,18 L78,32 L78,64 L54,88 L30,64 L30,32 Z"
+        android:strokeWidth="2.5"
+        android:strokeColor="#C8AA6E" />
+
+    <!-- Inner Shield Glow -->
+    <path
+        android:pathData="M54,23 L73,35 L73,61 L54,82 L35,61 L35,35 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="270"
+                android:endColor="#0C1B2A"
+                android:startColor="#091428"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Stylized Dual Curved Wings / Blades -->
+    <path
+        android:pathData="M24,42 C28,32 38,26 54,24 C44,30 40,42 40,54 C34,50 28,46 24,42 Z"
+        android:fillColor="#0AC8B9" />
+
+    <path
+        android:pathData="M84,42 C80,32 70,26 54,24 C64,30 68,42 68,54 C74,50 80,46 84,42 Z"
+        android:fillColor="#0AC8B9" />
+
+    <!-- Central Hextech Crystal (Diamond Gem) -->
+    <path
+        android:pathData="M54,34 L65,52 L54,70 L43,52 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:angle="45"
+                android:endColor="#005A82"
+                android:startColor="#00F2FE"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Crystal Facet Highlights -->
+    <path
+        android:pathData="M54,34 L54,70 L43,52 Z"
+        android:fillColor="#33FFFFFF" />
+
+    <!-- Crystal Golden Core Outline -->
+    <path
+        android:pathData="M54,34 L65,52 L54,70 L43,52 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#F0E6D2" />
+
+    <!-- Top & Bottom Golden Crown Accents -->
+    <path
+        android:pathData="M54,16 L58,22 L54,20 L50,22 Z"
+        android:fillColor="#F0E6D2" />
+
+    <path
+        android:pathData="M54,74 L57,80 L54,78 L51,80 Z"
+        android:fillColor="#C8AA6E" />
+</vector>

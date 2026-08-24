@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.SubcomposeAsyncImage
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.model.Champion
 import com.example.ui.theme.HextechCyan
@@ -63,8 +63,21 @@ fun ChampionAvatar(
                 .border(2.dp, HextechGold, CircleShape),
             contentAlignment = Alignment.Center
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(avatarBrush),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = champion.name.take(2).uppercase(),
+                    color = Color.White,
+                    fontSize = (size.value * 0.32).sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             if (champion.avatarUrl.isNotBlank()) {
-                SubcomposeAsyncImage(
+                AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(champion.avatarUrl)
                         .crossfade(true)
@@ -73,52 +86,8 @@ fun ChampionAvatar(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(size - 4.dp)
-                        .clip(CircleShape),
-                    loading = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(avatarBrush),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = champion.name.take(2).uppercase(),
-                                color = Color.White,
-                                fontSize = (size.value * 0.32).sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    },
-                    error = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(avatarBrush),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = champion.name.take(2).uppercase(),
-                                color = Color.White,
-                                fontSize = (size.value * 0.32).sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                        .clip(CircleShape)
                 )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(avatarBrush),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = champion.name.take(2).uppercase(),
-                        color = Color.White,
-                        fontSize = (size.value * 0.32).sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
         }
 
@@ -160,17 +129,13 @@ fun AppAssetImage(
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(8.dp)
 ) {
     val context = LocalContext.current
-    val runeDrawableRes = com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(contentDescription ?: "")
-        ?: com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(fallbackText)
-        ?: if (url.isBlank() || url.startsWith("res://") || url.contains("rune_")) com.example.data.WildRiftSpellsAndRunes.getRuneDrawableRes(url) else null
-
     val parsedUrl = url.trim()
     val isLocalFile = parsedUrl.startsWith("file://")
     
     var localImageBitmap by remember(parsedUrl) { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
     
     LaunchedEffect(parsedUrl) {
-        if (isLocalFile && runeDrawableRes == null) {
+        if (isLocalFile) {
             withContext(Dispatchers.IO) {
                 try {
                     val file = java.io.File(parsedUrl.removePrefix("file://"))
@@ -194,14 +159,14 @@ fun AppAssetImage(
             .border(1.dp, borderColor, shape),
         contentAlignment = Alignment.Center
     ) {
-        if (runeDrawableRes != null) {
-            Image(
-                painter = painterResource(id = runeDrawableRes),
-                contentDescription = contentDescription ?: fallbackText,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(shape)
-            )
-        } else if (isLocalFile && localImageBitmap != null) {
+        Text(
+            text = fallbackText.take(2).uppercase(),
+            color = borderColor,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        if (isLocalFile && localImageBitmap != null) {
             Image(
                 bitmap = localImageBitmap!!,
                 contentDescription = contentDescription ?: fallbackText,
@@ -209,41 +174,15 @@ fun AppAssetImage(
                 modifier = Modifier.fillMaxSize().clip(shape)
             )
         } else if (!isLocalFile && parsedUrl.isNotBlank()) {
-            SubcomposeAsyncImage(
+            AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(parsedUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(shape),
-                error = {
-                    Box(
-                        modifier = Modifier.fillMaxSize().background(HextechDarkBg),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = fallbackText.take(2).uppercase(),
-                            color = borderColor,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                modifier = Modifier.fillMaxSize().clip(shape)
             )
-        } else {
-            // Fallback (IM/IMG)
-            Box(
-                modifier = Modifier.fillMaxSize().background(HextechDarkBg),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = fallbackText.take(2).uppercase(),
-                    color = borderColor,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
     }
 }
