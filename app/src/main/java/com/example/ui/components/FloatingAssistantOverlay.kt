@@ -316,11 +316,13 @@ fun FloatingAssistantOverlay(
                                 containerColor = HextechSurface,
                                 contentColor = HextechCyan,
                                 indicator = { tabPositions ->
-                                    TabRowDefaults.SecondaryIndicator(
-                                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
-                                        color = HextechGold,
-                                        height = 2.5.dp
-                                    )
+                                    if (selectedTab.ordinal in tabPositions.indices) {
+                                        TabRowDefaults.SecondaryIndicator(
+                                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
+                                            color = HextechGold,
+                                            height = 2.5.dp
+                                        )
+                                    }
                                 }
                             ) {
                                 OverlayTab.entries.forEach { tab ->

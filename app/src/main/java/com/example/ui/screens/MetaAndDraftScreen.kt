@@ -160,22 +160,29 @@ fun MetaAndDraftScreen(
     var activeRole by remember { mutableStateOf(userMainRole) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
+    val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
+        id = "garen",
+        name = "Garen",
+        title = "El Poder de Demacia",
+        primaryRole = LaneRole.TOP
+    )
+
     // Draft State con asignación explícita de línea
     val allySlots = remember {
         mutableStateListOf(
-            DraftSlot(WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions[8], LaneRole.TOP),
-            DraftSlot(WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions[1], LaneRole.JUNGLE),
-            DraftSlot(WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions[3], LaneRole.ADC),
-            DraftSlot(WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions[4], LaneRole.SUPPORT)
+            DraftSlot(WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions.getOrNull(8) ?: defaultChamp, LaneRole.TOP),
+            DraftSlot(WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions.getOrNull(1) ?: defaultChamp, LaneRole.JUNGLE),
+            DraftSlot(WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions.getOrNull(3) ?: defaultChamp, LaneRole.ADC),
+            DraftSlot(WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions.getOrNull(4) ?: defaultChamp, LaneRole.SUPPORT)
         )
     }
 
     val enemySlots = remember {
         mutableStateListOf(
-            DraftSlot(WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions[2], LaneRole.TOP),
-            DraftSlot(WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions[7], LaneRole.JUNGLE),
-            DraftSlot(WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions[6], LaneRole.ADC),
-            DraftSlot(WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions[5], LaneRole.SUPPORT)
+            DraftSlot(WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions.getOrNull(2) ?: defaultChamp, LaneRole.TOP),
+            DraftSlot(WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions.getOrNull(7) ?: defaultChamp, LaneRole.JUNGLE),
+            DraftSlot(WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions.getOrNull(6) ?: defaultChamp, LaneRole.ADC),
+            DraftSlot(WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions.getOrNull(5) ?: defaultChamp, LaneRole.SUPPORT)
         )
     }
 
@@ -337,11 +344,13 @@ fun MetaAndDraftScreen(
                     contentColor = HextechCyan,
                     edgePadding = 12.dp,
                     indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            color = HextechCyan,
-                            height = 3.dp
-                        )
+                        if (selectedTabIndex in tabPositions.indices) {
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                color = HextechCyan,
+                                height = 3.dp
+                            )
+                        }
                     }
                 ) {
                     catalogTabs.forEachIndexed { index, title ->

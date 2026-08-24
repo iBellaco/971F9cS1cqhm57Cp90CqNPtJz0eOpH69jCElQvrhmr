@@ -309,10 +309,12 @@ fun AdminFeedbackBottomSheet(
                 contentColor = HextechGold,
                 edgePadding = 12.dp,
                 indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[currentAdminTab.ordinal]),
-                        color = HextechGold
-                    )
+                    if (currentAdminTab.ordinal in tabPositions.indices) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[currentAdminTab.ordinal]),
+                            color = HextechGold
+                        )
+                    }
                 },
                 divider = {}
             ) {

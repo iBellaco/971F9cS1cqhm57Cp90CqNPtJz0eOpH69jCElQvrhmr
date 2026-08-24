@@ -105,10 +105,12 @@ fun ThemeCustomizationBottomSheet(
                 containerColor = HextechSurface,
                 contentColor = HextechGold,
                 indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[activeTab]),
-                        color = HextechGold
-                    )
+                    if (activeTab in tabPositions.indices) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[activeTab]),
+                            color = HextechGold
+                        )
+                    }
                 },
                 divider = {}
             ) {
