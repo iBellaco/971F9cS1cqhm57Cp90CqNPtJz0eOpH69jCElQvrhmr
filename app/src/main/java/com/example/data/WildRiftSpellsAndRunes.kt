@@ -143,88 +143,81 @@ object WildRiftSpellsAndRunes {
 
     val summonerSpells: List<SummonerSpellItem> = listOf(
         SummonerSpellItem(
-            id = "flash",
-            name = "Flash",
-            cooldown = "150s",
-            iconUrl = SPELL_FLASH,
-            description = "Teleport a short distance forward or towards the aimed direction."
-        ),
-        SummonerSpellItem(
             id = "ghost",
-            name = "Ghost",
+            name = "Fantasmal",
             cooldown = "90s",
-            iconUrl = SPELL_GHOST,
-            description = "Gain a large burst of movement speed, that decays to 25% bonus movement speed for 8 seconds. With each takedown, Ghost's duration is extended by 6 seconds, refreshing its effects, up to the original amount."
+            iconUrl = "",
+            description = "Obtiene una gran mejora de velocidad de movimiento que decrece hasta un 25% de velocidad de movimiento adicional durante 8 s. La duración de Fantasmal aumenta en 6 s con cada asesinato o asistencia, lo que reinicia su efecto hasta la cifra inicial."
         ),
         SummonerSpellItem(
             id = "heal",
-            name = "Heal",
+            name = "Curar",
             cooldown = "100s",
-            iconUrl = SPELL_HEAL,
-            description = "Restore 110 Health (110-400) to you and the most wounded nearby ally champion, and grants both of you 30% bonus Movement Speed for 2 second(s).\n\nHealing is halved for champions recently affected by Heal."
+            iconUrl = "",
+            description = "Restaura 110 de vida (de 110 a 400) y te otorga un 30% de velocidad de movimiento adicional durante 2 s a ti y al campeón aliado cercano más herido."
         ),
         SummonerSpellItem(
             id = "barrier",
-            name = "Barrier",
+            name = "Barrera",
             cooldown = "100s",
-            iconUrl = SPELL_BARRIER,
-            description = "Gain a shield that absorbs 120 (120-560) damage for 2.5 seconds."
-        ),
-        SummonerSpellItem(
-            id = "ignite",
-            name = "Ignite",
-            cooldown = "100s",
-            iconUrl = SPELL_IGNITE,
-            description = "Ignites target enemy champion, dealing 72 true damage (72-380) over 5 and applying 60% Grievous Wounds for the duration.\n\nGrievous Wound reduces the effectiveness of Healing and Regeneration effects."
+            iconUrl = "",
+            description = "Otorga un escudo que absorbe 120 de daño (120 - 560) durante 2,5 s."
         ),
         SummonerSpellItem(
             id = "exhaust",
-            name = "Exhaust",
+            name = "Extenuación",
             cooldown = "100s",
-            iconUrl = SPELL_EXHAUST,
-            description = "Exhausts target enemy champion, reducing their Movement Speed by 35% and their damage dealt by 40% for 2.5 seconds."
-        ),
-        SummonerSpellItem(
-            id = "smite",
-            name = "Smite",
-            cooldown = "10s",
-            iconUrl = SPELL_SMITE,
-            description = "Deal 600 true damage to monsters, epic monsters or enemy minions. Smiting a monster restore 127 Health (70 + 10%). Smite upgrades to Chilling Smite after 3 uses.\n\nJungle Expertise:\nEarn 20% bonus gold and 20% bonus XP from monsters kills, but temporarily earn 60% less gold and XP from minions kills.\nDeal 15% more attack damage and 30% more ability damage against monsters.\nRestore 40 Health over 5 seconds after dealing damage to monsters.\nRestore 4 Mana every second while in the jungle or river.\nFrom 11:00 onward, monster kills will no longer grant bonus gold.\nAt 2:00, the attack damage bonus against monsters will start to decay. At 5:00, it will be removed.\nGains one charge every 45 seconds, up to a max of 2."
-        ),
-        SummonerSpellItem(
-            id = "chilling_smite",
-            name = "Chilling Smite",
-            cooldown = "10s",
-            iconUrl = SPELL_CHILLING_SMITE,
-            description = "Deal 1000 true damage to a large or epic monster or minion. Smiting monsters restore 152 Health (70 + 10%).\n\nAgainst champions: Deal 40 true damage to enemy Champions and steals 25% of their Movement Speed for 2 seconds."
+            iconUrl = "",
+            description = "Extenúa al campeón enemigo objetivo, lo ralentiza un 35% y reduce su daño un 40% durante 2,5 s. La ralentización decrece mientras dura el efecto."
         ),
         SummonerSpellItem(
             id = "cleanse",
-            name = "Cleanse",
+            name = "Limpiar",
             cooldown = "110s",
-            iconUrl = SPELL_CLEANSE,
-            description = "Removes disables (including spell debuffs) affecting your champion and grants immunity to disables for 0.25 seconds."
+            iconUrl = "",
+            description = "Elimina las inhabilitaciones (incluidas las de los hechizos) que afectan a tu campeón y le otorga inmunidad a todas las inhabilitaciones durante 0,25 s."
+        ),
+        SummonerSpellItem(
+            id = "flash",
+            name = "Destello",
+            cooldown = "150s",
+            iconUrl = "",
+            description = "Teleporta una breve distancia hacia la dirección en la que apunta."
+        ),
+        SummonerSpellItem(
+            id = "ignite",
+            name = "Prender",
+            cooldown = "100s",
+            iconUrl = "",
+            description = "Prende fuego a un campeón enemigo, lo que inflige 72 de daño verdadero (72 - 380) durante 5 s, aplica heridas graves al objetivo y lo revela."
+        ),
+        SummonerSpellItem(
+            id = "smite",
+            name = "Aplastar",
+            cooldown = "10s",
+            iconUrl = "",
+            description = "Inflige 600 de daño verdadero a los monstruos, monstruos épicos o súbditos enemigos. Al utilizar Aplastar contra monstruos, recuperas 127 de vida (70 + 10%). Aplastar se convierte en Aplastamiento desalentador tras usarlo 3 veces."
         ),
         SummonerSpellItem(
             id = "teleport",
-            name = "Teleport",
+            name = "Teleportar",
             cooldown = "150s",
-            iconUrl = SPELL_TELEPORT,
-            description = "After channeling for 3.5 seconds, teleport your champion to an allied champion, structure, or ward (excludes areas in range of enemy inhibitors). You can only teleport to structures during the first 6 minutes of the game."
+            iconUrl = "",
+            description = "Tras canalizar durante 3,5 s, te teleportas a una estructura, campeón o guardián aliado (excepto en las áreas al alcance de los inhibidores enemigos).\nSolo puedes teleportarte a estructuras durante 6 min al comienzo de la partida."
         ),
         SummonerSpellItem(
             id = "clarity",
             name = "Claridad",
             cooldown = "90s",
-            iconUrl = SPELL_CLARITY,
-            description = "Restaura el 50% del maná máximo a tu campeón y el 25% del maná a todos los aliados cercanos en el área de efecto (disponible en modos especiales y ARAM)."
+            iconUrl = "",
+            description = "Restaura un 50% del maná máximo a tu campeón y un 25% a los aliados cercanos."
         ),
         SummonerSpellItem(
             id = "mark",
-            name = "Marca / Lanzamiento",
-            cooldown = "80s",
-            iconUrl = SPELL_MARK,
-            description = "Lanza una bola de nieve en línea recta. Si golpea a un enemigo, lo marca. Puedes reactivar esta habilidad (Lanzamiento) para desplazarte hacia el enemigo marcado (Exclusivo del modo ARAM)."
+            name = "Marca y Deslizamiento",
+            cooldown = "40s",
+            iconUrl = "",
+            description = "Lanza una bola de nieve que inflige 16 (16-100) de daño, marca a un enemigo y lo revela durante 5 s.\nPuede activarse de nuevo para deslizarse hasta el enemigo marcado, lo que inflige 16 (16-100) de daño al impactar."
         )
     )
 
