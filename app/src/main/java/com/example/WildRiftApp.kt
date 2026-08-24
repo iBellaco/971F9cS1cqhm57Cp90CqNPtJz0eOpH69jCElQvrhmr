@@ -18,6 +18,7 @@ import com.example.data.sync.ChineseMetaSyncService
 import com.example.service.MetaScrapingWorker
 import com.example.util.AppLogger
 import com.example.util.DynamicTranslations
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,7 +59,10 @@ class WildRiftApp : Application(), ImageLoaderFactory {
     }
 
     private fun setupInstantAndPeriodicScraping() {
-        CoroutineScope(Dispatchers.IO).launch {
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            AppLogger.e("WildRiftApp", "Unhandled background exception caught safely", throwable)
+        }
+        CoroutineScope(Dispatchers.IO + handler).launch {
             try {
                 com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(this@WildRiftApp)
             } catch (e: Exception) {

@@ -26,10 +26,27 @@ object WildRiftSupabaseRepository {
             val runes = postgrest.from(TABLE_RUNES).select().decodeList<WrRuneDto>().map { it.toModel() }
             val spells = postgrest.from(TABLE_SPELLS).select().decodeList<WrSpellDto>().map { it.toModel() }
 
-            if (items.isNotEmpty()) WildRiftRepository.items = items
-            if (champions.isNotEmpty()) WildRiftRepository.champions = champions
-            if (runes.isNotEmpty()) WildRiftRepository.runes = runes
-            if (spells.isNotEmpty()) WildRiftRepository.summonerSpells = spells
+            val validItems = items.filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            val validChamps = champions.filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            val validRunes = runes.filter { it.id.isNotBlank() && it.name.isNotBlank() }
+            val validSpells = spells.filter { it.id.isNotBlank() && it.name.isNotBlank() }
+
+            if (validItems.isNotEmpty()) {
+                val merged = (WildRiftRepository.items.associateBy { it.id } + validItems.associateBy { it.id }).values.toList()
+                WildRiftRepository.items = merged
+            }
+            if (validChamps.isNotEmpty()) {
+                val merged = (WildRiftRepository.champions.associateBy { it.id } + validChamps.associateBy { it.id }).values.toList()
+                WildRiftRepository.champions = merged
+            }
+            if (validRunes.isNotEmpty()) {
+                val merged = (com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id } + validRunes.associateBy { it.id }).values.toList()
+                WildRiftRepository.runes = merged
+            }
+            if (validSpells.isNotEmpty()) {
+                val merged = (com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id } + validSpells.associateBy { it.id }).values.toList()
+                WildRiftRepository.summonerSpells = merged
+            }
 
             WildRiftLocalCache.saveToLocalCache(
                 context,

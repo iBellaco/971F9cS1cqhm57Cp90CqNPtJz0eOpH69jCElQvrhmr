@@ -3,18 +3,25 @@ package com.example.util
 import android.content.Context
 import org.json.JSONObject
 import com.example.R
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 object DynamicTranslations {
+    @Volatile
     private var enMap: Map<String, String>? = null
+    @Volatile
     private var ptMap: Map<String, String>? = null
+
+    private val scope = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, t ->
+        AppLogger.e("Translations", "Error loading translations safely", t)
+    })
 
     fun load(context: Context) {
         if (enMap != null && ptMap != null) return
         
-        GlobalScope.launch(Dispatchers.IO) {
+        scope.launch {
             try {
                 if (enMap == null) {
                     val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
