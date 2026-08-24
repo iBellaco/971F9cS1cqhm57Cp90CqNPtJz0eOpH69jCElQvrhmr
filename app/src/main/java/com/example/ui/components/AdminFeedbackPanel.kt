@@ -107,6 +107,7 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.List
 import com.example.data.WildRiftRepository
 import com.example.ui.components.admin.AdminChampionEditorTab
 import com.example.ui.components.admin.AdminItemEditorTab
@@ -127,7 +128,8 @@ enum class AdminTab(val titleKey: String, val icon: ImageVector) {
     RUNES("Runas", Icons.Default.AutoAwesome),
     SPELLS("Hechizos", Icons.Default.Bolt),
     OBJECTIVES("Objetivos", Icons.Default.Map),
-    SUPABASE("Supabase & Parches", Icons.Default.CloudSync)
+    SUPABASE("Supabase & Parches", Icons.Default.CloudSync),
+    DATABASE("DB Visor", Icons.Default.List)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -346,6 +348,9 @@ fun AdminFeedbackBottomSheet(
                 AdminTab.OBJECTIVES -> { AdminObjectivesEditorTab() }
                 AdminTab.SUPABASE -> {
                     AdminSupabaseSyncTab()
+                }
+                AdminTab.DATABASE -> {
+                    com.example.ui.components.admin.AdminDatabaseViewerTab()
                 }
                 AdminTab.FEEDBACK -> {
                     Column(modifier = Modifier.fillMaxSize()) {

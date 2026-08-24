@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,11 +45,32 @@ fun AdminSupabaseSyncTab() {
 
     // Seeding & Sync state
     var isSeeding by remember { mutableStateOf(false) }
-    var seedProgressText by remember { mutableStateOf("") }
-    var seedProgressPercent by remember { mutableFloatStateOf(0f) }
-
     var isSyncing by remember { mutableStateOf(false) }
-    var syncResultText by remember { mutableStateOf<String?>(null) }
+
+    // Popup summary dialog state
+    var showSummaryDialog by remember { mutableStateOf(false) }
+    var summaryDialogTitle by remember { mutableStateOf("") }
+    var summaryDialogContent by remember { mutableStateOf("") }
+
+    fun showSummary(title: String, content: String) {
+        summaryDialogTitle = title
+        summaryDialogContent = content
+        showSummaryDialog = true
+    }
+
+    if (showSummaryDialog) {
+        AlertDialog(
+            onDismissRequest = { showSummaryDialog = false },
+            title = { Text(summaryDialogTitle, color = HextechCyan) },
+            text = { Text(summaryDialogContent, color = TextPrimary) },
+            confirmButton = {
+                TextButton(onClick = { showSummaryDialog = false }) {
+                    Text("Aceptar", color = HextechGold)
+                }
+            },
+            containerColor = HextechSurface
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -119,9 +139,9 @@ fun AdminSupabaseSyncTab() {
                             isPublishingPatch = false
                             if (res.isSuccess) {
                                 WildRiftLocalCache.saveToLocalCache(context, patchVersion = patchVersionInput)
-                                Toast.makeText(context, "¡Parche $patchVersionInput publicado en Supabase!", Toast.LENGTH_SHORT).show()
+                                showSummary("Parche Publicado", "¡Parche $patchVersionInput publicado en Supabase exitosamente!")
                             } else {
-                                Toast.makeText(context, "Error publicando: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                showSummary("Error", "Error publicando: ${res.exceptionOrNull()?.message}")
                             }
                         }
                     },
@@ -134,93 +154,156 @@ fun AdminSupabaseSyncTab() {
                         CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         Spacer(modifier = Modifier.width(6.dp))
                     }
-                    Text(tr("Publicar Parche en Supabase"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    Text(tr("🚀 Publicar Parche Oficial en la Nube"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // 2. CARD: SIEMBRA DE DATOS Y SINCRONIZACIÓN
+        // 2. CARD: SEMBRAR MASIVAMENTE (GUARDADO POR SECCIÓN)
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = BorderStroke(1.dp, HextechCyan)
+            border = BorderStroke(1.dp, HextechCardBorder)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.CloudSync, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.CloudUpload, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(tr("Sincronización y Siembra (Seed)"), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(tr("Subir a Supabase (Individual por Sección)"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Subir todo el catálogo actual de la app (160+ ítems, 110+ campeones, runas y hechizos) a Supabase con 1 clic.",
+                    text = "Sube las modificaciones locales a la nube seleccionando la categoría específica para no sobreescribir todo.",
                     color = TextMuted,
                     fontSize = 11.5.sp
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Botón Seed Data
+                // Campeones
                 Button(
                     onClick = {
                         isSeeding = true
-                        seedProgressPercent = 0f
-                        seedProgressText = "Iniciando siembra en Supabase..."
                         scope.launch {
-                            val res = WildRiftSupabaseRepository.seedAllDataToSupabase { current, total, msg ->
-                                seedProgressPercent = if (total > 0) current.toFloat() / total.toFloat() else 0f
-                                seedProgressText = msg
-                            }
+                            val res = WildRiftSupabaseRepository.seedChampionsToSupabase()
                             isSeeding = false
                             if (res.isSuccess) {
-                                Toast.makeText(context, "¡Todo el catálogo fue sembrado en Supabase!", Toast.LENGTH_LONG).show()
+                                showSummary("Campeones Subidos", "Se subieron exitosamente ${res.getOrNull()} campeones a la nube.")
                             } else {
-                                Toast.makeText(context, "Error en siembra: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                showSummary("Error Campeones", "Error: ${res.exceptionOrNull()?.message}")
                             }
                         }
                     },
                     enabled = !isSeeding && !isSyncing,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGreen),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.9f)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    if (isSeeding) {
-                        CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Spacer(modifier = Modifier.width(6.dp))
-                    }
-                    Text(tr("🌱 Subir Todo el Catálogo a Supabase (Seed All)"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    Text(tr("Subir Campeones"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
                 }
 
-                if (isSeeding || seedProgressText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        progress = { seedProgressPercent },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = HextechGreen,
-                        trackColor = HextechSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(seedProgressText, color = TextPrimary, fontSize = 11.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Objetos
+                Button(
+                    onClick = {
+                        isSeeding = true
+                        scope.launch {
+                            val res = WildRiftSupabaseRepository.seedItemsToSupabase()
+                            isSeeding = false
+                            if (res.isSuccess) {
+                                showSummary("Objetos Subidos", "Se subieron exitosamente ${res.getOrNull()} objetos a la nube.")
+                            } else {
+                                showSummary("Error Objetos", "Error: ${res.exceptionOrNull()?.message}")
+                            }
+                        }
+                    },
+                    enabled = !isSeeding && !isSyncing,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.9f)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Subir Objetos"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Runas
+                Button(
+                    onClick = {
+                        isSeeding = true
+                        scope.launch {
+                            val res = WildRiftSupabaseRepository.seedRunesToSupabase()
+                            isSeeding = false
+                            if (res.isSuccess) {
+                                showSummary("Runas Subidas", "Se subieron exitosamente ${res.getOrNull()} runas a la nube.")
+                            } else {
+                                showSummary("Error Runas", "Error: ${res.exceptionOrNull()?.message}")
+                            }
+                        }
+                    },
+                    enabled = !isSeeding && !isSyncing,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.9f)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Subir Runas"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Hechizos
+                Button(
+                    onClick = {
+                        isSeeding = true
+                        scope.launch {
+                            val res = WildRiftSupabaseRepository.seedSpellsToSupabase()
+                            isSeeding = false
+                            if (res.isSuccess) {
+                                showSummary("Hechizos Subidos", "Se forzó la limpieza y se subieron exitosamente ${res.getOrNull()} hechizos a la nube.")
+                            } else {
+                                showSummary("Error Hechizos", "Error: ${res.exceptionOrNull()?.message}")
+                            }
+                        }
+                    },
+                    enabled = !isSeeding && !isSyncing,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.8f)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("🔥 Forzar Actualización de Hechizos"), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                HorizontalDivider(color = HextechCardBorder)
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CloudDownload, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tr("Descargar de Supabase"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Sincroniza la aplicación bajando toda la base de datos de la nube.",
+                    color = TextMuted,
+                    fontSize = 11.5.sp
+                )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Botón Sincronizar desde Supabase
                 Button(
                     onClick = {
                         isSyncing = true
-                        syncResultText = "Descargando datos desde Supabase..."
                         scope.launch {
                             val res = WildRiftSupabaseRepository.syncAllFromSupabase(context)
                             isSyncing = false
                             if (res.isSuccess) {
-                                syncResultText = res.getOrNull()
-                                Toast.makeText(context, "¡Sincronización completada!", Toast.LENGTH_SHORT).show()
+                                showSummary("Sincronización Completa", "¡Éxito!\n\n${res.getOrNull()}")
                             } else {
-                                syncResultText = "Error: ${res.exceptionOrNull()?.message}"
+                                showSummary("Error Sincronizando", "Error: ${res.exceptionOrNull()?.message}")
                             }
                         }
                     },
@@ -234,11 +317,6 @@ fun AdminSupabaseSyncTab() {
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                     Text(tr("⚡ Sincronizar Datos desde Supabase Ahora"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
-                }
-
-                syncResultText?.let {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(it, color = if (it.startsWith("Error")) DangerRed else HextechCyan, fontSize = 11.5.sp)
                 }
             }
         }
@@ -264,7 +342,6 @@ fun AdminSupabaseSyncTab() {
                     color = TextMuted,
                     fontSize = 11.5.sp
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
@@ -274,9 +351,7 @@ fun AdminSupabaseSyncTab() {
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
-
                 Spacer(modifier = Modifier.height(6.dp))
-
                 OutlinedTextField(
                     value = customKeyInput,
                     onValueChange = { customKeyInput = it },
@@ -354,7 +429,7 @@ fun AdminSupabaseSyncTab() {
         }
 
         Spacer(modifier = Modifier.height(14.dp))
-
+        
         // 4. CARD: IMPORTADOR Y EXPORTADOR MASIVO DE JSON / BACKUP
         AdminJsonBackupManager()
 

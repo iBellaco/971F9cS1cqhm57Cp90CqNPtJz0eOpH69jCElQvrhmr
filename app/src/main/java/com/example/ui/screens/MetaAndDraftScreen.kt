@@ -1080,7 +1080,7 @@ private fun ItemsCatalogTab() {
     var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
 
     val allItems = WildRiftRepository.items
-    val filteredItems = remember(selectedCategory, searchQuery) {
+    val filteredItems = remember(selectedCategory, searchQuery, allItems) {
         allItems.filter { item ->
             val matchesCategory = selectedCategory == null || item.category == selectedCategory
             val matchesSearch = searchQuery.isBlank() ||
@@ -1569,7 +1569,7 @@ private fun RunesTab() {
         
     )
 
-    val filteredRunes = remember(searchQuery, selectedFilter) {
+    val filteredRunes = remember(searchQuery, selectedFilter, com.example.data.WildRiftRepository.runes) {
         WildRiftRepository.runes.filter { rune ->
             val matchesCategory = when (selectedFilter) {
                 "TODOS" -> true
@@ -1979,7 +1979,7 @@ private fun SpellsTab() {
         "UTILITY" to tr("Movilidad & Utilidad")
     )
 
-    val filteredSpells = remember(searchQuery, selectedFilter) {
+    val filteredSpells = remember(searchQuery, selectedFilter, com.example.data.WildRiftRepository.summonerSpells) {
         WildRiftRepository.summonerSpells.filter { spell ->
             val matchesFilter = when (selectedFilter) {
                 "TODOS" -> true
