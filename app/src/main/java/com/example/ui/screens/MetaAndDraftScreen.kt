@@ -1607,13 +1607,27 @@ private fun RunesTab() {
             "Valor" to "VALOR",
             "Inspiración" to "INSPIRACIÓN"
         )
-        standardCategories.mapNotNull { (catKey, displayTitle) ->
+        val result = mutableListOf<Pair<String, List<RuneItem>>>()
+        val processedRunes = mutableSetOf<String>()
+
+        standardCategories.forEach { (catKey, displayTitle) ->
             val list = filteredRunes.filter { rune ->
-                rune.category.contains(catKey, ignoreCase = true) ||
-                (catKey.equals("Clave", ignoreCase = true) && (rune.category.contains("Keystone", ignoreCase = true) || rune.category.contains("Clave", ignoreCase = true)))
+                !processedRunes.contains(rune.id) && (
+                    rune.category.contains(catKey, ignoreCase = true) ||
+                    (catKey.equals("Clave", ignoreCase = true) && (rune.category.contains("Keystone", ignoreCase = true) || rune.category.contains("Clave", ignoreCase = true)))
+                )
             }
-            if (list.isNotEmpty()) displayTitle to list else null
+            if (list.isNotEmpty()) {
+                result.add(displayTitle to list)
+                processedRunes.addAll(list.map { it.id })
+            }
         }
+
+        val remaining = filteredRunes.filter { !processedRunes.contains(it.id) }
+        if (remaining.isNotEmpty()) {
+            result.add("OTRAS RUNAS" to remaining)
+        }
+        result
     }
 
     Column(
@@ -1731,8 +1745,8 @@ private fun RunesTab() {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                treeCategories.forEach { (categoryName, runesInCat) ->
-                    item(key = categoryName) {
+                treeCategories.forEachIndexed { catIdx, (categoryName, runesInCat) ->
+                    item(key = "tree_cat_${catIdx}_${categoryName}") {
                         val catColor = when {
                             categoryName.contains("clave", ignoreCase = true) -> HextechGold
                             categoryName.contains("brujer", ignoreCase = true) -> Color(0xFF6C75F0)
@@ -1822,7 +1836,7 @@ private fun RunesTab() {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(filteredRunes) { rune ->
+                items(filteredRunes, key = { rune -> "rune_det_${rune.id}_${rune.name}" }) { rune ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

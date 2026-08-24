@@ -50,6 +50,22 @@ class FullAppFlowTest {
         composeTestRule.onNodeWithText("Runas").performClick()
         composeTestRule.waitForIdle()
 
+        // Test view switch to Detallado
+        composeTestRule.onNodeWithText("Detallado").performClick()
+        composeTestRule.waitForIdle()
+
+        // Test view switch back to Cuadrícula
+        composeTestRule.onNodeWithText("Cuadrícula").performClick()
+        composeTestRule.waitForIdle()
+
+        // Test filter chip Runas Clave
+        composeTestRule.onNodeWithText("Runas Clave").performClick()
+        composeTestRule.waitForIdle()
+
+        // Test filter chip Todos
+        composeTestRule.onNodeWithText("Todos").performClick()
+        composeTestRule.waitForIdle()
+
         // 5. Tab Hechizos
         composeTestRule.onNodeWithText("Hechizos").performClick()
         composeTestRule.waitForIdle()

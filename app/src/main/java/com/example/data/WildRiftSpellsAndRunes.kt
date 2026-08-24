@@ -25,6 +25,7 @@ object WildRiftSpellsAndRunes {
             clean == "lethal_tempo" || clean.contains("compás") || clean.contains("compas") || clean.contains("cadencia") || clean.contains("lethal tempo") -> com.example.R.drawable.ic_wr_rune_lethal_tempo
             clean == "fleet_footwork" || clean.contains("pies veloces") || clean.contains("fleet footwork") -> com.example.R.drawable.ic_wr_rune_fleet_footwork
             clean == "conqueror" || clean.contains("conquistador") -> com.example.R.drawable.ic_wr_rune_conqueror
+            clean == "empowerment" || clean.contains("fortalecimiento") || clean.contains("empower") -> com.example.R.drawable.ic_wr_rune_empowerment
             clean == "grasp_undying" || clean == "grasp" || clean.contains("garras") || (clean.contains("inmortal") && !clean.contains("escudo")) -> com.example.R.drawable.ic_wr_rune_grasp
             clean == "guardian" || clean == "guardián" || clean == "guardian" -> com.example.R.drawable.ic_wr_rune_guardian
             clean == "aery" || clean.contains("aery") -> com.example.R.drawable.ic_wr_rune_aery

@@ -39,66 +39,76 @@ object WildRiftDamageColors {
  * - Maná / Energía (Blue / Yellow)
  */
 fun formatWildRiftDescription(text: String, defaultColor: Color = TextPrimary): AnnotatedString {
-    val annotated = buildAnnotatedString {
-        append(text)
+    return try {
+        val annotated = buildAnnotatedString {
+            append(text)
 
-        // Rule helper
-        fun highlightMatches(regex: Regex, color: Color, isBold: Boolean = true) {
-            regex.findAll(text).forEach { match ->
-                addStyle(
-                    style = SpanStyle(
-                        color = color,
-                        fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold
-                    ),
-                    start = match.range.first,
-                    end = match.range.last + 1
-                )
+            // Rule helper
+            fun highlightMatches(regex: Regex, color: Color, isBold: Boolean = true) {
+                try {
+                    regex.findAll(text).forEach { match ->
+                        val start = match.range.first.coerceIn(0, text.length)
+                        val end = (match.range.last + 1).coerceIn(start, text.length)
+                        if (start < end) {
+                            addStyle(
+                                style = SpanStyle(
+                                    color = color,
+                                    fontWeight = if (isBold) FontWeight.Bold else FontWeight.SemiBold
+                                ),
+                                start = start,
+                                end = end
+                            )
+                        }
+                    }
+                } catch (_: Exception) {}
             }
+
+            // 1. Daño Verdadero (Mayor prioridad para evitar que "daño" genérico lo solape)
+            highlightMatches(
+                Regex("(?i)\\b(daño verdadero( adicional)?|true damage)\\b"),
+                WildRiftDamageColors.TrueDamage
+            )
+
+            // 2. Daño Adaptable / Fuerza Adaptable
+            highlightMatches(
+                Regex("(?i)\\b(daño adaptable( adicional)?|fuerza adaptable|adaptable|adaptive force|adaptive damage)\\b"),
+                WildRiftDamageColors.AdaptiveDamage
+            )
+
+            // 3. Daño Mágico / Poder de Habilidad / PH / AP
+            highlightMatches(
+                Regex("(?i)\\b(daño mágico( adicional)?|daño magico( adicional)?|poder de habilidad|PH|magic damage|AP|resistencia mágica|resistencia magica)\\b"),
+                WildRiftDamageColors.MagicDamage
+            )
+
+            // 4. Daño Físico / Daño de Ataque / DA / AD
+            highlightMatches(
+                Regex("(?i)\\b(daño físico( adicional)?|daño fisico( adicional)?|daño de ataque|DA|physical damage|AD|letalidad|armadura)\\b"),
+                WildRiftDamageColors.PhysicalDamage
+            )
+
+            // 5. Curación, Vida, Escudo
+            highlightMatches(
+                Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|escudo(s)?|salud|omnisucción|omnisuccion)\\b"),
+                WildRiftDamageColors.HealingAndLife
+            )
+
+            // 6. Velocidades y Aceleración
+            highlightMatches(
+                Regex("(?i)\\b(velocidad de ataque|velocidad de movimiento|velocidad de habilidades( básicas)?|aceleración de habilidad(es)?|enfriamiento)\\b"),
+                WildRiftDamageColors.AttackSpeed
+            )
+
+            // 7. Maná / Energía
+            highlightMatches(
+                Regex("(?i)\\b(maná( máximo)?|mana|energía|energia)\\b"),
+                WildRiftDamageColors.ManaColor
+            )
         }
-
-        // 1. Daño Verdadero (Mayor prioridad para evitar que "daño" genérico lo solape)
-        highlightMatches(
-            Regex("(?i)\\b(daño verdadero( adicional)?|true damage)\\b"),
-            WildRiftDamageColors.TrueDamage
-        )
-
-        // 2. Daño Adaptable / Fuerza Adaptable
-        highlightMatches(
-            Regex("(?i)\\b(daño adaptable( adicional)?|fuerza adaptable|adaptable|adaptive force|adaptive damage)\\b"),
-            WildRiftDamageColors.AdaptiveDamage
-        )
-
-        // 3. Daño Mágico / Poder de Habilidad / PH / AP
-        highlightMatches(
-            Regex("(?i)\\b(daño mágico( adicional)?|daño magico( adicional)?|poder de habilidad|PH|magic damage|AP|resistencia mágica|resistencia magica)\\b"),
-            WildRiftDamageColors.MagicDamage
-        )
-
-        // 4. Daño Físico / Daño de Ataque / DA / AD
-        highlightMatches(
-            Regex("(?i)\\b(daño físico( adicional)?|daño fisico( adicional)?|daño de ataque|DA|physical damage|AD|letalidad|armadura)\\b"),
-            WildRiftDamageColors.PhysicalDamage
-        )
-
-        // 5. Curación, Vida, Escudo
-        highlightMatches(
-            Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|escudo(s)?|salud|omnisucción|omnisuccion)\\b"),
-            WildRiftDamageColors.HealingAndLife
-        )
-
-        // 6. Velocidades y Aceleración
-        highlightMatches(
-            Regex("(?i)\\b(velocidad de ataque|velocidad de movimiento|velocidad de habilidades( básicas)?|aceleración de habilidad(es)?|enfriamiento)\\b"),
-            WildRiftDamageColors.AttackSpeed
-        )
-
-        // 7. Maná / Energía
-        highlightMatches(
-            Regex("(?i)\\b(maná( máximo)?|mana|energía|energia)\\b"),
-            WildRiftDamageColors.ManaColor
-        )
+        annotated
+    } catch (_: Exception) {
+        AnnotatedString(text)
     }
-    return annotated
 }
 
 @Composable
