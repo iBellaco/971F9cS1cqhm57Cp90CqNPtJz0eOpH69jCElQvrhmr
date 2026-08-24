@@ -72,6 +72,27 @@ object WildRiftSpellsAndRunes {
             "capa del nimbo", "nimbus cloak" -> "Capa del Nimbo"
             "se avecina tormenta", "tormenta creciente", "gathering storm" -> "Se Avecina Tormenta"
             "semillero ixtalí", "semillero ixtali", "ixtali seedjar", "semillero", "ixtali" -> "Semillero Ixtalí"
+            // Precisión / Precision aliases
+            "brutal", "brutalidad" -> "Brutal"
+            "triunfo", "triumph" -> "Triunfo"
+            "fervor de batalla", "fervor", "battle fervor", "fervor of battle" -> "Fervor de Batalla"
+            "último esfuerzo", "ultimo esfuerzo", "last stand" -> "Último Esfuerzo"
+            "derribado", "cut down", "cazagigantes", "giant slayer" -> "Derribado"
+            "golpe de gracia", "coup de grace" -> "Golpe de Gracia"
+            "leyenda: presteza", "leyenda presteza", "presteza", "legend alacrity", "leyenda: celeridad", "leyenda celeridad" -> "Leyenda: Presteza"
+            "leyenda: tenacidad", "leyenda tenacidad", "tenacidad", "legend tenacity" -> "Leyenda: Tenacidad"
+            "leyenda: linaje", "leyenda linaje", "linaje", "legend bloodline" -> "Leyenda: Linaje"
+            // Dominación / Domination aliases
+            "golpe bajo", "cheap shot", "cheapshot" -> "Golpe Bajo"
+            "impacto repentino", "sudden impact" -> "Impacto Repentino"
+            "ataque potenciado", "empowered attack" -> "Ataque Potenciado"
+            "asalto encadenado", "asalto en cadena", "chain assault" -> "Asalto Encadenado"
+            "tirano", "tyrant" -> "Tirano"
+            "soberbia", "arrogancia", "hubris" -> "Soberbia"
+            "colección de globos oculares", "coleccion de globos oculares", "colección de ojos", "coleccion de ojos", "eyeball collection", "eyeball collector", "globos oculares" -> "Colección de Globos Oculares"
+            "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
+            "cazador incesante", "cazador implacable", "relentless hunter" -> "Cazador Incesante"
+            "guardián zombi", "guardian zombi", "centinela zombi", "zombie ward" -> "Guardián Zombi"
             else -> null
         }
         if (canonicalName != null) {
@@ -115,6 +136,27 @@ object WildRiftSpellsAndRunes {
             "capa del nimbo", "nimbus cloak" -> "Capa del Nimbo"
             "se avecina tormenta", "tormenta creciente", "gathering storm" -> "Se Avecina Tormenta"
             "semillero ixtalí", "semillero ixtali", "ixtali seedjar", "semillero", "ixtali" -> "Semillero Ixtalí"
+            // Precisión / Precision aliases
+            "brutal", "brutalidad" -> "Brutal"
+            "triunfo", "triumph" -> "Triunfo"
+            "fervor de batalla", "fervor", "battle fervor", "fervor of battle" -> "Fervor de Batalla"
+            "último esfuerzo", "ultimo esfuerzo", "last stand" -> "Último Esfuerzo"
+            "derribado", "cut down", "cazagigantes", "giant slayer" -> "Derribado"
+            "golpe de gracia", "coup de grace" -> "Golpe de Gracia"
+            "leyenda: presteza", "leyenda presteza", "presteza", "legend alacrity", "leyenda: celeridad", "leyenda celeridad" -> "Leyenda: Presteza"
+            "leyenda: tenacidad", "leyenda tenacidad", "tenacidad", "legend tenacity" -> "Leyenda: Tenacidad"
+            "leyenda: linaje", "leyenda linaje", "linaje", "legend bloodline" -> "Leyenda: Linaje"
+            // Dominación / Domination aliases
+            "golpe bajo", "cheap shot", "cheapshot" -> "Golpe Bajo"
+            "impacto repentino", "sudden impact" -> "Impacto Repentino"
+            "ataque potenciado", "empowered attack" -> "Ataque Potenciado"
+            "asalto encadenado", "asalto en cadena", "chain assault" -> "Asalto Encadenado"
+            "tirano", "tyrant" -> "Tirano"
+            "soberbia", "arrogancia", "hubris" -> "Soberbia"
+            "colección de globos oculares", "coleccion de globos oculares", "colección de ojos", "coleccion de ojos", "eyeball collection", "eyeball collector", "globos oculares" -> "Colección de Globos Oculares"
+            "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
+            "cazador incesante", "cazador implacable", "relentless hunter" -> "Cazador Incesante"
+            "guardián zombi", "guardian zombi", "centinela zombi", "zombie ward" -> "Guardián Zombi"
             else -> null
         }
         if (canonicalName != null) {
@@ -130,77 +172,88 @@ object WildRiftSpellsAndRunes {
             name = "Fantasmal",
             cooldown = "90s",
             iconUrl = "https://i.postimg.cc/G2r7wk1Q/1691694862-ghost.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nObtiene una gran mejora de velocidad de movimiento que decrece hasta un 25% de velocidad de movimiento adicional durante 8 s. La duración de Fantasmal aumenta en 6 s con cada asesinato o asistencia, lo que reinicia su efecto hasta la cifra inicial."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nObtiene una gran mejora de velocidad de movimiento que decrece hasta un 25% de velocidad de movimiento adicional durante 8 s. La duración de Fantasmal aumenta en 6 s con cada asesinato o asistencia, lo que reinicia su efecto hasta la cifra inicial.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "heal",
             name = "Curar",
             cooldown = "100s",
             iconUrl = "https://i.postimg.cc/XJ82VpVd/1691695008-heal.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nRestaura 110 de vida (de 110 a 400) y te otorga un 30% de velocidad de movimiento adicional durante 2 s a ti y al campeón aliado cercano más herido."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nRestaura 110 de vida (de 110 a 400) y te otorga un 30% de velocidad de movimiento adicional durante 2 s a ti y al campeón aliado cercano más herido.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "barrier",
             name = "Barrera",
             cooldown = "100s",
             iconUrl = "https://i.postimg.cc/1tHW9f9G/1691695152-barrier.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nOtorga un escudo que absorbe 120 de daño (120 - 560) durante 2,5 s."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nOtorga un escudo que absorbe 120 de daño (120 - 560) durante 2,5 s.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "exhaust",
             name = "Extenuación",
             cooldown = "100s",
             iconUrl = "https://i.postimg.cc/j5X8sLsz/1691695333-exhaust.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nExtenúa al campeón enemigo objetivo, lo ralentiza un 35% y reduce su daño un 40% durante 2,5 s. La ralentización decrece mientras dura el efecto."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nExtenúa al campeón enemigo objetivo, lo ralentiza un 35% y reduce su daño un 40% durante 2,5 s. La ralentización decrece mientras dura el efecto.",
+            category = "Combate & Daño"
         ),
         SummonerSpellItem(
             id = "cleanse",
             name = "Limpiar",
             cooldown = "110s",
             iconUrl = "https://i.postimg.cc/ydPfVkV0/1735511112-cleanse.webp",
-            description = "Mapas aplicables: Wild Rift y el Abismo de los Lamentos.\n\nElimina las inhabilitaciones (incluidas las de los hechizos) que afectan a tu campeón y le otorga inmunidad a todas las inhabilitaciones durante 0,25 s."
+            description = "Mapas aplicables: Wild Rift y el Abismo de los Lamentos.\n\nElimina las inhabilitaciones (incluidas las de los hechizos) que afectan a tu campeón y le otorga inmunidad a todas las inhabilitaciones durante 0,25 s.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "flash",
             name = "Destello",
             cooldown = "150s",
             iconUrl = "https://i.postimg.cc/0QxWRpqC/1691694210-flash.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nTeleporta una breve distancia hacia la dirección en la que apunta."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nTeleporta una breve distancia hacia la dirección en la que apunta.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "ignite",
             name = "Prender",
             cooldown = "100s",
             iconUrl = "https://i.postimg.cc/Pxh3smk2/1691695236-ignite.webp",
-            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nPrende fuego a un campeón enemigo, lo que inflige 72 de daño verdadero (72 - 380) durante 5 s, aplica heridas graves al objetivo y lo revela."
+            description = "Mapas aplicables: Wild Rift, Abismo de los Lamentos\n\nPrende fuego a un campeón enemigo, lo que inflige 72 de daño verdadero (72 - 380) durante 5 s, aplica heridas graves al objetivo y lo revela.",
+            category = "Combate & Daño"
         ),
         SummonerSpellItem(
             id = "smite",
             name = "Aplastar",
             cooldown = "10s",
             iconUrl = "https://i.postimg.cc/qRLmkzkK/1691695616-smite.webp",
-            description = "Mapa aplicable: Wild Rift\n\nInflige 600 de daño verdadero a los monstruos, monstruos épicos o súbditos enemigos. Al utilizar Aplastar contra monstruos, recuperas 127 de vida (70 + 10%). Aplastar se convierte en Aplastamiento desalentador tras usarlo 3 veces."
+            description = "Mapa aplicable: Wild Rift\n\nInflige 600 de daño verdadero a los monstruos, monstruos épicos o súbditos enemigos. Al utilizar Aplastar contra monstruos, recuperas 127 de vida (70 + 10%). Aplastar se convierte en Aplastamiento desalentador tras usarlo 3 veces.",
+            category = "Combate & Daño"
         ),
         SummonerSpellItem(
             id = "teleport",
             name = "Teleportar",
             cooldown = "150s",
             iconUrl = "https://i.postimg.cc/gJdSFvPs/1611110740-teleport-enchant.png",
-            description = "Mapa aplicable: Grieta\n\nTras canalizar durante 3,5 s, te teleportas a una estructura, campeón o guardián aliado (excepto en las áreas al alcance de los inhibidores enemigos).\nSolo puedes teleportarte a estructuras durante 6 min al comienzo de la partida."
+            description = "Mapa aplicable: Grieta\n\nTras canalizar durante 3,5 s, te teleportas a una estructura, campeón o guardián aliado (excepto en las áreas al alcance de los inhibidores enemigos).\nSolo puedes teleportarte a estructuras durante 6 min al comienzo de la partida.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "clarity",
             name = "Claridad",
             cooldown = "90s",
             iconUrl = "https://i.postimg.cc/JnqT1G1c/202196134671-6.jpg",
-            description = "Mapas disponibles: Abismo de los Lamentos\n\nRestaura un 50% del maná máximo a tu campeón y un 25% a los aliados cercanos."
+            description = "Mapas disponibles: Abismo de los Lamentos\n\nRestaura un 50% del maná máximo a tu campeón y un 25% a los aliados cercanos.",
+            category = "Movilidad & Utilidad"
         ),
         SummonerSpellItem(
             id = "mark",
             name = "Marca y Deslizamiento",
             cooldown = "40s",
             iconUrl = "https://i.postimg.cc/zBjdJVJk/202196134671-5.jpg",
-            description = "Mapa disponible: Abismo de los Lamentos\n\nLanza una bola de nieve que inflige 16 (16-100) de daño, marca a un enemigo y lo revela durante 5 s.\nPuede activarse de nuevo para deslizarse hasta el enemigo marcado, lo que inflige 16 (16-100) de daño al impactar."
+            description = "Mapa disponible: Abismo de los Lamentos\n\nLanza una bola de nieve que inflige 16 (16-100) de daño, marca a un enemigo y lo revela durante 5 s.\nPuede activarse de nuevo para deslizarse hasta el enemigo marcado, lo que inflige 16 (16-100) de daño al impactar.",
+            category = "Movilidad & Utilidad"
         )
     )
 
@@ -375,205 +428,299 @@ object WildRiftSpellsAndRunes {
         ),
 
         // =========================================================================
-        // 3. DOMINACIÓN (DOMINATION)
+        // 3. DOMINACIÓN (DOMINATION) - 10 RUNAS EXACTAS WILD RIFT
         // =========================================================================
-        RuneItem(
-            id = "sudden_impact",
-            name = "Impacto Repentino",
-            category = "Dominación",
-            iconUrl = "https://i.postimg.cc/zXh6HwFd/sudden-impact.webp",
-            description = "Inflige daño verdadero adicional tras usar un deslizamiento, salto, teleportación o al salir de sigilo.\n\n💡 Consejo Coach: Aprovecha el pico de daño de esta runa para intercambios cortos inmediatamente después de usar tu habilidad de movilidad."
-        ),
         RuneItem(
             id = "cheap_shot",
             name = "Golpe Bajo",
             category = "Dominación",
-            iconUrl = "https://i.postimg.cc/pXj45QJZ/cheap-shot.webp",
-            description = "Infliges daño verdadero adicional a campeones enemigos que tengan su movimiento impedido.\n\n💡 Consejo Coach: Sinergiza perfectamente con campeones que tienen ralentizaciones o inmovilizaciones fiables para asegurar daño verdadero gratis en fase de líneas."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/cheapshot/cheapshot.png",
+            description = "Inflige de 10 a 45 de daño verdadero adicional a los enemigos cuya velocidad de movimiento se haya visto reducida (7 s de enfriamiento)."
+        ),
+        RuneItem(
+            id = "sudden_impact",
+            name = "Impacto Repentino",
+            category = "Dominación",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/suddenimpact/suddenimpact.png",
+            description = "Tras un deslizamiento, salto, teleportación instantánea, teleportación o al salir del sigilo, tu siguiente ataque o habilidad contra un enemigo en 4 s inflige de 15 a 65 de daño verdadero adicional (15 s de enfriamiento). Este efecto se potencia al subir de nivel:\nNivel 5: Inflige 5 de daño verdadero adicional.\nNivel 9: Inflige 5 de daño verdadero adicional y otorga un 10% de velocidad de movimiento durante 1,5 s tras infligir daño."
         ),
         RuneItem(
             id = "empowered_attack",
             name = "Ataque Potenciado",
             category = "Dominación",
             iconUrl = "https://i.postimg.cc/WbZCqmwX/empowered-attack.webp",
-            description = "Cada 10 segundos, tu siguiente ataque inflige daño adaptable adicional.\n\n💡 Consejo Coach: Excelente para el pokeo constante en la línea. Sincroniza tus agresiones cada vez que esta runa esté disponible para maximizar la presión."
+            description = "Cada 8 s, potencia tu siguiente ataque, que infligirá 20-60 de daño adaptable adicional a campeones enemigos. 80 % para campeones a distancia."
         ),
         RuneItem(
-            id = "eyeball_collection",
-            name = "Colección de Ojos",
+            id = "chain_assault",
+            name = "Asalto Encadenado",
             category = "Dominación",
-            iconUrl = "https://i.postimg.cc/X75mBKk1/eyeball-collector.webp",
-            description = "Los derribos de campeones y monstruos épicos otorgan daño adaptable adicional, acumulable hasta 8 veces.\n\n💡 Consejo Coach: Prioriza las peleas tempranas y rotaciones conjuntas para alcanzar tu pico de estadísticas adicionales lo antes posible."
-        ),
-        RuneItem(
-            id = "hubris",
-            name = "Arrogancia",
-            category = "Dominación",
-            iconUrl = "https://i.postimg.cc/5NzTQ5S7/hubris.webp",
-            description = "Tras conseguir un derribo de campeón, obtienes daño adaptable adicional durante unos segundos.\n\n💡 Consejo Coach: Perfecta para asesinos en peleas de equipo; busca asegurar el primer derribo rápido para encadenar tu daño contra los siguientes objetivos."
-        ),
-        RuneItem(
-            id = "ingenious_hunter",
-            name = "Cazador Ingenioso",
-            category = "Dominación",
-            iconUrl = "https://i.postimg.cc/02SFKG0H/ingenious-hunter.webp",
-            description = "Otorgar derribos a campeones y monstruos épicos aumenta tu aceleración de objetos.\n\n💡 Consejo Coach: Imprescindible si dependes de objetos activos potentes (como Estasis o Protocinturón), te permitirá usarlos con mucha más frecuencia."
-        ),
-        RuneItem(
-            id = "relentless_hunter",
-            name = "Cazador Implacable",
-            category = "Dominación",
-            iconUrl = "https://i.postimg.cc/PrD9vbQR/relentless-hunter.webp",
-            description = "Los derribos únicos de campeones otorgan velocidad de movimiento fuera de combate.\n\n💡 Consejo Coach: Ideal para junglas y soportes de rotación (roaming), usa la velocidad para generar presión global constante."
+            iconUrl = "https://i.postimg.cc/wTNZR5Qw/chain-assault.webp",
+            description = "Infligir daño a un campeón enemigo con una habilidad activa le aplica una marca, lo que provoca que los 2 próximos ataques o habilidades activas contra dicho campeón inflijan daño adaptable adicional (12–38 + 3% AD adicional + 1,5% AP) (15 s de enfriamiento)."
         ),
         RuneItem(
             id = "tyrant",
             name = "Tirano",
             category = "Dominación",
             iconUrl = "https://i.postimg.cc/J4XvH35K/tyrant.webp",
-            description = "Infligir daño a campeones con menos de 50% de vida máxima otorga daño adaptable adicional.\n\n💡 Consejo Coach: Runa letal para ejecutar objetivos. Úsala si tu campeón destaca finalizando combates a corta y media distancia."
+            description = "Al infligir daño a un campeón con menos de un 50% de vida, infliges (20-70 + 6% AD adicional + 3% AP) de daño adaptable adicional (10 s de enfriamiento)."
         ),
         RuneItem(
-            id = "chain_assault",
-            name = "Asalto en Cadena",
+            id = "hubris",
+            name = "Soberbia",
             category = "Dominación",
-            iconUrl = "https://i.postimg.cc/wTNZR5Qw/chain-assault.webp",
-            description = "Después de golpear con una habilidad, tu siguiente ataque básico inflige daño adaptable extra.\n\n💡 Consejo Coach: Excelente opción para luchadores o asesinos que intercalan ataques básicos entre sus habilidades para maximizar el DPS continuo."
+            iconUrl = "https://i.postimg.cc/5NzTQ5S7/hubris.webp",
+            description = "Las eliminaciones de campeones enemigos en 3 s tras infligirles daño otorgan (5 + 1 por eliminación de campeón conseguida) de fuerza adaptable durante 30 s."
+        ),
+        RuneItem(
+            id = "eyeball_collection",
+            name = "Colección de Globos Oculares",
+            category = "Dominación",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/eyeballcollection/eyeballcollection.png",
+            description = "Otorga 1,5 de daño de ataque o 3 de poder de habilidad al participar en eliminaciones de campeones o monstruos épicos, lo que se acumula hasta 8 veces."
+        ),
+        RuneItem(
+            id = "ingenious_hunter",
+            name = "Cazador Ingenioso",
+            category = "Dominación",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/ingenioushunter/ingenioushunter.png",
+            description = "Otorga 20 de velocidad de objetos. Por cada eliminación de un campeón o monstruo épico que consigas, otorga 5 de velocidad de objetos. Se acumula hasta 5 veces."
+        ),
+        RuneItem(
+            id = "relentless_hunter",
+            name = "Cazador Incesante",
+            category = "Dominación",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/relentlesshunter/relentlesshunter.png",
+            description = "Otorga 10 de velocidad de movimiento fuera de combate. Por cada eliminación de un campeón o monstruo épico que consigas, otorga 2 de velocidad de movimiento fuera de combate. Se acumula hasta 5 veces."
         ),
         RuneItem(
             id = "zombie_ward",
-            name = "Centinela Zombi",
+            name = "Guardián Zombi",
             category = "Dominación",
-            iconUrl = "https://i.postimg.cc/28WMLd7t/zombie-ward.webp",
-            description = "Derribar centinelas enemigos otorga daño adaptable adicional y genera un centinela zombi.\n\n💡 Consejo Coach: Aumenta exponencialmente el control de visión. Ideal para junglas o soportes que abusan de Lentes del Oráculo."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/zombieward/zombieward.png",
+            description = "Las eliminaciones de guardianes enemigos crean un guardián zombi en su lugar, lo que otorga visión del área circundante durante 120 s. Otorga 3 de daño de ataque o 6 de poder de habilidad adicional (máximo: 5 acumulaciones). (Las asistencias de los guardianes enemigos también otorgan acumulaciones y crean guardianes zombi)."
         ),
         // =========================================================================
-        // 4. PRECISIÓN (PRECISION)
+        // 4. PRECISIÓN (PRECISION) - 9 RUNAS EXACTAS WILD RIFT
         // =========================================================================
+        RuneItem(
+            id = "brutal",
+            name = "Brutal",
+            category = "Precisión",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
+            description = "Los ataques infligen (5 + 6% AD adicional + 3% AP) de daño adaptable adicional a los campeones enemigos."
+        ),
         RuneItem(
             id = "triumph",
             name = "Triunfo",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392053_triumph.webp",
-            description = "Las bajas de campeones restauran 10% de tu vida y maná perdidos, y otorgan velocidad de movimiento."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/triumph.png",
+            description = "Las eliminaciones de campeones restauran un 10% de la vida perdida y un 10% del maná y la energía máximos. Además, otorga 35 de velocidad de movimiento durante 2 s."
         ),
         RuneItem(
-            id = "coup_de_grace",
-            name = "Golpe de Gracia",
+            id = "battle_fervor",
+            name = "Fervor de Batalla",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392209_coup-de-grace.webp",
-            description = "Tus ataques infligen un 8% de daño adaptable adicional a campeones con menos del 40% de vida."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
+            description = "Obtienes un 1,4% de amplificación de daño de las habilidades básicas acumulable cada 1 s mientras estás en combate con un campeón. Se acumula hasta 3 veces y solo tiene efecto contra campeones enemigos."
         ),
         RuneItem(
             id = "last_stand",
             name = "Último Esfuerzo",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392114_last-stand.webp",
-            description = "Infliges entre 5% y 11% de daño adicional a campeones enemigos mientras tengas menos del 60% de vida. El daño extra es máximo al 30% de vida."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/laststand/laststand.png",
+            description = "Cuando tu vida está por debajo del 60%, los ataques asestados a campeones enemigos infligen un 5%–11% de daño adicional. Otorga el daño adicional máximo cuando la vida es inferior al 30%."
         ),
         RuneItem(
-            id = "giant_slayer",
-            name = "Cazagigantes",
+            id = "cut_down",
+            name = "Derribado",
             category = "Precisión",
             iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/cutdown/cutdown.png",
-            description = "Inflige hasta un 14% de daño físico y mágico adicional contra campeones enemigos que tengan mayor vida máxima adicional que tú."
+            description = "Tus ataques infligen un 6,5% de daño adicional a campeones enemigos con más del 60% de vida."
+        ),
+        RuneItem(
+            id = "coup_de_grace",
+            name = "Golpe de Gracia",
+            category = "Precisión",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/coupdegrace/coupdegrace.png",
+            description = "Inflige un 8% de daño adicional a campeones enemigos con menos del 40% de vida."
         ),
         RuneItem(
             id = "legend_alacrity",
-            name = "Leyenda: Celeridad",
+            name = "Leyenda: Presteza",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392174_legend-alacrity.webp",
-            description = "Otorgar derribos aumenta tu velocidad de ataque adicional, acumulable permanentemente."
-        ),
-        RuneItem(
-            id = "legend_bloodline",
-            name = "Leyenda: Linaje",
-            category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392254_legend-bloodline.webp",
-            description = "Otorgar derribos a monstruos épicos y campeones aumenta tu omnivampirismo de manera permanente."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendalacrity/legendalacrity.png",
+            description = "Otorga un 3% de velocidad de ataque. Asesina a monstruos, súbditos y campeones enemigos o consigue asistencias para obtener hasta un 18% de velocidad de ataque adicional."
         ),
         RuneItem(
             id = "legend_tenacity",
             name = "Leyenda: Tenacidad",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392264_legend-tenacity.webp",
-            description = "Ganas tenacidad y resistencia a ralentizaciones, con más acumulaciones por derribos."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendtenacity/legendtenacity.png",
+            description = "Otorga un 3% de tenacidad y un 3% de resistencia a las ralentizaciones. Asesina a monstruos, súbditos y campeones enemigos o consigue asistencias para obtener hasta un 15% de tenacidad adicional y un 20% de resistencia a las ralentizaciones."
         ),
         RuneItem(
-            id = "brutal",
-            name = "Brutalidad / Brutal",
+            id = "legend_bloodline",
+            name = "Leyenda: Linaje",
             category = "Precisión",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392016_brutal.webp",
-            description = "Tus ataques infligen daño mágico extra al impactar a campeones enemigos."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendbloodline/legendbloodline.png",
+            description = "Otorga un 1% de omnisucción. Asesina a monstruos, súbditos y campeones enemigos o consigue asistencias para obtener hasta un 7% de omnisucción."
         ),
 
         // =========================================================================
         // 5. VALOR (RESOLVE)
         // =========================================================================
         RuneItem(
+            id = "font_of_life",
+            name = "Fuente de Vida",
+            category = "Valor",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/fontoflife/fontoflife.png",
+            description = "Cuando tus ataques o habilidades golpean a un campeón enemigo, te curas a ti y al campeón aliado cercano con menos vida.\nAliado: Se cura un 1,5% de tu ♥ máx. + 5% de tu 🪄.\nTú: Te curas un 1% de tu ♥ máx. + 5% de tu 🪄.\nEnfriamiento: 20 s\nLa curación tiene un 130% de efectividad si eres un campeón cuerpo a cuerpo. (No se activa si tú o algún aliado cercano tenéis la vida al máximo o si no hay aliados cerca)."
+        ),
+        RuneItem(
+            id = "courage_of_the_colossus",
+            name = "Coraje del Coloso",
+            category = "Valor",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/courageofthecolossus/courageofthecolossus.png",
+            description = "Otorga un escudo que absorbe de 25 a 45 (🔺) + 1% del daño por vida máxima ♥ durante 3 s al inmovilizar a un campeón enemigo (18 s de enfriamiento)."
+        ),
+        RuneItem(
+            id = "nullifying_orb",
+            name = "Orbe Anulador",
+            category = "Valor",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nullifyingorb/nullifyingorb.png",
+            description = "Si un campeón te inflige daño suficiente para hacerte bajar del 35% de tu vida máxima, obtienes un escudo que absorbe de 60 a 180 (🔺) de daño durante 4 s (60 s de enfriamiento)."
+        ),
+        RuneItem(
             id = "bone_plating",
             name = "Revestimiento de Huesos",
             category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392660_bone-plating.webp",
-            description = "Al recibir daño de un campeón, las próximas habilidades o ataques entrantes infligen menos daño durante 1.5s."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/boneplating/boneplating.png",
+            description = "Al recibir daño de un campeón, el ataque o habilidad actual y los 3 siguientes ataques o habilidades de campeones que te golpeen en los próximos 1,5 s te infligen 30 - 60 (🔺) menos de daño (40 s de enfriamiento)."
         ),
         RuneItem(
             id = "second_wind",
-            name = "Segundo Aire",
+            name = "Fuerzas Renovadas",
             category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392641_second-wind.webp",
-            description = "Otorga +5 vida cada 5s. Tras recibir daño de campeón, regeneras vida extra según la que te falte."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/secondwind/secondwind.png",
+            description = "Otorga 5 de vida ♥ cada 5 s.\nAl recibir daño de un campeón enemigo, regenera 3 + (un 1,5% de la vida que te falte) ♥ durante 5 s. Este efecto se duplica para los campeones cuerpo a cuerpo."
         ),
         RuneItem(
-            id = "conditioning",
-            name = "Condicionamiento",
+            id = "unflinching",
+            name = "Inquebrantable",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/conditioning/conditioning.png",
-            description = "A partir del minuto 3:00 de partida, otorga +8 de armadura y +8 de resistencia mágica adicionales y aumenta tus resistencias totales un 5% permanentemente."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/unflinching/unflinching.png",
+            description = "Obtienes un 3% de armadura y de resistencia mágica. Por cada 1 campeones enemigos cercanos, otorga un 2% de armadura y resistencia mágica adicionales. Si el máximo de campeones enemigos está cerca (máximo: 3), también otorga un 20% de resistencia a ralentizaciones."
         ),
         RuneItem(
             id = "overgrowth",
             name = "Sobrecrecimiento",
             category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392435_overgrowth.webp",
-            description = "Por cada 3 súbditos o monstruos asesinados cerca, ganas vida máxima permanente."
-        ),
-        RuneItem(
-            id = "font_of_life",
-            name = "Fuente de Vida",
-            category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392605_font-of-life.webp",
-            description = "Tus ataques y habilidades curan a tu campeón y al aliado cercano más herido."
-        ),
-        RuneItem(
-            id = "demolish",
-            name = "Demolición",
-            category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774951923_demolish.webp",
-            description = "Estar cerca de una torreta carga un golpe que inflige daño físico masivo a la estructura."
-        ),
-        RuneItem(
-            id = "perseverance",
-            name = "Perseverancia",
-            category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392452_perseverance.webp",
-            description = "Ganas tenacidad base. Al ser inmovilizado ganas armadura y resistencia mágica temporales."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/overgrowth/overgrowth.png",
+            description = "Por cada 3 súbditos enemigos o 3 monstruo(s) asesinados cerca, otorga 3 de vida máxima permanentemente. Así, la vida máxima puede aumentar indefinidamente. Otorga un 3% de vida máxima adicional al conseguir 30 acumulaciones."
         ),
         RuneItem(
             id = "revitalize",
             name = "Revitalizar",
             category = "Valor",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392494_revitalize.webp",
-            description = "Tus curaciones y escudos son un 5% más fuertes (o 15% si el objetivo tiene menos del 40% de vida)."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/revitalize/revitalize.png",
+            description = "Amplifica un 5% las curaciones y escudos. Si la vida del objetivo es inferior a un 40%, este efecto se amplifica un 10% adicional."
         ),
         RuneItem(
-            id = "loyalty",
-            name = "Lealtad",
+            id = "perseverance",
+            name = "Perseverancia",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/guardian/guardian.png",
-            description = "Ganas +2 de armadura y +5 de resistencia mágica. Tu aliado más cercano obtiene +5 de armadura y +2 de resistencia mágica adicionales."
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/perseverance/perseverance.png",
+            description = "Otorga 10% de tenacidad. Otorga de 10 a 15 de armadura y resistencia mágica (🔺) durante 1,5 s cuando te inmovilizan. La duración se reinicia cuando te inmovilizan múltiples veces."
+        ),
+        RuneItem(
+            id = "demolish",
+            name = "Demoler",
+            category = "Valor",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/demolish/demolish.png",
+            description = "Al estar a 550 de distancia de una torreta enemiga, obtienes una carga cada 0,5 s, hasta un máximo de 6 veces. Con el máximo de cargas, el siguiente ataque que asestes a la torreta inflige (100 + 22% de la vida máxima ♥) de daño físico adicional (30 s de enfriamiento)."
         ),
 
         // =========================================================================
-            )
+        // 6. BRUJERÍA (SORCERY)
+        // =========================================================================
+        RuneItem(
+            id = "manaflow_band",
+            name = "Banda de Maná",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/manaflowband/manaflowband.png",
+            description = "Golpear a un campeón enemigo con una habilidad o ataque potenciado aumenta permanentemente tu maná máximo en 30, hasta 300 de maná."
+        ),
+        RuneItem(
+            id = "axiomatic_arcologist",
+            name = "Arcanólogo Axiomático",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/theultimatehat/theultimatehat.png",
+            description = "Tu habilidad definitiva obtiene un 10% de daño, curación y escudos adicionales. El aumento del daño en área se reduce un 5%. Participar en el asesinato de un campeón enemigo reduce un 7% el enfriamiento restante de la definitiva."
+        ),
+        RuneItem(
+            id = "transcendence",
+            name = "Trascendencia",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/transcendence/transcendence.png",
+            description = "Otorga una bonificación al alcanzar los siguientes niveles:\nEn el nivel 1, otorga 5 de velocidad de habilidades.\nEn el nivel 5, otorga 5 de velocidad de habilidades.\nEn el nivel 9, reduce un 8% el enfriamiento de las habilidades básicas cuando golpeen a un objetivo (8 s de enfriamiento)."
+        ),
+        RuneItem(
+            id = "celerity",
+            name = "Celeridad",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/celerity/celeritytemp.png",
+            description = "Obtiene un 2% de velocidad de movimiento. Aumentan un 7% todas las bonificaciones de velocidad de movimiento que recibas."
+        ),
+        RuneItem(
+            id = "absolute_focus",
+            name = "Concentración Absoluta",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/absolutefocus/absolutefocus.png",
+            description = "Con más del 65% de la vida, obtienes 2-20 de daño de ataque o 4-40 de poder de habilidad adicional (adaptable)."
+        ),
+        RuneItem(
+            id = "nimbus_cloak",
+            name = "Capa del Nimbo",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nimbuscloak/6361.png",
+            description = "Tras usar un hechizo (Destello, Prender, etc.), obtienes un 10-40% de velocidad de movimiento adicional durante 3 s. La eficacia de esta mejora depende del enfriamiento del hechizo utilizado."
+        ),
+        RuneItem(
+            id = "scorch",
+            name = "Piroláser",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/scorch/scorch.png",
+            description = "Infligir daño a un campeón enemigo con una habilidad lo quema y le inflige entre 21 y 49 de daño mágico adicional (según el nivel) tras 1 s (8 s de enfriamiento)."
+        ),
+        RuneItem(
+            id = "gathering_storm",
+            name = "Se Avecina Tormenta",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/gatheringstorm/gatheringstorm.png",
+            description = "Tras 6 min de partida, otorga 2 de daño de ataque o 4 de poder de habilidad (adaptable), que aumentan cada 3 minutos a 5 o 10, 9 o 18, 14 o 28, etc."
+        ),
+
+        RuneItem(
+            id = "botanist",
+            name = "Botanista",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/sweettooth/sweettooth.png",
+            description = "Cuando destruyes una planta, obtienes 10 de oro y efectos potenciados de la planta.\nFrutos de miel: Cuando se consumen, aumenta el efecto curativo un 20%.\nFlor del adivino: Cuando se destruye, la visión que otorga dura un 20% más.\nPiña explosiva: Tras el empujón, otorga un 40% de velocidad de movimiento durante 2,5 s."
+        ),
+        RuneItem(
+            id = "hextech_flashtraption",
+            name = "Hextello",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/hextechflashtraption/hextechflashtraption.png",
+            description = "Cuando Destello está en enfriamiento, se reemplaza por Hextello. Tras una canalización de hasta 2 s, te trasladas a una ubicación nueva. La distancia varía en función el tiempo de canalización (18 s de enfriamiento).\nPasa a 6 s de enfriamiento al entrar en combate con campeones."
+        ),
+        RuneItem(
+            id = "ixtali_seedjar",
+            name = "Semillero Ixtalí",
+            category = "Brujería",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/4403_support_ixtaliseedjar.png",
+            description = "Al destruir una planta, obtienes una semilla al instante que reemplaza tu talismán durante 60 s. La semilla madura y se autodestruye poco después tras plantarla en la ubicación objetivo. (Cuando un aliado destruye una planta, también aparecerán semillas que puedes recoger).\nLas semillas están disponibles a partir del minuto 2 de la partida.\nCada planta tiene un enfriamiento de 30 s.\nLas piñas explosivas que plantes te lanzan más lejos al detonar."
+        )
+    )
 }

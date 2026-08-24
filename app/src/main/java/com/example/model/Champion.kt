@@ -114,7 +114,8 @@ data class SummonerSpellItem(
     val name: String,
     val cooldown: String,
     val iconUrl: String,
-    val description: String
+    val description: String,
+    val category: String = "Hechizos"
 )
 
 @Serializable

@@ -1568,28 +1568,22 @@ private fun RunesTab() {
     var isGridView by remember { mutableStateOf(true) }
     var selectedRune by remember { mutableStateOf<RuneItem?>(null) }
 
-    val filterOptions = listOf(
-        "TODOS" to tr("Todos"),
-        "KEYSTONE" to tr("Runas Clave"),
-        "SORCERY" to tr("Brujería"),
-        "DOMINATION" to tr("Dominación"),
-        "PRECISION" to tr("Precisión"),
-        "RESOLVE" to tr("Valor"),
-        
-    )
+    val allCategories = remember(com.example.data.WildRiftRepository.runes) {
+        val cats = com.example.data.WildRiftRepository.runes.map { it.category }.distinct()
+        cats.sortedBy { if (it.contains("Clave", ignoreCase = true) || it.contains("Keystone", ignoreCase = true)) 0 else 1 }
+    }
+
+    val filterOptions = remember(allCategories) {
+        val options = mutableListOf("TODOS" to "Todos")
+        allCategories.forEach { cat ->
+            options.add(cat to cat)
+        }
+        options
+    }
 
     val filteredRunes = remember(searchQuery, selectedFilter, com.example.data.WildRiftRepository.runes) {
         WildRiftRepository.runes.filter { rune ->
-            val matchesCategory = when (selectedFilter) {
-                "TODOS" -> true
-                "KEYSTONE" -> rune.category.contains("Clave", ignoreCase = true) || rune.category.contains("Keystone", ignoreCase = true)
-                "SORCERY" -> rune.category.contains("Brujería", ignoreCase = true) || rune.category.contains("Sorcery", ignoreCase = true)
-                "DOMINATION" -> rune.category.contains("Dominación", ignoreCase = true) || rune.category.contains("Domination", ignoreCase = true)
-                "PRECISION" -> rune.category.contains("Precisión", ignoreCase = true) || rune.category.contains("Precision", ignoreCase = true)
-                "RESOLVE" -> rune.category.contains("Valor", ignoreCase = true) || rune.category.contains("Resolve", ignoreCase = true)
-                
-                else -> true
-            }
+            val matchesCategory = selectedFilter == "TODOS" || rune.category.equals(selectedFilter, ignoreCase = true)
             val matchesSearch = searchQuery.isBlank() ||
                     rune.name.contains(searchQuery, ignoreCase = true) ||
                     rune.description.contains(searchQuery, ignoreCase = true) ||
@@ -1599,33 +1593,18 @@ private fun RunesTab() {
     }
 
     val treeCategories = remember(filteredRunes) {
-        val standardCategories = listOf(
-            "Clave" to "RUNAS CLAVE",
-            "Brujería" to "BRUJERÍA",
-            "Dominación" to "DOMINACIÓN",
-            "Precisión" to "PRECISIÓN",
-            "Valor" to "VALOR",
-            "Inspiración" to "INSPIRACIÓN"
-        )
         val result = mutableListOf<Pair<String, List<RuneItem>>>()
-        val processedRunes = mutableSetOf<String>()
-
-        standardCategories.forEach { (catKey, displayTitle) ->
-            val list = filteredRunes.filter { rune ->
-                !processedRunes.contains(rune.id) && (
-                    rune.category.contains(catKey, ignoreCase = true) ||
-                    (catKey.equals("Clave", ignoreCase = true) && (rune.category.contains("Keystone", ignoreCase = true) || rune.category.contains("Clave", ignoreCase = true)))
-                )
-            }
-            if (list.isNotEmpty()) {
-                result.add(displayTitle to list)
-                processedRunes.addAll(list.map { it.id })
-            }
+        val groups = filteredRunes.groupBy { it.category }
+        
+        val claveKey = groups.keys.firstOrNull { it.contains("Clave", ignoreCase = true) || it.contains("Keystone", ignoreCase = true) }
+        if (claveKey != null) {
+            result.add(claveKey to (groups[claveKey] ?: emptyList()))
         }
-
-        val remaining = filteredRunes.filter { !processedRunes.contains(it.id) }
-        if (remaining.isNotEmpty()) {
-            result.add("OTRAS RUNAS" to remaining)
+        
+        groups.forEach { (cat, items) ->
+            if (cat != claveKey) {
+                result.add(cat to items)
+            }
         }
         result
     }
@@ -1728,7 +1707,7 @@ private fun RunesTab() {
                 FilterChip(
                     selected = selectedFilter == key,
                     onClick = { selectedFilter = key },
-                    label = { Text(label, fontSize = 11.sp) },
+                    label = { Text(tr(label), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1770,7 +1749,7 @@ private fun RunesTab() {
                                 ) {
                                     
                                     Text(
-                                        text = categoryName.uppercase(),
+                                        text = tr(categoryName).uppercase(),
                                         color = catColor,
                                         fontWeight = FontWeight.Black,
                                         fontSize = 13.5.sp,
@@ -2007,32 +1986,25 @@ private fun SpellsTab() {
     var selectedFilter by remember { mutableStateOf("TODOS") }
     var selectedSpell by remember { mutableStateOf<SummonerSpellItem?>(null) }
 
-    val filterOptions = listOf(
-        "TODOS" to tr("Todos"),
-        "COMBAT" to tr("Combate & Daño"),
-        "UTILITY" to tr("Movilidad & Utilidad")
-    )
+    val allCategories = remember(com.example.data.WildRiftRepository.summonerSpells) {
+        com.example.data.WildRiftRepository.summonerSpells.map { it.category }.distinct().sorted()
+    }
+
+    val filterOptions = remember(allCategories) {
+        val options = mutableListOf("TODOS" to "Todos")
+        allCategories.forEach { cat ->
+            options.add(cat to cat)
+        }
+        options
+    }
 
     val filteredSpells = remember(searchQuery, selectedFilter, com.example.data.WildRiftRepository.summonerSpells) {
         WildRiftRepository.summonerSpells.filter { spell ->
-            val matchesFilter = when (selectedFilter) {
-                "TODOS" -> true
-                "COMBAT" -> spell.name.contains("Prender", true) || 
-                            spell.name.contains("Ignición", true) || 
-                            spell.name.contains("Castigo", true) || 
-                            spell.name.contains("Extenuación", true) || 
-                            spell.name.contains("Curar", true) || 
-                            spell.name.contains("Barrera", true)
-                "UTILITY" -> spell.name.contains("Destello", true) || 
-                             spell.name.contains("Fantasma", true) || 
-                             spell.name.contains("Teleport", true) ||
-                             spell.name.contains("Claridad", true) ||
-                             spell.name.contains("Marca", true)
-                else -> true
-            }
+            val matchesFilter = selectedFilter == "TODOS" || spell.category.equals(selectedFilter, ignoreCase = true)
             val matchesSearch = searchQuery.isBlank() ||
                     spell.name.contains(searchQuery, ignoreCase = true) ||
-                    spell.description.contains(searchQuery, ignoreCase = true)
+                    spell.description.contains(searchQuery, ignoreCase = true) ||
+                    spell.category.contains(searchQuery, ignoreCase = true)
             matchesFilter && matchesSearch
         }
     }
@@ -2135,7 +2107,7 @@ private fun SpellsTab() {
                 FilterChip(
                     selected = selectedFilter == key,
                     onClick = { selectedFilter = key },
-                    label = { Text(label, fontSize = 11.sp) },
+                    label = { Text(tr(label), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -2245,6 +2217,14 @@ private fun SpellsTab() {
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
                                         Text("CD: ${spell.cooldown}", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(HextechGold.copy(alpha = 0.15f))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(tr(spell.category), color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
