@@ -21,6 +21,10 @@ object WildRiftSupabaseRepository {
 
     suspend fun syncAllFromSupabase(context: Context): Result<String> = withContext(Dispatchers.IO) {
         try {
+            // Auto-sembrar los hechizos actualizados a la base de datos
+            val spellDtos = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { WrSpellDto.fromModel(it) }
+            postgrest.from(TABLE_SPELLS).upsert(spellDtos)
+
             val items = postgrest.from(TABLE_ITEMS).select().decodeList<WrItemDto>().map { it.toModel() }
             val champions = postgrest.from(TABLE_CHAMPIONS).select().decodeList<WrChampionDto>().map { it.toModel() }
             val runes = postgrest.from(TABLE_RUNES).select().decodeList<WrRuneDto>().map { it.toModel() }
