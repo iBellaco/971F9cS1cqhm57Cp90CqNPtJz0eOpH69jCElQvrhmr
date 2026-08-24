@@ -36,7 +36,7 @@ import com.example.util.tr
 import kotlinx.coroutines.launch
 
 private enum class SubSection {
-    RUNES, SPELLS, OBJECTIVES
+    RUNES, OBJECTIVES
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +85,6 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
             Text(
                 text = when (activeSubSection) {
                     SubSection.RUNES -> tr("Edición de Runas e Íconos")
-                    SubSection.SPELLS -> tr("Edición de Hechizos e Íconos")
                     SubSection.OBJECTIVES -> tr("Edición de Objetivos e Íconos")
                 },
                 color = TextPrimary,
@@ -113,27 +112,7 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(tr("Nueva Runa"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                 }
-            } else if (activeSubSection == SubSection.SPELLS) {
-                Button(
-                    onClick = {
-                        isCreatingSpell = true
-                        spellToEdit = SummonerSpellItem(
-                            id = "spell_${System.currentTimeMillis()}",
-                            name = "",
-                            cooldown = "120s",
-                            iconUrl = "",
-                            description = ""
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(tr("Nuevo Hechizo"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                }
-            }
+        }
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -246,94 +225,6 @@ private fun AdminRunesSpellsEditorTabBase(initialSection: SubSection) {
                 }
             }
 
-            SubSection.SPELLS -> {
-                val filteredSpells = remember(allSpells, searchQuery) {
-                    if (searchQuery.isBlank()) allSpells
-                    else allSpells.filter { it.name.contains(searchQuery, true) || it.id.contains(searchQuery, true) }
-                }
-
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filteredSpells, key = { it.id }) { spell ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                            border = BorderStroke(1.dp, HextechCardBorder)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AppAssetImage(
-                                    url = spell.iconUrl,
-                                    contentDescription = spell.name,
-                                    fallbackText = spell.name,
-                                    modifier = Modifier.size(44.dp),
-                                    borderColor = HextechCyan,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = spell.name,
-                                            color = TextPrimary,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.5.sp
-                                        )
-                                        Text(
-                                            text = "⏱️ ${spell.cooldown}",
-                                            color = HextechCyan,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    Text(
-                                        text = "ID: ${spell.id}",
-                                        color = TextMuted,
-                                        fontSize = 10.5.sp
-                                    )
-                                    if (spell.description.isNotBlank()) {
-                                        Text(
-                                            text = spell.description,
-                                            color = TextPrimary,
-                                            fontSize = 11.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                                Row {
-                                    IconButton(
-                                        onClick = {
-                                            isCreatingSpell = false
-                                            spellToEdit = spell
-                                        },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                                    }
-                                    IconButton(
-                                        onClick = { spellToDelete = spell },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(18.dp))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    item { Spacer(modifier = Modifier.height(24.dp)) }
-                }
-            }
 
             SubSection.OBJECTIVES -> {
                 val filteredObjectives = remember(allObjectives, searchQuery) {
@@ -896,10 +787,6 @@ fun AdminRunesEditorTab() {
     AdminRunesSpellsEditorTabBase(SubSection.RUNES)
 }
 
-@Composable
-fun AdminSpellsEditorTab() {
-    AdminRunesSpellsEditorTabBase(SubSection.SPELLS)
-}
 
 @Composable
 fun AdminObjectivesEditorTab() {

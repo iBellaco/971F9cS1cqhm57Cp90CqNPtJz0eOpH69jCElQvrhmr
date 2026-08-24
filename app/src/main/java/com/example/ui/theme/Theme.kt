@@ -3,41 +3,68 @@ package com.example.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import com.example.util.tr
 import androidx.compose.ui.graphics.Color
 
-private val HextechColorScheme = darkColorScheme(
-    primary = HextechCyan,
-    onPrimary = HextechDarkBg,
-    primaryContainer = HextechBlue,
-    onPrimaryContainer = HextechCyanLight,
-    secondary = HextechGold,
-    onSecondary = HextechDarkBg,
-    secondaryContainer = HextechSurfaceVariant,
-    onSecondaryContainer = HextechGoldLight,
-    tertiary = TierSPlusColor,
-    onTertiary = HextechDarkBg,
-    background = HextechDarkBg,
-    onBackground = TextPrimary,
-    surface = HextechSurface,
-    onSurface = TextPrimary,
-    surfaceVariant = HextechSurfaceVariant,
-    onSurfaceVariant = TextSecondary,
-    error = DangerRed,
-    onError = Color.White,
-    outline = HextechCardBorder
-)
-
 @Composable
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Use intentional Hextech branding
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val theme = AppThemeManager.currentTheme
+    val colorScheme = if (theme.isDark) {
+        darkColorScheme(
+            primary = HextechCyan,
+            onPrimary = HextechDarkBg,
+            primaryContainer = HextechBlue,
+            onPrimaryContainer = HextechCyanLight,
+            secondary = HextechGold,
+            onSecondary = HextechDarkBg,
+            secondaryContainer = HextechSurfaceVariant,
+            onSecondaryContainer = HextechGoldLight,
+            tertiary = TierSPlusColor,
+            onTertiary = HextechDarkBg,
+            background = HextechDarkBg,
+            onBackground = TextPrimary,
+            surface = HextechSurface,
+            onSurface = TextPrimary,
+            surfaceVariant = HextechSurfaceVariant,
+            onSurfaceVariant = TextSecondary,
+            error = DangerRed,
+            onError = Color.White,
+            outline = HextechCardBorder
+        )
+    } else {
+        lightColorScheme(
+            primary = HextechCyan,
+            onPrimary = Color.White,
+            primaryContainer = HextechSurfaceVariant,
+            onPrimaryContainer = HextechCyan,
+            secondary = HextechGold,
+            onSecondary = Color.White,
+            secondaryContainer = HextechSurfaceVariant,
+            onSecondaryContainer = HextechGold,
+            tertiary = TierSPlusColor,
+            onTertiary = Color.White,
+            background = HextechDarkBg,
+            onBackground = TextPrimary,
+            surface = HextechSurface,
+            onSurface = TextPrimary,
+            surfaceVariant = HextechSurfaceVariant,
+            onSurfaceVariant = TextSecondary,
+            error = DangerRed,
+            onError = Color.White,
+            outline = HextechCardBorder
+        )
+    }
+
     MaterialTheme(
-        colorScheme = HextechColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )
 }
+

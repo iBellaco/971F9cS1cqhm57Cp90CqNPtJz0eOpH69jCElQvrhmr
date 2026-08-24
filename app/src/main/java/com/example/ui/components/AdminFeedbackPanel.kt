@@ -112,7 +112,6 @@ import com.example.data.WildRiftRepository
 import com.example.ui.components.admin.AdminChampionEditorTab
 import com.example.ui.components.admin.AdminItemEditorTab
 import com.example.ui.components.admin.AdminRunesEditorTab
-import com.example.ui.components.admin.AdminSpellsEditorTab
 import com.example.ui.components.admin.AdminObjectivesEditorTab
 import com.example.ui.components.admin.AdminSupabaseSyncTab
 import com.example.util.tr

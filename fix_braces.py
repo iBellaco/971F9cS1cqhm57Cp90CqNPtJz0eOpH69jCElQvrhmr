@@ -1,8 +1,10 @@
-with open("app/src/main/java/com/example/ui/screens/InfoScreen.kt", "r") as f:
-    content = f.read()
+import re
 
-content = content.replace("                Spacer(modifier = Modifier.height(22.dp))\n}\n@Composable", 
-"                Spacer(modifier = Modifier.height(22.dp))\n            }\n        }\n    }\n}\n\n@Composable")
+with open("app/src/main/java/com/example/ui/components/admin/AdminRunesSpellsEditor.kt", "r") as f:
+    code = f.read()
 
-with open("app/src/main/java/com/example/ui/screens/InfoScreen.kt", "w") as f:
-    f.write(content)
+# Let's count braces to see where the issue is.
+open_b = code.count('{')
+close_b = code.count('}')
+print(f"Open: {open_b}, Close: {close_b}")
+

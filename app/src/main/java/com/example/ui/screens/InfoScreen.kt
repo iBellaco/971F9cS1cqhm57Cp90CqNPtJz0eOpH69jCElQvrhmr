@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,10 +42,17 @@ fun InfoScreen(
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
     var showAdminPanel by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     if (showAdminPanel) {
         AdminFeedbackBottomSheet(
             onDismiss = { showAdminPanel = false }
+        )
+    }
+
+    if (showThemeDialog) {
+        com.example.ui.components.ThemeCustomizationBottomSheet(
+            onDismiss = { showThemeDialog = false }
         )
     }
 
@@ -140,9 +149,56 @@ fun InfoScreen(
                 )
             }
 
-            // Section 3: Supabase Connection & Feedback Maintenance Test
+            // Section 3: Personalización de Temas y Barra de Navegación
             InfoCard(
-                title = tr("Estado del Servidor"),
+                title = tr("3. Temas y Barra de Navegación"),
+                icon = Icons.Default.Palette
+            ) {
+                Text(
+                    text = tr("Personaliza el aspecto de la aplicación seleccionando entre múltiples temas inspirados en las regiones de Runaterra y configurando la paleta de colores de la barra de navegación."),
+                    color = TextSecondary,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = tr("Tema actual:") + " ${tr(AppThemeManager.currentTheme.titleKey)}",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.5.sp
+                        )
+                        Text(
+                            text = tr("Barra:") + " ${tr(AppThemeManager.currentNavBarOption.titleKey)}",
+                            color = HextechGold,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.5.sp
+                        )
+                    }
+                    Button(
+                        onClick = { showThemeDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = HextechGold,
+                            contentColor = HextechDarkBg
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                    ) {
+                        Icon(Icons.Default.ColorLens, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(tr("Cambiar Tema"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+            }
+
+            // Section 4: Supabase Connection & Feedback Maintenance Test
+            InfoCard(
+                title = tr("4. Estado del Servidor"),
                 icon = Icons.Default.CheckCircle
             ) {
                 Text(

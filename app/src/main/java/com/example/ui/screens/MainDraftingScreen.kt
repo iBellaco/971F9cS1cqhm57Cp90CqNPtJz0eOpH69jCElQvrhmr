@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Layers
@@ -107,6 +108,7 @@ fun MainDraftingScreen(
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showBugReportDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     // Sincronizar estado del servicio cuando la app pasa a primer plano
     DisposableEffect(lifecycleOwner) {
@@ -190,7 +192,7 @@ fun MainDraftingScreen(
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             IconButton(
-                                onClick = { isLightAppTheme = !isLightAppTheme },
+                                onClick = { showThemeDialog = true },
                                 modifier = Modifier
                                     .clip(CircleShape)
                                     .background(HextechSurface)
@@ -199,8 +201,8 @@ fun MainDraftingScreen(
                                     .testTag("nav_theme_button")
                             ) {
                                 Icon(
-                                    imageVector = if (isLightAppTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
-                                    contentDescription = "Toggle Theme",
+                                    imageVector = Icons.Default.Palette,
+                                    contentDescription = "Personalización de Temas",
                                     tint = HextechGold,
                                     modifier = Modifier.size(22.dp)
                                 )
@@ -373,6 +375,12 @@ fun MainDraftingScreen(
         if (showBugReportDialog) {
             BugReportFeedbackDialog(
                 onDismiss = { showBugReportDialog = false }
+            )
+        }
+
+        if (showThemeDialog) {
+            com.example.ui.components.ThemeCustomizationBottomSheet(
+                onDismiss = { showThemeDialog = false }
             )
         }
     }

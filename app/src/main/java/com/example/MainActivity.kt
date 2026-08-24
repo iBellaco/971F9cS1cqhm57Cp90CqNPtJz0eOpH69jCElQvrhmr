@@ -45,6 +45,7 @@ import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechGold
+import com.example.ui.theme.AppThemeManager
 import com.example.util.tr
 import com.example.util.AppUpdateManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,9 +64,8 @@ enum class AppScreen {
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        
         super.onCreate(savedInstanceState)
-
+        AppThemeManager.init(this)
 
         enableEdgeToEdge()
         setContent {
@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-}
+    }
 }
 
 @Composable
@@ -123,11 +123,16 @@ fun DashboardScreen(
         showExitDialog = true
     }
 
+    val navBg = AppThemeManager.getNavBarBackgroundColor()
+    val navAccent = AppThemeManager.getNavBarAccentColor()
+    val navSelectedIcon = AppThemeManager.getNavBarSelectedIconColor()
+    val navUnselected = AppThemeManager.getNavBarUnselectedColor()
+
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = com.example.ui.theme.HextechDarkBg,
-                contentColor = com.example.ui.theme.HextechGold
+                containerColor = navBg,
+                contentColor = navAccent
             ) {
                 NavigationBarItem(
                     selected = selectedTab == 0,
@@ -135,11 +140,11 @@ fun DashboardScreen(
                     icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                     label = { Text(tr("Inicio")) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = HextechDarkBg,
-                        selectedTextColor = HextechGold,
-                        indicatorColor = HextechGold,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navAccent,
+                        indicatorColor = navAccent,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
                     )
                 )
                 NavigationBarItem(
@@ -148,11 +153,11 @@ fun DashboardScreen(
                     icon = { Icon(Icons.Default.Groups, contentDescription = "Drafting") },
                     label = { Text(tr("Drafting")) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = HextechDarkBg,
-                        selectedTextColor = HextechGold,
-                        indicatorColor = HextechGold,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navAccent,
+                        indicatorColor = navAccent,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
                     )
                 )
                 NavigationBarItem(
@@ -161,11 +166,11 @@ fun DashboardScreen(
                     icon = { Icon(Icons.Default.MenuBook, contentDescription = "Catálogo") },
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = HextechDarkBg,
-                        selectedTextColor = HextechCyan,
-                        indicatorColor = HextechCyan,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navAccent,
+                        indicatorColor = navAccent,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
                     )
                 )
             }
