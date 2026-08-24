@@ -77,7 +77,7 @@
     "tree": "Precisión",
     "type": "Secundaria",
     "description": "Cuando tu vida está por debajo del 60%, los ataques asestados a campeones enemigos infligen un 5%–11% de daño adicional. Otorga el daño adicional máximo cuando la vida es inferior al 30%.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/laststand/laststand.png"
+    "iconUrl": "https://i.postimg.cc/mgHKQKFV/last-stand.webp"
   },
   {
     "id": "cut_down",
@@ -109,7 +109,7 @@
     "tree": "Precisión",
     "type": "Secundaria",
     "description": "Otorga un 3% de tenacidad y un 3% de resistencia a las ralentizaciones. Asesina a monstruos, súbditos y campeones enemigos o consigue asistencias para obtener hasta un 15% de tenacidad adicional y un 20% de resistencia a las ralentizaciones.",
-    "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendtenacity/legendtenacity.png"
+    "iconUrl": "https://i.postimg.cc/8z6xhxrx/legend-tenacity.webp"
   },
   {
     "id": "legend_bloodline",

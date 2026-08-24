@@ -345,90 +345,6 @@ object WildRiftSpellsAndRunes {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774949508_frost-sovereign.webp",
             description = "Control, ralentización\n\nAl inmovilizar a un campeón enemigo, se forman 3 rayos a su alrededor y hielo bajo sus pies durante 3 s, lo que ralentiza a los enemigos que estén en contacto con el hielo. La ralentización se sigue aplicando a los enemigos durante 1,5 s tras abandonar el área helada. Obtienes una capa de hielo protector que te rodea y aumenta tus defensas. Tras un breve lapso de tiempo, el hielo explota, lo que inflige daño mágico a tu alrededor.\nRalentización: (1% de tu vida adicional + 15)%.\nDefensas: 35 + 75% de armadura y resistencia mágica adicionales. Dura 2,5 s.\nDaño mágico: 15–100 (nivel) + 5% vida adicional.\nEnfriamiento: 20 s."
         ),
-
-        // =========================================================================
-        // 2. BRUJERÍA / INSPIRACIÓN (SORCERY) - 11 RUNAS OFICIALES DE WILD RIFT
-        // =========================================================================
-        RuneItem(
-            id = "axiomatic_arcanist",
-            name = "Arcanólogo Axiomático",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1761189941_axiom-arcanist.webp",
-            description = "Tu habilidad definitiva obtiene un 10% de daño, curación y escudo adicionales (5% para daño en área). Las bajas reducen su enfriamiento un 7%."
-        ),
-        RuneItem(
-            id = "manaflow_band",
-            name = "Banda de Maná",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392903_manaflow-band.webp",
-            description = "Golpear a un campeón enemigo con una habilidad o ataque potenciado aumenta tu maná máximo en 30, hasta 300."
-        ),
-        RuneItem(
-            id = "botanist",
-            name = "Botanista",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952316_botanist.webp",
-            description = "Destruir una planta otorga 10 de oro extra y potencia los efectos de los frutos de miel, brotes del vidente y piñas explosivas."
-        ),
-        RuneItem(
-            id = "hextech_flashtraption",
-            name = "Hextello",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392779_hextech-flashtraption.webp",
-            description = "Mientras Destello está en enfriamiento, es reemplazado por Hextello. Permite canalizar para un pequeño salto."
-        ),
-        RuneItem(
-            id = "transcendence",
-            name = "Trascendencia",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392866_transcendence.webp",
-            description = "Al nivel 1 obtienes +5 aceleración de habilidad. Al nivel 5, +5 adicional. Al nivel 9, los impactos de habilidades reducen su propio enfriamiento."
-        ),
-        RuneItem(
-            id = "celerity",
-            name = "Celeridad",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1761189545_celerity.webp",
-            description = "Otorga +2% de velocidad de movimiento base y aumenta las bonificaciones de velocidad un 7%."
-        ),
-        RuneItem(
-            id = "absolute_focus",
-            name = "Concentración Absoluta",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952466_absolute-focus.webp",
-            description = "Mientras tengas más del 65% de vida, obtienes daño de ataque o poder de habilidad adicional adaptable."
-        ),
-        RuneItem(
-            id = "scorch",
-            name = "Piroláser",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952748_scorch.webp",
-            description = "Tus habilidades queman a los enemigos, infligiendo daño mágico adicional al cabo de 1 segundo (8s enfriamiento)."
-        ),
-        RuneItem(
-            id = "nimbus_cloak",
-            name = "Capa del Nimbo",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392930_nimbus-cloak.webp",
-            description = "Tras usar un hechizo de invocador, ganas entre un 10% y 40% de velocidad de movimiento por 3 segundos."
-        ),
-        RuneItem(
-            id = "gathering_storm",
-            name = "Se Avecina Tormenta",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774952894_gathering-storm.webp",
-            description = "A partir del minuto 6, obtienes daño adaptable progresivo a lo largo de la partida."
-        ),
-        RuneItem(
-            id = "ixtali_seedjar",
-            name = "Semillero Ixtalí",
-            category = "Brujería",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753392953_ixtali-seedjar.webp",
-            description = "Destruir una planta te otorga una semilla para plantar otra planta artificial después (reemplaza tu baratija temporalmente)."
-        ),
-
-        // =========================================================================
-        // 3. DOMINACIÓN (DOMINATION) - 10 RUNAS EXACTAS WILD RIFT
         // =========================================================================
         RuneItem(
             id = "cheap_shot",
@@ -528,7 +444,7 @@ object WildRiftSpellsAndRunes {
             id = "last_stand",
             name = "Último Esfuerzo",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/laststand/laststand.png",
+            iconUrl = "https://i.postimg.cc/mgHKQKFV/last-stand.webp",
             description = "Cuando tu vida está por debajo del 60%, los ataques asestados a campeones enemigos infligen un 5%–11% de daño adicional. Otorga el daño adicional máximo cuando la vida es inferior al 30%."
         ),
         RuneItem(
@@ -556,7 +472,7 @@ object WildRiftSpellsAndRunes {
             id = "legend_tenacity",
             name = "Leyenda: Tenacidad",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/legendtenacity/legendtenacity.png",
+            iconUrl = "https://i.postimg.cc/8z6xhxrx/legend-tenacity.webp",
             description = "Otorga un 3% de tenacidad y un 3% de resistencia a las ralentizaciones. Asesina a monstruos, súbditos y campeones enemigos o consigue asistencias para obtener hasta un 15% de tenacidad adicional y un 20% de resistencia a las ralentizaciones."
         ),
         RuneItem(
