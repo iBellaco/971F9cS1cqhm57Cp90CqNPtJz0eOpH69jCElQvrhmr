@@ -253,30 +253,6 @@ fun AdminSupabaseSyncTab() {
                     Text(tr("Subir Runas"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Hechizos
-                Button(
-                    onClick = {
-                        isSeeding = true
-                        scope.launch {
-                            val res = WildRiftSupabaseRepository.seedSpellsToSupabase()
-                            isSeeding = false
-                            if (res.isSuccess) {
-                                showSummary("Hechizos Subidos", "Se forzó la limpieza y se subieron exitosamente ${res.getOrNull()} hechizos a la nube.")
-                            } else {
-                                showSummary("Error Hechizos", "Error: ${res.exceptionOrNull()?.message}")
-                            }
-                        }
-                    },
-                    enabled = !isSeeding && !isSyncing,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.8f)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(tr("🔥 Forzar Actualización de Hechizos"), color = Color.White, fontWeight = FontWeight.Bold)
-                }
-                
                 Spacer(modifier = Modifier.height(20.dp))
                 HorizontalDivider(color = HextechCardBorder)
                 Spacer(modifier = Modifier.height(20.dp))

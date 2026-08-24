@@ -208,7 +208,7 @@ fun InfoScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Abrir Panel de Administrador (Buzón de Reportes)"),
+                        text = tr("Abrir Panel de Administrador"),
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )

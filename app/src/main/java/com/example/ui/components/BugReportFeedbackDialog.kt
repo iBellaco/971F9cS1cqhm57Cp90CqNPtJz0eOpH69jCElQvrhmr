@@ -305,7 +305,7 @@ fun BugReportFeedbackDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = tr("Abrir Panel de Administrador (Leer Reportes)"),
+                        text = tr("Abrir Panel de Administrador"),
                         color = HextechCyan,
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.SemiBold

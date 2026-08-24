@@ -126,7 +126,6 @@ enum class AdminTab(val titleKey: String, val icon: ImageVector) {
     ITEMS("Objetos", Icons.Default.Shield),
     CHAMPIONS("Campeones", Icons.Default.Person),
     RUNES("Runas", Icons.Default.AutoAwesome),
-    SPELLS("Hechizos", Icons.Default.Bolt),
     OBJECTIVES("Objetivos", Icons.Default.Map),
     SUPABASE("Supabase & Parches", Icons.Default.CloudSync),
     DATABASE("DB Visor", Icons.Default.List)
@@ -344,7 +343,6 @@ fun AdminFeedbackBottomSheet(
                     AdminChampionEditorTab()
                 }
                 AdminTab.RUNES -> { AdminRunesEditorTab() }
-                AdminTab.SPELLS -> { AdminSpellsEditorTab() }
                 AdminTab.OBJECTIVES -> { AdminObjectivesEditorTab() }
                 AdminTab.SUPABASE -> {
                     AdminSupabaseSyncTab()
