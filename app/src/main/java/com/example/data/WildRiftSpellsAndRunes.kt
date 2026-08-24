@@ -497,14 +497,14 @@ object WildRiftSpellsAndRunes {
             id = "courage_of_the_colossus",
             name = "Coraje del Coloso",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/courageofthecolossus/courageofthecolossus.png",
+            iconUrl = "https://i.postimg.cc/MZmsgySX/courage-of-the-colossus.webp",
             description = "Otorga un escudo que absorbe de 25 a 45 (🔺) + 1% del daño por vida máxima ♥ durante 3 s al inmovilizar a un campeón enemigo (18 s de enfriamiento)."
         ),
         RuneItem(
             id = "nullifying_orb",
             name = "Orbe Anulador",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/nullifyingorb/nullifyingorb.png",
+            iconUrl = "https://i.postimg.cc/3JrLhd8h/nullifying-orb.webp",
             description = "Si un campeón te inflige daño suficiente para hacerte bajar del 35% de tu vida máxima, obtienes un escudo que absorbe de 60 a 180 (🔺) de daño durante 4 s (60 s de enfriamiento)."
         ),
         RuneItem(
@@ -525,7 +525,7 @@ object WildRiftSpellsAndRunes {
             id = "unflinching",
             name = "Inquebrantable",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/unflinching/unflinching.png",
+            iconUrl = "https://i.postimg.cc/mZydKQsk/unshakeable.webp",
             description = "Obtienes un 3% de armadura y de resistencia mágica. Por cada 1 campeones enemigos cercanos, otorga un 2% de armadura y resistencia mágica adicionales. Si el máximo de campeones enemigos está cerca (máximo: 3), también otorga un 20% de resistencia a ralentizaciones."
         ),
         RuneItem(

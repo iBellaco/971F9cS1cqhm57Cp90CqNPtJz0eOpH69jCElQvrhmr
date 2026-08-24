@@ -101,13 +101,16 @@ object WildRiftLocalCache {
             val runesJson = prefs.getString(KEY_RUNES, null)
             if (!runesJson.isNullOrBlank()) {
                 val loadedRunes = json.decodeFromString<List<RuneItem>>(runesJson)
-                val hasOutdatedKeystones = loadedRunes.any { it.id == "empowerment" }
-                val hasKeystones = loadedRunes.any { it.category.trim().equals("Clave", ignoreCase = true) || it.category.trim().contains("Clave", ignoreCase = true) }
-                if (hasOutdatedKeystones || loadedRunes.isEmpty() || !hasKeystones) {
+                val canonicalIds = WildRiftSpellsAndRunes.runes.map { it.id }.toSet()
+                val filteredRunes = loadedRunes.filter { it.id.startsWith("rune_") || it.id in canonicalIds }
+
+                val hasOutdatedKeystones = filteredRunes.any { it.id == "empowerment" }
+                val hasKeystones = filteredRunes.any { it.category.trim().equals("Clave", ignoreCase = true) || it.category.trim().contains("Clave", ignoreCase = true) }
+                if (hasOutdatedKeystones || filteredRunes.isEmpty() || !hasKeystones) {
                     WildRiftRepository.runes = WildRiftSpellsAndRunes.runes
                     saveToLocalCache(context, runes = WildRiftSpellsAndRunes.runes)
                 } else {
-                    WildRiftRepository.runes = loadedRunes
+                    WildRiftRepository.runes = filteredRunes
                 }
                 hasLoadedAny = true
             } else {
@@ -118,10 +121,18 @@ object WildRiftLocalCache {
             val spellsJson = prefs.getString(KEY_SPELLS, null)
             if (!spellsJson.isNullOrBlank()) {
                 val loadedSpells = json.decodeFromString<List<SummonerSpellItem>>(spellsJson)
-                if (loadedSpells.isNotEmpty()) {
-                    WildRiftRepository.summonerSpells = loadedSpells
+                val canonicalSpellIds = WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
+                val filteredSpells = loadedSpells.filter { it.id.startsWith("spell_") || it.id in canonicalSpellIds }
+                if (filteredSpells.isEmpty()) {
+                    WildRiftRepository.summonerSpells = WildRiftSpellsAndRunes.summonerSpells
+                    saveToLocalCache(context, spells = WildRiftSpellsAndRunes.summonerSpells)
+                } else {
+                    WildRiftRepository.summonerSpells = filteredSpells
                     hasLoadedAny = true
                 }
+            } else {
+                WildRiftRepository.summonerSpells = WildRiftSpellsAndRunes.summonerSpells
+                saveToLocalCache(context, spells = WildRiftSpellsAndRunes.summonerSpells)
             }
 
             val objectivesJson = prefs.getString(KEY_OBJECTIVES, null)

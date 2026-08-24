@@ -40,11 +40,15 @@ object WildRiftSupabaseRepository {
                 WildRiftRepository.champions = merged
             }
             if (validRunes.isNotEmpty()) {
-                val merged = (com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id } + validRunes.associateBy { it.id }).values.toList()
+                val canonicalIds = com.example.data.WildRiftSpellsAndRunes.runes.map { it.id }.toSet()
+                val filteredRunes = validRunes.filter { it.id.startsWith("rune_") || it.id in canonicalIds }
+                val merged = (com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id } + filteredRunes.associateBy { it.id }).values.toList()
                 WildRiftRepository.runes = merged
             }
             if (validSpells.isNotEmpty()) {
-                val merged = (com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id } + validSpells.associateBy { it.id }).values.toList()
+                val canonicalIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
+                val filteredSpells = validSpells.filter { it.id.startsWith("spell_") || it.id in canonicalIds }
+                val merged = (com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id } + filteredSpells.associateBy { it.id }).values.toList()
                 WildRiftRepository.summonerSpells = merged
             }
 
@@ -71,7 +75,7 @@ object WildRiftSupabaseRepository {
         try {
             val allItems = WildRiftRepository.items
             val allChamps = WildRiftRepository.champions
-            val allRunes = WildRiftRepository.runes
+            val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
             val allSpells = WildRiftRepository.summonerSpells
             val total = allItems.size + allChamps.size + allRunes.size + allSpells.size
             var current = 0
@@ -90,6 +94,7 @@ object WildRiftSupabaseRepository {
                 onProgress(current, total, "Subiendo campeones...")
             }
 
+            try { postgrest.from(TABLE_RUNES).delete { filter { neq("id", "invalid_placeholder") } } } catch(e: Exception) { }
             val runeDtos = allRunes.map { WrRuneDto.fromModel(it) }
             if (runeDtos.isNotEmpty()) {
                 postgrest.from(TABLE_RUNES).upsert(runeDtos)
@@ -253,7 +258,8 @@ object WildRiftSupabaseRepository {
 
     suspend fun seedRunesToSupabase(): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            val allRunes = WildRiftRepository.runes
+            val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
+            try { postgrest.from(TABLE_RUNES).delete { filter { neq("id", "invalid_placeholder") } } } catch(e: Exception) { }
             val runeDtos = allRunes.map { WrRuneDto.fromModel(it) }
             if (runeDtos.isNotEmpty()) {
                 runeDtos.chunked(25).forEach { chunk ->
