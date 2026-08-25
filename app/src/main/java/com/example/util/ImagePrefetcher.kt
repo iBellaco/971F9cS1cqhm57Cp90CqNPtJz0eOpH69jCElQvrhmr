@@ -123,6 +123,8 @@ object ImagePrefetcher {
             var skipped = 0
             var downloaded = 0
             
+            var startSize = diskCache?.size ?: 0L
+            
             uniqueItems.forEachIndexed { index, item ->
                 try {
                     val inCache = diskCache?.openSnapshot(item.url)?.use { true } ?: false
@@ -141,6 +143,15 @@ object ImagePrefetcher {
                             .build()
                         context.imageLoader.execute(request)
                         downloaded++
+                        
+                        val newSize = diskCache?.size ?: 0L
+                        val diff = newSize - startSize
+                        if (diff > 0) {
+                            val diffMb = diff / (1024.0 * 1024.0)
+                            if (index % 4 == 0) {
+                                addLog("Descargado: ${String.format("%.1f", diffMb)} MB")
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     AppLogger.w("ImagePrefetcher", "Error downloading ${item.name}: ${e.message}")
@@ -150,6 +161,12 @@ object ImagePrefetcher {
                 _downloadProgress.value = (index + 1).toFloat() / total.toFloat()
             }
             
+            val endSize = diskCache?.size ?: 0L
+            val totalDownloadedMb = (endSize - startSize) / (1024.0 * 1024.0)
+            
+            if (totalDownloadedMb > 0) {
+                addLog("Total descargado: ${String.format("%.2f", totalDownloadedMb)} MB")
+            }
             addLog("✅ Descarga completada con éxito. (${downloaded} nuevos, ${skipped} en caché)")
             _isDownloading.value = false
             _isFullyDownloaded.value = true

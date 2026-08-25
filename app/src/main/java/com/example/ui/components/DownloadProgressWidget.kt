@@ -120,10 +120,20 @@ fun DownloadProgressWidget() {
                                 modifier = Modifier.fillMaxSize(),
                                 reverseLayout = true
                             ) {
-                                items(logs.reversed()) { log ->
+                                items(logs.reversed()) { rawLog ->
+                                    val translatedLog = when {
+                                        rawLog.startsWith("Descargando: ") -> tr("Descargando") + ": " + rawLog.substringAfter("Descargando: ")
+                                        rawLog.startsWith("Descargado: ") -> tr("Descargado") + ": " + rawLog.substringAfter("Descargado: ")
+                                        rawLog.startsWith("Total descargado: ") -> tr("Total descargado") + ": " + rawLog.substringAfter("Total descargado: ")
+                                        rawLog.startsWith("En caché: ") -> tr("En caché") + ": " + rawLog.substringAfter("En caché: ")
+                                        rawLog.startsWith("Reintentando: ") -> tr("Reintentando") + ": " + rawLog.substringAfter("Reintentando: ")
+                                        rawLog.startsWith("Total de elementos: ") -> tr("Total de elementos") + ": " + rawLog.substringAfter("Total de elementos: ")
+                                        rawLog.startsWith("✅ Descarga completada con éxito") -> tr("Descarga completada")
+                                        else -> tr(rawLog)
+                                    }
                                     Text(
-                                        text = log,
-                                        color = if (log.contains("Error")) DangerRed else TextMuted,
+                                        text = translatedLog,
+                                        color = if (rawLog.contains("Error")) DangerRed else TextMuted,
                                         fontSize = 10.sp,
                                         lineHeight = 12.sp
                                     )

@@ -31,7 +31,6 @@ object WildRiftSupabaseRepository {
             val validRunes = runes.filter { it.id.isNotBlank() && it.name.isNotBlank() }
             val validSpells = spells.filter { it.id.isNotBlank() && it.name.isNotBlank() }
 
-            
             if (validItems.isNotEmpty()) {
                 val spellIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
                 val canonicalMap = com.example.data.WildRiftItemsData.list.associateBy { it.id }
@@ -42,8 +41,14 @@ object WildRiftSupabaseRepository {
                     !isSpell && !item.id.startsWith("spell_")
                 }.map { item ->
                     val canonical = canonicalMap[item.id] ?: nameMap[item.name.lowercase().trim()]
-                    if (canonical != null && (item.iconUrl.isBlank() || !item.iconUrl.startsWith("http") || item.iconUrl.contains("placeholder"))) {
-                        item.copy(iconUrl = canonical.iconUrl)
+                    if (canonical != null) {
+                        item.copy(
+                            iconUrl = if (item.iconUrl.isBlank() || !item.iconUrl.startsWith("http") || item.iconUrl.contains("placeholder")) canonical.iconUrl else item.iconUrl,
+                            name = canonical.name,
+                            stats = canonical.stats,
+                            passive = canonical.passive,
+                            category = canonical.category
+                        )
                     } else {
                         item
                     }
@@ -53,18 +58,64 @@ object WildRiftSupabaseRepository {
             }
 
             if (validChamps.isNotEmpty()) {
-                val merged = (WildRiftRepository.champions.associateBy { it.id } + validChamps.associateBy { it.id }).values.toList()
+                val canonicalChamps = (com.example.data.champions.BaronLaneChampions.list + 
+                    com.example.data.champions.JungleChampions.list + 
+                    com.example.data.champions.MidLaneChampions.list + 
+                    com.example.data.champions.DragonLaneChampions.list + 
+                    com.example.data.champions.SupportChampions.list).distinctBy { it.id }
+                val canonicalMap = canonicalChamps.associateBy { it.id }
+                val nameMap = canonicalChamps.associateBy { it.name.lowercase().trim() }
+                
+                val mappedChamps = validChamps.map { champ ->
+                    val canonical = canonicalMap[champ.id] ?: nameMap[champ.name.lowercase().trim()]
+                    if (canonical != null) {
+                        champ.copy(
+                            name = canonical.name,
+                            title = canonical.title,
+                            avatarUrl = if (champ.avatarUrl.isBlank()) canonical.avatarUrl else champ.avatarUrl
+                        )
+                    } else {
+                        champ
+                    }
+                }
+                val merged = (WildRiftRepository.champions.associateBy { it.id } + mappedChamps.associateBy { it.id }).values.toList()
                 WildRiftRepository.champions = merged
             }
             if (validRunes.isNotEmpty()) {
-                val canonicalIds = com.example.data.WildRiftSpellsAndRunes.runes.map { it.id }.toSet()
-                val filteredRunes = validRunes.filter { it.id.startsWith("rune_") || it.id in canonicalIds }
+                val canonicalMap = com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id }
+                val canonicalIds = canonicalMap.keys
+                val filteredRunes = validRunes.filter { it.id.startsWith("rune_") || it.id in canonicalIds }.map { rune ->
+                    val canonical = canonicalMap[rune.id]
+                    if (canonical != null) {
+                        rune.copy(
+                            name = canonical.name,
+                            description = canonical.description,
+                            category = canonical.category,
+                            iconUrl = if (rune.iconUrl.isBlank()) canonical.iconUrl else rune.iconUrl
+                        )
+                    } else {
+                        rune
+                    }
+                }
                 val merged = (com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id } + filteredRunes.associateBy { it.id }).values.toList()
                 WildRiftRepository.runes = merged
             }
             if (validSpells.isNotEmpty()) {
-                val canonicalIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
-                val filteredSpells = validSpells.filter { it.id.startsWith("spell_") || it.id in canonicalIds }
+                val canonicalMap = com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id }
+                val canonicalIds = canonicalMap.keys
+                val filteredSpells = validSpells.filter { it.id.startsWith("spell_") || it.id in canonicalIds }.map { spell ->
+                    val canonical = canonicalMap[spell.id]
+                    if (canonical != null) {
+                        spell.copy(
+                            name = canonical.name,
+                            description = canonical.description,
+                            cooldown = canonical.cooldown,
+                            iconUrl = if (spell.iconUrl.isBlank()) canonical.iconUrl else spell.iconUrl
+                        )
+                    } else {
+                        spell
+                    }
+                }
                 val merged = (com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id } + filteredSpells.associateBy { it.id }).values.toList()
                 WildRiftRepository.summonerSpells = merged
             }
