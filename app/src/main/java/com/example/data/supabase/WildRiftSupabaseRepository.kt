@@ -298,4 +298,8 @@ object WildRiftSupabaseRepository {
             Result.success(spellDtos.size)
         } catch (e: Exception) { Result.failure(e) }
     }
+
+    suspend fun diagnoseItemIcons(logToLogcat: Boolean = true): Result<SupabaseItemDiagnostics.SupabaseItemDiagnosticReport> {
+        return SupabaseItemDiagnostics.diagnoseItemIconUrls(logToLogcat)
+    }
 }

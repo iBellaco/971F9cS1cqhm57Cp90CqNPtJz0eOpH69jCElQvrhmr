@@ -359,6 +359,36 @@ fun MainDraftingScreen(
                     )
                 }
 
+                Spacer(modifier = Modifier.height(10.dp))
+
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onNavigateToInfo,
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(44.dp)
+                        .testTag("btn_about_below_download"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.85f),
+                        contentColor = HextechGold
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Acerca De"),
+                        color = HextechGold,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(30.dp))
             }
         }

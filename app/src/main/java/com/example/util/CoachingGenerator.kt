@@ -44,12 +44,17 @@ object CoachingGenerator {
             }
             "Situacional" -> {
                 val advice = com.example.data.SituationalItemAdvisor.getAdvice(target)
+                val localizedName = trStr(advice.name, lang)
+                val localizedCat = trStr(advice.categoryName, lang)
+                val localizedPurpose = trStr(advice.purpose, lang)
+                val localizedKeyEffect = trStr(advice.keyEffect, lang)
+                val localizedTip = trStr(advice.recommendationTip, lang)
                 if (isEs) {
-                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Efectivo contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efecto clave:** ${advice.keyEffect}\n\n💡 **Consejo:** ${advice.recommendationTip}"
+                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Efectivo contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efecto clave:** $localizedKeyEffect\n\n💡 **Consejo:** $localizedTip"
                 } else if (isPt) {
-                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Eficaz contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efeito chave:** ${advice.keyEffect}\n\n💡 **Dica:** ${advice.recommendationTip}"
+                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Eficaz contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efeito chave:** $localizedKeyEffect\n\n💡 **Dica:** $localizedTip"
                 } else {
-                    "🛡️ **${advice.name} (${advice.categoryName})**\n\n${advice.purpose}\n\n• **Effective against:** ${advice.bestAgainst.joinToString(", ")}\n• **Key effect:** ${advice.keyEffect}\n\n💡 **Coach Tip:** ${advice.recommendationTip}"
+                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Effective against:** ${advice.bestAgainst.joinToString(", ")}\n• **Key effect:** $localizedKeyEffect\n\n💡 **Coach Tip:** $localizedTip"
                 }
             }
             else -> { // Sinergia
