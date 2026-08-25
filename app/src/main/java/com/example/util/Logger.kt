@@ -43,7 +43,7 @@ object AppLogger {
             val newLogs = currentLogs.toMutableList()
             newLogs.add(0, logEntry)
             if (newLogs.size > 200) {
-                newLogs.removeLast()
+                newLogs.removeAt(newLogs.lastIndex)
             }
             newLogs
         }

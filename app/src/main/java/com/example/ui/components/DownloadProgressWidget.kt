@@ -1,4 +1,6 @@
 package com.example.ui.components
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -33,6 +35,9 @@ fun DownloadProgressWidget() {
     val isDownloading by ImagePrefetcher.isDownloading.collectAsState()
     val progress by ImagePrefetcher.downloadProgress.collectAsState()
     val logs by ImagePrefetcher.downloadLogs.collectAsState()
+    val isFullyDownloaded by ImagePrefetcher.isFullyDownloaded.collectAsState()
+    val downloadedMb by ImagePrefetcher.downloadedMb.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     if (!showUi) return
 
@@ -62,8 +67,13 @@ fun DownloadProgressWidget() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val titleText = when {
+                            isDownloading -> tr("Descargando Recursos")
+                            isFullyDownloaded -> tr("Descarga Finalizada")
+                            else -> tr("Descarga Pausada")
+                        }
                         Text(
-                            text = if (isDownloading) tr("Descargando Recursos") else tr("Descarga Finalizada"),
+                            text = titleText,
                             color = TextPrimary,
                             fontSize = if (isMinimized) 12.sp else 16.sp,
                             fontWeight = FontWeight.Bold
@@ -72,12 +82,12 @@ fun DownloadProgressWidget() {
                             if (isDownloading) {
                                 IconButton(
                                     onClick = { ImagePrefetcher.cancelPrefetch() },
-                                    modifier = Modifier.size(24.dp).padding(end = 4.dp)
+                                    modifier = Modifier.size(24.dp).padding(end = 8.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Cancelar",
-                                        tint = com.example.ui.theme.DangerRed
+                                        imageVector = Icons.Default.Pause,
+                                        contentDescription = "Pausar",
+                                        tint = com.example.ui.theme.HextechGold
                                     )
                                 }
                                 IconButton(
@@ -91,15 +101,29 @@ fun DownloadProgressWidget() {
                                     )
                                 }
                             } else {
-                                IconButton(
-                                    onClick = { ImagePrefetcher.showProgressUi.value = false },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Cerrar",
-                                        tint = TextMuted
-                                    )
+                                if (!isFullyDownloaded) {
+                                    IconButton(
+                                        onClick = { ImagePrefetcher.startPrefetch(context) },
+                                        modifier = Modifier.size(24.dp).padding(end = 8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PlayArrow,
+                                            contentDescription = "Reanudar",
+                                            tint = com.example.ui.theme.HextechCyan
+                                        )
+                                    }
+                                }
+                                if (isFullyDownloaded) {
+                                    IconButton(
+                                        onClick = { ImagePrefetcher.showProgressUi.value = false },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Cerrar",
+                                            tint = TextMuted
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -153,14 +177,23 @@ fun DownloadProgressWidget() {
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        Text(
-                            text = "${(progress * 100).toInt()}%",
-                            color = TextCyan,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "${String.format("%.1f", downloadedMb)} MB",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "${(progress * 100).toInt()}%",
+                                color = TextCyan,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }

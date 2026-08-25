@@ -25,6 +25,9 @@ object ImagePrefetcher {
     private val _downloadProgress = MutableStateFlow(0f)
     val downloadProgress: StateFlow<Float> = _downloadProgress
     
+    private val _downloadedMb = MutableStateFlow(0f)
+    val downloadedMb: StateFlow<Float> = _downloadedMb
+    
     private val _isDownloading = MutableStateFlow(false)
     val isDownloading: StateFlow<Boolean> = _isDownloading
     
@@ -71,9 +74,10 @@ object ImagePrefetcher {
     fun cancelPrefetch() {
         if (_isDownloading.value) {
             activeJob?.cancel()
-            addLog("🚫 Descarga cancelada por el usuario.")
+            addLog("🚫 Descarga pausada por el usuario.")
             _isDownloading.value = false
-            _downloadProgress.value = 0f
+            //_downloadProgress.value = 0f
+        //_downloadedMb.value = 0f
             // We keep showProgressUi = true so the user sees the cancellation message, they can close it.
         }
     }
@@ -82,7 +86,8 @@ object ImagePrefetcher {
         _isDownloading.value = true
         showProgressUi.value = true
         isUiMinimized.value = false
-        _downloadProgress.value = 0f
+        //_downloadProgress.value = 0f
+        //_downloadedMb.value = 0f
         _downloadLogs.value = emptyList()
         addLog("Iniciando descarga de recursos en segundo plano...")
         
@@ -159,6 +164,7 @@ object ImagePrefetcher {
                         val diff = newSize - startSize
                         if (diff > 0) {
                             val diffMb = diff / (1024.0 * 1024.0)
+                            _downloadedMb.value = diffMb.toFloat()
                             if (index % 4 == 0) {
                                 addLog("Descargado: ${String.format("%.1f", diffMb)} MB")
                             }
