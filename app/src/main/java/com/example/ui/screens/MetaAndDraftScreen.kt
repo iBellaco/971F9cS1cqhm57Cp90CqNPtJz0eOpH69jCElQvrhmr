@@ -2630,7 +2630,7 @@ private fun DraftAnalysisTab(
                 enemyLaneOpponent = enemyLaneOpponent,
                 lang = "es"
             )
-            val shouldChange = myEval.estimatedWinrate < 49.0 || myEval.advantageBadge.contains("PELIGRO")
+            val shouldChange = myEval.estimatedWinrate < 49.0 || myEval.advantageBadge.contains("PELIGRO") || myEval.advantageBadge.contains("ATÍPICA")
             
             Card(
                 modifier = Modifier

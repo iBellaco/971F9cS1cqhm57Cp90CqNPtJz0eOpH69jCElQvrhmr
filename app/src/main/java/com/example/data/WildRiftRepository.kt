@@ -243,6 +243,14 @@ object WildRiftRepository {
         val reasonParts = mutableListOf<String>()
         var synergyText = ""
         var counterText = ""
+        // Check for Off-role / Troll pick
+        val isOffRole = champ.primaryRole != myRole && !champ.secondaryRoles.contains(myRole)
+        if (isOffRole) {
+            score -= 15.0 // heavy penalty
+            badge = "❌ SELECCIÓN ATÍPICA (OFF-META)"
+            reasonParts.add("Este campeón no es idóneo para esta línea. Jugarlo aquí es considerado atípico o desventajoso para el equipo.")
+        }
+
         
         val directCounters = champ.advantageAgainst.filter { adv ->
             enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
@@ -267,11 +275,11 @@ object WildRiftRepository {
             
             if (isDirectLaneCounter) {
                 score += 4.5
-                badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
+                if (badge.isBlank()) badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
                 reasonParts.add("Ventaja directa de carril contra ${opponent.name}. Tienes superioridad en tradeos y escalado.")
             } else if (isDirectLaneWeakness) {
                 score -= 4.0
-                badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"
+                if (badge.isBlank()) badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"
                 reasonParts.add("Línea difícil contra ${opponent.name}. Evita tradeos largos en early y solicita apoyo del jungla.")
             }
             

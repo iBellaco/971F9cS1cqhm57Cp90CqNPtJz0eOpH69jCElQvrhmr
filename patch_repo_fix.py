@@ -1,5 +1,3 @@
-import re
-
 with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'r', encoding='utf-8') as f:
     content = f.read()
 
@@ -13,27 +11,12 @@ off_role_logic = """
         }
 """
 
-# Insert after directSynergies calculation
-target_str = """        val directSynergies = champ.synergies.filter { syn ->
-            otherAllies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
-        }
-"""
+target_str = "        var counterText = \"\"\n"
 
 if target_str in content:
     content = content.replace(target_str, target_str + off_role_logic)
 else:
     print("Could not find target_str")
-
-# Prevent overriding badge if it's already set to off-role
-content = content.replace(
-    'badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"',
-    'if (badge.isBlank()) badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"'
-)
-
-content = content.replace(
-    'badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"',
-    'if (badge.isBlank()) badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"'
-)
 
 with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'w', encoding='utf-8') as f:
     f.write(content)

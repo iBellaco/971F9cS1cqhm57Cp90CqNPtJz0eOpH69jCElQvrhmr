@@ -1,27 +1,27 @@
 import re
 
-with open("app/src/main/java/com/example/data/WildRiftRepository.kt", "r") as f:
+with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'r', encoding='utf-8') as f:
     content = f.read()
 
-content = content.replace(
-    'directMatchupWarning = "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad."',
-    'directMatchupWarning = com.example.util.trStr(lang, "El rival tiene alta iniciación de CC con Sett y Vi. Se aconseja desengage, escudos antimagia o tenacidad.")'
-)
+# The block to remove:
+block_to_remove = """
+        // Check for Off-role / Troll pick
+        val isOffRole = champ.primaryRole != myRole && !champ.secondaryRoles.contains(myRole)
+        if (isOffRole) {
+            score -= 15.0 // heavy penalty
+            badge = "❌ SELECCIÓN ATÍPICA (OFF-META)"
+            reasonParts.add("Este campeón no es idóneo para esta línea. Jugarlo aquí es considerado atípico o desventajoso para el equipo.")
+        }
+"""
 
-content = content.replace(
-    'directMatchupWarning = "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank."',
-    'directMatchupWarning = com.example.util.trStr(lang, "Caitlyn rival tiene ventaja de rango en carril de Dragón. Prioriza anulación con Viego o agarre con Nautilus/Blitzcrank.")'
-)
+content = content.replace(block_to_remove, "")
 
-content = content.replace(
-    'directMatchupWarning = "Peligro de asesinos de burst (${enemyZed.name}). Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus)."',
-    'directMatchupWarning = com.example.util.trStr(lang, "Peligro de asesinos de burst") + " (${enemyZed.name}). " + com.example.util.trStr(lang, "Imprescindible Zhonya/Estasis y CC garantizado (Lulu, Malzahar, Nautilus).")'
-)
+# Now insert it only in the evaluateChampion function.
+# Let's find:
+#         var counterText = ""
+# and only replace the first occurrence!
+content = content.replace('var counterText = ""', 'var counterText = ""' + block_to_remove, 1)
 
-content = content.replace(
-    'directMatchupWarning = "Composición rival pesada (${enemyTanks.joinToString { it.name }}). Requiere daño verdadero y % vida máxima."',
-    'directMatchupWarning = com.example.util.trStr(lang, "Composición rival pesada") + " (${enemyTanks.joinToString { it.name }}). " + com.example.util.trStr(lang, "Requiere daño verdadero y % vida máxima.")'
-)
-
-with open("app/src/main/java/com/example/data/WildRiftRepository.kt", "w") as f:
+with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'w', encoding='utf-8') as f:
     f.write(content)
+
