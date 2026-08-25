@@ -170,6 +170,8 @@ object ImagePrefetcher {
                             }
                         }
                     }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     AppLogger.w("ImagePrefetcher", "Error downloading ${item.name}: ${e.message}")
                     addLog("Reintentando: ${item.name}")

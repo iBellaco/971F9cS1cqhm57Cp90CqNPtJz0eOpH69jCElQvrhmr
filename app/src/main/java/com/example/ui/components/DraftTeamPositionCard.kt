@@ -324,7 +324,7 @@ fun DraftTeamPositionCard(
 
                         // Nombre del campeón debajo de la casilla si está seleccionado
                         if (champ != null) {
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(if (isMyRole) 8.dp else 3.dp))
                             Text(
                                 text = champ.name,
                                 color = if (isMyRole) HextechCyan else TextPrimary,
@@ -335,7 +335,7 @@ fun DraftTeamPositionCard(
                                 textAlign = TextAlign.Center
                             )
                         } else {
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(if (isMyRole) 8.dp else 3.dp))
                             Text(
                                 text = "-",
                                 color = TextMuted,

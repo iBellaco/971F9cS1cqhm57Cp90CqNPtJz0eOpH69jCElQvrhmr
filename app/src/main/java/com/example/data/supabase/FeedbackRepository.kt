@@ -43,7 +43,7 @@ object FeedbackRepository {
         type: String,
         title: String,
         description: String,
-        imageBase64: String? = null,
+        imagesBase64: List<String> = emptyList(),
         retentionDays: Int = 7
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
@@ -59,7 +59,12 @@ object FeedbackRepository {
 
             // 2. Preparar el nuevo reporte
             val baseDeviceInfo = "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE}, API ${Build.VERSION.SDK_INT})"
-            val deviceInfo = if (imageBase64 != null) "$baseDeviceInfo\n\n[IMAGE_BASE64]\n$imageBase64" else baseDeviceInfo
+            var deviceInfo = baseDeviceInfo
+            if (imagesBase64.isNotEmpty()) {
+                for (img in imagesBase64) {
+                    deviceInfo += "\n\n[IMAGE_BASE64]\n$img"
+                }
+            }
             val appVersion = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) [${WildRiftRepository.CURRENT_PATCH_VERSION}]"
 
             val report = InsertFeedbackReport(
