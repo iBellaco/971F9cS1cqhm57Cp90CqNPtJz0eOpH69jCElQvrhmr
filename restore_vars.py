@@ -3,12 +3,12 @@ import re
 with open("app/src/main/java/com/example/util/Translator.kt", "r", encoding="utf-8") as f:
     content = f.read()
 
-# find where itemNamesEsToEn ends (it's a map).
-# We can just define itemNamesEnToEs right before `@Composable`
-# But avoiding the name itemNamesEsToEn conflict.
-
+# Add them back correctly
 vars_to_add = """
+val itemNamesEsToEn = translations["en"]?.entries?.associate { (k, v) -> v to k } ?: emptyMap()
+val itemNamesEsToPt = translations["pt"]?.entries?.associate { (k, v) -> v to k } ?: emptyMap()
 val itemNamesEnToEs = itemNamesEsToEn.entries.associate { (k, v) -> v to k }
+
 @Composable"""
 
 content = content.replace("@Composable", vars_to_add, 1)

@@ -312,12 +312,20 @@ fun MainDraftingScreen(
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }
                 var hasOverlayPermission by remember { mutableStateOf(SystemPermissionHelper.hasOverlayPermission(context)) }
+                var hasStoragePermission by remember { mutableStateOf(SystemPermissionHelper.hasStoragePermission(context)) }
+                
+                val requestStoragePermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
+                ) { permissions ->
+                    hasStoragePermission = SystemPermissionHelper.hasStoragePermission(context)
+                }
 
                 DisposableEffect(lifecycleOwner) {
                     val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
                         if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                             isIgnoringBatteryOpt = SystemPermissionHelper.isIgnoringBatteryOptimizations(context)
                             hasOverlayPermission = SystemPermissionHelper.hasOverlayPermission(context)
+                            hasStoragePermission = SystemPermissionHelper.hasStoragePermission(context)
                         }
                     }
                     lifecycleOwner.lifecycle.addObserver(observer)
@@ -326,7 +334,7 @@ fun MainDraftingScreen(
                     }
                 }
 
-                if (!isIgnoringBatteryOpt || !hasOverlayPermission) {
+                if (!isIgnoringBatteryOpt || !hasOverlayPermission || !hasStoragePermission) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -370,7 +378,7 @@ fun MainDraftingScreen(
                             }
                             if (!isIgnoringBatteryOpt) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = if (!hasStoragePermission) 8.dp else 0.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
@@ -387,6 +395,34 @@ fun MainDraftingScreen(
                                         modifier = Modifier.height(30.dp)
                                     ) {
                                         Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            if (!hasStoragePermission) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(text = tr("Guardar en Dispositivo"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text(text = tr("Para descargar y guardar capturas."), color = TextSecondary, fontSize = 10.5.sp)
+                                    }
+                                    OutlinedButton(
+                                        onClick = {
+                                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                                requestStoragePermissionLauncher.launch(arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES))
+                                            } else {
+                                                requestStoragePermissionLauncher.launch(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE))
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                        modifier = Modifier.height(30.dp)
+                                    ) {
+                                        Text(tr("Activar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }

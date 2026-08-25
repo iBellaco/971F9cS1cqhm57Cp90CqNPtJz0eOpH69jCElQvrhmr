@@ -3,17 +3,13 @@ import re
 with open("app/src/main/java/com/example/util/Translator.kt", "r", encoding="utf-8") as f:
     content = f.read()
 
-# The file starts with `val translations = mapOf(`
-# Inside, there is `"en" to mapOf(...)` and `"es" to mapOf(...)` and `"pt" to mapOf(...)`.
-# Let's just find the start of `translations` and the end of it.
-
-# Actually, the garbage is specifically this literal string:
-garbage_start = content.find(")val itemNamesEnToEs = itemNamesEsToEn.entries.associate {")
-if garbage_start != -1:
+match = re.search(r'\)val itemNamesEnToEs = itemNamesEsToEn\.entries\.associate \{', content)
+if match:
+    garbage_start = match.start()
     composable_idx = content.find("@Composable", garbage_start)
     if composable_idx != -1:
-        # replace everything from garbage_start to composable_idx
-        replacement = """    )
+        replacement = """
+    )
 )
 
 val itemNamesEsToEn = translations["en"]?.entries?.associate { (k, v) -> v to k } ?: emptyMap()
@@ -26,5 +22,4 @@ val itemNamesEnToEs = itemNamesEsToEn.entries.associate { (k, v) -> v to k }
             f.write(content)
         print("Fixed garbage!")
 else:
-    print("Garbage not found")
-
+    print("Not found regex")

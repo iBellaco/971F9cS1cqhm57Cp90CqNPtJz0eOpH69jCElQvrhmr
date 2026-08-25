@@ -1,23 +1,17 @@
-with open('app/src/main/java/com/example/ui/components/FloatingAssistantOverlay.kt', 'r', encoding='utf-8') as f:
-    lines = f.readlines()
+import re
 
-new_lines = []
-skip = False
-for i, line in enumerate(lines):
-    if line.strip() == "Text(tr(item.stats), color = HextechCyan, fontSize = 10.sp)" and "Spacer" not in lines[i-1]:
-        # This is the duplicate block starting
-        if not new_lines[-1].strip() == "}":
-            continue
-        # We want to skip from this line down to the "// =========================" comment
-        skip = True
-    
-    if skip:
-        if line.strip().startswith("// ===================================================================="):
-            skip = False
-        else:
-            continue
-    
-    new_lines.append(line)
+with open("app/src/main/java/com/example/util/Translator.kt", "r", encoding="utf-8") as f:
+    content = f.read()
 
-with open('app/src/main/java/com/example/ui/components/FloatingAssistantOverlay.kt', 'w', encoding='utf-8') as f:
-    f.writelines(new_lines)
+# Fix the broken end of map
+broken = '        "Cazador - Asesino" to "Hunter - Assassin", (k, v) -> v to k }'
+fixed = '        "Cazador - Asesino" to "Hunter - Assassin"\n    )\n)\n\nval itemNamesEsToEn = translations["en"]?.entries?.associate { (k, v) -> v to k } ?: emptyMap()\nval itemNamesEsToPt = translations["pt"]?.entries?.associate { (k, v) -> v to k } ?: emptyMap()\nval itemNamesEnToEs = itemNamesEsToEn.entries.associate { (k, v) -> v to k }'
+
+content = content.replace(broken, fixed)
+
+# Now check if we accidentally deleted something else.
+# Wait, look at line 2380 above:
+#        "Fantasmal" to "Ghost",
+#        "Curar" to "Heal",
+# Wait, these are English translations! Why are they under PT?
+# Ah! My script injected BOTH EN and PT at the same spot maybe?!
