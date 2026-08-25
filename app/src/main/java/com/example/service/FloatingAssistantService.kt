@@ -817,8 +817,8 @@ private fun FloatingOverlayContent(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(obj.name, color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(obj.buffDescription, color = TextMuted, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tr(obj.name), color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tr(obj.buffDescription), color = TextMuted, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Box(
@@ -828,7 +828,7 @@ private fun FloatingOverlayContent(
                                                 .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
                                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                                         ) {
-                                            Text(obj.spawnTime, color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                            Text(tr(obj.spawnTime), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 }
@@ -865,7 +865,7 @@ private fun FloatingOverlayContent(
                                     ) {
                                         AppAssetImage(
                                             url = item.iconUrl,
-                                            contentDescription = item.name,
+                                            contentDescription = tr(item.name),
                                             fallbackText = item.name,
                                             modifier = Modifier.size(30.dp),
                                             borderColor = HextechGold,
@@ -873,8 +873,8 @@ private fun FloatingOverlayContent(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(item.name, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(item.passive, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tr(item.name), color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tr(item.passive), color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
@@ -904,7 +904,7 @@ private fun FloatingOverlayContent(
                                 ) {
                                     Column(modifier = Modifier.padding(8.dp)) {
                                         Text(
-                                            text = currentChamp.recommendedRunes,
+                                            text = tr(currentChamp.recommendedRunes),
                                             color = HextechGoldLight,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
@@ -912,7 +912,7 @@ private fun FloatingOverlayContent(
                                         if (currentChamp.runeTreeDetails.isNotBlank()) {
                                             Spacer(modifier = Modifier.height(2.dp))
                                             Text(
-                                                text = currentChamp.runeTreeDetails,
+                                                text = tr(currentChamp.runeTreeDetails),
                                                 color = TextPrimary.copy(alpha = 0.85f),
                                                 fontSize = 9.5.sp,
                                                 lineHeight = 13.sp

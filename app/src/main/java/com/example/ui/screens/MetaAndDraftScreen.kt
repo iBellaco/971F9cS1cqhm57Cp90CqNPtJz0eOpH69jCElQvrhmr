@@ -1957,14 +1957,14 @@ private fun RunesTab() {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "💡 Consejo del Coach:",
+                        text = tr("💡 Consejo del Coach:"),
                         color = HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when (rune.name.lowercase()) {
+                        text = tr(when (rune.name.lowercase()) {
                             "electrocutar" -> "💡 Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
                             "cosecha oscura" -> "💡 Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
                             "fortalecimiento" -> "💡 Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
@@ -1988,7 +1988,7 @@ private fun RunesTab() {
                             "leyenda: linaje" -> "💡 Si tu campeón no armará Robo de Vida temprano pero necesita sustento para sobrevivir y farmear."
                             "último esfuerzo" -> "💡 Excelente en duelistas como Olaf o Tryndamere que se vuelven más letales cuando se acercan a la muerte."
                             else -> "💡 Runa situacional: Úsala para complementar el estilo de juego de tu campeón frente a esta composición específica."
-                        },
+                        }),
                         color = TextMuted,
                         fontSize = 11.5.sp,
                         lineHeight = 16.sp
@@ -2305,7 +2305,7 @@ private fun SpellsTab() {
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "Enfriamiento: ${spell.cooldown}",
+                            text = tr("Enfriamiento:") + " ${spell.cooldown}",
                             color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -2331,14 +2331,14 @@ private fun SpellsTab() {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "💡 Recomendación de Invocador:",
+                        text = tr("💡 Recomendación de Invocador:"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = when (spell.id) {
+                        text = tr(when (spell.id) {
                             "flash" -> "Imprescindible en el 99% de las partidas para reposicionarse, iniciar peleas de equipo o escapar por encima de muros."
                             "ignite" -> "Clave para asesinos y soportes agresivos para asegurar asesinatos en juego temprano y anular curaciones de campeones como Aatrox, Soraka o Dr. Mundo."
                             "smite" -> "Obligatorio para el rol de Jungla para asegurar monstruos épicos (Dragones, Heraldo, Barón) y farmear eficientemente."
@@ -2347,7 +2347,7 @@ private fun SpellsTab() {
                             "ghost" -> "Ideal para campeones con movilidad continua como Darius, Olaf, Singed o Gwen para evitar que los enemigos escapen."
                             "teleport" -> "Potente para campeones de carril de Barón para mantener presión dividida y unirse inmediatamente a peleas de objetivos."
                             else -> "Uso situacional según la composición y mapa."
-                        },
+                        }),
                         color = TextMuted,
                         fontSize = 11.5.sp,
                         lineHeight = 16.sp
@@ -2400,7 +2400,7 @@ private fun MapObjectivesTab() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(obj.name, color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.5.sp)
+                            Text(tr(obj.name), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.5.sp)
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(6.dp))
@@ -2408,15 +2408,15 @@ private fun MapObjectivesTab() {
                                     .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                             ) {
-                                Text(obj.spawnTime, color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                                Text(tr(obj.spawnTime), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                             }
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(tr("Reaparición:") + " ${obj.respawnTime}", color = TextMuted, fontSize = 11.sp)
+                        Text(tr("Reaparición:") + " " + tr(obj.respawnTime), color = TextMuted, fontSize = 11.sp)
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text(tr("Mejora:") + " ${obj.buffDescription}", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(tr("Mejora:") + " " + tr(obj.buffDescription), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(tr("Táctica:") + " ${obj.tactics}", color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
+                        Text(tr("Táctica:") + " " + tr(obj.tactics), color = TextPrimary.copy(alpha = 0.9f), fontSize = 11.5.sp, lineHeight = 15.sp)
                     }
                 }
             }
@@ -2667,7 +2667,18 @@ private fun DraftAnalysisTab(
                 enemyLaneOpponent = enemyLaneOpponent,
                 lang = "es"
             )
-            val shouldChange = myEval.estimatedWinrate < 49.0 || myEval.advantageBadge.contains("PELIGRO") || myEval.advantageBadge.contains("ATÍPICA")
+            val isOffRole = myChamp.primaryRole != activeRole && !myChamp.secondaryRoles.contains(activeRole)
+            val isDirectLaneWeakness = enemyLaneOpponent != null && (
+                myChamp.counteredBy.any { it.equals(enemyLaneOpponent.name, ignoreCase = true) || it.equals(enemyLaneOpponent.id, ignoreCase = true) } ||
+                enemyLaneOpponent.advantageAgainst.any { it.equals(myChamp.name, ignoreCase = true) || it.equals(myChamp.id, ignoreCase = true) }
+            )
+            val shouldChange = isOffRole || myEval.advantageBadge.contains("ATÍPICA") || (myEval.estimatedWinrate < 48.0) || (isDirectLaneWeakness && myEval.estimatedWinrate < 50.0)
+            
+            val recommendationText = when {
+                shouldChange -> tr("⚠️ Considera cambiarlo")
+                myEval.advantageBadge.contains("DOMINAS LÍNEA") || myEval.advantageBadge.contains("COUNTER") -> tr("⚡ Favorable en carril")
+                else -> tr("✅ Buena elección para tu línea")
+            }
             
             Card(
                 modifier = Modifier
@@ -2711,7 +2722,7 @@ private fun DraftAnalysisTab(
                                 )
                             }
                             Text(
-                                text = if (shouldChange) tr("⚠️ Considera cambiarlo") else tr("✅ Buena elección para tu línea"),
+                                text = recommendationText,
                                 color = if (shouldChange) DangerRed else Color(0xFF81C784),
                                 fontSize = 12.5.sp,
                                 fontWeight = FontWeight.Bold

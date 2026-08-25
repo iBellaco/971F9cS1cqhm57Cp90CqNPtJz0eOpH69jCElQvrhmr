@@ -51,9 +51,15 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         }
 
         try {
-            DynamicTranslations.load(this)
+            DynamicTranslations.loadSync(this)
         } catch (e: Exception) {
             AppLogger.e("WildRiftApp", "Error cargando traducciones dinámicas", e)
+        }
+
+        try {
+            com.example.util.ImagePrefetcher.init(this)
+        } catch (e: Exception) {
+            AppLogger.e("WildRiftApp", "Error inicializando ImagePrefetcher", e)
         }
 
         setupInstantAndPeriodicScraping()

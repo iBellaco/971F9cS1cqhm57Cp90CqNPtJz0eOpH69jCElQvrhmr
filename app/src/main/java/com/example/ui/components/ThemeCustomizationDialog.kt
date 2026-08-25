@@ -121,7 +121,7 @@ fun ThemeCustomizationBottomSheet(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.ColorLens, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(tr("Temas (${AppTheme.entries.size})"), fontWeight = if (activeTab == 0) FontWeight.Bold else FontWeight.Normal, fontSize = 13.sp)
+                            Text("${tr("Temas")} (${AppTheme.entries.size})", fontWeight = if (activeTab == 0) FontWeight.Bold else FontWeight.Normal, fontSize = 13.sp)
                         }
                     }
                 )
@@ -433,7 +433,7 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = BorderStroke(
                         if (isSelected) 2.dp else 1.dp,
-                        if (isSelected) displayColor else HextechCardBorder
+                        if (isSelected) (if (option.isAutomatic) HextechGold else displayColor) else HextechCardBorder
                     )
                 ) {
                     Row(
@@ -448,21 +448,51 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                             modifier = Modifier.weight(1f)
                         ) {
                             // Color Swatch Circle
-                            Box(
-                                modifier = Modifier
-                                    .size(28.dp)
-                                    .clip(CircleShape)
-                                    .background(displayBg)
-                                    .border(2.dp, displayColor, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (isSelected) {
+                            if (option.isAutomatic) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            Brush.sweepGradient(
+                                                listOf(
+                                                    HextechGold,
+                                                    HextechCyan,
+                                                    Color(0xFF818CF8),
+                                                    Color(0xFFFF2A42),
+                                                    HextechGold
+                                                )
+                                            )
+                                        )
+                                        .padding(2.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechDarkBg),
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Icon(
-                                        imageVector = Icons.Default.Check,
+                                        imageVector = if (isSelected) Icons.Default.Check else Icons.Default.AutoAwesome,
                                         contentDescription = null,
-                                        tint = displayColor,
+                                        tint = if (isSelected) HextechGold else HextechCyan,
                                         modifier = Modifier.size(16.dp)
                                     )
+                                }
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clip(CircleShape)
+                                        .background(displayBg)
+                                        .border(2.dp, displayColor, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = displayColor,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             }
 
@@ -484,16 +514,17 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         }
 
                         // Preview Swatch
+                        val badgeColor = if (option.isAutomatic) HextechGold else displayColor
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(displayColor.copy(alpha = 0.2f))
-                                .border(1.dp, displayColor, RoundedCornerShape(6.dp))
+                                .background(badgeColor.copy(alpha = 0.2f))
+                                .border(1.dp, badgeColor, RoundedCornerShape(6.dp))
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = if (isSelected) tr("ACTIVO") else tr("ELEGIR"),
-                                color = displayColor,
+                                text = if (isSelected) tr("ACTIVO") else if (option.isAutomatic) tr("AUTO") else tr("ELEGIR"),
+                                color = badgeColor,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold
                             )

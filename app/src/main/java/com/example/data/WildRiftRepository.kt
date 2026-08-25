@@ -257,12 +257,35 @@ object WildRiftRepository {
         
         val directCounters = champ.advantageAgainst.filter { adv ->
             enemies.any { it.name.equals(adv, ignoreCase = true) || it.id.equals(adv, ignoreCase = true) }
+        }.toMutableList()
+        enemies.forEach { enemy ->
+            if (enemy.counteredBy.any { it.equals(champ.name, ignoreCase = true) || it.equals(champ.id, ignoreCase = true) }) {
+                if (!directCounters.any { it.equals(enemy.name, ignoreCase = true) }) {
+                    directCounters.add(enemy.name)
+                }
+            }
         }
+
         val directWeaknesses = champ.counteredBy.filter { weak ->
             enemies.any { it.name.equals(weak, ignoreCase = true) || it.id.equals(weak, ignoreCase = true) }
+        }.toMutableList()
+        enemies.forEach { enemy ->
+            if (enemy.advantageAgainst.any { it.equals(champ.name, ignoreCase = true) || it.equals(champ.id, ignoreCase = true) }) {
+                if (!directWeaknesses.any { it.equals(enemy.name, ignoreCase = true) }) {
+                    directWeaknesses.add(enemy.name)
+                }
+            }
         }
+
         val directSynergies = champ.synergies.filter { syn ->
             otherAllies.any { it.name.equals(syn, ignoreCase = true) || it.id.equals(syn, ignoreCase = true) }
+        }.toMutableList()
+        otherAllies.forEach { ally ->
+            if (ally.synergies.any { it.equals(champ.name, ignoreCase = true) || it.equals(champ.id, ignoreCase = true) }) {
+                if (!directSynergies.any { it.equals(ally.name, ignoreCase = true) }) {
+                    directSynergies.add(ally.name)
+                }
+            }
         }
         
         // Ponderación de counters y sinergias generales
@@ -273,11 +296,13 @@ object WildRiftRepository {
         // Análisis específico del rival directo de línea (Matchup de carril)
         if (enemyLaneOpponent != null) {
             val opponent = enemyLaneOpponent
-            val isDirectLaneCounter = champ.advantageAgainst.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) }
-            val isDirectLaneWeakness = champ.counteredBy.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) }
+            val isDirectLaneCounter = champ.advantageAgainst.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) } ||
+                    opponent.counteredBy.any { it.equals(champ.name, ignoreCase = true) || it.equals(champ.id, ignoreCase = true) }
+            val isDirectLaneWeakness = champ.counteredBy.any { it.equals(opponent.name, ignoreCase = true) || it.equals(opponent.id, ignoreCase = true) } ||
+                    opponent.advantageAgainst.any { it.equals(champ.name, ignoreCase = true) || it.equals(champ.id, ignoreCase = true) }
             
             if (isDirectLaneCounter) {
-                score += 4.5
+                score += 5.0
                 if (badge.isBlank()) badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
                 reasonParts.add("Ventaja directa de carril contra ${opponent.name}. Tienes superioridad en tradeos y escalado.")
             } else if (isDirectLaneWeakness) {
@@ -299,10 +324,10 @@ object WildRiftRepository {
         if (frontlineAllies == 0 && champ.isFrontline) { score += 2.8 }
         
         if (badge.isBlank()) {
-            if (directCounters.isNotEmpty() && directWeaknesses.isEmpty()) {
+            if (directCounters.isNotEmpty() && directCounters.size >= directWeaknesses.size) {
                 badge = "⚡ COUNTER FUERTE (+" + directCounters.size + ")"
                 reasonParts.add("Tienes ventaja sobre " + directCounters.joinToString(", ") + ".")
-            } else if (directWeaknesses.isNotEmpty()) {
+            } else if (directWeaknesses.isNotEmpty() && directWeaknesses.size > directCounters.size) {
                 badge = "⚠️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
                 reasonParts.add("Cuidado: Sufres contra " + directWeaknesses.joinToString(", ") + ".")
             } else if (directSynergies.isNotEmpty()) {

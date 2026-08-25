@@ -22,32 +22,37 @@ object DynamicTranslations {
         if (enMap != null && ptMap != null) return
         
         scope.launch {
-            try {
-                if (enMap == null) {
-                    val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
-                    val json = JSONObject(jsonStr)
-                    val map = mutableMapOf<String, String>()
-                    val iter = json.keys()
-                    while (iter.hasNext()) {
-                        val key = iter.next()
-                        map[key] = json.getString(key)
-                    }
-                    enMap = map
+            loadSync(context)
+        }
+    }
+
+    fun loadSync(context: Context) {
+        if (enMap != null && ptMap != null) return
+        try {
+            if (enMap == null) {
+                val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
+                val json = JSONObject(jsonStr)
+                val map = mutableMapOf<String, String>()
+                val iter = json.keys()
+                while (iter.hasNext()) {
+                    val key = iter.next()
+                    map[key] = json.getString(key)
                 }
-                if (ptMap == null) {
-                    val jsonStr = context.assets.open("translations_pt.json").bufferedReader().use { it.readText() }
-                    val json = JSONObject(jsonStr)
-                    val map = mutableMapOf<String, String>()
-                    val iter = json.keys()
-                    while (iter.hasNext()) {
-                        val key = iter.next()
-                        map[key] = json.getString(key)
-                    }
-                    ptMap = map
-                }
-            } catch (e: Exception) {
-                AppLogger.e("Translations", "Failed to load dynamic translations", e)
+                enMap = map
             }
+            if (ptMap == null) {
+                val jsonStr = context.assets.open("translations_pt.json").bufferedReader().use { it.readText() }
+                val json = JSONObject(jsonStr)
+                val map = mutableMapOf<String, String>()
+                val iter = json.keys()
+                while (iter.hasNext()) {
+                    val key = iter.next()
+                    map[key] = json.getString(key)
+                }
+                ptMap = map
+            }
+        } catch (e: Exception) {
+            AppLogger.e("Translations", "Failed to load dynamic translations", e)
         }
     }
 

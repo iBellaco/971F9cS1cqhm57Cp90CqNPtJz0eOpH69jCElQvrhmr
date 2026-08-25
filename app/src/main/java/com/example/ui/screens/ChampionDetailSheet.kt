@@ -1250,7 +1250,7 @@ fun ChampionDetailSheet(
                             fontSize = 16.sp
                         )
                         Text(
-                            text = rune.category,
+                            text = tr(rune.category),
                             color = com.example.ui.theme.HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp

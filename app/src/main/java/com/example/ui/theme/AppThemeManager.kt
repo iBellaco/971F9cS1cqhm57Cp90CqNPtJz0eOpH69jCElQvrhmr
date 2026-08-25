@@ -239,9 +239,9 @@ enum class NavBarColorOption(
 ) {
     THEME_AUTO(
         id = "THEME_AUTO",
-        titleKey = "Automático (Igual al Tema)",
-        descKey = "Sigue dinámicamente el tema actual",
-        colorHex = Color(0xFF38BDF8),
+        titleKey = "Automático (Sincronizado con Tema)",
+        descKey = "Se adapta automáticamente a la paleta activa",
+        colorHex = Color(0xFF818CF8),
         containerColor = Color.Unspecified,
         accentColor = Color.Unspecified,
         isAutomatic = true
@@ -258,10 +258,10 @@ enum class NavBarColorOption(
     HEXTECH_CYAN(
         id = "HEXTECH_CYAN",
         titleKey = "Hextech Cian",
-        descKey = "Resplandor cian arcano",
-        colorHex = Color(0xFF0AC8B9),
+        descKey = "Resplandor cian arcano dedicado",
+        colorHex = Color(0xFF00E5FF),
         containerColor = Color(0xFF021B1C),
-        accentColor = Color(0xFF0AC8B9),
+        accentColor = Color(0xFF00E5FF),
         isAutomatic = false
     ),
     NOXUS_CRIMSON(
