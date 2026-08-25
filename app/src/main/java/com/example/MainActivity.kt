@@ -77,9 +77,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = HextechDarkBg
+                com.example.ui.components.BlurredMeshBackground(
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         DraftingApp()
@@ -138,6 +137,7 @@ fun DashboardScreen(
     val navUnselected = AppThemeManager.getNavBarUnselectedColor()
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         bottomBar = {
             NavigationBar(
                 containerColor = navBg,

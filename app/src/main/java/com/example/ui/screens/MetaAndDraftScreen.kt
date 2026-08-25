@@ -229,6 +229,7 @@ fun MetaAndDraftScreen(
     }
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -262,10 +263,9 @@ fun MetaAndDraftScreen(
                 actions = {
                     // Botón superior derecho retirado según solicitud
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = HextechDarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
             )
         },
-        containerColor = HextechDarkBg
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -1334,7 +1334,7 @@ private fun ItemsCatalogTab() {
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
             ) {
                 Column(
@@ -1488,7 +1488,7 @@ private fun ItemGridCard(
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
-                    .background(Color(0xFF141926), RoundedCornerShape(4.dp))
+                    .background(HextechSurfaceVariant, RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
@@ -1778,7 +1778,7 @@ private fun RunesTab() {
                                                 .width(68.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .clickable { selectedRune = rune }
-                                                .background(Color(0xFF0C1322).copy(alpha = 0.6f))
+                                                .background(HextechSurface.copy(alpha = 0.6f))
                                                 .border(0.5.dp, HextechCardBorder.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
                                                 .padding(6.dp)
                                         ) {
@@ -1913,7 +1913,7 @@ private fun RunesTab() {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0C1322), RoundedCornerShape(8.dp))
+                            .background(HextechSurface, RoundedCornerShape(8.dp))
                             .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                             .padding(10.dp)
                     ) {
@@ -2287,7 +2287,7 @@ private fun SpellsTab() {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0C1322), RoundedCornerShape(8.dp))
+                            .background(HextechSurface, RoundedCornerShape(8.dp))
                             .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                             .padding(10.dp)
                     ) {
@@ -3277,7 +3277,7 @@ private fun ChampionGridCard(
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
-                    .background(Color(0xFF141926), RoundedCornerShape(4.dp))
+                    .background(HextechSurfaceVariant, RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
@@ -3332,7 +3332,7 @@ private fun RuneGridCard(
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
-                    .background(Color(0xFF141926), RoundedCornerShape(4.dp))
+                    .background(HextechSurfaceVariant, RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
@@ -3387,7 +3387,7 @@ private fun SpellGridCard(
             Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
-                    .background(Color(0xFF141926), RoundedCornerShape(4.dp))
+                    .background(HextechSurfaceVariant, RoundedCornerShape(4.dp))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(

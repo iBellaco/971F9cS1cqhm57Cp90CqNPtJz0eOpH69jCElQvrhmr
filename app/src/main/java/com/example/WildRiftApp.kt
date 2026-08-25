@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import okhttp3.OkHttpClient
+
 
 class WildRiftApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
@@ -121,6 +123,32 @@ class WildRiftApp : Application(), ImageLoaderFactory {
                     .build()
             }
             .allowHardware(true)
+
+            .okHttpClient {
+                OkHttpClient.Builder()
+                    .addInterceptor { chain ->
+                        val request = chain.request().newBuilder()
+                            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                            .header("Accept", "image/webp,image/apng,image/*,*/*;q=0.8")
+                            .build()
+                        chain.proceed(request)
+                    }
+                    .build()
+            }
+
+
+            .okHttpClient {
+                OkHttpClient.Builder()
+                    .addInterceptor { chain ->
+                        val request = chain.request().newBuilder()
+                            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                            .header("Accept", "image/webp,image/apng,image/*,*/*;q=0.8")
+                            .build()
+                        chain.proceed(request)
+                    }
+                    .build()
+            }
+
 
             
 

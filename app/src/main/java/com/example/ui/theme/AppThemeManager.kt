@@ -419,7 +419,7 @@ object AppThemeManager {
 
     fun getNavBarBackgroundColor(): Color {
         return if (currentNavBarOption.isAutomatic) {
-            currentTheme.surface
+            currentTheme.surface.copy(alpha = 0.65f)
         } else {
             currentNavBarOption.containerColor
         }

@@ -57,6 +57,7 @@ fun InfoScreen(
     }
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { 
@@ -92,7 +93,6 @@ fun InfoScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = HextechDarkBg,
                     titleContentColor = TextPrimary,
                     navigationIconContentColor = TextPrimary
                 )

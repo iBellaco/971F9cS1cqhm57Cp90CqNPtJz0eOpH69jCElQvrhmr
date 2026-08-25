@@ -10,8 +10,8 @@ val isLightAppTheme: Boolean
     get() = !AppThemeManager.currentTheme.isDark
 
 val HextechDarkBg: Color get() = AppThemeManager.currentTheme.background
-val HextechSurface: Color get() = AppThemeManager.currentTheme.surface
-val HextechSurfaceVariant: Color get() = AppThemeManager.currentTheme.surfaceVariant
+val HextechSurface: Color get() = AppThemeManager.currentTheme.surface.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
+val HextechSurfaceVariant: Color get() = AppThemeManager.currentTheme.surfaceVariant.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
 val HextechCardBorder: Color get() = AppThemeManager.currentTheme.cardBorder
 
 val HextechGold: Color get() = AppThemeManager.currentTheme.secondary

@@ -1,27 +1,25 @@
-with open('app/src/main/java/com/example/MainActivity.kt', 'r') as f:
-    c = f.read()
-
 import re
-c = re.sub(
-    r'MainDraftingScreen\([\s\S]*?onAutofillRoleChange = \{ autofillRole = it \}\s*\)',
-    '''MainDraftingScreen(
-                    onNavigateToInfo = { currentScreen = AppScreen.INFO },
-                    onNavigateToMeta = { currentScreen = AppScreen.META },
-                    onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
-                    mainRole = mainRole,
-                    onMainRoleChange = { mainRole = it },
-                    secondRole = secondRole,
-                    onSecondRoleChange = { secondRole = it },
-                    autofillRole = autofillRole,
-                    onAutofillRoleChange = { autofillRole = it },
-                    currentLanguage = selectedLanguage,
-                    onLanguageChange = { newLang ->
-                        sharedPrefs.edit().putString("selected_language", newLang).apply()
-                        selectedLanguage = newLang
-                    }
-                )''',
-    c
-)
 
-with open('app/src/main/java/com/example/MainActivity.kt', 'w') as f:
-    f.write(c)
+with open('app/src/main/java/com/example/MainActivity.kt', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# Replace Surface with BlurredMeshBackground
+surface_code = r'''Surface\(
+                    modifier = Modifier\.fillMaxSize\(\),
+                    color = HextechDarkBg
+                \) \{'''
+
+new_surface_code = r'''com.example.ui.components.BlurredMeshBackground(
+                    modifier = Modifier.fillMaxSize()
+                ) {'''
+
+content = re.sub(surface_code, new_surface_code, content)
+
+# Make Scaffold background transparent
+scaffold_code = r'''Scaffold\('''
+new_scaffold_code = r'''Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,'''
+content = re.sub(scaffold_code, new_scaffold_code, content)
+
+with open('app/src/main/java/com/example/MainActivity.kt', 'w', encoding='utf-8') as f:
+    f.write(content)

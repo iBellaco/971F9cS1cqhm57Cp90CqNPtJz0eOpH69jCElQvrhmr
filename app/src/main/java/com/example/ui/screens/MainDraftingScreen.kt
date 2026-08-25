@@ -47,6 +47,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.util.ImagePrefetcher
+import com.example.ui.components.DownloadProgressDialog
+import androidx.compose.material.icons.filled.Download
+
 import com.example.util.tr
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -159,6 +166,7 @@ fun MainDraftingScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -210,6 +218,25 @@ fun MainDraftingScreen(
                         }
                     },
                     actions = {
+                        val coroutineScope = rememberCoroutineScope()
+                        val context = LocalContext.current
+                        
+                        IconButton(
+                            onClick = { coroutineScope.launch { ImagePrefetcher.prefetchAllImages(context) } },
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .clip(CircleShape)
+                                .background(HextechSurface)
+                                .border(1.dp, HextechCyan.copy(alpha = 0.6f), CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Download,
+                                contentDescription = tr("Descargar Recursos"),
+                                tint = HextechCyan,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
                         var expandedLang by remember { mutableStateOf(false) }
                         val currentFlag = when(currentLanguage) {
                             "en" -> "🇺🇸/🇬🇧"
@@ -274,10 +301,9 @@ fun MainDraftingScreen(
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = HextechDarkBg)
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
                 )
             },
-            containerColor = HextechDarkBg
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -383,5 +409,6 @@ fun MainDraftingScreen(
                 onDismiss = { showThemeDialog = false }
             )
         }
+        DownloadProgressDialog()
     }
 }

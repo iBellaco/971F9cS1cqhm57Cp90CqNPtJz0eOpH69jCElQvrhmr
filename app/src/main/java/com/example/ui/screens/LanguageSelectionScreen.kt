@@ -66,7 +66,7 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(HextechDarkBg)
+            
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
