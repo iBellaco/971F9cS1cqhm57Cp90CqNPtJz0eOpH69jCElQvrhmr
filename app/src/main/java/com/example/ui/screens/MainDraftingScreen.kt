@@ -51,7 +51,7 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.util.ImagePrefetcher
-import com.example.ui.components.DownloadProgressDialog
+import com.example.ui.components.DownloadProgressWidget
 import androidx.compose.material.icons.filled.Download
 
 import com.example.util.tr
@@ -409,6 +409,6 @@ fun MainDraftingScreen(
                 onDismiss = { showThemeDialog = false }
             )
         }
-        DownloadProgressDialog()
+        DownloadProgressWidget()
     }
 }

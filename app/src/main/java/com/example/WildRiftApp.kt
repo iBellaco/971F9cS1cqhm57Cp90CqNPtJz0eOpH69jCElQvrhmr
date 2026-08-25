@@ -137,19 +137,6 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             }
 
 
-            .okHttpClient {
-                OkHttpClient.Builder()
-                    .addInterceptor { chain ->
-                        val request = chain.request().newBuilder()
-                            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                            .header("Accept", "image/webp,image/apng,image/*,*/*;q=0.8")
-                            .build()
-                        chain.proceed(request)
-                    }
-                    .build()
-            }
-
-
             
 
             .crossfade(true)

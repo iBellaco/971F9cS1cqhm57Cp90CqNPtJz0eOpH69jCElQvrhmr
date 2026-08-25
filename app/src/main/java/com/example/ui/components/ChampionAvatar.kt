@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.imageLoader
 import coil.request.CachePolicy
 import com.example.model.Champion
 import com.example.ui.theme.HextechCyan
@@ -82,7 +83,13 @@ fun ChampionAvatar(
                         .crossfade(true)
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
+                        .listener(
+                            onError = { request, result -> 
+                                com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
+                            }
+                        )
                         .build(),
+                    imageLoader = LocalContext.current.imageLoader,
                     contentDescription = champion.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -161,7 +168,13 @@ fun AppAssetImage(
                     .crossfade(true)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
+                    .listener(
+                        onError = { request, result -> 
+                            com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
+                        }
+                    )
                     .build(),
+                imageLoader = context.imageLoader,
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize().clip(shape),

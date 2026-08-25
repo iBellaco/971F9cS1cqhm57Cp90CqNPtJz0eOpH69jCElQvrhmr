@@ -1,4 +1,7 @@
-package com.example.util
+import re
+
+with open('app/src/main/java/com/example/util/ImagePrefetcher.kt', 'w', encoding='utf-8') as f:
+    f.write('''package com.example.util
 
 import android.content.Context
 import coil.imageLoader
@@ -100,3 +103,4 @@ object ImagePrefetcher {
         }
     }
 }
+''')

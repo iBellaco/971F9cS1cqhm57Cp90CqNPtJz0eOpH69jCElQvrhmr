@@ -130,12 +130,17 @@ object CoachingGenerator {
     fun generateTacticalAdvice(champion: Champion, activeRole: LaneRole, lang: String): String {
         val isEs = lang == "es" || lang == "auto"
         val isPt = lang == "pt"
-        return when (activeRole) {
-            LaneRole.ADC -> if (isEs) "Concéntrate en farmear seguro y acumular oro para tus objetos clave. Posiciónate siempre detrás de tu soporte/tanque en peleas grupales." else if (isPt) "Concentre-se em farmar com segurança e acumular ouro para seus itens essenciais. Posicione-se sempre atrás do seu suporte/tanque nas lutas de equipe." else "Focus on safe farming and stacking gold for key items. Always position behind your support/tank in teamfights."
-            LaneRole.SUPPORT -> if (isEs) "Controla la visión (wards) en objetivos y protege a tus carries. Guarda tu CC para interrumpir al asesino enemigo." else if (isPt) "Controle a visão (sentinelas) ao redor de objetivos e proteja seus carries. Guarde seu CC para interromper o assassino inimigo." else "Control vision (wards) around objectives and peel for your carries. Save your CC to interrupt enemy assassins."
-            LaneRole.MID -> if (isEs) "Usa tu presión de línea para rotar (roam) con el jungla. En peleas grupales, prioriza flanquear o aplicar daño explosivo al carry enemigo." else if (isPt) "Use sua pressão de rota para rotacionar (roam) com o caçador. Nas lutas de equipe, priorize flanquear ou explodir o carry inimigo." else "Use lane pressure to roam with the jungler. In teamfights, prioritize flanking or bursting the enemy carry."
-            LaneRole.JUNGLE -> if (isEs) "Garantiza el control de los Escurridizos (Scuttles) para visión y rastrea la ruta del jungla rival. Asegura los Dragones y Heraldos." else if (isPt) "Garanta o controle dos Aronguejos para visão e rastreie a rota do caçador inimigo. Garanta os Dragões e Arautos." else "Secure Scuttles for vision and track the enemy jungler's path. Secure Dragons and Heralds."
-            LaneRole.TOP -> if (isEs) "Mantén la presión dividida (split-push) si tienes ventaja, o agruparte si tu equipo necesita iniciación o tanqueo para los objetivos." else if (isPt) "Mantenha a pressão dividida (split-push) se estiver em vantagem, ou agrupe-se se sua equipe precisar de iniciação ou tanque para os objetivos." else "Keep split-push pressure if ahead, or group if your team needs engage or frontline for objectives."
+        
+        val specificAdvice = if (champion.tacticalAdvice.isNotBlank()) champion.tacticalAdvice else ""
+        
+        val roleAdvice = when (activeRole) {
+            LaneRole.ADC -> if (isEs) "Concéntrate en tu posicionamiento y acumular oro." else if (isPt) "Concentre-se em seu posicionamento e acumular ouro." else "Focus on positioning and stacking gold."
+            LaneRole.SUPPORT -> if (isEs) "Controla la visión (wards) y protege a tu equipo." else if (isPt) "Controle a visão (sentinelas) e proteja sua equipe." else "Control vision (wards) and peel for your team."
+            LaneRole.MID -> if (isEs) "Usa tu presión para rotar a los objetivos." else if (isPt) "Use sua pressão para rotacionar para os objetivos." else "Use your pressure to roam to objectives."
+            LaneRole.JUNGLE -> if (isEs) "Garantiza el control del mapa y los Dragones/Heraldos." else if (isPt) "Garanta o controle do mapa e dos Dragões/Arautos." else "Secure map control and Dragons/Heralds."
+            LaneRole.TOP -> if (isEs) "Mantén la presión dividida o sé la iniciación del equipo." else if (isPt) "Mantenha a pressão dividida ou seja a iniciação da equipe." else "Keep split-push pressure or be the team's engage."
         }
+        
+        return if (specificAdvice.isNotBlank()) "$specificAdvice $roleAdvice" else roleAdvice
     }
 }

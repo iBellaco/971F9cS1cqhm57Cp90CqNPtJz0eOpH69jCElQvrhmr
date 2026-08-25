@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import com.example.ui.components.AppAssetImage
 import androidx.compose.ui.layout.ContentScale
 import com.example.model.LaneRole
 import com.example.ui.theme.*
@@ -249,11 +249,13 @@ fun CooldownTrackerPanel(
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (spell.iconUrl.isNotEmpty()) {
-                                    AsyncImage(
-                                        model = spell.iconUrl,
+                                    AppAssetImage(
+                                        url = spell.iconUrl,
                                         contentDescription = tr(spell.name),
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
+                                        fallbackText = spell.iconFallback,
+                                        modifier = Modifier.fillMaxSize(),
+                                        borderColor = if (isActive) DangerRed else spell.accentColor,
+                                        shape = RoundedCornerShape(6.dp)
                                     )
                                 } else {
                                     Text(

@@ -248,7 +248,10 @@ object WildRiftRepository {
         if (isOffRole) {
             score -= 15.0 // heavy penalty
             badge = "❌ SELECCIÓN ATÍPICA (OFF-META)"
-            reasonParts.add("Este campeón no es idóneo para esta línea. Jugarlo aquí es considerado atípico o desventajoso para el equipo.")
+            val msgEs = "Llevar a ${champ.name} a ${com.example.util.trStr(lang, myRole.displayName)} es una selección atípica (off-meta). Sus habilidades no están diseñadas para ganar esta línea. ${champ.tacticalAdvice}"
+            val msgPt = "Levar ${champ.name} para ${com.example.util.trStr(lang, myRole.displayName)} é uma escolha atípica (off-meta). Suas habilidades não são projetadas para esta rota. ${champ.tacticalAdvice}"
+            val msgEn = "Taking ${champ.name} to ${com.example.util.trStr(lang, myRole.displayName)} is an off-meta pick. Their kit isn't designed for this lane. ${champ.tacticalAdvice}"
+            reasonParts.add(t(lang, msgEn, msgPt, msgEs))
         }
 
         
