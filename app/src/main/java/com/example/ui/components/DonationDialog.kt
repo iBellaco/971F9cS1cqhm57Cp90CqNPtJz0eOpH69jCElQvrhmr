@@ -154,18 +154,6 @@ fun DonationDialog(
                         }
                     )
 
-                    // Option 2: Ko-fi / Buy Me a Coffee
-                    DonationMethodCard(
-                        icon = Icons.Default.Coffee,
-                        title = "Ko-fi / Café",
-                        subtitle = tr("Invita un café al desarrollador"),
-                        accentColor = Color(0xFFFF5E5B),
-                        actionText = tr("Abrir Ko-fi"),
-                        onAction = {
-                            openUrl(context, "https://ko-fi.com/wildriftcoach")
-                        }
-                    )
-
                     // Option 3: Crypto (USDT - Tron TRC20 / BEP20)
                     DonationCryptoCard(
                         title = "USDT (TRC-20 / BEP-20)",

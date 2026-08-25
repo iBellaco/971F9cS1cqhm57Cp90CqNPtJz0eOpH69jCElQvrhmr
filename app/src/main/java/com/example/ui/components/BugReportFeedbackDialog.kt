@@ -84,7 +84,6 @@ fun BugReportFeedbackDialog(
     var description by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
-    var showAdminPanel by remember { mutableStateOf(false) }
 
     val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank()
 
@@ -114,12 +113,6 @@ fun BugReportFeedbackDialog(
         }
     }
 
-    if (showAdminPanel) {
-        AdminFeedbackBottomSheet(
-            onDismiss = { showAdminPanel = false }
-        )
-    }
-
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.testTag("bug_report_dialog"),
@@ -147,17 +140,6 @@ fun BugReportFeedbackDialog(
                     )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = { showAdminPanel = true },
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AdminPanelSettings,
-                            contentDescription = tr("Panel de Administrador"),
-                            tint = HextechCyan
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
                     IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
                         Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
                     }
@@ -287,28 +269,6 @@ fun BugReportFeedbackDialog(
                         text = statusMessage!!,
                         color = Color(0xFFFF5252),
                         fontSize = 11.sp
-                    )
-                }
-
-                // Botón de acceso al Panel de Administrador
-                OutlinedButton(
-                    onClick = { showAdminPanel = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AdminPanelSettings,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = tr("Abrir Panel de Administrador"),
-                        color = HextechCyan,
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.SemiBold
                     )
                 }
 

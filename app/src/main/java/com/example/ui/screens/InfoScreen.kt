@@ -41,14 +41,7 @@ fun InfoScreen(
     var isTestingSupabase by remember { mutableStateOf(false) }
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
-    var showAdminPanel by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
-
-    if (showAdminPanel) {
-        AdminFeedbackBottomSheet(
-            onDismiss = { showAdminPanel = false }
-        )
-    }
 
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
@@ -193,124 +186,6 @@ fun InfoScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(tr("Cambiar Tema"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
-                }
-            }
-
-            // Section 4: Supabase Connection & Feedback Maintenance Test
-            InfoCard(
-                title = tr("4. Estado del Servidor"),
-                icon = Icons.Default.CheckCircle
-            ) {
-                Text(
-                    text = tr("Módulo de sincronización de la base de datos en la nube. Pulsa el botón para probar la conexión con Supabase o gestionar la retención de reportes."),
-                    color = TextSecondary,
-                    fontSize = 13.sp
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        isTestingSupabase = true
-                        supabaseStatus = "Conectando con Supabase..."
-                        scope.launch {
-                            try {
-                                val client = SupabaseClientManager.client
-                                kotlinx.coroutines.delay(800)
-                                supabaseStatus = "✅ Conexión exitosa. Cliente inicializado."
-                            } catch (e: Exception) {
-                                supabaseStatus = "❌ Error de conexión: ${e.message}"
-                            } finally {
-                                isTestingSupabase = false
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                    enabled = !isTestingSupabase
-                ) {
-                    if (isTestingSupabase) {
-                        CircularProgressIndicator(color = HextechDarkBg, modifier = Modifier.size(20.dp))
-                    } else {
-                        Text(tr("Verificar Conexión Supabase"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
-                    }
-                }
-                if (supabaseStatus.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = supabaseStatus,
-                        color = if (supabaseStatus.contains("✅")) AllyBlue else DangerRed,
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Botón para abrir el Panel de Administrador interactivo
-                Button(
-                    onClick = { showAdminPanel = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = HextechCyan.copy(alpha = 0.2f),
-                        contentColor = HextechCyan
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AdminPanelSettings,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tr("Abrir Panel de Administrador"),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Botón de limpieza de reportes antiguos (> 7 días)
-                OutlinedButton(
-                    onClick = {
-                        isPurging = true
-                        purgeStatus = "Purgando reportes antiguos (> 7 días)..."
-                        scope.launch {
-                            val res = FeedbackRepository.purgeOldReports(days = 7)
-                            isPurging = false
-                            purgeStatus = if (res.isSuccess) {
-                                "✅ Reportes antiguos (> 7 días) purgados con éxito."
-                            } else {
-                                "⚠️ Error en la purga: ${res.exceptionOrNull()?.message}"
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isPurging,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    if (isPurging) {
-                        CircularProgressIndicator(color = HextechGold, modifier = Modifier.size(18.dp))
-                    } else {
-                        Text(
-                            text = tr("Limpiar Reportes Antiguos (> 7 días)"),
-                            color = HextechGold,
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-
-                if (purgeStatus.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = purgeStatus,
-                        color = if (purgeStatus.contains("✅")) AllyBlue else DangerRed,
-                        fontSize = 12.sp
-                    )
                 }
             }
 

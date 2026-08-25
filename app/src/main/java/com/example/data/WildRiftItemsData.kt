@@ -41,8 +41,8 @@ object WildRiftItemsData {
             name = "Hoja del Rey Arruinado",
             category = "Daño Físico",
             goldCost = 3000,
-            stats = "+40 Attack Damage • +35% Attack Speed",
-            passive = "Blade of the Ruined King\nAttacks deal bonus damage\n+40 Attack Damage\n+35% Attack Speed\nThirst:+10% Omni Vamp.\nRuined Strikes: Attacks deal bonus physical damage equal to 7% of the enemy's current Health on-hit. (Melee attacks deal 10%). Minion damage: 15. Max damage vs monsters: 60.\nDrain: Hitting a champion with 3 attacks or abilities deals 30-100 bonus magic damage and steals 25% of their Move Speed for 2 seconds. (60s Cooldown)\n3000\nBlade of the Ruined King TIPS: This item is a powerful tool for shredding enemy health and staying alive in extended fights. It grants attack power and attack speed, turning your basic hits into sustained damage that scales with the target’s current health — ideal against tanks and high-HP builds. Its active grants a strong slow and steals movement speed from the target, helping you chase or lock down priority targets. The lifesteal-like sustain it provides makes it a solid pick for champions who want to outlast opponents in prolonged exchanges.",
+            stats = "+20 Daño de Ataque, +35% Velocidad de Ataque, +10% Vampirismo Físico",
+            passive = "Golpe de Niebla: Los ataques infligen un 7% (cuerpo a cuerpo) o 4% (a distancia) de la vida actual del objetivo.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300221_blade-of-the-ruined-king.webp"
         ))
         add(WildRiftItem(
@@ -77,8 +77,8 @@ object WildRiftItemsData {
             name = "Filo del Infinito",
             category = "Daño Físico",
             goldCost = 3400,
-            stats = "+65 Attack Damage • +25% Critical Rate",
-            passive = "Infinity Edge\nIncreases Critical Strike Damage\n+65 Attack Damage\n+25% Critical Rate\nInfinity: Critical Strikes deal 205% damage instead of 175%.\nLimit Break: When your total gain from items exceeds 100%, every 1% excess grants 0.6 bonus Critical Damage.\n3400\nInfinity Edge TIPS: This item greatly amplifies your auto‑attack power by boosting the base damage of critical strikes and granting extra critical damage when your total crit chance from items is capped.  — Perfect for marksmen and auto‑attack fighters looking to maximize their crit damage and squeeze even more value out of high crit chance builds.",
+            stats = "+55 Daño de Ataque, +25% Probabilidad de Impacto Crítico",
+            passive = "Infinito: Los impactos críticos infligen un 205% de daño en lugar del 175%.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300938_infinity-edge.webp"
         ))
         add(WildRiftItem(
@@ -401,8 +401,8 @@ object WildRiftItemsData {
             name = "Eco de Luden",
             category = "Daño Mágico",
             goldCost = 2800,
-            stats = "+100 Ability Power • +500 Max Mana • +10 Ability Haste",
-            passive = "Luden's Echo\nAbilities deal bonus damage\n+100 Ability Power\n+500 Max Mana\n+10 Ability Haste\nEcho: Your next damaging ability or empowered attack deals an additional 140 + 15% magic damage to the target and up to 3 nearby enemies. (9s Cooldown)\n2800\nLuden's Echo TIPS: This item greatly enhances your burst damage by empowering your next damaging ability or empowered attack with an additional magic explosion that also strikes nearby enemies. It is an excellent choice for mages who excel at wave clearing, poking multiple targets, and dominating short trades with high burst potential.",
+            stats = "+85 Poder de Habilidad, +300 Maná Máximo, +20 Aceleración de Habilidad",
+            passive = "Tiro Discordante: Al moverte y lanzar habilidades acumulas cargas. Al llegar a 100, el próximo hechizo inflige 100 + 10% PH adicional a hasta 3 objetivos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388218_ludens-echo.webp"
         ))
         add(WildRiftItem(
@@ -419,8 +419,8 @@ object WildRiftItemsData {
             name = "Sombrero Mortal de Rabadon",
             category = "Daño Mágico",
             goldCost = 3400,
-            stats = "+130 Ability Power",
-            passive = "Rabadon's Deathcap\nBoosts Ability Power\n+130 Ability Power\nOverkill: Increases Ability Power by 30%.\n3400\nRabadon's Deathcap TIPS: This item is the ultimate Ability Power amplifier for any mage. It not only provides a massive amount of AP but also increases your total Ability Power, dramatically boosting your spell damage, healing, and all other AP scaling effects. An essential late-game purchase for champions looking to maximize their spellcasting potential and unleash devastating burst damage.",
+            stats = "+120 Poder de Habilidad",
+            passive = "Opus: Aumenta el Poder de Habilidad total en un 40% a 45% (según el nivel).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388295_rabadons-deathcap.webp"
         ))
         add(WildRiftItem(
@@ -491,8 +491,8 @@ object WildRiftItemsData {
             name = "Orbe del Infinito",
             category = "Daño Mágico",
             goldCost = 3100,
-            stats = "+110 Ability Power • +15 Magic Penetration",
-            passive = "Infinity Orb\nAbilities deal bonus damage\n+110 Ability Power\n+15 Magic Penetration\nInevitable Demise: Abilities and empowered attacks Critically Strike for 20% bonus damage against enemies below 35% Health.\n3100\nInfinity Orb TIPS: This item greatly enhances a mage's finishing power. It provides a large boost to Ability Power and magic penetration while allowing your abilities and empowered attacks to deal increased damage to low-health enemies. An excellent choice for mages and AP assassins who want to execute targets more reliably and maximize their burst potential.",
+            stats = "+85 Poder de Habilidad, +5% Velocidad de Movimiento, +15 Penetración Mágica",
+            passive = "Juicio Inevitable: Las habilidades y ataques mejorados asestan golpes críticos que infligen un 20% más de daño contra enemigos por debajo del 35% de vida.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388486_yordle-infinity-orb.webp"
         ))
         add(WildRiftItem(
@@ -662,8 +662,8 @@ object WildRiftItemsData {
             name = "Égida de Fuego Solar",
             category = "Defensa",
             goldCost = 2900,
-            stats = "+350 Max Health • +40 Armor • +15 Ability Haste",
-            passive = "Sunfire Aegis\nBurns nearby emenies\n+350 Max Health\n+40 Armor\n+15 Ability Haste\nImmolate: While in combat, deal magic damage equal to 16-25 plus 0.8% bonus HPto nearby enemies per second. Damaging champions or epic monsters with Immolate increases its damage by 5% for 5s, stacking up to 6 times.\nFlametouch: At max Immolate stacks, attacks burn enemies around you for 50% of Immolate's damage over 3 seconds. Immolate deals 130% damage to monsters an 175-250% () to minions.\n2900\nSunfire Aegis TIPS: This item is perfect for tanks and bruisers who spend most of the fight in the middle of the action. It continuously burns nearby enemies, with the damage increasing the longer you remain in combat, and once fully stacked, your attacks spread additional fire around the target. It is an excellent choice for frontline champions who want consistent area damage while maintaining high durability, as well as faster wave and jungle camp clearing.",
+            stats = "+500 Vida Máxima, +15 Aceleración de Habilidad",
+            passive = "Inmolar: Inflige daño mágico por segundo a enemigos cercanos. Aumenta un 10% por segundo al estar en combate.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389023_yordle-sunfire-aegis.webp"
         ))
         add(WildRiftItem(
@@ -815,8 +815,8 @@ object WildRiftItemsData {
             name = "Corazón de Acero",
             category = "Defensa",
             goldCost = 3000,
-            stats = "+700 Max Health • +150% Health Regen • +20 Ability Haste",
-            passive = "Heartsteel\nIncrease Maximum Health\n+700 Max Health\n+150% Health Regen\n+20 Ability Haste\nColossal Consumption: While within 700 units of an enemy champion, charges for 2.5 seconds before dealing a huge strike against the enemy champion. This charged attack deals bonus physical damage equal to 140 + 3.5% of maximum Health, and grants maximum Health equal to 15% of the damage dealt. The charge for each target has a 20 second cooldown.\n3000\nHeartsteel TIPS: This item is perfect for tanks and bruisers who want to combine maximum survivability with massive burst damage against enemy champions. It provides a huge health pool, enhanced out-of-combat regeneration, and ability haste.  The “Colossal Consumption” passive requires a 2.5-second charge when near an enemy champion, after which your next strike deals significant bonus physical damage based on your max health and grants you 15% of the damage dealt as bonus health. This allows you to both absorb damage and heal during skirmishes, making the item an excellent choice for extended fights and closing out teamfights.  Excellent synergy with Spirit Visage: the healing amplification and regeneration boost from Spirit Visage further enhance the health restoration from this item’s passive, providing incredible survivability and sustain in combat.",
+            stats = "+700 Vida Máxima, +150% Regeneración de Vida Básica, +20 Aceleración de Habilidad",
+            passive = "Consumo Colosal: Carga un golpe devastador contra un campeón dentro de 700 unidades. Inflige 120 + 5% de vida máxima y otorga vida máxima permanente equivalente al 10% del daño infligido.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389201_heartsteel.webp"
         ))
         add(WildRiftItem(
