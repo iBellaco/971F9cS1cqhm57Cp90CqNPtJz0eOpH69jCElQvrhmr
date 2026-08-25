@@ -229,7 +229,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Wild Rift Coach Activo")
             .setContentText("Superposición en vivo sobre Wild Rift • Toca para abrir")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.mipmap.ic_launcher2)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
             .addAction(0, "Detener", stopPendingIntent)
