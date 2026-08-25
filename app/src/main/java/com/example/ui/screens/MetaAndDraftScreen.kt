@@ -1089,15 +1089,52 @@ private fun ItemsCatalogTab() {
     var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
 
     val allItems = WildRiftRepository.items
+
+    val allCategories = remember(allItems) {
+        val cats = allItems.map { it.category }.distinct()
+        val priority = listOf("Físico", "Physical", "Magia", "Magic", "Defensa", "Defense", "Botas", "Boots", "Encantamiento", "Enchantment")
+        cats.sortedBy { cat ->
+            val p = priority.indexOfFirst { cat.contains(it, ignoreCase = true) }
+            if (p >= 0) p else 99
+        }
+    }
+
+    val filterOptions = remember(allCategories, allItems) {
+        val options = mutableListOf("TODOS" to "Todos")
+        allCategories.forEach { cat ->
+            options.add(cat to cat)
+        }
+        options
+    }
+
     val filteredItems = remember(selectedCategory, searchQuery, allItems) {
         allItems.filter { item ->
-            val matchesCategory = selectedCategory == null || item.category == selectedCategory
+            val matchesCategory = selectedCategory == null || item.category.equals(selectedCategory, ignoreCase = true)
             val matchesSearch = searchQuery.isBlank() ||
                     item.name.contains(searchQuery, ignoreCase = true) ||
                     item.stats.contains(searchQuery, ignoreCase = true) ||
-                    item.passive.contains(searchQuery, ignoreCase = true)
+                    item.passive.contains(searchQuery, ignoreCase = true) ||
+                    item.category.contains(searchQuery, ignoreCase = true)
             matchesCategory && matchesSearch
         }
+    }
+
+    val treeCategories = remember(filteredItems, allCategories) {
+        val result = mutableListOf<Pair<String, List<WildRiftItem>>>()
+        val groups = filteredItems.groupBy { it.category }
+        
+        allCategories.forEach { cat ->
+            val itemsInCat = groups[cat]
+            if (!itemsInCat.isNullOrEmpty()) {
+                result.add(cat to itemsInCat)
+            }
+        }
+        groups.forEach { (cat, itemsInCat) ->
+            if (result.none { it.first == cat }) {
+                result.add(cat to itemsInCat)
+            }
+        }
+        result
     }
 
     Column(
@@ -1118,9 +1155,9 @@ private fun ItemsCatalogTab() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${filteredItems.size} ${tr("Ítems")}",
+                text = "${filteredItems.size} ${tr("Objetos Oficiales")}",
                 color = HextechCyan,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1136,7 +1173,7 @@ private fun ItemsCatalogTab() {
                             .clip(RoundedCornerShape(4.dp))
                             .background(if (isGridView) HextechCyan else Color.Transparent)
                             .clickable { isGridView = true }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = tr("Cuadrícula"),
@@ -1150,7 +1187,7 @@ private fun ItemsCatalogTab() {
                             .clip(RoundedCornerShape(4.dp))
                             .background(if (!isGridView) HextechCyan else Color.Transparent)
                             .clickable { isGridView = false }
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = tr("Detallado"),
@@ -1170,12 +1207,12 @@ private fun ItemsCatalogTab() {
             value = searchQuery,
             onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(tr("Buscar objeto por nombre o estadísticas..."), color = TextMuted, fontSize = 13.sp) },
+            placeholder = { Text(tr("Buscar objeto por nombre o estadísticas..."), color = TextMuted, fontSize = 12.5.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
                     IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = TextMuted)
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
                     }
                 }
             },
@@ -1196,126 +1233,103 @@ private fun ItemsCatalogTab() {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            FilterChip(
-                selected = selectedCategory == null,
-                onClick = { selectedCategory = null },
-                label = { Text("${tr("Todos")} (${allItems.size})", fontSize = 11.5.sp) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg
-                )
-            )
-            
-            val dynamicCats = allItems.map { it.category }.distinct()
-            dynamicCats.forEach { cat ->
-                val count = allItems.count { it.category == cat }
+            filterOptions.forEach { (key, label) ->
+                val count = if (key == "TODOS") allItems.size else allItems.count { it.category.equals(key, ignoreCase = true) }
+                val isSelected = (selectedCategory == null && key == "TODOS") || (selectedCategory != null && selectedCategory.equals(key, ignoreCase = true))
                 FilterChip(
-                    selected = selectedCategory == cat,
-                    onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
-                    label = { Text("${com.example.util.tr(cat)} ($count)", fontSize = 11.5.sp) },
+                    selected = isSelected,
+                    onClick = { selectedCategory = if (key == "TODOS") null else key },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(tr(label), fontSize = 11.sp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "($count)",
+                                color = if (isSelected) HextechDarkBg else HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
             }
-
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // When "Todos" is selected and no search query, show grouped sections matching wr-meta
-        val isGroupedView = selectedCategory == null && searchQuery.isBlank()
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            if (isGroupedView) {
-                val grouped = allItems.groupBy { it.category }
-                grouped.forEach { (category, categoryItems) ->
-                    if (categoryItems.isNotEmpty()) {
-                        item(key = "header_${category}") {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
-                                    .border(1.dp, HextechGold.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    
-                                    Text(
-                                        text = tr(category).uppercase(),
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.5.sp
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .background(HextechCyan.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "${categoryItems.size}",
-                                        color = HextechCyan,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
+            treeCategories.forEachIndexed { catIdx, (categoryName, itemsInCat) ->
+                item(key = "item_cat_${catIdx}_${categoryName}") {
+                    val catColor = when {
+                        categoryName.contains("físic", ignoreCase = true) || categoryName.contains("physic", ignoreCase = true) || categoryName.contains("ataque", ignoreCase = true) -> Color(0xFFFF8C00)
+                        categoryName.contains("magi", ignoreCase = true) || categoryName.contains("magic", ignoreCase = true) || categoryName.contains("habilidad", ignoreCase = true) -> Color(0xFF60A5FA)
+                        categoryName.contains("defen", ignoreCase = true) || categoryName.contains("tanque", ignoreCase = true) || categoryName.contains("vida", ignoreCase = true) -> Color(0xFF4ADE80)
+                        categoryName.contains("bota", ignoreCase = true) || categoryName.contains("boot", ignoreCase = true) -> HextechGold
+                        categoryName.contains("encant", ignoreCase = true) || categoryName.contains("enchant", ignoreCase = true) -> Color(0xFFE879F9)
+                        else -> HextechCyan
+                    }
 
-                        if (isGridView) {
-                            // Grid rows (3 items per row)
-                            val chunkedItems = categoryItems.chunked(3)
-                            items(chunkedItems) { rowItems ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, catColor.copy(alpha = 0.35f))
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            ) {
+                                Text(
+                                    text = tr(categoryName).uppercase(),
+                                    color = catColor,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 13.5.sp,
+                                    letterSpacing = 1.sp
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "(${itemsInCat.size})",
+                                    color = catColor,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+
+                            if (isGridView) {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    for (item in rowItems) {
-                                        Box(modifier = Modifier.weight(1f)) {
-                                            ItemGridCard(item = item, onClick = { itemForDetail = item })
-                                        }
+                                    itemsInCat.forEach { item ->
+                                        ItemGridCard(
+                                            item = item,
+                                            onClick = { itemForDetail = item },
+                                            modifier = Modifier.width(68.dp),
+                                            borderColor = catColor
+                                        )
                                     }
-                                    // Filler boxes for incomplete rows
-                                    for (i in 0 until (3 - rowItems.size)) {
-                                        Spacer(modifier = Modifier.weight(1f))
+                                }
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    itemsInCat.forEach { item ->
+                                        ItemListCard(
+                                            item = item,
+                                            onClick = { itemForDetail = item },
+                                            borderColor = catColor
+                                        )
                                     }
                                 }
                             }
-                        } else {
-                            items(categoryItems) { item ->
-                                ItemListCard(item = item, onClick = { itemForDetail = item })
-                            }
                         }
-                    }
-                }
-            } else {
-                if (isGridView) {
-                    val chunkedItems = filteredItems.chunked(3)
-                    items(chunkedItems) { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            for (item in rowItems) {
-                                Box(modifier = Modifier.weight(1f)) {
-                                    ItemGridCard(item = item, onClick = { itemForDetail = item })
-                                }
-                            }
-                            for (i in 0 until (3 - rowItems.size)) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
-                    }
-                } else {
-                    items(filteredItems) { item ->
-                        ItemListCard(item = item, onClick = { itemForDetail = item })
                     }
                 }
             }
@@ -1327,14 +1341,22 @@ private fun ItemsCatalogTab() {
     }
 
     // Item Detail Modal Dialog
-    itemForDetail?.let { item ->
-        androidx.compose.ui.window.Dialog(onDismissRequest = { itemForDetail = null }) {
+    selectedRuneItemModal(itemForDetail) { itemForDetail = null }
+}
+
+@Composable
+private fun selectedRuneItemModal(
+    item: WildRiftItem?,
+    onDismiss: () -> Unit
+) {
+    item?.let { itm ->
+        androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
             ) {
                 Column(
@@ -1345,16 +1367,16 @@ private fun ItemsCatalogTab() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     AppAssetImage(
-                        url = item.iconUrl,
-                        contentDescription = item.name,
-                        fallbackText = item.name,
+                        url = itm.iconUrl,
+                        contentDescription = itm.name,
+                        fallbackText = itm.name,
                         modifier = Modifier.size(72.dp),
                         borderColor = HextechGold,
                         shape = RoundedCornerShape(12.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr(item.name),
+                        text = tr(itm.name),
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -1371,7 +1393,7 @@ private fun ItemsCatalogTab() {
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = tr(item.category),
+                                text = tr(itm.category),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1383,7 +1405,7 @@ private fun ItemsCatalogTab() {
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "🟡 ${item.goldCost} ${tr("Oro")}",
+                                text = "🟡 ${itm.goldCost} ${tr("Oro")}",
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1391,38 +1413,38 @@ private fun ItemsCatalogTab() {
                         }
                     }
 
-                    if (item.stats.isNotBlank()) {
+                    if (itm.stats.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Estadísticas:"),
-                            color = TextPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = tr(item.stats),
-                            color = TextPrimary,
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    if (item.passive.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = tr("Efecto / Pasiva:"),
-                            color = TextPrimary,
+                            color = HextechGold,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         FormattedWildRiftText(
-                            text = tr(item.passive),
-                            color = TextMuted,
+                            text = tr(itm.stats),
+                            color = TextPrimary,
+                            fontSize = 12.5.sp,
+                            lineHeight = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (itm.passive.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = tr("Efecto / Pasiva:"),
+                            color = HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        FormattedWildRiftText(
+                            text = tr(itm.passive),
+                            color = TextPrimary.copy(alpha = 0.9f),
                             fontSize = 12.sp,
                             lineHeight = 16.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -1435,7 +1457,7 @@ private fun ItemsCatalogTab() {
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
                             .background(HextechCyan)
-                            .clickable { itemForDetail = null }
+                            .clickable { onDismiss() }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -1450,7 +1472,53 @@ private fun ItemsCatalogTab() {
 @Composable
 private fun ItemGridCard(
     item: WildRiftItem,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    borderColor: Color = HextechGold
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .background(HextechSurface.copy(alpha = 0.6f))
+            .border(0.5.dp, HextechCardBorder.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
+            .padding(6.dp)
+    ) {
+        AppAssetImage(
+            url = item.iconUrl,
+            contentDescription = item.name,
+            fallbackText = item.name,
+            modifier = Modifier.size(42.dp),
+            borderColor = borderColor,
+            shape = RoundedCornerShape(8.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = tr(item.name),
+            color = TextPrimary,
+            fontSize = 9.5.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            lineHeight = 11.sp
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = "${item.goldCost} G",
+            color = HextechGold,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun ItemListCard(
+    item: WildRiftItem,
+    onClick: () -> Unit,
+    borderColor: Color = HextechCardBorder
 ) {
     Card(
         modifier = Modifier
@@ -1458,97 +1526,47 @@ private fun ItemGridCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AppAssetImage(
-                url = item.iconUrl,
-                contentDescription = item.name,
-                fallbackText = item.name,
-                modifier = Modifier.size(52.dp),
-                borderColor = HextechGold.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(8.dp)
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = tr(item.name),
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                lineHeight = 13.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .background(HextechSurfaceVariant, RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = "${item.goldCost} G",
-                    color = HextechGold,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ItemListCard(
-    item: WildRiftItem,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor.copy(alpha = 0.5f))
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(10.dp),
             verticalAlignment = Alignment.Top
         ) {
             AppAssetImage(
                 url = item.iconUrl,
                 contentDescription = item.name,
                 fallbackText = item.name,
-                modifier = Modifier.size(52.dp),
-                borderColor = HextechGold,
+                modifier = Modifier.size(44.dp),
+                borderColor = borderColor,
                 shape = RoundedCornerShape(8.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                    Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                    Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                 }
-                Text(tr(item.category), color = HextechCyan, fontSize = 11.sp)
+                Text(tr(item.category), color = HextechCyan, fontSize = 10.5.sp)
                 if (item.stats.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(tr(item.stats), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(3.dp))
+                    FormattedWildRiftText(
+                        text = tr(item.stats),
+                        color = TextPrimary,
+                        fontSize = 11.5.sp,
+                        lineHeight = 15.sp
+                    )
                 }
                 if (item.passive.isNotBlank()) {
                     Spacer(modifier = Modifier.height(3.dp))
                     FormattedWildRiftText(
                         text = tr(item.passive),
                         color = TextMuted,
-                        fontSize = 11.5.sp,
-                        lineHeight = 15.sp,
+                        fontSize = 11.sp,
+                        lineHeight = 14.sp,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1707,10 +1725,23 @@ private fun RunesTab() {
             modifier = Modifier.fillMaxWidth()
         ) {
             filterOptions.forEach { (key, label) ->
+                val count = if (key == "TODOS") WildRiftRepository.runes.size else WildRiftRepository.runes.count { it.category.equals(key, ignoreCase = true) }
+                val isSelected = selectedFilter == key
                 FilterChip(
-                    selected = selectedFilter == key,
+                    selected = isSelected,
                     onClick = { selectedFilter = key },
-                    label = { Text(tr(label), fontSize = 11.sp) },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(tr(label), fontSize = 11.sp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "($count)",
+                                color = if (isSelected) HextechDarkBg else HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1750,7 +1781,6 @@ private fun RunesTab() {
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(bottom = 10.dp)
                                 ) {
-                                    
                                     Text(
                                         text = tr(categoryName).uppercase(),
                                         color = catColor,
@@ -1761,8 +1791,9 @@ private fun RunesTab() {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = "(${runesInCat.size})",
-                                        color = TextMuted,
-                                        fontSize = 11.sp
+                                        color = catColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
                                     )
                                 }
 
@@ -2592,6 +2623,12 @@ private fun DraftAnalysisTab(
                 if (analysis.allyTrueDamagePercent > 0) {
                     Box(modifier = Modifier.weight(analysis.allyTrueDamagePercent.toFloat()).fillMaxHeight().background(Color.White))
                 }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("${analysis.allyPhysicalDamagePercent}% " + tr("Físico"), color = Color(0xFFE57373), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                Text("${analysis.allyMagicDamagePercent}% " + tr("Mágico"), color = Color(0xFF64B5F6), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                Text("${analysis.allyTrueDamagePercent}% " + tr("Verdadero"), color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(modifier = Modifier.height(12.dp))
         }

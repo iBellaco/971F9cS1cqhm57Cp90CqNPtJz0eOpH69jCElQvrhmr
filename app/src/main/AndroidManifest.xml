@@ -23,7 +23,7 @@
     </queries>
 
     <application android:name=".WildRiftApp"
-        
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:largeHeap="true"

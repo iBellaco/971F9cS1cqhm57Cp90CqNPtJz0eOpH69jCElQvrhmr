@@ -104,6 +104,12 @@ fun formatWildRiftDescription(text: String, defaultColor: Color = TextPrimary): 
                 Regex("(?i)\\b(maná( máximo)?|mana|energía|energia)\\b"),
                 WildRiftDamageColors.ManaColor
             )
+
+            // 8. Números, estadísticas y ratios entre paréntesis (ej. (+15), (20%), (30s), (10 a 30))
+            highlightMatches(
+                Regex("\\(([+−-]?\\d+(?:[.,]\\d+)?(?:%|s| seg| CD| adic| ad| ap| oro)?(?:\\s*(?:a|-|/)\\s*\\d+(?:[.,]\\d+)?(?:%|s)?)?)\\)"),
+                Color(0xFFFBBF24)
+            )
         }
         annotated
     } catch (_: Exception) {

@@ -91,7 +91,17 @@ object WildRiftLocalCache {
                         val isSpell = item.id.endsWith("_basic") && item.id.replace("_basic", "") in spellIds.map { it.replace("spell_", "") }
                         !isSpell && !item.id.startsWith("spell_")
                     }
-                    WildRiftRepository.items = if (filteredItems.isNotEmpty()) filteredItems else loadedItems
+                    val canonicalMap = com.example.data.WildRiftItemsData.list.associateBy { it.id }
+                    val nameMap = com.example.data.WildRiftItemsData.list.associateBy { it.name.lowercase().trim() }
+                    val sanitizedItems = filteredItems.map { item ->
+                        val canonical = canonicalMap[item.id] ?: nameMap[item.name.lowercase().trim()]
+                        if (canonical != null && (item.iconUrl.isBlank() || !item.iconUrl.startsWith("http") || item.iconUrl.contains("placeholder"))) {
+                            item.copy(iconUrl = canonical.iconUrl)
+                        } else {
+                            item
+                        }
+                    }
+                    WildRiftRepository.items = if (sanitizedItems.isNotEmpty()) sanitizedItems else com.example.data.WildRiftItemsData.list
                     hasLoadedAny = true
                 }
 

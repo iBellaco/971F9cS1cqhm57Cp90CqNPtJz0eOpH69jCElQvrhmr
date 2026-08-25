@@ -58,8 +58,8 @@ class FullAppFlowTest {
         composeTestRule.onNodeWithText("Cuadrícula").performClick()
         composeTestRule.waitForIdle()
 
-        // Test filter chip Runas Clave
-        composeTestRule.onNodeWithText("Runas Clave").performClick()
+        // Test filter chip Clave
+        composeTestRule.onNodeWithText("Clave").performClick()
         composeTestRule.waitForIdle()
 
         // Test filter chip Todos

@@ -218,25 +218,6 @@ fun MainDraftingScreen(
                         }
                     },
                     actions = {
-                        val coroutineScope = rememberCoroutineScope()
-                        val context = LocalContext.current
-                        
-                        IconButton(
-                            onClick = { coroutineScope.launch { ImagePrefetcher.prefetchAllImages(context) } },
-                            modifier = Modifier
-                                .padding(end = 4.dp)
-                                .clip(CircleShape)
-                                .background(HextechSurface)
-                                .border(1.dp, HextechCyan.copy(alpha = 0.6f), CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Download,
-                                contentDescription = tr("Descargar Recursos"),
-                                tint = HextechCyan,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-
                         var expandedLang by remember { mutableStateOf(false) }
                         val currentFlag = when(currentLanguage) {
                             "en" -> "🇺🇸/🇬🇧"
@@ -345,6 +326,38 @@ fun MainDraftingScreen(
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val coroutineScope = rememberCoroutineScope()
+                val context = LocalContext.current
+
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { coroutineScope.launch { ImagePrefetcher.prefetchAllImages(context) } },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.85f),
+                        contentColor = HextechCyan
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Descargar Recursos"),
+                        color = HextechCyan,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(30.dp))
             }

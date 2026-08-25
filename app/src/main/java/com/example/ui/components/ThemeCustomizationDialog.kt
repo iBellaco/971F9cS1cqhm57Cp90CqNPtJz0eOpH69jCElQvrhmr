@@ -298,218 +298,210 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .padding(top = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Explanatory Banner (User Requirement)
+        // Sticky / Fixed Header with Live Interactive Preview at the top
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(
                 containerColor = HextechSurface
             ),
-            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+            border = BorderStroke(1.5.dp, HextechGold.copy(alpha = 0.6f))
         ) {
-            Column(modifier = Modifier.padding(14.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(HextechGold.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Palette,
                             contentDescription = null,
                             tint = HextechGold,
                             modifier = Modifier.size(18.dp)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = tr("Vista previa en tiempo real"),
+                            color = HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
+
                     Text(
-                        text = tr("🎨 Paleta de la Barra de Navegación"),
-                        color = HextechGold,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        text = tr(currentNavOption.titleKey),
+                        color = TextCyan,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = tr("Al cambiar el color en esta paleta de colores, personalizarás de inmediato el fondo, los acentos y los indicadores de la barra de navegación inferior para el estilo que tú elijas."),
-                    color = TextPrimary,
-                    fontSize = 12.5.sp,
-                    lineHeight = 18.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
+                var previewSelectedTab by remember { mutableIntStateOf(0) }
+                val navBgColor = AppThemeManager.getNavBarBackgroundColor()
+                val navAccentColor = AppThemeManager.getNavBarAccentColor()
+                val navIconColor = AppThemeManager.getNavBarSelectedIconColor()
+                val navUnselectedColor = AppThemeManager.getNavBarUnselectedColor()
 
-        // Live Interactive Preview of the Navigation Bar
-        Text(
-            text = tr("Vista previa en tiempo real de la barra:"),
-            color = TextSecondary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        var previewSelectedTab by remember { mutableIntStateOf(0) }
-        val navBgColor = AppThemeManager.getNavBarBackgroundColor()
-        val navAccentColor = AppThemeManager.getNavBarAccentColor()
-        val navIconColor = AppThemeManager.getNavBarSelectedIconColor()
-        val navUnselectedColor = AppThemeManager.getNavBarUnselectedColor()
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = navBgColor),
-            border = BorderStroke(1.5.dp, navAccentColor.copy(alpha = 0.6f))
-        ) {
-            NavigationBar(
-                containerColor = navBgColor,
-                contentColor = navAccentColor,
-                modifier = Modifier.height(64.dp)
-            ) {
-                NavigationBarItem(
-                    selected = previewSelectedTab == 0,
-                    onClick = { previewSelectedTab = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                    label = { Text(tr("Inicio"), fontSize = 10.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navIconColor,
-                        selectedTextColor = navAccentColor,
-                        indicatorColor = navAccentColor,
-                        unselectedIconColor = navUnselectedColor,
-                        unselectedTextColor = navUnselectedColor
-                    )
-                )
-                NavigationBarItem(
-                    selected = previewSelectedTab == 1,
-                    onClick = { previewSelectedTab = 1 },
-                    icon = { Icon(Icons.Default.Groups, contentDescription = null) },
-                    label = { Text(tr("Drafting"), fontSize = 10.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navIconColor,
-                        selectedTextColor = navAccentColor,
-                        indicatorColor = navAccentColor,
-                        unselectedIconColor = navUnselectedColor,
-                        unselectedTextColor = navUnselectedColor
-                    )
-                )
-                NavigationBarItem(
-                    selected = previewSelectedTab == 2,
-                    onClick = { previewSelectedTab = 2 },
-                    icon = { Icon(Icons.Default.MenuBook, contentDescription = null) },
-                    label = { Text(tr("Catálogo"), fontSize = 10.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navIconColor,
-                        selectedTextColor = navAccentColor,
-                        indicatorColor = navAccentColor,
-                        unselectedIconColor = navUnselectedColor,
-                        unselectedTextColor = navUnselectedColor
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = tr("Selecciona un color para la barra inferior:"),
-            color = TextPrimary,
-            fontWeight = FontWeight.Bold,
-            fontSize = 13.5.sp
-        )
-
-        // Palette Grid of Options
-        NavBarColorOption.entries.forEach { option ->
-            val isSelected = currentNavOption == option
-            val displayColor = if (option.isAutomatic) currentTheme.primary else option.accentColor
-            val displayBg = if (option.isAutomatic) currentTheme.surface else option.containerColor
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable {
-                        AppThemeManager.setNavBarOption(option, context)
-                    },
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = BorderStroke(
-                    if (isSelected) 2.dp else 1.dp,
-                    if (isSelected) displayColor else HextechCardBorder
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = navBgColor),
+                    border = BorderStroke(1.dp, navAccentColor.copy(alpha = 0.6f))
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
+                    NavigationBar(
+                        containerColor = navBgColor,
+                        contentColor = navAccentColor,
+                        modifier = Modifier.height(58.dp)
                     ) {
-                        // Color Swatch Circle
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(displayBg)
-                                .border(2.dp, displayColor, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = displayColor,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column {
-                            Text(
-                                text = tr(option.titleKey),
-                                color = TextPrimary,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 13.5.sp
+                        NavigationBarItem(
+                            selected = previewSelectedTab == 0,
+                            onClick = { previewSelectedTab = 0 },
+                            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Inicio"), fontSize = 9.5.sp) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = navIconColor,
+                                selectedTextColor = navAccentColor,
+                                indicatorColor = navAccentColor.copy(alpha = 0.22f),
+                                unselectedIconColor = navUnselectedColor,
+                                unselectedTextColor = navUnselectedColor
                             )
-                            Text(
-                                text = tr(option.descKey),
-                                color = TextSecondary,
-                                fontSize = 11.sp
+                        )
+                        NavigationBarItem(
+                            selected = previewSelectedTab == 1,
+                            onClick = { previewSelectedTab = 1 },
+                            icon = { Icon(Icons.Default.Groups, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Drafting"), fontSize = 9.5.sp) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = navIconColor,
+                                selectedTextColor = navAccentColor,
+                                indicatorColor = navAccentColor.copy(alpha = 0.22f),
+                                unselectedIconColor = navUnselectedColor,
+                                unselectedTextColor = navUnselectedColor
                             )
-                        }
-                    }
-
-                    // Preview Swatch
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(displayColor.copy(alpha = 0.2f))
-                            .border(1.dp, displayColor, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
-                    ) {
-                        Text(
-                            text = if (isSelected) tr("ACTIVO") else tr("ELEGIR"),
-                            color = displayColor,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
+                        )
+                        NavigationBarItem(
+                            selected = previewSelectedTab == 2,
+                            onClick = { previewSelectedTab = 2 },
+                            icon = { Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Catálogo"), fontSize = 9.5.sp) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = navIconColor,
+                                selectedTextColor = navAccentColor,
+                                indicatorColor = navAccentColor.copy(alpha = 0.22f),
+                                unselectedIconColor = navUnselectedColor,
+                                unselectedTextColor = navUnselectedColor
+                            )
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = tr("Selecciona un color para la barra inferior:"),
+            color = TextPrimary,
+            fontWeight = FontWeight.Bold,
+            fontSize = 13.sp,
+            modifier = Modifier.padding(horizontal = 2.dp)
+        )
+
+        // Scrollable Options List below the pinned preview
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            items(NavBarColorOption.entries) { option ->
+                val isSelected = currentNavOption == option
+                val displayColor = if (option.isAutomatic) currentTheme.primary else option.accentColor
+                val displayBg = if (option.isAutomatic) currentTheme.surface else option.containerColor
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable {
+                            AppThemeManager.setNavBarOption(option, context)
+                        },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(
+                        if (isSelected) 2.dp else 1.dp,
+                        if (isSelected) displayColor else HextechCardBorder
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Color Swatch Circle
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(displayBg)
+                                    .border(2.dp, displayColor, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isSelected) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = displayColor,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column {
+                                Text(
+                                    text = tr(option.titleKey),
+                                    color = TextPrimary,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    fontSize = 13.5.sp
+                                )
+                                Text(
+                                    text = tr(option.descKey),
+                                    color = TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+
+                        // Preview Swatch
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(displayColor.copy(alpha = 0.2f))
+                                .border(1.dp, displayColor, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = if (isSelected) tr("ACTIVO") else tr("ELEGIR"),
+                                color = displayColor,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -154,15 +154,15 @@ fun AppAssetImage(
             .border(1.dp, borderColor, shape),
         contentAlignment = Alignment.Center
     ) {
-        if (modelData == null) {
-            Text(
-                text = fallbackText.take(2).uppercase(),
-                color = borderColor,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold
-            )
-        } else {
-            coil.compose.SubcomposeAsyncImage(
+        // Fallback initials underneath
+        Text(
+            text = fallbackText.take(2).uppercase(),
+            color = borderColor.copy(alpha = 0.7f),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+        if (modelData != null) {
+            AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
                     .crossfade(true)
@@ -177,27 +177,7 @@ fun AppAssetImage(
                 imageLoader = context.imageLoader,
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(shape),
-                loading = {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = fallbackText.take(2).uppercase(),
-                            color = borderColor.copy(alpha = 0.5f),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                },
-                error = {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = fallbackText.take(2).uppercase(),
-                            color = borderColor,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                modifier = Modifier.fillMaxSize().clip(shape)
             )
         }
     }

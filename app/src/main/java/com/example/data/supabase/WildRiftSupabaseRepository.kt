@@ -34,9 +34,19 @@ object WildRiftSupabaseRepository {
             
             if (validItems.isNotEmpty()) {
                 val spellIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
+                val canonicalMap = com.example.data.WildRiftItemsData.list.associateBy { it.id }
+                val nameMap = com.example.data.WildRiftItemsData.list.associateBy { it.name.lowercase().trim() }
+                
                 val filteredItems = validItems.filter { item ->
                     val isSpell = item.id.endsWith("_basic") && item.id.replace("_basic", "") in spellIds.map { it.replace("spell_", "") }
                     !isSpell && !item.id.startsWith("spell_")
+                }.map { item ->
+                    val canonical = canonicalMap[item.id] ?: nameMap[item.name.lowercase().trim()]
+                    if (canonical != null && (item.iconUrl.isBlank() || !item.iconUrl.startsWith("http") || item.iconUrl.contains("placeholder"))) {
+                        item.copy(iconUrl = canonical.iconUrl)
+                    } else {
+                        item
+                    }
                 }
                 val merged = (WildRiftRepository.items.associateBy { it.id } + filteredItems.associateBy { it.id }).values.toList()
                 WildRiftRepository.items = merged

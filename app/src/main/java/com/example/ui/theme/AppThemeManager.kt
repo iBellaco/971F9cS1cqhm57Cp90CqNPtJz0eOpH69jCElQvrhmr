@@ -246,24 +246,6 @@ enum class NavBarColorOption(
         accentColor = Color.Unspecified,
         isAutomatic = true
     ),
-    BLUR_TRANSLUCENT(
-        id = "BLUR_TRANSLUCENT",
-        titleKey = "Cristal Blur (Medio Transparente)",
-        descKey = "Efecto blur semi-transparente que deja entrever el fondo",
-        colorHex = Color(0xFF38BDF8),
-        containerColor = Color(0x990F172A),
-        accentColor = Color(0xFF38BDF8),
-        isAutomatic = false
-    ),
-    BLUR_FROST(
-        id = "BLUR_FROST",
-        titleKey = "Cristal Blur Escarcha (Traslúcido)",
-        descKey = "Vidrio esmerilado medio transparente con reflejos cian",
-        colorHex = Color(0xFF00F2FE),
-        containerColor = Color(0x8010243E),
-        accentColor = Color(0xFF00F2FE),
-        isAutomatic = false
-    ),
     HEXTECH_GOLD(
         id = "HEXTECH_GOLD",
         titleKey = "Hextech Dorado",
@@ -352,15 +334,6 @@ enum class NavBarColorOption(
         colorHex = Color(0xFF38BDF8),
         containerColor = Color(0xFF03142B),
         accentColor = Color(0xFF38BDF8),
-        isAutomatic = false
-    ),
-    PURE_BLACK(
-        id = "PURE_BLACK",
-        titleKey = "Negro OLED",
-        descKey = "Negro absoluto para ahorro de batería",
-        colorHex = Color(0xFF111111),
-        containerColor = Color(0xFF000000),
-        accentColor = Color(0xFFE2E8F0),
         isAutomatic = false
     ),
     CARBON_GRAY(
