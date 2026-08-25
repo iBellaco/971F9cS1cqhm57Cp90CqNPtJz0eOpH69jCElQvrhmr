@@ -1,0 +1,351 @@
+package com.example.ui.components
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.R
+import com.example.model.Champion
+import com.example.model.DraftSlot
+import com.example.model.LaneRole
+import com.example.ui.theme.AllyBlue
+import com.example.ui.theme.DangerRed
+import com.example.ui.theme.HextechCardBorder
+import com.example.ui.theme.HextechCyan
+import com.example.ui.theme.HextechGold
+import com.example.ui.theme.HextechGoldLight
+import com.example.ui.theme.HextechSurface
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.isLightAppTheme
+import com.example.util.tr
+
+/**
+ * Panel de Selección de Campeones de Drafting basado en las 5 Posiciones Oficiales de Wild Rift.
+ * Diseño idéntico al panel de Ajustes de Posición pero donde las casillas inferiores
+ * se utilizan para seleccionar, mostrar y gestionar los campeones asignados a cada línea.
+ */
+@Composable
+fun DraftTeamPositionCard(
+    title: String,
+    isEnemy: Boolean,
+    slots: List<DraftSlot>,
+    activeUserRole: LaneRole?,
+    onPickChampionForRole: (LaneRole) -> Unit,
+    onRemoveChampionForRole: (LaneRole) -> Unit,
+    onChampionClick: (Champion) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val roles = listOf(
+        Triple(LaneRole.TOP, "TOP", R.drawable.ic_wr_role_solo),
+        Triple(LaneRole.JUNGLE, "JUNGLA", R.drawable.ic_wr_role_jungle),
+        Triple(LaneRole.MID, "MID", R.drawable.ic_wr_role_mid),
+        Triple(LaneRole.ADC, "DÚO", R.drawable.ic_wr_role_duo),
+        Triple(LaneRole.SUPPORT, "SOPORTE", R.drawable.ic_wr_role_support)
+    )
+
+    val teamColor = if (isEnemy) DangerRed else AllyBlue
+    val cardBorderColor = if (isEnemy) DangerRed.copy(alpha = 0.7f) else HextechGold.copy(alpha = 0.75f)
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag(if (isEnemy) "enemy_team_draft_card" else "ally_team_draft_card"),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = BorderStroke(
+            width = 1.5.dp,
+            brush = Brush.linearGradient(
+                if (isEnemy) listOf(DangerRed, HextechGold.copy(alpha = 0.5f), DangerRed)
+                else listOf(HextechGold, HextechCyan.copy(alpha = 0.6f), HextechGold)
+            )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header del Equipo
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = tr(title).uppercase(),
+                    color = if (isEnemy) DangerRed else HextechGold,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.2.sp
+                )
+
+                val count = slots.count { it.champion != null }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(if (isEnemy) DangerRed.copy(alpha = 0.2f) else HextechCyan.copy(alpha = 0.2f))
+                        .border(1.dp, if (isEnemy) DangerRed else HextechCyan, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "$count / 5",
+                        color = if (isEnemy) DangerRed else HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(3.dp))
+
+            Text(
+                text = tr("Toca cada posición para asignar o cambiar campeón"),
+                color = TextSecondary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // 5 Columnas de Posiciones
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                roles.forEach { (role, labelKey, iconRes) ->
+                    val slot = slots.find { it.assignedRole == role }
+                    val champ = slot?.champion
+                    val isMyRole = !isEnemy && role == activeUserRole
+
+                    val isOccupied = champ != null
+
+                    val borderColor by animateColorAsState(
+                        targetValue = when {
+                            isMyRole -> HextechCyan
+                            isOccupied -> if (isEnemy) DangerRed.copy(alpha = 0.7f) else HextechGold
+                            else -> HextechCardBorder
+                        },
+                        label = "colBorder"
+                    )
+
+                    val bgColor by animateColorAsState(
+                        targetValue = when {
+                            isMyRole -> HextechCyan.copy(alpha = if (isLightAppTheme) 0.12f else 0.18f)
+                            isOccupied -> if (isEnemy) DangerRed.copy(alpha = 0.12f) else HextechGold.copy(alpha = 0.14f)
+                            else -> if (isLightAppTheme) Color(0xFFF1F5F9) else Color(0xFF0A121D)
+                        },
+                        label = "colBg"
+                    )
+
+                    val iconTint by animateColorAsState(
+                        targetValue = when {
+                            isMyRole -> HextechCyan
+                            isOccupied -> if (isEnemy) DangerRed else HextechGold
+                            else -> TextMuted
+                        },
+                        label = "iconTint"
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(bgColor)
+                            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
+                            .clickable {
+                                onPickChampionForRole(role)
+                            }
+                            .padding(vertical = 8.dp, horizontal = 2.dp)
+                            .testTag("${if (isEnemy) "enemy" else "ally"}_pos_${role.name.lowercase()}"),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Icono Oficial de Rol
+                        Icon(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = tr(labelKey),
+                            tint = iconTint,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .padding(1.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Etiqueta de la Línea
+                        Text(
+                            text = tr(labelKey),
+                            color = if (isMyRole) HextechCyan else if (isOccupied) TextPrimary else TextSecondary,
+                            fontSize = 8.5.sp,
+                            fontWeight = if (isOccupied || isMyRole) FontWeight.Bold else FontWeight.Medium,
+                            maxLines = 1,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // CASILLA DE SELECCIÓN DE CAMPEÓN (Sustituye la casilla 1 y 2)
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    when {
+                                        isMyRole -> HextechCyan.copy(alpha = 0.22f)
+                                        isOccupied -> if (isEnemy) DangerRed.copy(alpha = 0.25f) else HextechGold.copy(alpha = 0.25f)
+                                        else -> if (isLightAppTheme) Color(0xFFE2E8F0) else Color(0xFF070D15)
+                                    }
+                                )
+                                .border(
+                                    width = if (isOccupied || isMyRole) 1.5.dp else 1.dp,
+                                    color = when {
+                                        isMyRole -> HextechCyan
+                                        isOccupied -> if (isEnemy) DangerRed else HextechGold
+                                        else -> HextechCardBorder
+                                    },
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (champ != null) {
+                                // Imagen del Campeón Seleccionado
+                                AppAssetImage(
+                                    url = champ.avatarUrl,
+                                    contentDescription = champ.name,
+                                    fallbackText = champ.name,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            onChampionClick(champ)
+                                        }
+                                )
+
+                                // Botón pequeño 'X' en la esquina superior para deseleccionar
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.Black.copy(alpha = 0.75f))
+                                        .clickable {
+                                            onRemoveChampionForRole(role)
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = tr("Quitar"),
+                                        tint = Color.White,
+                                        modifier = Modifier.size(10.dp)
+                                    )
+                                }
+
+                                // Badge de "TÚ" si es la posición activa del jugador
+                                if (isMyRole) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomCenter)
+                                            .fillMaxWidth()
+                                            .background(HextechCyan.copy(alpha = 0.9f))
+                                            .padding(vertical = 1.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = tr("TÚ"),
+                                            color = Color.Black,
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
+                            } else {
+                                // Casilla vacía con botón "+" para añadir
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = tr("Seleccionar Campeón"),
+                                        tint = if (isMyRole) HextechCyan else TextMuted,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    if (isMyRole) {
+                                        Text(
+                                            text = tr("TÚ"),
+                                            color = HextechCyan,
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Nombre del campeón debajo de la casilla si está seleccionado
+                        if (champ != null) {
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = champ.name,
+                                color = if (isMyRole) HextechCyan else TextPrimary,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = "-",
+                                color = TextMuted,
+                                fontSize = 8.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

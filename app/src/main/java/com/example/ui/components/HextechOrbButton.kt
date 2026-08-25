@@ -72,6 +72,7 @@ import kotlin.math.sin
 fun HextechOrbButton(
     isActive: Boolean,
     onToggle: () -> Unit,
+    enabled: Boolean = true,
     size: Dp = 230.dp,
     modifier: Modifier = Modifier
 ) {
@@ -319,8 +320,9 @@ fun HextechOrbButton(
                     )
                 )
                 .clickable(
+                    enabled = enabled,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = true, color = primaryEnergyColor),
+                    indication = if (enabled) ripple(bounded = true, color = primaryEnergyColor) else null,
                     onClick = onToggle
                 )
                 .testTag("hextech_activate_button"),
@@ -337,7 +339,8 @@ fun HextechOrbButton(
                         .size(38.dp)
                         .clip(CircleShape)
                         .background(
-                            if (isActive) HextechCyan.copy(alpha = 0.20f)
+                            if (!enabled) TextMuted.copy(alpha = 0.15f)
+                            else if (isActive) HextechCyan.copy(alpha = 0.20f)
                             else HextechGold.copy(alpha = 0.15f)
                         ),
                     contentAlignment = Alignment.Center
@@ -345,7 +348,7 @@ fun HextechOrbButton(
                     Icon(
                         imageVector = if (isActive) Icons.Default.PowerSettingsNew else Icons.Default.PowerSettingsNew,
                         contentDescription = null,
-                        tint = primaryEnergyColor,
+                        tint = if (!enabled) TextMuted else primaryEnergyColor,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -354,8 +357,8 @@ fun HextechOrbButton(
 
                 // Texto Principal: ACTIVAR / DETENER con tipografía Hextech de alto contraste
                 Text(
-                    text = if (isActive) tr("DETENER") else tr("ACTIVAR"),
-                    color = if (isActive) HextechCyanLight else HextechGoldLight,
+                    text = if (!enabled) tr("ACTIVAR") else if (isActive) tr("DETENER") else tr("ACTIVAR"),
+                    color = if (!enabled) TextMuted else if (isActive) HextechCyanLight else HextechGoldLight,
                     fontSize = 21.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 2.5.sp
@@ -371,12 +374,12 @@ fun HextechOrbButton(
                         modifier = Modifier
                             .size(6.dp)
                             .clip(CircleShape)
-                            .background(if (isActive) HextechCyanLight else HextechGold)
+                            .background(if (!enabled) TextMuted else if (isActive) HextechCyanLight else HextechGold)
                     )
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = if (isActive) tr("ONLINE") else tr("Toca para iniciar"),
-                        color = if (isActive) HextechCyan.copy(alpha = 0.9f) else TextMuted,
+                        text = if (!enabled) tr("Desactivado") else if (isActive) tr("ONLINE") else tr("Toca para iniciar"),
+                        color = if (!enabled) TextMuted else if (isActive) HextechCyan.copy(alpha = 0.9f) else TextMuted,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp

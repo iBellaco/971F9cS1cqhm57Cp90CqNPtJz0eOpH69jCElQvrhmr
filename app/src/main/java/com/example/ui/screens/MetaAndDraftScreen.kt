@@ -127,6 +127,7 @@ import com.example.model.SummonerSpellItem
 import com.example.model.WildRiftItem
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.DraftTeamPositionCard
 import com.example.ui.components.CooldownTrackerPanel
 import com.example.ui.components.DamagePenetrationCalculator
 import com.example.ui.theme.AllyBlue
@@ -283,37 +284,21 @@ fun MetaAndDraftScreen(
                     enemyLaneOpponent = enemyLaneOpponent,
                     onToggleFirstPick = { isFirstPick = !isFirstPick },
                     onChangeRole = { showRoleChangeDialog = true },
-                    onAddMyChampion = {
-                        suggestedPickingRole = activeRole
-                        pickingForTeam = "MYSELF"
-                    },
-                    onRemoveMyChampion = {
-                        val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
-                        if (idx >= 0) allySlots.removeAt(idx)
-                    },
-                    onAddAlly = {
-                        val freeRole = LaneRole.entries.firstOrNull { r -> !allySlots.any { it.assignedRole == r } }
-                        suggestedPickingRole = freeRole
+                    onPickAllyRole = { role ->
+                        suggestedPickingRole = role
                         pickingForTeam = "ALLY"
                     },
-                    onAddEnemy = {
-                        val freeRole = LaneRole.entries.firstOrNull { r -> !enemySlots.any { it.assignedRole == r } }
-                        suggestedPickingRole = freeRole
+                    onPickEnemyRole = { role ->
+                        suggestedPickingRole = role
                         pickingForTeam = "ENEMY"
                     },
-                    onRemoveAllySlot = { slot -> allySlots.remove(slot) },
-                    onRemoveEnemySlot = { slot -> enemySlots.remove(slot) },
-                    onChangeAllyRole = { slot, newRole ->
-                        val idx = allySlots.indexOf(slot)
-                        if (idx >= 0) {
-                            allySlots[idx] = slot.copy(assignedRole = newRole)
-                        }
+                    onRemoveAllyRole = { role ->
+                        val idx = allySlots.indexOfFirst { it.assignedRole == role }
+                        if (idx >= 0) allySlots.removeAt(idx)
                     },
-                    onChangeEnemyRole = { slot, newRole ->
-                        val idx = enemySlots.indexOf(slot)
-                        if (idx >= 0) {
-                            enemySlots[idx] = slot.copy(assignedRole = newRole)
-                        }
+                    onRemoveEnemyRole = { role ->
+                        val idx = enemySlots.indexOfFirst { it.assignedRole == role }
+                        if (idx >= 0) enemySlots.removeAt(idx)
                     },
                     onPickRecommendation = { champ ->
                         val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
@@ -408,6 +393,7 @@ fun MetaAndDraftScreen(
             suggestedRole = suggestedPickingRole,
             alreadySelected = (allySlots + enemySlots).map { it.champion.id },
             onChampionPicked = { champ, chosenRole ->
+                val targetRole = suggestedPickingRole ?: chosenRole
                 when (pickingForTeam) {
                     "MYSELF" -> {
                         val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
@@ -419,13 +405,21 @@ fun MetaAndDraftScreen(
                         }
                     }
                     "ALLY" -> {
-                        if (allySlots.size < 5) {
-                            allySlots.add(DraftSlot(champ, chosenRole))
+                        val idx = allySlots.indexOfFirst { it.assignedRole == targetRole }
+                        if (idx >= 0) {
+                            allySlots[idx] = DraftSlot(champ, targetRole)
+                        } else {
+                            if (allySlots.size >= 5) allySlots.removeAt(allySlots.size - 1)
+                            allySlots.add(DraftSlot(champ, targetRole))
                         }
                     }
                     "ENEMY" -> {
-                        if (enemySlots.size < 5) {
-                            enemySlots.add(DraftSlot(champ, chosenRole))
+                        val idx = enemySlots.indexOfFirst { it.assignedRole == targetRole }
+                        if (idx >= 0) {
+                            enemySlots[idx] = DraftSlot(champ, targetRole)
+                        } else {
+                            if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
+                            enemySlots.add(DraftSlot(champ, targetRole))
                         }
                     }
                 }
@@ -2440,14 +2434,10 @@ private fun DraftAnalysisTab(
     enemyLaneOpponent: Champion?,
     onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
-    onAddMyChampion: () -> Unit,
-    onRemoveMyChampion: () -> Unit,
-    onAddAlly: () -> Unit,
-    onAddEnemy: () -> Unit,
-    onRemoveAllySlot: (DraftSlot) -> Unit,
-    onRemoveEnemySlot: (DraftSlot) -> Unit,
-    onChangeAllyRole: (DraftSlot, LaneRole) -> Unit,
-    onChangeEnemyRole: (DraftSlot, LaneRole) -> Unit,
+    onPickAllyRole: (LaneRole) -> Unit,
+    onPickEnemyRole: (LaneRole) -> Unit,
+    onRemoveAllyRole: (LaneRole) -> Unit,
+    onRemoveEnemyRole: (LaneRole) -> Unit,
     onPickRecommendation: (Champion) -> Unit,
     onSelectChampion: (Champion) -> Unit
 ) {
@@ -2519,62 +2509,29 @@ private fun DraftAnalysisTab(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Team Drafting Slots (Allies & Enemies con roles y slots editables)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Allies Column
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = tr("Equipo Aliado") + " (${allySlots.size}/5)",
-                    color = AllyBlue,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                allySlots.forEach { slot ->
-                    val isMyPick = slot.assignedRole == activeRole
-                    TeamChampionSlot(
-                        slot = slot,
-                        isEnemy = false,
-                        isMyPick = isMyPick,
-                        onRoleChanged = { newRole -> onChangeAllyRole(slot, newRole) },
-                        onRemove = { onRemoveAllySlot(slot) },
-                        onClick = { onSelectChampion(slot.champion) }
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-                if (allySlots.size < 5) {
-                    AddChampionSlotButton(isEnemy = false, onClick = onAddAlly)
-                }
-            }
+        // Panel de Selección Oficial de Posiciones - Equipo Aliado
+        DraftTeamPositionCard(
+            title = "Equipo Aliado",
+            isEnemy = false,
+            slots = allySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = onPickAllyRole,
+            onRemoveChampionForRole = onRemoveAllyRole,
+            onChampionClick = onSelectChampion
+        )
 
-            // Enemies Column
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = tr("Equipo Rival") + " (${enemySlots.size}/5)",
-                    color = DangerRed,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                enemySlots.forEach { slot ->
-                    TeamChampionSlot(
-                        slot = slot,
-                        isEnemy = true,
-                        isMyPick = false,
-                        onRoleChanged = { newRole -> onChangeEnemyRole(slot, newRole) },
-                        onRemove = { onRemoveEnemySlot(slot) },
-                        onClick = { onSelectChampion(slot.champion) }
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                }
-                if (enemySlots.size < 5) {
-                    AddChampionSlotButton(isEnemy = true, onClick = onAddEnemy)
-                }
-            }
-        }
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Panel de Selección Oficial de Posiciones - Equipo Rival
+        DraftTeamPositionCard(
+            title = "Equipo Rival",
+            isEnemy = true,
+            slots = enemySlots,
+            activeUserRole = null,
+            onPickChampionForRole = onPickEnemyRole,
+            onRemoveChampionForRole = onRemoveEnemyRole,
+            onChampionClick = onSelectChampion
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -2728,7 +2685,7 @@ private fun DraftAnalysisTab(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        IconButton(onClick = onRemoveMyChampion, modifier = Modifier.size(28.dp)) {
+                        IconButton(onClick = { onRemoveAllyRole(activeRole) }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(18.dp))
                         }
                     }
@@ -2747,7 +2704,7 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             Button(
-                onClick = onAddMyChampion,
+                onClick = { onPickAllyRole(activeRole) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),

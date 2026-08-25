@@ -308,16 +308,6 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Panel oficial de Ajustes de Posición / Línea (LANE DISPLAY SETTING)
-                LaneDisplaySettingCard(
-                    mainRole = mainRole,
-                    onMainRoleChange = onMainRoleChange,
-                    secondRole = secondRole,
-                    onSecondRoleChange = onSecondRoleChange
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
                 // Recomendación de Segundo Plano y Batería
                 Card(
                     modifier = Modifier
@@ -377,19 +367,20 @@ fun MainDraftingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Orbe Hextech 3D Central de Activación Inmediata
+                // Botón Orbe Hextech 3D Central de Activación Inmediata (Desactivado temporalmente según solicitud)
                 HextechOrbButton(
                     isActive = isAssistantActive,
-                    onToggle = toggleAssistant
+                    onToggle = toggleAssistant,
+                    enabled = false
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante") else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
-                    color = if (isAssistantActive) HextechCyan else TextMuted,
+                    text = tr("Botón temporalmente desactivado"),
+                    color = TextMuted,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
