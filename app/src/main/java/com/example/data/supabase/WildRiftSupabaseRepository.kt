@@ -44,10 +44,10 @@ object WildRiftSupabaseRepository {
                     if (canonical != null) {
                         item.copy(
                             iconUrl = if (item.iconUrl.isBlank() || !item.iconUrl.startsWith("http") || item.iconUrl.contains("placeholder")) canonical.iconUrl else item.iconUrl,
-                            name = canonical.name,
-                            stats = canonical.stats,
-                            passive = canonical.passive,
-                            category = canonical.category
+                            name = if (item.name.isBlank()) canonical.name else item.name,
+                            stats = if (item.stats.isBlank()) canonical.stats else item.stats,
+                            passive = if (item.passive.isBlank()) canonical.passive else item.passive,
+                            category = if (item.category.isBlank()) canonical.category else item.category
                         )
                     } else {
                         item
@@ -69,10 +69,21 @@ object WildRiftSupabaseRepository {
                 val mappedChamps = validChamps.map { champ ->
                     val canonical = canonicalMap[champ.id] ?: nameMap[champ.name.lowercase().trim()]
                     if (canonical != null) {
-                        champ.copy(
-                            name = canonical.name,
-                            title = canonical.title,
-                            avatarUrl = if (champ.avatarUrl.isBlank()) canonical.avatarUrl else champ.avatarUrl
+                        canonical.copy(
+                            tier = champ.tier,
+                            winrate = champ.winrate,
+                            pickRate = champ.pickRate,
+                            banRate = champ.banRate,
+                            damageType = champ.damageType,
+                            primaryRole = champ.primaryRole,
+                            secondaryRoles = if (champ.secondaryRoles.isNotEmpty()) champ.secondaryRoles else canonical.secondaryRoles,
+                            avatarUrl = if (champ.avatarUrl.isNotBlank()) champ.avatarUrl else canonical.avatarUrl,
+                            counteredBy = if (champ.counteredBy.isNotEmpty()) champ.counteredBy else canonical.counteredBy,
+                            synergies = if (champ.synergies.isNotEmpty()) champ.synergies else canonical.synergies,
+                            coreItems = if (champ.coreItems.isNotEmpty()) champ.coreItems else canonical.coreItems,
+                            situationalItems = if (champ.situationalItems.isNotEmpty()) champ.situationalItems else canonical.situationalItems,
+                            isRanged = champ.isRanged,
+                            isFrontline = champ.isFrontline
                         )
                     } else {
                         champ
@@ -81,6 +92,7 @@ object WildRiftSupabaseRepository {
                 val merged = (WildRiftRepository.champions.associateBy { it.id } + mappedChamps.associateBy { it.id }).values.toList()
                 WildRiftRepository.champions = merged
             }
+
             if (validRunes.isNotEmpty()) {
                 val canonicalMap = com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id }
                 val canonicalIds = canonicalMap.keys
@@ -88,9 +100,9 @@ object WildRiftSupabaseRepository {
                     val canonical = canonicalMap[rune.id]
                     if (canonical != null) {
                         rune.copy(
-                            name = canonical.name,
-                            description = canonical.description,
-                            category = canonical.category,
+                            name = if (rune.name.isBlank()) canonical.name else rune.name,
+                            description = if (rune.description.isBlank()) canonical.description else rune.description,
+                            category = if (rune.category.isBlank()) canonical.category else rune.category,
                             iconUrl = if (rune.iconUrl.isBlank()) canonical.iconUrl else rune.iconUrl
                         )
                     } else {
@@ -100,6 +112,7 @@ object WildRiftSupabaseRepository {
                 val merged = (com.example.data.WildRiftSpellsAndRunes.runes.associateBy { it.id } + filteredRunes.associateBy { it.id }).values.toList()
                 WildRiftRepository.runes = merged
             }
+
             if (validSpells.isNotEmpty()) {
                 val canonicalMap = com.example.data.WildRiftSpellsAndRunes.summonerSpells.associateBy { it.id }
                 val canonicalIds = canonicalMap.keys
@@ -107,9 +120,9 @@ object WildRiftSupabaseRepository {
                     val canonical = canonicalMap[spell.id]
                     if (canonical != null) {
                         spell.copy(
-                            name = canonical.name,
-                            description = canonical.description,
-                            cooldown = canonical.cooldown,
+                            name = if (spell.name.isBlank()) canonical.name else spell.name,
+                            description = if (spell.description.isBlank()) canonical.description else spell.description,
+                            cooldown = if (spell.cooldown.isBlank()) canonical.cooldown else spell.cooldown,
                             iconUrl = if (spell.iconUrl.isBlank()) canonical.iconUrl else spell.iconUrl
                         )
                     } else {

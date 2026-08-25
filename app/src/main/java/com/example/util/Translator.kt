@@ -2170,6 +2170,8 @@ val itemNamesEsToEn = mapOf(
     "Hoz Espectral" to "Spectral Sickle",
 )
 
+val itemNamesEnToEs = itemNamesEsToEn.entries.associate { (k, v) -> v to k }
+
 @Composable
 fun tr(key: String): String {
     val lang = LocalLanguage.current
@@ -2303,6 +2305,9 @@ fun trStr(lang: String, key: String): String {
         
     } else if (effectiveLang == "es") {
         // English -> Spanish (since stats might be in English)
+        val itemNameEs = itemNamesEnToEs[key]
+        if (itemNameEs != null) return itemNameEs
+        
         replaced = replaced.replace("Max Health", "Vida Máxima", ignoreCase = true)
         replaced = replaced.replace("Attack Damage", "Daño de Ataque", ignoreCase = true)
         replaced = replaced.replace("Ability Power", "Poder de Habilidad", ignoreCase = true)
