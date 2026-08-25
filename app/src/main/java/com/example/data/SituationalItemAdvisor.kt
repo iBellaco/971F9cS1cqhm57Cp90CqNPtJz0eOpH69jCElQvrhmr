@@ -248,7 +248,7 @@ object SituationalItemAdvisor {
             SituationalItemInfo(
                 name = itemData?.name ?: itemName,
                 iconUrl = itemData?.iconUrl ?: WildRiftItemsData.getItemIconByName(itemName),
-                categoryName = itemData?.category?.displayName ?: "Objeto Situacional Adaptativo",
+                categoryName = itemData?.category ?: "Objeto Situacional Adaptativo",
                 purpose = effectText,
                 bestAgainst = listOf("Composiciones rivales especializadas", "Amenazas prioritarias de la partida"),
                 keyEffect = statsText,

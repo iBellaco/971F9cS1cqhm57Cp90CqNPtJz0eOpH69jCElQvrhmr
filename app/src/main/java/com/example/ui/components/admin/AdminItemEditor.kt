@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -23,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,132 +29,55 @@ import androidx.compose.ui.window.Dialog
 import com.example.data.WildRiftRepository
 import com.example.data.local.WildRiftLocalCache
 import com.example.data.supabase.WildRiftSupabaseRepository
-import com.example.model.ItemCategory
 import com.example.model.WildRiftItem
 import com.example.ui.components.AppAssetImage
 import com.example.ui.theme.*
 import com.example.util.tr
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminItemEditorTab() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf<ItemCategory?>(null) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
     var itemToEdit by remember { mutableStateOf<WildRiftItem?>(null) }
     var isCreatingNew by remember { mutableStateOf(false) }
     var itemToDelete by remember { mutableStateOf<WildRiftItem?>(null) }
-    var isSaving by remember { mutableStateOf(false) }
 
-    val allItems = WildRiftRepository.items
-    val filteredItems = remember(allItems, searchQuery, selectedCategory) {
-        allItems.filter { item ->
-            val matchCat = selectedCategory == null || item.category == selectedCategory
-            val matchSearch = searchQuery.isBlank() ||
-                    item.name.contains(searchQuery, ignoreCase = true) ||
-                    item.id.contains(searchQuery, ignoreCase = true) ||
-                    item.stats.contains(searchQuery, ignoreCase = true)
-            matchCat && matchSearch
-        }
-    }
+    val items = WildRiftRepository.items.filter { selectedCategory.isNullOrBlank() || it.category.equals(selectedCategory, ignoreCase=true) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Actions bar
+    Column(modifier = Modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${filteredItems.size} ${tr("Objetos registrados")}",
-                color = HextechCyan,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Text(tr("Base de Datos de Objetos"), color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Button(
-                onClick = {
+                onClick = { 
+                    itemToEdit = WildRiftItem(id = "", name = "", category = "Básicos", goldCost = 500, stats = "", passive = "", iconUrl = "")
                     isCreatingNew = true
-                    itemToEdit = WildRiftItem(
-                        id = "item_${System.currentTimeMillis()}",
-                        name = "",
-                        category = selectedCategory ?: ItemCategory.BASIC,
-                        goldCost = 500,
-                        stats = "",
-                        passive = "",
-                        iconUrl = ""
-                    )
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(tr("Nuevo Ítem"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(tr("Nuevo Objeto"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Search Bar
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(tr("Buscar objeto para editar..."), color = TextMuted, fontSize = 13.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = TextMuted)
-                    }
-                }
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = HextechCyan,
-                unfocusedBorderColor = HextechCardBorder,
-                focusedContainerColor = HextechSurface,
-                unfocusedContainerColor = HextechSurface,
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary
-            ),
-            shape = RoundedCornerShape(10.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Category Filter chips
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
         ) {
-            item {
+            val dynamicCats = WildRiftRepository.items.map { it.category }.distinct()
+            items(dynamicCats) { cat ->
                 FilterChip(
-                    selected = selectedCategory == null,
-                    onClick = { selectedCategory = null },
-                    label = { Text("${tr("Todos")} (${allItems.size})", fontSize = 11.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
-                        selectedLabelColor = HextechDarkBg
-                    )
-                )
-            }
-            items(ItemCategory.entries) { cat ->
-                val count = allItems.count { it.category == cat }
-                FilterChip(
-                    selected = selectedCategory == cat,
+                    selected = selectedCategory?.equals(cat) == true,
                     onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
-                    label = { Text("${cat.iconEmoji} ${tr(cat.displayName)} ($count)", fontSize = 11.sp) },
+                    label = { Text(cat, fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -167,188 +88,44 @@ fun AdminItemEditorTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Items list grouped by category
-        val categoryDisplayOrder = listOf(
-            ItemCategory.PHYSICAL,
-            ItemCategory.MAGIC,
-            ItemCategory.DEFENSE,
-            ItemCategory.SUPPORT,
-            ItemCategory.BOOTS_T2,
-            ItemCategory.BOOTS_T3,
-            ItemCategory.ACTIVE,
-            ItemCategory.MID_TIER,
-            ItemCategory.BASIC
-        )
-
-        val groupedItems = remember(filteredItems) {
-            categoryDisplayOrder.mapNotNull { cat ->
-                val itemsInCat = filteredItems.filter { it.category == cat }.sortedByDescending { it.goldCost }
-                if (itemsInCat.isNotEmpty()) cat to itemsInCat else null
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (groupedItems.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(items) { item ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().clickable { 
+                        itemToEdit = item
+                        isCreatingNew = false
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = tr("No se encontraron objetos con ese filtro"),
-                            color = TextMuted,
-                            fontSize = 13.sp
+                        AppAssetImage(
+                            url = item.iconUrl,
+                            contentDescription = item.name,
+fallbackText = item.name,
+                            modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).border(1.dp, HextechGold, RoundedCornerShape(8.dp))
                         )
-                    }
-                }
-            } else {
-                groupedItems.forEach { (category, itemsInCat) ->
-                    item(key = "header_${category.name}") {
-                        val headerColor = when (category) {
-                            ItemCategory.PHYSICAL -> Color(0xFFFF6B6B)
-                            ItemCategory.MAGIC -> Color(0xFFB388FF)
-                            ItemCategory.DEFENSE -> HextechGreen
-                            ItemCategory.SUPPORT -> Color(0xFF48CAE4)
-                            ItemCategory.BOOTS_T2, ItemCategory.BOOTS_T3 -> HextechGold
-                            ItemCategory.ACTIVE -> Color(0xFF00E5FF)
-                            ItemCategory.MID_TIER, ItemCategory.BASIC -> HextechCyan
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text("${item.goldCost} 💰", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
-
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp, bottom = 2.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            color = headerColor.copy(alpha = 0.12f),
-                            border = BorderStroke(1.dp, headerColor.copy(alpha = 0.4f))
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(text = category.iconEmoji, fontSize = 14.sp)
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = tr(category.sectionTitle),
-                                        color = headerColor,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        letterSpacing = 0.5.sp
-                                    )
-                                }
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = headerColor.copy(alpha = 0.25f)
-                                ) {
-                                    Text(
-                                        text = "${itemsInCat.size} ${tr("ítems")}",
-                                        color = headerColor,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 10.sp,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                            }
+                        IconButton(onClick = { itemToEdit = item; isCreatingNew = false }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit", tint = HextechCyan, modifier = Modifier.size(20.dp))
                         }
-                    }
-
-                    items(itemsInCat, key = { it.id }) { item ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                            border = BorderStroke(1.dp, HextechCardBorder)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AppAssetImage(
-                                    url = item.iconUrl,
-                                    contentDescription = item.name,
-                                    fallbackText = item.name,
-                                    modifier = Modifier.size(46.dp),
-                                    borderColor = HextechGold,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = tr(item.name),
-                                            color = TextPrimary,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 13.5.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            text = "🟡 ${item.goldCost} G",
-                                            color = HextechGold,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 11.sp
-                                        )
-                                    }
-                                    Text(
-                                        text = "${item.category.iconEmoji} ${tr(item.category.displayName)} • ID: ${item.id}",
-                                        color = HextechCyan,
-                                        fontSize = 10.5.sp
-                                    )
-                                    if (item.stats.isNotBlank()) {
-                                        Text(
-                                            text = tr(item.stats),
-                                            color = TextPrimary,
-                                            fontSize = 11.5.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Row {
-                                    IconButton(
-                                        onClick = {
-                                            isCreatingNew = false
-                                            itemToEdit = item
-                                        },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                                    }
-                                    IconButton(
-                                        onClick = { itemToDelete = item },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed, modifier = Modifier.size(18.dp))
-                                    }
-                                }
-                            }
+                        IconButton(onClick = { itemToDelete = item }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = DangerRed, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 
-    // Edit/Create Item Dialog
     itemToEdit?.let { currentItem ->
         var editId by remember { mutableStateOf(currentItem.id) }
         var editName by remember { mutableStateOf(currentItem.name) }
@@ -357,41 +134,27 @@ fun AdminItemEditorTab() {
         var editStats by remember { mutableStateOf(currentItem.stats) }
         var editPassive by remember { mutableStateOf(currentItem.passive) }
         var editIconUrl by remember { mutableStateOf(currentItem.iconUrl) }
+        var isSaving by remember { mutableStateOf(false) }
 
         Dialog(onDismissRequest = { if (!isSaving) itemToEdit = null }) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
-                border = BorderStroke(1.5.dp, HextechGold)
+                border = BorderStroke(1.dp, HextechGold)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
+                    modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (isCreatingNew) tr("➕ Crear Nuevo Objeto") else tr("✏️ Editar Objeto"),
-                            color = HextechGold,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                        IconButton(onClick = { itemToEdit = null }, enabled = !isSaving) {
-                            Icon(Icons.Default.Close, contentDescription = null, tint = TextMuted)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(if (isCreatingNew) tr("Crear Nuevo Objeto") else tr("Editar Objeto"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        IconButton(onClick = { if (!isSaving) itemToEdit = null }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close", tint = TextMuted)
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // ID Field
                     OutlinedTextField(
                         value = editId,
                         onValueChange = { if (isCreatingNew) editId = it },
@@ -399,47 +162,29 @@ fun AdminItemEditorTab() {
                         label = { Text("ID Único (ej. boots_of_speed_basic)", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Name Field
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it },
                         label = { Text("Nombre del Ítem (ES / EN)", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Category Selector
-                    Text("Categoría:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(ItemCategory.entries) { cat ->
-                            FilterChip(
-                                selected = editCategory == cat,
-                                onClick = { editCategory = cat },
-                                label = { Text("${cat.iconEmoji} ${cat.displayName}", fontSize = 10.5.sp) }
-                            )
-                        }
-                    }
-
+                    OutlinedTextField(
+                        value = editCategory,
+                        onValueChange = { editCategory = it },
+                        label = { Text("Categoría (ej. Básicos, Defensa, Daño Físico)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Cost Field
                     OutlinedTextField(
                         value = editCost,
                         onValueChange = { editCost = it.filter { c -> c.isDigit() } },
@@ -447,44 +192,29 @@ fun AdminItemEditorTab() {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Stats Field
                     OutlinedTextField(
                         value = editStats,
                         onValueChange = { editStats = it },
                         label = { Text("Estadísticas (ej. +25 Move Speed, +40 Armor)", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Passive Field
                     OutlinedTextField(
                         value = editPassive,
                         onValueChange = { editPassive = it },
                         label = { Text("Descripción de Pasiva / Activa", fontSize = 11.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechCyan, unfocusedBorderColor = HextechCardBorder)
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Image Picker / Uploader / URL Field
                     AdminImagePickerUploader(
                         label = "Ícono del Objeto (Galería o URL)",
                         imageUrl = editIconUrl,
@@ -492,7 +222,6 @@ fun AdminItemEditorTab() {
                         imagePrefix = "item_${editId.ifBlank { "new" }}",
                         accentColor = HextechGold
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
@@ -505,7 +234,7 @@ fun AdminItemEditorTab() {
                             val updatedItem = WildRiftItem(
                                 id = editId.trim(),
                                 name = editName.trim(),
-                                category = editCategory,
+                                category = editCategory.trim().ifBlank { "Básicos" },
                                 goldCost = editCost.toIntOrNull() ?: 500,
                                 stats = editStats.trim(),
                                 passive = editPassive.trim(),
@@ -541,7 +270,6 @@ fun AdminItemEditorTab() {
         }
     }
 
-    // Delete confirmation dialog
     itemToDelete?.let { item ->
         AlertDialog(
             onDismissRequest = { itemToDelete = null },

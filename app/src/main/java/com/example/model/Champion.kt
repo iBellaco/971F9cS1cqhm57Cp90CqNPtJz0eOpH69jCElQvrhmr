@@ -101,7 +101,7 @@ data class Champion(
 data class WildRiftItem(
     val id: String,
     val name: String,
-    val category: ItemCategory,
+    val category: String,
     val goldCost: Int,
     val stats: String,
     val passive: String,

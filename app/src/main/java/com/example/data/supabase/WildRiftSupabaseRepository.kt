@@ -31,10 +31,17 @@ object WildRiftSupabaseRepository {
             val validRunes = runes.filter { it.id.isNotBlank() && it.name.isNotBlank() }
             val validSpells = spells.filter { it.id.isNotBlank() && it.name.isNotBlank() }
 
+            
             if (validItems.isNotEmpty()) {
-                val merged = (WildRiftRepository.items.associateBy { it.id } + validItems.associateBy { it.id }).values.toList()
+                val spellIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
+                val filteredItems = validItems.filter { item ->
+                    val isSpell = item.id.endsWith("_basic") && item.id.replace("_basic", "") in spellIds.map { it.replace("spell_", "") }
+                    !isSpell && !item.id.startsWith("spell_")
+                }
+                val merged = (WildRiftRepository.items.associateBy { it.id } + filteredItems.associateBy { it.id }).values.toList()
                 WildRiftRepository.items = merged
             }
+
             if (validChamps.isNotEmpty()) {
                 val merged = (WildRiftRepository.champions.associateBy { it.id } + validChamps.associateBy { it.id }).values.toList()
                 WildRiftRepository.champions = merged

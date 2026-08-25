@@ -1083,7 +1083,7 @@ private fun TierSectionCard(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ItemsCatalogTab() {
-    var selectedCategory by remember { mutableStateOf<ItemCategory?>(null) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var isGridView by remember { mutableStateOf(true) }
     var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
@@ -1205,18 +1205,21 @@ private fun ItemsCatalogTab() {
                     selectedLabelColor = HextechDarkBg
                 )
             )
-            ItemCategory.entries.forEach { cat ->
+            
+            val dynamicCats = allItems.map { it.category }.distinct()
+            dynamicCats.forEach { cat ->
                 val count = allItems.count { it.category == cat }
                 FilterChip(
                     selected = selectedCategory == cat,
                     onClick = { selectedCategory = if (selectedCategory == cat) null else cat },
-                    label = { Text("${com.example.util.tr(cat.displayName)} ($count)", fontSize = 11.5.sp) },
+                    label = { Text("${com.example.util.tr(cat)} ($count)", fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
             }
+
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -1229,10 +1232,10 @@ private fun ItemsCatalogTab() {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (isGroupedView) {
-                ItemCategory.entries.forEach { category ->
-                    val categoryItems = allItems.filter { it.category == category }
+                val grouped = allItems.groupBy { it.category }
+                grouped.forEach { (category, categoryItems) ->
                     if (categoryItems.isNotEmpty()) {
-                        item(key = "header_${category.name}") {
+                        item(key = "header_${category}") {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -1245,7 +1248,7 @@ private fun ItemsCatalogTab() {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     
                                     Text(
-                                        text = tr(category.sectionTitle),
+                                        text = tr(category.uppercase()),
                                         color = TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.5.sp
@@ -1368,7 +1371,7 @@ private fun ItemsCatalogTab() {
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = tr(item.category.displayName),
+                                text = tr(item.category),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1534,7 +1537,7 @@ private fun ItemListCard(
                     Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                 }
-                Text(tr(item.category.displayName), color = HextechCyan, fontSize = 11.sp)
+                Text(tr(item.category), color = HextechCyan, fontSize = 11.sp)
                 if (item.stats.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(tr(item.stats), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)

@@ -29,15 +29,10 @@ data class WrItemDto(
     @SerialName("icon_url") val iconUrl: String = ""
 ) {
     fun toModel(): WildRiftItem {
-        val cat = try {
-            ItemCategory.valueOf(category)
-        } catch (_: Exception) {
-            ItemCategory.entries.find { it.displayName.equals(category, ignoreCase = true) } ?: ItemCategory.BASIC
-        }
         return WildRiftItem(
             id = id,
             name = name,
-            category = cat,
+            category = category,
             goldCost = goldCost,
             stats = stats,
             passive = passive,
@@ -50,7 +45,7 @@ data class WrItemDto(
             return WrItemDto(
                 id = model.id,
                 name = model.name,
-                category = model.category.name,
+                category = model.category,
                 goldCost = model.goldCost,
                 stats = model.stats,
                 passive = model.passive,
