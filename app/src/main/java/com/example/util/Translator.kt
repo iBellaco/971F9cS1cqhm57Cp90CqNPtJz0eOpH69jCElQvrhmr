@@ -2202,8 +2202,8 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Básicos", "Basic", ignoreCase = true)
         replaced = replaced.replace("Nivel Medio", "Mid Tier", ignoreCase = true)
         replaced = replaced.replace("Encantamientos", "Enchants", ignoreCase = true)
-
         replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+
         replaced = replaced.replace("Vida Máxima", "Max Health", ignoreCase = true)
         replaced = replaced.replace("Daño de Ataque", "Attack Damage", ignoreCase = true)
         replaced = replaced.replace("Poder de Habilidad", "Ability Power", ignoreCase = true)
@@ -2236,6 +2236,16 @@ fun trStr(lang: String, key: String): String {
         if (itemNameEn != null) return itemNameEn
 
         // Categories
+        replaced = replaced.replace("Physical Damage", "Dano Físico", ignoreCase = true)
+        replaced = replaced.replace("Magic Damage", "Dano Mágico", ignoreCase = true)
+        replaced = replaced.replace("Defense", "Defesa", ignoreCase = true)
+        replaced = replaced.replace("Magic", "Magia", ignoreCase = true)
+        replaced = replaced.replace("Boots", "Botas", ignoreCase = true)
+        replaced = replaced.replace("Basic", "Básicos", ignoreCase = true)
+        replaced = replaced.replace("Mid Tier", "Nível Médio", ignoreCase = true)
+        replaced = replaced.replace("Enchants", "Encantamentos", ignoreCase = true)
+        replaced = replaced.replace("Patch", "Patch", ignoreCase = true)
+
         replaced = replaced.replace("Daño Físico", "Dano Físico", ignoreCase = true)
         replaced = replaced.replace("Daño Mágico", "Dano Mágico", ignoreCase = true)
         replaced = replaced.replace("Defensa", "Defesa", ignoreCase = true)
@@ -2244,8 +2254,8 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Básicos", "Básicos", ignoreCase = true)
         replaced = replaced.replace("Nivel Medio", "Nível Médio", ignoreCase = true)
         replaced = replaced.replace("Encantamientos", "Encantamentos", ignoreCase = true)
-
         replaced = replaced.replace("Parche", "Patch", ignoreCase = true)
+
         replaced = replaced.replace("Vida Máxima", "Vida Máxima", ignoreCase = true)
         replaced = replaced.replace("Daño de Ataque", "Dano de Ataque", ignoreCase = true)
         replaced = replaced.replace("Poder de Habilidad", "Poder de Habilidade", ignoreCase = true)
@@ -2259,8 +2269,8 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Resistencia Mágica", "Resistência Mágica", ignoreCase = true)
         replaced = replaced.replace("Armadura", "Armadura", ignoreCase = true)
         replaced = replaced.replace("Robo de Vida", "Roubo de Vida", ignoreCase = true)
-        replaced = replaced.replace("Omnivampirismo", "Vampirismo Universal", ignoreCase = true)
-        replaced = replaced.replace("Vampirismo", "Vampirismo", ignoreCase = true)
+        replaced = replaced.replace("Omnivampirismo", "Omnivamp", ignoreCase = true)
+        replaced = replaced.replace("Vampirismo", "Vamp", ignoreCase = true)
         replaced = replaced.replace("Daño Verdadero", "Dano Verdadeiro", ignoreCase = true)
         replaced = replaced.replace("Curación", "Cura", ignoreCase = true)
         replaced = replaced.replace("Escudo", "Escudo", ignoreCase = true)
@@ -2272,41 +2282,21 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Aumenta", "Aumenta", ignoreCase = true)
         replaced = replaced.replace("Reduce", "Reduz", ignoreCase = true)
         replaced = replaced.replace("Otorga", "Concede", ignoreCase = true)
-
-        // English -> Portuguese (since stats might be in English)
-        replaced = replaced.replace("Max Health", "Vida Máxima", ignoreCase = true)
-        replaced = replaced.replace("Attack Damage", "Dano de Ataque", ignoreCase = true)
-        replaced = replaced.replace("Ability Power", "Poder de Habilidade", ignoreCase = true)
-        replaced = replaced.replace("Attack Speed", "Velocidade de Ataque", ignoreCase = true)
-        replaced = replaced.replace("Movement Speed", "Velocidade de Movimento", ignoreCase = true)
-        replaced = replaced.replace("Ability Haste", "Aceleração de Hab.", ignoreCase = true)
-        replaced = replaced.replace("Critical Rate", "Chance de Crítico", ignoreCase = true)
-        replaced = replaced.replace("Critical Chance", "Chance de Crítico", ignoreCase = true)
-        replaced = replaced.replace("Critical Damage", "Dano Crítico", ignoreCase = true)
-        replaced = replaced.replace("Armor Penetration", "Penetração de Armadura", ignoreCase = true)
-        replaced = replaced.replace("Magic Penetration", "Penetração Mágica", ignoreCase = true)
-        replaced = replaced.replace("Magic Resist", "Resistência Mágica", ignoreCase = true)
-        replaced = replaced.replace("Armor", "Armadura", ignoreCase = true)
-        replaced = replaced.replace("Physical Vamp", "Vamp. Físico", ignoreCase = true)
-        replaced = replaced.replace("Omni Vamp", "Vamp. Universal", ignoreCase = true)
-        replaced = replaced.replace("Magic Vamp", "Vamp. Mágico", ignoreCase = true)
-        replaced = replaced.replace("Vamp", "Vampirismo", ignoreCase = true)
-        replaced = replaced.replace("True Damage", "Dano Verdadeiro", ignoreCase = true)
-        replaced = replaced.replace("Healing", "Cura", ignoreCase = true)
-        replaced = replaced.replace("Shield", "Escudo", ignoreCase = true)
-        replaced = replaced.replace("Cooldown", "Tempo de Recarga", ignoreCase = true)
-        replaced = replaced.replace("Passive", "Passiva", ignoreCase = true)
-        replaced = replaced.replace("Ability", "Habilidade", ignoreCase = true)
-        replaced = replaced.replace("Ultimate", "Ultimate", ignoreCase = true)
-        replaced = replaced.replace("Deals", "Causa", ignoreCase = true)
-        replaced = replaced.replace("Increases", "Aumenta", ignoreCase = true)
-        replaced = replaced.replace("Reduces", "Reduz", ignoreCase = true)
-        replaced = replaced.replace("Grants", "Concede", ignoreCase = true)
-        
     } else if (effectiveLang == "es") {
         // English -> Spanish (since stats might be in English)
         val itemNameEs = itemNamesEnToEs[key]
         if (itemNameEs != null) return itemNameEs
+
+        // Categories
+        replaced = replaced.replace("Physical Damage", "Daño Físico", ignoreCase = true)
+        replaced = replaced.replace("Magic Damage", "Daño Mágico", ignoreCase = true)
+        replaced = replaced.replace("Defense", "Defensa", ignoreCase = true)
+        replaced = replaced.replace("Magic", "Magia", ignoreCase = true)
+        replaced = replaced.replace("Boots", "Botas", ignoreCase = true)
+        replaced = replaced.replace("Basic", "Básicos", ignoreCase = true)
+        replaced = replaced.replace("Mid Tier", "Nivel Medio", ignoreCase = true)
+        replaced = replaced.replace("Enchants", "Encantamientos", ignoreCase = true)
+        replaced = replaced.replace("Patch", "Parche", ignoreCase = true)
         
         replaced = replaced.replace("Max Health", "Vida Máxima", ignoreCase = true)
         replaced = replaced.replace("Attack Damage", "Daño de Ataque", ignoreCase = true)
@@ -2321,9 +2311,8 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Magic Penetration", "Penetración Mágica", ignoreCase = true)
         replaced = replaced.replace("Magic Resist", "Resistencia Mágica", ignoreCase = true)
         replaced = replaced.replace("Armor", "Armadura", ignoreCase = true)
-        replaced = replaced.replace("Physical Vamp", "Vamp. Físico", ignoreCase = true)
-        replaced = replaced.replace("Omni Vamp", "Omnivampirismo", ignoreCase = true)
-        replaced = replaced.replace("Magic Vamp", "Vamp. Mágico", ignoreCase = true)
+        replaced = replaced.replace("Life Steal", "Robo de Vida", ignoreCase = true)
+        replaced = replaced.replace("Omnivamp", "Omnivampirismo", ignoreCase = true)
         replaced = replaced.replace("Vamp", "Vampirismo", ignoreCase = true)
         replaced = replaced.replace("True Damage", "Daño Verdadero", ignoreCase = true)
         replaced = replaced.replace("Healing", "Curación", ignoreCase = true)
@@ -2337,6 +2326,5 @@ fun trStr(lang: String, key: String): String {
         replaced = replaced.replace("Reduces", "Reduce", ignoreCase = true)
         replaced = replaced.replace("Grants", "Otorga", ignoreCase = true)
     }
-    
     return replaced
 }

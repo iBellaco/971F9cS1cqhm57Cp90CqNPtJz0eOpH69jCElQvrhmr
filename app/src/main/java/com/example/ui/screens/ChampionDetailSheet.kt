@@ -567,8 +567,8 @@ fun ChampionDetailSheet(
                                 contentDescription = roleProfile.recommendedRunes,
                                 fallbackText = "Runa",
                                 modifier = Modifier.size(38.dp).clickable { 
-                                    val dbRune = com.example.data.WildRiftSpellsAndRunes.runes.find {
-                                        it.name.equals(roleProfile.recommendedRunes, ignoreCase = true) || roleProfile.recommendedRunes.contains(it.name, ignoreCase = true)
+                                    val dbRune = com.example.data.WildRiftRepository.runes.find {
+                                        it.name.equals(roleProfile.recommendedRunes, ignoreCase = true) || roleProfile.recommendedRunes.contains(it.name, ignoreCase = true) || it.name.contains(roleProfile.recommendedRunes, ignoreCase = true)
                                     }
                                     if (dbRune != null) runeForDetail = dbRune
                                 },
@@ -598,8 +598,8 @@ fun ChampionDetailSheet(
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         parsedRunes.forEach { rName ->
-                                            val allRunes = com.example.data.WildRiftSpellsAndRunes.runes
-                                            val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name) }
+                                            val allRunes = com.example.data.WildRiftRepository.runes
+                                            val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
                                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { if (foundRune != null) runeForDetail = foundRune }) {
                                                 if (foundRune != null) {
                                                     com.example.ui.components.AppAssetImage(
@@ -673,7 +673,7 @@ fun ChampionDetailSheet(
                     ) {
                         roleProfile.coreItems.forEachIndexed { idx, rawName ->
                             val dbItem = com.example.data.WildRiftRepository.items.find { 
-                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase=true)
+                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase = true) || it.name.contains(rawName, ignoreCase = true)
                             }
                             val iconUrl = dbItem?.iconUrl ?: roleProfile.coreItemsIcons.getOrNull(idx) ?: ""
                             val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)

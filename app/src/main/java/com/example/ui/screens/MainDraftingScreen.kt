@@ -308,63 +308,81 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Recomendación de Segundo Plano y Batería
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .border(1.dp, HextechGold.copy(alpha = 0.45f), RoundedCornerShape(14.dp)),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.9f))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
-                                .background(HextechGold.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.BatteryChargingFull,
-                                contentDescription = null,
-                                tint = HextechGold,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = tr("Rendimiento en Segundo Plano"),
-                                color = HextechGold,
-                                fontSize = 12.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = tr("Para un funcionamiento óptimo, permite la actividad en segundo plano y desactiva el ahorro de batería en esta app."),
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                lineHeight = 14.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        OutlinedButton(
-                            onClick = {
-                                SystemPermissionHelper.requestIgnoreBatteryOptimization(context)
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                            modifier = Modifier.height(32.dp)
-                        ) {
-                            Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }
+
+                DisposableEffect(lifecycleOwner) {
+                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                            isIgnoringBatteryOpt = SystemPermissionHelper.isIgnoringBatteryOptimizations(context)
                         }
                     }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
+                    }
+                }
+
+                if (!isIgnoringBatteryOpt) {
+                    // Recomendación de Segundo Plano y Batería
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .border(1.dp, HextechGold.copy(alpha = 0.45f), RoundedCornerShape(14.dp)),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.9f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechGold.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.BatteryChargingFull,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = tr("Rendimiento en Segundo Plano"),
+                                    color = HextechGold,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = tr("Para un funcionamiento óptimo, permite la actividad en segundo plano y desactiva el ahorro de batería en esta app."),
+                                    color = TextSecondary,
+                                    fontSize = 11.sp,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedButton(
+                                onClick = {
+                                    SystemPermissionHelper.requestIgnoreBatteryOptimization(context)
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -412,7 +430,7 @@ fun MainDraftingScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (isDownloading) tr("Descargando Recursos...") else tr("Descargar Recursos"),
+                            text = if (isDownloading) tr("Descargando Recursos...") else "${tr("Descargar Recursos")} (~35 MB)",
                             color = HextechCyan,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold

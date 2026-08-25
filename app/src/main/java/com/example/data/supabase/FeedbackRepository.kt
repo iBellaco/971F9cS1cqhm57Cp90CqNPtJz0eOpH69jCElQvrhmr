@@ -15,6 +15,18 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+private data class InsertFeedbackReport(
+    val type: String,
+    val title: String,
+    val description: String,
+    @SerialName("app_version") val appVersion: String,
+    @SerialName("device_info") val deviceInfo: String,
+    val status: String
+)
 
 object FeedbackRepository {
 
@@ -50,14 +62,13 @@ object FeedbackRepository {
             val deviceInfo = if (imageBase64 != null) "$baseDeviceInfo\n\n[IMAGE_BASE64]\n$imageBase64" else baseDeviceInfo
             val appVersion = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) [${WildRiftRepository.CURRENT_PATCH_VERSION}]"
 
-            val report = FeedbackReport(
+            val report = InsertFeedbackReport(
                 type = type,
                 title = title.trim(),
                 description = description.trim(),
                 appVersion = appVersion,
                 deviceInfo = deviceInfo,
-                status = "PENDING",
-                isCompleted = false
+                status = "PENDING"
             )
 
             // 3. Insertar en la tabla feedbacks de Supabase

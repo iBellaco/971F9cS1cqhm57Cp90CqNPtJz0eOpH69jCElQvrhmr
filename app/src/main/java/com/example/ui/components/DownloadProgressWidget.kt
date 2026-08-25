@@ -71,6 +71,16 @@ fun DownloadProgressWidget() {
                         Row {
                             if (isDownloading) {
                                 IconButton(
+                                    onClick = { ImagePrefetcher.cancelPrefetch() },
+                                    modifier = Modifier.size(24.dp).padding(end = 4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Cancelar",
+                                        tint = com.example.ui.theme.DangerRed
+                                    )
+                                }
+                                IconButton(
                                     onClick = { ImagePrefetcher.isUiMinimized.value = !isMinimized },
                                     modifier = Modifier.size(24.dp)
                                 ) {

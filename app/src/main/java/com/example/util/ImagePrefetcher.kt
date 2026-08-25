@@ -20,6 +20,7 @@ object ImagePrefetcher {
     private const val KEY_DOWNLOADED = "assets_fully_downloaded"
 
     private val prefetchScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var activeJob: kotlinx.coroutines.Job? = null
 
     private val _downloadProgress = MutableStateFlow(0f)
     val downloadProgress: StateFlow<Float> = _downloadProgress
@@ -62,11 +63,21 @@ object ImagePrefetcher {
         }
 
         val appContext = context.applicationContext
-        prefetchScope.launch {
+        activeJob = prefetchScope.launch {
             prefetchAllImages(appContext)
         }
     }
     
+    fun cancelPrefetch() {
+        if (_isDownloading.value) {
+            activeJob?.cancel()
+            addLog("🚫 Descarga cancelada por el usuario.")
+            _isDownloading.value = false
+            _downloadProgress.value = 0f
+            // We keep showProgressUi = true so the user sees the cancellation message, they can close it.
+        }
+    }
+
     private suspend fun prefetchAllImages(context: Context) {
         _isDownloading.value = true
         showProgressUi.value = true
