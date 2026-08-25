@@ -291,7 +291,7 @@ fun ChampionDetailSheet(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.TrendingUp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = tr("Estadísticas del Meta Oficial"),

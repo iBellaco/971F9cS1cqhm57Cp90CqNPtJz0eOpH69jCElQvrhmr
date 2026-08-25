@@ -57,6 +57,7 @@ import kotlinx.coroutines.launch
 
 import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 enum class AppScreen {
     LOGIN,
     LANGUAGE_SELECTION,
@@ -172,7 +173,7 @@ fun DashboardScreen(
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.MenuBook, contentDescription = "Catálogo") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Catálogo") },
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,

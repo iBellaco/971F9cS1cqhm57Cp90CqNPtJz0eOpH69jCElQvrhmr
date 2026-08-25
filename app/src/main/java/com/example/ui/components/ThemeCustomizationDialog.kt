@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -388,7 +389,7 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         NavigationBarItem(
                             selected = previewSelectedTab == 2,
                             onClick = { previewSelectedTab = 2 },
-                            icon = { Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp)) },
                             label = { Text(tr("Catálogo"), fontSize = 9.5.sp) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = navIconColor,

@@ -94,7 +94,7 @@ fun ExitConfirmationDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ExitToApp,
+                        imageVector = Icons.Filled.ExitToApp,
                         contentDescription = tr("Salir"),
                         tint = DangerRed,
                         modifier = Modifier.size(28.dp)

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -108,7 +109,7 @@ fun DamagePenetrationCalculator(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Icon(Icons.Default.ArrowForward, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp).padding(horizontal = 2.dp))
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp).padding(horizontal = 2.dp))
                             Text(
                                 text = "${effectiveReductionPercent.roundToInt()}%",
                                 color = AllyBlue,
@@ -120,7 +121,7 @@ fun DamagePenetrationCalculator(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                Divider(color = HextechCardBorder, thickness = 0.5.dp)
+                HorizontalDivider(color = HextechCardBorder, thickness = 0.5.dp)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
