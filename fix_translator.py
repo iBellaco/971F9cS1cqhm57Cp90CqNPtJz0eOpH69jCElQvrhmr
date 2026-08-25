@@ -1,48 +1,66 @@
 import re
 
-with open("app/src/main/java/com/example/util/Translator.kt", "r", encoding="utf-8") as f:
+with open('app/src/main/java/com/example/util/Translator.kt', 'r', encoding='utf-8') as f:
     content = f.read()
 
-# Append to Portuguese
-pt_add = '''
-        "Heal" to "Curar",
-        "Smite" to "Golpear",
-        "Ignite" to "Incendiar",
-        "Flash" to "Flash",
-        "Ghost" to "Fantasma",
-        "Barrier" to "Barreira",
-        "Exhaust" to "Exaustão",
-        "Cleanse" to "Purificar",
-        "Teleport" to "Teleporte",
-        "Clarity" to "Clareza",
-        "Mark / Dash" to "Marcação / Avanço",
-        "Transferencia / Alias / Pix" to "Transferência / Alias / Pix",
-        "Latinoamérica / Internacional" to "América Latina / Internacional",
-        "Entendido / Cerrar" to "Entendido / Fechar",
-        "Copiar" to "Copiar",
-'''
-content = content.replace('// === HECHIZOS DE INVOCADOR (PORTUGUÊS) ===', '// === HECHIZOS DE INVOCADOR (PORTUGUÊS) ===\n' + pt_add)
+# Make sure WildRiftRepository is imported
+if 'import com.example.data.WildRiftRepository' not in content:
+    content = content.replace('import androidx.compose.runtime.Composable', 'import androidx.compose.runtime.Composable\nimport com.example.data.WildRiftRepository')
 
-# Append to English
-en_add = '''
-        "Transferencia / Alias / Pix" to "Transfer / Alias / Pix",
-        "Latinoamérica / Internacional" to "Latin America / International",
-        "Entendido / Cerrar" to "Understood / Close",
-        "Copiar" to "Copy",
-        "Smite" to "Smite",
-        "Heal" to "Heal",
-        "Ignite" to "Ignite",
-        "Flash" to "Flash",
-        "Ghost" to "Ghost",
-        "Barrier" to "Barrier",
-        "Exhaust" to "Exhaust",
-        "Cleanse" to "Cleanse",
-        "Teleport" to "Teleport",
-'''
-content = content.replace('// === SUMMONER SPELLS (ENGLISH) ===', '// === SUMMONER SPELLS (ENGLISH) ===\n' + en_add)
+injection = """
+    // ----------------------------------------------------
+    // DYNAMIC REPOSITORY LOOKUP (SUPABASE LOCALIZED COLUMNS)
+    // ----------------------------------------------------
+    val itemByName = WildRiftRepository.items.find { it.name.equals(key, ignoreCase = true) }
+    if (itemByName != null) {
+        val loc = if (effectiveLang == "en") itemByName.nameEn else itemByName.namePt
+        if (loc.isNotBlank()) return loc
+    }
+    val itemByStats = WildRiftRepository.items.find { it.stats.equals(key, ignoreCase = true) }
+    if (itemByStats != null) {
+        val loc = if (effectiveLang == "en") itemByStats.statsEn else itemByStats.statsPt
+        if (loc.isNotBlank()) return loc
+    }
+    val itemByPassive = WildRiftRepository.items.find { it.passive.equals(key, ignoreCase = true) }
+    if (itemByPassive != null) {
+        val loc = if (effectiveLang == "en") itemByPassive.passiveEn else itemByPassive.passivePt
+        if (loc.isNotBlank()) return loc
+    }
+    val champByName = WildRiftRepository.champions.find { it.name.equals(key, ignoreCase = true) }
+    if (champByName != null) {
+        val loc = if (effectiveLang == "en") champByName.nameEn else champByName.namePt
+        if (loc.isNotBlank()) return loc
+    }
+    val champByTitle = WildRiftRepository.champions.find { it.title.equals(key, ignoreCase = true) }
+    if (champByTitle != null) {
+        val loc = if (effectiveLang == "en") champByTitle.titleEn else champByTitle.titlePt
+        if (loc.isNotBlank()) return loc
+    }
+    val runeByName = WildRiftRepository.runes.find { it.name.equals(key, ignoreCase = true) }
+    if (runeByName != null) {
+        val loc = if (effectiveLang == "en") runeByName.nameEn else runeByName.namePt
+        if (loc.isNotBlank()) return loc
+    }
+    val runeByDesc = WildRiftRepository.runes.find { it.description.equals(key, ignoreCase = true) }
+    if (runeByDesc != null) {
+        val loc = if (effectiveLang == "en") runeByDesc.descriptionEn else runeByDesc.descriptionPt
+        if (loc.isNotBlank()) return loc
+    }
+    val spellByName = WildRiftRepository.summonerSpells.find { it.name.equals(key, ignoreCase = true) }
+    if (spellByName != null) {
+        val loc = if (effectiveLang == "en") spellByName.nameEn else spellByName.namePt
+        if (loc.isNotBlank()) return loc
+    }
+    val spellByDesc = WildRiftRepository.summonerSpells.find { it.description.equals(key, ignoreCase = true) }
+    if (spellByDesc != null) {
+        val loc = if (effectiveLang == "en") spellByDesc.descriptionEn else spellByDesc.descriptionPt
+        if (loc.isNotBlank()) return loc
+    }
+    // ----------------------------------------------------
+"""
 
-# To handle reverse mappings (if the database has English names but app is in Spanish)
-# Let's add them to Spanish (since Spanish is the default, it usually doesn't have a map).
-# Wait, `Translator.kt` has `currentLanguage`. 
-# If current language is "es", it returns the original string if not found.
-# Let's check how "es" is handled.
+# Insert right after `if (effectiveLang == "es") return key`
+content = content.replace('if (effectiveLang == "es") return key', f'if (effectiveLang == "es") return key\n{injection}')
+
+with open('app/src/main/java/com/example/util/Translator.kt', 'w', encoding='utf-8') as f:
+    f.write(content)

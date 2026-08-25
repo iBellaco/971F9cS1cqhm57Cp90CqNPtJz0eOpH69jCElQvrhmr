@@ -22,36 +22,37 @@ data class WrPatchDto(
 data class WrItemDto(
     val id: String = "",
     val name: String = "",
+    @SerialName("name_en") val nameEn: String = "",
+    @SerialName("name_pt") val namePt: String = "",
     val category: String = "BASIC",
     @SerialName("gold_cost") val goldCost: Int = 0,
     val stats: String = "",
+    @SerialName("stats_en") val statsEn: String = "",
+    @SerialName("stats_pt") val statsPt: String = "",
     val passive: String = "",
+    @SerialName("passive_en") val passiveEn: String = "",
+    @SerialName("passive_pt") val passivePt: String = "",
     @SerialName("icon_url") val iconUrl: String = ""
 ) {
-    fun toModel(): WildRiftItem {
-        return WildRiftItem(
-            id = id,
-            name = name,
-            category = category,
-            goldCost = goldCost,
-            stats = stats,
-            passive = passive,
-            iconUrl = iconUrl
-        )
-    }
-
+    fun toModel(): WildRiftItem = WildRiftItem(
+        id = id,
+        name = name, nameEn = nameEn, namePt = namePt,
+        category = category,
+        goldCost = goldCost,
+        stats = stats, statsEn = statsEn, statsPt = statsPt,
+        passive = passive, passiveEn = passiveEn, passivePt = passivePt,
+        iconUrl = iconUrl
+    )
     companion object {
-        fun fromModel(model: WildRiftItem): WrItemDto {
-            return WrItemDto(
-                id = model.id,
-                name = model.name,
-                category = model.category,
-                goldCost = model.goldCost,
-                stats = model.stats,
-                passive = model.passive,
-                iconUrl = model.iconUrl
-            )
-        }
+        fun fromModel(model: WildRiftItem): WrItemDto = WrItemDto(
+            id = model.id,
+            name = model.name, nameEn = model.nameEn, namePt = model.namePt,
+            category = model.category,
+            goldCost = model.goldCost,
+            stats = model.stats, statsEn = model.statsEn, statsPt = model.statsPt,
+            passive = model.passive, passiveEn = model.passiveEn, passivePt = model.passivePt,
+            iconUrl = model.iconUrl
+        )
     }
 }
 
@@ -59,7 +60,11 @@ data class WrItemDto(
 data class WrChampionDto(
     val id: String = "",
     val name: String = "",
+    @SerialName("name_en") val nameEn: String = "",
+    @SerialName("name_pt") val namePt: String = "",
     val title: String = "",
+    @SerialName("title_en") val titleEn: String = "",
+    @SerialName("title_pt") val titlePt: String = "",
     @SerialName("primary_role") val primaryRole: String = "TOP",
     @SerialName("secondary_roles") val secondaryRoles: String = "",
     val tier: String = "A",
@@ -88,8 +93,8 @@ data class WrChampionDto(
 
         return existingFallback?.copy(
             id = id,
-            name = name,
-            title = title.ifEmpty { existingFallback.title },
+            name = name.ifEmpty { existingFallback.name }, nameEn = nameEn.ifEmpty { existingFallback.nameEn }, namePt = namePt.ifEmpty { existingFallback.namePt },
+            title = title.ifEmpty { existingFallback.title }, titleEn = titleEn.ifEmpty { existingFallback.titleEn }, titlePt = titlePt.ifEmpty { existingFallback.titlePt },
             primaryRole = pRole,
             secondaryRoles = if (sRoles.isNotEmpty()) sRoles else existingFallback.secondaryRoles,
             tier = tier,
@@ -106,8 +111,8 @@ data class WrChampionDto(
             isFrontline = isFrontline
         ) ?: Champion(
             id = id,
-            name = name,
-            title = title,
+            name = name, nameEn = nameEn, namePt = namePt,
+            title = title, titleEn = titleEn, titlePt = titlePt,
             primaryRole = pRole,
             secondaryRoles = sRoles,
             tier = tier,
@@ -124,29 +129,26 @@ data class WrChampionDto(
             isFrontline = isFrontline
         )
     }
-
     companion object {
-        fun fromModel(model: Champion): WrChampionDto {
-            return WrChampionDto(
-                id = model.id,
-                name = model.name,
-                title = model.title,
-                primaryRole = model.primaryRole.name,
-                secondaryRoles = model.secondaryRoles.joinToString(",") { it.name },
-                tier = model.tier,
-                winrate = model.winrate,
-                pickrate = model.pickRate,
-                banrate = model.banRate,
-                damageType = model.damageType.name,
-                avatarUrl = model.avatarUrl,
-                counters = model.counteredBy.joinToString(","),
-                synergies = model.synergies.joinToString(","),
-                coreItems = model.coreItems.joinToString(","),
-                situationalItems = model.situationalItems.joinToString(","),
-                isRanged = model.isRanged,
-                isFrontline = model.isFrontline
-            )
-        }
+        fun fromModel(model: Champion): WrChampionDto = WrChampionDto(
+            id = model.id,
+            name = model.name, nameEn = model.nameEn, namePt = model.namePt,
+            title = model.title, titleEn = model.titleEn, titlePt = model.titlePt,
+            primaryRole = model.primaryRole.name,
+            secondaryRoles = model.secondaryRoles.joinToString(",") { it.name },
+            tier = model.tier,
+            winrate = model.winrate,
+            pickrate = model.pickRate,
+            banrate = model.banRate,
+            damageType = model.damageType.name,
+            avatarUrl = model.avatarUrl,
+            counters = model.counteredBy.joinToString(","),
+            synergies = model.synergies.joinToString(","),
+            coreItems = model.coreItems.joinToString(","),
+            situationalItems = model.situationalItems.joinToString(","),
+            isRanged = model.isRanged,
+            isFrontline = model.isFrontline
+        )
     }
 }
 
@@ -154,19 +156,22 @@ data class WrChampionDto(
 data class WrRuneDto(
     val id: String = "",
     val name: String = "",
+    @SerialName("name_en") val nameEn: String = "",
+    @SerialName("name_pt") val namePt: String = "",
     val category: String = "",
     @SerialName("icon_url") val iconUrl: String = "",
-    val description: String = ""
+    val description: String = "",
+    @SerialName("description_en") val descriptionEn: String = "",
+    @SerialName("description_pt") val descriptionPt: String = ""
 ) {
-    fun toModel(): RuneItem = RuneItem(id, name, category, iconUrl, description)
-
+    fun toModel(): RuneItem = RuneItem(id, name, nameEn, namePt, category, iconUrl, description, descriptionEn, descriptionPt)
     companion object {
         fun fromModel(model: RuneItem): WrRuneDto = WrRuneDto(
             id = model.id,
-            name = model.name,
+            name = model.name, nameEn = model.nameEn, namePt = model.namePt,
             category = model.category,
             iconUrl = model.iconUrl,
-            description = model.description
+            description = model.description, descriptionEn = model.descriptionEn, descriptionPt = model.descriptionPt
         )
     }
 }
@@ -175,19 +180,22 @@ data class WrRuneDto(
 data class WrSpellDto(
     val id: String = "",
     val name: String = "",
+    @SerialName("name_en") val nameEn: String = "",
+    @SerialName("name_pt") val namePt: String = "",
     val cooldown: String = "",
     @SerialName("icon_url") val iconUrl: String = "",
-    val description: String = ""
+    val description: String = "",
+    @SerialName("description_en") val descriptionEn: String = "",
+    @SerialName("description_pt") val descriptionPt: String = ""
 ) {
-    fun toModel(): SummonerSpellItem = SummonerSpellItem(id, name, cooldown, iconUrl, description)
-
+    fun toModel(): SummonerSpellItem = SummonerSpellItem(id, name, nameEn, namePt, cooldown, iconUrl, description, descriptionEn, descriptionPt)
     companion object {
         fun fromModel(model: SummonerSpellItem): WrSpellDto = WrSpellDto(
             id = model.id,
-            name = model.name,
+            name = model.name, nameEn = model.nameEn, namePt = model.namePt,
             cooldown = model.cooldown,
             iconUrl = model.iconUrl,
-            description = model.description
+            description = model.description, descriptionEn = model.descriptionEn, descriptionPt = model.descriptionPt
         )
     }
 }

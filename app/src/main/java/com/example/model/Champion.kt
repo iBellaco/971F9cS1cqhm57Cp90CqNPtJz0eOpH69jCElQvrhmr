@@ -37,6 +37,8 @@ data class ChampionSkill(
     val slot: String = "", // "P", "1", "2", "3", "4"
     val slotName: String = "", // "Pasiva", "Habilidad 1", "Habilidad 2", "Habilidad 3", "Definitiva"
     val name: String = "",
+    val nameEn: String = "",
+    val namePt: String = "",
     val iconUrl: String = "",
     val description: String = "",
     val cooldown: String = ""
@@ -58,7 +60,11 @@ data class ItemSwap(
 data class Champion(
     val id: String = "",
     val name: String = "",
+    val nameEn: String = "",
+    val namePt: String = "",
     val title: String = "",
+    val titleEn: String = "",
+    val titlePt: String = "",
     val ddragonId: String = "",
     val avatarUrl: String = "",
     val primaryRole: LaneRole = LaneRole.MID,
@@ -101,10 +107,16 @@ data class Champion(
 data class WildRiftItem(
     val id: String,
     val name: String,
+    val nameEn: String = "",
+    val namePt: String = "",
     val category: String,
     val goldCost: Int,
     val stats: String,
+    val statsEn: String = "",
+    val statsPt: String = "",
     val passive: String,
+    val passiveEn: String = "",
+    val passivePt: String = "",
     val iconUrl: String
 )
 
@@ -112,9 +124,13 @@ data class WildRiftItem(
 data class SummonerSpellItem(
     val id: String,
     val name: String,
+    val nameEn: String = "",
+    val namePt: String = "",
     val cooldown: String,
     val iconUrl: String,
     val description: String,
+    val descriptionEn: String = "",
+    val descriptionPt: String = "",
     val category: String = "Hechizos"
 )
 
@@ -122,15 +138,21 @@ data class SummonerSpellItem(
 data class RuneItem(
     val id: String,
     val name: String,
+    val nameEn: String = "",
+    val namePt: String = "",
     val category: String, // "Clave", "Dominación", "Precisión", "Valor", "Inspiración"
     val iconUrl: String,
-    val description: String
+    val description: String,
+    val descriptionEn: String = "",
+    val descriptionPt: String = ""
 )
 
 @Serializable
 data class MapObjectiveItem(
     val id: String,
     val name: String,
+    val nameEn: String = "",
+    val namePt: String = "",
     val spawnTime: String,
     val respawnTime: String,
     val iconUrl: String,
@@ -176,7 +198,11 @@ data class DraftRecommendation(
 data class MetaDataSource(
     val id: String,
     val name: String,
+    val nameEn: String = "",
+    val namePt: String = "",
     val description: String,
+    val descriptionEn: String = "",
+    val descriptionPt: String = "",
     val url: String,
     val focusArea: String,
     val badge: String = "Sincronizado"

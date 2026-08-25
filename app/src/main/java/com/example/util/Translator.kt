@@ -3,6 +3,7 @@ package com.example.util
 
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.Composable
+import com.example.data.WildRiftRepository
 import androidx.compose.ui.res.stringResource
 
 val LocalLanguage = compositionLocalOf { "es" }
@@ -2366,6 +2367,57 @@ fun trStr(lang: String, key: String): String {
     
     val dynamic = DynamicTranslations.get(effectiveLang, key)
     if (dynamic != null) return dynamic
+
+    // --- DATABASE OVERRIDES ---
+    if (effectiveLang != "es") {
+        val itemByName = WildRiftRepository.items.find { it.name.equals(key, ignoreCase = true) }
+        if (itemByName != null) {
+            val loc = if (effectiveLang == "en") itemByName.nameEn else itemByName.namePt
+            if (loc.isNotBlank()) return loc
+        }
+        val itemByStats = WildRiftRepository.items.find { it.stats.equals(key, ignoreCase = true) }
+        if (itemByStats != null) {
+            val loc = if (effectiveLang == "en") itemByStats.statsEn else itemByStats.statsPt
+            if (loc.isNotBlank()) return loc
+        }
+        val itemByPassive = WildRiftRepository.items.find { it.passive.equals(key, ignoreCase = true) }
+        if (itemByPassive != null) {
+            val loc = if (effectiveLang == "en") itemByPassive.passiveEn else itemByPassive.passivePt
+            if (loc.isNotBlank()) return loc
+        }
+        val champByName = WildRiftRepository.champions.find { it.name.equals(key, ignoreCase = true) }
+        if (champByName != null) {
+            val loc = if (effectiveLang == "en") champByName.nameEn else champByName.namePt
+            if (loc.isNotBlank()) return loc
+        }
+        val champByTitle = WildRiftRepository.champions.find { it.title.equals(key, ignoreCase = true) }
+        if (champByTitle != null) {
+            val loc = if (effectiveLang == "en") champByTitle.titleEn else champByTitle.titlePt
+            if (loc.isNotBlank()) return loc
+        }
+        val runeByName = WildRiftRepository.runes.find { it.name.equals(key, ignoreCase = true) }
+        if (runeByName != null) {
+            val loc = if (effectiveLang == "en") runeByName.nameEn else runeByName.namePt
+            if (loc.isNotBlank()) return loc
+        }
+        val runeByDesc = WildRiftRepository.runes.find { it.description.equals(key, ignoreCase = true) }
+        if (runeByDesc != null) {
+            val loc = if (effectiveLang == "en") runeByDesc.descriptionEn else runeByDesc.descriptionPt
+            if (loc.isNotBlank()) return loc
+        }
+        val spellByName = WildRiftRepository.summonerSpells.find { it.name.equals(key, ignoreCase = true) }
+        if (spellByName != null) {
+            val loc = if (effectiveLang == "en") spellByName.nameEn else spellByName.namePt
+            if (loc.isNotBlank()) return loc
+        }
+        val spellByDesc = WildRiftRepository.summonerSpells.find { it.description.equals(key, ignoreCase = true) }
+        if (spellByDesc != null) {
+            val loc = if (effectiveLang == "en") spellByDesc.descriptionEn else spellByDesc.descriptionPt
+            if (loc.isNotBlank()) return loc
+        }
+    }
+    // --------------------------
+
 
     var replaced = key
     

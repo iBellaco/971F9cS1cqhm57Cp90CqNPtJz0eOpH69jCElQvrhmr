@@ -1,62 +1,13 @@
-package com.example.util
+import re
 
-import android.content.Context
-import org.json.JSONObject
-import com.example.data.WildRiftRepository
-import com.example.R
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+with open('app/src/main/java/com/example/util/DynamicTranslations.kt', 'r', encoding='utf-8') as f:
+    content = f.read()
 
-object DynamicTranslations {
-    @Volatile
-    private var enMap: Map<String, String>? = null
-    @Volatile
-    private var ptMap: Map<String, String>? = null
+# Add WildRiftRepository lookup
+if 'import com.example.data.WildRiftRepository' not in content:
+    content = content.replace('import org.json.JSONObject', 'import org.json.JSONObject\nimport com.example.data.WildRiftRepository')
 
-    private val scope = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, t ->
-        AppLogger.e("Translations", "Error loading translations safely", t)
-    })
-
-    fun load(context: Context) {
-        if (enMap != null && ptMap != null) return
-        
-        scope.launch {
-            loadSync(context)
-        }
-    }
-
-    fun loadSync(context: Context) {
-        if (enMap != null && ptMap != null) return
-        try {
-            if (enMap == null) {
-                val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
-                val json = JSONObject(jsonStr)
-                val map = mutableMapOf<String, String>()
-                val iter = json.keys()
-                while (iter.hasNext()) {
-                    val key = iter.next()
-                    map[key] = json.getString(key)
-                }
-                enMap = map
-            }
-            if (ptMap == null) {
-                val jsonStr = context.assets.open("translations_pt.json").bufferedReader().use { it.readText() }
-                val json = JSONObject(jsonStr)
-                val map = mutableMapOf<String, String>()
-                val iter = json.keys()
-                while (iter.hasNext()) {
-                    val key = iter.next()
-                    map[key] = json.getString(key)
-                }
-                ptMap = map
-            }
-        } catch (e: Exception) {
-            AppLogger.e("Translations", "Failed to load dynamic translations", e)
-        }
-    }
-
+injection = """
     fun get(lang: String, key: String): String? {
         val staticTranslation = if (lang == "en") enMap?.get(key) else if (lang == "pt") ptMap?.get(key) else null
         if (staticTranslation != null) return staticTranslation
@@ -114,4 +65,9 @@ object DynamicTranslations {
         
         return null
     }
-}
+"""
+
+content = re.sub(r'fun get\(lang: String, key: String\): String\? \{.*?\n    \}', injection.strip(), content, flags=re.DOTALL)
+
+with open('app/src/main/java/com/example/util/DynamicTranslations.kt', 'w', encoding='utf-8') as f:
+    f.write(content)
