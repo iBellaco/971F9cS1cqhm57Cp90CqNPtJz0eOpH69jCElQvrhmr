@@ -109,11 +109,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.List
 import com.example.data.WildRiftRepository
-import com.example.ui.components.admin.AdminChampionEditorTab
-import com.example.ui.components.admin.AdminItemEditorTab
-import com.example.ui.components.admin.AdminRunesEditorTab
-import com.example.ui.components.admin.AdminObjectivesEditorTab
-import com.example.ui.components.admin.AdminSupabaseSyncTab
 import com.example.util.tr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -121,13 +116,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 enum class AdminTab(val titleKey: String, val icon: ImageVector) {
-    FEEDBACK("Buzón", Icons.Default.Inbox),
-    ITEMS("Objetos", Icons.Default.Shield),
-    CHAMPIONS("Campeones", Icons.Default.Person),
-    RUNES("Runas", Icons.Default.AutoAwesome),
-    OBJECTIVES("Objetivos", Icons.Default.Map),
-    SUPABASE("Supabase & Parches", Icons.Default.CloudSync),
-    DATABASE("DB Visor", Icons.Default.List)
+    FEEDBACK("Buzón", Icons.Default.Inbox)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -262,12 +251,6 @@ fun AdminFeedbackBottomSheet(
                         Text(
                             text = when (currentAdminTab) {
                                 AdminTab.FEEDBACK -> tr("Gestión de Mensajes & Reportes")
-                                AdminTab.ITEMS -> tr("Catálogo y Clasificación de Objetos")
-                                AdminTab.CHAMPIONS -> tr("Campeones por Líneas y Roles")
-                                AdminTab.RUNES -> tr("Runas por Ramas (Clave, Dominación, etc.)")
-                                AdminTab.OBJECTIVES -> tr("Objetivos de Mapa y Tácticas")
-                                AdminTab.SUPABASE -> tr("Sincronización y Respaldo Supabase")
-                                AdminTab.DATABASE -> tr("Visor de Tablas de Base de Datos")
                             },
                             color = TextMuted,
                             fontSize = 11.5.sp
@@ -345,20 +328,6 @@ fun AdminFeedbackBottomSheet(
             }
 
             when (currentAdminTab) {
-                AdminTab.ITEMS -> {
-                    AdminItemEditorTab()
-                }
-                AdminTab.CHAMPIONS -> {
-                    AdminChampionEditorTab()
-                }
-                AdminTab.RUNES -> { AdminRunesEditorTab() }
-                AdminTab.OBJECTIVES -> { AdminObjectivesEditorTab() }
-                AdminTab.SUPABASE -> {
-                    AdminSupabaseSyncTab()
-                }
-                AdminTab.DATABASE -> {
-                    com.example.ui.components.admin.AdminDatabaseViewerTab()
-                }
                 AdminTab.FEEDBACK -> {
                     Column(modifier = Modifier.fillMaxSize()) {
                         // Métricas Rápidas y Filtros (Píldoras animadas)
