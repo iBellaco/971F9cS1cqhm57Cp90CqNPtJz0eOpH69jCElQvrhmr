@@ -155,7 +155,7 @@ fun AppAssetImage(
                 fontWeight = FontWeight.Bold
             )
         } else {
-            AsyncImage(
+            coil.compose.SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
                     .crossfade(true)
@@ -164,7 +164,27 @@ fun AppAssetImage(
                     .build(),
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(shape)
+                modifier = Modifier.fillMaxSize().clip(shape),
+                loading = {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = fallbackText.take(2).uppercase(),
+                            color = borderColor.copy(alpha = 0.5f),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                error = {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = fallbackText.take(2).uppercase(),
+                            color = borderColor,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             )
         }
     }

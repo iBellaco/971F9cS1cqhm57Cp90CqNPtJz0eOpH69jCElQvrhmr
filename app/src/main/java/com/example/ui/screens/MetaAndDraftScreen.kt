@@ -1248,7 +1248,7 @@ private fun ItemsCatalogTab() {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     
                                     Text(
-                                        text = tr(category.uppercase()),
+                                        text = tr(category).uppercase(),
                                         color = TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.5.sp

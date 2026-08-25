@@ -121,6 +121,9 @@ class WildRiftApp : Application(), ImageLoaderFactory {
                     .build()
             }
             .allowHardware(true)
+
+            
+
             .crossfade(true)
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .build()
