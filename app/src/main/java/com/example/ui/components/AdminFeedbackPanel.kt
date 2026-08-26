@@ -2,9 +2,13 @@ package com.example.ui.components
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Base64
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -17,19 +21,24 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -46,6 +55,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HourglassEmpty
@@ -53,11 +63,14 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -81,6 +94,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,10 +103,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -263,12 +280,14 @@ fun AdminFeedbackBottomSheet(
         containerColor = HextechDarkBg,
         dragHandle = null,
         modifier = Modifier
-            .fillMaxHeight(0.94f)
+            .fillMaxHeight(0.92f)
+            .statusBarsPadding()
             .testTag("admin_feedback_panel")
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .navigationBarsPadding()
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -841,10 +860,17 @@ fun AdminFeedbackBottomSheet(
         )
     }
 
-    // Diálogo de Vista Previa de Imagen
+    // Diálogo de Vista Previa de Imagen con Zoom y Descarga
     if (previewImageBitmap != null) {
+        var scale by remember(previewImageBitmap) { mutableFloatStateOf(1f) }
+        var offset by remember(previewImageBitmap) { mutableStateOf(Offset.Zero) }
+
         AlertDialog(
-            onDismissRequest = { previewImageBitmap = null },
+            onDismissRequest = { 
+                previewImageBitmap = null 
+                scale = 1f
+                offset = Offset.Zero
+            },
             containerColor = HextechDarkBg,
             shape = RoundedCornerShape(14.dp),
             title = {
@@ -853,39 +879,168 @@ fun AdminFeedbackBottomSheet(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, 
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                        Text(tr("Captura Adjunta"), color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = if (scale > 1.05f) "${tr("Captura")} (${(scale * 100).toInt()}%)" else tr("Captura Adjunta"), 
+                            color = HextechGold, 
+                            fontSize = 14.sp, 
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    IconButton(onClick = { previewImageBitmap = null }, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        // Zoom Out
+                        IconButton(
+                            onClick = {
+                                scale = (scale / 1.3f).coerceIn(1f, 5f)
+                                if (scale <= 1.05f) {
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                }
+                            },
+                            modifier = Modifier.size(28.dp),
+                            enabled = scale > 1f
+                        ) {
+                            Icon(Icons.Default.ZoomOut, contentDescription = "Alejar", tint = if (scale > 1f) HextechCyan else TextMuted, modifier = Modifier.size(18.dp))
+                        }
+
+                        // Zoom In
+                        IconButton(
+                            onClick = {
+                                scale = (scale * 1.3f).coerceIn(1f, 5f)
+                            },
+                            modifier = Modifier.size(28.dp),
+                            enabled = scale < 5f
+                        ) {
+                            Icon(Icons.Default.ZoomIn, contentDescription = "Acercar", tint = if (scale < 5f) HextechCyan else TextMuted, modifier = Modifier.size(18.dp))
+                        }
+
+                        // Reset Zoom
+                        if (scale > 1.05f) {
+                            IconButton(
+                                onClick = {
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = HextechGold, modifier = Modifier.size(18.dp))
+                            }
+                        }
+
+                        // Descargar Imagen
+                        IconButton(
+                            onClick = {
+                                saveBitmapToGallery(context, previewImageBitmap!!)
+                            },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(Icons.Default.Download, contentDescription = "Descargar", tint = HextechGreen, modifier = Modifier.size(18.dp))
+                        }
+
+                        // Cerrar
+                        IconButton(
+                            onClick = { 
+                                previewImageBitmap = null 
+                                scale = 1f
+                                offset = Offset.Zero
+                            }, 
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted, modifier = Modifier.size(18.dp))
+                        }
                     }
                 }
             },
             text = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 420.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
-                        .background(Color.Black),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        bitmap = previewImageBitmap!!.asImageBitmap(),
-                        contentDescription = "Vista previa",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 220.dp, max = 460.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
+                            .background(Color.Black)
+                            .pointerInput(previewImageBitmap) {
+                                detectTransformGestures { _, pan, zoom, _ ->
+                                    scale = (scale * zoom).coerceIn(1f, 5f)
+                                    val maxOffsetX = (size.width * (scale - 1f)) / 2f
+                                    val maxOffsetY = (size.height * (scale - 1f)) / 2f
+                                    offset = if (scale > 1f) {
+                                        Offset(
+                                            (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                                            (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                                        )
+                                    } else {
+                                        Offset.Zero
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            bitmap = previewImageBitmap!!.asImageBitmap(),
+                            contentDescription = "Vista previa ampliable",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer(
+                                    scaleX = scale,
+                                    scaleY = scale,
+                                    translationX = offset.x,
+                                    translationY = offset.y
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar"),
+                        color = TextMuted,
+                        fontSize = 10.5.sp
                     )
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = { previewImageBitmap = null },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(tr("Cerrar"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    Button(
+                        onClick = {
+                            saveBitmapToGallery(context, previewImageBitmap!!)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = HextechGreen.copy(alpha = 0.25f),
+                            contentColor = HextechGreen
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGreen.copy(alpha = 0.7f))
+                    ) {
+                        Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(tr("Descargar"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+
+                    Button(
+                        onClick = { 
+                            previewImageBitmap = null 
+                            scale = 1f
+                            offset = Offset.Zero
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(tr("Cerrar"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
                 }
             }
         )
@@ -952,6 +1107,7 @@ private fun ComprehensiveFeedbackCard(
     onCopy: () -> Unit,
     onOpenImage: (Bitmap) -> Unit
 ) {
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     val isBug = report.type.equals("BUG", ignoreCase = true)
 
@@ -1073,34 +1229,103 @@ private fun ComprehensiveFeedbackCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Título
-            Text(
-                text = report.title,
-                color = TextPrimary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable { expanded = !expanded }
-            )
+            // Título con botón para copiarlo directamente
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechDarkBg.copy(alpha = 0.45f))
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = report.title,
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { expanded = !expanded }
+                )
+                IconButton(
+                    onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Título", report.title))
+                        Toast.makeText(context, "📋 Título copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copiar título",
+                        tint = HextechGold,
+                        modifier = Modifier.size(13.5.dp)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
-            // Descripción
+            // Descripción con botón para copiarla directamente
             val cleanDescription = remember(report.description) {
                 cleanDescriptionText(report.description)
             }
-            Text(
-                text = cleanDescription,
-                color = TextSecondary,
-                fontSize = 12.5.sp,
-                lineHeight = 17.sp,
-                maxLines = if (expanded) Int.MAX_VALUE else 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.clickable { expanded = !expanded }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechDarkBg.copy(alpha = 0.25f))
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = cleanDescription,
+                    color = TextSecondary,
+                    fontSize = 12.5.sp,
+                    lineHeight = 17.sp,
+                    maxLines = if (expanded) Int.MAX_VALUE else 3,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { expanded = !expanded }
+                )
+                IconButton(
+                    onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Descripción", cleanDescription))
+                        Toast.makeText(context, "📋 Descripción copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(start = 2.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copiar descripción",
+                        tint = HextechCyan,
+                        modifier = Modifier.size(13.5.dp)
+                    )
+                }
+            }
 
-            // Miniaturas de Imágenes Adjuntas
+            // Miniaturas de Imágenes Adjuntas con indicador de zoom/descarga
             if (attachedBitmaps.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                    Text(
+                        text = tr("Capturas adjuntas (Toca para ampliar y descargar):"),
+                        color = TextMuted,
+                        fontSize = 10.5.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -1108,7 +1333,7 @@ private fun ComprehensiveFeedbackCard(
                     items(attachedBitmaps) { bmp ->
                         Box(
                             modifier = Modifier
-                                .size(54.dp)
+                                .size(58.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                                 .clickable { onOpenImage(bmp) }
@@ -1119,6 +1344,19 @@ private fun ComprehensiveFeedbackCard(
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(topStart = 4.dp))
+                                    .padding(2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ZoomIn,
+                                    contentDescription = "Ampliar",
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -1353,4 +1591,48 @@ private fun extractBase64Images(rawText: String): List<Bitmap> {
         }
     }
     return results
+}
+
+private fun saveBitmapToGallery(context: Context, bitmap: Bitmap) {
+    try {
+        val filename = "WR_Feedback_${System.currentTimeMillis()}.png"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/WildRiftFeedback")
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+            val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            if (imageUri != null) {
+                resolver.openOutputStream(imageUri)?.use { fos ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                }
+                contentValues.clear()
+                contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                resolver.update(imageUri, contentValues, null, null)
+                Toast.makeText(context, "💾 Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
+                return
+            }
+        } else {
+            val imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            val appDir = java.io.File(imagesDir, "WildRiftFeedback")
+            if (!appDir.exists()) appDir.mkdirs()
+            val imageFile = java.io.File(appDir, filename)
+            java.io.FileOutputStream(imageFile).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            }
+            android.media.MediaScannerConnection.scanFile(
+                context,
+                arrayOf(imageFile.absolutePath),
+                arrayOf("image/png"),
+                null
+            )
+            Toast.makeText(context, "💾 Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
+            return
+        }
+    } catch (e: Exception) {
+        Toast.makeText(context, "Error al guardar imagen: ${e.localizedMessage ?: "Error desconocido"}", Toast.LENGTH_SHORT).show()
+    }
 }
