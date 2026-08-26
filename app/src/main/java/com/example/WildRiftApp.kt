@@ -75,25 +75,7 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         }
         CoroutineScope(Dispatchers.IO + handler).launch {
             try {
-                val prefs = getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-                if (!prefs.getBoolean("is_db_seeded_multi_lang_v5", false)) {
-                    AppLogger.d("WildRiftApp", "Iniciando población de base de datos multi-idioma (una sola vez)...")
-                    val res = com.example.data.supabase.WildRiftSupabaseRepository.seedAllDataToSupabase { c, t, m -> 
-                        AppLogger.d("WildRiftApp", "Seed: $m $c/$t") 
-                    }
-                    if (res.isFailure) {
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(this@WildRiftApp, "SUPABASE ERROR: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
-                        }
-                    } else {
-                        Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(this@WildRiftApp, "SUPABASE SYNC SUCCESSFUL", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                    prefs.edit().putBoolean("is_db_seeded_multi_lang_v5", true).apply()
-                    AppLogger.d("WildRiftApp", "Población de base de datos completada.")
-                }
-                com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(this@WildRiftApp)
+                AppLogger.d("WildRiftApp", "Sincronización con Supabase deshabilitada para uso 100% local.")
             } catch (e: Exception) {
                 AppLogger.e("WildRiftApp", "Error sincronizando desde Supabase", e)
             }

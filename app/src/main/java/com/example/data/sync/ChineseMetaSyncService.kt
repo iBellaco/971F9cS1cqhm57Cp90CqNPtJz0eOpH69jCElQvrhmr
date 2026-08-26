@@ -196,7 +196,7 @@ object ChineseMetaSyncService {
 
                 // Guardar en Supabase y Caché Local para persistencia y sincronización global
                 try {
-                    com.example.data.supabase.WildRiftSupabaseRepository.saveAllChampionsToSupabase(updatedChampions)
+                    //com.example.data.supabase.WildRiftSupabaseRepository.saveAllChampionsToSupabase(updatedChampions)
                     com.example.data.local.WildRiftLocalCache.saveToLocalCache(context, champions = updatedChampions)
                     Log.d(TAG, "Estadísticas guardadas exitosamente en Supabase y Caché Local.")
                 } catch (e: Exception) {

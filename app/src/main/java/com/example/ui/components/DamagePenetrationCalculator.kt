@@ -50,6 +50,8 @@ fun DamagePenetrationCalculator(
     // Break-even point: A partir de cuánta armadura % Pen rinde más que Flat Pen
     val breakEvenArmor = if (percentPenetration > 0) (flatPenetration / (percentPenetration / 100f)).roundToInt() else 0
 
+    val currentLang = com.example.util.LocalLanguage.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -91,7 +93,7 @@ fun DamagePenetrationCalculator(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Defensa Efectiva", color = TextMuted, fontSize = 11.sp)
+                        Text(tr("Defensa Efectiva"), color = TextMuted, fontSize = 11.sp)
                         Text(
                             text = "${effectiveResistance.roundToInt()} / ${rawResistance.roundToInt()}",
                             color = HextechCyan,
@@ -101,7 +103,7 @@ fun DamagePenetrationCalculator(
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Reducción de Daño", color = TextMuted, fontSize = 11.sp)
+                        Text(tr("Reducción de Daño"), color = TextMuted, fontSize = 11.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "${baseReductionPercent.roundToInt()}%",
@@ -128,7 +130,7 @@ fun DamagePenetrationCalculator(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Daño Real Infligido:", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("${tr("Daño Real Infligido")}:", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     Text(
                         text = "${actualDamageDealt.roundToInt()} (+${damageIncreasePercent.roundToInt()}%)",
                         color = HextechGold,
@@ -144,7 +146,7 @@ fun DamagePenetrationCalculator(
         // Controles y Sliders
         // 1. Armadura / Resistencia Mágica del Enemigo
         Text(
-            text = "🛡️ Armadura / Resistencia Mágica del Objetivo: ${rawResistance.roundToInt()}",
+            text = "${tr("Armadura / Resistencia Mágica")}: ${rawResistance.roundToInt()}",
             color = TextPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
@@ -163,7 +165,7 @@ fun DamagePenetrationCalculator(
 
         // 2. Letalidad / Penetración Plana
         Text(
-            text = "🗡️ Letalidad / Penetración Mágica Plana: ${flatPenetration.roundToInt()}",
+            text = "${tr("Letalidad / Penetración Plana")}: ${flatPenetration.roundToInt()}",
             color = TextPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
@@ -182,7 +184,7 @@ fun DamagePenetrationCalculator(
 
         // 3. Porcentaje de Penetración (% Armor Pen / % Magic Pen)
         Text(
-            text = "🏹 Penetración Porcentual (% Armor / Magic Pen): ${percentPenetration.roundToInt()}%",
+            text = "${tr("Penetración Porcentual")}: ${percentPenetration.roundToInt()}%",
             color = TextPrimary,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
@@ -213,7 +215,7 @@ fun DamagePenetrationCalculator(
                     Icon(Icons.Default.Lightbulb, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Veredicto del Coach de Élite:",
+                        text = tr("Veredicto del Coach de Élite:"),
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.5.sp
@@ -221,12 +223,27 @@ fun DamagePenetrationCalculator(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 val tacticalAdvice = when {
-                    rawResistance >= 180f ->
-                        "⚠️ OBJETIVO HIPER-TANQUE (${rawResistance.roundToInt()} def): La Letalidad plana es inútil aquí. Prioriza Dominik / Serylda / Bastón del Vacío + Daño por % de vida (Rey Arruinado / Liandry)."
-                    rawResistance >= breakEvenArmor ->
-                        "⚖️ PUNTO DE INFLEXIÓN ALCANZADO: Con ${rawResistance.roundToInt()} de defensa, la Penetración Porcentual (${percentPenetration.roundToInt()}%) te otorga MÁS daño por oro que comprar más Letalidad plana."
-                    else ->
-                        "💥 OBJETIVO FRÁGIL (${rawResistance.roundToInt()} def): La Letalidad Plana / Penetración plana ignora casi toda su armadura base, infligiendo daño prácticamente verdadero."
+                    rawResistance >= 180f -> {
+                        when (currentLang) {
+                            "en" -> "⚠️ HYPER-TANK TARGET (${rawResistance.roundToInt()} def): Flat Lethality is ineffective here. Prioritize Lord Dominik's / Serylda / Void Staff + % Max HP damage (Blade of the Ruined King / Liandry's)."
+                            "pt" -> "⚠️ ALVO HÍPER-TANQUE (${rawResistance.roundToInt()} def): Letalidade plana é ineficaz aqui. Priorize Lembranças do Lorde Dominik / Serylda / Cajado do Vazio + Dano por % de Vida (Espada do Rei Destruído / Liandry)."
+                            else -> "⚠️ OBJETIVO HIPER-TANQUE (${rawResistance.roundToInt()} def): La Letalidad plana es inútil aquí. Prioriza Dominik / Serylda / Bastón del Vacío + Daño por % de vida (Rey Arruinado / Liandry)."
+                        }
+                    }
+                    rawResistance >= breakEvenArmor -> {
+                        when (currentLang) {
+                            "en" -> "⚖️ BREAK-EVEN POINT REACHED: With ${rawResistance.roundToInt()} defense, Percent Penetration (${percentPenetration.roundToInt()}%) yields MORE damage per gold than flat lethality."
+                            "pt" -> "⚖️ PONTO DE INFLEXÃO ALCANÇADO: Com ${rawResistance.roundToInt()} de defesa, a Penetração Percentual (${percentPenetration.roundToInt()}%) concede MAIS dano por ouro do que mais Letalidade plana."
+                            else -> "⚖️ PUNTO DE INFLEXIÓN ALCANZADO: Con ${rawResistance.roundToInt()} de defensa, la Penetración Porcentual (${percentPenetration.roundToInt()}%) te otorga MÁS daño por oro que comprar más Letalidad plana."
+                        }
+                    }
+                    else -> {
+                        when (currentLang) {
+                            "en" -> "💥 SQUISHY TARGET (${rawResistance.roundToInt()} def): Flat Lethality / Magic Pen ignores nearly all base armor, dealing almost true damage."
+                            "pt" -> "💥 ALVO FRÁGIL (${rawResistance.roundToInt()} def): A Letalidade Plana / Penetração plana ignora quase toda a armadura base, causando dano praticamente verdadeiro."
+                            else -> "💥 OBJETIVO FRÁGIL (${rawResistance.roundToInt()} def): La Letalidad Plana / Penetración plana ignora casi toda su armadura base, infligiendo daño prácticamente verdadero."
+                        }
+                    }
                 }
                 Text(
                     text = tacticalAdvice,

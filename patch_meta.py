@@ -1,11 +1,9 @@
 import re
+with open("app/src/main/java/com/example/data/sync/MetaCrawlerSyncService.kt", "r") as f:
+    text = f.read()
 
-with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'r', encoding='utf-8') as f:
-    content = f.read()
+text = re.sub(r'com\.example\.data\.supabase\.WildRiftSupabaseRepository\.syncAllFromSupabase\(context\)', '//com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(context)', text)
 
-content = content.replace("Color(0xFF141926)", "HextechSurfaceVariant")
-content = content.replace("Color(0xFF0C1322)", "HextechSurface")
-
-with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'w', encoding='utf-8') as f:
-    f.write(content)
-
+with open("app/src/main/java/com/example/data/sync/MetaCrawlerSyncService.kt", "w") as f:
+    f.write(text)
+print("Patched meta sync")

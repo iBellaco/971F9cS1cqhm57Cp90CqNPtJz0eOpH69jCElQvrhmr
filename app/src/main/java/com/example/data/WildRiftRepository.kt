@@ -448,11 +448,21 @@ object WildRiftRepository {
         if (enemyLaneOpponent != null) {
             val opponent = enemyLaneOpponent
             if (myRole == LaneRole.TOP && opponent.isRanged) {
-                directMatchupWarning = com.example.util.trStr(lang, "¡Alerta en Top! Enfrentas a un rival con rango/ADC (${opponent.name}). Prioriza sustain (Segundo Aire), control de oleada y espera al jungla.")
+                val topAlert = when (lang) {
+                    "en" -> "Top Lane Alert! Facing a ranged/ADC opponent (${opponent.name}). Prioritize sustain (Second Wind), wave control, and wait for your jungler."
+                    "pt" -> "Alerta no Top! Enfrentando oponente com alcance/ADC (${opponent.name}). Priorize sustentação (Ventos Revigorantes), controle de onda e espere o caçador."
+                    else -> "¡Alerta en Top! Enfrentas a un rival con rango/ADC (${opponent.name}). Prioriza sustain (Segundo Aire), control de oleada y espera al jungla."
+                }
+                directMatchupWarning = topAlert
                 directCounterBestPick = "Malphite, Irelia, Pantheon, Wukong"
             } else if (opponent.counteredBy.isNotEmpty()) {
                 val countersList = opponent.counteredBy.take(3).joinToString(", ")
-                directMatchupWarning = com.example.util.trStr(lang, "Rival directo en tu línea: ${opponent.name}. Picks ideales para anularlo: $countersList.")
+                val template = when (lang) {
+                    "en" -> "Direct opponent in your lane: %s. Ideal picks to counter: %s."
+                    "pt" -> "Rival direto na sua rota: %s. Melhores escolhas para anular: %s."
+                    else -> "Rival directo en tu línea: %s. Picks ideales para anularlo: %s."
+                }
+                directMatchupWarning = String.format(template, opponent.name, countersList)
                 directCounterBestPick = countersList
             }
         }

@@ -452,40 +452,6 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                val isResourcesDownloaded by ImagePrefetcher.isFullyDownloaded.collectAsState()
-                val isDownloading by ImagePrefetcher.isDownloading.collectAsState()
-
-                if (!isResourcesDownloaded || isDownloading) {
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = { ImagePrefetcher.startPrefetch(context) },
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .height(44.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                            containerColor = HextechSurface.copy(alpha = 0.85f),
-                            contentColor = HextechCyan
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = null,
-                            tint = HextechCyan,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (isDownloading) tr("Descargando Recursos...") else "${tr("Descargar Recursos")} (~35 MB)",
-                            color = HextechCyan,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-
                 androidx.compose.material3.OutlinedButton(
                     onClick = onNavigateToInfo,
                     modifier = Modifier
@@ -583,6 +549,5 @@ fun MainDraftingScreen(
                 onDismiss = { showDonationDialog = false }
             )
         }
-        DownloadProgressWidget()
     }
 }
