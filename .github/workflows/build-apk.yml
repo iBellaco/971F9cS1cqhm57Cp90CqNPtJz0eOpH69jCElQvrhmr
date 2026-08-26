@@ -3,14 +3,10 @@ name: Build and Release Debug APK
 on:
   push:
     branches:
-      - main
-      - master
+      - '**'
     tags:
-      - 'v*'
+      - '**'
   pull_request:
-    branches:
-      - main
-      - master
   workflow_dispatch:
 
 permissions:
@@ -137,7 +133,7 @@ jobs:
       - name: Create or Update GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'workflow_dispatch'
+        if: success()
         with:
           tag_name: v${{ steps.app_version.outputs.version_name }}-b${{ steps.app_version.outputs.version_code }}
           name: Wild Rift Coach v${{ steps.app_version.outputs.version_name }} (Build #${{ steps.app_version.outputs.version_code }})
