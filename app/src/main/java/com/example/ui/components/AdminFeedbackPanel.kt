@@ -729,7 +729,7 @@ fun AdminFeedbackBottomSheet(
                                     val textToCopy = """
                                         [${report.type}] ${report.title}
                                         Estado: $currentStatus
-                                        Descripción: ${report.description}
+                                        Descripción: ${report.cleanDescription}
                                         Versión: ${report.appVersion}
                                         Dispositivo: ${report.deviceInfo}
                                         Fecha: ${report.createdAt ?: "N/A"}
@@ -1273,8 +1273,8 @@ private fun ComprehensiveFeedbackCard(
             Spacer(modifier = Modifier.height(5.dp))
 
             // Descripción con botón para copiarla directamente
-            val cleanDescription = remember(report.description) {
-                cleanDescriptionText(report.description)
+            val cleanDescription = remember(report.cleanDescription) {
+                cleanDescriptionText(report.cleanDescription)
             }
             Row(
                 modifier = Modifier
@@ -1518,7 +1518,7 @@ private fun ComprehensiveFeedbackCard(
                         Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechGold.copy(alpha = 0.5f), modifier = Modifier.size(11.dp))
                     }
                     
-                    if (!report.email.isNullOrBlank()) {
+                    if (!report.parsedEmail.isNullOrBlank()) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically, 
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1527,14 +1527,14 @@ private fun ComprehensiveFeedbackCard(
                                 .clip(RoundedCornerShape(4.dp))
                                 .clickable {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("Correo", report.email))
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("Correo", report.parsedEmail))
                                     Toast.makeText(context, "✉️ Correo copiado", Toast.LENGTH_SHORT).show()
                                 }
                                 .padding(vertical = 2.dp, horizontal = 4.dp)
                         ) {
                             Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF64B5F6), modifier = Modifier.size(13.dp))
                             Text(
-                                text = "Correo: ${report.email}",
+                                text = "Correo: ${report.parsedEmail}",
                                 color = Color(0xFF64B5F6),
                                 fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Medium

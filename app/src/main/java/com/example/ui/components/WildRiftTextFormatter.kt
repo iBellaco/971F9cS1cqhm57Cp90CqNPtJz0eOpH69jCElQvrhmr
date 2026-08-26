@@ -26,6 +26,7 @@ object WildRiftDamageColors {
     val ManaColor = Color(0xFF38BDF8)      // Azul para maná
     val EnergyColor = Color(0xFFFBBF24)    // Dorado para energía
     val OmnivampColor = Color(0xFFF87171)  // Rojo carmesí para omnisucción / robo de vida
+    val CriticalColor = Color(0xFFEF4444)  // Rojo fuerte para críticos
 }
 
 /**
@@ -77,20 +78,26 @@ fun formatWildRiftDescription(text: String, defaultColor: Color = TextPrimary): 
 
             // 3. Daño Mágico / Poder de Habilidad / PH / AP
             highlightMatches(
-                Regex("(?i)\\b(daño mágico( adicional)?|daño magico( adicional)?|poder de habilidad|PH|magic damage|AP|resistencia mágica|resistencia magica)\\b"),
+                Regex("(?i)\\b(daño mágico( adicional)?|daño magico( adicional)?|poder de habilidad|PH|magic damage|AP|resistencia mágica|resistencia magica|penetración mágica|penetracion magica)\\b"),
                 WildRiftDamageColors.MagicDamage
             )
 
             // 4. Daño Físico / Daño de Ataque / DA / AD
             highlightMatches(
-                Regex("(?i)\\b(daño físico( adicional)?|daño fisico( adicional)?|daño de ataque|DA|physical damage|AD|letalidad|armadura)\\b"),
+                Regex("(?i)\\b(daño físico( adicional)?|daño fisico( adicional)?|daño de ataque|DA|physical damage|AD|letalidad|armadura|penetración de armadura|penetracion de armadura)\\b"),
                 WildRiftDamageColors.PhysicalDamage
             )
 
             // 5. Curación, Vida, Escudo
             highlightMatches(
-                Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|escudo(s)?|salud|omnisucción|omnisuccion)\\b"),
+                Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|salud máxima|salud maxima|escudo(s)?|salud|omnisucción|omnisuccion|robo de vida|vampiro( físico| mágico)?|vampirismo)\\b"),
                 WildRiftDamageColors.HealingAndLife
+            )
+
+            // 5.5. Críticos
+            highlightMatches(
+                Regex("(?i)\\b(tasa crítica|tasa critica|daño crítico|daño critico|golpe(s)? crítico(s)?|probabilidad de golpe crítico)\\b"),
+                WildRiftDamageColors.CriticalColor
             )
 
             // 6. Velocidades y Aceleración

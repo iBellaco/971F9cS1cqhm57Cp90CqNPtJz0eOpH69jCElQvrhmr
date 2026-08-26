@@ -1208,7 +1208,7 @@ fun ChampionDetailSheet(
                                             .size(5.dp)
                                             .background(com.example.ui.theme.HextechCyan, androidx.compose.foundation.shape.CircleShape)
                                     )
-                                    Text(
+                                    com.example.ui.components.FormattedWildRiftText(
                                         text = stat,
                                         color = TextPrimary,
                                         fontSize = 12.sp,
@@ -1228,7 +1228,7 @@ fun ChampionDetailSheet(
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(
+                        com.example.ui.components.FormattedWildRiftText(
                             text = localizedPassive,
                             color = com.example.ui.theme.TextMuted,
                             fontSize = 12.sp,
@@ -1258,7 +1258,7 @@ fun ChampionDetailSheet(
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(
+                                com.example.ui.components.FormattedWildRiftText(
                                     text = localizedCoachTip,
                                     color = TextPrimary.copy(alpha = 0.95f),
                                     fontSize = 11.5.sp,

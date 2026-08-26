@@ -23,7 +23,6 @@ private data class InsertFeedbackReport(
     val type: String,
     val title: String,
     val description: String,
-    val email: String?,
     @SerialName("app_version") val appVersion: String,
     @SerialName("device_info") val deviceInfo: String
 )
@@ -77,11 +76,16 @@ object FeedbackRepository {
             }
             val appVersion = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) [${WildRiftRepository.CURRENT_PATCH_VERSION}]"
 
+            val finalDescription = if (!email.isNullOrBlank()) {
+                "Correo de contacto: ${email.trim()}\n\n${description.trim()}"
+            } else {
+                description.trim()
+            }
+
             val report = InsertFeedbackReport(
                 type = type,
                 title = title.trim(),
-                description = description.trim(),
-                email = email?.trim()?.takeIf { it.isNotEmpty() },
+                description = finalDescription,
                 appVersion = appVersion,
                 deviceInfo = deviceInfo
             )
