@@ -545,37 +545,6 @@ private fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Status & View Bar for Champions
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
-                .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${filteredChampions.size} " + tr("Campeones Oficiales"),
-                color = HextechCyan,
-                fontSize = 11.5.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Box(
-                modifier = Modifier
-                    .background(HextechGold.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
-                    .border(0.5.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = "${WildRiftRepository.CURRENT_PATCH_VERSION} Meta",
-                    color = HextechGold,
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(6.dp))
         TierSelectionPanel(currentTier, syncState, context, coroutineScope)
 
 
@@ -612,20 +581,46 @@ private fun ChampionsCatalogTab(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            val totalCount = WildRiftRepository.champions.size
+            val isAllSelected = selectedRoleFilter == null
             FilterChip(
-                selected = selectedRoleFilter == null,
+                selected = isAllSelected,
                 onClick = { selectedRoleFilter = null },
-                label = { Text(tr("Todos los Roles"), fontSize = 11.5.sp) },
+                label = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(tr("Todos los Roles"), fontSize = 11.sp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "($totalCount)",
+                            color = if (isAllSelected) HextechDarkBg else HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.5.sp
+                        )
+                    }
+                },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = HextechCyan,
                     selectedLabelColor = HextechDarkBg
                 )
             )
             LaneRole.entries.forEach { role ->
+                val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
+                val isSelected = selectedRoleFilter == role
                 FilterChip(
-                    selected = selectedRoleFilter == role,
+                    selected = isSelected,
                     onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
-                    label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(tr(role.shortName), fontSize = 11.sp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "($count)",
+                                color = if (isSelected) HextechDarkBg else HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg

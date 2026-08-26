@@ -442,46 +442,6 @@ fun MainDraftingScreen(
                                 Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
-
-                        // 3. Sincronización BestBuildWR
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = tr("Builds & Catálogo BestBuildWR"),
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = tr("Ítems, runas y hechizos interconectados"),
-                                    color = HextechCyan,
-                                    fontSize = 10.5.sp
-                                )
-                            }
-                            var isSyncingBestBuild by remember { mutableStateOf(false) }
-                            val scope = rememberCoroutineScope()
-                            OutlinedButton(
-                                onClick = {
-                                    scope.launch {
-                                        isSyncingBestBuild = true
-                                        com.example.data.sync.BestBuildWrScraper.syncAllChampionBuilds(context, forceRefresh = true)
-                                        isSyncingBestBuild = false
-                                    }
-                                },
-                                enabled = !isSyncingBestBuild,
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f)),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                modifier = Modifier.height(30.dp)
-                            ) {
-                                Text(if (isSyncingBestBuild) "..." else tr("Sincronizar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(20.dp))
