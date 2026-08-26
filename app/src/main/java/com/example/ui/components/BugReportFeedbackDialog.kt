@@ -83,6 +83,7 @@ fun BugReportFeedbackDialog(
     var selectedType by remember { mutableStateOf(FeedbackType.BUG) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -132,6 +133,7 @@ fun BugReportFeedbackDialog(
                     type = selectedType.name,
                     title = title,
                     description = description,
+                    email = email.trim().takeIf { it.isNotEmpty() },
                     imagesBase64 = selectedImages,
                     retentionDays = 7
                 )
@@ -291,6 +293,32 @@ fun BugReportFeedbackDialog(
                         .height(120.dp)
                         .testTag("feedback_desc_input"),
                     maxLines = 5,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = HextechGold,
+                        unfocusedBorderColor = HextechCardBorder,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedLabelColor = HextechGold,
+                        unfocusedLabelColor = TextMuted
+                    )
+                )
+
+                // Campo Correo Electrónico (Opcional)
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text(tr("Correo electrónico (Opcional)"), fontSize = 12.sp) },
+                    placeholder = {
+                        Text(
+                            tr("Para contactarte si necesitamos más detalles..."),
+                            fontSize = 11.5.sp,
+                            color = TextMuted
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("feedback_email_input"),
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = HextechGold,
                         unfocusedBorderColor = HextechCardBorder,

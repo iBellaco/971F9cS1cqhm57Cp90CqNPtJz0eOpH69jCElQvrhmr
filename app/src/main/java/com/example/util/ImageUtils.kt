@@ -21,10 +21,18 @@ object ImageUtils {
             val finalHeight = (finalWidth / ratio).toInt()
 
             val scaledBitmap = Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true)
+            var quality = 80
+            var outputStream = ByteArrayOutputStream()
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+            var byteArray = outputStream.toByteArray()
 
-            val outputStream = ByteArrayOutputStream()
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream)
-            val byteArray = outputStream.toByteArray()
+            // Limit to ~750KB binary size so Base64 is under 1MB
+            while (byteArray.size > 750 * 1024 && quality > 10) {
+                quality -= 10
+                outputStream = ByteArrayOutputStream()
+                scaledBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                byteArray = outputStream.toByteArray()
+            }
 
             Base64.encodeToString(byteArray, Base64.NO_WRAP)
         } catch (e: Exception) {

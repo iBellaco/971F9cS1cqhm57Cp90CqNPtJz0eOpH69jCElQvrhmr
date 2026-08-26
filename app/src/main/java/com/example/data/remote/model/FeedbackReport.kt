@@ -9,6 +9,7 @@ data class FeedbackReport(
     val type: String = "BUG",
     val title: String = "",
     val description: String = "",
+    val email: String? = null,
     @SerialName("app_version") val appVersion: String = "",
     @SerialName("device_info") val deviceInfo: String = "",
     @SerialName("created_at") val createdAt: String? = null,

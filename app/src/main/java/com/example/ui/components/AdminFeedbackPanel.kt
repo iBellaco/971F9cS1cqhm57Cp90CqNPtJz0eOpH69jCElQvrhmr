@@ -97,6 +97,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -115,6 +116,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.remote.model.FeedbackReport
@@ -865,17 +868,55 @@ fun AdminFeedbackBottomSheet(
         var scale by remember(previewImageBitmap) { mutableFloatStateOf(1f) }
         var offset by remember(previewImageBitmap) { mutableStateOf(Offset.Zero) }
 
-        AlertDialog(
+        Dialog(
             onDismissRequest = { 
                 previewImageBitmap = null 
                 scale = 1f
                 offset = Offset.Zero
             },
-            containerColor = HextechDarkBg,
-            shape = RoundedCornerShape(14.dp),
-            title = {
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
+                // Imagen con zoom
+                Image(
+                    bitmap = previewImageBitmap!!.asImageBitmap(),
+                    contentDescription = "Vista previa ampliable",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(previewImageBitmap) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                scale = (scale * zoom).coerceIn(1f, 5f)
+                                val maxOffsetX = (size.width * (scale - 1f)) / 2f
+                                val maxOffsetY = (size.height * (scale - 1f)) / 2f
+                                offset = if (scale > 1f) {
+                                    Offset(
+                                        (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                                        (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                                    )
+                                } else {
+                                    Offset.Zero
+                                }
+                            }
+                        }
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offset.x,
+                            translationY = offset.y
+                        ),
+                    contentScale = ContentScale.Fit
+                )
+
+                // Top Bar superpuesta
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -887,7 +928,7 @@ fun AdminFeedbackBottomSheet(
                         Text(
                             text = if (scale > 1.05f) "${tr("Captura")} (${(scale * 100).toInt()}%)" else tr("Captura Adjunta"), 
                             color = HextechGold, 
-                            fontSize = 14.sp, 
+                            fontSize = 16.sp, 
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -902,10 +943,10 @@ fun AdminFeedbackBottomSheet(
                                     offset = Offset.Zero
                                 }
                             },
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(36.dp),
                             enabled = scale > 1f
                         ) {
-                            Icon(Icons.Default.ZoomOut, contentDescription = "Alejar", tint = if (scale > 1f) HextechCyan else TextMuted, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.ZoomOut, contentDescription = "Alejar", tint = if (scale > 1f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
                         }
 
                         // Zoom In
@@ -913,10 +954,10 @@ fun AdminFeedbackBottomSheet(
                             onClick = {
                                 scale = (scale * 1.3f).coerceIn(1f, 5f)
                             },
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(36.dp),
                             enabled = scale < 5f
                         ) {
-                            Icon(Icons.Default.ZoomIn, contentDescription = "Acercar", tint = if (scale < 5f) HextechCyan else TextMuted, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.ZoomIn, contentDescription = "Acercar", tint = if (scale < 5f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
                         }
 
                         // Reset Zoom
@@ -926,9 +967,9 @@ fun AdminFeedbackBottomSheet(
                                     scale = 1f
                                     offset = Offset.Zero
                                 },
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(36.dp)
                             ) {
-                                Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = HextechGold, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = HextechGold, modifier = Modifier.size(22.dp))
                             }
                         }
 
@@ -937,9 +978,9 @@ fun AdminFeedbackBottomSheet(
                             onClick = {
                                 saveBitmapToGallery(context, previewImageBitmap!!)
                             },
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(36.dp)
                         ) {
-                            Icon(Icons.Default.Download, contentDescription = "Descargar", tint = HextechGreen, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Download, contentDescription = "Descargar", tint = HextechGreen, modifier = Modifier.size(22.dp))
                         }
 
                         // Cerrar
@@ -949,101 +990,26 @@ fun AdminFeedbackBottomSheet(
                                 scale = 1f
                                 offset = Offset.Zero
                             }, 
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(36.dp)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = Color.White, modifier = Modifier.size(22.dp))
                         }
                     }
                 }
-            },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 220.dp, max = 460.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
-                            .background(Color.Black)
-                            .pointerInput(previewImageBitmap) {
-                                detectTransformGestures { _, pan, zoom, _ ->
-                                    scale = (scale * zoom).coerceIn(1f, 5f)
-                                    val maxOffsetX = (size.width * (scale - 1f)) / 2f
-                                    val maxOffsetY = (size.height * (scale - 1f)) / 2f
-                                    offset = if (scale > 1f) {
-                                        Offset(
-                                            (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
-                                            (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                                        )
-                                    } else {
-                                        Offset.Zero
-                                    }
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            bitmap = previewImageBitmap!!.asImageBitmap(),
-                            contentDescription = "Vista previa ampliable",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer(
-                                    scaleX = scale,
-                                    scaleY = scale,
-                                    translationX = offset.x,
-                                    translationY = offset.y
-                                ),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar"),
-                        color = TextMuted,
-                        fontSize = 10.5.sp
-                    )
-                }
-            },
-            confirmButton = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = {
-                            saveBitmapToGallery(context, previewImageBitmap!!)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = HextechGreen.copy(alpha = 0.25f),
-                            contentColor = HextechGreen
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGreen.copy(alpha = 0.7f))
-                    ) {
-                        Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(tr("Descargar"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
 
-                    Button(
-                        onClick = { 
-                            previewImageBitmap = null 
-                            scale = 1f
-                            offset = Offset.Zero
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(tr("Cerrar"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-                }
+                // Tip flotante en la parte inferior
+                Text(
+                    text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar"),
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 24.dp)
+                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
             }
-        )
+        }
     }
 }
 
@@ -1466,7 +1432,19 @@ private fun ComprehensiveFeedbackCard(
                     val cleanDeviceInfo = remember(report.deviceInfo) {
                         cleanDeviceInfoText(report.deviceInfo)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, 
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(4.dp))
+                            .clickable {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Dispositivo", cleanDeviceInfo))
+                                Toast.makeText(context, "📱 Dispositivo copiado", Toast.LENGTH_SHORT).show()
+                            }
+                            .padding(vertical = 2.dp, horizontal = 4.dp)
+                    ) {
                         Icon(Icons.Default.Smartphone, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                         Text(
                             text = "${tr("Dispositivo:")} $cleanDeviceInfo",
@@ -1474,8 +1452,22 @@ private fun ComprehensiveFeedbackCard(
                             fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechCyan.copy(alpha = 0.5f), modifier = Modifier.size(11.dp))
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, 
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(4.dp))
+                            .clickable {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Versión", report.appVersion))
+                                Toast.makeText(context, "🔧 Versión copiada", Toast.LENGTH_SHORT).show()
+                            }
+                            .padding(vertical = 2.dp, horizontal = 4.dp)
+                    ) {
                         Icon(Icons.Default.Tune, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
                         Text(
                             text = "${tr("Versión:")} ${report.appVersion}",
@@ -1483,12 +1475,42 @@ private fun ComprehensiveFeedbackCard(
                             fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechGold.copy(alpha = 0.5f), modifier = Modifier.size(11.dp))
                     }
+                    
+                    if (!report.email.isNullOrBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, 
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("Correo", report.email))
+                                    Toast.makeText(context, "✉️ Correo copiado", Toast.LENGTH_SHORT).show()
+                                }
+                                .padding(vertical = 2.dp, horizontal = 4.dp)
+                        ) {
+                            Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF64B5F6), modifier = Modifier.size(13.dp))
+                            Text(
+                                text = "Correo: ${report.email}",
+                                color = Color(0xFF64B5F6),
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color(0xFF64B5F6).copy(alpha = 0.5f), modifier = Modifier.size(11.dp))
+                        }
+                    }
+                    
                     if (!report.id.isNullOrBlank()) {
                         Text(
                             text = "UUID: ${report.id}",
                             color = TextMuted,
-                            fontSize = 9.5.sp
+                            fontSize = 9.5.sp,
+                            modifier = Modifier.padding(start = 4.dp)
                         )
                     }
                 }

@@ -78,5 +78,1205 @@
     "stats": "+500 Vida Máxima, +15 Aceleración de Habilidad",
     "passive": "Inmolar: Inflige daño mágico por segundo a enemigos cercanos. Aumenta un 10% por segundo al estar en combate.",
     "iconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items/3068.png"
+  },
+  {
+    "id": "bloodthirster",
+    "cDragonId": 3072,
+    "name": "Bloodthirster",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2024-12/1733876753_3072.webp"
+  },
+  {
+    "id": "guardian_angel",
+    "cDragonId": 0,
+    "name": "Guardian Angel",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753300268_guardian-angel.webp"
+  },
+  {
+    "id": "magnetic_blaster",
+    "cDragonId": 0,
+    "name": "Magnetic Blaster",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753300773_magnetic-blaster.webp"
+  },
+  {
+    "id": "runaan&#039;s_hurricane",
+    "cDragonId": 0,
+    "name": "Runaan&#039;s Hurricane",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753300839_yordle-runaans-hurricane.webp"
+  },
+  {
+    "id": "youmuu&#039;s_ghostblade",
+    "cDragonId": 0,
+    "name": "Youmuu&#039;s Ghostblade",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753300869_youmuus-ghostblade.webp"
+  },
+  {
+    "id": "duskblade_of_draktharr",
+    "cDragonId": 0,
+    "name": "Duskblade of Draktharr",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753300931_yordle-duskblade-of-draktharr.webp"
+  },
+  {
+    "id": "mortal_reminder",
+    "cDragonId": 0,
+    "name": "Mortal Reminder",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301062_mortal-reminder.webp"
+  },
+  {
+    "id": "manamune",
+    "cDragonId": 0,
+    "name": "Manamune",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301442_manamune.webp"
+  },
+  {
+    "id": "muramana",
+    "cDragonId": 0,
+    "name": "Muramana",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301487_muramana.webp"
+  },
+  {
+    "id": "trinity_force",
+    "cDragonId": 0,
+    "name": "Trinity Force",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301537_trinity-force.webp"
+  },
+  {
+    "id": "maw_of_malmortius",
+    "cDragonId": 0,
+    "name": "Maw of Malmortius",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301577_maw-of-malmortius.webp"
+  },
+  {
+    "id": "death&#039;s_dance",
+    "cDragonId": 0,
+    "name": "Death&#039;s Dance",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753301539_yordle-deaths-dance.webp"
+  },
+  {
+    "id": "phantom_dancer",
+    "cDragonId": 0,
+    "name": "Phantom Dancer",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302001_phantom-dancer.webp"
+  },
+  {
+    "id": "nashor&#039;s_tooth",
+    "cDragonId": 0,
+    "name": "Nashor&#039;s Tooth",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302010_nashors-tooth.webp"
+  },
+  {
+    "id": "wit&#039;s_end",
+    "cDragonId": 0,
+    "name": "Wit&#039;s End",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302068_wits-end.webp"
+  },
+  {
+    "id": "essence_reaver",
+    "cDragonId": 0,
+    "name": "Essence Reaver",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302228_essence-reaver.webp"
+  },
+  {
+    "id": "serylda’s_grudge",
+    "cDragonId": 0,
+    "name": "Serylda’s Grudge",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302257_yordle-seryldas-grudge.webp"
+  },
+  {
+    "id": "navori_quickblades",
+    "cDragonId": 0,
+    "name": "Navori Quickblades",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302298_navori-quickblades.webp"
+  },
+  {
+    "id": "edge_of_night",
+    "cDragonId": 0,
+    "name": "Edge of Night",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753302335_edge-of-night.webp"
+  },
+  {
+    "id": "divine_sunderer",
+    "cDragonId": 0,
+    "name": "Divine Sunderer",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753303444_divine-sunderer.webp"
+  },
+  {
+    "id": "serpent&#039;s_fang",
+    "cDragonId": 0,
+    "name": "Serpent&#039;s Fang",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753303456_serpents-fang.webp"
+  },
+  {
+    "id": "chempunk_chainsword",
+    "cDragonId": 0,
+    "name": "Chempunk Chainsword",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753304959_chempunk-chainsword.webp"
+  },
+  {
+    "id": "the_collector",
+    "cDragonId": 0,
+    "name": "The Collector",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753304861_the-collector.webp"
+  },
+  {
+    "id": "sterak&#039;s_gage",
+    "cDragonId": 0,
+    "name": "Sterak&#039;s Gage",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753305021_steraks-gage.webp"
+  },
+  {
+    "id": "spear_of_shojin",
+    "cDragonId": 0,
+    "name": "Spear of Shojin",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753304984_spear-of-shojin.webp"
+  },
+  {
+    "id": "titanic_hydra",
+    "cDragonId": 0,
+    "name": "Titanic Hydra",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753304937_titanic-hydra.webp"
+  },
+  {
+    "id": "terminus",
+    "cDragonId": 0,
+    "name": "Terminus",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753305038_terminus.webp"
+  },
+  {
+    "id": "sundered_sky",
+    "cDragonId": 0,
+    "name": "Sundered Sky",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753305059_sundered-sky.webp"
+  },
+  {
+    "id": "eclipse",
+    "cDragonId": 0,
+    "name": "Eclipse",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753305145_eclipse.webp"
+  },
+  {
+    "id": "soul_transfer",
+    "cDragonId": 0,
+    "name": "Soul Transfer",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753305204_soul-transfer.webp"
+  },
+  {
+    "id": "guinsoo&#039;s_rageblade",
+    "cDragonId": 0,
+    "name": "Guinsoo&#039;s Rageblade",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-01/1768000022_abb24fd724faa77b82baf985dea956b8eae9f31a-512x512.webp"
+  },
+  {
+    "id": "dominik’s_regards",
+    "cDragonId": 0,
+    "name": "Dominik’s Regards",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-03/1774953440_lord-dominiks-regards.webp"
+  },
+  {
+    "id": "stridebreaker",
+    "cDragonId": 0,
+    "name": "Stridebreaker",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
+  },
+  {
+    "id": "goredrinker",
+    "cDragonId": 0,
+    "name": "Goredrinker",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389878_goredrinker.webp"
+  },
+  {
+    "id": "galeforce",
+    "cDragonId": 0,
+    "name": "Galeforce",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
+  },
+  {
+    "id": "mercurial_scimitar",
+    "cDragonId": 0,
+    "name": "Mercurial Scimitar",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
+  },
+  {
+    "id": "luden&#039;s_echo",
+    "cDragonId": 0,
+    "name": "Luden&#039;s Echo",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388218_ludens-echo.webp"
+  },
+  {
+    "id": "morellonomicon",
+    "cDragonId": 0,
+    "name": "Morellonomicon",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp"
+  },
+  {
+    "id": "rabadon&#039;s_deathcap",
+    "cDragonId": 0,
+    "name": "Rabadon&#039;s Deathcap",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388295_rabadons-deathcap.webp"
+  },
+  {
+    "id": "rylai&#039;s_crystal_scepter",
+    "cDragonId": 0,
+    "name": "Rylai&#039;s Crystal Scepter",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388390_rylais-crystal-scepter.webp"
+  },
+  {
+    "id": "liandry&#039;s_torment",
+    "cDragonId": 0,
+    "name": "Liandry&#039;s Torment",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388368_yorlde-liandrys-torment.webp"
+  },
+  {
+    "id": "rod_of_ages",
+    "cDragonId": 0,
+    "name": "Rod of Ages",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388412_rod-of-ages.webp"
+  },
+  {
+    "id": "lich_bane",
+    "cDragonId": 0,
+    "name": "Lich Bane",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388405_lich-bane.webp"
+  },
+  {
+    "id": "archangel&#039;s_staff",
+    "cDragonId": 0,
+    "name": "Archangel&#039;s Staff",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388461_archangels-staff.webp"
+  },
+  {
+    "id": "seraph&#039;s_embrace",
+    "cDragonId": 0,
+    "name": "Seraph&#039;s Embrace",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388429_seraphs-embrace.webp"
+  },
+  {
+    "id": "oceanid&#039;s_trident",
+    "cDragonId": 0,
+    "name": "Oceanid&#039;s Trident",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp"
+  },
+  {
+    "id": "cosmic_drive",
+    "cDragonId": 0,
+    "name": "Cosmic Drive",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388596_cosmic-drive.webp"
+  },
+  {
+    "id": "riftmaker",
+    "cDragonId": 0,
+    "name": "Riftmaker",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388604_riftmaker.webp"
+  },
+  {
+    "id": "horizon_focus",
+    "cDragonId": 0,
+    "name": "Horizon Focus",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388673_horizon-focus.webp"
+  },
+  {
+    "id": "malignance",
+    "cDragonId": 0,
+    "name": "Malignance",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388765_malignance.webp"
+  },
+  {
+    "id": "blackfire_torch",
+    "cDragonId": 0,
+    "name": "Blackfire Torch",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783191589_blackfire-torch.webp"
+  },
+  {
+    "id": "dusk_and_dawn",
+    "cDragonId": 0,
+    "name": "Dusk and Dawn",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783191855_2510_11zon.webp"
+  },
+  {
+    "id": "stormsurge",
+    "cDragonId": 0,
+    "name": "Stormsurge",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783192090_4646_11zon.webp"
+  },
+  {
+    "id": "void_staff",
+    "cDragonId": 0,
+    "name": "Void Staff",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783192299_3135_11zon.webp"
+  },
+  {
+    "id": "cryptbloom",
+    "cDragonId": 0,
+    "name": "Cryptbloom",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783192528_3137_11zon.webp"
+  },
+  {
+    "id": "bloodletter&#039;s_curse",
+    "cDragonId": 0,
+    "name": "Bloodletter&#039;s Curse",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561458_bloodletters-curse.webp"
+  },
+  {
+    "id": "banshee&#039;s_veil",
+    "cDragonId": 0,
+    "name": "Banshee&#039;s Veil",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783192846_3102_11zon.webp"
+  },
+  {
+    "id": "hextech_roketbelt",
+    "cDragonId": 0,
+    "name": "Hextech Roketbelt",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389704_protobelt-enchant.webp"
+  },
+  {
+    "id": "zhonya&#039;s_hourglass",
+    "cDragonId": 0,
+    "name": "Zhonya&#039;s Hourglass",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
+  },
+  {
+    "id": "redemption",
+    "cDragonId": 0,
+    "name": "Redemption",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
+  },
+  {
+    "id": "randuin&#039;s_omen",
+    "cDragonId": 0,
+    "name": "Randuin&#039;s Omen",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389031_randuins-omen.webp"
+  },
+  {
+    "id": "thornmail",
+    "cDragonId": 0,
+    "name": "Thornmail",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389035_thornmail.webp"
+  },
+  {
+    "id": "warmog&#039;s_armor",
+    "cDragonId": 0,
+    "name": "Warmog&#039;s Armor",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389074_warmogs-armor.webp"
+  },
+  {
+    "id": "iceborn_gauntlet",
+    "cDragonId": 0,
+    "name": "Iceborn Gauntlet",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389028_iceborn-gauntlet.webp"
+  },
+  {
+    "id": "dead_man&#039;s_plate",
+    "cDragonId": 0,
+    "name": "Dead Man&#039;s Plate",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389106_dead-mans-plate.webp"
+  },
+  {
+    "id": "zeke&#039;s_convergence",
+    "cDragonId": 0,
+    "name": "Zeke&#039;s Convergence",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp"
+  },
+  {
+    "id": "winter&#039;s_approach",
+    "cDragonId": 0,
+    "name": "Winter&#039;s Approach",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389175_winters-approach.webp"
+  },
+  {
+    "id": "fimbulwinter",
+    "cDragonId": 0,
+    "name": "Fimbulwinter",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389109_fimbulwinter.webp"
+  },
+  {
+    "id": "force_of_nature",
+    "cDragonId": 0,
+    "name": "Force of Nature",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389153_force-of-nature.webp"
+  },
+  {
+    "id": "frozen_heart",
+    "cDragonId": 0,
+    "name": "Frozen Heart",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389159_frozen-heart.webp"
+  },
+  {
+    "id": "dawnshroud",
+    "cDragonId": 0,
+    "name": "Dawnshroud",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp"
+  },
+  {
+    "id": "amaranth&#039;s_twinguard",
+    "cDragonId": 0,
+    "name": "Amaranth&#039;s Twinguard",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389236_amaranths-twinguard.webp"
+  },
+  {
+    "id": "mantle_of_the_twelfth_hour",
+    "cDragonId": 0,
+    "name": "Mantle of the Twelfth Hour",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389204_mantle-of-the-twelfth-hour.webp"
+  },
+  {
+    "id": "searing_crown",
+    "cDragonId": 0,
+    "name": "Searing Crown",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389203_searing-crown.webp"
+  },
+  {
+    "id": "kaenic_rookern",
+    "cDragonId": 0,
+    "name": "Kaenic Rookern",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389228_kaenic-rookern.webp"
+  },
+  {
+    "id": "yordle_trap",
+    "cDragonId": 0,
+    "name": "Yordle Trap",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389328_yordle-trap.webp"
+  },
+  {
+    "id": "radiant_virtue_wild_rift",
+    "cDragonId": 0,
+    "name": "Radiant Virtue Wild Rift",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-10/1760128035_radiant-virtue.webp"
+  },
+  {
+    "id": "abyssal_mask",
+    "cDragonId": 0,
+    "name": "Abyssal Mask",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-01/1767912720_abyssal-mask.webp"
+  },
+  {
+    "id": "hollow_radiance",
+    "cDragonId": 0,
+    "name": "Hollow Radiance",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-01/1767913515_6664_11zon.webp"
+  },
+  {
+    "id": "knight&#039;s_vow",
+    "cDragonId": 0,
+    "name": "Knight&#039;s Vow",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-01/1767914013_3109_11zon.webp"
+  },
+  {
+    "id": "gargoyle_stoneplate",
+    "cDragonId": 0,
+    "name": "Gargoyle Stoneplate",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp"
+  },
+  {
+    "id": "bulwark_of_the_mountain",
+    "cDragonId": 0,
+    "name": "Bulwark of the Mountain",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389518_bulwark-of-the-mountain.webp"
+  },
+  {
+    "id": "black_mist_scythe",
+    "cDragonId": 0,
+    "name": "Black Mist Scythe",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389555_black-mist-scythe.webp"
+  },
+  {
+    "id": "ardent_censer",
+    "cDragonId": 0,
+    "name": "Ardent Censer",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388425_ardent-censer.webp"
+  },
+  {
+    "id": "harmonic_echo",
+    "cDragonId": 0,
+    "name": "Harmonic Echo",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388518_yordle-harmonic-echo.webp"
+  },
+  {
+    "id": "staff_of_flowing_water",
+    "cDragonId": 0,
+    "name": "Staff of Flowing Water",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388553_staff-of-flowing-water.webp"
+  },
+  {
+    "id": "imperial_mandate",
+    "cDragonId": 0,
+    "name": "Imperial Mandate",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753388613_imperial-mandate.webp"
+  },
+  {
+    "id": "mikael&#039;s_blessing",
+    "cDragonId": 0,
+    "name": "Mikael&#039;s Blessing",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783571078_3222_11zon.webp"
+  },
+  {
+    "id": "locket_of_the_iron_solari",
+    "cDragonId": 0,
+    "name": "Locket of the Iron Solari",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389710_locket-enchant.webp"
+  },
+  {
+    "id": "shurelya&#039;s_battlesong",
+    "cDragonId": 0,
+    "name": "Shurelya&#039;s Battlesong",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783187148_shurelyas-battlesong.webp"
+  },
+  {
+    "id": "quicksilver_sash",
+    "cDragonId": 0,
+    "name": "Quicksilver Sash",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389685_quicksilver-enchant.webp"
+  },
+  {
+    "id": "gluttonous_greaves",
+    "cDragonId": 0,
+    "name": "Gluttonous Greaves",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389849_gluttonous-greaves.webp"
+  },
+  {
+    "id": "berserker&#039;s_greaves",
+    "cDragonId": 0,
+    "name": "Berserker&#039;s Greaves",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389864_berserkers-greaves.webp"
+  },
+  {
+    "id": "mercury&#039;s_treads",
+    "cDragonId": 0,
+    "name": "Mercury&#039;s Treads",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389863_mercurys-treads.webp"
+  },
+  {
+    "id": "plated_steelcaps",
+    "cDragonId": 0,
+    "name": "Plated Steelcaps",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389651_plated-steelcaps.webp"
+  },
+  {
+    "id": "ionian_boots_of_lucidity",
+    "cDragonId": 0,
+    "name": "Ionian Boots of Lucidity",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389658_ionian-boots-of-lucidity.webp"
+  },
+  {
+    "id": "boots_of_mana",
+    "cDragonId": 0,
+    "name": "Boots of Mana",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389619_boots-of-mana.webp"
+  },
+  {
+    "id": "boots_of_dynamism",
+    "cDragonId": 0,
+    "name": "Boots of Dynamism",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753389665_boots-of-dynamism.webp"
+  },
+  {
+    "id": "immortal_treds",
+    "cDragonId": 0,
+    "name": "Immortal Treds",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561637_immortal-treds.webp"
+  },
+  {
+    "id": "gunmetal_greaves",
+    "cDragonId": 0,
+    "name": "Gunmetal Greaves",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561598_gunmetal-greaves.webp"
+  },
+  {
+    "id": "chainlaced_crushers",
+    "cDragonId": 0,
+    "name": "Chainlaced Crushers",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561548_chainlaced-crushers.webp"
+  },
+  {
+    "id": "armored_advance",
+    "cDragonId": 0,
+    "name": "Armored Advance",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561641_armored-advance.webp"
+  },
+  {
+    "id": "crimson_lucidity",
+    "cDragonId": 0,
+    "name": "Crimson Lucidity",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561706_crimson-lucidity.webp"
+  },
+  {
+    "id": "spellslinger&#039;s_shoes",
+    "cDragonId": 0,
+    "name": "Spellslinger&#039;s Shoes",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561512_spellslingers-shoes.webp"
+  },
+  {
+    "id": "armorcrusher_boots",
+    "cDragonId": 0,
+    "name": "Armorcrusher Boots",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783561651_armorbreaker-boots.webp"
+  },
+  {
+    "id": "fated_ashes",
+    "cDragonId": 0,
+    "name": "Fated Ashes",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783190595_fated-ashes.webp"
+  },
+  {
+    "id": "void_amethyst",
+    "cDragonId": 0,
+    "name": "Void Amethyst",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783190939_void_amethyst.webp"
+  },
+  {
+    "id": "verdant_barrier",
+    "cDragonId": 0,
+    "name": "Verdant Barrier",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2026-07/1783191133_verdant_barrier_item_hd_11zon.png"
+  },
+  {
+    "id": "boots_of_speed",
+    "cDragonId": 0,
+    "name": "Boots of Speed",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390529_boots-of-speed.webp"
+  },
+  {
+    "id": "long_sword",
+    "cDragonId": 0,
+    "name": "Long Sword",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390561_long-sword.webp"
+  },
+  {
+    "id": "brawler&#039;s_gloves",
+    "cDragonId": 0,
+    "name": "Brawler&#039;s Gloves",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390558_brawlers-gloves.webp"
+  },
+  {
+    "id": "dagger",
+    "cDragonId": 0,
+    "name": "Dagger",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390550_dagger.webp"
+  },
+  {
+    "id": "shimmering_spark",
+    "cDragonId": 0,
+    "name": "Shimmering Spark",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390582_shimmering-spark.webp"
+  },
+  {
+    "id": "amplifying_tome",
+    "cDragonId": 0,
+    "name": "Amplifying Tome",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390572_amplifying-tome.webp"
+  },
+  {
+    "id": "ruby_crystal",
+    "cDragonId": 0,
+    "name": "Ruby Crystal",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390626_ruby-crystal.webp"
+  },
+  {
+    "id": "cloth_armor",
+    "cDragonId": 0,
+    "name": "Cloth Armor",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390581_cloth-armor.webp"
+  },
+  {
+    "id": "null_magic_mantle",
+    "cDragonId": 0,
+    "name": "Null-Magic Mantle",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390606_null-magic-mantle.webp"
+  },
+  {
+    "id": "ring_of_revelation",
+    "cDragonId": 0,
+    "name": "Ring of Revelation",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390605_ring-of-revelation.webp"
+  },
+  {
+    "id": "relic_shield",
+    "cDragonId": 0,
+    "name": "Relic Shield",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp"
+  },
+  {
+    "id": "spectral_sickle",
+    "cDragonId": 0,
+    "name": "Spectral Sickle",
+    "category": "NUEVO",
+    "goldCost": 0,
+    "stats": "",
+    "passive": "",
+    "iconUrl": "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"
   }
 ]

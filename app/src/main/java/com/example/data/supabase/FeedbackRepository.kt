@@ -23,6 +23,7 @@ private data class InsertFeedbackReport(
     val type: String,
     val title: String,
     val description: String,
+    val email: String?,
     @SerialName("app_version") val appVersion: String,
     @SerialName("device_info") val deviceInfo: String
 )
@@ -51,6 +52,7 @@ object FeedbackRepository {
         type: String,
         title: String,
         description: String,
+        email: String? = null,
         imagesBase64: List<String> = emptyList(),
         retentionDays: Int = 7
     ): Result<Unit> = withContext(Dispatchers.IO) {
@@ -79,6 +81,7 @@ object FeedbackRepository {
                 type = type,
                 title = title.trim(),
                 description = description.trim(),
+                email = email?.trim()?.takeIf { it.isNotEmpty() },
                 appVersion = appVersion,
                 deviceInfo = deviceInfo
             )
