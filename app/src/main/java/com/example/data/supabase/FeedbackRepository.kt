@@ -24,8 +24,7 @@ private data class InsertFeedbackReport(
     val title: String,
     val description: String,
     @SerialName("app_version") val appVersion: String,
-    @SerialName("device_info") val deviceInfo: String,
-    val status: String
+    @SerialName("device_info") val deviceInfo: String
 )
 
 object FeedbackRepository {
@@ -72,8 +71,7 @@ object FeedbackRepository {
                 title = title.trim(),
                 description = description.trim(),
                 appVersion = appVersion,
-                deviceInfo = deviceInfo,
-                status = "PENDING"
+                deviceInfo = deviceInfo
             )
 
             // 3. Insertar en la tabla feedbacks de Supabase

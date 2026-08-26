@@ -6,12 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FeedbackReport(
     val id: String? = null,
-    val type: String,
-    val title: String,
-    val description: String,
-    @SerialName("app_version") val appVersion: String,
-    @SerialName("device_info") val deviceInfo: String,
+    val type: String = "BUG",
+    val title: String = "",
+    val description: String = "",
+    @SerialName("app_version") val appVersion: String = "",
+    @SerialName("device_info") val deviceInfo: String = "",
     @SerialName("created_at") val createdAt: String? = null,
     val status: String? = null,
     @SerialName("is_completed") val isCompleted: Boolean? = null
 )
+
