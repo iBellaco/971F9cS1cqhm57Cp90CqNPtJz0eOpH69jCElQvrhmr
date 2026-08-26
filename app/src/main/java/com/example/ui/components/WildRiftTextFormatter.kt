@@ -90,7 +90,7 @@ fun formatWildRiftDescription(text: String, defaultColor: Color = TextPrimary): 
 
             // 5. Curación, Vida, Escudo
             highlightMatches(
-                Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|salud máxima|salud maxima|escudo(s)?|salud|omnisucción|omnisuccion|robo de vida|vampiro( físico| mágico)?|vampirismo)\\b"),
+                Regex("(?i)\\b(curación|curacion|vida restaurada|vida adicional|vida máxima|vida maxima|salud máxima|salud maxima|escudo(s)?|salud|omnisucción|omnisuccion|robo de vida|succión física|succion fisica|vampiro( físico| mágico)?|vampirismo)\\b"),
                 WildRiftDamageColors.HealingAndLife
             )
 
@@ -108,11 +108,17 @@ fun formatWildRiftDescription(text: String, defaultColor: Color = TextPrimary): 
 
             // 7. Maná / Energía
             highlightMatches(
-                Regex("(?i)\\b(maná( máximo)?|mana|energía|energia)\\b"),
+                Regex("(?i)\\b(maná( máximo)?|mana|energía|energia|regeneración de maná|regeneracion de mana)\\b"),
                 WildRiftDamageColors.ManaColor
             )
 
-            // 8. Números, estadísticas y ratios entre paréntesis (ej. (+15), (20%), (30s), (10 a 30))
+            // 8. Support Item Restriction Warning
+            highlightMatches(
+                Regex("(?i)\\b(Este objeto es para los apoyos.*?activará\\.)"),
+                WildRiftDamageColors.CriticalColor
+            )
+
+            // 9. Números, estadísticas y ratios entre paréntesis (ej. (+15), (20%), (30s), (10 a 30))
             highlightMatches(
                 Regex("\\(([+−-]?\\d+(?:[.,]\\d+)?(?:%|s| seg| CD| adic| ad| ap| oro)?(?:\\s*(?:a|-|/)\\s*\\d+(?:[.,]\\d+)?(?:%|s)?)?)\\)"),
                 Color(0xFFFBBF24)
