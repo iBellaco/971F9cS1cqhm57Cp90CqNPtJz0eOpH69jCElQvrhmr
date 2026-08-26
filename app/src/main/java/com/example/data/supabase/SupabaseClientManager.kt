@@ -6,6 +6,8 @@ import com.example.BuildConfig
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
+import kotlinx.serialization.json.Json
+import io.github.jan.supabase.serializer.KotlinXSerializer
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +92,10 @@ object SupabaseClientManager {
                 ) {
                     install(Postgrest)
                     install(Auth)
+                    defaultSerializer = KotlinXSerializer(Json {
+                        ignoreUnknownKeys = true
+                        encodeDefaults = true
+                    })
                 }
                 cachedClient = newClient
                 return newClient
