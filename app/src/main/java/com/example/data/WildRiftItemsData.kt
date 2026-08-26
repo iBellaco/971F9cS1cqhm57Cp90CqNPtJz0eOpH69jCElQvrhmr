@@ -1875,7 +1875,7 @@ object WildRiftItemsData {
             goldCost = 1000,
             stats = "+45 Velocidad de movimiento",
             statsEn = "+45 Move Speed",
-            passive = "Equilibrio de poder: Otorga 12 de daño de ataque o 20 de poder de habilidad (adaptable).\nConversión: Otorga un 5% de omnisucción. Las asistencias o asesinatos otorgan un 0,5% de omnisucción adicional, hasta un máximo del 5%.",
+            passive = "Equilibrio de poder: Otorga 12 de daño de ataque o 20 de poder de habilidad (adaptable).\nConversión: Otorga un 5% de omnisucción. Las asistencias o asesinatos otorgan un 0,5% de omnisucción adicional, hasta un máximo del 5%.\nAhora y siempre: Cuando tienes más del 50% de vida, infliges un 5% de daño adicional. Cuando tienes menos del 50% de vida, potencia un 12% las curaciones y escudos.",
             passiveEn = "Balance of Power: Gain 12 Attack Damage or 20 Ability Power (Adaptive).\nConversion: Gain 5% Omnivamp. Champion takedowns grant an additional 0.5% Omnivamp, up to 5%.",
             coachTip = "Estas botas combinan movilidad, poder ofensivo adaptativo y curación sostenida. Aumentan tu daño mientras Omnivamp restaura la salud de todo el daño que infliges. Los derribos de campeones aumentan aún más tu Omnivamp, lo que los convierte en una excelente opción para los campeones que desean equilibrar un alto nivel de daño con un fuerte sustento durante peleas prolongadas.",
             coachTipEn = "These boots combine mobility, adaptive offensive power, and sustained healing. They increase your damage while Omnivamp restores health from all damage you deal. Champion takedowns further increase your Omnivamp, making them an excellent choice for champions who want to balance high damage output with strong sustain during extended fights.",
@@ -2757,7 +2757,8 @@ object WildRiftItemsData {
             goldCost = 500,
             stats = "+200 <font color='#00BFFF'>maná máximo</font> • +5 <font color='#FFA500'>celeridad de habilidad</font>",
             statsEn = "+200 Max Mana • +5 Ability Haste",
-            passive = "Asombro: se reembolsa el 10% del maná gastado.\nCarga de maná: aumenta el maná máximo en 6 cada vez que se gasta maná. Tiene un límite de 700 maná adicional. Se activa hasta 3 veces cada 10 segundos. Solo puedes llevar un objeto Lágrima de la Diosa a la vez.",
+            passive = "Asombro: se reembolsa el 10% del maná gastado.
+Carga de maná: aumenta el maná máximo en 6 cada vez que se gasta maná. Tiene un límite de 700 maná adicional. Se activa hasta 3 veces cada 10 segundos. Solo puedes llevar un objeto Lágrima de la Diosa a la vez.",
             passiveEn = "Awe: 10% of Mana spent is refunded.\nMana Charge: Increases max Mana by 6 every time Mana is spent. Caps at 700 bonus Mana. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Compra este objeto al principio si usas un campeón que depende mucho del maná, ya que necesitas tiempo para cargarlo completamente y evolucionarlo.",
             coachTipEn = "",
@@ -2824,13 +2825,18 @@ object WildRiftItemsData {
             name = "Anillo de revelación",
             nameEn = "Ring of Revelation",
             category = "Artículos Básicos",
-            goldCost = 300,
-            stats = "+5 celeridad de habilidad",
-            statsEn = "+5 Ability Haste",
-            passive = "",
-            passiveEn = "",
-            coachTip = "",
-            coachTipEn = "",
+            goldCost = 500,
+            stats = "+10 <font color='#ffa500'>daño de ataque</font> o +20 <font color='#9370db'>poder de habilidad</font> (Adaptable)",
+            statsEn = "+10 Attack Damage or +20 Ability Power (Adaptive)",
+            passive = "Versátil: Otorga daño de ataque o poder de habilidad.
+Tributo: Obtén orbes de energía. Usa habilidades o ataques para dañar campeones o estructuras y consumir orbes, ganando oro y vida.
+Centinela: Daño extra a guardianes.
+Misión: Gana 750 de oro para evolucionar este objeto a Espejo de Espejismo.",
+            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).
+Tribute: Gain 1 encircling energy orb(s) every 30 seconds.
+Quest: Earn 750 gold with this item to transform it.",
+            coachTip = "El mejor objeto para soportes hechiceros. Asegúrate de usar tus habilidades para hostigar al enemigo y así completar tu misión lo más rápido posible.",
+            coachTipEn = "The best item for enchanter/mage supports. Make sure to use your abilities to poke the enemy so you can complete your quest as quickly as possible.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390605_ring-of-revelation.webp"
         ),
         WildRiftItem(
@@ -2839,12 +2845,15 @@ object WildRiftItemsData {
             nameEn = "Relic Shield",
             category = "Artículos Básicos",
             goldCost = 500,
-            stats = "+125 salud máxima",
+            stats = "+125 <font color='#1aff00'>salud máxima</font>",
             statsEn = "+125 Max Health",
-            passive = "Tributo: Gana 1 orbe(s) de energía circundante cada 30 segundos (máximo 3 orbes). Mientras estés cerca de un aliado, las siguientes acciones activarán Tributo, consumiendo 1 orbe(s) de energía para otorgarte 65 de oro y restaurar tu salud 20-80:1. Usar habilidades o ataques para dañar estructuras o campeones enemigos.2. Atacar a súbditos por debajo del 65% de salud. Esto también los ejecuta, y el oro generado por las muertes de súbditos se entrega al aliado más cercano a ti. 3. Un minion cercano muere mientras tienes 3 orbes. Al activar el Tributo, el aliado más cercano a ti gana acumulaciones de Tributo. Centinela: inflige 1 daño más a los centinelas visuales revelados por la lente de barrido, el centinela de control y la floración del Arúspice. Restricción: no ganas oro generado por la muerte de súbditos, pero ganas oro equivalente al 50% de la recompensa. El oro generado por las muertes de tus súbditos se entregará al aliado más cercano a ti. El oro obtenido al matar monstruos se reduce en un 50%.\nMisión: Después de ganar 750 de oro, este objeto se convierte en Baluarte de la Montaña y te une a ti y al aliado con la mayor cantidad de acumulaciones de Tributo como Socios Perfectos.",
-            passiveEn = "Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80:1. Using abilities or attacks to damage enemy champions or structures.2. Attacking minions below 65% Health. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you gains Tribute stacks.Sentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.Restraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain and binds you and the ally with the most Tribute stacks as Perfect Partners.",
-            coachTip = "",
-            coachTipEn = "",
+            passive = "Tributo: Gana 1 orbe de energía circundante cada 30 segundos (máximo 3 orbes). Mientras estés cerca de un aliado, las habilidades o ataques que dañen campeones o estructuras, o que maten a súbditos por debajo del 65% de salud, consumirán un orbe. Esto te otorgará oro y restaurará tu salud y la de tu aliado.
+Centinela: Inflige daño extra a los centinelas revelados.
+Misión: Gana 750 de oro para evolucionar este objeto a Baluarte de la Montaña.",
+            passiveEn = "Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions will trigger Tribute to grant you 65 gold and restore your Health.
+Quest: After earning 750 gold, this item upgrades into Bulwark of the Mountain.",
+            coachTip = "El objeto ideal para los soportes de tipo tanque. Úsalo para curarte a ti y a tu aliado mientras ejecutas súbditos de la línea, acelerando tu ganancia de oro y manteniendo la vida alta.",
+            coachTipEn = "The ideal item for tank supports. Use it to heal yourself and your ally while executing minions, accelerating your gold income and keeping your health high.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp"
         ),
         WildRiftItem(
@@ -2853,12 +2862,17 @@ object WildRiftItemsData {
             nameEn = "Spectral Sickle",
             category = "Artículos Básicos",
             goldCost = 500,
-            stats = "",
-            statsEn = "Quest:",
-            passive = "Este objeto es para los apoyos. Al comprarlo, reduce el oro recibido por asesinar a súbditos y monstruos. Si el grupo cuenta con múltiples objetos de este tipo, solo uno de ellos se activará.\nVersátil: Otorga 10 de daño de ataque o 20 de poder de habilidad (adaptable).\nTributo: Gana 1 orbe(s) de energía giratorio(s) cada 30 s (hasta un máximo de 3). Mientras estás cerca de un aliado, las acciones a continuación activarán Tributo, lo que consume 1 orbe(s) de energía, te otorga 65 de oro y recuperas 20-80 de vida:\n1. Utilizar habilidades o ataques para infligir daño a campeones o estructuras enemigas.\n2. Atacar a súbditos por debajo del 65% de vida. Esto también los ejecuta, y el oro que generes al asesinar súbditos se otorgará al aliado más cercano.\n3. Con 3 orbes, asesina a un súbdito cercano.\nAl activar Tributo, el aliado más cercano a ti obtiene acumulaciones de Tributo.\nCentinela: Infliges 1 más de daño a los guardianes de visión revelados con lentes de gran alcance, guardianes de control o flores del adivino.\nModeración: No consigues oro al asesinar súbditos, pero obtienes oro equivalente a un 50% de su botín. El oro que generes al asesinar súbditos se otorgará al aliado más cercano. El oro generado al asesinar monstruos se reduce un 50%.\nMisión: Gana 750 de oro con este objeto para que se transforme en Guadaña de la Niebla Negra y te vincule al aliado con más acumulaciones de Tributo para convertiros en Compañeros ideales.",
-            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80:1. Using abilities or attacks to damage enemy champions or structures.2. Attacking minions below 65% Health. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you gains Tribute stacks.Sentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.Restraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.Quest: Earn 750 gold with this item to transform it into Black Mist Scythe and bind you and the ally with the most Tribute stacks as Perfect Partners.",
-            coachTip = "",
-            coachTipEn = "",
+            stats = "+10 <font color='#ffa500'>daño de ataque</font> o +20 <font color='#9370db'>poder de habilidad</font> (Adaptable)",
+            statsEn = "+10 Attack Damage or +20 Ability Power (Adaptive)",
+            passive = "Versátil: Otorga daño de ataque o poder de habilidad.
+Tributo: Gana 1 orbe de energía giratorio cada 30 s (hasta 3). Atacar campeones o estructuras consume orbes para darte oro y curación.
+Centinela: Daño extra a guardianes.
+Misión: Gana 750 de oro para evolucionar a Guadaña de la Niebla Negra.",
+            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).
+Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions trigger Tribute granting gold.
+Quest: Earn 750 gold to transform into Black Mist Scythe.",
+            coachTip = "Ideal para soportes basados en daño de ataque. Acosa a tus enemigos constantemente en fase de líneas para acumular oro rápidamente y mejorar tu objeto.",
+            coachTipEn = "Ideal for AD-based supports. Harass your enemies constantly in the laning phase to quickly stack gold and upgrade your item.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"
         ),
     )
