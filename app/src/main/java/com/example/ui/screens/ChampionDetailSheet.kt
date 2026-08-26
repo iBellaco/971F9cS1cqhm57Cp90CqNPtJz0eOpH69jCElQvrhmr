@@ -711,7 +711,7 @@ fun ChampionDetailSheet(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             roleProfile.situationalItems.forEachIndexed { idx, rawName ->
-                                val iconUrl = roleProfile.situationalItemsIcons.getOrNull(idx) ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName)
+                                val iconUrl = roleProfile.situationalItemsIcons.getOrNull(idx) ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName) ?: ""
                                 val itemName = tr(rawName)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -1130,8 +1130,9 @@ fun ChampionDetailSheet(
                 ) {
                     val lang = LocalLanguage.current
                     val localizedName = item.getLocalizedName(lang)
-                    val localizedStats = item.getLocalizedStats(lang)
+                    val statsList = item.getStatsList(lang)
                     val localizedPassive = item.getLocalizedPassive(lang)
+                    val localizedCoachTip = item.getLocalizedCoachTip(lang)
 
                     com.example.ui.components.AppAssetImage(
                         url = item.iconUrl,
@@ -1179,31 +1180,47 @@ fun ChampionDetailSheet(
                             )
                         }
                     }
-                    if (localizedStats.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                    if (statsList.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = tr("Estadísticas:"),
-                            color = TextPrimary,
+                            color = com.example.ui.theme.HextechGold,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = localizedStats,
-                            color = com.example.ui.theme.TextPrimary,
                             fontSize = 12.5.sp,
-                            fontWeight = FontWeight.Medium,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            statsList.forEach { stat ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(5.dp)
+                                            .background(com.example.ui.theme.HextechCyan, androidx.compose.foundation.shape.CircleShape)
+                                    )
+                                    Text(
+                                        text = stat,
+                                        color = TextPrimary,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
                     }
                     if (localizedPassive.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
                         Text(
                             text = tr("Efecto / Pasiva:"),
-                            color = TextPrimary,
+                            color = com.example.ui.theme.HextechGold,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
+                            fontSize = 12.5.sp,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -1214,6 +1231,37 @@ fun ChampionDetailSheet(
                             lineHeight = 16.sp,
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                    if (localizedCoachTip.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechGold.copy(alpha = 0.08f)),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.4f))
+                        ) {
+                            Column(modifier = Modifier.padding(10.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text("💡", fontSize = 13.sp)
+                                    Text(
+                                        text = tr("Consejos del Coach:"),
+                                        color = com.example.ui.theme.HextechGoldLight,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = localizedCoachTip,
+                                    color = TextPrimary.copy(alpha = 0.95f),
+                                    fontSize = 11.5.sp,
+                                    lineHeight = 15.5.sp
+                                )
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Box(

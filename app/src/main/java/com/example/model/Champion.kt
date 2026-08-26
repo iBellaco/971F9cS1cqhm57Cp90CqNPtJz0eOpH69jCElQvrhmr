@@ -117,6 +117,9 @@ data class WildRiftItem(
     val passive: String,
     val passiveEn: String = "",
     val passivePt: String = "",
+    val coachTip: String = "",
+    val coachTipEn: String = "",
+    val coachTipPt: String = "",
     val iconUrl: String
 ) {
     fun getLocalizedName(lang: String): String = when (lang) {
@@ -135,6 +138,20 @@ data class WildRiftItem(
         "en" -> passiveEn.ifBlank { passive }
         "pt" -> passivePt.ifBlank { passive }
         else -> passive
+    }
+
+    fun getLocalizedCoachTip(lang: String): String = when (lang) {
+        "en" -> coachTipEn.ifBlank { coachTip }
+        "pt" -> coachTipPt.ifBlank { coachTip }
+        else -> coachTip
+    }
+
+    fun getStatsList(lang: String): List<String> {
+        val raw = getLocalizedStats(lang)
+        if (raw.isBlank()) return emptyList()
+        return raw.split(Regex("[•\n]"))
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
     }
 }
 
