@@ -15,8 +15,8 @@ data class SituationalItemInfo(
 object SituationalItemAdvisor {
 
     private val adviceMap = mapOf(
-        "Malla de Espinas" to SituationalItemInfo(
-            name = "Malla de Espinas",
+        "Cota de Espinas" to SituationalItemInfo(
+            name = "Cota de Espinas",
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
             categoryName = "Anti-Curación & Armadura",
             purpose = "Mitiga curaciones y robo de vida de atacantes físicos continuos mientras refleja daño mágico.",

@@ -93,6 +93,23 @@ object WildRiftSpellsAndRunes {
             "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
             "cazador incesante", "cazador implacable", "relentless hunter" -> "Cazador Incesante"
             "guardián zombi", "guardian zombi", "centinela zombi", "zombie ward" -> "Guardián Zombi"
+            // Extra WR and Community aliases
+            "coraza osea", "coraza ósea", "revestimiento de huesos", "bone plating" -> "Revestimiento de Huesos"
+            "segundo aire", "second wind", "fuerzas renovadas" -> "Fuerzas Renovadas"
+            "orbe de anulacion", "orbe de anulación", "orbe anulador", "nullifying orb" -> "Orbe Anulador"
+            "fuerza indomable", "inquebrantable", "unflinching" -> "Inquebrantable"
+            "verdugo de gigantes", "derribado", "giant slayer", "cut down" -> "Derribado"
+            "demolicion", "demolición", "demoler", "demolish" -> "Demoler"
+            "impacto subito", "impacto súbito", "impacto repentino", "sudden impact" -> "Impacto Repentino"
+            "coleccion de ojos", "colección de ojos", "coleccion de globos oculares", "colección de globos oculares", "eyeball collection" -> "Colección de Globos Oculares"
+            "cazador voraz", "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
+            "claridad mental", "triunfo", "triumph" -> "Triunfo"
+            "perspicacia cosmica", "perspicacia cósmica", "trascendencia", "transcendence" -> "Trascendencia"
+            "piromancia", "pirolaser", "piroláser", "scorch" -> "Piroláser"
+            "mercado del futuro", "se avecina tormenta", "gathering storm" -> "Se Avecina Tormenta"
+            "dulces frutos", "botanista", "sweet tooth" -> "Botanista"
+            "reverberaccion", "reverberacción", "aftershock", "soberano gelido", "soberano gélido", "glacial augment" -> "Soberano Gélido"
+            "coraje del coloso", "valor de coloso", "courage of the colossus" -> "Coraje del Coloso"
             else -> null
         }
         if (canonicalName != null) {
@@ -157,6 +174,23 @@ object WildRiftSpellsAndRunes {
             "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
             "cazador incesante", "cazador implacable", "relentless hunter" -> "Cazador Incesante"
             "guardián zombi", "guardian zombi", "centinela zombi", "zombie ward" -> "Guardián Zombi"
+            // Extra WR and Community aliases
+            "coraza osea", "coraza ósea", "revestimiento de huesos", "bone plating" -> "Revestimiento de Huesos"
+            "segundo aire", "second wind", "fuerzas renovadas" -> "Fuerzas Renovadas"
+            "orbe de anulacion", "orbe de anulación", "orbe anulador", "nullifying orb" -> "Orbe Anulador"
+            "fuerza indomable", "inquebrantable", "unflinching" -> "Inquebrantable"
+            "verdugo de gigantes", "derribado", "giant slayer", "cut down" -> "Derribado"
+            "demolicion", "demolición", "demoler", "demolish" -> "Demoler"
+            "impacto subito", "impacto súbito", "impacto repentino", "sudden impact" -> "Impacto Repentino"
+            "coleccion de ojos", "colección de ojos", "coleccion de globos oculares", "colección de globos oculares", "eyeball collection" -> "Colección de Globos Oculares"
+            "cazador voraz", "cazador ingenioso", "ingenious hunter" -> "Cazador Ingenioso"
+            "claridad mental", "triunfo", "triumph" -> "Triunfo"
+            "perspicacia cosmica", "perspicacia cósmica", "trascendencia", "transcendence" -> "Trascendencia"
+            "piromancia", "pirolaser", "piroláser", "scorch" -> "Piroláser"
+            "mercado del futuro", "se avecina tormenta", "gathering storm" -> "Se Avecina Tormenta"
+            "dulces frutos", "botanista", "sweet tooth" -> "Botanista"
+            "reverberaccion", "reverberacción", "aftershock", "soberano gelido", "soberano gélido", "glacial augment" -> "Soberano Gélido"
+            "coraje del coloso", "valor de coloso", "courage of the colossus" -> "Coraje del Coloso"
             else -> null
         }
         if (canonicalName != null) {

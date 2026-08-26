@@ -28,13 +28,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
+import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
@@ -45,23 +48,9 @@ import com.example.util.tr
 fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
     var selectedLang by remember { mutableStateOf("es") }
 
-    val screenTitle = when (selectedLang) {
-        "en" -> "Choose your language"
-        "pt" -> "Escolha seu idioma"
-        else -> "Elige tu idioma"
-    }
-
-    val screenSubtitle = when (selectedLang) {
-        "en" -> "Select the assistant language"
-        "pt" -> "Selecione o idioma do assistente"
-        else -> "Selecciona el idioma del asistente"
-    }
-
-    val buttonText = when (selectedLang) {
-        "en" -> "Continue"
-        "pt" -> "Continuar"
-        else -> "Continuar"
-    }
+    val screenTitle = "Elige tu idioma"
+    val screenSubtitle = "Selecciona el idioma del asistente táctico (Español activo)"
+    val buttonText = "Continuar en Español"
 
     Column(
         modifier = Modifier
@@ -96,34 +85,37 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
 
         LanguageOption(
             title = "Español",
-            subtitle = "Spanish (Latinoamérica / España)",
+            subtitle = "Español Oficial (Latinoamérica / España) • 100% Activo",
             flagEmoji = "🇪🇸",
             isSelected = selectedLang == "es",
+            isEnabled = true,
             onClick = { selectedLang = "es" }
         )
 
         LanguageOption(
             title = "English",
-            subtitle = "English (Global / US / EU)",
+            subtitle = "English (Temporalmente desactivado por mantenimiento)",
             flagEmoji = "🇺🇸",
-            isSelected = selectedLang == "en",
-            onClick = { selectedLang = "en" }
+            isSelected = false,
+            isEnabled = false,
+            onClick = { }
         )
 
         LanguageOption(
             title = "Português",
-            subtitle = "Português (Brasil / Portugal)",
+            subtitle = "Português (Desativado temporariamente para manutenção)",
             flagEmoji = "🇧🇷",
-            isSelected = selectedLang == "pt",
-            onClick = { selectedLang = "pt" }
+            isSelected = false,
+            isEnabled = false,
+            onClick = { }
         )
 
         Spacer(modifier = Modifier.height(36.dp))
 
         Button(
             onClick = {
-                AppLogger.d("LANG", "Selected Language: $selectedLang")
-                onLanguageSelected(selectedLang)
+                AppLogger.d("LANG", "Selected Language: es")
+                onLanguageSelected("es")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -147,10 +139,19 @@ fun LanguageOption(
     subtitle: String,
     flagEmoji: String,
     isSelected: Boolean,
+    isEnabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) HextechCyan else HextechSurface
-    val bgColor = if (isSelected) HextechCyan.copy(alpha = 0.12f) else HextechSurface
+    val borderColor = when {
+        isSelected -> HextechCyan
+        !isEnabled -> HextechCardBorder.copy(alpha = 0.3f)
+        else -> HextechSurface
+    }
+    val bgColor = when {
+        isSelected -> HextechCyan.copy(alpha = 0.12f)
+        !isEnabled -> HextechSurface.copy(alpha = 0.5f)
+        else -> HextechSurface
+    }
 
     Row(
         modifier = Modifier
@@ -159,15 +160,28 @@ fun LanguageOption(
             .clip(RoundedCornerShape(12.dp))
             .background(bgColor)
             .border(2.dp, borderColor, RoundedCornerShape(12.dp))
-            .clickable { onClick() }
+            .clickable(enabled = isEnabled) { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = flagEmoji, fontSize = 26.sp)
+        Text(
+            text = flagEmoji,
+            fontSize = 26.sp,
+            modifier = Modifier.alpha(if (isEnabled) 1.0f else 0.4f)
+        )
         Spacer(modifier = Modifier.size(14.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(text = subtitle, color = TextMuted, fontSize = 12.sp)
+            Text(
+                text = title,
+                color = if (isEnabled) TextPrimary else TextMuted,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = subtitle,
+                color = if (isEnabled) HextechGoldLight else TextMuted.copy(alpha = 0.6f),
+                fontSize = 12.sp
+            )
         }
 
         if (isSelected) {

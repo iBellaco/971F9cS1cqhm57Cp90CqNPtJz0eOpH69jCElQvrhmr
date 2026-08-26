@@ -44,8 +44,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -54,7 +54,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -141,7 +141,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ahri en MID. Coordina el uso de su Impulso espiritual para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -252,7 +252,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Akali en MID. Coordina el uso de su Ejecución perfecta para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -364,7 +364,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Akshan en MID. Coordina el uso de su Merecido para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -376,7 +376,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -472,7 +472,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Alistar en SUPPORT. Coordina el uso de su Voluntad inquebrantable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -484,9 +484,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -596,8 +596,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -606,7 +606,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -694,7 +694,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Amumu en JUNGLE. Coordina el uso de su Maldición de la momia triste para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -706,9 +706,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -806,7 +806,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Annie en MID. Coordina el uso de su Invocar: Tibbers para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -1026,7 +1026,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Aurelion Sol en MID. Coordina el uso de su Estrella fugaz / Ocaso celeste para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -1137,7 +1137,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Aurora en MID. Coordina el uso de su Entre mundos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -1245,8 +1245,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Bardo en SUPPORT. Coordina el uso de su Destino maleable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -1354,7 +1354,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Blitzcrank en SUPPORT. Coordina el uso de su Campo estático para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -1366,9 +1366,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -1466,8 +1466,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Brand en SUPPORT. Coordina el uso de su Detonación ígnea para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -1575,7 +1575,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Braum en SUPPORT. Coordina el uso de su Fisura glacial para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -1587,9 +1587,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -1795,7 +1795,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Camille en TOP. Coordina el uso de su Ultimátum hextech para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -1808,8 +1808,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -1818,7 +1818,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -1906,7 +1906,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Cho'Gath en TOP. Coordina el uso de su Festín para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -1918,9 +1918,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -2018,7 +2018,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Corki en MID. Coordina el uso de su Andanada de Proyectiles para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -2030,7 +2030,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -2127,7 +2127,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Darius en TOP. Coordina el uso de su Guillotina noxiana para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -2139,8 +2139,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -2149,7 +2149,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -2237,7 +2237,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Diana en JUNGLE. Coordina el uso de su Lluvia de luna para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -2249,9 +2249,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -2348,7 +2348,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Dr. Mundo en TOP. Coordina el uso de su Dosis máxima para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -2360,9 +2360,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -2569,7 +2569,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ekko en JUNGLE. Coordina el uso de su Fisura temporal para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Castigo",
@@ -2678,7 +2678,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Evelynn en JUNGLE. Coordina el uso de su Hacedora de viudas para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Castigo",
@@ -2788,8 +2788,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ezreal en ADC. Coordina el uso de su Andanada certera para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -2900,7 +2900,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Fiddlesticks en JUNGLE. Coordina el uso de su Tormenta de cuervos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Castigo",
@@ -3021,8 +3021,8 @@
     ],
     "coreItems": [
       "Égida de Fuego Solar",
-      "Malla de Espinas",
-      "Rostro Espiritual"
+      "Cota de Espinas",
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png",
@@ -3118,7 +3118,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Fizz en MID. Coordina el uso de su Carnaza para tiburones para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -3228,7 +3228,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Galio en MID. Coordina el uso de su Entrada heroica para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -3240,9 +3240,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -3350,8 +3350,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -3360,7 +3360,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -3446,7 +3446,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Gnar en TOP. Coordina el uso de su ¡GNAR! para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -3459,8 +3459,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -3469,7 +3469,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -3558,7 +3558,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Gragas en JUNGLE. Coordina el uso de su Tonel explosivo para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -3570,9 +3570,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -3670,7 +3670,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Graves en JUNGLE. Coordina el uso de su Daño colateral para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Castigo",
@@ -3682,7 +3682,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -3780,7 +3780,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Gwen en TOP. Coordina el uso de su Bordado para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -3792,9 +3792,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -3889,7 +3889,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Hecarim en JUNGLE. Coordina el uso de su Envite de sombras para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -3902,8 +3902,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -3912,7 +3912,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -4002,7 +4002,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Heimerdinger en MID. Coordina el uso de su ¡MEJORA! para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -4113,7 +4113,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Irelia en TOP. Coordina el uso de su Filo de la vanguardia para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -4125,8 +4125,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -4135,7 +4135,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -4221,8 +4221,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Janna en SUPPORT. Coordina el uso de su Monzón para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -4345,8 +4345,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -4355,7 +4355,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -4456,8 +4456,8 @@
     ],
     "coreItems": [
       "Égida de Fuego Solar",
-      "Malla de Espinas",
-      "Rostro Espiritual"
+      "Cota de Espinas",
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png",
@@ -4567,7 +4567,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -4663,7 +4663,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Jhin en ADC. Coordina el uso de su Abajo el telón para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Cadencia Letal (Precisión)",
+    "recommendedRunes": "Compás Letal (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
     "recommendedSpells": [
@@ -4772,8 +4772,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Jinx en ADC. Coordina el uso de su ¡Supermegacohete mortal! para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -4882,7 +4882,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de K'Sante en TOP. Coordina el uso de su Órdago para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -4894,8 +4894,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -4904,7 +4904,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -4990,8 +4990,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kai'Sa en ADC. Coordina el uso de su Instinto asesino para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -5100,7 +5100,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kalista en ADC. Coordina el uso de su Llamada del destino para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -5210,8 +5210,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Karma en SUPPORT. Coordina el uso de su Mantra para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -5320,7 +5320,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kassadin en MID. Coordina el uso de su Camino del Vacío para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -5429,7 +5429,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Katarina en MID. Coordina el uso de su Loto mortal para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -5540,7 +5540,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kayle en TOP. Coordina el uso de su Veredicto divino para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -5552,7 +5552,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -5648,7 +5648,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kayn en JUNGLE. Coordina el uso de su Invasión sombría para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -5661,8 +5661,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -5671,7 +5671,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -5760,7 +5760,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kennen en TOP. Coordina el uso de su Tempestad cercenante para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -5869,7 +5869,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kha'Zix en JUNGLE. Coordina el uso de su Asalto del Vacío para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Castigo",
@@ -5881,7 +5881,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -5980,7 +5980,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kindred en JUNGLE. Coordina el uso de su Respiro de cordera para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Castigo",
@@ -5992,7 +5992,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -6090,8 +6090,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Kog'Maw en ADC. Coordina el uso de su Artillería viviente para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -6199,7 +6199,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lee Sin en JUNGLE. Coordina el uso de su Ira del dragón para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -6212,8 +6212,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -6222,7 +6222,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -6308,7 +6308,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Leona en SUPPORT. Coordina el uso de su Llamarada solar para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -6320,9 +6320,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -6420,7 +6420,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lillia en JUNGLE. Coordina el uso de su Nana rítmica para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Castigo",
@@ -6529,7 +6529,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lissandra en MID. Coordina el uso de su Tumba helada para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -6639,8 +6639,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lucian en ADC. Coordina el uso de su El sacrificio para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -6748,8 +6748,8 @@
       "Amumu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lulu en SUPPORT. Coordina el uso de su Crecimiento salvaje para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -6860,7 +6860,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Lux en MID. Coordina el uso de su Chispa final para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -6971,7 +6971,7 @@
       "Amumu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Malphite en TOP. Coordina el uso de su Fuerza imparable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -6983,9 +6983,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -7083,7 +7083,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Maokai en SUPPORT. Coordina el uso de su Garras de la naturaleza para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -7095,9 +7095,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -7193,7 +7193,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Maestro Yi en JUNGLE. Coordina el uso de su Imparable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Castigo",
@@ -7205,7 +7205,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -7304,7 +7304,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Mel en MID. Coordina el uso de su Trascendencia Imperial para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -7412,8 +7412,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Milio en SUPPORT. Coordina el uso de su Aliento vital para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -7634,7 +7634,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Mordekaiser en TOP. Coordina el uso de su Reino de la muerte para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -7646,9 +7646,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -7746,8 +7746,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Morgana en SUPPORT. Coordina el uso de su Grilletes del alma para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -7855,8 +7855,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nami en SUPPORT. Coordina el uso de su Maremoto para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -7964,7 +7964,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nasus en TOP. Coordina el uso de su Furia de las arenas para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -7977,8 +7977,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -7987,7 +7987,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -8076,7 +8076,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nautilus en SUPPORT. Coordina el uso de su Carga de profundidad para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -8088,9 +8088,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -8186,7 +8186,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nidalee en JUNGLE. Coordina el uso de su Aspecto felino para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Castigo",
@@ -8295,7 +8295,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nilah en ADC. Coordina el uso de su Apoteosis para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -8404,7 +8404,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nocturne en JUNGLE. Coordina el uso de su Paranoia para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Castigo",
@@ -8416,7 +8416,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -8515,7 +8515,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Norra en MID. Coordina el uso de su Puerta de Bandle para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -8623,7 +8623,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Nunu y Willump en JUNGLE. Coordina el uso de su Cero absoluto para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -8635,9 +8635,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -8747,8 +8747,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -8757,7 +8757,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -8844,7 +8844,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Orianna en MID. Coordina el uso de su Orden: onda de choque para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -8952,7 +8952,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ornn en TOP. Coordina el uso de su Llamada del dios de la forja para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -8964,9 +8964,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -9078,8 +9078,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -9088,7 +9088,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -9190,8 +9190,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -9200,7 +9200,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -9289,7 +9289,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Pyke en SUPPORT. Coordina el uso de su Muerte de las profundidades para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -9300,9 +9300,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Promesa del Caballero",
+      "Promesa de Caballero",
       "Convergencia de Zeke",
-      "Medallón de los Solari"
+      "Relicario de los Solari de Hierro"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3109.png",
@@ -9310,7 +9310,7 @@
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3190.png"
     ],
     "situationalItems": [
-      "Malla de Espinas",
+      "Cota de Espinas",
       "Protector Pétreo"
     ],
     "situationalItemsIcons": [
@@ -9397,7 +9397,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Rakan en SUPPORT. Coordina el uso de su La premura para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -9409,9 +9409,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -9506,7 +9506,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Rammus en JUNGLE. Coordina el uso de su Golpe veloz para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -9518,9 +9518,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -9617,7 +9617,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Rell en SUPPORT. Coordina el uso de su Tormenta magnética para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -9629,9 +9629,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -9726,7 +9726,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Renekton en TOP. Coordina el uso de su Dominus para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -9739,8 +9739,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -9749,7 +9749,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -9838,7 +9838,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Rengar en JUNGLE. Coordina el uso de su Emoción por la cacería para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Castigo",
@@ -9850,7 +9850,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -9947,7 +9947,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Riven en TOP. Coordina el uso de su Hoja del exilio para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -9959,8 +9959,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -9969,7 +9969,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -10058,7 +10058,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Rumble en TOP. Coordina el uso de su Equilibrador para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -10070,9 +10070,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -10170,7 +10170,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ryze en MID. Coordina el uso de su Distorsión de reinos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -10278,7 +10278,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Samira en ADC. Coordina el uso de su Gatillo infernal para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Cadencia Letal (Precisión)",
+    "recommendedRunes": "Compás Letal (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
     "recommendedSpells": [
@@ -10389,7 +10389,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Senna en ADC. Coordina el uso de su Sombra del amanecer para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Cadencia Letal (Precisión)",
+    "recommendedRunes": "Compás Letal (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
     "recommendedSpells": [
@@ -10501,8 +10501,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Seraphine en SUPPORT. Coordina el uso de su Bis para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -10625,8 +10625,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -10635,7 +10635,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -10723,7 +10723,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Shen en TOP. Coordina el uso de su Mantenerse unidos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -10735,9 +10735,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -10832,7 +10832,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Shyvana en JUNGLE. Coordina el uso de su Ascendencia de dragón para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -10844,9 +10844,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/7/74/Flash.png/revision/latest?cb=20181116071628&path-prefix=es"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -10941,7 +10941,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Singed en TOP. Coordina el uso de su Poción de demencia para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -10953,9 +10953,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -11051,7 +11051,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Sion en TOP. Coordina el uso de su Embestida imparable para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -11063,8 +11063,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -11073,7 +11073,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -11283,8 +11283,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -11293,7 +11293,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -11381,8 +11381,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Smolder en ADC. Coordina el uso de su ¡MAMIIII! para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -11490,8 +11490,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Sona en SUPPORT. Coordina el uso de su Crescendo para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -11599,8 +11599,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Soraka en SUPPORT. Coordina el uso de su Plegaria para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -11711,7 +11711,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Swain en MID. Coordina el uso de su Ascensión demoníaca para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -11723,9 +11723,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -11821,7 +11821,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Syndra en MID. Coordina el uso de su Poder desatado para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -11932,7 +11932,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Taliyah en JUNGLE. Coordina el uso de su Muro de la Tejedora para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Castigo",
@@ -12055,7 +12055,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -12154,7 +12154,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Teemo en TOP. Coordina el uso de su Trampa ponzoñosa para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -12166,7 +12166,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -12262,7 +12262,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Thresh en SUPPORT. Coordina el uso de su La caja para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -12274,9 +12274,9 @@
       "https://static.wikia.nocookie.net/leagueoflegends/images/f/f4/Ignite.png/revision/latest?cb=20180514003345"
     ],
     "coreItems": [
-      "Creagrietas",
+      "Creador de Grietas",
       "Égida de Fuego Solar",
-      "Rostro Espiritual"
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4633.png",
@@ -12373,8 +12373,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Tristana en ADC. Coordina el uso de su Tiro destructor para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -12484,7 +12484,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Tryndamere en TOP. Coordina el uso de su Furia inmortal para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -12497,8 +12497,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -12507,7 +12507,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -12594,7 +12594,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Twisted Fate en MID. Coordina el uso de su Destino para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -12705,7 +12705,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Twitch en ADC. Coordina el uso de su Vacía el cargador para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -12826,8 +12826,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -12836,7 +12836,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -12924,8 +12924,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Varus en ADC. Coordina el uso de su Cadena de corrupción para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -13035,7 +13035,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Vayne en ADC. Coordina el uso de su Hora final para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Cadencia Letal (Precisión)",
+    "recommendedRunes": "Compás Letal (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Leyenda: Presteza • Golpe de Gracia • Cazador de Titanes",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempotemp.png",
     "recommendedSpells": [
@@ -13147,7 +13147,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Veigar en MID. Coordina el uso de su Estallido primordial para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -13258,7 +13258,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Vel'Koz en MID. Coordina el uso de su Rayo desintegrador de seres vivos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -13270,7 +13270,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -13367,7 +13367,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Vex en MID. Coordina el uso de su Estallido sombrío para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -13475,7 +13475,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Vi en JUNGLE. Coordina el uso de su Cese y desistimiento para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -13488,8 +13488,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -13498,7 +13498,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -13599,8 +13599,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -13609,7 +13609,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -13696,7 +13696,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Viktor en MID. Coordina el uso de su Tormenta del caos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -13807,7 +13807,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Vladimir en MID. Coordina el uso de su Hemoplaga para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Cometa Arcano (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Perspicacia Cósmica",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Trascendencia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
       "Destello",
@@ -13918,7 +13918,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Volibear en TOP. Coordina el uso de su Heraldo de la tormenta para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -13930,8 +13930,8 @@
     ],
     "coreItems": [
       "Égida de Fuego Solar",
-      "Malla de Espinas",
-      "Rostro Espiritual"
+      "Cota de Espinas",
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png",
@@ -14029,7 +14029,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Warwick en TOP. Coordina el uso de su Presión infinita para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
@@ -14041,8 +14041,8 @@
     ],
     "coreItems": [
       "Égida de Fuego Solar",
-      "Malla de Espinas",
-      "Rostro Espiritual"
+      "Cota de Espinas",
+      "Apariencia Espiritual"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3068.png",
@@ -14139,7 +14139,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Wukong en TOP. Coordina el uso de su Ciclón para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Reverberacción (Valor)",
+    "recommendedRunes": "Soberano Gélido (Valor)",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Golpe de Escudo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/veteranaftershock/veteranaftershock.png",
     "recommendedSpells": [
@@ -14152,8 +14152,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -14162,7 +14162,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -14248,8 +14248,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Xayah en ADC. Coordina el uso de su Tormenta de plumas para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Sobre la Marcha (Precisión)",
-    "runeTreeDetails": "Precisión: Claridad Mental • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos",
+    "recommendedRunes": "Pies Veloces (Precisión)",
+    "runeTreeDetails": "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Destello",
@@ -14360,7 +14360,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Xin Zhao en JUNGLE. Coordina el uso de su Guardia de media luna para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
-    "runeTreeDetails": "Valor: Demoler • Revestimiento de Huesos • Sobrecrecimiento • Claridad Mental",
+    "runeTreeDetails": "Valor: Demoler • Coraza Ósea • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Castigo",
@@ -14372,8 +14372,8 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Cuchilla Negra",
-      "Guantelete de Sterak"
+      "Cuchilla Oscura",
+      "Calibrador de Sterak"
     ],
     "coreItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3078.png",
@@ -14382,7 +14382,7 @@
     ],
     "situationalItems": [
       "Danza de la Muerte",
-      "Malla de Espinas"
+      "Cota de Espinas"
     ],
     "situationalItemsIcons": [
       "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
@@ -14484,7 +14484,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -14595,7 +14595,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -14694,7 +14694,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Yunara en ADC. Coordina el uso de su Tormenta del Telar para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -14802,8 +14802,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Yuumi en SUPPORT. Coordina el uso de su Capítulo final para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -14914,7 +14914,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Zed en MID. Coordina el uso de su Marca de la muerte para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Electrocutar (Dominación)",
-    "runeTreeDetails": "Dominación: Impacto Súbito • Colección de Ojos • Cazador Voraz • Concentración",
+    "runeTreeDetails": "Dominación: Impacto Repentino • Colección de Globos Oculares • Cazador Ingenioso • Concentración",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
       "Destello",
@@ -14926,7 +14926,7 @@
     ],
     "coreItems": [
       "Fuerza de la Trinidad",
-      "Filo Fantasma de Youmuu",
+      "Espada Fantasma de Youmuu",
       "Filo de la Noche"
     ],
     "coreItemsIcons": [
@@ -15023,7 +15023,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Zeri en ADC. Coordina el uso de su Choque de rayos para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -15134,7 +15134,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Ziggs en MID. Coordina el uso de su Megabomba incendiaria para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -15244,8 +15244,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Zilean en SUPPORT. Coordina el uso de su Alteración del tiempo para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",
@@ -15354,7 +15354,7 @@
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Zoe en MID. Coordina el uso de su Salto dimensional para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
     "recommendedRunes": "Primer Golpe (Inspiración)",
-    "runeTreeDetails": "Inspiración: Destello Hextech • Mercado del Futuro • Perspicacia Cósmica • Triunfo",
+    "runeTreeDetails": "Inspiración: Destello Hextech • Se Avecina Tormenta • Trascendencia • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
       "Destello",
@@ -15465,8 +15465,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Aprovecha el escalado y combos de Zyra en SUPPORT. Coordina el uso de su Tuercespinas para ganar ventajas en peleas grupales y objetivos de dragón/barón.",
-    "recommendedRunes": "Invocación: Aery (Brujería)",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piromancia • Fuente de Vida",
+    "recommendedRunes": "Aery (Brujería)",
+    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
       "Destello",

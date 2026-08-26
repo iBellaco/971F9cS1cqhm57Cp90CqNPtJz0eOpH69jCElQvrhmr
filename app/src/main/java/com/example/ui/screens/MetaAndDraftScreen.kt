@@ -568,7 +568,7 @@ private fun ChampionsCatalogTab(
                     .padding(horizontal = 8.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "Patch 6.1 Meta",
+                    text = "${WildRiftRepository.CURRENT_PATCH_VERSION} Meta",
                     color = HextechGold,
                     fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold

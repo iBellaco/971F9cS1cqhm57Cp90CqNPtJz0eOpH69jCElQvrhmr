@@ -228,11 +228,6 @@ fun MainDraftingScreen(
                     },
                     actions = {
                         var expandedLang by remember { mutableStateOf(false) }
-                        val currentFlag = when(currentLanguage) {
-                            "en" -> "🇺🇸/🇬🇧"
-                            "pt" -> "🇧🇷/🇵🇹"
-                            else -> "🇪🇸"
-                        }
                         Box {
                             TextButton(
                                 onClick = { expandedLang = true },
@@ -242,7 +237,7 @@ fun MainDraftingScreen(
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             ) {
-                                Text(currentFlag, fontSize = 16.sp)
+                                Text("🇪🇸", fontSize = 16.sp)
                             }
                             androidx.compose.material3.DropdownMenu(
                                 expanded = expandedLang,
@@ -250,25 +245,39 @@ fun MainDraftingScreen(
                                 modifier = Modifier.background(HextechSurface)
                             ) {
                                 androidx.compose.material3.DropdownMenuItem(
-                                    text = { Text("🇪🇸 Español", color = TextPrimary) },
+                                    text = { 
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("🇪🇸 Español", color = TextPrimary, fontWeight = FontWeight.Bold)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("(Activo)", color = HextechCyan, fontSize = 12.sp)
+                                        }
+                                    },
                                     onClick = { 
                                         onLanguageChange("es")
                                         expandedLang = false 
                                     }
                                 )
                                 androidx.compose.material3.DropdownMenuItem(
-                                    text = { Text("🇺🇸/🇬🇧 English", color = TextPrimary) },
-                                    onClick = { 
-                                        onLanguageChange("en")
-                                        expandedLang = false 
-                                    }
+                                    text = { 
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("🇺🇸 English", color = TextMuted)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("(En mant.)", color = TextMuted, fontSize = 11.sp)
+                                        }
+                                    },
+                                    enabled = false,
+                                    onClick = { }
                                 )
                                 androidx.compose.material3.DropdownMenuItem(
-                                    text = { Text("🇧🇷/🇵🇹 Português", color = TextPrimary) },
-                                    onClick = { 
-                                        onLanguageChange("pt")
-                                        expandedLang = false 
-                                    }
+                                    text = { 
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("🇧🇷 Português", color = TextMuted)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("(Em manut.)", color = TextMuted, fontSize = 11.sp)
+                                        }
+                                    },
+                                    enabled = false,
+                                    onClick = { }
                                 )
                             }
                         }

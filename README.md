@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Plataforma-Android%207.0%2B%20(API%2024%2B)-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android Version" />
   <img src="https://img.shields.io/badge/Lenguaje-Kotlin%20100%25-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose%20%2F%20M3-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
-  <img src="https://img.shields.io/badge/Patch-6.1%20Meta%20Ready-C89B3C?style=for-the-badge&logo=leagueoflegends&logoColor=white" alt="Wild Rift Patch 6.1" />
+  <img src="https://img.shields.io/badge/Patch-7.2d%20Meta%20Ready-C89B3C?style=for-the-badge&logo=leagueoflegends&logoColor=white" alt="Wild Rift Patch 7.2d" />
   <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions%20Automated-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions" />
 </p>
 
@@ -31,8 +31,8 @@
 - **Modo Compacto / Expandido:** Visualización fluida con control de toques y opacidad regulable para consultar builds, runas y tiempos de objetivos mientras juegas.
 - **Acceso Rápido a Detección:** Botón de escaneo directo desde la superposición flotante para analizar la selección de campeones al instante.
 
-### 3. 📚 Catálogo Oficial Completo y Localizado (Patch 6.1 Meta)
-- **118 Campeones:** Estadísticas detalladas, sinergias, counter-picks, habilidades, rutas de build y consejos de Coach por línea (Baron, Jungle, Mid, Duo, Support).
+### 3. 📚 Catálogo Oficial Completo y Localizado (Patch 7.2d Meta)
+- **141 Campeones Oficiales:** Estadísticas detalladas, sinergias, counter-picks, habilidades, rutas de build y consejos de Coach por línea (Baron, Jungle, Mid, Duo, Support).
 - **186+ Objetos:** Base de datos con costos de oro, estadísticas, pasivas explicadas y consejos tácticos traducidos íntegramente al español, inglés y portugués.
 - **54 Runes (Runas):** Árboles completos (Clave, Precisión, Dominación, Valor, Inspiración) con números exactos y campeones recomendados.
 - **13 Hechizos de Invocador (Summoner Spells):** Tiempos de reutilización y análisis situacional de uso.
