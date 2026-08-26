@@ -506,12 +506,16 @@ fun ChampionDetailSheet(
                         roleProfile.spellsIcons.forEachIndexed { idx, iconUrl ->
                             val rawSpellName = roleProfile.recommendedSpells.getOrNull(idx) ?: "Spell"
                             val spellName = tr(rawSpellName)
+                            val dbSpell = com.example.data.WildRiftRepository.summonerSpells.find {
+                                it.name.equals(rawSpellName, ignoreCase = true) || rawSpellName.contains(it.name, ignoreCase = true) || it.name.contains(rawSpellName, ignoreCase = true)
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurfaceVariant)
                                     .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                    .clickable { if (dbSpell != null) spellForDetail = dbSpell }
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
                                 AppAssetImage(

@@ -314,13 +314,19 @@ fun MetaAndDraftScreen(
                     onSelectChampion = { selectedDetailChampion = it }
                 )
             } else {
+                data class CatalogTabItem(val title: String, val count: Int? = null)
+                val totalChamps = WildRiftRepository.champions.size
+                val totalItems = WildRiftRepository.items.size
+                val totalRunes = WildRiftRepository.runes.size
+                val totalSpells = WildRiftRepository.summonerSpells.size
+
                 val catalogTabs = listOf(
-                    tr("Campeones"),
-                    tr("Tier List"),
-                    tr("Objetos"),
-                    tr("Runas"),
-                    tr("Hechizos"),
-                    tr("Objetivos")
+                    CatalogTabItem(tr("Campeones"), totalChamps),
+                    CatalogTabItem(tr("Tier List")),
+                    CatalogTabItem(tr("Objetos"), totalItems),
+                    CatalogTabItem(tr("Runas"), totalRunes),
+                    CatalogTabItem(tr("Hechizos"), totalSpells),
+                    CatalogTabItem(tr("Objetivos"))
                 )
 
                 ScrollableTabRow(
@@ -338,17 +344,56 @@ fun MetaAndDraftScreen(
                         }
                     }
                 ) {
-                    catalogTabs.forEachIndexed { index, title ->
+                    catalogTabs.forEachIndexed { index, tabItem ->
+                        val isSelected = selectedTabIndex == index
                         Tab(
-                            selected = selectedTabIndex == index,
+                            selected = isSelected,
                             onClick = { selectedTabIndex = index },
                             text = {
-                                Text(
-                                    text = title,
-                                    color = if (selectedTabIndex == index) HextechCyan else TextMuted,
-                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Medium,
-                                    fontSize = 13.sp
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    modifier = Modifier
+                                        .background(
+                                            if (isSelected) HextechCyan.copy(alpha = 0.15f) else Color.Transparent,
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .border(
+                                            if (isSelected) 1.dp else 0.dp,
+                                            if (isSelected) HextechCyan.copy(alpha = 0.6f) else Color.Transparent,
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = tabItem.title,
+                                        color = if (isSelected) HextechCyan else TextMuted,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        fontSize = 12.5.sp
+                                    )
+                                    if (tabItem.count != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(
+                                                    if (isSelected) HextechCyan else HextechSurfaceVariant,
+                                                    RoundedCornerShape(10.dp)
+                                                )
+                                                .border(
+                                                    0.5.dp,
+                                                    if (isSelected) HextechGold else HextechCardBorder,
+                                                    RoundedCornerShape(10.dp)
+                                                )
+                                                .padding(horizontal = 6.dp, vertical = 1.dp)
+                                        ) {
+                                            Text(
+                                                text = "${tabItem.count}",
+                                                color = if (isSelected) HextechDarkBg else HextechGold,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         )
                     }
@@ -500,19 +545,35 @@ private fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Total count
+        // Status & View Bar for Champions
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 2.dp),
+                .background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
+                .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "${filteredChampions.size} " + tr("Campeones"),
+                text = "${filteredChampions.size} " + tr("Campeones Oficiales"),
                 color = HextechCyan,
-                fontSize = 11.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.SemiBold
             )
+            Box(
+                modifier = Modifier
+                    .background(HextechGold.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                    .border(0.5.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = "Patch 6.1 Meta",
+                    color = HextechGold,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
         Spacer(modifier = Modifier.height(6.dp))
         TierSelectionPanel(currentTier, syncState, context, coroutineScope)
