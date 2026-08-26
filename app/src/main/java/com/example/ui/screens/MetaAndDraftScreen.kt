@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.utils.parseHtmlColorToAnnotatedString
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -1498,7 +1500,7 @@ private fun selectedRuneItemModal(
                                             .background(HextechCyan, CircleShape)
                                     )
                                     Text(
-                                        text = stat,
+                                        text = stat.parseHtmlColorToAnnotatedString(),
                                         color = TextPrimary,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Medium
@@ -1682,7 +1684,7 @@ private fun ItemListCard(
                                         .background(HextechCyan, CircleShape)
                                 )
                                 Text(
-                                    text = stat,
+                                    text = stat.parseHtmlColorToAnnotatedString(),
                                     color = TextPrimary,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium

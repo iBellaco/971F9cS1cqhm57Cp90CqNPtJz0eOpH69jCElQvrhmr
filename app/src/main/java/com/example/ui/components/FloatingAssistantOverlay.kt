@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import com.example.utils.parseHtmlColorToAnnotatedString
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -297,7 +299,7 @@ private fun OverlayItemsTabContent(
                                 Text("${item.goldCost} ${tr("Oro")}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
                             if (localizedStats.isNotBlank()) {
-                                Text(localizedStats, color = HextechCyan, fontSize = 10.sp)
+                                Text(localizedStats.parseHtmlColorToAnnotatedString(), color = HextechCyan, fontSize = 10.sp)
                             }
                             if (localizedPassive.isNotBlank()) {
                                 Spacer(modifier = Modifier.height(2.dp))

@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import com.example.utils.parseHtmlColorToAnnotatedString
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -1208,8 +1210,8 @@ fun ChampionDetailSheet(
                                             .size(5.dp)
                                             .background(com.example.ui.theme.HextechCyan, androidx.compose.foundation.shape.CircleShape)
                                     )
-                                    com.example.ui.components.FormattedWildRiftText(
-                                        text = stat,
+                                    Text(
+                                        text = stat.parseHtmlColorToAnnotatedString(),
                                         color = TextPrimary,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Medium
