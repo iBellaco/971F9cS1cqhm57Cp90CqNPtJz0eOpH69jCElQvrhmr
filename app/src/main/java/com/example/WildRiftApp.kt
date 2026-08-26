@@ -1,6 +1,9 @@
 package com.example
 
 import android.app.Application
+import android.widget.Toast
+import android.os.Handler
+import android.os.Looper
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.work.Constraints
@@ -73,12 +76,21 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         CoroutineScope(Dispatchers.IO + handler).launch {
             try {
                 val prefs = getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
-                if (!prefs.getBoolean("is_db_seeded_multi_lang_v2", false)) {
+                if (!prefs.getBoolean("is_db_seeded_multi_lang_v3", false)) {
                     AppLogger.d("WildRiftApp", "Iniciando población de base de datos multi-idioma (una sola vez)...")
-                    com.example.data.supabase.WildRiftSupabaseRepository.seedAllDataToSupabase { c, t, m -> 
+                    val res = com.example.data.supabase.WildRiftSupabaseRepository.seedAllDataToSupabase { c, t, m -> 
                         AppLogger.d("WildRiftApp", "Seed: $m $c/$t") 
                     }
-                    prefs.edit().putBoolean("is_db_seeded_multi_lang_v2", true).apply()
+                    if (res.isFailure) {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(this@WildRiftApp, "SUPABASE ERROR: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        Handler(Looper.getMainLooper()).post {
+                            Toast.makeText(this@WildRiftApp, "SUPABASE SYNC SUCCESSFUL", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    prefs.edit().putBoolean("is_db_seeded_multi_lang_v3", true).apply()
                     AppLogger.d("WildRiftApp", "Población de base de datos completada.")
                 }
                 com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(this@WildRiftApp)
