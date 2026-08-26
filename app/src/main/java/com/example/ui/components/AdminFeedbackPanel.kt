@@ -17,6 +17,13 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -867,6 +874,7 @@ fun AdminFeedbackBottomSheet(
     if (previewImageBitmap != null) {
         var scale by remember(previewImageBitmap) { mutableFloatStateOf(1f) }
         var offset by remember(previewImageBitmap) { mutableStateOf(Offset.Zero) }
+        var showControls by remember(previewImageBitmap) { mutableStateOf(true) }
 
         Dialog(
             onDismissRequest = { 
@@ -874,12 +882,28 @@ fun AdminFeedbackBottomSheet(
                 scale = 1f
                 offset = Offset.Zero
             },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
         ) {
+            val view = LocalView.current
+            LaunchedEffect(view) {
+                val window = (view.parent as? DialogWindowProvider)?.window
+                if (window != null) {
+                    val insetsController = WindowCompat.getInsetsController(window, view)
+                    insetsController.hide(WindowInsetsCompat.Type.systemBars())
+                    insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            }
+            
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black)
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        showControls = !showControls
+                    }
             ) {
                 // Imagen con zoom
                 Image(
@@ -912,102 +936,117 @@ fun AdminFeedbackBottomSheet(
                 )
 
                 // Top Bar superpuesta
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.5f))
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                AnimatedVisibility(
+                    visible = showControls,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
+                    modifier = Modifier.align(Alignment.TopCenter)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically, 
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                            .padding(horizontal = 12.dp, vertical = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                        Text(
-                            text = if (scale > 1.05f) "${tr("Captura")} (${(scale * 100).toInt()}%)" else tr("Captura Adjunta"), 
-                            color = HextechGold, 
-                            fontSize = 16.sp, 
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        // Zoom Out
-                        IconButton(
-                            onClick = {
-                                scale = (scale / 1.3f).coerceIn(1f, 5f)
-                                if (scale <= 1.05f) {
-                                    scale = 1f
-                                    offset = Offset.Zero
-                                }
-                            },
-                            modifier = Modifier.size(36.dp),
-                            enabled = scale > 1f
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, 
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Icon(Icons.Default.ZoomOut, contentDescription = "Alejar", tint = if (scale > 1f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                            Text(
+                                text = if (scale > 1.05f) "${tr("Captura")} (${(scale * 100).toInt()}%)" else tr("Captura Adjunta"), 
+                                color = HextechGold, 
+                                fontSize = 16.sp, 
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-
-                        // Zoom In
-                        IconButton(
-                            onClick = {
-                                scale = (scale * 1.3f).coerceIn(1f, 5f)
-                            },
-                            modifier = Modifier.size(36.dp),
-                            enabled = scale < 5f
-                        ) {
-                            Icon(Icons.Default.ZoomIn, contentDescription = "Acercar", tint = if (scale < 5f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
-                        }
-
-                        // Reset Zoom
-                        if (scale > 1.05f) {
+                        
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            // Zoom Out
                             IconButton(
                                 onClick = {
-                                    scale = 1f
-                                    offset = Offset.Zero
+                                    scale = (scale / 1.3f).coerceIn(1f, 5f)
+                                    if (scale <= 1.05f) {
+                                        scale = 1f
+                                        offset = Offset.Zero
+                                    }
+                                },
+                                modifier = Modifier.size(36.dp),
+                                enabled = scale > 1f
+                            ) {
+                                Icon(Icons.Default.ZoomOut, contentDescription = "Alejar", tint = if (scale > 1f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
+                            }
+
+                            // Zoom In
+                            IconButton(
+                                onClick = {
+                                    scale = (scale * 1.3f).coerceIn(1f, 5f)
+                                },
+                                modifier = Modifier.size(36.dp),
+                                enabled = scale < 5f
+                            ) {
+                                Icon(Icons.Default.ZoomIn, contentDescription = "Acercar", tint = if (scale < 5f) HextechCyan else TextMuted, modifier = Modifier.size(22.dp))
+                            }
+
+                            // Reset Zoom
+                            if (scale > 1.05f) {
+                                IconButton(
+                                    onClick = {
+                                        scale = 1f
+                                        offset = Offset.Zero
+                                    },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = HextechGold, modifier = Modifier.size(22.dp))
+                                }
+                            }
+
+                            // Descargar Imagen
+                            IconButton(
+                                onClick = {
+                                    saveBitmapToGallery(context, previewImageBitmap!!)
                                 },
                                 modifier = Modifier.size(36.dp)
                             ) {
-                                Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = HextechGold, modifier = Modifier.size(22.dp))
+                                Icon(Icons.Default.Download, contentDescription = "Descargar", tint = HextechGreen, modifier = Modifier.size(22.dp))
                             }
-                        }
 
-                        // Descargar Imagen
-                        IconButton(
-                            onClick = {
-                                saveBitmapToGallery(context, previewImageBitmap!!)
-                            },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(Icons.Default.Download, contentDescription = "Descargar", tint = HextechGreen, modifier = Modifier.size(22.dp))
-                        }
-
-                        // Cerrar
-                        IconButton(
-                            onClick = { 
-                                previewImageBitmap = null 
-                                scale = 1f
-                                offset = Offset.Zero
-                            }, 
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = Color.White, modifier = Modifier.size(22.dp))
+                            // Cerrar
+                            IconButton(
+                                onClick = { 
+                                    previewImageBitmap = null 
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                }, 
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = Color.White, modifier = Modifier.size(22.dp))
+                            }
                         }
                     }
                 }
 
                 // Tip flotante en la parte inferior
-                Text(
-                    text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar"),
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp,
+                AnimatedVisibility(
+                    visible = showControls,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { it }),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 24.dp)
-                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+                        .padding(bottom = 36.dp)
+                ) {
+                    Text(
+                        text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar\nToca la pantalla para ocultar los controles"),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 12.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier
+                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                }
             }
         }
     }
