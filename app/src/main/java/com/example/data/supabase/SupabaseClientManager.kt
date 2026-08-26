@@ -105,10 +105,11 @@ object SupabaseClientManager {
     /**
      * Prueba la conexión realizando una consulta mínima a Supabase.
      */
-    suspend fun testConnection(): Result<String> = withContext(Dispatchers.IO) {
+        suspend fun testConnection(): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val count = client.postgrest.from("wr_patches").select().decodeList<com.example.data.supabase.model.WrPatchDto>()
-            Result.success("Conexión exitosa. Se encontraron ${count.size} registros de parches.")
+            // Se asume que existe la tabla feedbacks
+            val count = client.postgrest.from("feedbacks").select().data
+            Result.success("Conexión exitosa. Se pudo conectar al panel de reportes.")
         } catch (e: Exception) {
             Log.e(TAG, "Error probando conexión a Supabase: ${e.message}", e)
             Result.failure(e)
@@ -118,96 +119,28 @@ object SupabaseClientManager {
     /**
      * Retorna el script SQL oficial para que el usuario pueda crearlo con 1 clic en Supabase SQL Editor.
      */
-    fun getSupabaseSqlSchema(): String {
-        return """
--- =========================================================
--- ESQUEMA OFICIAL SUPABASE PARA WILD RIFT APP
--- Ejecuta este script en el SQL Editor de tu proyecto Supabase
+        fun getSupabaseSqlSchema(): String {
+        return """-- =========================================================
+-- ESQUEMA OFICIAL SUPABASE PARA WILD RIFT APP (SOLO REPORTES)
 -- =========================================================
 
--- 1. TABLA DE CONTROL DE PARCHES
-CREATE TABLE IF NOT EXISTS public.wr_patches (
-    id TEXT PRIMARY KEY DEFAULT 'current',
-    version TEXT NOT NULL,
-    notes TEXT DEFAULT '',
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 2. TABLA DE OBJETOS / ÍTEMS
-CREATE TABLE IF NOT EXISTS public.wr_items (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    gold_cost INT NOT NULL DEFAULT 0,
-    stats TEXT DEFAULT '',
-    passive TEXT DEFAULT '',
-    icon_url TEXT DEFAULT '',
+-- 1. TABLA DE REPORTES / SUGERENCIAS
+CREATE TABLE IF NOT EXISTS public.feedbacks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    app_version TEXT,
+    device_info TEXT,
+    status TEXT DEFAULT 'PENDING',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. TABLA DE CAMPEONES Y META
-CREATE TABLE IF NOT EXISTS public.wr_champions (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    title TEXT DEFAULT '',
-    primary_role TEXT NOT NULL DEFAULT 'BARON',
-    secondary_roles TEXT DEFAULT '',
-    tier TEXT NOT NULL DEFAULT 'A',
-    winrate FLOAT NOT NULL DEFAULT 50.0,
-    pickrate FLOAT NOT NULL DEFAULT 5.0,
-    banrate FLOAT NOT NULL DEFAULT 2.0,
-    damage_type TEXT NOT NULL DEFAULT 'PHYSICAL',
-    avatar_url TEXT DEFAULT '',
-    counters TEXT DEFAULT '',
-    synergies TEXT DEFAULT '',
-    core_items TEXT DEFAULT '',
-    situational_items TEXT DEFAULT '',
-    is_ranged BOOLEAN DEFAULT FALSE,
-    is_frontline BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 4. TABLA DE RUNAS
-CREATE TABLE IF NOT EXISTS public.wr_runes (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    icon_url TEXT DEFAULT '',
-    description TEXT DEFAULT '',
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 5. TABLA DE HECHIZOS DE INVOCADOR
-CREATE TABLE IF NOT EXISTS public.wr_spells (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    cooldown TEXT DEFAULT '',
-    icon_url TEXT DEFAULT '',
-    description TEXT DEFAULT '',
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 6. HABILITAR SEGURIDAD (RLS) Y PERMITIR LECTURA/ESCRITURA PÚBLICA (ANON)
-ALTER TABLE public.wr_patches ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wr_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wr_champions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wr_runes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.wr_spells ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow public read wr_patches" ON public.wr_patches FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_patches" ON public.wr_patches FOR ALL USING (true) WITH CHECK (true);
-
-CREATE POLICY "Allow public read wr_items" ON public.wr_items FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_items" ON public.wr_items FOR ALL USING (true) WITH CHECK (true);
-
-CREATE POLICY "Allow public read wr_champions" ON public.wr_champions FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_champions" ON public.wr_champions FOR ALL USING (true) WITH CHECK (true);
-
-CREATE POLICY "Allow public read wr_runes" ON public.wr_runes FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_runes" ON public.wr_runes FOR ALL USING (true) WITH CHECK (true);
-
-CREATE POLICY "Allow public read wr_spells" ON public.wr_spells FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_spells" ON public.wr_spells FOR ALL USING (true) WITH CHECK (true);
+-- 2. HABILITAR SEGURIDAD (RLS) Y PERMITIR LECTURA/ESCRITURA PÚBLICA (ANON)
+ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read feedbacks" ON public.feedbacks FOR SELECT USING (true);
+CREATE POLICY "Allow public insert feedbacks" ON public.feedbacks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update feedbacks" ON public.feedbacks FOR UPDATE USING (true);
         """.trimIndent()
     }
 }

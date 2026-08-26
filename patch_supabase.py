@@ -1,26 +1,48 @@
 import re
 
-with open('app/src/main/java/com/example/data/supabase/WildRiftSupabaseRepository.kt', 'r', encoding='utf-8') as f:
+file_path = "app/src/main/java/com/example/data/supabase/SupabaseClientManager.kt"
+with open(file_path, "r", encoding="utf-8") as f:
     content = f.read()
 
-replacement = """
-            if (validItems.isNotEmpty()) {
-                val spellIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
-                val filteredItems = validItems.filter { item ->
-                    val isSpell = item.id.endsWith("_basic") && item.id.replace("_basic", "") in spellIds.map { it.replace("spell_", "") }
-                    !isSpell && !item.id.startsWith("spell_")
-                }
-                val merged = (WildRiftRepository.items.associateBy { it.id } + filteredItems.associateBy { it.id }).values.toList()
-                WildRiftRepository.items = merged
-            }
-"""
+# Replace testConnection
+new_test_conn = """    suspend fun testConnection(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            // Se asume que existe la tabla feedbacks
+            val count = client.postgrest.from("feedbacks").select().data
+            Result.success("Conexión exitosa. Se pudo conectar al panel de reportes.")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error probando conexión a Supabase: ${e.message}", e)
+            Result.failure(e)
+        }
+    }"""
+content = re.sub(r'suspend fun testConnection\(\).*?Result\.failure\(e\)\s*\}\s*\}', new_test_conn, content, flags=re.DOTALL)
 
-content = re.sub(
-    r'if\s*\(validItems\.isNotEmpty\(\)\)\s*\{\s*val\s*merged\s*=\s*\(WildRiftRepository\.items\.associateBy\s*\{\s*it\.id\s*\}\s*\+\s*validItems\.associateBy\s*\{\s*it\.id\s*\}\)\.values\.toList\(\)\s*WildRiftRepository\.items\s*=\s*merged\s*\}',
-    replacement,
-    content
-)
+# Replace SQL Schema
+new_schema = """    fun getSupabaseSqlSchema(): String {
+        return \"\"\"-- =========================================================
+-- ESQUEMA OFICIAL SUPABASE PARA WILD RIFT APP (SOLO REPORTES)
+-- =========================================================
 
-with open('app/src/main/java/com/example/data/supabase/WildRiftSupabaseRepository.kt', 'w', encoding='utf-8') as f:
+-- 1. TABLA DE REPORTES / SUGERENCIAS
+CREATE TABLE IF NOT EXISTS public.feedbacks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    app_version TEXT,
+    device_info TEXT,
+    status TEXT DEFAULT 'PENDING',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. HABILITAR SEGURIDAD (RLS) Y PERMITIR LECTURA/ESCRITURA PÚBLICA (ANON)
+ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read feedbacks" ON public.feedbacks FOR SELECT USING (true);
+CREATE POLICY "Allow public insert feedbacks" ON public.feedbacks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update feedbacks" ON public.feedbacks FOR UPDATE USING (true);
+        \"\"\".trimIndent()
+    }"""
+content = re.sub(r'fun getSupabaseSqlSchema\(\): String \{.*?\}\s*\}\s*$', new_schema + "\n}\n", content, flags=re.DOTALL)
+
+with open(file_path, "w", encoding="utf-8") as f:
     f.write(content)
-

@@ -37,9 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
-import com.example.data.auth.AuthRepository
 import com.example.ui.components.AppUpdateDialog
-import com.example.ui.screens.DatabaseTestScreen
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
@@ -277,11 +275,6 @@ fun DraftingApp() {
     ) { screen ->
         when (screen) {
             AppScreen.LOGIN -> {
-                DatabaseTestScreen(
-                    onContinue = {
-                        currentScreen = if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION
-                    }
-                )
             }
             AppScreen.LANGUAGE_SELECTION -> {
                 LanguageSelectionScreen(
