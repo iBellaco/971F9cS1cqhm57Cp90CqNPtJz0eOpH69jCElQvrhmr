@@ -9,7 +9,7 @@ import com.example.model.WildRiftItem
  */
 object WildRiftItemsData {
     val list: List<WildRiftItem> = buildList {
-        add(WildRiftItem(
+                add(WildRiftItem(
             id = "bloodthirster_physical",
             name = "Sanguinaria",
             nameEn = "Bloodthirster",
@@ -22,9 +22,9 @@ object WildRiftItemsData {
             passive = "Sanguinario: +8% de Vampirismo Físico. Los ataques que asestan un Golpe Crítico obtienen un 4% adicional de Vampirismo Físico.",
             passiveEn = "Bloody: +8% Physical Vamp. Attacks that critically strike gain an additional 4% Physical Vamp.",
             passivePt = "Sanguinário: +8% de Vampirismo Físico. Ataques que desferem Acerto Crítico recebem 4% adicional de Vampirismo Físico.",
-            coachTip = "Este objeto es esencial para tiradores e hiper-carries de autoataques, otorgando una gran mejora de daño, probabilidad de crítico y velocidad de ataque. Su pasiva convierte los golpes críticos en robo de vida mejorado, haciendo que los intercambios prolongados y peleas sostenidas se inclinen a tu favor. Al bajar a niveles críticos de vida, se activa un Escudo salvador que otorga defensas adicionales y la oportunidad de sobrevivir a momentos decisivos. Ideal para tiradores y luchadores de autoataques que necesitan tanto alto DPS como sustento y curación confiable.",
-            coachTipEn = "Essential for marksmen and auto-attack carries, providing high Attack Damage, Critical Rate, and Physical Vamp. Critical strikes grant bonus sustain, and dropping low triggers a lifesaving shield.",
-            coachTipPt = "Item indispensável para atiradores e hiper-carries de ataques básicos, concedendo Dano de Ataque, Chance de Crítico e Vampirismo Físico. Golpes críticos concedem cura extra e ativa um escudo protetor em momentos decisivos.",
+            coachTip = "Esencial para tiradores y duelistas de autoataques: otorga gran Daño de Ataque, Crítico y Vampirismo Físico. Los impactos críticos aumentan la curación y, con vida baja, activa un escudo salvavidas contra daño explosivo.",
+            coachTipEn = "Essential for marksmen and auto-attack duelists: provides high Attack Damage, Critical Strike, and Physical Vamp. Crits enhance healing and, at low health, grants a lifesaver shield against burst damage.",
+            coachTipPt = "Essencial para atiradores e duelistas de ataques básicos: concede alto Dano de Ataque, Acerto Crítico e Vampirismo Físico. Críticos aumentam a cura e, com vida baixa, ativa um escudo salva-vidas contra dano explosivo.",
             iconUrl = "https://wr-meta.com/uploads/posts/2024-12/1733876753_3072.webp"
         ))
         add(WildRiftItem(
@@ -40,9 +40,9 @@ object WildRiftItemsData {
             passive = "Resurrect: Al recibir daño letal, restaura un 50% de Vida y un 100% de Maná tras 4 segundos en estasis. (180s Enfriamiento)",
             passiveEn = "Resurrect: Upon taking lethal damage, restores 50% Health and 100% Mana after 4 seconds in stasis. (180s Cooldown)",
             passivePt = "Resurrect: Ao sofrer dano letal, restaura 50% de Vida e 100% de Mana após 4 segundos em estase. (180s Tempo de Recarga)",
-            coachTip = "Este objeto es ideal para campeones que necesitan una segunda oportunidad en peleas de equipo. Es especialmente efectivo contra campeones con alto daño explosivo como Zed, Syndra, or Zoe, así como contra iniciadores agresivos como Camille, Kha'Zix, or Lee Sin. El efecto de Resurrección te permite volver al combate tras recibir daño letal, restaurando vida y maná para seguir luchando y asistir a tu equipo en momentos críticos.",
-            coachTipEn = "Ideal for carries and fighters needing a second chance in teamfights. Extremely effective against high-burst assassins (Zed, Kha'Zix) by reviving you with health and mana.",
-            coachTipPt = "Excelente para atiradores e lutadores que precisam de uma segunda chance nas lutas. Muito eficaz contra assassinos de dano explosivo (Zed, Kha'Zix), revivendo o campeão com vida e mana.",
+            coachTip = "Segunda oportunidad obligatoria para el carry principal: revive con vida y maná tras recibir daño letal, disuadiendo a los asesinos enemigos de hacerte foco directo.",
+            coachTipEn = "Mandatory second chance for primary carries: revives with health and mana upon taking lethal damage, discouraging enemy assassins from diving you.",
+            coachTipPt = "Segunda chance obrigatória para o carregador principal: revive com vida e mana ao sofrer dano letal, desestimulando assassinos inimigos a focarem você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300268_guardian-angel.webp"
         ))
         add(WildRiftItem(
@@ -58,9 +58,9 @@ object WildRiftItemsData {
             passive = "Fervor:  +5% Velocidad de Movimiento.\nEnergized: Moverse y atacar genera un Ataque Energizado.\nPower Blitz: Los Ataques Energizados obtienen 100 de alcance (50 para cuerpo a cuerpo), infligen 40-100 de daño mágico adicional y otorgan 60 de Velocidad de Movimiento durante 0.75s. Este daño rebota a 5 enemigos cercanos y puede asestar Golpes Críticos.\n(Inflige 50-80% de daño adicional contra súbditos.)",
             passiveEn = "Fervor: +5% Movement Speed.\nEnergized: Moving and attacking generates an Energized Attack.\nPower Blitz: Energized Attacks gain 100 range (50 for melee), deal 40-100 bonus magic damage and grant 60 Movement Speed for 0.75s. This damage bounces to 5 nearby enemies and can critically strike.\n(Deals 50-80% bonus damage against minions.)",
             passivePt = "Fervor: +5% Velocidade de Movimento.\nEnergized: Mover-se e atacar gera um Ataque Energizado.\nPower Blitz: Ataques Energizados recebem 100 de alcance (50 para corpo a corpo), causam 40-100 de dano mágico adicional e concedem 60 de Velocidade de Movimento por 0.75s. Este dano ricocheteia em 5 inimigos próximos e pode causar Acertos Críticos.\n(Causa 50-80% de dano adicional contra tropas.)",
-            coachTip = "Este objeto amplía tu alcance de ataque y añade daño híbrido al potenciar ataques con una ráfaga mágica que rebota entre múltiples objetivos y puede asestar Golpes Críticos. Moverse y atacar carga el golpe potenciado, y al activarse obtienes una notable bonificación de Velocidad de Movimiento que facilita tanto la persecución como la retirada.  — Ideal para tiradores y campeones de autoataque que buscan mayor alcance, daño zonal y agilidad en combate.",
-            coachTipEn = "Extends attack range and adds bouncing magic burst damage on energized attacks. Grants bonus Movement Speed upon triggering, perfect for kiting and chasing.",
-            coachTipPt = "Aumenta o alcance de ataque e dispara dano mágico em cadeia com ataques energizados. Concede surto de Velocidade de Movimento para perseguição e reposicionamento.",
+            coachTip = "Aumenta el alcance de ataque y desata daño mágico en rebote con ataques energizados; otorga un impulso de velocidad de movimiento ideal para kitear y perseguir.",
+            coachTipEn = "Increases attack range and fires bouncing energized magic bolts; grants a burst of movement speed ideal for kiting and chasing down targets.",
+            coachTipPt = "Aumenta o alcance de ataque e dispara raios energizados ricocheteantes; concede um surto de velocidade de movimento perfeito para perseguir ou recuar atirando.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300773_magnetic-blaster.webp"
         ))
         add(WildRiftItem(
@@ -76,9 +76,9 @@ object WildRiftItemsData {
             passive = "Golpe de Niebla: Los ataques infligen un 7% (cuerpo a cuerpo) o 4% (a distancia) de la vida actual del objetivo.",
             passiveEn = "Golpe of Niebla: the ataques deals a 7% (melee) or 4% (ranged) of the Health actual del objetivo.",
             passivePt = "Golpe de Niebla: os ataques causam um 7% (corpo a corpo) ou 4% (à distância) de a Vida actual del objetivo.",
-            coachTip = "",
-            coachTipEn = "Crucial anti-tank and duelists item. Deals current health on-hit damage, provides physical vamp, and steals enemy movement speed upon landing 3 consecutive hits.",
-            coachTipPt = "Item essencial contra alvos resistentes e tanques. Causa dano com base na vida atual do alvo ao contato, oferece vampirismo e rouba velocidade de movimento ao acertar 3 golpes.",
+            coachTip = "Objeto clave anti-tanques y duelistas: inflige daño según la vida actual del enemigo por golpe, otorga vampirismo físico y roba velocidad de movimiento al acertar 3 golpes seguidos.",
+            coachTipEn = "Key anti-tank and duelist item: deals on-hit damage based on enemy's current health, grants physical vamp, and steals movement speed after landing 3 consecutive hits.",
+            coachTipPt = "Item-chave contra tanques e duelistas: causa dano ao contato com base na vida atual do alvo, concede vampirismo físico e rouba velocidade de movimento ao acertar 3 ataques seguidos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300221_blade-of-the-ruined-king.webp"
         ))
         add(WildRiftItem(
@@ -112,9 +112,9 @@ object WildRiftItemsData {
             passive = "Corte: +15 de Penetración de Armadura.\nMomentum: Moverse acumula Impulso, granting up to 50 Velocidad de Movimiento at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nSpectral Haste: Attacking with max Momentum otorga 25% Velocidad de Ataque for 4 segundos.",
             passiveEn = "Corte: +15 of Penetración of Armor.\nMomentum: Moverse acumula Impulso, granting up to 50 Movement Speed at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nSpectral Haste: Attacking with max Momentum grants 25% Attack Speed for 4 seconds.",
             passivePt = "Corte: +15 de Penetração de Armadura.\nMomentum: Moverse acumula Impulso, granting up to 50 Velocidade de Movimento at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nSpectral Haste: Attacking with max Momentum concede 25% Velocidade de Ataque for 4 segundos.",
-            coachTip = "Este objeto es ideal para assassins and campeones who need to get in and out of fights quickly. It provides bonuses to Daño de Ataque and Aceleración de Habilidad, along with Penetración de Armadura, helping you deal more damage to enemies. The Momentum effect increases your Velocidad de Movimiento and Penetración de Armadura as you move, giving you an advantage in mobility during fights. When Momentum is fully stacked, Los ataques otorgan Adicional Velocidad de Ataque, making the item a great choice for campeones who need to quickly deal damage and escape from fights.",
-            coachTipEn = "Este objeto es ideal for assassins and champions who need to get in and out of fights quickly. It provides bonuses to Attack Damage and Ability Haste, along with Penetración of Armor, helping you deal more damage to enemies. The Momentum effect increases your Movement Speed and Penetración of Armor as you move, giving you an advantage in mobility during fights. When Momentum is fully stacked, the ataques grants Adicional Attack Speed, making the item a great choice for champions who need to quickly deal damage and escape from fights.",
-            coachTipPt = "Este objeto es ideal para assassins and campeões who need to get in and out of fights quickly. It provides bonuses to Dano de Ataque and Aceleração de Habilidade, along with Penetração de Armadura, helping you deal more damage to enemies. The Momentum effect increases your Velocidade de Movimento and Penetração de Armadura as you move, giving you an advantage in mobility during fights. When Momentum is fully stacked, os ataques concedem Adicional Velocidade de Ataque, making the item a great choice for campeões who need to quickly deal damage and escape from fights.",
+            coachTip = "Aporta una tremenda aceleración de mapa y letalidad: acumula velocidad de movimiento fuera de combate y otorga velocidad de ataque al entrar en acción. Ideal para rotaciones tempranas.",
+            coachTipEn = "Provides immense map tempo and lethality: stacks out-of-combat movement speed and grants attack speed upon entering combat. Ideal for early roams.",
+            coachTipPt = "Oferece grande ritmo de mapa e letalidade: acumula velocidade de movimento fora de combate e concede velocidade de ataque ao entrar em ação. Ideal para rotações rápidas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300869_youmuus-ghostblade.webp"
         ))
         add(WildRiftItem(
@@ -130,9 +130,9 @@ object WildRiftItemsData {
             passive = "Cuchilla: +18 de Penetración de Armadura.\nNightstalker: The first attack aobtienest a Campeón inflige 60-160 Adicional Daño Físico and Ralentiza them by 99% for 0.35s (10s Enfriamiento). Campeón takedowns refresh Enfriamiento.\nThis item is a pure assassin tool: it boosts your Penetración de Armadura and makes your first strike on an enemy infligen a deadly daño explosivo with a brief Ralentización. Securing a takedown otorga stealth and a fast reposition window, letting you escape or continue hunting—perfect for single-target picks. It shines on mobile killers who focus on quick executions and roams; it’s less effective aobtienest bulky, high-HP frontliners.",
             passiveEn = "Cuchilla: +18 of Penetración of Armor.\nNightstalker: The first attack aobtienest a Campeón deals 60-160 Adicional physical damage and Ralentiza them by 99% for 0.35s (10s Cooldown). Campeón takedowns refresh Cooldown.\nThis item is a pure assassin tool: it boosts your Penetración of Armor and makes your first strike on an enemy deals a deadly daño explosivo with a brief Ralentización. Securing a takedown grants stealth and a fast reposition window, letting you escape or continue hunting—perfect for single-target picks. It shines on mobile killers who focus on quick executions and roams; it’s less effective aobtienest bulky, high-HP frontliners.",
             passivePt = "Cuchilla: +18 de Penetração de Armadura.\nNightstalker: The first attack aobtienest a Campeón causa 60-160 Adicional Dano Físico and Ralentiza them by 99% for 0.35s (10s Tempo de Recarga). Campeón takedowns refresh Tempo de Recarga.\nThis item is a pure assassin tool: it boosts your Penetração de Armadura and makes your first strike on an enemy causam a deadly dano explosivo with a brief Ralentización. Securing a takedown concede stealth and a fast reposition window, letting you escape or continue hunting—perfect for single-target picks. It shines on mobile killers who focus on quick executions and roams; it’s less effective aobtienest bulky, high-HP frontliners.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Indispensable para asesinos AD (Kha'Zix, Zed): potencia tu primer ataque tras no ser visto con daño físico masivo y ralentización del 99% para asegurar eliminaciones instantáneas.",
+            coachTipEn = "Must-have for AD assassins (Kha'Zix, Zed): empowers your first strike after being unseen with massive physical burst and a 99% slow to secure instant picks.",
+            coachTipPt = "Indispensável para assassinos AD (Kha'Zix, Zed): fortalece seu primeiro ataque após ficar invisível com dano físico massivo e lentidão de 99% para abates rápidos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300931_yordle-duskblade-of-draktharr.webp"
         ))
         add(WildRiftItem(
@@ -148,9 +148,9 @@ object WildRiftItemsData {
             passive = "Infinito: Los impactos críticos infligen un 205% de daño en lugar del 175%.",
             passiveEn = "Infinito: the impactos críticos deals a 205% of daño in lugar del 175%.",
             passivePt = "Infinito: os impactos críticos causam um 205% de dano em lugar del 175%.",
-            coachTip = "",
-            coachTipEn = "The definitive power spike for critical strike carries. Greatly amplifies critical strike damage, significantly increasing burst and DPS.",
-            coachTipPt = "O pico de poder definitivo para campeões de acerto crítico. Amplifica o dano dos acertos críticos, elevando drasticamente o DPS e dano explosivo.",
+            coachTip = "Pico de poder definitivo para tiradores de crítico: amplifica masivamente el daño de los golpes críticos, multiplicando tu DPS y daño explosivo en peleas de equipo.",
+            coachTipEn = "Ultimate power spike for crit marksmen: massively amplifies critical strike damage, multiplying your DPS and burst in teamfights.",
+            coachTipPt = "Pico de poder definitivo para atiradores de crítico: amplifica massivamente o dano de acertos críticos, multiplicando seu DPS e dano explosivo nas lutas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300938_infinity-edge.webp"
         ))
         add(WildRiftItem(
@@ -166,9 +166,9 @@ object WildRiftItemsData {
             passive = "Last Whisper:  +30% Penetración de Armadura. Los ataques que asestan un Golpe Crítico obtienen un adicional de  6% Penetración de Armadura.\nSepsis: Dealing Daño Físico to campeones enemigos applies 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passiveEn = "Last Whisper: +30% Penetración of Armor. the ataques que asestan a Critical Strike obtienen a adicional of 6% Penetración of Armor.\nSepsis: Dealing physical damage to champions enemies applies 50% Heridas Graves for 3 seconds.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passivePt = "Last Whisper: +30% Penetração de Armadura. os ataques que asestan um Acerto Crítico obtienen um adicional de 6% Penetração de Armadura.\nSepsis: Dealing Dano Físico to campeões inimigos applies 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
-            coachTip = "Este objeto es ideal para auto‑attackers who need to shred through Armadura and cut down enemy curación. It boosts your penetration to deal more damage against tanky targets and applies Heridas Graves on hit, reducing all curación and regen effects.  — Ideal against tanks and high‑heal campeones, and for marksmen and auto‑attack fighters who need to pierce Defensas and curb enemy sustento y curación.",
-            coachTipEn = "Essential anti-healing item for AD carries. Applies Grievous Wounds on physical damage and grants high percentage Armor Penetration to melt armored targets.",
-            coachTipPt = "Item crucial de corta-cura para campeões de Dano Físico. Aplica Feridas Dolorosas e concede grande Penetração de Armadura percentual.",
+            coachTip = "Objeto anti-curación obligatorio para campeones AD contra equipos con alto sustento (Aatrox, Soraka, Warwick): aplica Heridas Graves y otorga alta Penetración de Armadura.",
+            coachTipEn = "Mandatory anti-healing item for AD champions against high-sustain teams (Aatrox, Soraka, Warwick): applies Grievous Wounds and high Armor Penetration.",
+            coachTipPt = "Item corta-cura obrigatório para campeões AD contra times com muita cura (Aatrox, Soraka, Warwick): aplica Feridas Dolorosas e concede alta Penetração de Armadura.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301062_mortal-reminder.webp"
         ))
         add(WildRiftItem(
@@ -184,9 +184,9 @@ object WildRiftItemsData {
             passive = "Fervor:  +5% Velocidad de Movimiento.\nSpellblade: Using an ability causes the next attack used within 10 segundos to infligen Adicional Daño Físico equal to 200% base AD(1.5s Enfriamiento). El daño se reduce contra estructuras.\nValor: Los ataques otorgan 20 Velocidad de Movimiento for 2 segundos. Los efectos no se acumulan. A distancia Campeones obtiene halved values.",
             passiveEn = "Fervor: +5% Movement Speed.\nSpellblade: Using an ability causes the next attack used within 10 seconds to deals Adicional physical damage equal to 200% base AD(1.5s Cooldown). the daño se reduce against estructuras.\nValor: the ataques grants 20 Movement Speed for 2 seconds. the efectos no se acumulan. ranged champions obtiene halved values.",
             passivePt = "Fervor: +5% Velocidade de Movimento.\nSpellblade: Using an ability causes the next attack used within 10 segundos to causam Adicional Dano Físico equal to 200% base AD(1.5s Tempo de Recarga). o dano se reduce contra estructuras.\nValor: os ataques concedem 20 Velocidade de Movimento for 2 segundos. os efectos no se acumulan. à distância campeões obtiene halved values.",
-            coachTip = "Este objeto otorga a well-rounded set of stats and enhances damage through the combination of abilities and ataques básicos. It is ideal for campeones who frequently weave abilities between attacks and rely on consistent trading. Brilla en luchadores y tiradores con alta movilidad que buscan versatilidad, velocidad y daño explosivo.",
-            coachTipEn = "Este objeto grants a well-rounded set of stats and enhances damage through the combination of abilities and ataques básicos. It is ideal for champions who frequently weave abilities between attacks and rely on consistent trading. Brilla in luchadores and tiradores with alta movilidad que buscan versatilidad, velocidad and daño explosivo.",
-            coachTipPt = "Este objeto concede a well-rounded set of stats and enhances damage through the combination of abilities and ataques básicos. It is ideal for campeões who frequently weave abilities between attacks and rely on consistent trading. Brilla em luchadores e tiradores com alta movilidad que buscan versatilidad, velocidad e dano explosivo.",
+            coachTip = "El pico de poder más versátil del juego: potencia autoataques tras usar habilidades (Hoja Encantada), otorga vida, daño, aceleración y acumula daño de ataque progresivo en combate continuo.",
+            coachTipEn = "The most versatile power spike: empowers auto-attacks after spells (Spellblade), grants health, AD, ability haste, and ramps up bonus AD in extended combat.",
+            coachTipPt = "O pico de poder mais versátil do jogo: fortalece ataques após habilidades (Lâmina Encantada), concede vida, dano, aceleração e acumula dano de ataque contínuo.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301537_trinity-force.webp"
         ))
         add(WildRiftItem(
@@ -220,9 +220,9 @@ object WildRiftItemsData {
             passive = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restaura 8% of your maximum Vida over 2 segundos.\nCauterize: 27% of all Daño Físico and Daño Mágico received (12% for A distancia Campeones) is infligent to you over 3 segundos as Daño Verdadero instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armadura and Aceleración de Habilidad, and successful takedowns cleanse the delayed damage while instantly healing you.  — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
             passiveEn = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restores 8% of your maximum Health over 2 seconds.\nCauterize: 27% of all physical damage and magic damage received (12% for ranged champions) is infligent to you over 3 seconds as true damage instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armor and Ability Haste, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
             passivePt = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restaura 8% of your maximum Vida over 2 segundos.\nCauterize: 27% of all Dano Físico and Dano Mágico received (12% for à distância campeões) is infligent to you over 3 segundos as Dano Verdadeiro instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armadura and Aceleração de Habilidade, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Vital para sobrevivir en peleas prolongadas: convierte el daño recibido en un sangrado a lo largo del tiempo y purga dicho sangrado al conseguir un derribo, curándote un porcentaje de tu vida.",
+            coachTipEn = "Vital for surviving extended skirmishes: buffers incoming damage into a bleed over time and purges it on takedown, healing a portion of your max health.",
+            coachTipPt = "Vital para sobreviver a lutas prolongadas: converte o dano sofrido em sangramento ao longo do tempo e purga esse sangramento ao participar de abates, curando você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301539_yordle-deaths-dance.webp"
         ))
         add(WildRiftItem(
@@ -238,9 +238,9 @@ object WildRiftItemsData {
             passive = "Swift-Footed:  +5% Velocidad de Movimiento.\nSpectral Waltz: One hit, your ataques otorga 25% Velocidad de Ataque and +7% Velocidad de Movimientofor 6s. Los efectos no se acumulan. (10s Enfriamiento reduced by 1s when your attack hits an enemy.)",
             passiveEn = "Swift-Footed: +5% Movement Speed.\nSpectral Waltz: One hit, your ataques grants 25% Attack Speed and +7% Velocidad of Movimientofor 6s. the efectos no se acumulan. (10s Cooldown reduced by 1s when your attack hits an enemy.)",
             passivePt = "Swift-Footed: +5% Velocidade de Movimento.\nSpectral Waltz: One hit, your ataques concede 25% Velocidade de Ataque and +7% Velocidad de Movimientofor 6s. os efectos no se acumulan. (10s Tempo de Recarga reduced by 1s when your attack hits an enemy.)",
-            coachTip = "Este objeto otorga a strong boost to Velocidad de Ataque and mobility, turning your ataques básicos into a tool for controlling the tempo of fights. Hits on campeones enemigos temporarily increase your attack and Velocidad de Movimiento, and frequent hits reduce the effect’s downtime — perfect for mantenimiento de distancia con autoataques, chasing, and extended duels. Ideal for marksmen and autoataque bruisers who need mobility and consistent DPS.",
-            coachTipEn = "Provides Attack Speed, Critical Rate, and bonus Movement Speed. When dropping low, triggers a substantial shield to survive burst damage.",
-            coachTipPt = "Concede Velocidade de Ataque, Chance de Crítico e mobilidade. Ao ficar com vida baixa, ativa um escudo robusto para resistir a dano explosivo.",
+            coachTip = "Aumenta la velocidad de ataque y probabilidad de crítico; al recibir daño letal que baje tu vida del 35%, otorga un escudo protector masivo para sobrevivir al daño explosivo.",
+            coachTipEn = "Boosts attack speed and crit chance; upon taking damage below 35% HP, triggers a massive lifeline shield to survive lethal burst damage.",
+            coachTipPt = "Aumenta velocidade de ataque e chance de crítico; ao sofrer dano que deixe sua vida abaixo de 35%, concede um escudo enorme para sobreviver a explosões de dano.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302001_phantom-dancer.webp"
         ))
         add(WildRiftItem(
@@ -256,9 +256,9 @@ object WildRiftItemsData {
             passive = "Colmillo Mágico: Obtiene 25 de Daño de Ataque o 50 de Poder de Habilidad (Adaptable).\nGnaw: Los ataques infligen Daño Adaptable (15 + 20% Adicional+ 30% Adicional) on hit.",
             passiveEn = "Magic Fang: Grants 25 Attack Damage or 50 Ability Power (Adaptive).\nGnaw: the ataques deals adaptive damage (15 + 20% Adicional+ 30% Adicional) on hit.",
             passivePt = "Presa Mágica: Concede 25 de Dano de Ataque ou 50 de Poder de Habilidade (Adaptativo).\nGnaw: os ataques causam Dano Adaptativo (15 + 20% Adicional+ 30% Adicional) on hit.",
-            coachTip = "Este objeto es ideal para campeones who blend autoataques with Daño Mágico. It provides a hefty boost to Velocidad de Ataque and reduces ability enfriamientos, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Daño de Ataque or Poder de Habilidad, adding flexibility.  With each autoataque, “Gnaw” deals adaptive Daño Mágico on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for campeones like Teemo, Kayle, and Jax, who rely on sustento y curacióned autoataques supported by Daño Mágico and need frequent ability usage to maximize DPS in extended iniciaciónments.",
-            coachTipEn = "Este objeto es ideal for champions who blend autoataques with magic damage. It provides a hefty boost to Attack Speed and reduces ability enfriamientos, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Attack Damage or Ability Power, adding flexibility. With each autoataque, “Gnaw” deals adaptive magic damage on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for champions like Teemo, Kayle, and Jax, who rely on sustento and curacióned autoataques supported by magic damage and need frequent ability usage to maximize DPS in extended iniciaciónments.",
-            coachTipPt = "Este objeto es ideal para campeões who blend autoataques with Dano Mágico. It provides a hefty boost to Velocidade de Ataque and reduces ability tempos de recarga, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Dano de Ataque or Poder de Habilidade, adding flexibility. With each autoataque, “Gnaw” deals adaptive Dano Mágico on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for campeões like Teemo, Kayle, and Jax, who rely on sustento e curacióned autoataques supported by Dano Mágico and need frequent ability usage to maximize DPS in extended iniciaciónments.",
+            coachTip = "Otorga alta Velocidad de Ataque y hace que tus ataques básicos inflijan daño mágico adicional escalado con tu AP (Kayle, Diana, Teemo).",
+            coachTipEn = "Grants high Attack Speed and causes auto-attacks to deal scaling bonus on-hit magic damage based on AP (Kayle, Diana, Teemo).",
+            coachTipPt = "Concede alta Velocidade de Ataque e faz seus ataques básicos causarem dano mágico ao contato que escala com PdH (Kayle, Diana, Teemo).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302010_nashors-tooth.webp"
         ))
         add(WildRiftItem(
@@ -292,9 +292,9 @@ object WildRiftItemsData {
             passive = "Serylda’s Grudge\nPenetración de Armadura (%) and apply Ralentiza\nLast Whisper: Gain  +33% Penetración de Armadura.\nIcy: Damaging active abilities and empowered ataques Ralentización enemies by 30% for 1 segundo.\nFrostbite: Apply Frostbite to enemies slowed by Icy durante 6s. At 3 Frostbite stacks, all stacks are consumed to apply bleed, infligiendo (5 + 1-15 () + 15% Adicional) Daño Físico over 2s. Also applies 50% Heridas Graves durante 3s. (5s Enfriamiento per target)\nSerylda’\nThis item blends heavy Penetración de Armadura with crowd control: your active abilities and empowered hits Ralentización targets, and repeated Ralentiza trigger a bleed that also applies Heridas Graves. Perfect for Campeones who need to mantener la distancia, execute priority targets, and curb their healing.",
             passiveEn = "Serylda’s Grudge\nPenetración of Armor (%) and apply Ralentiza\nLast Whisper: Gain +33% Penetración of Armor.\nIcy: Damaging active abilities and empowered ataques Ralentización enemies by 30% for 1 segundo.\nFrostbite: Apply Frostbite to enemies slowed by Icy for 6s. At 3 Frostbite stacks, all stacks are consumed to apply bleed, infligiendo (5 + 1-15 () + 15% Adicional) physical damage over 2s. Also applies 50% Heridas Graves for 3s. (5s Cooldown per target)\nSerylda’\nThis item blends heavy Penetración of Armor with crowd control: your active abilities and empowered hits Ralentización targets, and repeated Ralentiza trigger a bleed that also applies Heridas Graves. Perfect for champions who need to mantener the distancia, execute priority targets, and curb their healing.",
             passivePt = "Serylda’s Grudge\nPenetración de Armadura (%) and apply Ralentiza\nLast Whisper: Gain +33% Penetração de Armadura.\nIcy: Damaging active abilities and empowered ataques Ralentización enemies by 30% for 1 segundo.\nFrostbite: Apply Frostbite to enemies slowed by Icy por 6s. At 3 Frostbite stacks, all stacks are consumed to apply bleed, infligiendo (5 + 1-15 () + 15% Adicional) Dano Físico over 2s. Also applies 50% Heridas Graves por 3s. (5s Tempo de Recarga per target)\nSerylda’\nThis item blends heavy Penetração de Armadura with crowd control: your active abilities and empowered hits Ralentización targets, and repeated Ralentiza trigger a bleed that also applies Heridas Graves. Perfect for campeões who need to mantener a distancia, execute priority targets, and curb their healing.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Excelente para duelistas y tiradores que lanzan habilidades (Ezreal, Varus): otorga gran Penetración de Armadura porcentual y hace que todas tus habilidades ralenticen a los enemigos.",
+            coachTipEn = "Superb for spell-weaving duelists and marksmen (Ezreal, Varus): grants high percentage Armor Penetration and causes all damaging abilities to slow enemies.",
+            coachTipPt = "Excelente para duelistas e atiradores que conjuram muitas habilidades (Ezreal, Varus): concede alta Penetração de Armadura e faz suas habilidades causarem lentidão.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302257_yordle-seryldas-grudge.webp"
         ))
         add(WildRiftItem(
@@ -310,9 +310,9 @@ object WildRiftItemsData {
             passive = "Trascendencia: Las habilidades obtienen amplificación de daño y reducción de enfriamientos.\nGolpes Diestros: Los ataques reducen los enfriamientos restantes de tus habilidades básicas un 15%.",
             passiveEn = "Transcendence: Abilities gain damage amplification and cooldown reduction.\nDeft Strikes: Attacks reduce the remaining cooldowns of your basic abilities by 15%.",
             passivePt = "Transcendência: Habilidades recebem amplificação de dano e redução de tempo de recarga.\nGolpes Hábeis: Ataques reduzem ou tempo de recarga restante de suas habilidades básicas em 15%.",
-            coachTip = "Este objeto es ideal para auto‑attackers who aim to amplify their ability damage and reduce enfriamientos. Critical strikes accelerate your non‑ultimate abilities, while your skills hit harder based on your crit chance.  — A top pick for marksmen and assassins who weave auto‑attacks with spells to swiftly eliminate targets and maintain combat momentum.",
-            coachTipEn = "Este objeto es ideal for auto‑attackers who aim to amplify their ability damage and reduce enfriamientos. Critical strikes accelerate your non‑ultimate abilities, while your skills hit harder based on your crit chance. — A top pick for marksmen and assassins who weave auto‑attacks with spells to swiftly eliminate targets and maintain combat momentum.",
-            coachTipPt = "Este objeto es ideal para auto‑attackers who aim to amplify their ability damage and reduce tempos de recarga. Critical strikes accelerate your non‑ultimate abilities, while your skills hit harder based on your crit chance. — A top pick for marksmen and assassins who weave auto‑attacks with spells to swiftly eliminate targets and maintain combat momentum.",
+            coachTip = "Reduce el enfriamiento restante de tus habilidades básicas con cada golpe crítico: ideal para campeones que dependen de spamear habilidades (Lucian, Tryndamere).",
+            coachTipEn = "Refunds remaining cooldowns on non-ultimate abilities with critical strikes: exceptional for spell-weaving crit carries (Lucian, Tryndamere).",
+            coachTipPt = "Reduz o tempo de recarga restante de habilidades básicas com acertos críticos: excelente para campeões que dependem de conjurar muitas habilidades (Lucian, Tryndamere).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302298_navori-quickblades.webp"
         ))
         add(WildRiftItem(
@@ -328,9 +328,9 @@ object WildRiftItemsData {
             passive = "Anti-Vida ataques\nSpellblade: After using an ability, your next attack within 10 segundos inflige (10% Cuerpo a cuerpo / 7% A distancia) of target’s maximum Vida as Adicional Daño Físico. If the target is a Campeón, heal for (6% Cuerpo a cuerpo / 2.5% A distancia) of the target's maximum Vida. (1.5s Enfriamiento) Damage is reduced vs structure.\nThis item offers a strong blend of survivability and damage: after using an ability your next ataque básico is empowered to infligen Adicional damage based on the target’s Vida Máxima, and it heals you when used on campeones enemigos. Perfect for fighter-bruisiers and solo laners who weave abilities into autos and need sustento versus tanks and duelists.",
             passiveEn = "Anti-Health ataques\nSpellblade: After using an ability, your next attack within 10 seconds deals (10% melee / 7% ranged) of target’s maximum Health as Adicional physical damage. If the target is a Campeón, heal for (6% melee / 2.5% ranged) of the target's maximum Health. (1.5s Cooldown) Damage is reduced vs structure.\nThis item offers a strong blend of survivability and damage: after using an ability your next ataque básico is empowered to deals Adicional damage based on the target’s Max Health, and it heals you when used on champions enemies. Perfect for fighter-bruisiers and solo laners who weave abilities into autos and need sustento versus tanks and duelists.",
             passivePt = "Anti-Vida ataques\nSpellblade: After using an ability, your next attack within 10 segundos causa (10% corpo a corpo / 7% à distância) of target’s maximum Vida as Adicional Dano Físico. If the target is a Campeón, heal for (6% corpo a corpo / 2.5% à distância) of the target's maximum Vida. (1.5s Tempo de Recarga) Damage is reduced vs structure.\nThis item offers a strong blend of survivability and damage: after using an ability your next ataque básico is empowered to causam Adicional damage based on the target’s Vida Máxima, and it heals you when used on campeões inimigos. Perfect for fighter-bruisiers and solo laners who weave abilities into autos and need sustento versus tanks and duelists.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "La mejor opción para luchadores contra tanques (Camille, Jax): potencia el ataque tras usar una habilidad infligiendo daño según la vida máxima del enemigo y curándote en base al daño causado.",
+            coachTipEn = "Premier choice for bruisers against tanky comps (Camille, Jax): empowers auto-attacks after casting abilities with max HP damage and heals based on damage dealt.",
+            coachTipPt = "A melhor escolha para lutadores contra tanques (Camille, Jax): fortalece o ataque após usar habilidades com dano baseado na vida máxima do alvo e cura você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753303444_divine-sunderer.webp"
         ))
         add(WildRiftItem(
@@ -364,9 +364,9 @@ object WildRiftItemsData {
             passive = "Dragonforce:  +20% Aceleración de Habilidad.\nFocused Will: Infligir daño to Monstruos or enemies with abilities increases your Campeón’s ability and passive damage by 3% durante 6s. (Stacks 4 times).",
             passiveEn = "Dragonforce: +20% Ability Haste.\nFocused Will: Infligir daño to monsters or enemies with abilities increases your Campeón’s ability and passive damage by 3% for 6s. (Stacks 4 times).",
             passivePt = "Dragonforce: +20% Aceleração de Habilidade.\nFocused Will: Infligir dano to monstros or enemies with abilities increases your Campeón’s ability and passive damage by 3% por 6s. (Stacks 4 times).",
-            coachTip = "Este objeto otorga a mix of survivability and empowered ability usage: it increases your staying power, reduces ability enfriamientos, and temporarily boosts your ability and passive damage after engaging enemies or clearing Monstruos. Perfect for duelist bruisers who want to cast more often in fights and gain an edge in extended skirmishes or presión dividida en líneas scenarios.  Suited for campeones who weave autos with frequent ability casts.",
-            coachTipEn = "Este objeto grants a mix of survivability and empowered ability usage: it increases your staying power, reduces ability enfriamientos, and temporarily boosts your ability and passive damage after engaging enemies or clearing monsters. Perfect for duelist bruisers who want to cast more often in fights and gain an edge in extended skirmishes or presión dividida in líneas scenarios. Suited for champions who weave autos with frequent ability casts.",
-            coachTipPt = "Este objeto concede a mix of survivability and empowered ability usage: it increases your staying power, reduces ability tempos de recarga, and temporarily boosts your ability and passive damage after engaging enemies or clearing monstros. Perfect for duelist bruisers who want to cast more often in fights and gain an edge in extended skirmishes or presión dividida em líneas scenarios. Suited for campeões who weave autos with frequent ability casts.",
+            coachTip = "Otorga daño, vida y aceleración; al usar habilidades aumentas la velocidad de movimiento y el daño de tus siguientes habilidades.",
+            coachTipEn = "Grants AD, health, and ability haste; casting abilities boosts movement speed and amplifies the damage of subsequent spells.",
+            coachTipPt = "Concede dano, vida e aceleração; ao usar habilidades aumenta a velocidade de movimento e o dano das próximas conjurações.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304984_spear-of-shojin.webp"
         ))
         add(WildRiftItem(
@@ -418,9 +418,9 @@ object WildRiftItemsData {
             passive = "Set Sail: Gain 5% Velocidad de Movimiento.\nSkipper: Every 4th attack aobtienest Campeones and epic Monstruos inflige Adicional Daño Físico equal to 160% base  plus 5%(A distancia Campeones infligen 40% of the damage), increased to 240% base  plus 9%aobtienest structures (A distancia Campeones infligen 40% of the damage).\nBoarding Party: Nearby allied siege and super Súbditos obtiene 20-130 Armadura (25% Adicional if you're a A distancia Campeón) and 10-120 Resistencia Mágica() (25% Adicional if you're a A distancia Campeón).\nThis item is the cornerstone of a powerful split‑push strategy. It provides significant Vida and Daño de Ataque, boosting both your survivability and tower‑breaking potential. The “Set Sail” passive steadily increases your Velocidad de Movimiento, helping you rotate between lanes and avoid ganks. Every fifth attack on Campeones or epic Monstruos triggers “Skipper”, infligiendo hefty Adicional Daño Físico—and even more aobtienest structures—making it indispensable for rapid turret takedowns. Additionally, “Boarding Party” buffs nearby allied siege and super Súbditos with extra resistances, amplifying your split‑push threat. Perfect for solo laners who want to apply pressure on the map and force enemy responses without directly joining peleas de equipo.",
             passiveEn = "Set Sail: Gain 5% Movement Speed.\nSkipper: Every 4th attack aobtienest champions and epic monsters deals Adicional physical damage equal to 160% base plus 5%(ranged champions deals 40% of the damage), increased to 240% base plus 9%aobtienest structures (ranged champions deals 40% of the damage).\nBoarding Party: Nearby allied siege and super minions obtiene 20-130 Armor (25% Adicional if you're a ranged Campeón) and 10-120 Magic Resistance() (25% Adicional if you're a ranged Campeón).\nThis item is the cornerstone of a powerful split‑push strategy. It provides significant Health and Attack Damage, boosting both your survivability and tower‑breaking potential. The “Set Sail” passive steadily increases your Movement Speed, helping you rotate between lanes and avoid ganks. Every fifth attack on champions or epic monsters triggers “Skipper”, infligiendo hefty Adicional physical damage—and even more aobtienest structures—making it indispensable for rapid turret takedowns. Additionally, “Boarding Party” buffs nearby allied siege and super minions with extra resistances, amplifying your split‑push threat. Perfect for solo laners who want to apply pressure on the map and force enemy responses without directly joining peleas of equipo.",
             passivePt = "Set Sail: Gain 5% Velocidade de Movimento.\nSkipper: Every 4th attack aobtienest campeões and epic monstros causa Adicional Dano Físico equal to 160% base plus 5%(à distância campeões causam 40% of the damage), increased to 240% base plus 9%aobtienest structures (à distância campeões causam 40% of the damage).\nBoarding Party: Nearby allied siege and super tropas obtiene 20-130 Armadura (25% Adicional if you're a à distância Campeón) and 10-120 Resistência Mágica() (25% Adicional if you're a à distância Campeón).\nThis item is the cornerstone of a powerful split‑push strategy. It provides significant Vida and Dano de Ataque, boosting both your survivability and tower‑breaking potential. The “Set Sail” passive steadily increases your Velocidade de Movimento, helping you rotate between lanes and avoid ganks. Every fifth attack on campeões or epic monstros triggers “Skipper”, infligiendo hefty Adicional Dano Físico—and even more aobtienest structures—making it indispensable for rapid turret takedowns. Additionally, “Boarding Party” buffs nearby allied siege and super tropas with extra resistances, amplifying your split‑push threat. Perfect for solo laners who want to apply pressure on the map and force enemy responses without directly joining peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "La herramienta definitiva de empuje dividido (Split-push): cuando estás solo, potencia enormemente tus defensas y las de los súbditos de asedio cercanos.",
+            coachTipEn = "The premier split-push tool: when no allies are nearby, massively bolsters your resistances and empowers nearby cannon/siege minions.",
+            coachTipPt = "A ferramenta definitiva de avanço dividido (Split-push): quando estiver sozinho, aumenta massivamente suas resistências e as dos tropas de cerco próximas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304821_hullbreaker.webp"
         ))
         add(WildRiftItem(
@@ -454,9 +454,9 @@ object WildRiftItemsData {
             passive = "Deal Adicional Daño Físico\nCloud Stride:  +5% Velocidad de Movimiento.\nBring it Down: Every third attack inflige 120-160 () Adicional Daño Físico (110-150 () for A distancia Campeones), increased by 1% per 1% Vida the target is missing, up to an increase of 70%.\nThis item boosts your ataques básicos by providing extra damage, Velocidad de Ataque, and a mobility Adicional for better positioning. Periodically your hits infligen Adicional damage that scales with the target’s missing Vida, making it strong both versus bulky targets and for finishing off low-HP enemies. A top pick for marksmen and autoataque focused builds that want reliable sustained DPS and execute potential.",
             passiveEn = "Deal Adicional physical damage\nCloud Stride: +5% Movement Speed.\nBring it Down: Every third attack deals 120-160 () Adicional physical damage (110-150 () for ranged champions), increased by 1% per 1% Health the target is missing, up to an increase of 70%.\nThis item boosts your ataques básicos by providing extra damage, Attack Speed, and a mobility Adicional for better positioning. Periodically your hits deals Adicional damage that scales with the target’s missing Health, making it strong both versus bulky targets and for finishing off low-HP enemies. A top pick for marksmen and autoataque focused builds that want reliable sustained DPS and execute potential.",
             passivePt = "Deal Adicional Dano Físico\nCloud Stride: +5% Velocidade de Movimento.\nBring it Down: Every third attack causa 120-160 () Adicional Dano Físico (110-150 () for à distância campeões), increased by 1% per 1% Vida the target is missing, up to an increase of 70%.\nThis item boosts your ataques básicos by providing extra damage, Velocidade de Ataque, and a mobility Adicional for better positioning. Periodically your hits causam Adicional damage that scales with the target’s missing Vida, making it strong both versus bulky targets and for finishing off low-HP enemies. A top pick for marksmen and autoataque focused builds that want reliable sustained DPS and execute potential.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Perfecto contra composiciones resistentes: cada tercer ataque consecutivo inflige daño verdadero adicional acumulativo, destrozando tanques con rapidez.",
+            coachTipEn = "Perfect against resilient frontlines: every third consecutive attack deals stacking bonus true damage, melting high-health tanks quickly.",
+            coachTipPt = "Perfeito contra composições resistentes: a cada três ataques consecutivos causa dano verdadeiro adicional acumulativo, derretendo tanques rapidamente.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630263_kraken-slayer.webp"
         ))
         add(WildRiftItem(
@@ -472,9 +472,9 @@ object WildRiftItemsData {
             passive = "Gain Daño de Ataque when losing Vida\nTyranny: Gain Daño de Ataque equal to 2.5% of your Adicional Vida.\nRetribution: Gain up to 9% increased Daño de Ataque based on your missing Vida. Maximum Retribution Adicional while below 30% Vida.\nThis item converts Adicional Vida into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Vida and embrace high-risk, high-reward skirmishes: the more Adicional Vida you have, the stronger your raw ataques become, and when you fight at low Vida you infligen amplified damage. Great for aggressive duelists who win trades by trading survivability for daño explosivo.",
             passiveEn = "Gain Attack Damage when losing Health\nTyranny: Gain Attack Damage equal to 2.5% of your Adicional Health.\nRetribution: Gain up to 9% increased Attack Damage based on your missing Health. Maximum Retribution Adicional while below 30% Health.\nThis item converts Adicional Health into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Health and embrace high-risk, high-reward skirmishes: the more Adicional Health you have, the stronger your raw ataques become, and when you fight at low Health you deals amplified damage. Great for aggressive duelists who win trades by trading survivability for daño explosivo.",
             passivePt = "Gain Dano de Ataque when losing Vida\nTyranny: Gain Dano de Ataque equal to 2.5% of your Adicional Vida.\nRetribution: Gain up to 9% increased Dano de Ataque based on your missing Vida. Maximum Retribution Adicional while below 30% Vida.\nThis item converts Adicional Vida into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Vida and embrace high-risk, high-reward skirmishes: the more Adicional Vida you have, the stronger your raw ataques become, and when you fight at low Vida you causam amplified damage. Great for aggressive duelists who win trades by trading survivability for dano explosivo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Convierte tu vida máxima adicional en daño de ataque masivo, aumentando aún más el daño cuando tu vida baja: brutal para tanques y colosos con mucha vida.",
+            coachTipEn = "Converts bonus maximum health into massive bonus AD, ramping up further at low health: devastating for high-health tanks and bruisers.",
+            coachTipPt = "Converte vida máxima adicional em muito Dano de Ataque, aumentando ainda mais com vida baixa: devastador para tanques e colossos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630274_overlords-bloodmail.webp"
         ))
         add(WildRiftItem(
@@ -490,9 +490,9 @@ object WildRiftItemsData {
             passive = "Gain Velocidad de Ataque & Velocidad de Movimiento when your ultimate is cast\nHexcharged:  Gain +20 Aceleración de Habilidad for your ultimate ability.\nOverdrive: After using your ultimate ability, obtiene 40% Velocidad de Ataque (20% for A distancia Campeones) and 20% Velocidad de Movimiento (10% for A distancia Campeones) for 8s. (30s Enfriamiento)\nThis item blends survivability with explosive offensive potential. It otorga extra Vida, attack power and Velocidad de Ataque, shortens ultimate enfriamientos, and—most importantly—otorga a strong daño explosivo of attack and Velocidad de Movimiento after using your ultimate, enabling you to convert your engage into high sustained damage and chase. Iinfligen for fighters and bruisers who rely on their ultimate to start fights and immediately follow up with empowered autos and mobility.",
             passiveEn = "Gain Attack Speed & Movement Speed when your ultimate is cast\nHexcharged: Gain +20 Ability Haste for your ultimate ability.\nOverdrive: After using your ultimate ability, obtiene 40% Attack Speed (20% for ranged champions) and 20% Movement Speed (10% for ranged champions) for 8s. (30s Cooldown)\nThis item blends survivability with explosive offensive potential. It grants extra Health, attack power and Attack Speed, shortens ultimate enfriamientos, and—most importantly—grants a strong daño explosivo of attack and Movement Speed after using your ultimate, enabling you to convert your engage into high sustained damage and chase. Iinfligen for fighters and bruisers who rely on their ultimate to start fights and immediately follow up with empowered autos and mobility.",
             passivePt = "Gain Velocidade de Ataque & Velocidade de Movimento when your ultimate is cast\nHexcharged: Gain +20 Aceleração de Habilidade for your ultimate ability.\nOverdrive: After using your ultimate ability, obtiene 40% Velocidade de Ataque (20% for à distância campeões) and 20% Velocidade de Movimento (10% for à distância campeões) for 8s. (30s Tempo de Recarga)\nThis item blends survivability with explosive offensive potential. It concede extra Vida, attack power and Velocidade de Ataque, shortens ultimate tempos de recarga, and—most importantly—concede a strong dano explosivo of attack and Velocidade de Movimento after using your ultimate, enabling you to convert your engage into high sustained damage and chase. Iinfligen for fighters and bruisers who rely on their ultimate to start fights and immediately follow up with empowered autos and mobility.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Potencia tu definitiva: tras lanzar tu habilidad máxima obtienes velocidad de ataque y velocidad de movimiento masivas para ganar la pelea de equipo.",
+            coachTipEn = "Overcharges your ultimate: casting your ultimate grants massive bonus attack speed and movement speed to dominate teamfights.",
+            coachTipPt = "Potencializa sua ultimate: conjurar sua habilidade suprema concede grande velocidade de ataque e movimento para vencer a luta em equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630328_experimental-hexplate.webp"
         ))
         add(WildRiftItem(
@@ -508,9 +508,9 @@ object WildRiftItemsData {
             passive = "Dominik’s Regards\nAlready equipped with percentage Penetración de Armadura and Adicional damage, but lacks durability\nGiant Slayer: Deal Adicional damage based on the target’s Adicional Vida. At 1500 Adicional Vida, the Adicional damage is increased up to 15%.\nDominik’\nIs built to punish bulky foes. It converts a chunk of your offensive power into Penetración de Armadura and adds Adicional damage that scales with the enemy’s extra Vida, making it a go-to pick when the enemy team stacks HP and Armadura. Because it focuses on penetration and damage rather than survivability, use it when you need to cut through tanky targets quickly while relying on positioning or teammates for protection.",
             passiveEn = "Dominik’s Regards\nAlready equipped with percentage Penetración of Armor and Adicional damage, but lacks durability\nGiant Slayer: Deal Adicional damage based on the target’s Adicional Health. At 1500 Adicional Health, the Adicional damage is increased up to 15%.\nDominik’\nIs built to punish bulky foes. It converts a chunk of your offensive power into Penetración of Armor and adds Adicional damage that scales with the enemy’s extra Health, making it a go-to pick when the enemy team stacks HP and Armor. Because it focuses on penetration and damage rather than survivability, use it when you need to cut through tanky targets quickly while relying on positioning or teammates for protection.",
             passivePt = "Dominik’s Regards\nAlready equipped with percentage Penetração de Armadura and Adicional damage, but lacks durability\nGiant Slayer: Deal Adicional damage based on the target’s Adicional Vida. At 1500 Adicional Vida, the Adicional damage is increased up to 15%.\nDominik’\nIs built to punish bulky foes. It converts a chunk of your offensive power into Penetração de Armadura and adds Adicional damage that scales with the enemy’s extra Vida, making it a go-to pick when the enemy team stacks HP and Armadura. Because it focuses on penetration and damage rather than survivability, use it when you need to cut through tanky targets quickly while relying on positioning or teammates for protection.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Otorga penetración de armadura y probabilidad de crítico: tras salir de combate, tu primer ataque contra un campeón obtiene velocidad de ataque adicional.",
+            coachTipEn = "Grants armor penetration and crit chance: after leaving combat, your first attack against a champion gains massive bonus attack speed.",
+            coachTipPt = "Concede penetração de armadura e chance de crítico: após sair de combate, seu primeiro ataque contra um campeão ganha alta velocidade de ataque.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774953440_lord-dominiks-regards.webp"
         ))
         add(WildRiftItem(
@@ -526,9 +526,9 @@ object WildRiftItemsData {
             passive = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as Daño Físico to nearby enemies and slowing them by 40% durante 3s (25s Enfriamiento)\nStride (Passive): Gain 20 Velocidad de Movimiento for 2 segundo(s) when you infligen Daño Físico.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive otorga Adicional Velocidad de Movimiento whenever you infligen Daño Físico. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within Cuerpo a cuerpo range.",
             passiveEn = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as physical damage to nearby enemies and slowing them by 40% for 3s (25s Cooldown)\nStride (Passive): Gain 20 Movement Speed for 2 segundo(s) when you deals physical damage.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive grants Adicional Movement Speed whenever you deals physical damage. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within melee range.",
             passivePt = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as Dano Físico to nearby enemies and slowing them by 40% por 3s (25s Tempo de Recarga)\nStride (Passive): Gain 20 Velocidade de Movimento for 2 segundo(s) when you causam Dano Físico.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive concede Adicional Velocidade de Movimento whenever you causam Dano Físico. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within corpo a corpo range.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Activa un corte circular que inflige daño y ralentiza a los enemigos cercanos, otorgando velocidad de movimiento para no dejar escapar a ningún objetivo.",
+            coachTipEn = "Active spinning slash that damages and slows nearby enemies while granting movement speed to stick onto agile targets.",
+            coachTipPt = "Ativa um corte circular que causa dano e lentidão a inimigos próximos, concedendo velocidade de movimento para não deixar nenhum alvo escapar.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
         ))
         add(WildRiftItem(
@@ -562,9 +562,9 @@ object WildRiftItemsData {
             passive = "Otorga a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Vida enemy near your destination, prioritizing Campeones. Deal Daño Físico equal to 40-125 () plus 35% Adicional. (60s Enfriamiento)\nThis item greatly improves the mobility of marksmen and AD Campeones by granting a dash that also fires projectiles at the lowest-Vida nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for Campeones who value mobility, safety, and strong daño explosivo potential.",
             passiveEn = "grants a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Health enemy near your destination, prioritizing champions. Deal physical damage equal to 40-125 () plus 35% Adicional. (60s Cooldown)\nThis item greatly improves the mobility of marksmen and AD champions by granting a dash that also fires projectiles at the lowest-Health nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for champions who value mobility, safety, and strong daño explosivo potential.",
             passivePt = "concede a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Vida enemy near your destination, prioritizing campeões. Deal Dano Físico equal to 40-125 () plus 35% Adicional. (60s Tempo de Recarga)\nThis item greatly improves the mobility of marksmen and AD campeões by granting a dash that also fires projectiles at the lowest-Vida nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for campeões who value mobility, safety, and strong dano explosivo potential.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Otorga un desplazamiento activo (Dash) en la dirección elegida que dispara proyectiles teledirigidos al enemigo con menos vida: salva vidas o asegura asesinatos.",
+            coachTipEn = "Grants an active dash in the target direction that fires homing missiles at the lowest-health enemy: saves lives or executes escaping targets.",
+            coachTipPt = "Concede um avanço ativo na direção escolhida disparando projéteis guiados no inimigo com menos vida: salva sua vida ou garante o abate.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
         ))
         add(WildRiftItem(
@@ -580,9 +580,9 @@ object WildRiftItemsData {
             passive = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and otorga immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Enfriamiento)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly otorga immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir daño aobtienest heavy-CC team compositions.",
             passiveEn = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and grants immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 seconds. (60s Cooldown)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly grants immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir daño aobtienest heavy-CC team compositions.",
             passivePt = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and concede immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Tempo de Recarga)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly concede immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir dano aobtienest heavy-CC team compositions.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Activa una purificación que elimina instantáneamente todos los efectos de control de masas (CC) y otorga velocidad de movimiento para escapar o reposicionarte.",
+            coachTipEn = "Active cleanse that instantly removes all crowd control effects and grants movement speed to reposition or escape dangerous traps.",
+            coachTipPt = "Purificação ativa que remove instantaneamente todos os efeitos de controle de grupo (CC) e concede velocidade de movimento para reposicionamento.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
         ))
         add(WildRiftItem(
@@ -598,9 +598,9 @@ object WildRiftItemsData {
             passive = "Tiro Discordante: Al moverte y lanzar habilidades acumulas cargas. Al llegar a 100, el próximo hechizo inflige 100 + 10% PH adicional a hasta 3 objetivos.",
             passiveEn = "Tiro Discordante: Al moverte and lanzar habilidades acumulas cargas. Al llegar a 100, the próximo hechizo deals 100 + 10% PH adicional a hasta 3 objetivos.",
             passivePt = "Tiro Discordante: Al moverte e lanzar habilidades acumulas cargas. Al llegar a 100, o próximo hechizo causa 100 + 10% PH adicional a hasta 3 objetivos.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "El objeto de daño explosivo por excelencia para magos: acumula cargas al moverte y lanzar hechizos para desatar una detonación mágica que daña al objetivo y a 3 enemigos cercanos.",
+            coachTipEn = "Premier burst item for mages: generates charges while moving and casting spells to unleash a shockwave hitting the target and 3 nearby enemies.",
+            coachTipPt = "O item de dano explosivo por excelência para magos: acumula cargas ao se mover e conjurar feitiços para liberar uma detonação mágica que atinge o alvo e 3 inimigos próximos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388218_ludens-echo.webp"
         ))
         add(WildRiftItem(
@@ -616,9 +616,9 @@ object WildRiftItemsData {
             passive = "Daño Mágico reduces enemy healing\nAffliction: Dealing Daño Mágico to campeones enemigos inflicts 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter Campeones with strong healing and sustento. Any Daño Mágico you infligen applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
             passiveEn = "magic damage reduces enemy healing\nAffliction: Dealing magic damage to champions enemies inflicts 50% Heridas Graves for 3 seconds.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter champions with strong healing and sustento. Any magic damage you deals applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
             passivePt = "Dano Mágico reduces enemy healing\nAffliction: Dealing Dano Mágico to campeões inimigos inflicts 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter campeões with strong healing and sustento. Any Dano Mágico you causam applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Aplica Heridas Graves (anti-curación) con cualquier daño mágico: obligatorio contra campeones de alta regeneración o curanderos aliados.",
+            coachTipEn = "Applies Grievous Wounds (anti-healing) with any magic damage: mandatory against high-sustain champions or healer supports.",
+            coachTipPt = "Aplica Feridas Dolorosas (corta-cura) com qualquer dano mágico: obrigatório contra campeões de alta regeneração ou suportes de cura.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp"
         ))
         add(WildRiftItem(
@@ -634,9 +634,9 @@ object WildRiftItemsData {
             passive = "Opus: Aumenta el Poder de Habilidad total en un 40% a 45% (según el nivel).",
             passiveEn = "Opus: Aumenta the Ability Power total in a 40% a 45% (según the nivel).",
             passivePt = "Opus: Aumenta o Poder de Habilidade total em um 40% a 45% (según o nivel).",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "El mayor multiplicador de Poder de Habilidad del juego: incrementa tu AP total en un porcentaje masivo. Constrúyelo como 3er o 4to objeto para dominar el daño mágico.",
+            coachTipEn = "The supreme Ability Power multiplier in the game: massively amplifies your total AP by a huge percentage. Build as 3rd/4th item to rule magic damage.",
+            coachTipPt = "O maior multiplicador de Poder de Habilidade do jogo: aumenta seu PdH total em uma porcentagem massiva. Construa como 3º ou 4º item para dominar em dano mágico.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388295_rabadons-deathcap.webp"
         ))
         add(WildRiftItem(
@@ -652,9 +652,9 @@ object WildRiftItemsData {
             passive = "Abilities apply Ralentiza\nIcy: Damaging abilities and empowered ataques Ralentización enemies by 30% for 0.75 segundo.\nThis item enhances your crowd control by causing your abilities and empowered ataques to Ralentización enemies with every hit. The Adicional Vida improves your durability, while the consistent Ralentización makes it much easier to land follow-up abilities, chase fleeing targets, and support your teammates. It is an excellent choice for damage-over-time mages and Campeones who rely on keeping enemies within the range of their abilities.",
             passiveEn = "Abilities apply Ralentiza\nIcy: Damaging abilities and empowered ataques Ralentización enemies by 30% for 0.75 segundo.\nThis item enhances your crowd control by causing your abilities and empowered ataques to Ralentización enemies with every hit. The Adicional Health improves your durability, while the consistent Ralentización makes it much easier to land follow-up abilities, chase fleeing targets, and support your teammates. It is an excellent choice for damage-over-time mages and champions who rely on keeping enemies within the range of their abilities.",
             passivePt = "Abilities apply Ralentiza\nIcy: Damaging abilities and empowered ataques Ralentización enemies by 30% for 0.75 segundo.\nThis item enhances your crowd control by causing your abilities and empowered ataques to Ralentización enemies with every hit. The Adicional Vida improves your durability, while the consistent Ralentización makes it much easier to land follow-up abilities, chase fleeing targets, and support your teammates. It is an excellent choice for damage-over-time mages and campeões who rely on keeping enemies within the range of their abilities.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Tus habilidades ralentizan a los enemigos impactados en un 30%: excelente para control de masas en área y facilitar que tu equipo aseste sus combos.",
+            coachTipEn = "Damaging abilities slow hit targets by 30%: outstanding for zoning, continuous kiting, and helping your team land follow-up combos.",
+            coachTipPt = "Suas habilidades causam 30% de lentidão nos alvos atingidos: excelente para controle de grupo em área e facilitar combos da equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388390_rylais-crystal-scepter.webp"
         ))
         add(WildRiftItem(
@@ -670,9 +670,9 @@ object WildRiftItemsData {
             passive = "Torment: Damaging abilities and empowered ataques burn enemies for 2% Vida Máxima Daño Mágico for 3 segundos.\nMadness: Deals 2% more damage for each segundo En combate aobtienest Campeones, capped at 6% after 3 segundos.\nThis item excels in extended fights. Your abilities and empowered ataques ignite enemies, Infligir daño over time based on their maximum Vida, while your overall damage steadily increases the longer you remain En combate. It is an excellent choice for damage-over-time mages and AP bruisers who want to wear down even the toughest línea frontal Campeones.",
             passiveEn = "Torment: Damaging abilities and empowered ataques burn enemies for 2% Max Health magic damage for 3 seconds.\nMadness: Deals 2% more damage for each segundo in combate aobtienest champions, capped at 6% after 3 seconds.\nThis item excels in extended fights. Your abilities and empowered ataques ignite enemies, Infligir daño over time based on their maximum Health, while your overall damage steadily increases the longer you remain in combate. It is an excellent choice for damage-over-time mages and AP bruisers who want to wear down even the toughest línea frontal champions.",
             passivePt = "Torment: Damaging abilities and empowered ataques burn enemies for 2% Vida Máxima Dano Mágico for 3 segundos.\nMadness: Deals 2% more damage for each segundo em combate aobtienest campeões, capped at 6% after 3 segundos.\nThis item excels in extended fights. Your abilities and empowered ataques ignite enemies, Infligir dano over time based on their maximum Vida, while your overall damage steadily increases the longer you remain em combate. It is an excellent choice for damage-over-time mages and AP bruisers who want to wear down even the toughest línea frontal campeões.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Drena a los tanques quemando un porcentaje de su vida máxima con cada habilidad: se amplifica en combates prolongados y contra objetivos con mucha vida.",
+            coachTipEn = "Burns through tanky frontlines by dealing max HP percentage magic damage on spell hits: amplifies during prolonged teamfights.",
+            coachTipPt = "Queima tanques causando dano mágico percentual da vida máxima com habilidades: amplifica o dano em combates longos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388368_yorlde-liandrys-torment.webp"
         ))
         add(WildRiftItem(
@@ -688,9 +688,9 @@ object WildRiftItemsData {
             passive = "+400 Maná Máximo\nEternity: Restore Maná equal to 15% of the damage taken from Campeones. Regen Vida equal to 20% Maná spent. Capped at 25 Vida per cast.\nVeteran: Each stack provides 15 Vida, 30 Maná and 4 Poder de Habilidad, stacking at a rate of 1 every 35 segundos. Max of 10 stacks, providing 150 Vida, 300 Maná, and 40 Poder de Habilidad.\nThis item grows stronger over the course of the game, gradually increasing its stats and becoming one of the best scaling options available. It provides an excellent balance of durability, Maná, and Poder de Habilidad while restoring both Vida and Maná Durante el combate, allowing you to stay in fights much longer. A perfect choice for mages and AP bruisers who thrive in the late game and excel in extended peleas de equipo.",
             passiveEn = "+400 Max Mana\nEternity: Restore Mana equal to 15% of the damage taken from champions. Regen Health equal to 20% Mana spent. Capped at 25 Health per cast.\nVeteran: Each stack provides 15 Health, 30 Mana and 4 Ability Power, stacking at a rate of 1 every 35 seconds. Max of 10 stacks, providing 150 Health, 300 Mana, and 40 Ability Power.\nThis item grows stronger over the course of the game, gradually increasing its stats and becoming one of the best scaling options available. It provides an excellent balance of durability, Mana, and Ability Power while restoring both Health and Mana for the combate, allowing you to stay in fights much longer. A perfect choice for mages and AP bruisers who thrive in the late game and excel in extended peleas of equipo.",
             passivePt = "+400 Mana Máximo\nEternity: Restore Mana equal to 15% of the damage taken from campeões. Regen Vida equal to 20% Mana spent. Capped at 25 Vida per cast.\nVeteran: Each stack provides 15 Vida, 30 Mana and 4 Poder de Habilidade, stacking at a rate of 1 every 35 segundos. Max of 10 stacks, providing 150 Vida, 300 Mana, and 40 Poder de Habilidade.\nThis item grows stronger over the course of the game, gradually increasing its stats and becoming one of the best scaling options available. It provides an excellent balance of durability, Mana, and Poder de Habilidade while restoring both Vida and Mana por o combate, allowing you to stay in fights much longer. A perfect choice for mages and AP bruisers who thrive in the late game and excel in extended peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Escala gradualmente otorgando Vida, Maná y Poder de Habilidad cada minuto. Aporta una tremenda resistencia y sustento para magos de escalado tardío.",
+            coachTipEn = "Gradually ramps up granting Health, Mana, and Ability Power every minute. Provides immense durability and sustain for late-game scaling mages.",
+            coachTipPt = "Escala gradualmente concedendo Vida, Mana e Poder de Habilidade a cada minuto. Oferece alta durabilidade e sustentação para magos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388412_rod-of-ages.webp"
         ))
         add(WildRiftItem(
@@ -706,9 +706,9 @@ object WildRiftItemsData {
             passive = "Los ataques infligen Adicional damage aster ability casts\nSpellblade: Using an ability causes the next attack used within 10 segundos to infligen Adicional Daño Mágico equal to 75% base AD  + 45% AP . (1.5s Enfriamiento) El daño se reduce contra estructuras.",
             passiveEn = "the ataques deals Adicional damage aster ability casts\nSpellblade: Using an ability causes the next attack used within 10 seconds to deals Adicional magic damage equal to 75% base AD + 45% AP . (1.5s Cooldown) the daño se reduce against estructuras.",
             passivePt = "os ataques causam Adicional damage aster ability casts\nSpellblade: Using an ability causes the next attack used within 10 segundos to causam Adicional Dano Mágico equal to 75% base AD + 45% AP . (1.5s Tempo de Recarga) o dano se reduce contra estructuras.",
-            coachTip = "Este objeto es ideal para campeones who weave abilities between their ataques básicos. After casting a spell, your next attack is empowered with a powerful ráfaga de daño explosivo of Adicional Daño Mágico, greatly increasing your combo potential. The Adicional Velocidad de Movimiento also improves your mobility, making it easier to reposition and chase targets. An excellent choice for mobile mages, AP assassins, and hybrid campeones who rely on short, high-damage ability rotations.",
-            coachTipEn = "Este objeto es ideal for champions who weave abilities between their ataques básicos. After casting a spell, your next attack is empowered with a powerful ráfaga of daño explosivo of Adicional magic damage, greatly increasing your combo potential. The Adicional Movement Speed also improves your mobility, making it easier to reposition and chase targets. An excellent choice for mobile mages, AP assassins, and hybrid champions who rely on short, high-damage ability rotations.",
-            coachTipPt = "Este objeto es ideal para campeões who weave abilities between their ataques básicos. After casting a spell, your next attack is empowered with a powerful ráfaga de dano explosivo of Adicional Dano Mágico, greatly increasing your combo potential. The Adicional Velocidade de Movimento also improves your mobility, making it easier to reposition and chase targets. An excellent choice for mobile mages, AP assassins, and hybrid campeões who rely on short, high-damage ability rotations.",
+            coachTip = "Hoja Encantada para magos: tras usar una habilidad, tu siguiente ataque básico inflige daño mágico devastador escalado con tu Poder de Habilidad.",
+            coachTipEn = "Spellblade for AP burst carries: after casting a spell, your next basic attack deals devastating bonus magic damage scaling with AP.",
+            coachTipPt = "Lâmina Encantada para magos: após usar uma magia, seu próximo ataque básico causa dano mágico devastador escalando com PdH.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388405_lich-bane.webp"
         ))
         add(WildRiftItem(
@@ -724,9 +724,9 @@ object WildRiftItemsData {
             passive = "Colmillo Mágico: Obtiene 25 de Daño de Ataque o 50 de Poder de Habilidad (Adaptable).\nGnaw: Los ataques infligen Daño Adaptable (15 + 20% Adicional+ 30% Adicional) on hit.",
             passiveEn = "Magic Fang: Grants 25 Attack Damage or 50 Ability Power (Adaptive).\nGnaw: the ataques deals adaptive damage (15 + 20% Adicional+ 30% Adicional) on hit.",
             passivePt = "Presa Mágica: Concede 25 de Dano de Ataque ou 50 de Poder de Habilidade (Adaptativo).\nGnaw: os ataques causam Dano Adaptativo (15 + 20% Adicional+ 30% Adicional) on hit.",
-            coachTip = "Este objeto es ideal para campeones who blend autoataques with Daño Mágico. It provides a hefty boost to Velocidad de Ataque and reduces ability enfriamientos, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Daño de Ataque or Poder de Habilidad, adding flexibility.  With each autoataque, “Gnaw” deals adaptive Daño Mágico on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for campeones like Teemo, Kayle, and Jax, who rely on sustento y curacióned autoataques supported by Daño Mágico and need frequent ability usage to maximize DPS in extended iniciaciónments.",
-            coachTipEn = "Este objeto es ideal for champions who blend autoataques with magic damage. It provides a hefty boost to Attack Speed and reduces ability enfriamientos, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Attack Damage or Ability Power, adding flexibility. With each autoataque, “Gnaw” deals adaptive magic damage on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for champions like Teemo, Kayle, and Jax, who rely on sustento and curacióned autoataques supported by magic damage and need frequent ability usage to maximize DPS in extended iniciaciónments.",
-            coachTipPt = "Este objeto es ideal para campeões who blend autoataques with Dano Mágico. It provides a hefty boost to Velocidade de Ataque and reduces ability tempos de recarga, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either Adicional Dano de Ataque or Poder de Habilidade, adding flexibility. With each autoataque, “Gnaw” deals adaptive Dano Mágico on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for campeões like Teemo, Kayle, and Jax, who rely on sustento e curacióned autoataques supported by Dano Mágico and need frequent ability usage to maximize DPS in extended iniciaciónments.",
+            coachTip = "Otorga alta Velocidad de Ataque y hace que tus ataques básicos inflijan daño mágico adicional escalado con tu AP (Kayle, Diana, Teemo).",
+            coachTipEn = "Grants high Attack Speed and causes auto-attacks to deal scaling bonus on-hit magic damage based on AP (Kayle, Diana, Teemo).",
+            coachTipPt = "Concede alta Velocidade de Ataque e faz seus ataques básicos causarem dano mágico ao contato que escala com PdH (Kayle, Diana, Teemo).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302010_nashors-tooth.webp"
         ))
         add(WildRiftItem(
@@ -742,9 +742,9 @@ object WildRiftItemsData {
             passive = "Juicio Inevitable: Las habilidades y ataques mejorados asestan golpes críticos que infligen un 20% más de daño contra enemigos por debajo del 35% de vida.",
             passiveEn = "Juicio Inevitable: the habilidades and ataques mejorados asestan Critical Strikes que deals a 20% más of daño against enemies by debajo del 35% of Health.",
             passivePt = "Juicio Inevitable: as habilidades e ataques mejorados asestan Acertos Críticos que causam um 20% más de dano contra inimigos por debajo del 35% de Vida.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Permite que tus habilidades asesten impactos críticos contra enemigos con menos del 35% de vida: perfecto para rematar objetivos y daño explosivo.",
+            coachTipEn = "Enables your spells to critically strike enemies below 35% health: superb for executing low-health targets and amplifying burst damage.",
+            coachTipPt = "Permite que suas habilidades causem acertos críticos contra alvos com menos de 35% de vida: perfeito para finalizar inimigos e dano explosivo.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388486_yordle-infinity-orb.webp"
         ))
         add(WildRiftItem(
@@ -760,9 +760,9 @@ object WildRiftItemsData {
             passive = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 segundos. Area of effect abilities apply (5% of Adicional AP + 25)% Escudo reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% Escudo reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter Escudo-heavy Campeones. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest Escudo-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
             passiveEn = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 seconds. Area of effect abilities apply (5% of Adicional AP + 25)% Shield reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% Shield reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter Shield-heavy champions. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest Shield-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
             passivePt = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 segundos. Area of effect abilities apply (5% of Adicional AP + 25)% escudo reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% escudo reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter escudo-heavy campeões. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest escudo-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp"
         ))
         add(WildRiftItem(
@@ -778,9 +778,9 @@ object WildRiftItemsData {
             passive = "Dealing ability damage otorga Velocidad de Movimiento\nSpelldance: Dealing magic or Daño Verdadero to Campeones otorga 30 Velocidad de Movimiento for 4 segundo(s).\nThis item combines Poder de Habilidad, durability, and exceptional mobility. Infligir daño with your abilities otorga a daño explosivo of Velocidad de Movimiento, making it easier to mantener la distancia enemies, chase fleeing targets, or reposition safely during fights. It is an excellent choice for mobile mages, AP bruisers, and Campeones who thrive in extended skirmishes while constantly staying on the move.",
             passiveEn = "Dealing ability damage grants Movement Speed\nSpelldance: Dealing magic or true damage to champions grants 30 Movement Speed for 4 segundo(s).\nThis item combines Ability Power, durability, and exceptional mobility. Infligir daño with your abilities grants a daño explosivo of Movement Speed, making it easier to mantener the distancia enemies, chase fleeing targets, or reposition safely during fights. It is an excellent choice for mobile mages, AP bruisers, and champions who thrive in extended skirmishes while constantly staying on the move.",
             passivePt = "Dealing ability damage concede Velocidade de Movimento\nSpelldance: Dealing magic or Dano Verdadeiro to campeões concede 30 Velocidade de Movimento for 4 segundo(s).\nThis item combines Poder de Habilidade, durability, and exceptional mobility. Infligir dano with your abilities concede a dano explosivo of Velocidade de Movimento, making it easier to mantener a distancia enemies, chase fleeing targets, or reposition safely during fights. It is an excellent choice for mobile mages, AP bruisers, and campeões who thrive in extended skirmishes while constantly staying on the move.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Otorga una enorme aceleración de habilidad y un impulso de velocidad de movimiento al impactar habilidades, permitiendo kitear y reposicionarte continuamente.",
+            coachTipEn = "Provides massive Ability Haste and movement speed surges upon landing spells, allowing constant kiting and swift repositioning.",
+            coachTipPt = "Concede alta Aceleração de Habilidade e impulsos de velocidade de movimento ao acertar magias, permitindo reposicionamento constante.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388596_cosmic-drive.webp"
         ))
         add(WildRiftItem(
@@ -796,9 +796,9 @@ object WildRiftItemsData {
             passive = "Void Corruption: Every 1 segundo(s) En combate with campeones enemigos, infligen 2% Adicional damage, up to 8%.\nAt maximum strength, obtieneOmni Vamp. (10% for Cuerpo a cuerpo Campeones / 6% for A distancia Campeones).\nVoid Infusion: Gain 2% of your Adicional Vida as Poder de Habilidad.\nThis item is built for extended fights, gradually increasing your damage the longer you remain En combate. Once fully ramped up, it otorga Omnivampirismoirismoirismo for improved sustento, while your Adicional Vida is partially converted into Poder de Habilidad, further increasing your overall damage. An excellent choice for AP bruisers and battlemages who excel in prolonged peleas de equipo and thrive by scaling throughout combat.",
             passiveEn = "Void Corruption: Every 1 segundo(s) in combate with champions enemies, deals 2% Adicional damage, up to 8%.\nAt maximum strength, obtieneOmni Vamp. (10% for melee champions / 6% for ranged champions).\nVoid Infusion: Gain 2% of your Adicional Health as Ability Power.\nThis item is built for extended fights, gradually increasing your damage the longer you remain in combate. Once fully ramped up, it grants Omnivampirismoirismoirismo for improved sustento, while your Adicional Health is partially converted into Ability Power, further increasing your overall damage. An excellent choice for AP bruisers and battlemages who excel in prolonged peleas of equipo and thrive by scaling throughout combat.",
             passivePt = "Void Corruption: Every 1 segundo(s) em combate with campeões inimigos, causam 2% Adicional damage, up to 8%.\nAt maximum strength, obtieneOmni Vamp. (10% for corpo a corpo campeões / 6% for à distância campeões).\nVoid Infusion: Gain 2% of your Adicional Vida as Poder de Habilidade.\nThis item is built for extended fights, gradually increasing your damage the longer you remain em combate. Once fully ramped up, it concede Omnivampirismoirismoirismo for improved sustento, while your Adicional Vida is partially converted into Poder de Habilidade, further increasing your overall damage. An excellent choice for AP bruisers and battlemages who excel in prolonged peleas de equipo and thrive by scaling throughout combat.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Otorga omnivampirismo y daño verdadero acumulativo en combates prolongados: el mejor objeto para magos de combate cuerpo a cuerpo y duelistas mágicos (Gwen, Mordekaiser).",
+            coachTipEn = "Grants omnivamp and converts damage into true damage in prolonged fights: the finest item for AP bruisers and battlemages (Gwen, Mordekaiser).",
+            coachTipPt = "Concede vampirismo universal e dano verdadeiro acumulativo em combate longo: o melhor item para magos lutadores (Gwen, Mordekaiser).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388604_riftmaker.webp"
         ))
         add(WildRiftItem(
@@ -814,9 +814,9 @@ object WildRiftItemsData {
             passive = "Hypershot: Damaging an campeón enemigo with an ability from 600 units away reveals them for 8 segundos and increases damage infligent to them by 10%.\nFocus: When Hypershot is triggered, it reveals all campeones enemigos within 1.200 units of the target durante 3s. (12s Enfriamiento)",
             passiveEn = "Hypershot: Damaging an campeón enemigo with an ability from 600 units away reveals them for 8 seconds and increases damage infligent to them by 10%.\nFocus: When Hypershot is triggered, it reveals all champions enemies within 1.200 units of the target for 3s. (12s Cooldown)",
             passivePt = "Hypershot: Damaging an campeón enemigo with an ability from 600 units away reveals them for 8 segundos and increases damage infligent to them by 10%.\nFocus: When Hypershot is triggered, it reveals all campeões inimigos within 1.200 units of the target por 3s. (12s Tempo de Recarga)",
-            coachTip = "Este objeto es ideal para long-range mages and desgaste a distancia-oriented campeones. Hitting an enemy with a spell from a distance marks and reveals them while increasing all subsequent damage they take. It also exposes nearby campeones enemigos, providing valuable vision for your team and making follow-up attacks much easier. An excellent choice for artillery mages and campeones who excel at controlling fights from a safe distance.",
-            coachTipEn = "Este objeto es ideal for long-range mages and desgaste ranged-oriented champions. Hitting an enemy with a spell from a distance marks and reveals them while increasing all subsequent damage they take. It also exposes nearby champions enemies, providing valuable vision for your team and making follow-up attacks much easier. An excellent choice for artillery mages and champions who excel at controlling fights from a safe distance.",
-            coachTipPt = "Este objeto es ideal para long-range mages and desgaste à distância-oriented campeões. Hitting an enemy with a spell from a distance marks and reveals them while increasing all subsequent damage they take. It also exposes nearby campeões inimigos, providing valuable vision for your team and making follow-up attacks much easier. An excellent choice for artillery mages and campeões who excel at controlling fights from a safe distance.",
+            coachTip = "Al golpear a un campeón con una habilidad a larga distancia o inmovilizarlo, lo revelas e incrementas el daño que recibe de todas tus fuentes.",
+            coachTipEn = "Hitting an enemy champion at long range or immobilizing them reveals them and hyper-amplifies all damage they take from you.",
+            coachTipPt = "Ao atingir um campeão a longa distância ou imobilizá-lo, revela o alvo e amplifica todo o dano que ele sofre de você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388673_horizon-focus.webp"
         ))
         add(WildRiftItem(
@@ -904,9 +904,9 @@ object WildRiftItemsData {
             passive = "+15 Penetración Mágica\nStormraider: When damaging a Campeón, Infligir daño equal to 25% of their Vida Máxima within 2.5 segundo(s) applies Squall to them and otorga you 25% Adicional Velocidad de Movimiento for 2.5s. (25s Enfriamiento)\nSquall: After 2 segundo(s), strike the target, infligiendo Daño Mágico equal to 125 plus 10%. If the target is killed before the strike, it detonates immediately in a large area and otorga 25 gold.",
             passiveEn = "+15 Magic Penetration\nStormraider: When damaging a Campeón, Infligir daño equal to 25% of their Max Health within 2.5 segundo(s) applies Squall to them and grants you 25% Adicional Movement Speed for 2.5s. (25s Cooldown)\nSquall: After 2 segundo(s), strike the target, infligiendo magic damage equal to 125 plus 10%. If the target is killed before the strike, it detonates immediately in a large area and grants 25 gold.",
             passivePt = "+15 Penetração Mágica\nStormraider: When damaging a Campeón, Infligir dano equal to 25% of their Vida Máxima within 2.5 segundo(s) applies Squall to them and concede you 25% Adicional Velocidade de Movimento for 2.5s. (25s Tempo de Recarga)\nSquall: After 2 segundo(s), strike the target, infligiendo Dano Mágico equal to 125 plus 10%. If the target is killed before the strike, it detonates immediately in a large area and concede 25 gold.",
-            coachTip = "Este objeto es ideal para mages capable of delivering heavy ráfaga de daño explosivo damage. After landing a strong combo, it marks the target, grants you a ráfaga de daño explosivo of Velocidad de Movimiento, and follows up with an additional magic strike. If the target dies before the effect triggers, it immediately explodes in an area and rewards you with Adicional gold. An excellent choice for escalado hacia juego tardío mages and AP assassins looking to secure kills and efecto bola de nieve their advantage.",
-            coachTipEn = "Este objeto es ideal for mages capable of delivering heavy ráfaga of daño explosivo damage. After landing a strong combo, it marks the target, grants you a ráfaga of daño explosivo of Movement Speed, and follows up with an additional magic strike. If the target dies before the effect triggers, it immediately explodes in an area and rewards you with Adicional gold. An excellent choice for escalado hacia juego tardío mages and AP assassins looking to secure kills and efecto bola of nieve their advantage.",
-            coachTipPt = "Este objeto es ideal para mages capable of delivering heavy ráfaga de dano explosivo damage. After landing a strong combo, it marks the target, grants you a ráfaga de dano explosivo of Velocidade de Movimento, and follows up with an additional magic strike. If the target dies before the effect triggers, it immediately explodes in an area and rewards you with Adicional gold. An excellent choice for escalado hacia juego tardío mages and AP assassins looking to secure kills and efecto bola de nieve their advantage.",
+            coachTip = "Al infligir una cantidad masiva de daño en poco tiempo, desata una tormenta eléctrica que golpea al enemigo y le otorga oro extra a tu equipo.",
+            coachTipEn = "Dealing massive burst damage within a short window unleashes a lightning strike on the target, granting bonus gold on takedowns.",
+            coachTipPt = "Ao causar muito dano em pouco tempo, libera um raio de tempestade que atinge o alvo e concede ouro bônus à sua equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192090_4646_11zon.webp"
         ))
         add(WildRiftItem(
@@ -922,9 +922,9 @@ object WildRiftItemsData {
             passive = "Penetración Mágica (%)\n+40%\nThis item is the premier choice aobtienest enemies stacking Resistencia Mágica. It greatly increases the effectiveness of your spells through powerful Penetración Mágica, allowing you to infligen consistent damage even to the toughest targets. An excellent pickup for any mage once the enemy team starts investing in Resistencia Mágica.",
             passiveEn = "Magic Penetration (%)\n+40%\nThis item is the premier choice aobtienest enemies stacking Magic Resistance. It greatly increases the effectiveness of your spells through powerful Magic Penetration, allowing you to deals consistent damage even to the toughest targets. An excellent pickup for any mage once the enemy team starts investing in Magic Resistance.",
             passivePt = "Penetração Mágica (%)\n+40%\nThis item is the premier choice aobtienest enemies stacking Resistência Mágica. It greatly increases the effectiveness of your spells through powerful Penetração Mágica, allowing you to causam consistent damage even to the toughest targets. An excellent pickup for any mage once the enemy team starts investing in Resistência Mágica.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Penetración Mágica porcentual pura: imprescindible cuando los tanques y rivales acumulan Resistencia Mágica (Fuerza de la Naturaleza, Rostro Espiritual).",
+            coachTipEn = "Pure percentage Magic Penetration: essential when enemy frontlines stack Magic Resistance (Force of Nature, Spirit Visage).",
+            coachTipPt = "Penetração Mágica percentual pura: indispensável quando a linha de frente inimiga acumula Resistência Mágica (Força da Natureza, Semblante Espiritual).",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192299_3135_11zon.webp"
         ))
         add(WildRiftItem(
@@ -940,9 +940,9 @@ object WildRiftItemsData {
             passive = "Restore Vida on Campeón kill\n+30% Penetración Mágica\nLife from Death: When a Campeón that you damaged within 3s dies, a nova spreads from their corpse that restaura 100 plus 20%Vida to allies. (60s Enfriamiento)\nThis item combines powerful Penetración Mágica with valuable team utility. In addition to boosting your spell damage, Campeones you recently damaged release a healing nova upon death, restoring Vida to nearby allies. It is an excellent choice for mages who want to infligen heavy damage while providing extra sustento for their team during extended peleas de equipo.",
             passiveEn = "Restore Health on Campeón kill\n+30% Magic Penetration\nLife from Death: When a Campeón that you damaged within 3s dies, a nova spreads from their corpse that restores 100 plus 20%Health to allies. (60s Cooldown)\nThis item combines powerful Magic Penetration with valuable team utility. In addition to boosting your spell damage, champions you recently damaged release a healing nova upon death, restoring Health to nearby allies. It is an excellent choice for mages who want to deals heavy damage while providing extra sustento for their team during extended peleas of equipo.",
             passivePt = "Restore Vida on Campeón kill\n+30% Penetração Mágica\nLife from Death: When a Campeón that you damaged within 3s dies, a nova spreads from their corpse that restaura 100 plus 20%Vida to allies. (60s Tempo de Recarga)\nThis item combines powerful Penetração Mágica with valuable team utility. In addition to boosting your spell damage, campeões you recently damaged release a healing nova upon death, restoring Vida to nearby allies. It is an excellent choice for mages who want to causam heavy damage while providing extra sustento for their team during extended peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192528_3137_11zon.webp"
         ))
         add(WildRiftItem(
@@ -958,9 +958,9 @@ object WildRiftItemsData {
             passive = "Reduces enemy's Resistencia Mágica\n+350 Maximum Vida\nVile Decay: Dealing Daño Mágico with abilities or passives to Campeones reduces their Resistencia Mágica by 7.5% for 6 segundos (max 30%).\nThis item greatly enhances your Daño Mágico by gradually reducing the target's Resistencia Mágica whenever your abilities or passive effects infligen damage. It excels in extended fights, allowing both you and your AP teammates to infligen increasingly higher damage to the same target. An excellent choice for AP bruisers, damage-over-time mages, and Campeones who can consistently keep the debuff active on multiple enemies.",
             passiveEn = "Reduces enemy's Magic Resistance\n+350 Maximum Health\nVile Decay: Dealing magic damage with abilities or passives to champions reduces their Magic Resistance by 7.5% for 6 seconds (max 30%).\nThis item greatly enhances your magic damage by gradually reducing the target's Magic Resistance whenever your abilities or passive effects deals damage. It excels in extended fights, allowing both you and your AP teammates to deals increasingly higher damage to the same target. An excellent choice for AP bruisers, damage-over-time mages, and champions who can consistently keep the debuff active on multiple enemies.",
             passivePt = "Reduces enemy's Resistência Mágica\n+350 Maximum Vida\nVile Decay: Dealing Dano Mágico with abilities or passives to campeões reduces their Resistência Mágica by 7.5% for 6 segundos (max 30%).\nThis item greatly enhances your Dano Mágico by gradually reducing the target's Resistência Mágica whenever your abilities or passive effects causam damage. It excels in extended fights, allowing both you and your AP teammates to causam increasingly higher damage to the same target. An excellent choice for AP bruisers, damage-over-time mages, and campeões who can consistently keep the debuff active on multiple enemies.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561458_bloodletters-curse.webp"
         ))
         add(WildRiftItem(
@@ -994,9 +994,9 @@ object WildRiftItemsData {
             passive = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% Daño Mágico. (30s Enfriamiento)\nIf Campeones or Monstruos are hit by more than one missile, missiles after the first will infligen only 10% damage.\nThis item combines Poder de Habilidad with extra mobility, allowing you to quickly close the gap or reposition Durante el combate. Its active otorga a short dash while firing a cone of rockets that infligen area Daño Mágico. It is an excellent choice for AP assassins, mobile mages, and engage-oriented Campeones who need to dive in, secure kills, or dodge key enemy abilities.",
             passiveEn = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% magic damage. (30s Cooldown)\nIf champions or monsters are hit by more than one missile, missiles after the first will deals only 10% damage.\nThis item combines Ability Power with extra mobility, allowing you to quickly close the gap or reposition for the combate. Its active grants a short dash while firing a cone of rockets that deals area magic damage. It is an excellent choice for AP assassins, mobile mages, and engage-oriented champions who need to dive in, secure kills, or dodge key enemy abilities.",
             passivePt = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% Dano Mágico. (30s Tempo de Recarga)\nIf campeões or monstros are hit by more than one missile, missiles after the first will causam only 10% damage.\nThis item combines Poder de Habilidade with extra mobility, allowing you to quickly close the gap or reposition por o combate. Its active concede a short dash while firing a cone of rockets that causam area Dano Mágico. It is an excellent choice for AP assassins, mobile mages, and engage-oriented campeões who need to dive in, secure kills, or dodge key enemy abilities.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389704_protobelt-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1012,9 +1012,9 @@ object WildRiftItemsData {
             passive = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Enfriamiento)\nThis item combines high Poder de Habilidad with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
             passiveEn = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)\nThis item combines high Ability Power with extra Armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea of equipo.",
             passivePt = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Tempo de Recarga)\nThis item combines high Poder de Habilidade with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your tempos de recarga to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1030,9 +1030,9 @@ object WildRiftItemsData {
             passive = "+5% Heal and Escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and infligen 10% of max as Daño Verdadero to campeones enemigos. (60s Enfriamiento)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Daño Verdadero to campeones enemigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passiveEn = "+5% Heal and Shield Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deals 10% of max as true damage to champions enemies. (60s Cooldown)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restores Health to all allied units in a large area while infligiendo true damage to champions enemies, making it a powerful tool for turning the tide of peleas of equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passivePt = "+5% Heal and escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and causam 10% of max as Dano Verdadeiro to campeões inimigos. (60s Tempo de Recarga)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Dano Verdadeiro to campeões inimigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
         ))
         add(WildRiftItem(
@@ -1048,9 +1048,9 @@ object WildRiftItemsData {
             passive = "Resurrect: Al recibir daño letal, restaura un 50% de Vida y un 100% de Maná tras 4 segundos en estasis. (180s Enfriamiento)",
             passiveEn = "Resurrect: Upon taking lethal damage, restores 50% Health and 100% Mana after 4 seconds in stasis. (180s Cooldown)",
             passivePt = "Resurrect: Ao sofrer dano letal, restaura 50% de Vida e 100% de Mana após 4 segundos em estase. (180s Tempo de Recarga)",
-            coachTip = "Este objeto es ideal para campeones que necesitan una segunda oportunidad en peleas de equipo. Es especialmente efectivo contra campeones con alto daño explosivo como Zed, Syndra, or Zoe, así como contra iniciadores agresivos como Camille, Kha'Zix, or Lee Sin. El efecto de Resurrección te permite volver al combate tras recibir daño letal, restaurando vida y maná para seguir luchando y asistir a tu equipo en momentos críticos.",
-            coachTipEn = "Ideal for carries and fighters needing a second chance in teamfights. Extremely effective against high-burst assassins (Zed, Kha'Zix) by reviving you with health and mana.",
-            coachTipPt = "Excelente para atiradores e lutadores que precisam de uma segunda chance nas lutas. Muito eficaz contra assassinos de dano explosivo (Zed, Kha'Zix), revivendo o campeão com vida e mana.",
+            coachTip = "Segunda oportunidad obligatoria para el carry principal: revive con vida y maná tras recibir daño letal, disuadiendo a los asesinos enemigos de hacerte foco directo.",
+            coachTipEn = "Mandatory second chance for primary carries: revives with health and mana upon taking lethal damage, discouraging enemy assassins from diving you.",
+            coachTipPt = "Segunda chance obrigatória para o carregador principal: revive com vida e mana ao sofrer dano letal, desestimulando assassinos inimigos a focarem você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300268_guardian-angel.webp"
         ))
         add(WildRiftItem(
@@ -1066,9 +1066,9 @@ object WildRiftItemsData {
             passive = "Inmolar: Inflige daño mágico por segundo a enemigos cercanos. Aumenta un 10% por segundo al estar en combate.",
             passiveEn = "Inmolar: deals magic damage by segundo a nearby enemies. Aumenta a 10% by segundo al estar in combate.",
             passivePt = "Inmolar: causa Dano Mágico por segundo a inimigos próximos. Aumenta um 10% por segundo al estar em combate.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Quema continuamente a los enemigos cercanos con daño mágico en área y potencia tus autoataques tras acumular calor: indispensable para limpiar oleadas y daño sostenido en tanques.",
+            coachTipEn = "Continuously scorches nearby enemies with AoE magic damage and empowers basic attacks at max heat: core for waveclear and tank DPS.",
+            coachTipPt = "Queima continuamente inimigos próximos com dano mágico em área e fortalece ataques básicos no calor máximo: essencial para limpeza de tropas e dano em tanques.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389023_yordle-sunfire-aegis.webp"
         ))
         add(WildRiftItem(
@@ -1084,9 +1084,9 @@ object WildRiftItemsData {
             passive = "Counters Golpe Crítico Damage\nResilience: Critically Struck infligen 30% less damage to you.\nCountercurrent: Gain 1 stacks of Countercurrent when Critically Struck by Daño Físico. Each stuck otorga 5% Velocidad de Movimiento and 5% Ralentización resist. Max 4 stacks.\nThis item is built to counter crit-heavy builds. It provides a large Vida pool and Armadura while reducing damage from critical strikes, making you much tougher in head-on engagements. When you are critically struck, you obtiene stacks that boost your movement and Ralentización resistance, helping you hold position and control fight spacing.  — Perfect for tanks and bruisers who need to stand up to high-crit tiradores y campeones de autoataque and survive extended peleas de equipo.",
             passiveEn = "Counters Critical Strike Damage\nResilience: Critically Struck deals 30% less damage to you.\nCountercurrent: Gain 1 stacks of Countercurrent when Critically Struck by physical damage. Each stuck grants 5% Movement Speed and 5% Ralentización resist. Max 4 stacks.\nThis item is built to counter crit-heavy builds. It provides a large Health pool and Armor while reducing damage from critical strikes, making you much tougher in head-on engagements. When you are critically struck, you obtiene stacks that boost your movement and Ralentización resistance, helping you hold position and control fight spacing. — Perfect for tanks and bruisers who need to stand up to high-crit tiradores and champions of autoataque and survive extended peleas of equipo.",
             passivePt = "Counters Acerto Crítico Damage\nResilience: Critically Struck causam 30% less damage to you.\nCountercurrent: Gain 1 stacks of Countercurrent when Critically Struck by Dano Físico. Each stuck concede 5% Velocidade de Movimento and 5% Ralentización resist. Max 4 stacks.\nThis item is built to counter crit-heavy builds. It provides a large Vida pool and Armadura while reducing damage from critical strikes, making you much tougher in head-on engagements. When you are critically struck, you obtiene stacks that boost your movement and Ralentización resistance, helping you hold position and control fight spacing. — Perfect for tanks and bruisers who need to stand up to high-crit tiradores e campeões de autoataque and survive extended peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Reduce el daño de los golpes críticos recibidos y ralentiza la velocidad de ataque del atacante: el contraataque predilecto contra tiradores como Jinx o Yasuo.",
+            coachTipEn = "Reduces incoming critical strike damage and slows the attacker's attack speed: premier counter against crit marksmen (Jinx, Yasuo).",
+            coachTipPt = "Reduz o dano sofrido de acertos críticos e diminui a velocidade de ataque do atacante: o contra-ataque ideal contra atiradores de crítico (Jinx, Yasuo).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389031_randuins-omen.webp"
         ))
         add(WildRiftItem(
@@ -1102,9 +1102,9 @@ object WildRiftItemsData {
             passive = "Thorns: When struck by an attack, infligen 20 + 6% Adicional Armadura + 1% Adicional Vida Daño Mágico to the attacker.\nEntwine: Apply 50% Heridas Graves to campeones enemigos for 3 segundo(s) when stuck by their ataques or Infligir daño to them.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item reflects a portion of incoming Daño Físico back to attackers as Daño Mágico and applies an effect that reduces enemy healing effectiveness. A strong pick versus teams with heavy auto-Daño de Ataque and sustento — iinfligen for tanks and bruisers who need to absorb focus and cut down opponent healing.",
             passiveEn = "Thorns: When struck by an attack, deals 20 + 6% Adicional Armor + 1% Adicional Health magic damage to the attacker.\nEntwine: Apply 50% Heridas Graves to champions enemies for 3 segundo(s) when stuck by their ataques or Infligir daño to them.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item reflects a portion of incoming physical damage back to attackers as magic damage and applies an effect that reduces enemy healing effectiveness. A strong pick versus teams with heavy auto-Attack Damage and sustento — iinfligen for tanks and bruisers who need to absorb focus and cut down opponent healing.",
             passivePt = "Thorns: When struck by an attack, causam 20 + 6% Adicional Armadura + 1% Adicional Vida Dano Mágico to the attacker.\nEntwine: Apply 50% Heridas Graves to campeões inimigos for 3 segundo(s) when stuck by their ataques or Infligir dano to them.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item reflects a portion of incoming Dano Físico back to attackers as Dano Mágico and applies an effect that reduces enemy healing effectiveness. A strong pick versus teams with heavy auto-Dano de Ataque and sustento — iinfligen for tanks and bruisers who need to absorb focus and cut down opponent healing.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Devuelve daño mágico a los atacantes cuando te golpean con autoataques y aplica Heridas Graves: el objeto definitivo contra tiradores y curaciones enemigas.",
+            coachTipEn = "Reflects magic damage when hit by basic attacks and applies Grievous Wounds: the definitive counter against AD carries and healing comps.",
+            coachTipPt = "Reflete dano mágico ao sofrer ataques básicos e aplica Feridas Dolorosas: o item definitivo contra atiradores e curas inimigas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389035_thornmail.webp"
         ))
         add(WildRiftItem(
@@ -1120,9 +1120,9 @@ object WildRiftItemsData {
             passive = "Warmog's Heart: If you have at least 950 Adicional Vida, restore 3.5% Vida per segundo if you haven't taken damage within the last 5 segundos.\nBlessed: Increases all healing and shielding effects on you by 30%.\nThis item is a top survivability pickup: it otorga a massive Vida pool and strong out-of-combat regeneration, letting you recover quickly between fights. It also amplifies healing and shields, making you much harder to finish off. Perfect for tanks and bruisers who need high survivability and fast recovery after engagements.",
             passiveEn = "Warmog's Heart: If you have at least 950 Adicional Health, restore 3.5% Health per segundo if you haven't taken damage within the last 5 seconds.\nBlessed: Increases all healing and shielding effects on you by 30%.\nThis item is a top survivability pickup: it grants a massive Health pool and strong out-of-combat regeneration, letting you recover quickly between fights. It also amplifies healing and shields, making you much harder to finish off. Perfect for tanks and bruisers who need high survivability and fast recovery after engagements.",
             passivePt = "Warmog's Heart: If you have at least 950 Adicional Vida, restore 3.5% Vida per segundo if you haven't taken damage within the last 5 segundos.\nBlessed: Increases all healing and shielding effects on you by 30%.\nThis item is a top survivability pickup: it concede a massive Vida pool and strong out-of-combat regeneration, letting you recover quickly between fights. It also amplifies healing and shields, making you much harder to finish off. Perfect for tanks and bruisers who need high survivability and fast recovery after engagements.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Proporciona una cantidad titánica de Vida Máxima y regenera rápidamente tu vida fuera de combate, permitiendo asediar torres sin necesidad de volver a base.",
+            coachTipEn = "Provides a colossal amount of Maximum Health and rapidly regenerates health out of combat, allowing uninterrupted sieges without recalling.",
+            coachTipPt = "Oferece uma quantidade colossal de Vida Máxima e regenera rapidamente sua vida fora de combate, permitindo cercos contínuos sem voltar à base.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389074_warmogs-armor.webp"
         ))
         add(WildRiftItem(
@@ -1138,9 +1138,9 @@ object WildRiftItemsData {
             passive = "+250 Maná Máximo\nSpellblade: Using an ability causes your next attack within 10 segundos to infligen Adicional Daño Físico equal to (100% base AD  + 25% Adicional Armadura ) in an area and creates an icy field for 2 segundos that Ralentiza by 30%. Armadura increases the size of the icy field. (1.5s Enfriamiento)\nEl daño se reduce contra estructuras.\nThis item greatly boosts your Vida, Armadura, Maná, and Aceleración de Habilidad, making you much tankier. After casting an ability, your next attack in an area inflige Adicional Daño Físico and creates an icy field that Ralentiza enemies inside by 30%. The field’s size scales with your Armadura. This makes the item a great choice for Campeones who want to combine high survivability with crowd control and extra AOE damage.",
             passiveEn = "+250 Max Mana\nSpellblade: Using an ability causes your next attack within 10 seconds to deals Adicional physical damage equal to (100% base AD + 25% Adicional Armor ) in an area and creates an icy field for 2 seconds that Ralentiza by 30%. Armor increases the size of the icy field. (1.5s Cooldown)\nEl daño se reduce against estructuras.\nThis item greatly boosts your Health, Armor, Mana, and Ability Haste, making you much tankier. After casting an ability, your next attack in an area deals Adicional physical damage and creates an icy field that Ralentiza enemies inside by 30%. The field’s size scales with your Armor. This makes the item a great choice for champions who want to combine high survivability with crowd control and extra AOE damage.",
             passivePt = "+250 Mana Máximo\nSpellblade: Using an ability causes your next attack within 10 segundos to causam Adicional Dano Físico equal to (100% base AD + 25% Adicional Armadura ) in an area and creates an icy field for 2 segundos that Ralentiza by 30%. Armadura increases the size of the icy field. (1.5s Tempo de Recarga)\nEl dano se reduce contra estructuras.\nThis item greatly boosts your Vida, Armadura, Mana, and Aceleração de Habilidade, making you much tankier. After casting an ability, your next attack in an area causa Adicional Dano Físico and creates an icy field that Ralentiza enemies inside by 30%. The field’s size scales with your Armadura. This makes the item a great choice for campeões who want to combine high survivability with crowd control and extra AOE damage.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Tras usar una habilidad, tu siguiente ataque crea un campo de hielo que ralentiza a los enemigos en área e inflige daño adicional según tu armadura.",
+            coachTipEn = "After casting a spell, your next attack creates a frosty slow zone dealing bonus AoE damage scaling with your total Armor.",
+            coachTipPt = "Após usar uma habilidade, seu próximo ataque cria um campo de gelo que causa lentidão em área e dano extra escalando com sua Armadura total.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389028_iceborn-gauntlet.webp"
         ))
         add(WildRiftItem(
@@ -1156,9 +1156,9 @@ object WildRiftItemsData {
             passive = "Relentless: +5% Velocidad de Movimiento.\nMomentum: Moverse acumula Impulso, granting up to 40 Velocidad de Movimiento at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nCrushing Blow: Los ataques infligen up to 100 Adicional Daño Mágico based on Momentum removed. Cuerpo a cuerpo ataques with max Momentum Ralentiza by 75% for 1 segundo.\niinfligen for Campeones who need to close distance and absorb damage; pairs extremely well with Spellblade items (e.g., Divine Sunderer) for additional daño explosivo damage on engage.",
             passiveEn = "Relentless: +5% Movement Speed.\nMomentum: Moverse acumula Impulso, granting up to 40 Movement Speed at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nCrushing Blow: the ataques deals up to 100 Adicional magic damage based on Momentum removed. melee ataques with max Momentum Ralentiza by 75% for 1 segundo.\niinfligen for champions who need to close distance and absorb damage; pairs extremely well with Spellblade items (e.g., Divine Sunderer) for additional daño explosivo damage on engage.",
             passivePt = "Relentless: +5% Velocidade de Movimento.\nMomentum: Moverse acumula Impulso, granting up to 40 Velocidade de Movimento at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nCrushing Blow: os ataques causam up to 100 Adicional Dano Mágico based on Momentum removed. corpo a corpo ataques with max Momentum Ralentiza by 75% for 1 segundo.\niinfligen for campeões who need to close distance and absorb damage; pairs extremely well with Spellblade items (e.g., Divine Sunderer) for additional dano explosivo damage on engage.",
-            coachTip = "Este objeto otorga a substantial boost to Vida and Armadura, and its “Momentum” passive builds Velocidad de Movimiento as you move—up to a cap—until you land an attack, which then triggers “Crushing Blow”, dealing Adicional Daño Mágico based on the momentum removed and ralentizacióning enemies at full stacks. This makes it an excellent choice for tanks and bruisers who need extra mobility to iniciación quickly and sustento y curación through fights.",
-            coachTipEn = "Este objeto grants a substantial boost to Health and Armor, and its “Momentum” passive builds Movement Speed as you move—up to a cap—until you land an attack, which then triggers “Crushing Blow”, dealing Adicional magic damage based on the momentum removed and ralentizacióning enemies at full stacks. This makes it an excellent choice for tanks and bruisers who need extra mobility to iniciación quickly and sustento and curación through fights.",
-            coachTipPt = "Este objeto concede a substantial boost to Vida and Armadura, and its “Momentum” passive builds Velocidade de Movimento as you move—up to a cap—until you land an attack, which then triggers “Crushing Blow”, dealing Adicional Dano Mágico based on the momentum removed and ralentizacióning enemies at full stacks. This makes it an excellent choice for tanks and bruisers who need extra mobility to iniciación quickly and sustento e curación through fights.",
+            coachTip = "Acumula velocidad de movimiento mientras te desplazas y desata un golpe ralentizador contundente: ideal para tanques de iniciación y rotaciones rápidas.",
+            coachTipEn = "Builds up momentum while moving and unleashes a heavy crushing strike that slows: ideal for engage tanks and speedy map roams.",
+            coachTipPt = "Acumula velocidade de movimento ao se deslocar e desfere um golpe devastador com lentidão: ideal para tanques de iniciação e rotações rápidas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389106_dead-mans-plate.webp"
         ))
         add(WildRiftItem(
@@ -1174,9 +1174,9 @@ object WildRiftItemsData {
             passive = "Boosts allies Daño de Ataque\n+150 Maná Máximo\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 segundos. Your blizzard inflige a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied Campeones on the trail obtiene 40 Adicional Velocidad de Movimiento for 1 segundo. (30s Enfriamiento)",
             passiveEn = "Boosts allies Attack Damage\n+150 Max Mana\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 seconds. Your blizzard deals a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied champions on the trail obtiene 40 Adicional Movement Speed for 1 segundo. (30s Cooldown)",
             passivePt = "Boosts allies Dano de Ataque\n+150 Mana Máximo\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 segundos. Your blizzard causa a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied campeões on the trail obtiene 40 Adicional Velocidade de Movimento for 1 segundo. (30s Tempo de Recarga)",
-            coachTip = "Este objeto es ideal para tanky support campeones who initiate fights and provide línea frontal crowd control. It grants Armadura, Vida, Maná, and Aceleración de Habilidad. When you cast your ultimate, an icy blizzard surrounds you, Infligir daño and ralentizacióning enemies, while leaving a trail that grants Adicional Velocidad de Movimiento to allies. During the effect, the attacks of a nearby marked ally deal additional Daño Mágico, giving your team a powerful advantage in peleas de equipo.",
-            coachTipEn = "Este objeto es ideal for tanky support champions who initiate fights and provide línea frontal crowd control. It grants Armor, Health, Mana, and Ability Haste. When you cast your ultimate, an icy blizzard surrounds you, Infligir daño and ralentizacióning enemies, while leaving a trail that grants Adicional Movement Speed to allies. During the effect, the attacks of a nearby marked ally deal additional magic damage, giving your team a powerful advantage in peleas of equipo.",
-            coachTipPt = "Este objeto es ideal para tanky support campeões who initiate fights and provide línea frontal crowd control. It grants Armadura, Vida, Mana, and Aceleração de Habilidade. When you cast your ultimate, an icy blizzard surrounds you, Infligir dano and ralentizacióning enemies, while leaving a trail that grants Adicional Velocidade de Movimento to allies. During the effect, the attacks of a nearby marked ally deal additional Dano Mágico, giving your team a powerful advantage in peleas de equipo.",
+            coachTip = "Al usar tu definitiva, creas una tormenta de nieve y fuego a tu alrededor que ralentiza y quema a los enemigos, potenciando los ataques de tu tirador aliado.",
+            coachTipEn = "Casting your ultimate creates an icy/blazing blizzard around you that slows and burns enemies while empowering your linked ally's attacks.",
+            coachTipPt = "Ao usar sua ultimate, cria uma tempestade de gelo e fogo ao seu redor que causa lentidão e queima inimigos, fortalecendo os ataques do atirador aliado.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp"
         ))
         add(WildRiftItem(
@@ -1192,9 +1192,9 @@ object WildRiftItemsData {
             passive = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restaura 8% of your maximum Vida over 2 segundos.\nCauterize: 27% of all Daño Físico and Daño Mágico received (12% for A distancia Campeones) is infligent to you over 3 segundos as Daño Verdadero instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armadura and Aceleración de Habilidad, and successful takedowns cleanse the delayed damage while instantly healing you.  — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
             passiveEn = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restores 8% of your maximum Health over 2 seconds.\nCauterize: 27% of all physical damage and magic damage received (12% for ranged champions) is infligent to you over 3 seconds as true damage instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armor and Ability Haste, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
             passivePt = "Defy: Campeón takedowns cleanse Cauterize's remaining damage pool and restaura 8% of your maximum Vida over 2 segundos.\nCauterize: 27% of all Dano Físico and Dano Mágico received (12% for à distância campeões) is infligent to you over 3 segundos as Dano Verdadeiro instead.\nThis item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with Armadura and Aceleração de Habilidade, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Vital para sobrevivir en peleas prolongadas: convierte el daño recibido en un sangrado a lo largo del tiempo y purga dicho sangrado al conseguir un derribo, curándote un porcentaje de tu vida.",
+            coachTipEn = "Vital for surviving extended skirmishes: buffers incoming damage into a bleed over time and purges it on takedown, healing a portion of your max health.",
+            coachTipPt = "Vital para sobreviver a lutas prolongadas: converte o dano sofrido em sangramento ao longo do tempo e purga esse sangramento ao participar de abates, curando você.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301539_yordle-deaths-dance.webp"
         ))
         add(WildRiftItem(
@@ -1228,9 +1228,9 @@ object WildRiftItemsData {
             passive = "Stacking Resistencia Mágica and Velocidad de Movimiento\nAbsorb: Taking ability damage from campeones enemigos otorga 1 stack(s) of Steadfast for 7 segundos, max 4 stacks. Receiving damage from an campeón enemigo will refresh the duration of the stacks. At maximum stacks, obtiene 10% Velocidad de Movimiento and reduce all incoming Daño Mágico by 20%.",
             passiveEn = "Stacking Magic Resistance and Movement Speed\nAbsorb: Taking ability damage from champions enemies grants 1 stack(s) of Steadfast for 7 seconds, max 4 stacks. Receiving damage from an campeón enemigo will refresh the duration of the stacks. At maximum stacks, obtiene 10% Movement Speed and reduce all incoming magic damage by 20%.",
             passivePt = "Stacking Resistência Mágica and Velocidade de Movimento\nAbsorb: Taking ability damage from campeões inimigos concede 1 stack(s) of Steadfast for 7 segundos, max 4 stacks. Receiving damage from an campeón enemigo will refresh the duration of the stacks. At maximum stacks, obtiene 10% Velocidade de Movimento and reduce all incoming Dano Mágico by 20%.",
-            coachTip = "Este objeto otorga a substantial boost to Vida and Resistencia Mágica, and its “Absorb” passive stacks up when you take ability damage from campeones enemigos, reducing all incoming Daño Mágico and granting Adicional Velocidad de Movimiento at max stacks. It’s perfect for tanks who need to withstand teams heavy in Daño Mágico and maintain mobility to be in the right position during fights. Pick this up when the enemy team builds Daño Mágico (e.g., Syndra, Brand) and you need extra Velocidad de Movimiento to initiate effectively or escape dangerous situations.",
-            coachTipEn = "Este objeto grants a substantial boost to Health and Magic Resistance, and its “Absorb” passive stacks up when you take ability damage from champions enemies, reducing all incoming magic damage and granting Adicional Movement Speed at max stacks. It’s perfect for tanks who need to withstand teams heavy in magic damage and maintain mobility to be in the right position during fights. Pick this up when the enemy team builds magic damage (e.g., Syndra, Brand) and you need extra Movement Speed to initiate effectively or escape dangerous situations.",
-            coachTipPt = "Este objeto concede a substantial boost to Vida and Resistência Mágica, and its “Absorb” passive stacks up when you take ability damage from campeões inimigos, reducing all incoming Dano Mágico and granting Adicional Velocidade de Movimento at max stacks. It’s perfect for tanks who need to withstand teams heavy in Dano Mágico and maintain mobility to be in the right position during fights. Pick this up when the enemy team builds Dano Mágico (e.g., Syndra, Brand) and you need extra Velocidade de Movimento to initiate effectively or escape dangerous situations.",
+            coachTip = "Otorga enorme Resistencia Mágica y velocidad de movimiento acumulativa al recibir daño mágico continuo: la mejor respuesta contra magos de daño en el tiempo (Brand, Teemo, Aurelion Sol).",
+            coachTipEn = "Grants massive Magic Resistance and stacking movement speed upon taking magic damage: best answer against DoT mages (Brand, Teemo, Aurelion Sol).",
+            coachTipPt = "Concede alta Resistência Mágica e velocidade de movimento ao sofrer dano mágico contínuo: melhor resposta contra magos de dano contínuo (Brand, Teemo, Aurelion Sol).",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389153_force-of-nature.webp"
         ))
         add(WildRiftItem(
@@ -1246,9 +1246,9 @@ object WildRiftItemsData {
             passive = "+250 Maná Máximo\nWinter's Caress: ataques básicos and Daño Mágico caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 segundos. Each stack of Chill Ralentiza enemy Velocidad de Ataque by 9%, up to a maximum of 4 stacks or 36% Velocidad de Ataque reduction. Each individual ability has a 3 segundos Enfriamiento on applying Chill stacks.\nThis item is iinfligen for tanks and support Campeones who need to Ralentización enemy Velocidad de Ataque and maintain a healthy Maná pool. It provides substantial bonuses to Armadura, Maná, and Aceleración de Habilidad. The “Winter’s Caress” passive applies up to four stacks of Chill on campeones enemigos through your ataques básicos, abilities, or any Daño Mágico they take—each stack Ralentiza their Velocidad de Ataque by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to infligen sustained damage in fights.",
             passiveEn = "+250 Max Mana\nWinter's Caress: ataques básicos and magic damage caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 seconds. Each stack of Chill Ralentiza enemy Attack Speed by 9%, up to a maximum of 4 stacks or 36% Attack Speed reduction. Each individual ability has a 3 seconds Cooldown on applying Chill stacks.\nThis item is iinfligen for tanks and support champions who need to Ralentización enemy Attack Speed and maintain a healthy Mana pool. It provides substantial bonuses to Armor, Mana, and Ability Haste. The “Winter’s Caress” passive applies up to four stacks of Chill on champions enemies through your ataques básicos, abilities, or any magic damage they take—each stack Ralentiza their Attack Speed by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to deals sustained damage in fights.",
             passivePt = "+250 Mana Máximo\nWinter's Caress: ataques básicos and Dano Mágico caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 segundos. Each stack of Chill Ralentiza enemy Velocidade de Ataque by 9%, up to a maximum of 4 stacks or 36% Velocidade de Ataque reduction. Each individual ability has a 3 segundos Tempo de Recarga on applying Chill stacks.\nThis item is iinfligen for tanks and support campeões who need to Ralentización enemy Velocidade de Ataque and maintain a healthy Mana pool. It provides substantial bonuses to Armadura, Mana, and Aceleração de Habilidade. The “Winter’s Caress” passive applies up to four stacks of Chill on campeões inimigos through your ataques básicos, abilities, or any Dano Mágico they take—each stack Ralentiza their Velocidade de Ataque by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to causam sustained damage in fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389159_frozen-heart.webp"
         ))
         add(WildRiftItem(
@@ -1318,9 +1318,9 @@ object WildRiftItemsData {
             passive = "Fiery Touch: After Infligir daño with an attack or ability, burn target for 3 segundos, infligiendo 1.4% of the target’s maximum Vida as Daño Mágico per segundo (damage reduced to 0.8% for A distancia users).\nDeals 150% damage to Súbditos and Monstruos.\nMaximum 125 damage to Monstruos.",
             passiveEn = "Fiery Touch: After Infligir daño with an attack or ability, burn target for 3 seconds, infligiendo 1.4% of the target’s maximum Health as magic damage per segundo (damage reduced to 0.8% for ranged users).\nDeals 150% damage to minions and monsters.\nMaximum 125 damage to monsters.",
             passivePt = "Fiery Touch: After Infligir dano with an attack or ability, burn target for 3 segundos, infligiendo 1.4% of the target’s maximum Vida as Dano Mágico per segundo (damage reduced to 0.8% for à distância users).\nDeals 150% damage to tropas and monstros.\nMaximum 125 damage to monstros.",
-            coachTip = "Este objeto es ideal para campeones who want to combine high survivability with Adicional Vida-percentage damage. It provides a substantial boost to Vida and Armadura, and its “Fiery Touch” passive burns targets on hit with attacks or abilities, dealing Daño Mágico equal to a percentage of their maximum Vida. This makes it effective against tanks and high-Vida campeones, while also speeding up waveclear and jungle clear. Ideal for tanks and bruisers who want to leave a mark in fights while staying durable.",
-            coachTipEn = "Este objeto es ideal for champions who want to combine high survivability with Adicional Health-percentage damage. It provides a substantial boost to Health and Armor, and its “Fiery Touch” passive burns targets on hit with attacks or abilities, dealing magic damage equal to a percentage of their maximum Health. This makes it effective against tanks and high-Health champions, while also speeding up waveclear and jungle clear. Ideal for tanks and bruisers who want to leave a mark in fights while staying durable.",
-            coachTipPt = "Este objeto es ideal para campeões who want to combine high survivability with Adicional Vida-percentage damage. It provides a substantial boost to Vida and Armadura, and its “Fiery Touch” passive burns targets on hit with attacks or abilities, dealing Dano Mágico equal to a percentage of their maximum Vida. This makes it effective against tanks and high-Vida campeões, while also speeding up waveclear and jungle clear. Ideal for tanks and bruisers who want to leave a mark in fights while staying durable.",
+            coachTip = "Quema a los enemigos con daño mágico según su vida máxima al usar ataques o habilidades: excelente opción ofensiva para tanques de primera línea.",
+            coachTipEn = "Burns enemies for max HP magic damage upon landing attacks or abilities: outstanding offensive choice for frontline brawlers.",
+            coachTipPt = "Queima inimigos com dano mágico percentual da vida máxima ao usar ataques ou magias: excelente opção ofensiva para tanques de linha de frente.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389203_searing-crown.webp"
         ))
         add(WildRiftItem(
@@ -1336,9 +1336,9 @@ object WildRiftItemsData {
             passive = "Consumo Colosal: Carga un golpe devastador contra un campeón dentro de 700 unidades. Inflige 120 + 5% de vida máxima y otorga vida máxima permanente equivalente al 10% del daño infligido.",
             passiveEn = "Consumo Colosal: Carga a golpe devastador against a campeón dentro of 700 unidades. deals 120 + 5% of Max Health and grants Max Health permanente equivalente al 10% del daño infligido.",
             passivePt = "Consumo Colosal: Carga um golpe devastador contra um campeón dentro de 700 unidades. causa 120 + 5% de Vida Máxima e concede Vida Máxima permanente equivalente al 10% del dano infligido.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Acumula Vida Máxima permanente al golpear a campeones enemigos cada pocos segundos: escala infinitamente para colosos y tanques en partidas largas.",
+            coachTipEn = "Stacks permanent Maximum Health on heavy strikes against enemy champions every few seconds: scales infinitely for tanks in late game.",
+            coachTipPt = "Acumula Vida Máxima permanente em ataques pesados contra campeões a cada poucos segundos: escala infinitamente para tanques no fim de jogo.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389201_heartsteel.webp"
         ))
         add(WildRiftItem(
@@ -1372,9 +1372,9 @@ object WildRiftItemsData {
             passive = "+5% Heal and Escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and infligen 10% of max as Daño Verdadero to campeones enemigos. (60s Enfriamiento)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Daño Verdadero to campeones enemigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passiveEn = "+5% Heal and Shield Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deals 10% of max as true damage to champions enemies. (60s Cooldown)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restores Health to all allied units in a large area while infligiendo true damage to champions enemies, making it a powerful tool for turning the tide of peleas of equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passivePt = "+5% Heal and escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and causam 10% of max as Dano Verdadeiro to campeões inimigos. (60s Tempo de Recarga)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Dano Verdadeiro to campeões inimigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
         ))
         add(WildRiftItem(
@@ -1408,9 +1408,9 @@ object WildRiftItemsData {
             passive = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Velocidad de Movimiento for 3 segundo(s) and mark the target, reducing their Armadura and Resistencia Mágica by 5–12 for 8 segundo(s). If the target dies while they are marked, their death otorga 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for Campeones with displacement abilities and strong engage tools. Successfully displacing an enemy otorga you Adicional Velocidad de Movimiento while marking the target, reducing their Armadura and Resistencia Mágica to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola de nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
             passiveEn = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Movement Speed for 3 segundo(s) and mark the target, reducing their Armor and Magic Resistance by 5–12 for 8 segundo(s). If the target dies while they are marked, their death grants 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for champions with displacement abilities and strong engage tools. Successfully displacing an enemy grants you Adicional Movement Speed while marking the target, reducing their Armor and Magic Resistance to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola of nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
             passivePt = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Velocidade de Movimento for 3 segundo(s) and mark the target, reducing their Armadura and Resistência Mágica by 5–12 for 8 segundo(s). If the target dies while they are marked, their death concede 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for campeões with displacement abilities and strong engage tools. Successfully displacing an enemy concede you Adicional Velocidade de Movimento while marking the target, reducing their Armadura and Resistência Mágica to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola de nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389328_yordle-trap.webp"
         ))
         add(WildRiftItem(
@@ -1426,9 +1426,9 @@ object WildRiftItemsData {
             passive = "Heal allies upon casting your ultimate ability.\nGuiding Light: Upon casting your ultimate ability, you Transcend, increasing your Vida Máxima by 10% durante 6s. While Transcended, allied Campeones within 1,200 units of you heal for 2.5% of your Vida Máxima per segundo over the duration. (60s Enfriamiento) If you're a A distancia Campeón, heals granted are reduced by 50%.\nThis item boosts your durability by granting extra Vida Máxima, Armadura, and Aceleración de Habilidad. Its passive causes you to transcend after casting your ultimate: you temporarily raise your Vida Máxima, and nearby allies are healed based on that boosted Vida. The healing is reduced for A distancia Campeones. A strong pick for frontliners and supports who want to survive engages while providing teamwide sustento during fights.",
             passiveEn = "Heal allies upon casting your ultimate ability.\nGuiding Light: Upon casting your ultimate ability, you Transcend, increasing your Max Health by 10% for 6s. While Transcended, allied champions within 1,200 units of you heal for 2.5% of your Max Health per segundo over the duration. (60s Cooldown) If you're a ranged Campeón, heals granted are reduced by 50%.\nThis item boosts your durability by granting extra Max Health, Armor, and Ability Haste. Its passive causes you to transcend after casting your ultimate: you temporarily raise your Max Health, and nearby allies are healed based on that boosted Health. The healing is reduced for ranged champions. A strong pick for frontliners and supports who want to survive engages while providing teamwide sustento during fights.",
             passivePt = "Heal allies upon casting your ultimate ability.\nGuiding Light: Upon casting your ultimate ability, you Transcend, increasing your Vida Máxima by 10% por 6s. While Transcended, allied campeões within 1,200 units of you heal for 2.5% of your Vida Máxima per segundo over the duration. (60s Tempo de Recarga) If you're a à distância Campeón, heals granted are reduced by 50%.\nThis item boosts your durability by granting extra Vida Máxima, Armadura, and Aceleração de Habilidade. Its passive causes you to transcend after casting your ultimate: you temporarily raise your Vida Máxima, and nearby allies are healed based on that boosted Vida. The healing is reduced for à distância campeões. A strong pick for frontliners and supports who want to survive engages while providing teamwide sustento during fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1760128035_radiant-virtue.webp"
         ))
         add(WildRiftItem(
@@ -1444,9 +1444,9 @@ object WildRiftItemsData {
             passive = "Reduces the Resistencia Mágica of nearby enemies and increases yours\nUnmake: Curse campeones enemigos within 600 units, reducing their Resistencia Mágica by 5 plus 1.2% Adicional, up to 25 Resistencia Mágica. For each campeón enemigo cursed, obtiene 9 Adicional Resistencia Mágica.\nThis item is a solid anti-magic pickup: it boosts your Resistencia Mágica while reducing the Resistencia Mágica of nearby enemies, making them easier to shred with spell damage. Great for tanks and frontliners who need to both soak Daño Mágico and amplify their team’s ability to take down AP threats and durable targets.",
             passiveEn = "Reduces the Magic Resistance of nearby enemies and increases yours\nUnmake: Curse champions enemies within 600 units, reducing their Magic Resistance by 5 plus 1.2% Adicional, up to 25 Magic Resistance. For each campeón enemigo cursed, obtiene 9 Adicional Magic Resistance.\nThis item is a solid anti-magic pickup: it boosts your Magic Resistance while reducing the Magic Resistance of nearby enemies, making them easier to shred with spell damage. Great for tanks and frontliners who need to both soak magic damage and amplify their team’s ability to take down AP threats and durable targets.",
             passivePt = "Reduces the Resistência Mágica of nearby enemies and increases yours\nUnmake: Curse campeões inimigos within 600 units, reducing their Resistência Mágica by 5 plus 1.2% Adicional, up to 25 Resistência Mágica. For each campeón enemigo cursed, obtiene 9 Adicional Resistência Mágica.\nThis item is a solid anti-magic pickup: it boosts your Resistência Mágica while reducing the Resistência Mágica of nearby enemies, making them easier to shred with spell damage. Great for tanks and frontliners who need to both soak Dano Mágico and amplify their team’s ability to take down AP threats and durable targets.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Aura mágica que aumenta el daño mágico que reciben los enemigos cercanos y restaura maná al recibir daño: perfecta para tanques con daño mágico (Amumu, Nautilus, Malphite).",
+            coachTipEn = "Magic aura increasing magic damage taken by nearby enemies while restoring mana upon taking damage: ideal for AP tanks (Amumu, Nautilus, Malphite).",
+            coachTipPt = "Aura mágica que aumenta o dano mágico sofrido por inimigos próximos e restaura mana ao sofrer dano: perfeita para tanques com dano mágico (Amumu, Nautilus, Malphite).",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767912720_abyssal-mask.webp"
         ))
         add(WildRiftItem(
@@ -1480,9 +1480,9 @@ object WildRiftItemsData {
             passive = "Pledge: While En combate, infligen Daño Mágico equal to 20–30 plus 1% of Adicional Vida per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest Monstruos and 200% damage aobtienest Súbditos.\nSacrifice: Killing a neutral monster or an enemy inflige Daño Mágico equal to 30 plus 2% of Adicional Vida in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally inflige damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea de equipo presence.",
             passiveEn = "Pledge: While in combate, deals magic damage equal to 20–30 plus 1% of Adicional Health per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest monsters and 200% damage aobtienest minions.\nSacrifice: Killing a neutral monster or an enemy deals magic damage equal to 30 plus 2% of Adicional Health in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally deals damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea of equipo presence.",
             passivePt = "Pledge: While em combate, causam Dano Mágico equal to 20–30 plus 1% of Adicional Vida per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest monstros and 200% damage aobtienest tropas.\nSacrifice: Killing a neutral monster or an enemy causa Dano Mágico equal to 30 plus 2% of Adicional Vida in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally causa damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea de equipo presence.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Te vincula a un aliado clave: redirige parte del daño que recibe hacia ti y te cura en base al daño que él inflija. Fundamental para proteger a tu carry.",
+            coachTipEn = "Bonds with a priority ally: redirects a portion of damage they take to you and heals you based on damage they deal. Core for carry protection.",
+            coachTipPt = "Liga você a um aliado prioritário: redireciona parte do dano que ele sofre para você e cura com base no dano que ele causar. Essencial para proteger seu carregador.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767914013_3109_11zon.webp"
         ))
         add(WildRiftItem(
@@ -1498,9 +1498,9 @@ object WildRiftItemsData {
             passive = "Gain Daño de Ataque when losing Vida\nTyranny: Gain Daño de Ataque equal to 2.5% of your Adicional Vida.\nRetribution: Gain up to 9% increased Daño de Ataque based on your missing Vida. Maximum Retribution Adicional while below 30% Vida.\nThis item converts Adicional Vida into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Vida and embrace high-risk, high-reward skirmishes: the more Adicional Vida you have, the stronger your raw ataques become, and when you fight at low Vida you infligen amplified damage. Great for aggressive duelists who win trades by trading survivability for daño explosivo.",
             passiveEn = "Gain Attack Damage when losing Health\nTyranny: Gain Attack Damage equal to 2.5% of your Adicional Health.\nRetribution: Gain up to 9% increased Attack Damage based on your missing Health. Maximum Retribution Adicional while below 30% Health.\nThis item converts Adicional Health into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Health and embrace high-risk, high-reward skirmishes: the more Adicional Health you have, the stronger your raw ataques become, and when you fight at low Health you deals amplified damage. Great for aggressive duelists who win trades by trading survivability for daño explosivo.",
             passivePt = "Gain Dano de Ataque when losing Vida\nTyranny: Gain Dano de Ataque equal to 2.5% of your Adicional Vida.\nRetribution: Gain up to 9% increased Dano de Ataque based on your missing Vida. Maximum Retribution Adicional while below 30% Vida.\nThis item converts Adicional Vida into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack Vida and embrace high-risk, high-reward skirmishes: the more Adicional Vida you have, the stronger your raw ataques become, and when you fight at low Vida you causam amplified damage. Great for aggressive duelists who win trades by trading survivability for dano explosivo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Convierte tu vida máxima adicional en daño de ataque masivo, aumentando aún más el daño cuando tu vida baja: brutal para tanques y colosos con mucha vida.",
+            coachTipEn = "Converts bonus maximum health into massive bonus AD, ramping up further at low health: devastating for high-health tanks and bruisers.",
+            coachTipPt = "Converte vida máxima adicional em muito Dano de Ataque, aumentando ainda mais com vida baixa: devastador para tanques e colossos.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630274_overlords-bloodmail.webp"
         ))
         add(WildRiftItem(
@@ -1552,9 +1552,9 @@ object WildRiftItemsData {
             passive = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Enfriamiento)\nThis item combines high Poder de Habilidad with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
             passiveEn = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)\nThis item combines high Ability Power with extra Armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea of equipo.",
             passivePt = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Tempo de Recarga)\nThis item combines high Poder de Habilidade with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your tempos de recarga to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1570,9 +1570,9 @@ object WildRiftItemsData {
             passive = "Escudo\nStoneplate (Active): Gain a base Escudo that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Enfriamiento)\nThis item greatly increases your survivability during peleas de equipo. Its active otorga a powerful Escudo that scales with your Adicional Vida, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
             passiveEn = "Shield\nStoneplate (Active): Gain a base Shield that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Cooldown)\nThis item greatly increases your survivability during peleas of equipo. Its active grants a powerful Shield that scales with your Adicional Health, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
             passivePt = "escudo\nStoneplate (Active): Gain a base escudo that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Tempo de Recarga)\nThis item greatly increases your survivability during peleas de equipo. Its active concede a powerful escudo that scales with your Adicional Vida, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1588,9 +1588,9 @@ object WildRiftItemsData {
             passive = "Kill Súbditos to earn Adicional gold\nSoulcast: Every 60 segundos, obtienes 75 gold, 25 Vida and 2 Daño de Ataque, or 4 Poder de Habilidad (Adaptive); up to 250 Vida and 20 Daño de Ataque or 40 Poder de Habilidad (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera de combate, obtiene 10% Velocidad de Movimiento when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players and otorga passive gold income every 60 segundos along with Soulforce stacks that boost your Vida, Daño de Ataque, or Poder de Habilidad. At 10 stacks, you obtiene a significant adaptive stat Adicional. While it reduces gold from killing Súbditos and Monstruos, it accelerates your team’s economic pace. An additional effect inflige extra damage to revealed Sight Wards, making it easier to clear vision and maintain map control.",
             passiveEn = "Kill minions to earn Adicional gold\nSoulcast: Every 60 seconds, obtienes 75 gold, 25 Health and 2 Attack Damage, or 4 Ability Power (Adaptive); up to 250 Health and 20 Attack Damage or 40 Ability Power (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera of combate, obtiene 10% Movement Speed when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players and grants passive gold income every 60 seconds along with Soulforce stacks that boost your Health, Attack Damage, or Ability Power. At 10 stacks, you obtiene a significant adaptive stat Adicional. While it reduces gold from killing minions and monsters, it accelerates your team’s economic pace. An additional effect deals extra damage to revealed Sight Wards, making it easier to clear vision and maintain map control.",
             passivePt = "Kill tropas to earn Adicional gold\nSoulcast: Every 60 segundos, obtienes 75 gold, 25 Vida and 2 Dano de Ataque, or 4 Poder de Habilidade (Adaptive); up to 250 Vida and 20 Dano de Ataque or 40 Poder de Habilidade (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera de combate, obtiene 10% Velocidade de Movimento when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players and concede passive gold income every 60 segundos along with Soulforce stacks that boost your Vida, Dano de Ataque, or Poder de Habilidade. At 10 stacks, you obtiene a significant adaptive stat Adicional. While it reduces gold from killing tropas and monstros, it accelerates your team’s economic pace. An additional effect causa extra damage to revealed Sight Wards, making it easier to clear vision and maintain map control.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de soporte: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for soporte: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de soporte: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389518_bulwark-of-the-mountain.webp"
         ))
         add(WildRiftItem(
@@ -1606,9 +1606,9 @@ object WildRiftItemsData {
             passive = "Versatile: Gain 14 Daño de Ataque or 28 Poder de Habilidad (Adaptive).\nSoulcast: Every 60 segundos, obtienes 75 gold, 25 Vida and 2 Daño de Ataque, or 4 Poder de Habilidad (Adaptive); up to 250 Vida and 20 Daño de Ataque, or 40 Poder de Habilidad (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera de combate, obtiene 10% Velocidad de Movimiento when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players, granting passive bonuses to gold and stats. It reduces your gold from killing Súbditos and Monstruos but provides 75 gold and 1 Soulforce stack every 60 segundos. Each Soulforce stack adaptively otorga Vida, Daño de Ataque, or Poder de Habilidad, and at 10 stacks you obtiene a significant Adicional to one of these stats. The item also increases your effectiveness in clearing vision by infligiendo extra damage to revealed enemy wards.  Iinfligen for map-control–focused supports who want to help their team without worrying about farming; you’ll steadily generate resources and strengthen your utility for both protect and peel.",
             passiveEn = "Versatile: Gain 14 Attack Damage or 28 Ability Power (Adaptive).\nSoulcast: Every 60 seconds, obtienes 75 gold, 25 Health and 2 Attack Damage, or 4 Ability Power (Adaptive); up to 250 Health and 20 Attack Damage, or 40 Ability Power (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera of combate, obtiene 10% Movement Speed when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players, granting passive bonuses to gold and stats. It reduces your gold from killing minions and monsters but provides 75 gold and 1 Soulforce stack every 60 seconds. Each Soulforce stack adaptively grants Health, Attack Damage, or Ability Power, and at 10 stacks you obtiene a significant Adicional to one of these stats. The item also increases your effectiveness in clearing vision by infligiendo extra damage to revealed enemy wards. Iinfligen for map-control–focused supports who want to help their team without worrying about farming; you’ll steadily generate resources and strengthen your utility for both protect and peel.",
             passivePt = "Versatile: Gain 14 Dano de Ataque or 28 Poder de Habilidade (Adaptive).\nSoulcast: Every 60 segundos, obtienes 75 gold, 25 Vida and 2 Dano de Ataque, or 4 Poder de Habilidade (Adaptive); up to 250 Vida and 20 Dano de Ataque, or 40 Poder de Habilidade (Adaptive).\nDeal 2 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom. When fuera de combate, obtiene 10% Velocidade de Movimento when you move toward your Perfect Partner. If you're more than 2,500 units apart, this Adicional increases to 30%.\nThis item is designed for support players, granting passive bonuses to gold and stats. It reduces your gold from killing tropas and monstros but provides 75 gold and 1 Soulforce stack every 60 segundos. Each Soulforce stack adaptively concede Vida, Dano de Ataque, or Poder de Habilidade, and at 10 stacks you obtiene a significant Adicional to one of these stats. The item also increases your effectiveness in clearing vision by infligiendo extra damage to revealed enemy wards. Iinfligen for map-control–focused supports who want to help their team without worrying about farming; you’ll steadily generate resources and strengthen your utility for both protect and peel.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de soporte: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for soporte: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de soporte: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389555_black-mist-scythe.webp"
         ))
         add(WildRiftItem(
@@ -1624,9 +1624,9 @@ object WildRiftItemsData {
             passive = "Daño Mágico reduces enemy healing\nAffliction: Dealing Daño Mágico to campeones enemigos inflicts 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter Campeones with strong healing and sustento. Any Daño Mágico you infligen applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
             passiveEn = "magic damage reduces enemy healing\nAffliction: Dealing magic damage to champions enemies inflicts 50% Heridas Graves for 3 seconds.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter champions with strong healing and sustento. Any magic damage you deals applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
             passivePt = "Dano Mágico reduces enemy healing\nAffliction: Dealing Dano Mágico to campeões inimigos inflicts 50% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.\nThis item is designed to counter campeões with strong healing and sustento. Any Dano Mágico you causam applies Heridas Graves, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports aobtienest teams that rely heavily on healing, lifesteal, or regeneration.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Aplica Heridas Graves (anti-curación) con cualquier daño mágico: obligatorio contra campeones de alta regeneración o curanderos aliados.",
+            coachTipEn = "Applies Grievous Wounds (anti-healing) with any magic damage: mandatory against high-sustain champions or healer supports.",
+            coachTipPt = "Aplica Feridas Dolorosas (corta-cura) com qualquer dano mágico: obrigatório contra campeões de alta regeneração ou suportes de cura.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp"
         ))
         add(WildRiftItem(
@@ -1642,9 +1642,9 @@ object WildRiftItemsData {
             passive = "+5% Heal and Escudo Strength\nCenser: When you heal or Escudo, an allied Campeón other than yourself, they obtiene 15-34% Velocidad de Ataque and their Los ataques infligen 16-22 Adicional Daño Mágico. for 6 segundos. This damage can asestar un Golpe Crítico.\nThis item enhances your heals and shields, granting shielded allies increased Velocidad de Ataque and Adicional Daño Mágico on their ataques for a short duration. Perfect for enchanter supports who want to protect and empower their carries when it matters most.",
             passiveEn = "+5% Heal and Shield Strength\nCenser: When you heal or Shield, an allied Campeón other than yourself, they obtiene 15-34% Attack Speed and their the ataques deals 16-22 Adicional magic damage. for 6 seconds. This damage can asestar a Critical Strike.\nThis item enhances your heals and shields, granting shielded allies increased Attack Speed and Adicional magic damage on their ataques for a short duration. Perfect for enchanter supports who want to protect and empower their carries when it matters most.",
             passivePt = "+5% Heal and escudo Strength\nCenser: When you heal or escudo, an allied Campeón other than yourself, they obtiene 15-34% Velocidade de Ataque and their os ataques causam 16-22 Adicional Dano Mágico. for 6 segundos. This damage can asestar um Acerto Crítico.\nThis item enhances your heals and shields, granting shielded allies increased Velocidade de Ataque and Adicional Dano Mágico on their ataques for a short duration. Perfect for enchanter supports who want to protect and empower their carries when it matters most.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Curar o escudar a un aliado le otorga velocidad de ataque y daño mágico adicional al impactar con autoataques: indispensable para potenciar a tu tirador.",
+            coachTipEn = "Healing or shielding an ally grants them bonus Attack Speed and on-hit magic damage: essential for hyper-carrying marksmen.",
+            coachTipPt = "Curar ou conceder escudo a um aliado dá a ele Velocidade de Ataque bônus e dano mágico ao contato: indispensável para potencializar seu atirador.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388425_ardent-censer.webp"
         ))
         add(WildRiftItem(
@@ -1660,9 +1660,9 @@ object WildRiftItemsData {
             passive = "+300 Maná Máximo\n+5% Heal and Escudo Strength\nHarmonic Echo: Moving and casting abilities builds Harmony. At 100 Harmony your next healing or shielding ability on an ally restore an additional equal to (100-160 () + 15% AP) Vida. If the target has less than 30% Vida, heal effectiveness is increased to 130% of the original.\nThis item greatly enhances your healing and shielding capabilities. Moving and casting abilities builds Harmony, empowering your next heal or Escudo with additional healing, while allies at low Vida receive an even stronger recovery. It is an excellent choice for enchanter supports who focus on keeping their team alive and saving allies during critical moments.",
             passiveEn = "+300 Max Mana\n+5% Heal and Shield Strength\nHarmonic Echo: Moving and casting abilities builds Harmony. At 100 Harmony your next healing or shielding ability on an ally restore an additional equal to (100-160 () + 15% AP) Health. If the target has less than 30% Health, heal effectiveness is increased to 130% of the original.\nThis item greatly enhances your healing and shielding capabilities. Moving and casting abilities builds Harmony, empowering your next heal or Shield with additional healing, while allies at low Health receive an even stronger recovery. It is an excellent choice for enchanter supports who focus on keeping their team alive and saving allies during critical moments.",
             passivePt = "+300 Mana Máximo\n+5% Heal and escudo Strength\nHarmonic Echo: Moving and casting abilities builds Harmony. At 100 Harmony your next healing or shielding ability on an ally restore an additional equal to (100-160 () + 15% AP) Vida. If the target has less than 30% Vida, heal effectiveness is increased to 130% of the original.\nThis item greatly enhances your healing and shielding capabilities. Moving and casting abilities builds Harmony, empowering your next heal or escudo with additional healing, while allies at low Vida receive an even stronger recovery. It is an excellent choice for enchanter supports who focus on keeping their team alive and saving allies during critical moments.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Moverse y lanzar habilidades acumula armonía; al cargarse al máximo, tu siguiente habilidad de curación o escudo cura en cadena a hasta 3 aliados adicionales.",
+            coachTipEn = "Moving and casting spells builds harmony; at full stacks, your next heal or shield bounces to heal up to 3 additional nearby allies.",
+            coachTipPt = "Mover-se e conjurar magias acumula harmonia; no máximo de acúmulos, sua próxima cura ou escudo ricocheteia curando até 3 aliados adicionais.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388518_yordle-harmonic-echo.webp"
         ))
         add(WildRiftItem(
@@ -1678,9 +1678,9 @@ object WildRiftItemsData {
             passive = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 segundos. Area of effect abilities apply (5% of Adicional AP + 25)% Escudo reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% Escudo reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter Escudo-heavy Campeones. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest Escudo-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
             passiveEn = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 seconds. Area of effect abilities apply (5% of Adicional AP + 25)% Shield reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% Shield reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter Shield-heavy champions. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest Shield-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
             passivePt = "Anti-Shielding\nLethal Weapon: Dealing ability damage to an campeón enemigo reduces any shields they obtiene for 3 segundos. Area of effect abilities apply (5% of Adicional AP + 25)% escudo reduction, capped at 45%; while single target abilities apply (5% of Adicional AP + 40)% escudo reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.\nThis item is designed to counter escudo-heavy campeões. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports aobtienest escudo-reliant compositions, allowing your team to break through enemy Defensas and eliminate priority targets more effectively.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp"
         ))
         add(WildRiftItem(
@@ -1696,9 +1696,9 @@ object WildRiftItemsData {
             passive = "Boosts allies Daño de Ataque\n+150 Maná Máximo\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 segundos. Your blizzard inflige a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied Campeones on the trail obtiene 40 Adicional Velocidad de Movimiento for 1 segundo. (30s Enfriamiento)",
             passiveEn = "Boosts allies Attack Damage\n+150 Max Mana\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 seconds. Your blizzard deals a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied champions on the trail obtiene 40 Adicional Movement Speed for 1 segundo. (30s Cooldown)",
             passivePt = "Boosts allies Dano de Ataque\n+150 Mana Máximo\nHarbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's ataques for 10 segundos. Your blizzard causa a maximum of 320–600 damage, Ralentiza enemies by 25% and leaves a trail behind you. Allied campeões on the trail obtiene 40 Adicional Velocidade de Movimento for 1 segundo. (30s Tempo de Recarga)",
-            coachTip = "Este objeto es ideal para tanky support campeones who initiate fights and provide línea frontal crowd control. It grants Armadura, Vida, Maná, and Aceleración de Habilidad. When you cast your ultimate, an icy blizzard surrounds you, Infligir daño and ralentizacióning enemies, while leaving a trail that grants Adicional Velocidad de Movimiento to allies. During the effect, the attacks of a nearby marked ally deal additional Daño Mágico, giving your team a powerful advantage in peleas de equipo.",
-            coachTipEn = "Este objeto es ideal for tanky support champions who initiate fights and provide línea frontal crowd control. It grants Armor, Health, Mana, and Ability Haste. When you cast your ultimate, an icy blizzard surrounds you, Infligir daño and ralentizacióning enemies, while leaving a trail that grants Adicional Movement Speed to allies. During the effect, the attacks of a nearby marked ally deal additional magic damage, giving your team a powerful advantage in peleas of equipo.",
-            coachTipPt = "Este objeto es ideal para tanky support campeões who initiate fights and provide línea frontal crowd control. It grants Armadura, Vida, Mana, and Aceleração de Habilidade. When you cast your ultimate, an icy blizzard surrounds you, Infligir dano and ralentizacióning enemies, while leaving a trail that grants Adicional Velocidade de Movimento to allies. During the effect, the attacks of a nearby marked ally deal additional Dano Mágico, giving your team a powerful advantage in peleas de equipo.",
+            coachTip = "Al usar tu definitiva, creas una tormenta de nieve y fuego a tu alrededor que ralentiza y quema a los enemigos, potenciando los ataques de tu tirador aliado.",
+            coachTipEn = "Casting your ultimate creates an icy/blazing blizzard around you that slows and burns enemies while empowering your linked ally's attacks.",
+            coachTipPt = "Ao usar sua ultimate, cria uma tempestade de gelo e fogo ao seu redor que causa lentidão e queima inimigos, fortalecendo os ataques do atirador aliado.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp"
         ))
         add(WildRiftItem(
@@ -1714,9 +1714,9 @@ object WildRiftItemsData {
             passive = "+250 Maná Máximo\nWinter's Caress: ataques básicos and Daño Mágico caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 segundos. Each stack of Chill Ralentiza enemy Velocidad de Ataque by 9%, up to a maximum of 4 stacks or 36% Velocidad de Ataque reduction. Each individual ability has a 3 segundos Enfriamiento on applying Chill stacks.\nThis item is iinfligen for tanks and support Campeones who need to Ralentización enemy Velocidad de Ataque and maintain a healthy Maná pool. It provides substantial bonuses to Armadura, Maná, and Aceleración de Habilidad. The “Winter’s Caress” passive applies up to four stacks of Chill on campeones enemigos through your ataques básicos, abilities, or any Daño Mágico they take—each stack Ralentiza their Velocidad de Ataque by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to infligen sustained damage in fights.",
             passiveEn = "+250 Max Mana\nWinter's Caress: ataques básicos and magic damage caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 seconds. Each stack of Chill Ralentiza enemy Attack Speed by 9%, up to a maximum of 4 stacks or 36% Attack Speed reduction. Each individual ability has a 3 seconds Cooldown on applying Chill stacks.\nThis item is iinfligen for tanks and support champions who need to Ralentización enemy Attack Speed and maintain a healthy Mana pool. It provides substantial bonuses to Armor, Mana, and Ability Haste. The “Winter’s Caress” passive applies up to four stacks of Chill on champions enemies through your ataques básicos, abilities, or any magic damage they take—each stack Ralentiza their Attack Speed by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to deals sustained damage in fights.",
             passivePt = "+250 Mana Máximo\nWinter's Caress: ataques básicos and Dano Mágico caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the campeón enemigo for 3 segundos. Each stack of Chill Ralentiza enemy Velocidade de Ataque by 9%, up to a maximum of 4 stacks or 36% Velocidade de Ataque reduction. Each individual ability has a 3 segundos Tempo de Recarga on applying Chill stacks.\nThis item is iinfligen for tanks and support campeões who need to Ralentización enemy Velocidade de Ataque and maintain a healthy Mana pool. It provides substantial bonuses to Armadura, Mana, and Aceleração de Habilidade. The “Winter’s Caress” passive applies up to four stacks of Chill on campeões inimigos through your ataques básicos, abilities, or any Dano Mágico they take—each stack Ralentiza their Velocidade de Ataque by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to causam sustained damage in fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389159_frozen-heart.webp"
         ))
         add(WildRiftItem(
@@ -1750,9 +1750,9 @@ object WildRiftItemsData {
             passive = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Velocidad de Movimiento for 3 segundo(s) and mark the target, reducing their Armadura and Resistencia Mágica by 5–12 for 8 segundo(s). If the target dies while they are marked, their death otorga 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for Campeones with displacement abilities and strong engage tools. Successfully displacing an enemy otorga you Adicional Velocidad de Movimiento while marking the target, reducing their Armadura and Resistencia Mágica to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola de nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
             passiveEn = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Movement Speed for 3 segundo(s) and mark the target, reducing their Armor and Magic Resistance by 5–12 for 8 segundo(s). If the target dies while they are marked, their death grants 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for champions with displacement abilities and strong engage tools. Successfully displacing an enemy grants you Adicional Movement Speed while marking the target, reducing their Armor and Magic Resistance to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola of nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
             passivePt = "Catcher: After using abilities to apply crowd control effects that displace the enemy, obtiene 10% Velocidade de Movimento for 3 segundo(s) and mark the target, reducing their Armadura and Resistência Mágica by 5–12 for 8 segundo(s). If the target dies while they are marked, their death concede 100–140 Adicional gold () that will be evenly shared among you and nearby allies.\nThis Adicional gold can only be obtained once every 10 segundo(s).\nThis item is designed for campeões with displacement abilities and strong engage tools. Successfully displacing an enemy concede you Adicional Velocidade de Movimento while marking the target, reducing their Armadura and Resistência Mágica to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive Adicional gold, helping your team bola de nieve its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389328_yordle-trap.webp"
         ))
         add(WildRiftItem(
@@ -1768,9 +1768,9 @@ object WildRiftItemsData {
             passive = "Pledge: While En combate, infligen Daño Mágico equal to 20–30 plus 1% of Adicional Vida per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest Monstruos and 200% damage aobtienest Súbditos.\nSacrifice: Killing a neutral monster or an enemy inflige Daño Mágico equal to 30 plus 2% of Adicional Vida in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally inflige damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea de equipo presence.",
             passiveEn = "Pledge: While in combate, deals magic damage equal to 20–30 plus 1% of Adicional Health per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest monsters and 200% damage aobtienest minions.\nSacrifice: Killing a neutral monster or an enemy deals magic damage equal to 30 plus 2% of Adicional Health in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally deals damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea of equipo presence.",
             passivePt = "Pledge: While em combate, causam Dano Mágico equal to 20–30 plus 1% of Adicional Vida per segundo for 5 segundo(s) to nearby enemies. Deals 125% damage aobtienest monstros and 200% damage aobtienest tropas.\nSacrifice: Killing a neutral monster or an enemy causa Dano Mágico equal to 30 plus 2% of Adicional Vida in an area around them.\nThis item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally causa damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustento through fights, and maintain pelea de equipo presence.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Te vincula a un aliado clave: redirige parte del daño que recibe hacia ti y te cura en base al daño que él inflija. Fundamental para proteger a tu carry.",
+            coachTipEn = "Bonds with a priority ally: redirects a portion of damage they take to you and heals you based on damage they deal. Core for carry protection.",
+            coachTipPt = "Liga você a um aliado prioritário: redireciona parte do dano que ele sofre para você e cura com base no dano que ele causar. Essencial para proteger seu carregador.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767914013_3109_11zon.webp"
         ))
         add(WildRiftItem(
@@ -1786,9 +1786,9 @@ object WildRiftItemsData {
             passive = "+5% Heal and Escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and infligen 10% of max as Daño Verdadero to campeones enemigos. (60s Enfriamiento)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Daño Verdadero to campeones enemigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passiveEn = "+5% Heal and Shield Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deals 10% of max as true damage to champions enemies. (60s Cooldown)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restores Health to all allied units in a large area while infligiendo true damage to champions enemies, making it a powerful tool for turning the tide of peleas of equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passivePt = "+5% Heal and escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and causam 10% of max as Dano Verdadeiro to campeões inimigos. (60s Tempo de Recarga)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Dano Verdadeiro to campeões inimigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
         ))
         add(WildRiftItem(
@@ -1804,9 +1804,9 @@ object WildRiftItemsData {
             passive = "+9% Heal and Escudo Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Vida. (75s Enfriamiento)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restaura their Vida, and briefly otorga immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
             passiveEn = "+9% Heal and Shield Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Health. (75s Cooldown)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restores their Health, and briefly grants immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
             passivePt = "+9% Heal and escudo Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Vida. (75s Tempo de Recarga)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restaura their Vida, and briefly concede immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783571078_3222_11zon.webp"
         ))
         add(WildRiftItem(
@@ -1840,9 +1840,9 @@ object WildRiftItemsData {
             passive = "Grans allies Velocidad de Movimiento\nInspiring Speech (Active): Otorga nearby allies Campeones 30% Velocidad de Movimiento for 4 segundos. (60s Enfriamiento)\nThis item greatly enhances your team's mobility. Its active otorga nearby allied Campeones a daño explosivo of Velocidad de Movimiento, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility Campeones who excel at controlling the pace of peleas de equipo and enabling their teammates.",
             passiveEn = "Grans allies Movement Speed\nInspiring Speech (Active): grants nearby allies champions 30% Movement Speed for 4 seconds. (60s Cooldown)\nThis item greatly enhances your team's mobility. Its active grants nearby allied champions a daño explosivo of Movement Speed, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility champions who excel at controlling the pace of peleas of equipo and enabling their teammates.",
             passivePt = "Grans allies Velocidade de Movimento\nInspiring Speech (Active): concede nearby allies campeões 30% Velocidade de Movimento for 4 segundos. (60s Tempo de Recarga)\nThis item greatly enhances your team's mobility. Its active concede nearby allied campeões a dano explosivo of Velocidade de Movimento, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility campeões who excel at controlling the pace of peleas de equipo and enabling their teammates.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783187148_shurelyas-battlesong.webp"
         ))
         add(WildRiftItem(
@@ -1858,9 +1858,9 @@ object WildRiftItemsData {
             passive = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 segundos.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Enfriamiento)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly otorga immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
             passiveEn = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 seconds.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 seconds. (60s Cooldown)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly grants immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
             passivePt = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 segundos.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Tempo de Recarga)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly concede immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389685_quicksilver-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1876,9 +1876,9 @@ object WildRiftItemsData {
             passive = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (120s Enfriamiento)\nThis item combines Poder de Habilidad with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your enfriamientos to return. It is an excellent choice for mages and AP assassins who need to survive daño explosivo damage and outplay opponents in critical peleas de equipo.",
             passiveEn = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (120s Cooldown)\nThis item combines Ability Power with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your enfriamientos to return. It is an excellent choice for mages and AP assassins who need to survive daño explosivo damage and outplay opponents in critical peleas of equipo.",
             passivePt = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (120s Tempo de Recarga)\nThis item combines Poder de Habilidade with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your tempos de recarga to return. It is an excellent choice for mages and AP assassins who need to survive dano explosivo damage and outplay opponents in critical peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2022-01/1641809649_seekers-armguard.png"
         ))
         add(WildRiftItem(
@@ -1894,9 +1894,9 @@ object WildRiftItemsData {
             passive = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as Daño Físico to nearby enemies and slowing them by 40% durante 3s (25s Enfriamiento)\nStride (Passive): Gain 20 Velocidad de Movimiento for 2 segundo(s) when you infligen Daño Físico.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive otorga Adicional Velocidad de Movimiento whenever you infligen Daño Físico. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within Cuerpo a cuerpo range.",
             passiveEn = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as physical damage to nearby enemies and slowing them by 40% for 3s (25s Cooldown)\nStride (Passive): Gain 20 Movement Speed for 2 segundo(s) when you deals physical damage.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive grants Adicional Movement Speed whenever you deals physical damage. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within melee range.",
             passivePt = "Breaking Shockwave (Active): Activate to dash a short distance, infligiendo 100% AD as Dano Físico to nearby enemies and slowing them by 40% por 3s (25s Tempo de Recarga)\nStride (Passive): Gain 20 Velocidade de Movimento for 2 segundo(s) when you causam Dano Físico.\nThis item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily Ralentización them, while the passive concede Adicional Velocidade de Movimento whenever you causam Dano Físico. It is an excellent choice for fighters and bruisers who want to engage quickly, chase down opponents, and keep enemies within corpo a corpo range.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Activa un corte circular que inflige daño y ralentiza a los enemigos cercanos, otorgando velocidad de movimiento para no dejar escapar a ningún objetivo.",
+            coachTipEn = "Active spinning slash that damages and slows nearby enemies while granting movement speed to stick onto agile targets.",
+            coachTipPt = "Ativa um corte circular que causa dano e lentidão a inimigos próximos, concedendo velocidade de movimento para não deixar nenhum alvo escapar.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
         ))
         add(WildRiftItem(
@@ -1930,9 +1930,9 @@ object WildRiftItemsData {
             passive = "Otorga a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Vida enemy near your destination, prioritizing Campeones. Deal Daño Físico equal to 40-125 () plus 35% Adicional. (60s Enfriamiento)\nThis item greatly improves the mobility of marksmen and AD Campeones by granting a dash that also fires projectiles at the lowest-Vida nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for Campeones who value mobility, safety, and strong daño explosivo potential.",
             passiveEn = "grants a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Health enemy near your destination, prioritizing champions. Deal physical damage equal to 40-125 () plus 35% Adicional. (60s Cooldown)\nThis item greatly improves the mobility of marksmen and AD champions by granting a dash that also fires projectiles at the lowest-Health nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for champions who value mobility, safety, and strong daño explosivo potential.",
             passivePt = "concede a dash and damage Adicional\nCloudburst (Active): Dash in a target direction and fire 3 missile(s) at the lowest Vida enemy near your destination, prioritizing campeões. Deal Dano Físico equal to 40-125 () plus 35% Adicional. (60s Tempo de Recarga)\nThis item greatly improves the mobility of marksmen and AD campeões by granting a dash that also fires projectiles at the lowest-Vida nearby target. It is perfect for both finishing off weakened enemies and repositioning during fights, allowing you to dodge key abilities or quickly close the gap. An excellent choice for campeões who value mobility, safety, and strong dano explosivo potential.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Otorga un desplazamiento activo (Dash) en la dirección elegida que dispara proyectiles teledirigidos al enemigo con menos vida: salva vidas o asegura asesinatos.",
+            coachTipEn = "Grants an active dash in the target direction that fires homing missiles at the lowest-health enemy: saves lives or executes escaping targets.",
+            coachTipPt = "Concede um avanço ativo na direção escolhida disparando projéteis guiados no inimigo com menos vida: salva sua vida ou garante o abate.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
         ))
         add(WildRiftItem(
@@ -1948,9 +1948,9 @@ object WildRiftItemsData {
             passive = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and otorga immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Enfriamiento)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly otorga immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir daño aobtienest heavy-CC team compositions.",
             passiveEn = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and grants immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 seconds. (60s Cooldown)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly grants immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir daño aobtienest heavy-CC team compositions.",
             passivePt = "Quicksilver Sash (Active): Removes all crowd control debuffs from you and concede immunity to crowd control for 0.25s.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Tempo de Recarga)\nCannot be used during knock up or knock back effects.\nThis item is designed to counter crowd control. Its active removes most disabling effects and briefly concede immunity to follow-up control, while the passive provides additional resistance to crowd control and Ralentiza once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep Infligir dano aobtienest heavy-CC team compositions.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Activa una purificación que elimina instantáneamente todos los efectos de control de masas (CC) y otorga velocidad de movimiento para escapar o reposicionarte.",
+            coachTipEn = "Active cleanse that instantly removes all crowd control effects and grants movement speed to reposition or escape dangerous traps.",
+            coachTipPt = "Purificação ativa que remove instantaneamente todos os efeitos de controle de grupo (CC) e concede velocidade de movimento para reposicionamento.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
         ))
         add(WildRiftItem(
@@ -1966,9 +1966,9 @@ object WildRiftItemsData {
             passive = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% Daño Mágico. (30s Enfriamiento)\nIf Campeones or Monstruos are hit by more than one missile, missiles after the first will infligen only 10% damage.\nThis item combines Poder de Habilidad with extra mobility, allowing you to quickly close the gap or reposition Durante el combate. Its active otorga a short dash while firing a cone of rockets that infligen area Daño Mágico. It is an excellent choice for AP assassins, mobile mages, and engage-oriented Campeones who need to dive in, secure kills, or dodge key enemy abilities.",
             passiveEn = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% magic damage. (30s Cooldown)\nIf champions or monsters are hit by more than one missile, missiles after the first will deals only 10% damage.\nThis item combines Ability Power with extra mobility, allowing you to quickly close the gap or reposition for the combate. Its active grants a short dash while firing a cone of rockets that deals area magic damage. It is an excellent choice for AP assassins, mobile mages, and engage-oriented champions who need to dive in, secure kills, or dodge key enemy abilities.",
             passivePt = "Protobelt (Active): Dash forward and unleash a cone of missiles, infligiendo 100 plus 10% Dano Mágico. (30s Tempo de Recarga)\nIf campeões or monstros are hit by more than one missile, missiles after the first will causam only 10% damage.\nThis item combines Poder de Habilidade with extra mobility, allowing you to quickly close the gap or reposition por o combate. Its active concede a short dash while firing a cone of rockets that causam area Dano Mágico. It is an excellent choice for AP assassins, mobile mages, and engage-oriented campeões who need to dive in, secure kills, or dodge key enemy abilities.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389704_protobelt-enchant.webp"
         ))
         add(WildRiftItem(
@@ -1984,9 +1984,9 @@ object WildRiftItemsData {
             passive = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Enfriamiento)\nThis item combines high Poder de Habilidad with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
             passiveEn = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)\nThis item combines high Ability Power with extra Armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your enfriamientos to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea of equipo.",
             passivePt = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (90s Tempo de Recarga)\nThis item combines high Poder de Habilidade with extra Armadura, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your tempos de recarga to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a pelea de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
         ))
         add(WildRiftItem(
@@ -2002,9 +2002,9 @@ object WildRiftItemsData {
             passive = "+5% Heal and Escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and infligen 10% of max as Daño Verdadero to campeones enemigos. (60s Enfriamiento)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Daño Verdadero to campeones enemigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passiveEn = "+5% Heal and Shield Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deals 10% of max as true damage to champions enemies. (60s Cooldown)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restores Health to all allied units in a large area while infligiendo true damage to champions enemies, making it a powerful tool for turning the tide of peleas of equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
             passivePt = "+5% Heal and escudo Strength\nIntervention (Active): Target a large area. After 2.5s, restore 150-350 Vida (based on ally's level) to allied units and causam 10% of max as Dano Verdadeiro to campeões inimigos. (60s Tempo de Recarga)\nCan be cast while dead.\nThis item is designed to provide game-changing team support. Its active restaura Vida to all allied units in a large area while infligiendo Dano Verdadeiro to campeões inimigos, making it a powerful tool for turning the tide of peleas de equipo. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
         ))
         add(WildRiftItem(
@@ -2020,9 +2020,9 @@ object WildRiftItemsData {
             passive = "Escudo\nStoneplate (Active): Gain a base Escudo that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Enfriamiento)\nThis item greatly increases your survivability during peleas de equipo. Its active otorga a powerful Escudo that scales with your Adicional Vida, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
             passiveEn = "Shield\nStoneplate (Active): Gain a base Shield that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Cooldown)\nThis item greatly increases your survivability during peleas of equipo. Its active grants a powerful Shield that scales with your Adicional Health, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
             passivePt = "escudo\nStoneplate (Active): Gain a base escudo that absorbs damage equal to 100 plus 90% bonusand obtiene size, decayng over 2.5s. (60s Tempo de Recarga)\nThis item greatly increases your survivability during peleas de equipo. Its active concede a powerful escudo that scales with your Adicional Vida, allowing you to withstand heavy focus fire and remain on the línea frontal longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp"
         ))
         add(WildRiftItem(
@@ -2038,9 +2038,9 @@ object WildRiftItemsData {
             passive = "+9% Heal and Escudo Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Vida. (75s Enfriamiento)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restaura their Vida, and briefly otorga immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
             passiveEn = "+9% Heal and Shield Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Health. (75s Cooldown)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restores their Health, and briefly grants immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
             passivePt = "+9% Heal and escudo Strength\nPurify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied Campeón, grant them crowd control immunity for 0.2s, and heal them for 150–250 Vida. (75s Tempo de Recarga)\nThis item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restaura their Vida, and briefly concede immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783571078_3222_11zon.webp"
         ))
         add(WildRiftItem(
@@ -2074,9 +2074,9 @@ object WildRiftItemsData {
             passive = "Grans allies Velocidad de Movimiento\nInspiring Speech (Active): Otorga nearby allies Campeones 30% Velocidad de Movimiento for 4 segundos. (60s Enfriamiento)\nThis item greatly enhances your team's mobility. Its active otorga nearby allied Campeones a daño explosivo of Velocidad de Movimiento, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility Campeones who excel at controlling the pace of peleas de equipo and enabling their teammates.",
             passiveEn = "Grans allies Movement Speed\nInspiring Speech (Active): grants nearby allies champions 30% Movement Speed for 4 seconds. (60s Cooldown)\nThis item greatly enhances your team's mobility. Its active grants nearby allied champions a daño explosivo of Movement Speed, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility champions who excel at controlling the pace of peleas of equipo and enabling their teammates.",
             passivePt = "Grans allies Velocidade de Movimento\nInspiring Speech (Active): concede nearby allies campeões 30% Velocidade de Movimento for 4 segundos. (60s Tempo de Recarga)\nThis item greatly enhances your team's mobility. Its active concede nearby allied campeões a dano explosivo of Velocidade de Movimento, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility campeões who excel at controlling the pace of peleas de equipo and enabling their teammates.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783187148_shurelyas-battlesong.webp"
         ))
         add(WildRiftItem(
@@ -2092,9 +2092,9 @@ object WildRiftItemsData {
             passive = "Daño de Ataque, Omnivampirismoirismoirismo\nBalance of Power: Gain 12 Daño de Ataque or 20 Poder de Habilidad (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nThese boots combine mobility, adaptive offensive power, and sustained healing. They increase your damage while Omnivampirismoirismoirismo restaura Vida from all damage you infligen. Campeón takedowns further increase your Omnivampirismoirismoirismo, making them an excellent choice for Campeones who want to balance high damage output with strong sustento during extended fights.",
             passiveEn = "Attack Damage, Omnivampirismoirismoirismo\nBalance of Power: Gain 12 Attack Damage or 20 Ability Power (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nThese boots combine mobility, adaptive offensive power, and sustained healing. They increase your damage while Omnivampirismoirismoirismo restores Health from all damage you deals. Campeón takedowns further increase your Omnivampirismoirismoirismo, making them an excellent choice for champions who want to balance high damage output with strong sustento during extended fights.",
             passivePt = "Dano de Ataque, Omnivampirismoirismoirismo\nBalance of Power: Gain 12 Dano de Ataque or 20 Poder de Habilidade (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nThese boots combine mobility, adaptive offensive power, and sustained healing. They increase your damage while Omnivampirismoirismoirismo restaura Vida from all damage you causam. Campeón takedowns further increase your Omnivampirismoirismoirismo, making them an excellent choice for campeões who want to balance high damage output with strong sustento during extended fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389849_gluttonous-greaves.webp"
         ))
         add(WildRiftItem(
@@ -2110,9 +2110,9 @@ object WildRiftItemsData {
             passive = "Velocidad de Ataque\nBlessed Blade: Los ataques restore 10 Vida on hit.\nThese boots grant a significant boost to Velocidad de Ataque and Velocidad de Movimiento, while empowering your ataques básicos with on‑hit life steal.  — A great pick for marksmen and auto‑attack bruisers who need mobility, rapid attack cadence, and constant sustento in fights.",
             passiveEn = "Attack Speed\nBlessed Blade: the ataques restore 10 Health on hit.\nThese boots grant a significant boost to Attack Speed and Movement Speed, while empowering your ataques básicos with on‑hit life steal. — A great pick for marksmen and auto‑attack bruisers who need mobility, rapid attack cadence, and constant sustento in fights.",
             passivePt = "Velocidade de Ataque\nBlessed Blade: os ataques restore 10 Vida on hit.\nThese boots grant a significant boost to Velocidade de Ataque and Velocidade de Movimento, while empowering your ataques básicos with on‑hit life steal. — A great pick for marksmen and auto‑attack bruisers who need mobility, rapid attack cadence, and constant sustento in fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389864_berserkers-greaves.webp"
         ))
         add(WildRiftItem(
@@ -2128,9 +2128,9 @@ object WildRiftItemsData {
             passive = "Increases Resistencia Mágica\n+\nThese boots increase your Resistencia Mágica while making you more resilient to crowd control through Tenacity. The Adicional Vida and Velocidad de Movimiento improve both survivability and mobility, allowing you to perform more effectively aobtienest Daño Mágico and heavy-CC team compositions. They are an excellent choice for tanks, fighters, and any Campeón who needs to stay in the fight longer.",
             passiveEn = "Increases Magic Resistance\n+\nThese boots increase your Magic Resistance while making you more resilient to crowd control through Tenacity. The Adicional Health and Movement Speed improve both survivability and mobility, allowing you to perform more effectively aobtienest magic damage and heavy-CC team compositions. They are an excellent choice for tanks, fighters, and any Campeón who needs to stay in the fight longer.",
             passivePt = "Increases Resistência Mágica\n+\nThese boots increase your Resistência Mágica while making you more resilient to crowd control through Tenacity. The Adicional Vida and Velocidade de Movimento improve both survivability and mobility, allowing you to perform more effectively aobtienest Dano Mágico and heavy-CC team compositions. They are an excellent choice for tanks, fighters, and any Campeón who needs to stay in the fight longer.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389863_mercurys-treads.webp"
         ))
         add(WildRiftItem(
@@ -2146,9 +2146,9 @@ object WildRiftItemsData {
             passive = "Reduces damage from Campeón ataques\nBlock: Reduces damage from Campeón ataques by 10%.\nThese boots provide reliable protection aobtienest Campeones who rely heavily on ataques básicos. They increase your Vida and Armadura, while the passive further reduces damage taken from campeón enemigo ataques. An excellent choice aobtienest marksmen, AD fighters, and other autoataque-focused Campeones.",
             passiveEn = "Reduces damage from Campeón ataques\nBlock: Reduces damage from Campeón ataques by 10%.\nThese boots provide reliable protection aobtienest champions who rely heavily on ataques básicos. They increase your Health and Armor, while the passive further reduces damage taken from campeón enemigo ataques. An excellent choice aobtienest marksmen, AD fighters, and other autoataque-focused champions.",
             passivePt = "Reduces damage from Campeón ataques\nBlock: Reduces damage from Campeón ataques by 10%.\nThese boots provide reliable protection aobtienest campeões who rely heavily on ataques básicos. They increase your Vida and Armadura, while the passive further reduces damage taken from campeón enemigo ataques. An excellent choice aobtienest marksmen, AD fighters, and other autoataque-focused campeões.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389651_plated-steelcaps.webp"
         ))
         add(WildRiftItem(
@@ -2164,9 +2164,9 @@ object WildRiftItemsData {
             passive = "Reduces ability enfriamientos\nSummoned: Reduces spell enfriamientos by 15%.\nThese boots are designed for Campeones who rely on casting abilities as often as possible. They provide Maná regeneration, Aceleración de Habilidad, and further reduce the Enfriamiento of Summoner Spells, allowing you to use key abilities more frequently while bringing back Flash, Smite, Ignite, and other Summoner Spells faster. They are an excellent choice for mages, supports, fighters, and any Campeón who benefits from maximizing ability uptime.",
             passiveEn = "Reduces ability enfriamientos\nSummoned: Reduces spell enfriamientos by 15%.\nThese boots are designed for champions who rely on casting abilities as often as possible. They provide Mana regeneration, Ability Haste, and further reduce the Cooldown of Summoner Spells, allowing you to use key abilities more frequently while bringing back Flash, Smite, Ignite, and other Summoner Spells faster. They are an excellent choice for mages, supports, fighters, and any Campeón who benefits from maximizing ability uptime.",
             passivePt = "Reduces ability tempos de recarga\nSummoned: Reduces spell tempos de recarga by 15%.\nThese boots are designed for campeões who rely on casting abilities as often as possible. They provide Mana regeneration, Aceleração de Habilidade, and further reduce the Tempo de Recarga of Summoner Spells, allowing you to use key abilities more frequently while bringing back Flash, Smite, Ignite, and other Summoner Spells faster. They are an excellent choice for mages, supports, fighters, and any Campeón who benefits from maximizing ability uptime.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389658_ionian-boots-of-lucidity.webp"
         ))
         add(WildRiftItem(
@@ -2182,9 +2182,9 @@ object WildRiftItemsData {
             passive = "Boots of Maná\nPoder de Habilidad, Magic Pen, Maná Regeneration\n+8 Penetración Mágica\nEquilibrium: Campeones without Maná obtiene 50% Adicional Vida Regen.\nBig Bully: Los ataques and active abilities infligen 18 Adicional Daño Verdadero to Súbditos.\nThese boots greatly enhance your early Daño Mágico by providing Poder de Habilidad, Penetración Mágica, and increased Maná regeneration. They also improve wave clear by infligiendo Adicional Daño Verdadero to Súbditos, while Campeones without Maná instead obtiene additional Vida regeneration. They are an excellent choice for mages and AP supports who value strong laning, frequent spell casting, and efficient wave clearing.",
             passiveEn = "Boots of Mana\nPoder of Habilidad, Magic Pen, Mana Regeneration\n+8 Magic Penetration\nEquilibrium: champions without Mana obtiene 50% Adicional Health Regen.\nBig Bully: the ataques and active abilities deals 18 Adicional true damage to minions.\nThese boots greatly enhance your early magic damage by providing Ability Power, Magic Penetration, and increased Mana regeneration. They also improve wave clear by infligiendo Adicional true damage to minions, while champions without Mana instead obtiene additional Health regeneration. They are an excellent choice for mages and AP supports who value strong laning, frequent spell casting, and efficient wave clearing.",
             passivePt = "Boots of Mana\nPoder de Habilidad, Magic Pen, Mana Regeneration\n+8 Penetração Mágica\nEquilibrium: campeões without Mana obtiene 50% Adicional Vida Regen.\nBig Bully: os ataques and active abilities causam 18 Adicional Dano Verdadeiro to tropas.\nThese boots greatly enhance your early Dano Mágico by providing Poder de Habilidade, Penetração Mágica, and increased Mana regeneration. They also improve wave clear by infligiendo Adicional Dano Verdadeiro to tropas, while campeões without Mana instead obtiene additional Vida regeneration. They are an excellent choice for mages and AP supports who value strong laning, frequent spell casting, and efficient wave clearing.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389619_boots-of-mana.webp"
         ))
         add(WildRiftItem(
@@ -2200,9 +2200,9 @@ object WildRiftItemsData {
             passive = "Boots of Dynamism\nDaño de Ataque,\nThese boots increase your Daño Físico by providing Adicional Daño de Ataque and Penetración de Armadura. They are especially effective during the early stages of the game, allowing you to cut through enemy Defensas and win trades more easily. They are an excellent choice for marksmen, assassins, and fighters looking to maximize their damage output and eliminate enemies more efficiently.",
             passiveEn = "Boots of Dynamism\nDaño of Ataque,\nThese boots increase your physical damage by providing Adicional Attack Damage and Penetración of Armor. They are especially effective during the early stages of the game, allowing you to cut through enemy Defensas and win trades more easily. They are an excellent choice for marksmen, assassins, and fighters looking to maximize their damage output and eliminate enemies more efficiently.",
             passivePt = "Boots of Dynamism\nDaño de Ataque,\nThese boots increase your Dano Físico by providing Adicional Dano de Ataque and Penetração de Armadura. They are especially effective during the early stages of the game, allowing you to cut through enemy Defensas and win trades more easily. They are an excellent choice for marksmen, assassins, and fighters looking to maximize their damage output and eliminate enemies more efficiently.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389665_boots-of-dynamism.webp"
         ))
         add(WildRiftItem(
@@ -2218,9 +2218,9 @@ object WildRiftItemsData {
             passive = "Balance of Power: Gain 12 Daño de Ataque or 20 Poder de Habilidad (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nNow and Forever: When you have more than 50% Vida, infligen 5% Adicional damage. When below 50% Vida, obtiene 12% increased healing and shielding.\nThese boots combine adaptive offensive power, sustento, and increased combat effectiveness. While above 50% Vida, you infligen increased damage, and when below 50% Vida, you benefit from stronger healing and shielding to improve your survivability. The additional Omnivampirismoirismoirismo further restaura Vida from all damage you infligen. They are an excellent choice for fighters, AP bruisers, and Campeones who want to balance offensive power with sustained durability throughout extended fights.",
             passiveEn = "Balance of Power: Gain 12 Attack Damage or 20 Ability Power (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nNow and Forever: When you have more than 50% Health, deals 5% Adicional damage. When below 50% Health, obtiene 12% increased healing and shielding.\nThese boots combine adaptive offensive power, sustento, and increased combat effectiveness. While above 50% Health, you deals increased damage, and when below 50% Health, you benefit from stronger healing and shielding to improve your survivability. The additional Omnivampirismoirismoirismo further restores Health from all damage you deals. They are an excellent choice for fighters, AP bruisers, and champions who want to balance offensive power with sustained durability throughout extended fights.",
             passivePt = "Balance of Power: Gain 12 Dano de Ataque or 20 Poder de Habilidade (Adaptive).\nConversion: Gain 5% Omnivampirismoirismoirismo. Campeón takedowns grant an additional 0.5% Omnivampirismoirismoirismo, up to 5%.\nNow and Forever: When you have more than 50% Vida, causam 5% Adicional damage. When below 50% Vida, obtiene 12% increased healing and shielding.\nThese boots combine adaptive offensive power, sustento, and increased combat effectiveness. While above 50% Vida, you causam increased damage, and when below 50% Vida, you benefit from stronger healing and shielding to improve your survivability. The additional Omnivampirismoirismoirismo further restaura Vida from all damage you causam. They are an excellent choice for fighters, AP bruisers, and campeões who want to balance offensive power with sustained durability throughout extended fights.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Calzado especializado: adapta tus botas al daño predominante y control de masas del equipo enemigo para maximizar tu supervivencia.",
+            coachTipEn = "Specialized footwear: adapt your boots to enemy team's main damage type and crowd control to maximize survivability.",
+            coachTipPt = "Calçado especializado: adapte suas botas ao dano predominante e controle de grupo inimigo para maximizar sua sobrevivência.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561637_immortal-treds.webp"
         ))
         add(WildRiftItem(
@@ -2236,9 +2236,9 @@ object WildRiftItemsData {
             passive = "Noxian Gait: Los ataques aobtienest campeones enemigos grant Velocidad de Movimiento (10% for Cuerpo a cuerpo Campeones / 7% for A distancia Campeones) decaying over 2 segundos.\nBlessed Blade: Los ataques restore 12 Vida on hit.\nThese boots greatly increase your Velocidad de Ataque while improving your mobility En combate. Attacking campeones enemigos otorga a daño explosivo of Velocidad de Movimiento, making it easier to chase opponents or mantener la distancia effectively, while Vampirismo Físico and on-hit healing provide valuable sustento during extended fights. They are an excellent choice for marksmen and Campeones who rely on frequent ataques básicos to infligen damage.",
             passiveEn = "Noxian Gait: the ataques aobtienest champions enemies grant Movement Speed (10% for melee champions / 7% for ranged champions) decaying over 2 seconds.\nBlessed Blade: the ataques restore 12 Health on hit.\nThese boots greatly increase your Attack Speed while improving your mobility in combate. Attacking champions enemies grants a daño explosivo of Movement Speed, making it easier to chase opponents or mantener the distancia effectively, while Physical Vamp and on-hit healing provide valuable sustento during extended fights. They are an excellent choice for marksmen and champions who rely on frequent ataques básicos to deals damage.",
             passivePt = "Noxian Gait: os ataques aobtienest campeões inimigos grant Velocidade de Movimento (10% for corpo a corpo campeões / 7% for à distância campeões) decaying over 2 segundos.\nBlessed Blade: os ataques restore 12 Vida on hit.\nThese boots greatly increase your Velocidade de Ataque while improving your mobility em combate. Attacking campeões inimigos concede a dano explosivo of Velocidade de Movimento, making it easier to chase opponents or mantener a distancia effectively, while Vampirismo Físico and on-hit healing provide valuable sustento during extended fights. They are an excellent choice for marksmen and campeões who rely on frequent ataques básicos to causam damage.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto completado de alto impacto ofensivo: otorga un gran pico de daño y estadísticas de combate para dominar duelos y peleas grupales.",
+            coachTipEn = "High-impact completed offensive item: grants a strong damage spike and combat stats to dominate duels and teamfights.",
+            coachTipPt = "Item completo de alto impacto ofensivo: concede um grande pico de dano e atributos de combate para dominar duelos e lutas em equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561598_gunmetal-greaves.webp"
         ))
         add(WildRiftItem(
@@ -2254,9 +2254,9 @@ object WildRiftItemsData {
             passive = "Gain a magic Escudo upon taking Daño Mágico\n+30% Tenacity\nNoxian Persistence: After taking Daño Mágico from a Campeón, obtiene a magic Escudo that absorbs 10-120 plus 5% maxfor 5s. (12s Enfriamiento)\nThese boots greatly improve your survivability aobtienest Daño Mágico. After taking Daño Mágico from an campeón enemigo, you obtiene a magic Escudo that helps absorb follow-up spells, while the Adicional Resistencia Mágica and Tenacity make you far more resilient aobtienest AP threats and crowd control. They are an excellent choice aobtienest teams with heavy Daño Mágico and strong CC.",
             passiveEn = "Gain a magic Shield upon taking magic damage\n+30% Tenacity\nNoxian Persistence: After taking magic damage from a Campeón, obtiene a magic Shield that absorbs 10-120 plus 5% maxfor 5s. (12s Cooldown)\nThese boots greatly improve your survivability aobtienest magic damage. After taking magic damage from an campeón enemigo, you obtiene a magic Shield that helps absorb follow-up spells, while the Adicional Magic Resistance and Tenacity make you far more resilient aobtienest AP threats and crowd control. They are an excellent choice aobtienest teams with heavy magic damage and strong CC.",
             passivePt = "Gain a magic escudo upon taking Dano Mágico\n+30% Tenacity\nNoxian Persistence: After taking Dano Mágico from a Campeón, obtiene a magic escudo that absorbs 10-120 plus 5% maxfor 5s. (12s Tempo de Recarga)\nThese boots greatly improve your survivability aobtienest Dano Mágico. After taking Dano Mágico from an campeón enemigo, you obtiene a magic escudo that helps absorb follow-up spells, while the Adicional Resistência Mágica and Tenacity make you far more resilient aobtienest AP threats and crowd control. They are an excellent choice aobtienest teams with heavy Dano Mágico and strong CC.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto defensivo de alto valor: incrementa tu durabilidad y resistencia en primera línea frente a las amenazas enemigas principales.",
+            coachTipEn = "High-value defensive item: boosts your frontline durability and survivability against key enemy damage threats.",
+            coachTipPt = "Item defensivo de alto valor: aumenta sua durabilidade e resistência na linha de frente contra as principais ameaças inimigas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561548_chainlaced-crushers.webp"
         ))
         add(WildRiftItem(
@@ -2272,9 +2272,9 @@ object WildRiftItemsData {
             passive = "Block: Reduce damage from Campeón ataques by 10%.\nNoxian Endurance: After taking Daño Físico from a Campeón otorga a physical Escudo that absorbs damage equal to 10-140 plus 8% Vida Máxima. (12s Enfriamiento)\nThese boots provide excellent protection aobtienest Daño Físico. They reduce damage taken from campeón enemigo ataques and grant a protective Escudo after taking Daño Físico from a Campeón, helping you survive extended trades and heavy bursts of Daño Físico. They are an excellent choice aobtienest marksmen, fighters, and other Campeones who rely primarily on physical ataques.",
             passiveEn = "Block: Reduce damage from Campeón ataques by 10%.\nNoxian Endurance: After taking physical damage from a Campeón grants a physical Shield that absorbs damage equal to 10-140 plus 8% Max Health. (12s Cooldown)\nThese boots provide excellent protection aobtienest physical damage. They reduce damage taken from campeón enemigo ataques and grant a protective Shield after taking physical damage from a Campeón, helping you survive extended trades and heavy bursts of physical damage. They are an excellent choice aobtienest marksmen, fighters, and other champions who rely primarily on physical ataques.",
             passivePt = "Block: Reduce damage from Campeón ataques by 10%.\nNoxian Endurance: After taking Dano Físico from a Campeón concede a physical escudo that absorbs damage equal to 10-140 plus 8% Vida Máxima. (12s Tempo de Recarga)\nThese boots provide excellent protection aobtienest Dano Físico. They reduce damage taken from campeón enemigo ataques and grant a protective escudo after taking Dano Físico from a Campeón, helping you survive extended trades and heavy bursts of Dano Físico. They are an excellent choice aobtienest marksmen, fighters, and other campeões who rely primarily on physical ataques.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto defensivo de alto valor: incrementa tu durabilidad y resistencia en primera línea frente a las amenazas enemigas principales.",
+            coachTipEn = "High-value defensive item: boosts your frontline durability and survivability against key enemy damage threats.",
+            coachTipPt = "Item defensivo de alto valor: aumenta sua durabilidade e resistência na linha de frente contra as principais ameaças inimigas.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561641_armored-advance.webp"
         ))
         add(WildRiftItem(
@@ -2290,9 +2290,9 @@ object WildRiftItemsData {
             passive = "Summoned: Reduces spell Enfriamiento by 20%.\nNoxian Haste: Healing or shielding allied Campeones, casting a spell, or Infligir daño to enemies with abilities otorga Velocidad de Movimiento (10% for Cuerpo a cuerpo Campeones / 8% for A distancia Campeones) for 4 segundos.\nThis effect can only be triggered once every 4 segundos per ability.\nThese boots are iinfligen for Campeones who rely on casting abilities as often as possible. They greatly reduce the Enfriamiento of both abilities and Summoner Spells while granting Adicional Velocidad de Movimiento whenever you heal or Escudo allies, cast spells, or damage enemies with abilities. They are an excellent choice for mages, supports, and fighters who value high mobility and maximum ability uptime.",
             passiveEn = "Summoned: Reduces spell Cooldown by 20%.\nNoxian Haste: Healing or shielding allied champions, casting a spell, or Infligir daño to enemies with abilities grants Movement Speed (10% for melee champions / 8% for ranged champions) for 4 seconds.\nThis effect can only be triggered once every 4 seconds per ability.\nThese boots are iinfligen for champions who rely on casting abilities as often as possible. They greatly reduce the Cooldown of both abilities and Summoner Spells while granting Adicional Movement Speed whenever you heal or Shield allies, cast spells, or damage enemies with abilities. They are an excellent choice for mages, supports, and fighters who value high mobility and maximum ability uptime.",
             passivePt = "Summoned: Reduces spell Tempo de Recarga by 20%.\nNoxian Haste: Healing or shielding allied campeões, casting a spell, or Infligir dano to enemies with abilities concede Velocidade de Movimento (10% for corpo a corpo campeões / 8% for à distância campeões) for 4 segundos.\nThis effect can only be triggered once every 4 segundos per ability.\nThese boots are iinfligen for campeões who rely on casting abilities as often as possible. They greatly reduce the Tempo de Recarga of both abilities and Summoner Spells while granting Adicional Velocidade de Movimento whenever you heal or escudo allies, cast spells, or damage enemies with abilities. They are an excellent choice for mages, supports, and fighters who value high mobility and maximum ability uptime.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561706_crimson-lucidity.webp"
         ))
         add(WildRiftItem(
@@ -2308,9 +2308,9 @@ object WildRiftItemsData {
             passive = "Deal Adicional damage to Súbditos\n+18 Penetración Mágica\n+8% Penetración Mágica\nEquilibrium: Campeones without Maná obtiene 50% base Vida Regen.\nBig Bully: Los ataques and active abilities infligen 18 Adicional Daño Verdadero to Súbditos.\nThese boots greatly increase your Daño Mágico through a combination of Poder de Habilidad and both flat and percentage Penetración Mágica. The high Maná regeneration allows for frequent spell casting, while the Adicional Daño Verdadero to Súbditos significantly improves wave clear. Campeones without Maná instead obtiene increased Vida regeneration. They are an excellent choice for mages and AP supports who value strong damage, constant lane pressure, and efficient farming.",
             passiveEn = "Deal Adicional damage to minions\n+18 Magic Penetration\n+8% Magic Penetration\nEquilibrium: champions without Mana obtiene 50% base Health Regen.\nBig Bully: the ataques and active abilities deals 18 Adicional true damage to minions.\nThese boots greatly increase your magic damage through a combination of Ability Power and both flat and percentage Magic Penetration. The high Mana regeneration allows for frequent spell casting, while the Adicional true damage to minions significantly improves wave clear. champions without Mana instead obtiene increased Health regeneration. They are an excellent choice for mages and AP supports who value strong damage, constant lane pressure, and efficient farming.",
             passivePt = "Deal Adicional damage to tropas\n+18 Penetração Mágica\n+8% Penetração Mágica\nEquilibrium: campeões without Mana obtiene 50% base Vida Regen.\nBig Bully: os ataques and active abilities causam 18 Adicional Dano Verdadeiro to tropas.\nThese boots greatly increase your Dano Mágico through a combination of Poder de Habilidade and both flat and percentage Penetração Mágica. The high Mana regeneration allows for frequent spell casting, while the Adicional Dano Verdadeiro to tropas significantly improves wave clear. campeões without Mana instead obtiene increased Vida regeneration. They are an excellent choice for mages and AP supports who value strong damage, constant lane pressure, and efficient farming.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto mágico completado fundamental: multiplica tu Poder de Habilidad y efectividad de daño mágico en escaramuzas y peleas de equipo.",
+            coachTipEn = "Fundamental completed magic item: multiplies your Ability Power and magic damage effectiveness in skirmishes and teamfights.",
+            coachTipPt = "Item mágico completo fundamental: multiplica seu Poder de Habilidade e efetividade de dano mágico em escaramuças e lutas de equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561512_spellslingers-shoes.webp"
         ))
         add(WildRiftItem(
@@ -2326,9 +2326,9 @@ object WildRiftItemsData {
             passive = "Gain out-of-combat Velocidad de Movimiento\nCloudwalker: Gain 20 out-of combat Velocidad de Movimiento.\nThese boots greatly increase your Daño Físico by providing Adicional Daño de Ataque along with both flat and percentage Penetración de Armadura. The additional out-of-combat Velocidad de Movimiento allows you to rotate around the map faster, chase enemies more effectively, and respond to fights more quickly. They are an excellent choice for marksmen, assassins, and fighters who value high mobility and maximum damage aobtienest armored targets.",
             passiveEn = "Gain out-of-combat Movement Speed\nCloudwalker: Gain 20 out-of combat Movement Speed.\nThese boots greatly increase your physical damage by providing Adicional Attack Damage along with both flat and percentage Penetración of Armor. The additional out-of-combat Movement Speed allows you to rotate around the map faster, chase enemies more effectively, and respond to fights more quickly. They are an excellent choice for marksmen, assassins, and fighters who value high mobility and maximum damage aobtienest armored targets.",
             passivePt = "Gain out-of-combat Velocidade de Movimento\nCloudwalker: Gain 20 out-of combat Velocidade de Movimento.\nThese boots greatly increase your Dano Físico by providing Adicional Dano de Ataque along with both flat and percentage Penetração de Armadura. The additional out-of-combat Velocidade de Movimento allows you to rotate around the map faster, chase enemies more effectively, and respond to fights more quickly. They are an excellent choice for marksmen, assassins, and fighters who value high mobility and maximum damage aobtienest armored targets.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto completado de alto impacto ofensivo: otorga un gran pico de daño y estadísticas de combate para dominar duelos y peleas grupales.",
+            coachTipEn = "High-impact completed offensive item: grants a strong damage spike and combat stats to dominate duels and teamfights.",
+            coachTipPt = "Item completo de alto impacto ofensivo: concede um grande pico de dano e atributos de combate para dominar duelos e lutas em equipe.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561651_armorbreaker-boots.webp"
         ))
         add(WildRiftItem(
@@ -2344,9 +2344,9 @@ object WildRiftItemsData {
             passive = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 segundos.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Enfriamiento)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly otorga immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
             passiveEn = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 seconds.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 seconds. (60s Cooldown)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly grants immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
             passivePt = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 segundos.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Ralentización Resist for 1.5 segundos. (60s Tempo de Recarga)\nCannot be used during knock up or knock back effects.\nThis enchant instantly removes most crowd control effects and briefly concede immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and Ralentiza, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice aobtienest teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389685_quicksilver-enchant.webp"
         ))
         add(WildRiftItem(
@@ -2362,9 +2362,9 @@ object WildRiftItemsData {
             passive = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (120s Enfriamiento)\nThis item combines Poder de Habilidad with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your enfriamientos to return. It is an excellent choice for mages and AP assassins who need to survive daño explosivo damage and outplay opponents in critical peleas de equipo.",
             passiveEn = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (120s Cooldown)\nThis item combines Ability Power with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your enfriamientos to return. It is an excellent choice for mages and AP assassins who need to survive daño explosivo damage and outplay opponents in critical peleas of equipo.",
             passivePt = "Turn invulnerable\nEstasis (Active): Become invulnerable and untargetable for 2.5 segundos, but unable to move, attack, cast abilities or use items. (120s Tempo de Recarga)\nThis item combines Poder de Habilidade with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your tempos de recarga to return. It is an excellent choice for mages and AP assassins who need to survive dano explosivo damage and outplay opponents in critical peleas de equipo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2022-01/1641809649_seekers-armguard.png"
         ))
         add(WildRiftItem(
@@ -2380,9 +2380,9 @@ object WildRiftItemsData {
             passive = "Vampiric Scepter",
             passiveEn = "Vampiric Scepter",
             passivePt = "Vampiric Scepter",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985546_1053.png"
         ))
         add(WildRiftItem(
@@ -2398,9 +2398,9 @@ object WildRiftItemsData {
             passive = "Fervor:  +5% Velocidad de Movimiento.",
             passiveEn = "Fervor: +5% Movement Speed.",
             passivePt = "Fervor: +5% Velocidade de Movimento.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985588_3086.png"
         ))
         add(WildRiftItem(
@@ -2416,9 +2416,9 @@ object WildRiftItemsData {
             passive = "Jolt: Energy Los ataques obtiene 50 Adicional Daño Mágico. Muving and attacking generate Energy Los ataques.",
             passiveEn = "Jolt: Energy the ataques obtiene 50 Adicional magic damage. Muving and attacking generate Energy the ataques.",
             passivePt = "Jolt: Energy os ataques obtiene 50 Adicional Dano Mágico. Muving and attacking generate Energy os ataques.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985587_2015.png"
         ))
         add(WildRiftItem(
@@ -2434,9 +2434,9 @@ object WildRiftItemsData {
             passive = "Sharp:  +8 Penetración de Armadura.",
             passiveEn = "Sharp: +8 Penetración of Armor.",
             passivePt = "Sharp: +8 Penetração de Armadura.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985626_3134.png"
         ))
         add(WildRiftItem(
@@ -2452,9 +2452,9 @@ object WildRiftItemsData {
             passive = "Reinforced: Los ataques infligen 15 de daño físico adicional al impacto contra los objetivos.",
             passiveEn = "Reinforced: the ataques deals 15 bonus physical damage al impacto against the objetivos.",
             passivePt = "Reinforced: os ataques causam 15 de Dano Físico adicional al impacto contra os objetivos.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985621_1043.png"
         ))
         add(WildRiftItem(
@@ -2470,9 +2470,9 @@ object WildRiftItemsData {
             passive = "B. F. Sword",
             passiveEn = "B. F. Sword",
             passivePt = "B. F. Sword",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985610_1038.png"
         ))
         add(WildRiftItem(
@@ -2488,9 +2488,9 @@ object WildRiftItemsData {
             passive = "Cloak of Agility",
             passiveEn = "Cloak of Agility",
             passivePt = "Cloak of Agility",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985612_1018.png"
         ))
         add(WildRiftItem(
@@ -2506,9 +2506,9 @@ object WildRiftItemsData {
             passive = "Penetración de Armadura (%)\nLast Whisper:  +12% Penetración de Armadura.",
             passiveEn = "Penetración of Armor (%)\nLast Whisper: +12% Penetración of Armor.",
             passivePt = "Penetração de Armadura (%)\nLast Whisper: +12% Penetração de Armadura.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611440927_last-whisper.png"
         ))
         add(WildRiftItem(
@@ -2524,9 +2524,9 @@ object WildRiftItemsData {
             passive = "Daño Físico reduces enemy healing\nRend: Daño Físico inflicts 40% Heridas Graves to campeones enemigos for 3 segundos. Heridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passiveEn = "physical damage reduces enemy healing\nRend: physical damage inflicts 40% Heridas Graves to champions enemies for 3 seconds. Heridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passivePt = "Dano Físico reduces enemy healing\nRend: Dano Físico inflicts 40% Heridas Graves to campeões inimigos for 3 segundos. Heridas Graves reduces the effectiveness of Healing and Regeneration effects.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985718_3123.png"
         ))
         add(WildRiftItem(
@@ -2542,9 +2542,9 @@ object WildRiftItemsData {
             passive = "Rage: Los ataques otorgan 20 Velocidad de Movimiento and kills grant 60 Velocidad de Movimiento for 2 segundos. Los efectos no se acumulan. A distancia Campeones obtiene halved values.",
             passiveEn = "Rage: the ataques grants 20 Movement Speed and kills grant 60 Movement Speed for 2 seconds. the efectos no se acumulan. ranged champions obtiene halved values.",
             passivePt = "Rage: os ataques concedem 20 Velocidade de Movimento and kills grant 60 Velocidade de Movimento for 2 segundos. os efectos no se acumulan. à distância campeões obtiene halved values.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985701_3044.png"
         ))
         add(WildRiftItem(
@@ -2560,9 +2560,9 @@ object WildRiftItemsData {
             passive = "Stinger",
             passiveEn = "Stinger",
             passivePt = "Stinger",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985695_winged_moonplate_item_hd.jpg"
         ))
         add(WildRiftItem(
@@ -2578,9 +2578,9 @@ object WildRiftItemsData {
             passive = "Caulfield's Warhammer",
             passiveEn = "Caulfield's Warhammer",
             passivePt = "Caulfield's Warhammer",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611441611_caulfields-warhammer.png"
         ))
         add(WildRiftItem(
@@ -2596,9 +2596,9 @@ object WildRiftItemsData {
             passive = "Jaurim's Fist",
             passiveEn = "Jaurim's Fist",
             passivePt = "Jaurim's Fist",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611444901_jaurims-fist.png"
         ))
         add(WildRiftItem(
@@ -2614,9 +2614,9 @@ object WildRiftItemsData {
             passive = "Wisp:  +5% Velocidad de Movimiento.",
             passiveEn = "Wisp: +5% Movement Speed.",
             passivePt = "Wisp: +5% Velocidade de Movimento.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611442631_aether-wisp.png"
         ))
         add(WildRiftItem(
@@ -2632,9 +2632,9 @@ object WildRiftItemsData {
             passive = "Restore Maná when leveling up\n+200 Maná Máximo\nEnlighten: Leveling up restaura 20%Maná Máximo over 3 segundos.",
             passiveEn = "Restore Mana when leveling up\n+200 Max Mana\nEnlighten: Leveling up restores 20%Max Mana over 3 seconds.",
             passivePt = "Restore Mana when leveling up\n+200 Mana Máximo\nEnlighten: Leveling up restaura 20%Mana Máximo over 3 segundos.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985899_3802.png"
         ))
         add(WildRiftItem(
@@ -2650,9 +2650,9 @@ object WildRiftItemsData {
             passive = "Fiendish Codex",
             passiveEn = "Fiendish Codex",
             passivePt = "Fiendish Codex",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985893_3108.png"
         ))
         add(WildRiftItem(
@@ -2668,9 +2668,9 @@ object WildRiftItemsData {
             passive = "Blasting Wand",
             passiveEn = "Blasting Wand",
             passivePt = "Blasting Wand",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985924_1026.png"
         ))
         add(WildRiftItem(
@@ -2686,9 +2686,9 @@ object WildRiftItemsData {
             passive = "Needlessly Large Rod",
             passiveEn = "Needlessly Large Rod",
             passivePt = "Needlessly Large Rod",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985984_1058.png"
         ))
         add(WildRiftItem(
@@ -2704,9 +2704,9 @@ object WildRiftItemsData {
             passive = "Madness: Every 1 segundo(s) En combate with campeones enemigos, infligen 2% Adicional damage, up to 6%.",
             passiveEn = "Madness: Every 1 segundo(s) in combate with champions enemies, deals 2% Adicional damage, up to 6%.",
             passivePt = "Madness: Every 1 segundo(s) em combate with campeões inimigos, causam 2% Adicional damage, up to 6%.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611443224_haunting-guise.png"
         ))
         add(WildRiftItem(
@@ -2722,9 +2722,9 @@ object WildRiftItemsData {
             passive = "Spellblade: Using an ability causes the next attack used within 10 segundos to infligen Adicional Daño Físico equal to 100% base Daño de Ataque . (1.5s Enfriamiento) El daño se reduce contra estructuras.",
             passiveEn = "Spellblade: Using an ability causes the next attack used within 10 seconds to deals Adicional physical damage equal to 100% base Attack Damage . (1.5s Cooldown) the daño se reduce against estructuras.",
             passivePt = "Spellblade: Using an ability causes the next attack used within 10 segundos to causam Adicional Dano Físico equal to 100% base Dano de Ataque . (1.5s Tempo de Recarga) o dano se reduce contra estructuras.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985975_3057.png"
         ))
         add(WildRiftItem(
@@ -2740,9 +2740,9 @@ object WildRiftItemsData {
             passive = "Daño Mágico reduces enemy healing\nCursed Wounds: Dealing Daño Mágico to campeones enemigos applies 40% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passiveEn = "magic damage reduces enemy healing\nCursed Wounds: Dealing magic damage to champions enemies applies 40% Heridas Graves for 3 seconds.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passivePt = "Dano Mágico reduces enemy healing\nCursed Wounds: Dealing Dano Mágico to campeões inimigos applies 40% Heridas Graves for 3 segundos.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985971_3916.png"
         ))
         add(WildRiftItem(
@@ -2758,9 +2758,9 @@ object WildRiftItemsData {
             passive = "Cinders: Deals 10-20 Daño Mágico per segundo to nearby enemies. Deals 15% Adicional damage to Súbditos and Monstruos.",
             passiveEn = "Cinders: Deals 10-20 magic damage per segundo to nearby enemies. Deals 15% Adicional damage to minions and monsters.",
             passivePt = "Cinders: Deals 10-20 Dano Mágico per segundo to nearby enemies. Deals 15% Adicional damage to tropas and monstros.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986281_6660.png"
         ))
         add(WildRiftItem(
@@ -2776,9 +2776,9 @@ object WildRiftItemsData {
             passive = "Spectral Visit: Otorga 150% Vida Regen for 10 segundos after taking damage from an campeón enemigo.",
             passiveEn = "Spectral Visit: grants 150% Health Regen for 10 seconds after taking damage from an campeón enemigo.",
             passivePt = "Spectral Visit: concede 150% Vida Regen for 10 segundos after taking damage from an campeón enemigo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986306_3211.png"
         ))
         add(WildRiftItem(
@@ -2794,9 +2794,9 @@ object WildRiftItemsData {
             passive = "Kindlegem",
             passiveEn = "Kindlegem",
             passivePt = "Kindlegem",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986347_3067.png"
         ))
         add(WildRiftItem(
@@ -2812,9 +2812,9 @@ object WildRiftItemsData {
             passive = "Giant's Belt",
             passiveEn = "Giant's Belt",
             passivePt = "Giant's Belt",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986359_1011.png"
         ))
         add(WildRiftItem(
@@ -2830,9 +2830,9 @@ object WildRiftItemsData {
             passive = "Cold Steel: Reduce the Velocidad de Ataque of enemies by 15% for 1.5 segundos when struck by an attack.",
             passiveEn = "Cold Steel: Reduce the Attack Speed of enemies by 15% for 1.5 seconds when struck by an attack.",
             passivePt = "Cold Steel: Reduce the Velocidade de Ataque of enemies by 15% for 1.5 segundos when struck by an attack.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986370_3082.png"
         ))
         add(WildRiftItem(
@@ -2848,9 +2848,9 @@ object WildRiftItemsData {
             passive = "Consumes Maná to heal\n+300 Maná Máximo\nEternity: Restore Maná equal to 15% of the damage taken from Campeones. Regen Vida equal to 20% of Maná spent. Capped at 15 Vida per cast.",
             passiveEn = "Consumes Mana to heal\n+300 Max Mana\nEternity: Restore Mana equal to 15% of the damage taken from champions. Regen Health equal to 20% of Mana spent. Capped at 15 Health per cast.",
             passivePt = "Consumes Mana to heal\n+300 Mana Máximo\nEternity: Restore Mana equal to 15% of the damage taken from campeões. Regen Vida equal to 20% of Mana spent. Capped at 15 Vida per cast.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611444645_catalyst-of-aeons.png"
         ))
         add(WildRiftItem(
@@ -2866,9 +2866,9 @@ object WildRiftItemsData {
             passive = "Chain Vest",
             passiveEn = "Chain Vest",
             passivePt = "Chain Vest",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986413_1031.png"
         ))
         add(WildRiftItem(
@@ -2884,9 +2884,9 @@ object WildRiftItemsData {
             passive = "Thorns: When struck by an attack, infligen 4 Daño Mágico + 6% Adicional Armadura  to the attacker and inflict 40% Heridas Graves for 3 segundos if they are a Campeón.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passiveEn = "Thorns: When struck by an attack, deals 4 magic damage + 6% Adicional Armor to the attacker and inflict 40% Heridas Graves for 3 seconds if they are a Campeón.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
             passivePt = "Thorns: When struck by an attack, causam 4 Dano Mágico + 6% Adicional Armadura to the attacker and inflict 40% Heridas Graves for 3 segundos if they are a Campeón.\nHeridas Graves reduces the effectiveness of Healing and Regeneration effects.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986594_3076.png"
         ))
         add(WildRiftItem(
@@ -2902,9 +2902,9 @@ object WildRiftItemsData {
             passive = "Hexdrinker",
             passiveEn = "Hexdrinker",
             passivePt = "Hexdrinker",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986547_3155.png"
         ))
         add(WildRiftItem(
@@ -2920,9 +2920,9 @@ object WildRiftItemsData {
             passive = "Negatron Cloak",
             passiveEn = "Negatron Cloak",
             passivePt = "Negatron Cloak",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986529_1057.png"
         ))
         add(WildRiftItem(
@@ -2938,9 +2938,9 @@ object WildRiftItemsData {
             passive = "+150 Maná Máximo",
             passiveEn = "+150 Max Mana",
             passivePt = "+150 Mana Máximo",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986572_3024.png"
         ))
         add(WildRiftItem(
@@ -2956,9 +2956,9 @@ object WildRiftItemsData {
             passive = "Flight:  +5% Velocidad de Movimiento.",
             passiveEn = "Flight: +5% Movement Speed.",
             passivePt = "Flight: +5% Velocidade de Movimento.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616981123_winged_moonplate_item_hd-min.png"
         ))
         add(WildRiftItem(
@@ -2974,9 +2974,9 @@ object WildRiftItemsData {
             passive = "Gain Daño de Ataque or Poder de Habilidad\nMagic Needle: Gain 15 Daño de Ataque or 30 Poder de Habilidad (adaptive).",
             passiveEn = "Gain Attack Damage or Ability Power\nMagic Needle: Gain 15 Attack Damage or 30 Ability Power (adaptive).",
             passivePt = "Gain Dano de Ataque or Poder de Habilidade\nMagic Needle: Gain 15 Dano de Ataque or 30 Poder de Habilidade (adaptive).",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698258000_nashors-talon.png"
         ))
         add(WildRiftItem(
@@ -2992,9 +2992,9 @@ object WildRiftItemsData {
             passive = "Noonquiver",
             passiveEn = "Noonquiver",
             passivePt = "Noonquiver",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2023-05/1685137714_noonquiver_item.webp"
         ))
         add(WildRiftItem(
@@ -3010,9 +3010,9 @@ object WildRiftItemsData {
             passive = "Revved: Damaging abilities and empowered ataques aobtienest Campeones infligen 25-60 Adicional Daño Mágico. (20s Enfriamiento)",
             passiveEn = "Revved: Damaging abilities and empowered ataques aobtienest champions deals 25-60 Adicional magic damage. (20s Cooldown)",
             passivePt = "Revved: Damaging abilities and empowered ataques aobtienest campeões causam 25-60 Adicional Dano Mágico. (20s Tempo de Recarga)",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698176528_hextech_alternator_item.webp"
         ))
         add(WildRiftItem(
@@ -3046,9 +3046,9 @@ object WildRiftItemsData {
             passive = "In-combat Ralentización Resist\nSurge: Gain 20% Ralentización Resist while En combate with an campeón enemigo.",
             passiveEn = "In-combat Ralentización Resist\nSurge: Gain 20% Ralentización Resist while in combate with an campeón enemigo.",
             passivePt = "In-combat Ralentización Resist\nSurge: Gain 20% Ralentización Resist while em combate with an campeón enemigo.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698258154_surging-scales.png"
         ))
         add(WildRiftItem(
@@ -3064,9 +3064,9 @@ object WildRiftItemsData {
             passive = "+4% Heal and Escudo Strength",
             passiveEn = "+4% Heal and Shield Strength",
             passivePt = "+4% Heal and escudo Strength",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2024-12/1735325004_forbidden_idol_item_hd.webp"
         ))
         add(WildRiftItem(
@@ -3082,9 +3082,9 @@ object WildRiftItemsData {
             passive = "Kindle: Damaging abilities infligen 5 Adicional Daño Mágico over 3 segundos.\nDeals an additional 15 Daño Mágico to Monstruos.",
             passiveEn = "Kindle: Damaging abilities deals 5 Adicional magic damage over 3 seconds.\nDeals an additional 15 magic damage to monsters.",
             passivePt = "Kindle: Damaging abilities causam 5 Adicional Dano Mágico over 3 segundos.\nDeals an additional 15 Dano Mágico to monstros.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783190595_fated-ashes.webp"
         ))
         add(WildRiftItem(
@@ -3100,9 +3100,9 @@ object WildRiftItemsData {
             passive = "+10% Penetración Mágica",
             passiveEn = "+10% Magic Penetration",
             passivePt = "+10% Penetração Mágica",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783190939_void_amethyst.webp"
         ))
         add(WildRiftItem(
@@ -3118,9 +3118,9 @@ object WildRiftItemsData {
             passive = "Annul: Otorga a spell Escudo that blocks the next enemy ability. (50s Enfriamiento)",
             passiveEn = "Annul: grants a spell Shield that blocks the next enemy ability. (50s Cooldown)",
             passivePt = "Annul: concede a spell escudo that blocks the next enemy ability. (50s Tempo de Recarga)",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Componente intermedio clave: acelera tu curva de poder hacia tu primer objeto completado. Priorízalo en tu primera vuelta a base.",
+            coachTipEn = "Key intermediate component: accelerates your power curve toward your first full completed item. Prioritize on your first recall.",
+            coachTipPt = "Componente intermediário chave: acelera sua curva de poder rumo ao primeiro item completo. Priorize no seu primeiro retorno.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783191133_verdant_barrier_item_hd_11zon.png"
         ))
         add(WildRiftItem(
@@ -3136,9 +3136,9 @@ object WildRiftItemsData {
             passive = "Boots of Speed",
             passiveEn = "Boots of Speed",
             passivePt = "Boots of Speed",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/060Ck4xv/1753390529-boots-of-speed.webp"
         ))
         add(WildRiftItem(
@@ -3154,9 +3154,9 @@ object WildRiftItemsData {
             passive = "Long Sword",
             passiveEn = "Long Sword",
             passivePt = "Long Sword",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/DWPcvNFT/1753390561-long-sword.webp"
         ))
         add(WildRiftItem(
@@ -3172,9 +3172,9 @@ object WildRiftItemsData {
             passive = "Brawler's Gloves",
             passiveEn = "Brawler's Gloves",
             passivePt = "Brawler's Gloves",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/QBJq8zsr/1753390558-brawlers-gloves.webp"
         ))
         add(WildRiftItem(
@@ -3190,9 +3190,9 @@ object WildRiftItemsData {
             passive = "Dagger",
             passiveEn = "Dagger",
             passivePt = "Dagger",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/CZgNV0y5/1753390550-dagger.webp"
         ))
         add(WildRiftItem(
@@ -3208,9 +3208,9 @@ object WildRiftItemsData {
             passive = "Burn: Deals 5-10 Daño Mágico per segundo to nearby enemies.",
             passiveEn = "Burn: Deals 5-10 magic damage per segundo to nearby enemies.",
             passivePt = "Burn: Deals 5-10 Dano Mágico per segundo to nearby enemies.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/bGhTjPXv/1753390582-shimmering-spark.webp"
         ))
         add(WildRiftItem(
@@ -3226,9 +3226,9 @@ object WildRiftItemsData {
             passive = "Increases Maná\n+200 Maná Máximo\nAwe: 10% of Maná spent is refunded.\nManá Charge: Increases Maná Máximo by 6 every time Maná is spent. Hasta un máximo de 700 Adicional Maná. Se activa hasta 3 veces cada 10 segundos. Solo puedes portar un objeto de Lágrima de la Diosa a la vez.",
             passiveEn = "Increases Mana\n+200 Max Mana\nAwe: 10% of Mana spent is refunded.\nManá Charge: Increases Max Mana by 6 every time Mana is spent. Hasta a máximo of 700 Adicional Mana. Se activa hasta 3 veces cada 10 seconds. Solo puedes portar a objeto of Lágrima of the Diosa a the vez.",
             passivePt = "Increases Mana\n+200 Mana Máximo\nAwe: 10% of Mana spent is refunded.\nManá Charge: Increases Mana Máximo by 6 every time Mana is spent. Hasta um máximo de 700 Adicional Mana. Se activa hasta 3 veces cada 10 segundos. Solo puedes portar um objeto de Lágrima de a Diosa a a vez.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/mcswG4xg/1611442459-tear-of-the-goddess.png"
         ))
         add(WildRiftItem(
@@ -3244,9 +3244,9 @@ object WildRiftItemsData {
             passive = "Amplifying Tome",
             passiveEn = "Amplifying Tome",
             passivePt = "Amplifying Tome",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/qtTLdrfM/1753390572-amplifying-tome.webp"
         ))
         add(WildRiftItem(
@@ -3262,9 +3262,9 @@ object WildRiftItemsData {
             passive = "Ruby Crystal",
             passiveEn = "Ruby Crystal",
             passivePt = "Ruby Crystal",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/rdkJLT6y/1753390626-ruby-crystal.webp"
         ))
         add(WildRiftItem(
@@ -3280,9 +3280,9 @@ object WildRiftItemsData {
             passive = "Cloth Armadura",
             passiveEn = "Cloth Armor",
             passivePt = "Cloth Armadura",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/3yTBHhM8/1753390581-cloth-armor.webp"
         ))
         add(WildRiftItem(
@@ -3298,9 +3298,9 @@ object WildRiftItemsData {
             passive = "Null-Magic Mantle",
             passiveEn = "Null-Magic Mantle",
             passivePt = "Null-Magic Mantle",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/4Kg5TGCJ/1753390606-null-magic-mantle.webp"
         ))
         add(WildRiftItem(
@@ -3316,9 +3316,9 @@ object WildRiftItemsData {
             passive = "Reduces ability enfriamientos",
             passiveEn = "Reduces ability enfriamientos",
             passivePt = "Reduces ability tempos de recarga",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/wtpVdzKH/1753390605-ring-of-revelation.webp"
         ))
         add(WildRiftItem(
@@ -3334,9 +3334,9 @@ object WildRiftItemsData {
             passive = "Kill Súbditos to earn Adicional gold\nThis item is for support players. When equipped, it will reduce the gold you receive from killing Súbditos and Monstruos. If there are multiples of this item within the party, only one of them can take effect at any given time.\nTribute: Gain 1 encircling energy orb(s) every 30 segundos (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Vida 20-80:\n1. Using abilities or ataques to damage campeones enemigos or structures.\n2. Attacking Súbditos below 65% Vida. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain and binds you and the ally with the most Tribute stacks as Perfect Partners.",
             passiveEn = "Kill minions to earn Adicional gold\nThis item is for support players. When equipped, it will reduce the gold you receive from killing minions and monsters. If there are multiples of this item within the party, only one of them can take effect at any given time.\nTribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80:\n1. Using abilities or ataques to damage champions enemies or structures.\n2. Attacking minions below 65% Health. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain and binds you and the ally with the most Tribute stacks as Perfect Partners.",
             passivePt = "Kill tropas to earn Adicional gold\nThis item is for support players. When equipped, it will reduce the gold you receive from killing tropas and monstros. If there are multiples of this item within the party, only one of them can take effect at any given time.\nTribute: Gain 1 encircling energy orb(s) every 30 segundos (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Vida 20-80:\n1. Using abilities or ataques to damage campeões inimigos or structures.\n2. Attacking tropas below 65% Vida. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain and binds you and the ally with the most Tribute stacks as Perfect Partners.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/sBrcRzFs/1753390612-relic-shield.webp"
         ))
         add(WildRiftItem(
@@ -3352,37 +3352,116 @@ object WildRiftItemsData {
             passive = "This item is for support players. When equipped, it will reduce the gold you receive from killing Súbditos and Monstruos. If there are multiples of this item within the party, only one of them can take effect at any given time.\nVersatile: Gain 10 Daño de Ataque or 20 Poder de Habilidad (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 segundos (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Vida 20-80:\n1. Using abilities or ataques to damage campeones enemigos or structures.\n2. Attacking Súbditos below 65% Vida. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: Earn 750 gold with this item to transform it into Black Mist Scythe and bind you and the ally with the most Tribute stacks as Perfect Partners.",
             passiveEn = "This item is for support players. When equipped, it will reduce the gold you receive from killing minions and monsters. If there are multiples of this item within the party, only one of them can take effect at any given time.\nVersatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Health 20-80:\n1. Using abilities or ataques to damage champions enemies or structures.\n2. Attacking minions below 65% Health. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: Earn 750 gold with this item to transform it into Black Mist Scythe and bind you and the ally with the most Tribute stacks as Perfect Partners.",
             passivePt = "This item is for support players. When equipped, it will reduce the gold you receive from killing tropas and monstros. If there are multiples of this item within the party, only one of them can take effect at any given time.\nVersatile: Gain 10 Dano de Ataque or 20 Poder de Habilidade (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 segundos (max 3 orbs). While near an ally, the actions below will trigger Tribute, consuming 1 energy orb(s) to grant you 65 gold and restore your Vida 20-80:\n1. Using abilities or ataques to damage campeões inimigos or structures.\n2. Attacking tropas below 65% Vida. This also executes them, and the gold generated from the minion kills is given to the ally nearest to you. 3. A nearby minion is killed while you have 3 orbs. Upon triggering Tribute, the ally nearest to you obtienes Tribute stacks.\nSentry: Deal 1 more damage to Sight Wards revealed by Sweeping Lens, Control Ward, and Scryer’s Bloom.\nRestraint: You do not earn gold generated from minion kills, but you earn gold equal to 50% of the bounty. The gold generated from your minion kills will be given to the ally nearest to you. Gold earned from monster kills is reduced by 50%.\nQuest: Earn 750 gold with this item to transform it into Black Mist Scythe and bind you and the ally with the most Tribute stacks as Perfect Partners.",
-            coachTip = "",
-            coachTipEn = "",
-            coachTipPt = "",
+            coachTip = "Objeto básico inicial de básicos: cómpralo en tu salida de base o primer back para optimizar tus estadísticas de fase de líneas.",
+            coachTipEn = "Basic starting item for básicos: purchase on game start or first recall to boost laning stats.",
+            coachTipPt = "Item básico inicial de básicos: compre no início da partida ou no primeiro retorno à base.",
             iconUrl = "https://i.postimg.cc/2qDwfYpY/1753390656-spectral-sickle.webp"
-        ))    }
-
-    private val idMap: Map<String, WildRiftItem> by lazy {
-        list.associateBy { it.id.lowercase() }
+        ))
     }
 
-    private val nameLookupMap: Map<String, WildRiftItem> by lazy {
-        val map = mutableMapOf<String, WildRiftItem>()
-        for (item in list) {
-            map[normalizeItemName(item.name)] = item
-            if (item.nameEn.isNotBlank()) map[normalizeItemName(item.nameEn)] = item
-            if (item.namePt.isNotBlank()) map[normalizeItemName(item.namePt)] = item
-        }
-        map
+
+    private val aliasMap: Map<String, String> = mapOf(
+        "cuchilla negra" to "cuchilla oscura",
+        "black cleaver" to "cuchilla oscura",
+        "sombrero mortifero de rabadon" to "sombrero mortal de rabadon",
+        "sombrero mortífero de rabadon" to "sombrero mortal de rabadon",
+        "rabadon deathcap" to "sombrero mortal de rabadon",
+        "rabadon's deathcap" to "sombrero mortal de rabadon",
+        "rostro espiritual" to "apariencia espiritual",
+        "spirit visage" to "apariencia espiritual",
+        "guantelete de sterak" to "calibrador de sterak",
+        "sterak's gage" to "calibrador de sterak",
+        "sterak gage" to "calibrador de sterak",
+        "canon de fuego rapido" to "cañon de fuego rapido",
+        "cañón de fuego rápido" to "cañón de fuego rápido",
+        "rapid firecannon" to "cañon de fuego rapido",
+        "rapidfire cannon" to "cañon de fuego rapido",
+        "malla de espinas" to "cota de espinas",
+        "thornmail" to "cota de espinas",
+        "creagrietas" to "agrietador",
+        "crea grietas" to "agrietador",
+        "riftmaker" to "agrietador",
+        "medallon de los solari" to "encanto de solari",
+        "medallón de los solari" to "encanto de solari",
+        "locket enchant" to "encanto de solari",
+        "locket" to "encanto de solari",
+        "filo fantasma de youmuu" to "espada fantasma de youmuu",
+        "youmuu's ghostblade" to "espada fantasma de youmuu",
+        "youmuu ghostblade" to "espada fantasma de youmuu",
+        "botas blindadas" to "grebas blindadas",
+        "botas de placas de acero" to "grebas blindadas",
+        "plated steelcaps" to "grebas blindadas",
+        "botas de mercurio" to "grebas de mercurio",
+        "mercury's treads" to "grebas de mercurio",
+        "mercury treads" to "grebas de mercurio",
+        "botas de hechicero" to "botas del hechicero",
+        "botas de mana" to "botas de maná",
+        "sorcerer's shoes" to "botas del hechicero",
+        "filo de la noche" to "filo de la noche",
+        "edge of night" to "filo de la noche",
+        "promesa del caballero" to "promesa del caballero",
+        "knight's vow" to "promesa del caballero",
+        "coloso de zeke" to "convergencia de zeke",
+        "zeke's convergence" to "convergencia de zeke"
+    )
+
+    private fun normalizeText(text: String): String {
+        return text.trim().lowercase()
+            .replace("á", "a")
+            .replace("é", "e")
+            .replace("í", "i")
+            .replace("ó", "o")
+            .replace("ú", "u")
+            .replace("ñ", "n")
+            .replace("'", "")
+            .replace("-", " ")
+            .replace("_", " ")
+            .replace(Regex("[^a-z0-9 ]"), "")
+            .trim()
     }
 
-    fun getItemById(id: String): WildRiftItem? = idMap[id.lowercase()]
+    fun getItemById(id: String): WildRiftItem? =
+        list.firstOrNull { it.id.equals(id, ignoreCase = true) }
 
     fun getItemByName(name: String): WildRiftItem? {
-        val norm = normalizeItemName(name)
-        nameLookupMap[norm]?.let { return it }
+        if (name.isBlank()) return null
+        val cleanName = name.trim()
+        val normalized = normalizeText(cleanName)
 
-        for (item in list) {
-            if (normalizeItemName(item.name).contains(norm) || norm.contains(normalizeItemName(item.name))) return item
-            if (item.nameEn.isNotBlank() && (normalizeItemName(item.nameEn).contains(norm) || norm.contains(normalizeItemName(item.nameEn)))) return item
-            if (item.namePt.isNotBlank() && (normalizeItemName(item.namePt).contains(norm) || norm.contains(normalizeItemName(item.namePt)))) return item
+        // 1. Direct match by original name (ES, EN, PT) or ID
+        list.firstOrNull {
+            it.name.equals(cleanName, ignoreCase = true) ||
+            it.nameEn.equals(cleanName, ignoreCase = true) ||
+            it.namePt.equals(cleanName, ignoreCase = true) ||
+            it.id.equals(cleanName, ignoreCase = true)
+        }?.let { return it }
+
+        // 2. Normalized match
+        list.firstOrNull {
+            normalizeText(it.name) == normalized ||
+            normalizeText(it.nameEn) == normalized ||
+            normalizeText(it.namePt) == normalized ||
+            normalizeText(it.id) == normalized
+        }?.let { return it }
+
+        // 3. Alias dictionary check
+        aliasMap[normalized]?.let { aliasedName ->
+            val aliasedNorm = normalizeText(aliasedName)
+            list.firstOrNull {
+                normalizeText(it.name) == aliasedNorm ||
+                normalizeText(it.nameEn) == aliasedNorm ||
+                normalizeText(it.namePt) == aliasedNorm
+            }?.let { return it }
         }
+
+        // 4. Substring / contains match
+        list.firstOrNull {
+            val nName = normalizeText(it.name)
+            val nEn = normalizeText(it.nameEn)
+            (nName.length >= 4 && (normalized.contains(nName) || nName.contains(normalized))) ||
+            (nEn.length >= 4 && (normalized.contains(nEn) || nEn.contains(normalized)))
+        }?.let { return it }
+
         return null
     }
 
@@ -3392,18 +3471,4 @@ object WildRiftItemsData {
 
     fun getItemsByCategory(category: String): List<WildRiftItem> =
         list.filter { it.category.equals(category, ignoreCase = true) }
-
-    private fun normalizeItemName(name: String): String {
-        return name.lowercase()
-            .replace("á", "a")
-            .replace("é", "e")
-            .replace("í", "i")
-            .replace("ó", "o")
-            .replace("ú", "u")
-            .replace("ñ", "n")
-            .replace("ã", "a")
-            .replace("õ", "o")
-            .replace("ç", "c")
-            .replace(Regex("[^a-z0-9]"), "")
-    }
 }

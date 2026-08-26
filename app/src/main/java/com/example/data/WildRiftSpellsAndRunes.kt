@@ -166,6 +166,33 @@ object WildRiftSpellsAndRunes {
         return runes.find { clean.contains(it.name, ignoreCase = true) || it.name.contains(clean, ignoreCase = true) }
     }
 
+    fun getSpellByName(name: String): SummonerSpellItem? {
+        val clean = name.trim()
+        if (clean.isEmpty()) return null
+        val exact = summonerSpells.find { it.name.equals(clean, ignoreCase = true) || it.id.equals(clean, ignoreCase = true) }
+        if (exact != null) return exact
+
+        val canonicalId = when (clean.lowercase()) {
+            "destello", "flash" -> "flash"
+            "prender", "ignición", "ignite", "ignicion", "incendiar" -> "ignite"
+            "castigo", "smite", "smite desafiante", "smite helado" -> "smite"
+            "barrera", "barrier" -> "barrier"
+            "extenuación", "extenuacion", "exhaust" -> "exhaust"
+            "fantasmal", "fantasma", "ghost" -> "ghost"
+            "curar", "curación", "curacion", "heal" -> "heal"
+            "claridad", "clarity" -> "clarity"
+            "marca", "marca / lanzamiento", "mark", "snowball" -> "mark"
+            "teleportación", "teletransporte", "teleport" -> "teleport"
+            "limpiar", "cleanse" -> "cleanse"
+            else -> null
+        }
+        if (canonicalId != null) {
+            return summonerSpells.find { it.id.equals(canonicalId, ignoreCase = true) }
+        }
+
+        return summonerSpells.find { clean.contains(it.name, ignoreCase = true) || it.name.contains(clean, ignoreCase = true) }
+    }
+
     val summonerSpells: List<SummonerSpellItem> = listOf(
         SummonerSpellItem(
             id = "ghost",

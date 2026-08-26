@@ -59,6 +59,7 @@ object SystemPermissionHelper {
     /**
      * Solicita al usuario desactivar el ahorro de batería para evitar que el sistema cierre
      * el asistente flotante en segundo plano mientras se ejecuta Wild Rift.
+     * Compatible con Android 14, 15 y Android 16 (API 34/35/36).
      */
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization(context: Context) {
@@ -69,13 +70,27 @@ object SystemPermissionHelper {
             }
             context.startActivity(intent)
         } catch (_: Exception) {
-            // Fallback hacia la lista general de optimización de batería
             try {
-                val fallback = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                val appDetailsIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.parse("package:${context.packageName}")
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
-                context.startActivity(fallback)
-            } catch (_: Exception) {}
+                context.startActivity(appDetailsIntent)
+            } catch (_: Exception) {
+                try {
+                    val fallback = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(fallback)
+                } catch (_: Exception) {
+                    try {
+                        val generalSettings = Intent(Settings.ACTION_SETTINGS).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
+                        context.startActivity(generalSettings)
+                    } catch (_: Exception) {}
+                }
+            }
         }
     }
 

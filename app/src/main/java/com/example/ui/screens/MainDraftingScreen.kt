@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.example.ui.theme.TierAColor
 import com.example.model.LaneRole
 import com.example.ui.components.BugReportFeedbackDialog
 import com.example.ui.components.HextechOrbButton
@@ -334,102 +335,147 @@ fun MainDraftingScreen(
                     }
                 }
 
-                if (!isIgnoringBatteryOpt || !hasOverlayPermission || !hasStoragePermission) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .border(1.dp, HextechGold.copy(alpha = 0.45f), RoundedCornerShape(14.dp)),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.9f))
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+                // Card Permanente de Rendimiento en Segundo Plano y Estado del Sistema (Compatible con Android 16)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(14.dp)),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Warning, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(Icons.Default.BatteryChargingFull, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = tr("Rendimiento de Segundo Plano"),
+                                        color = HextechGold,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = tr("Optimización activa para Android 14/15/16"),
+                                        color = TextMuted,
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // 1. Superposición
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = tr("Recomendaciones de Rendimiento"),
-                                    color = HextechGold,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
+                                    text = tr("Ventana Flotante (Overlay)"),
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = if (hasOverlayPermission) tr("✔ Concedido y listo para jugar") else tr("Requerido para mostrar recomendaciones sobre el juego"),
+                                    color = if (hasOverlayPermission) HextechCyan else TextSecondary,
+                                    fontSize = 10.5.sp
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (!hasOverlayPermission) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = tr("Permiso de Superposición"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(text = tr("Requerido para usar el panel flotante sobre el juego."), color = TextSecondary, fontSize = 10.5.sp)
-                                    }
-                                    OutlinedButton(
-                                        onClick = { SystemPermissionHelper.openOverlaySettings(context) },
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                        modifier = Modifier.height(30.dp)
-                                    ) {
-                                        Text(tr("Activar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
+                            OutlinedButton(
+                                onClick = { SystemPermissionHelper.openOverlaySettings(context) },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = if (hasOverlayPermission) HextechGold else HextechCyan
+                                ),
+                                border = BorderStroke(1.dp, if (hasOverlayPermission) HextechGold.copy(alpha = 0.5f) else HextechCyan),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(30.dp)
+                            ) {
+                                Text(if (hasOverlayPermission) tr("Configurado") else tr("Activar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
-                            if (!isIgnoringBatteryOpt) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(bottom = if (!hasStoragePermission) 8.dp else 0.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = tr("Rendimiento en Segundo Plano"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(text = tr("Para evitar que Android cierre la app."), color = TextSecondary, fontSize = 10.5.sp)
-                                    }
-                                    OutlinedButton(
-                                        onClick = { SystemPermissionHelper.requestIgnoreBatteryOptimization(context) },
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                        modifier = Modifier.height(30.dp)
-                                    ) {
-                                        Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
+                        }
+
+                        // 2. Batería / Segundo plano
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = tr("Ahorro de Batería"),
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = if (isIgnoringBatteryOpt) tr("✔ Sin restricciones (No se cerrará en partida)") else tr("Pon en 'Sin Restricciones' para no cerrarse"),
+                                    color = if (isIgnoringBatteryOpt) HextechCyan else TierAColor,
+                                    fontSize = 10.5.sp
+                                )
                             }
-                            if (!hasStoragePermission) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(text = tr("Guardar en Dispositivo"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        Text(text = tr("Para descargar y guardar capturas."), color = TextSecondary, fontSize = 10.5.sp)
+                            OutlinedButton(
+                                onClick = { SystemPermissionHelper.requestIgnoreBatteryOptimization(context) },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f)),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(30.dp)
+                            ) {
+                                Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // 3. Sincronización BestBuildWR
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = tr("Builds & Catálogo BestBuildWR"),
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = tr("Ítems, runas y hechizos interconectados"),
+                                    color = HextechCyan,
+                                    fontSize = 10.5.sp
+                                )
+                            }
+                            var isSyncingBestBuild by remember { mutableStateOf(false) }
+                            val scope = rememberCoroutineScope()
+                            OutlinedButton(
+                                onClick = {
+                                    scope.launch {
+                                        isSyncingBestBuild = true
+                                        com.example.data.sync.BestBuildWrScraper.syncAllChampionBuilds(context, forceRefresh = true)
+                                        isSyncingBestBuild = false
                                     }
-                                    OutlinedButton(
-                                        onClick = {
-                                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                                                requestStoragePermissionLauncher.launch(arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES))
-                                            } else {
-                                                requestStoragePermissionLauncher.launch(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE))
-                                            }
-                                        },
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                        modifier = Modifier.height(30.dp)
-                                    ) {
-                                        Text(tr("Activar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
+                                },
+                                enabled = !isSyncingBestBuild,
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f)),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(30.dp)
+                            ) {
+                                Text(if (isSyncingBestBuild) "..." else tr("Sincronizar"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Spacer(modifier = Modifier.height(24.dp))
 

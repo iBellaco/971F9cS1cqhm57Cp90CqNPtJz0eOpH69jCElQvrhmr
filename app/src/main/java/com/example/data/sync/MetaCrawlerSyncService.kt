@@ -89,9 +89,13 @@ object MetaCrawlerSyncService {
                 val timestampFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
                 val nowStr = timestampFormat.format(Date())
 
-                // Supabase dynamic data fetching will be implemented here
-                //com.example.data.supabase.WildRiftSupabaseRepository.syncAllFromSupabase(context)
-                
+                // Sincronizar e interconectar builds de BestBuildWR con el catálogo
+                try {
+                    BestBuildWrScraper.syncAllChampionBuilds(context, forceRefresh)
+                } catch (e: Exception) {
+                    Log.w(TAG, "BestBuildWrScraper sync issue: ${e.message}")
+                }
+
                 // Recargar desde la cache recien sincronizada
                 com.example.data.local.WildRiftLocalCache.loadFromLocalCache(context)
 
