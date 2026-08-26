@@ -118,7 +118,25 @@ data class WildRiftItem(
     val passiveEn: String = "",
     val passivePt: String = "",
     val iconUrl: String
-)
+) {
+    fun getLocalizedName(lang: String): String = when (lang) {
+        "en" -> nameEn.ifBlank { name }
+        "pt" -> namePt.ifBlank { name }
+        else -> name
+    }
+
+    fun getLocalizedStats(lang: String): String = when (lang) {
+        "en" -> statsEn.ifBlank { stats }
+        "pt" -> statsPt.ifBlank { stats }
+        else -> stats
+    }
+
+    fun getLocalizedPassive(lang: String): String = when (lang) {
+        "en" -> passiveEn.ifBlank { passive }
+        "pt" -> passivePt.ifBlank { passive }
+        else -> passive
+    }
+}
 
 @Serializable
 data class SummonerSpellItem(
@@ -132,7 +150,19 @@ data class SummonerSpellItem(
     val descriptionEn: String = "",
     val descriptionPt: String = "",
     val category: String = "Hechizos"
-)
+) {
+    fun getLocalizedName(lang: String): String = when (lang) {
+        "en" -> nameEn.ifBlank { name }
+        "pt" -> namePt.ifBlank { name }
+        else -> name
+    }
+
+    fun getLocalizedDescription(lang: String): String = when (lang) {
+        "en" -> descriptionEn.ifBlank { description }
+        "pt" -> descriptionPt.ifBlank { description }
+        else -> description
+    }
+}
 
 @Serializable
 data class RuneItem(

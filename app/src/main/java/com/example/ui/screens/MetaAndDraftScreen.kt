@@ -1101,13 +1101,17 @@ private fun ItemsCatalogTab() {
         options
     }
 
-    val filteredItems = remember(selectedCategory, searchQuery, allItems) {
+    val lang = LocalLanguage.current
+    val filteredItems = remember(selectedCategory, searchQuery, allItems, lang) {
         allItems.filter { item ->
             val matchesCategory = selectedCategory == null || item.category.equals(selectedCategory, ignoreCase = true)
             val matchesSearch = searchQuery.isBlank() ||
+                    item.getLocalizedName(lang).contains(searchQuery, ignoreCase = true) ||
                     item.name.contains(searchQuery, ignoreCase = true) ||
-                    item.stats.contains(searchQuery, ignoreCase = true) ||
-                    item.passive.contains(searchQuery, ignoreCase = true) ||
+                    item.nameEn.contains(searchQuery, ignoreCase = true) ||
+                    item.namePt.contains(searchQuery, ignoreCase = true) ||
+                    item.getLocalizedStats(lang).contains(searchQuery, ignoreCase = true) ||
+                    item.getLocalizedPassive(lang).contains(searchQuery, ignoreCase = true) ||
                     item.category.contains(searchQuery, ignoreCase = true)
             matchesCategory && matchesSearch
         }
@@ -1344,6 +1348,11 @@ private fun selectedRuneItemModal(
     onDismiss: () -> Unit
 ) {
     item?.let { itm ->
+        val lang = LocalLanguage.current
+        val localizedName = itm.getLocalizedName(lang)
+        val localizedStats = itm.getLocalizedStats(lang)
+        val localizedPassive = itm.getLocalizedPassive(lang)
+
         androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
             Card(
                 modifier = Modifier
@@ -1362,15 +1371,15 @@ private fun selectedRuneItemModal(
                 ) {
                     AppAssetImage(
                         url = itm.iconUrl,
-                        contentDescription = itm.name,
-                        fallbackText = itm.name,
+                        contentDescription = localizedName,
+                        fallbackText = localizedName,
                         modifier = Modifier.size(72.dp),
                         borderColor = HextechGold,
                         shape = RoundedCornerShape(12.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr(itm.name),
+                        text = localizedName,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -1407,7 +1416,7 @@ private fun selectedRuneItemModal(
                         }
                     }
 
-                    if (itm.stats.isNotBlank()) {
+                    if (localizedStats.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Estadísticas:"),
@@ -1418,7 +1427,7 @@ private fun selectedRuneItemModal(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         FormattedWildRiftText(
-                            text = tr(itm.stats),
+                            text = localizedStats,
                             color = TextPrimary,
                             fontSize = 12.5.sp,
                             lineHeight = 16.sp,
@@ -1426,7 +1435,7 @@ private fun selectedRuneItemModal(
                         )
                     }
 
-                    if (itm.passive.isNotBlank()) {
+                    if (localizedPassive.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Efecto / Pasiva:"),
@@ -1437,7 +1446,7 @@ private fun selectedRuneItemModal(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         FormattedWildRiftText(
-                            text = tr(itm.passive),
+                            text = localizedPassive,
                             color = TextPrimary.copy(alpha = 0.9f),
                             fontSize = 12.sp,
                             lineHeight = 16.sp,
@@ -1470,6 +1479,9 @@ private fun ItemGridCard(
     modifier: Modifier = Modifier,
     borderColor: Color = HextechGold
 ) {
+    val lang = LocalLanguage.current
+    val localizedName = item.getLocalizedName(lang)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -1481,15 +1493,15 @@ private fun ItemGridCard(
     ) {
         AppAssetImage(
             url = item.iconUrl,
-            contentDescription = item.name,
-            fallbackText = item.name,
+            contentDescription = localizedName,
+            fallbackText = localizedName,
             modifier = Modifier.size(42.dp),
             borderColor = borderColor,
             shape = RoundedCornerShape(8.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = tr(item.name),
+            text = localizedName,
             color = TextPrimary,
             fontSize = 9.5.sp,
             fontWeight = FontWeight.Medium,
@@ -1514,6 +1526,11 @@ private fun ItemListCard(
     onClick: () -> Unit,
     borderColor: Color = HextechCardBorder
 ) {
+    val lang = LocalLanguage.current
+    val localizedName = item.getLocalizedName(lang)
+    val localizedStats = item.getLocalizedStats(lang)
+    val localizedPassive = item.getLocalizedPassive(lang)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1528,8 +1545,8 @@ private fun ItemListCard(
         ) {
             AppAssetImage(
                 url = item.iconUrl,
-                contentDescription = item.name,
-                fallbackText = item.name,
+                contentDescription = localizedName,
+                fallbackText = localizedName,
                 modifier = Modifier.size(44.dp),
                 borderColor = borderColor,
                 shape = RoundedCornerShape(8.dp)
@@ -1541,23 +1558,23 @@ private fun ItemListCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(tr(item.name), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
+                    Text(localizedName, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
                     Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                 }
                 Text(tr(item.category), color = HextechCyan, fontSize = 10.5.sp)
-                if (item.stats.isNotBlank()) {
+                if (localizedStats.isNotBlank()) {
                     Spacer(modifier = Modifier.height(3.dp))
                     FormattedWildRiftText(
-                        text = tr(item.stats),
+                        text = localizedStats,
                         color = TextPrimary,
                         fontSize = 11.5.sp,
                         lineHeight = 15.sp
                     )
                 }
-                if (item.passive.isNotBlank()) {
+                if (localizedPassive.isNotBlank()) {
                     Spacer(modifier = Modifier.height(3.dp))
                     FormattedWildRiftText(
-                        text = tr(item.passive),
+                        text = localizedPassive,
                         color = TextMuted,
                         fontSize = 11.sp,
                         lineHeight = 14.sp,

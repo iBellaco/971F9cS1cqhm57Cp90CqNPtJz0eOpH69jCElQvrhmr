@@ -863,18 +863,22 @@ private fun FloatingOverlayContent(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
+                                        val lang = com.example.util.LocalLanguage.current
+                                        val localizedName = item.getLocalizedName(lang)
+                                        val localizedPassive = item.getLocalizedPassive(lang)
+
                                         AppAssetImage(
                                             url = item.iconUrl,
-                                            contentDescription = tr(item.name),
-                                            fallbackText = item.name,
+                                            contentDescription = localizedName,
+                                            fallbackText = localizedName,
                                             modifier = Modifier.size(30.dp),
                                             borderColor = HextechGold,
                                             shape = RoundedCornerShape(6.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(tr(item.name), color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(tr(item.passive), color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(localizedName, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(localizedPassive, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                         }
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)

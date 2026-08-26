@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.SituationalItemAdvisor
 import com.example.model.Champion
 import com.example.model.LaneRole
+import com.example.util.LocalLanguage
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
 import com.example.ui.components.FormattedWildRiftText
@@ -1127,17 +1128,22 @@ fun ChampionDetailSheet(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val lang = LocalLanguage.current
+                    val localizedName = item.getLocalizedName(lang)
+                    val localizedStats = item.getLocalizedStats(lang)
+                    val localizedPassive = item.getLocalizedPassive(lang)
+
                     com.example.ui.components.AppAssetImage(
                         url = item.iconUrl,
-                        contentDescription = item.name,
-                        fallbackText = item.name,
+                        contentDescription = localizedName,
+                        fallbackText = localizedName,
                         modifier = Modifier.size(72.dp),
                         borderColor = com.example.ui.theme.HextechGold,
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr(item.name),
+                        text = localizedName,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -1173,7 +1179,7 @@ fun ChampionDetailSheet(
                             )
                         }
                     }
-                    if (item.stats.isNotBlank()) {
+                    if (localizedStats.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Estadísticas:"),
@@ -1184,14 +1190,14 @@ fun ChampionDetailSheet(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = tr(item.stats),
+                            text = localizedStats,
                             color = com.example.ui.theme.TextPrimary,
                             fontSize = 12.5.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    if (item.passive.isNotBlank()) {
+                    if (localizedPassive.isNotBlank()) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = tr("Efecto / Pasiva:"),
@@ -1202,7 +1208,7 @@ fun ChampionDetailSheet(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = tr(item.passive),
+                            text = localizedPassive,
                             color = com.example.ui.theme.TextMuted,
                             fontSize = 12.sp,
                             lineHeight = 16.sp,

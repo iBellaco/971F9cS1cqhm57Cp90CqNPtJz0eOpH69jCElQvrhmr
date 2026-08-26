@@ -27,6 +27,7 @@ import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.model.DraftAnalysisResult
 import com.example.util.tr
+import com.example.util.LocalLanguage
 import com.example.ui.theme.*
 import kotlin.math.roundToInt
 
@@ -205,13 +206,17 @@ private fun OverlayItemsTabContent(
     selectedCategory: String?,
     onCategoryChange: (String?) -> Unit
 ) {
-    val filteredItems = remember(searchQuery, selectedCategory) {
+    val lang = LocalLanguage.current
+    val filteredItems = remember(searchQuery, selectedCategory, lang) {
         WildRiftRepository.items.filter { item ->
             val matchCategory = selectedCategory == null || item.category.equals(selectedCategory, ignoreCase=true)
             val matchQuery = searchQuery.isBlank() ||
+                    item.getLocalizedName(lang).contains(searchQuery, ignoreCase = true) ||
                     item.name.contains(searchQuery, ignoreCase = true) ||
-                    item.passive.contains(searchQuery, ignoreCase = true) ||
-                    item.stats.contains(searchQuery, ignoreCase = true)
+                    item.nameEn.contains(searchQuery, ignoreCase = true) ||
+                    item.namePt.contains(searchQuery, ignoreCase = true) ||
+                    item.getLocalizedPassive(lang).contains(searchQuery, ignoreCase = true) ||
+                    item.getLocalizedStats(lang).contains(searchQuery, ignoreCase = true)
             matchCategory && matchQuery
         }
     }
@@ -261,6 +266,10 @@ private fun OverlayItemsTabContent(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(filteredItems) { item ->
+                val localizedName = item.getLocalizedName(lang)
+                val localizedStats = item.getLocalizedStats(lang)
+                val localizedPassive = item.getLocalizedPassive(lang)
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
@@ -273,8 +282,8 @@ private fun OverlayItemsTabContent(
                     ) {
                         AppAssetImage(
                             url = item.iconUrl,
-                            contentDescription = item.name,
-                            fallbackText = item.name,
+                            contentDescription = localizedName,
+                            fallbackText = localizedName,
                             modifier = Modifier.size(36.dp).clip(RoundedCornerShape(6.dp)).border(1.dp, HextechGold, RoundedCornerShape(6.dp))
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -284,12 +293,16 @@ private fun OverlayItemsTabContent(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(tr(item.name), color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text(localizedName, color = HextechGoldLight, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 Text("${item.goldCost} ${tr("Oro")}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
-                            Text(tr(item.stats), color = HextechCyan, fontSize = 10.sp)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(tr(item.passive), color = TextPrimary.copy(alpha = 0.85f), fontSize = 10.sp, lineHeight = 13.sp)
+                            if (localizedStats.isNotBlank()) {
+                                Text(localizedStats, color = HextechCyan, fontSize = 10.sp)
+                            }
+                            if (localizedPassive.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(localizedPassive, color = TextPrimary.copy(alpha = 0.85f), fontSize = 10.sp, lineHeight = 13.sp)
+                            }
                         }
                     }
                 }
