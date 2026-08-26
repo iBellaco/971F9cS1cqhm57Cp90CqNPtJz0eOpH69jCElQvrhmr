@@ -87,6 +87,13 @@ fun BugReportFeedbackDialog(
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var selectedImages by remember { mutableStateOf<List<String>>(emptyList()) }
+    var showAdminPanel by remember { mutableStateOf(false) }
+
+    if (showAdminPanel) {
+        AdminFeedbackBottomSheet(
+            onDismiss = { showAdminPanel = false }
+        )
+    }
     
     val successMsg = tr("Imagen adjuntada correctamente")
     val errorMsg = "Error al procesar la imagen"
@@ -376,6 +383,29 @@ fun BugReportFeedbackDialog(
                         text = statusMessage!!,
                         color = Color(0xFFFF5252),
                         fontSize = 11.sp
+                    )
+                }
+
+                // Botón para acceder directamente al Panel de Gestión
+                OutlinedButton(
+                    onClick = { showAdminPanel = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = HextechSurface)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AdminPanelSettings,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = tr("Ver Panel de Reportes & Sugerencias"),
+                        color = HextechGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 

@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
@@ -75,6 +76,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.ui.theme.TierAColor
 import com.example.model.LaneRole
 import com.example.ui.components.BugReportFeedbackDialog
+import com.example.ui.components.AdminFeedbackBottomSheet
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.LaneDisplaySettingCard
 import com.example.ui.components.WildRiftVersionBanner
@@ -123,6 +125,7 @@ fun MainDraftingScreen(
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showBugReportDialog by remember { mutableStateOf(false) }
+    var showAdminFeedbackPanel by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showDonationDialog by remember { mutableStateOf(false) }
 
@@ -168,9 +171,10 @@ fun MainDraftingScreen(
     }
 
     // Si hay un diálogo o modal abierto en la pantalla de inicio, el botón atrás lo cierra primero
-    BackHandler(enabled = showPermissionDialog || showBugReportDialog) {
+    BackHandler(enabled = showPermissionDialog || showBugReportDialog || showAdminFeedbackPanel) {
         if (showPermissionDialog) showPermissionDialog = false
         if (showBugReportDialog) showBugReportDialog = false
+        if (showAdminFeedbackPanel) showAdminFeedbackPanel = false
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -285,7 +289,7 @@ fun MainDraftingScreen(
                         IconButton(
                             onClick = { showBugReportDialog = true },
                             modifier = Modifier
-                                .padding(end = 6.dp)
+                                .padding(end = 4.dp)
                                 .clip(CircleShape)
                                 .background(HextechSurface)
                                 .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
@@ -296,6 +300,24 @@ fun MainDraftingScreen(
                                 imageVector = Icons.Default.BugReport,
                                 contentDescription = "Reportar Bugs o Sugerencias",
                                 tint = HextechGold,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { showAdminFeedbackPanel = true },
+                            modifier = Modifier
+                                .padding(end = 6.dp)
+                                .clip(CircleShape)
+                                .background(HextechSurface)
+                                .border(1.dp, HextechCyan.copy(alpha = 0.6f), CircleShape)
+                                .size(38.dp)
+                                .testTag("nav_admin_feedback_button")
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.Inbox,
+                                contentDescription = "Buzón y Panel de Reportes",
+                                tint = HextechCyan,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -550,6 +572,12 @@ fun MainDraftingScreen(
         if (showBugReportDialog) {
             BugReportFeedbackDialog(
                 onDismiss = { showBugReportDialog = false }
+            )
+        }
+
+        if (showAdminFeedbackPanel) {
+            AdminFeedbackBottomSheet(
+                onDismiss = { showAdminFeedbackPanel = false }
             )
         }
 

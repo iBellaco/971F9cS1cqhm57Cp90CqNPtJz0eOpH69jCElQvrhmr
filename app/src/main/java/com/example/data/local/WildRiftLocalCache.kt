@@ -119,8 +119,17 @@ object WildRiftLocalCache {
             val runesJson = prefs.getString(KEY_RUNES, null)
             if (!runesJson.isNullOrBlank()) {
                 val loadedRunes = json.decodeFromString<List<RuneItem>>(runesJson)
-                val canonicalIds = WildRiftSpellsAndRunes.runes.map { it.id }.toSet()
+                val canonicalMap = WildRiftSpellsAndRunes.runes.associateBy { it.id }
+                val canonicalIds = canonicalMap.keys
                 val filteredRunes = loadedRunes.filter { it.id.startsWith("rune_") || it.id in canonicalIds }
+                    .map { rune ->
+                        val canonical = canonicalMap[rune.id]
+                        if (canonical != null) {
+                            rune.copy(iconUrl = canonical.iconUrl, category = canonical.category)
+                        } else {
+                            rune
+                        }
+                    }
 
                 val hasOutdatedKeystones = filteredRunes.any { it.id == "empowerment" }
                 val hasKeystones = filteredRunes.any { it.category.trim().equals("Clave", ignoreCase = true) || it.category.trim().contains("Clave", ignoreCase = true) }

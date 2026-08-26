@@ -3,6 +3,9 @@ package com.example.ui.components
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -10,13 +13,13 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,31 +27,37 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,8 +71,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -72,6 +81,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,7 +91,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -101,22 +113,16 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.List
-import com.example.data.WildRiftRepository
 import com.example.util.tr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-enum class AdminTab(val titleKey: String, val icon: ImageVector) {
-    FEEDBACK("Buzón", Icons.Default.Inbox)
+enum class FeedbackCategoryTab(val titleKey: String, val icon: ImageVector) {
+    ALL("Todos", Icons.Default.Inbox),
+    BUGS("Reportes", Icons.Default.BugReport),
+    SUGGESTIONS("Sugerencias", Icons.Default.Lightbulb)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -128,25 +134,40 @@ fun AdminFeedbackBottomSheet(
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var currentAdminTab by remember { mutableStateOf(AdminTab.FEEDBACK) }
+    var currentCategoryTab by remember { mutableStateOf(FeedbackCategoryTab.ALL) }
+    var selectedSubFilter by remember { mutableStateOf("ALL") }
+    var searchQuery by remember { mutableStateOf("") }
+
     var reports by remember { mutableStateOf<List<FeedbackReport>>(emptyList()) }
-    var completedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    val statusMap = remember { mutableStateMapOf<String, String>() }
+
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("ALL") }
     var reportToDelete by remember { mutableStateOf<FeedbackReport?>(null) }
+    var showClearAllConfirm by remember { mutableStateOf(false) }
     var isDeleting by remember { mutableStateOf(false) }
+    var isPurging by remember { mutableStateOf(false) }
+    var previewImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    fun refreshStatusMap(list: List<FeedbackReport>) {
+        statusMap.clear()
+        for (item in list) {
+            val key = item.id ?: "${item.title}_${item.createdAt}"
+            val status = FeedbackRepository.getReportStatus(context, item)
+            statusMap[key] = status
+        }
+    }
 
     fun loadReports() {
         isLoading = true
         errorMessage = null
-        completedIds = FeedbackRepository.getCompletedFeedbackIds(context)
         scope.launch {
             val result = FeedbackRepository.getAllFeedbacks()
             isLoading = false
             if (result.isSuccess) {
-                reports = result.getOrDefault(emptyList())
+                val list = result.getOrDefault(emptyList())
+                reports = list
+                refreshStatusMap(list)
             } else {
                 errorMessage = result.exceptionOrNull()?.message ?: "Error al cargar reportes"
             }
@@ -157,38 +178,82 @@ fun AdminFeedbackBottomSheet(
         loadReports()
     }
 
-    val pendingCount = remember(reports, completedIds) {
-        reports.count { rep ->
-            !FeedbackRepository.isReportCompleted(rep, completedIds)
+    // Contadores
+    val totalCount = reports.size
+    val bugList = remember(reports) { reports.filter { it.type.equals("BUG", ignoreCase = true) } }
+    val suggestionList = remember(reports) { reports.filter { it.type.equals("SUGGESTION", ignoreCase = true) } }
+
+    val pendingCount = remember(reports, statusMap.toMap()) {
+        reports.count {
+            val key = it.id ?: "${it.title}_${it.createdAt}"
+            (statusMap[key] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING
         }
     }
-    val completedCount = remember(reports, completedIds) {
-        reports.count { rep ->
-            FeedbackRepository.isReportCompleted(rep, completedIds)
+
+    val solvedCount = remember(reports, statusMap.toMap()) {
+        reports.count {
+            val key = it.id ?: "${it.title}_${it.createdAt}"
+            val s = statusMap[key]
+            s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED
         }
     }
-    val bugCount = remember(reports) { reports.count { it.type.equals("BUG", ignoreCase = true) } }
-    val ideaCount = remember(reports) { reports.count { it.type.equals("SUGGESTION", ignoreCase = true) } }
+
+    val readCount = remember(reports, statusMap.toMap()) {
+        reports.count {
+            val key = it.id ?: "${it.title}_${it.createdAt}"
+            statusMap[key] == FeedbackRepository.STATUS_READ
+        }
+    }
+
+    val acceptedCount = remember(reports, statusMap.toMap()) {
+        reports.count {
+            val key = it.id ?: "${it.title}_${it.createdAt}"
+            statusMap[key] == FeedbackRepository.STATUS_ACCEPTED
+        }
+    }
+
+    val rejectedCount = remember(reports, statusMap.toMap()) {
+        reports.count {
+            val key = it.id ?: "${it.title}_${it.createdAt}"
+            statusMap[key] == FeedbackRepository.STATUS_REJECTED
+        }
+    }
 
     // Filtrado de reportes
-    val filteredReports = remember(reports, searchQuery, selectedFilter, completedIds) {
+    val filteredReports = remember(reports, currentCategoryTab, selectedSubFilter, searchQuery, statusMap.toMap()) {
         reports.filter { item ->
-            val isItemCompleted = FeedbackRepository.isReportCompleted(item, completedIds)
+            val key = item.id ?: "${item.title}_${item.createdAt}"
+            val currentStatus = statusMap[key] ?: FeedbackRepository.STATUS_PENDING
+            val isBug = item.type.equals("BUG", ignoreCase = true)
+            val isSuggestion = item.type.equals("SUGGESTION", ignoreCase = true)
 
-            val matchFilter = when (selectedFilter) {
-                "PENDING" -> !isItemCompleted
-                "COMPLETED" -> isItemCompleted
-                "BUG" -> item.type.equals("BUG", ignoreCase = true)
-                "SUGGESTION" -> item.type.equals("SUGGESTION", ignoreCase = true)
+            // Filtro por pestaña principal
+            val matchCategory = when (currentCategoryTab) {
+                FeedbackCategoryTab.ALL -> true
+                FeedbackCategoryTab.BUGS -> isBug
+                FeedbackCategoryTab.SUGGESTIONS -> isSuggestion
+            }
+
+            // Filtro por subestado
+            val matchSubFilter = when (selectedSubFilter) {
+                "ALL" -> true
+                "PENDING" -> currentStatus == FeedbackRepository.STATUS_PENDING
+                "READ" -> currentStatus == FeedbackRepository.STATUS_READ
+                "SOLVED" -> currentStatus == FeedbackRepository.STATUS_SOLVED || currentStatus == FeedbackRepository.STATUS_COMPLETED
+                "ACCEPTED" -> currentStatus == FeedbackRepository.STATUS_ACCEPTED
+                "REJECTED" -> currentStatus == FeedbackRepository.STATUS_REJECTED
                 else -> true
             }
+
+            // Filtro por texto de búsqueda
             val matchSearch = if (searchQuery.isBlank()) true else {
                 item.title.contains(searchQuery, ignoreCase = true) ||
                 item.description.contains(searchQuery, ignoreCase = true) ||
                 item.deviceInfo.contains(searchQuery, ignoreCase = true) ||
                 item.appVersion.contains(searchQuery, ignoreCase = true)
             }
-            matchFilter && matchSearch
+
+            matchCategory && matchSubFilter && matchSearch
         }
     }
 
@@ -198,7 +263,7 @@ fun AdminFeedbackBottomSheet(
         containerColor = HextechDarkBg,
         dragHandle = null,
         modifier = Modifier
-            .fillMaxHeight(0.92f)
+            .fillMaxHeight(0.94f)
             .testTag("admin_feedback_panel")
     ) {
         Column(
@@ -207,17 +272,18 @@ fun AdminFeedbackBottomSheet(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF0F1726),
+                            Color(0xFF0D1424),
                             HextechDarkBg
                         )
                     )
                 )
         ) {
-            // Header del Panel de Administrador
+            // Header del Panel
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(HextechSurface.copy(alpha = 0.85f))
+                    .background(HextechSurface.copy(alpha = 0.9f))
+                    .border(0.5.dp, HextechCardBorder.copy(alpha = 0.5f))
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -228,10 +294,10 @@ fun AdminFeedbackBottomSheet(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
+                            .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(HextechGold.copy(alpha = 0.2f))
-                            .border(1.dp, HextechGold, RoundedCornerShape(10.dp)),
+                            .background(HextechGold.copy(alpha = 0.18f))
+                            .border(1.2.dp, HextechGold, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -242,42 +308,55 @@ fun AdminFeedbackBottomSheet(
                         )
                     }
                     Column {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(
+                                text = tr("Panel de Reportes & Sugerencias"),
+                                color = HextechGold,
+                                fontSize = 15.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechCyan.copy(alpha = 0.2f))
+                                    .border(0.8.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = "$totalCount",
+                                    color = HextechCyan,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                         Text(
-                            text = tr("Panel de Administrador"),
-                            color = HextechGold,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = when (currentAdminTab) {
-                                AdminTab.FEEDBACK -> tr("Gestión de Mensajes & Reportes")
-                            },
+                            text = tr("Gestión, revisión de bugs y evaluación de ideas"),
                             color = TextMuted,
                             fontSize = 11.5.sp
                         )
                     }
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     IconButton(
                         onClick = { loadReports() },
                         modifier = Modifier.size(34.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "Recargar",
+                            contentDescription = tr("Recargar"),
                             tint = HextechCyan,
                             modifier = Modifier.size(20.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(4.dp))
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier.size(34.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar",
+                            contentDescription = tr("Cerrar"),
                             tint = TextMuted,
                             modifier = Modifier.size(20.dp)
                         )
@@ -285,38 +364,47 @@ fun AdminFeedbackBottomSheet(
                 }
             }
 
-            // Selector de Pestañas del Panel de Administrador
-            ScrollableTabRow(
-                selectedTabIndex = currentAdminTab.ordinal,
+            // Pestañas Principales (Todos / Reportes / Sugerencias)
+            TabRow(
+                selectedTabIndex = currentCategoryTab.ordinal,
                 containerColor = HextechSurface,
                 contentColor = HextechGold,
-                edgePadding = 12.dp,
                 indicator = { tabPositions ->
-                    if (currentAdminTab.ordinal in tabPositions.indices) {
+                    if (currentCategoryTab.ordinal in tabPositions.indices) {
                         TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[currentAdminTab.ordinal]),
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[currentCategoryTab.ordinal]),
                             color = HextechGold
                         )
                     }
                 },
                 divider = {}
             ) {
-                AdminTab.entries.forEach { tab ->
-                    val isSelected = currentAdminTab == tab
+                FeedbackCategoryTab.entries.forEach { tab ->
+                    val isSelected = currentCategoryTab == tab
+                    val count = when (tab) {
+                        FeedbackCategoryTab.ALL -> totalCount
+                        FeedbackCategoryTab.BUGS -> bugList.size
+                        FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
+                    }
                     Tab(
                         selected = isSelected,
-                        onClick = { currentAdminTab = tab },
+                        onClick = {
+                            currentCategoryTab = tab
+                            selectedSubFilter = "ALL"
+                        },
                         text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
                                 Icon(
                                     imageVector = tab.icon,
                                     contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
+                                    modifier = Modifier.size(15.dp),
                                     tint = if (isSelected) HextechGold else TextMuted
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = tr(tab.titleKey),
+                                    text = "${tr(tab.titleKey)} ($count)",
                                     color = if (isSelected) HextechGold else TextMuted,
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
@@ -327,87 +415,129 @@ fun AdminFeedbackBottomSheet(
                 }
             }
 
-            when (currentAdminTab) {
-                AdminTab.FEEDBACK -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        // Métricas Rápidas y Filtros (Píldoras animadas)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                MetricPill(
-                    label = tr("Total"),
-                    count = reports.size,
-                    color = HextechGold,
-                    modifier = Modifier.weight(1f),
-                    isSelected = selectedFilter == "ALL",
-                    onClick = { selectedFilter = "ALL" }
-                )
-                MetricPill(
-                    label = tr("Por resolver"),
-                    count = pendingCount,
-                    color = Color(0xFFFFB300),
-                    icon = Icons.Default.HourglassEmpty,
-                    modifier = Modifier.weight(1.2f),
-                    isSelected = selectedFilter == "PENDING",
-                    onClick = { selectedFilter = "PENDING" }
-                )
-                MetricPill(
-                    label = tr("Completados"),
-                    count = completedCount,
-                    color = HextechGreen,
-                    icon = Icons.Default.CheckCircle,
-                    modifier = Modifier.weight(1.2f),
-                    isSelected = selectedFilter == "COMPLETED",
-                    onClick = { selectedFilter = "COMPLETED" }
-                )
-                MetricPill(
-                    label = tr("Bugs"),
-                    count = bugCount,
-                    color = DangerRed,
-                    icon = Icons.Default.BugReport,
-                    modifier = Modifier.weight(1f),
-                    isSelected = selectedFilter == "BUG",
-                    onClick = { selectedFilter = "BUG" }
-                )
-                MetricPill(
-                    label = tr("Ideas"),
-                    count = ideaCount,
-                    color = Color(0xFFFFB74D),
-                    icon = Icons.Default.Lightbulb,
-                    modifier = Modifier.weight(1f),
-                    isSelected = selectedFilter == "SUGGESTION",
-                    onClick = { selectedFilter = "SUGGESTION" }
-                )
+            // Barra de Subfiltros Dinámicos según la categoría
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(HextechDarkBg.copy(alpha = 0.95f))
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                item {
+                    StatusFilterChip(
+                        label = tr("Todos"),
+                        count = when (currentCategoryTab) {
+                            FeedbackCategoryTab.ALL -> totalCount
+                            FeedbackCategoryTab.BUGS -> bugList.size
+                            FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
+                        },
+                        isSelected = selectedSubFilter == "ALL",
+                        color = HextechGold,
+                        onClick = { selectedSubFilter = "ALL" }
+                    )
+                }
+
+                item {
+                    StatusFilterChip(
+                        label = tr("⏳ Pendientes"),
+                        count = when (currentCategoryTab) {
+                            FeedbackCategoryTab.ALL -> pendingCount
+                            FeedbackCategoryTab.BUGS -> bugList.count { (statusMap[it.id ?: "${it.title}_${it.createdAt}"] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING }
+                            FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { (statusMap[it.id ?: "${it.title}_${it.createdAt}"] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING }
+                        },
+                        isSelected = selectedSubFilter == "PENDING",
+                        color = Color(0xFFFFB300),
+                        onClick = { selectedSubFilter = "PENDING" }
+                    )
+                }
+
+                if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.BUGS) {
+                    item {
+                        StatusFilterChip(
+                            label = tr("👁️ Leídos"),
+                            count = when (currentCategoryTab) {
+                                FeedbackCategoryTab.ALL -> readCount
+                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_READ }
+                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_READ }
+                            },
+                            isSelected = selectedSubFilter == "READ",
+                            color = HextechCyan,
+                            onClick = { selectedSubFilter = "READ" }
+                        )
+                    }
+
+                    item {
+                        StatusFilterChip(
+                            label = tr("✅ Solucionados"),
+                            count = when (currentCategoryTab) {
+                                FeedbackCategoryTab.ALL -> solvedCount
+                                FeedbackCategoryTab.BUGS -> bugList.count { val s = statusMap[it.id ?: "${it.title}_${it.createdAt}"]; s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED }
+                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { val s = statusMap[it.id ?: "${it.title}_${it.createdAt}"]; s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED }
+                            },
+                            isSelected = selectedSubFilter == "SOLVED",
+                            color = HextechGreen,
+                            onClick = { selectedSubFilter = "SOLVED" }
+                        )
+                    }
+                }
+
+                if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.SUGGESTIONS) {
+                    item {
+                        StatusFilterChip(
+                            label = tr("✨ Aceptadas"),
+                            count = when (currentCategoryTab) {
+                                FeedbackCategoryTab.ALL -> acceptedCount
+                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_ACCEPTED }
+                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_ACCEPTED }
+                            },
+                            isSelected = selectedSubFilter == "ACCEPTED",
+                            color = HextechGold,
+                            onClick = { selectedSubFilter = "ACCEPTED" }
+                        )
+                    }
+
+                    item {
+                        StatusFilterChip(
+                            label = tr("❌ Rechazadas"),
+                            count = when (currentCategoryTab) {
+                                FeedbackCategoryTab.ALL -> rejectedCount
+                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_REJECTED }
+                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_REJECTED }
+                            },
+                            isSelected = selectedSubFilter == "REJECTED",
+                            color = DangerRed,
+                            onClick = { selectedSubFilter = "REJECTED" }
+                        )
+                    }
+                }
             }
 
-            // Barra de Búsqueda y Purga
+            // Barra de Búsqueda y Acciones de Mantenimiento
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                    .padding(horizontal = 14.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text(tr("Buscar por título, contenido o modelo..."), fontSize = 12.sp, color = TextMuted) },
+                    placeholder = { Text(tr("Buscar por título, contenido o modelo..."), fontSize = 11.5.sp, color = TextMuted) },
                     leadingIcon = {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold, modifier = Modifier.size(17.dp))
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }, modifier = Modifier.size(24.dp)) {
-                                Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
                             }
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
-                        .height(48.dp),
+                        .height(46.dp),
                     shape = RoundedCornerShape(10.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -420,42 +550,56 @@ fun AdminFeedbackBottomSheet(
                     )
                 )
 
-                // Botón de purga rápida
+                // Purga rápida > 7 días
                 OutlinedButton(
                     onClick = {
-                        scope.launch {
-                            val res = FeedbackRepository.purgeOldReports(days = 7)
-                            if (res.isSuccess) {
-                                Toast.makeText(context, "✅ Purga de >7 días completada", Toast.LENGTH_SHORT).show()
-                                loadReports()
-                            } else {
-                                Toast.makeText(context, "Error: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                        if (!isPurging) {
+                            isPurging = true
+                            scope.launch {
+                                val res = FeedbackRepository.purgeOldReports(days = 7)
+                                isPurging = false
+                                if (res.isSuccess) {
+                                    Toast.makeText(context, "🧹 Purga de reportes >7 días completada", Toast.LENGTH_SHORT).show()
+                                    loadReports()
+                                } else {
+                                    Toast.makeText(context, "Error al purgar: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     },
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = HextechSurface
-                    ),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                    modifier = Modifier.height(48.dp)
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    modifier = Modifier.height(46.dp),
+                    enabled = !isPurging
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CleaningServices,
-                        contentDescription = "Limpiar antiguos",
-                        tint = HextechCyan,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    if (isPurging) {
+                        CircularProgressIndicator(color = HextechCyan, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Icon(Icons.Default.CleaningServices, contentDescription = tr("Purgar >7 días"), tint = HextechCyan, modifier = Modifier.size(18.dp))
+                    }
+                }
+
+                // Borrar todos
+                OutlinedButton(
+                    onClick = { showClearAllConfirm = true },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f)),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    modifier = Modifier.height(46.dp)
+                ) {
+                    Icon(Icons.Default.DeleteSweep, contentDescription = tr("Borrar todo"), tint = DangerRed, modifier = Modifier.size(18.dp))
                 }
             }
 
-            // Lista de Reportes
+            // Lista de Contenido
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(top = 6.dp)
+                    .padding(top = 4.dp)
             ) {
                 if (isLoading) {
                     Column(
@@ -466,7 +610,7 @@ fun AdminFeedbackBottomSheet(
                         CircularProgressIndicator(color = HextechGold, modifier = Modifier.size(36.dp), strokeWidth = 3.dp)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = tr("Cargando reportes..."),
+                            text = tr("Cargando reportes y sugerencias..."),
                             color = TextSecondary,
                             fontSize = 13.sp
                         )
@@ -481,7 +625,7 @@ fun AdminFeedbackBottomSheet(
                     ) {
                         Icon(Icons.Default.BugReport, contentDescription = null, tint = DangerRed, modifier = Modifier.size(40.dp))
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = tr("Error al cargar:"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(text = tr("Error de conexión:"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(text = errorMessage!!, color = TextMuted, fontSize = 12.sp)
                         Spacer(modifier = Modifier.height(14.dp))
@@ -504,10 +648,10 @@ fun AdminFeedbackBottomSheet(
                         Icon(Icons.Default.Inbox, contentDescription = null, tint = TextMuted, modifier = Modifier.size(48.dp))
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = if (searchQuery.isNotBlank() || selectedFilter != "ALL") 
-                                tr("No hay reportes en esta categoría") 
+                            text = if (searchQuery.isNotBlank() || selectedSubFilter != "ALL" || currentCategoryTab != FeedbackCategoryTab.ALL) 
+                                tr("No hay resultados en esta vista") 
                             else 
-                                tr("No hay reportes registrados"),
+                                tr("No hay reportes ni sugerencias registradas"),
                             color = TextSecondary,
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp
@@ -522,29 +666,32 @@ fun AdminFeedbackBottomSheet(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(filteredReports, key = { it.id ?: it.hashCode().toString() }) { report ->
-                            val isCompleted = FeedbackRepository.isReportCompleted(report, completedIds)
+                        items(filteredReports, key = { it.id ?: "${it.title}_${it.createdAt}_${it.hashCode()}" }) { report ->
+                            val key = report.id ?: "${report.title}_${report.createdAt}"
+                            val currentStatus = statusMap[key] ?: FeedbackRepository.STATUS_PENDING
 
-                            ReportItemCard(
+                            ComprehensiveFeedbackCard(
                                 report = report,
-                                isCompleted = isCompleted,
-                                onToggleCompleted = {
-                                    val newStatus = !isCompleted
-                                    FeedbackRepository.setFeedbackCompleted(context, report, newStatus)
-                                    completedIds = FeedbackRepository.getCompletedFeedbackIds(context)
-                                    
-                                    // Sincronizar en Supabase si tiene ID en la nube
+                                currentStatus = currentStatus,
+                                onSelectStatus = { newStatus ->
+                                    statusMap[key] = newStatus
+                                    FeedbackRepository.setFeedbackStatus(context, report, newStatus)
                                     val reportId = report.id
                                     if (!reportId.isNullOrBlank()) {
                                         scope.launch {
                                             FeedbackRepository.updateFeedbackStatusInCloud(reportId, newStatus)
                                         }
                                     }
-
-                                    val msg = if (newStatus) "✅ Marcado como Completado" else "⏳ Marcado como Por resolver"
+                                    val msg = when (newStatus) {
+                                        FeedbackRepository.STATUS_SOLVED -> "✅ Marcado como Solucionado"
+                                        FeedbackRepository.STATUS_READ -> "👁️ Marcado como Leído"
+                                        FeedbackRepository.STATUS_ACCEPTED -> "✨ Sugerencia Aceptada"
+                                        FeedbackRepository.STATUS_REJECTED -> "❌ Sugerencia Rechazada"
+                                        else -> "⏳ Marcado como Pendiente"
+                                    }
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 },
                                 onDelete = { reportToDelete = report },
@@ -552,7 +699,7 @@ fun AdminFeedbackBottomSheet(
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val textToCopy = """
                                         [${report.type}] ${report.title}
-                                        Estado: ${if (isCompleted) "COMPLETADO" else "POR RESOLVER"}
+                                        Estado: $currentStatus
                                         Descripción: ${report.description}
                                         Versión: ${report.appVersion}
                                         Dispositivo: ${report.deviceInfo}
@@ -560,7 +707,8 @@ fun AdminFeedbackBottomSheet(
                                     """.trimIndent()
                                     clipboard.setPrimaryClip(ClipData.newPlainText("Feedback Report", textToCopy))
                                     Toast.makeText(context, "📋 Reporte copiado al portapapeles", Toast.LENGTH_SHORT).show()
-                                }
+                                },
+                                onOpenImage = { bmp -> previewImageBitmap = bmp }
                             )
                         }
                     }
@@ -568,9 +716,8 @@ fun AdminFeedbackBottomSheet(
             }
         }
     }
-}
 
-    // Diálogo de Confirmación de Eliminación
+    // Diálogo de Confirmación de Eliminación Individual
     if (reportToDelete != null) {
         val rep = reportToDelete!!
         AlertDialog(
@@ -580,13 +727,13 @@ fun AdminFeedbackBottomSheet(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.Delete, contentDescription = null, tint = DangerRed, modifier = Modifier.size(22.dp))
-                    Text(tr("¿Eliminar este reporte?"), color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text(tr("¿Eliminar este elemento?"), color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
             },
             text = {
                 Column {
                     Text(
-                        text = tr("Esta acción borrará permanentemente el reporte:"),
+                        text = tr("Esta acción borrará permanentemente de Supabase el reporte:"),
                         color = TextSecondary,
                         fontSize = 13.sp
                     )
@@ -609,7 +756,7 @@ fun AdminFeedbackBottomSheet(
                                 val res = FeedbackRepository.deleteFeedback(id)
                                 isDeleting = false
                                 if (res.isSuccess) {
-                                    Toast.makeText(context, "🗑️ Reporte eliminado", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "🗑️ Elemento eliminado", Toast.LENGTH_SHORT).show()
                                     reportToDelete = null
                                     loadReports()
                                 } else {
@@ -617,7 +764,7 @@ fun AdminFeedbackBottomSheet(
                                 }
                             }
                         } else {
-                            Toast.makeText(context, "Error: ID no disponible", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Eliminado localmente", Toast.LENGTH_SHORT).show()
                             reportToDelete = null
                         }
                     },
@@ -639,77 +786,209 @@ fun AdminFeedbackBottomSheet(
             }
         )
     }
-}
-}
+
+    // Diálogo de Confirmación Borrar Todo
+    if (showClearAllConfirm) {
+        AlertDialog(
+            onDismissRequest = { if (!isDeleting) showClearAllConfirm = false },
+            containerColor = HextechDarkBg,
+            shape = RoundedCornerShape(14.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.DeleteSweep, contentDescription = null, tint = DangerRed, modifier = Modifier.size(24.dp))
+                    Text(tr("¿Borrar todos los reportes?"), color = DangerRed, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Text(
+                    text = tr("Esta acción eliminará todos los reportes y sugerencias registrados en la nube y el dispositivo de forma irreversible."),
+                    color = TextSecondary,
+                    fontSize = 13.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        isDeleting = true
+                        scope.launch {
+                            val res = FeedbackRepository.clearAllFeedbacks()
+                            isDeleting = false
+                            showClearAllConfirm = false
+                            if (res.isSuccess) {
+                                Toast.makeText(context, "🗑️ Todos los reportes fueron eliminados", Toast.LENGTH_SHORT).show()
+                                loadReports()
+                            } else {
+                                Toast.makeText(context, "Error: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = !isDeleting
+                ) {
+                    if (isDeleting) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(tr("Sí, Borrar Todo"), color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearAllConfirm = false }, enabled = !isDeleting) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            }
+        )
+    }
+
+    // Diálogo de Vista Previa de Imagen
+    if (previewImageBitmap != null) {
+        AlertDialog(
+            onDismissRequest = { previewImageBitmap = null },
+            containerColor = HextechDarkBg,
+            shape = RoundedCornerShape(14.dp),
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                        Text(tr("Captura Adjunta"), color = HextechGold, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    }
+                    IconButton(onClick = { previewImageBitmap = null }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    }
+                }
+            },
+            text = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 420.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        bitmap = previewImageBitmap!!.asImageBitmap(),
+                        contentDescription = "Vista previa",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { previewImageBitmap = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                ) {
+                    Text(tr("Cerrar"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun MetricPill(
+private fun StatusFilterChip(
     label: String,
     count: Int,
+    isSelected: Boolean,
     color: Color,
-    icon: ImageVector? = null,
-    modifier: Modifier = Modifier,
-    isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
             .background(
-                if (isSelected) color.copy(alpha = 0.25f)
+                if (isSelected) color.copy(alpha = 0.22f)
                 else HextechSurface
             )
             .border(
-                width = if (isSelected) 1.5.dp else 1.dp,
-                color = if (isSelected) color else HextechCardBorder,
-                shape = RoundedCornerShape(10.dp)
+                width = if (isSelected) 1.5.dp else 0.8.dp,
+                color = if (isSelected) color else HextechCardBorder.copy(alpha = 0.6f),
+                shape = RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)
-            .padding(vertical = 7.dp, horizontal = 3.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                if (icon != null) {
-                    Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(12.dp))
-                }
-                Text(
-                    text = count.toString(),
-                    color = color,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 13.5.sp
-                )
-            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Text(
                 text = label,
-                color = if (isSelected) TextPrimary else TextMuted,
-                fontSize = 9.5.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 1
+                color = if (isSelected) color else TextPrimary,
+                fontSize = 11.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
             )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(if (isSelected) color.copy(alpha = 0.3f) else HextechDarkBg)
+                    .padding(horizontal = 4.dp, vertical = 1.dp)
+            ) {
+                Text(
+                    text = count.toString(),
+                    color = if (isSelected) color else TextMuted,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ReportItemCard(
+private fun ComprehensiveFeedbackCard(
     report: FeedbackReport,
-    isCompleted: Boolean,
-    onToggleCompleted: () -> Unit,
+    currentStatus: String,
+    onSelectStatus: (String) -> Unit,
     onDelete: () -> Unit,
-    onCopy: () -> Unit
+    onCopy: () -> Unit,
+    onOpenImage: (Bitmap) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val isBug = report.type.equals("BUG", ignoreCase = true)
 
-    val (typeColor, typeIcon, typeLabel) = when {
-        report.type.equals("BUG", ignoreCase = true) -> Triple(DangerRed, Icons.Default.BugReport, "BUG")
-        else -> Triple(Color(0xFFFFB74D), Icons.Default.Lightbulb, "SUGERENCIA")
+    // Parsear imágenes base64 si existen
+    val attachedBitmaps = remember(report.deviceInfo, report.description) {
+        extractBase64Images(report.deviceInfo + "\n" + report.description)
+    }
+
+    // Información del tipo
+    val (typeColor, typeIcon, typeLabel) = if (isBug) {
+        Triple(DangerRed, Icons.Default.BugReport, "BUG / ERROR")
+    } else {
+        Triple(Color(0xFFFFB74D), Icons.Default.Lightbulb, "SUGERENCIA")
+    }
+
+    // Información del estado visual actual
+    val (statusLabel, statusColor, statusIcon) = when (currentStatus) {
+        FeedbackRepository.STATUS_SOLVED, FeedbackRepository.STATUS_COMPLETED -> {
+            Triple(tr("Solucionado"), HextechGreen, Icons.Default.CheckCircle)
+        }
+        FeedbackRepository.STATUS_READ -> {
+            Triple(tr("Leído"), HextechCyan, Icons.Default.Visibility)
+        }
+        FeedbackRepository.STATUS_ACCEPTED -> {
+            Triple(tr("Aceptada"), HextechGold, Icons.Default.Star)
+        }
+        FeedbackRepository.STATUS_REJECTED -> {
+            Triple(tr("Rechazada"), DangerRed, Icons.Default.Cancel)
+        }
+        else -> {
+            Triple(tr("Pendiente"), Color(0xFFFFB300), Icons.Default.HourglassEmpty)
+        }
     }
 
     val cardBorderColor by animateColorAsState(
-        targetValue = if (isCompleted) HextechGreen.copy(alpha = 0.6f) else typeColor.copy(alpha = 0.35f),
-        label = "border_color"
+        targetValue = statusColor.copy(alpha = 0.45f),
+        label = "card_border"
     )
 
     val formattedDate = remember(report.createdAt) {
@@ -721,17 +1000,15 @@ private fun ReportItemCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, cardBorderColor, RoundedCornerShape(12.dp))
-            .animateContentSize(animationSpec = tween(200)),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted) HextechSurface.copy(alpha = 0.75f) else HextechSurface.copy(alpha = 0.95f)
-        )
+            .animateContentSize(animationSpec = tween(180)),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
-            // Fila Superior: Badges (Tipo + Estado) + Fecha + Acciones
+            // Fila Superior: Badges + Fecha + Acciones (Copiar, Borrar, Expandir)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -741,49 +1018,31 @@ private fun ReportItemCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    // Badge de Tipo (BUG / SUGERENCIA)
+                    // Badge de Tipo
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
                             .background(typeColor.copy(alpha = 0.18f))
-                            .border(1.dp, typeColor.copy(alpha = 0.75f), RoundedCornerShape(6.dp))
+                            .border(1.dp, typeColor.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                             Icon(typeIcon, contentDescription = null, tint = typeColor, modifier = Modifier.size(11.dp))
                             Text(text = typeLabel, color = typeColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
-                    // Badge de Estado Interactivo (Completado / Por resolver)
+                    // Badge de Estado Actual
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(
-                                if (isCompleted) HextechGreen.copy(alpha = 0.2f)
-                                else Color(0xFFFFB300).copy(alpha = 0.18f)
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = if (isCompleted) HextechGreen else Color(0xFFFFB300).copy(alpha = 0.8f),
-                                shape = RoundedCornerShape(6.dp)
-                            )
-                            .clickable(onClick = onToggleCompleted)
-                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                            .background(statusColor.copy(alpha = 0.18f))
+                            .border(1.dp, statusColor.copy(alpha = 0.85f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(
-                                imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.HourglassEmpty,
-                                contentDescription = null,
-                                tint = if (isCompleted) HextechGreen else Color(0xFFFFB300),
-                                modifier = Modifier.size(11.dp)
-                            )
-                            Text(
-                                text = if (isCompleted) tr("Completado") else tr("Por resolver"),
-                                color = if (isCompleted) HextechGreen else Color(0xFFFFB300),
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Icon(statusIcon, contentDescription = null, tint = statusColor, modifier = Modifier.size(11.dp))
+                            Text(text = statusLabel, color = statusColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -795,25 +1054,16 @@ private fun ReportItemCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = onCopy,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copiar", tint = TextMuted, modifier = Modifier.size(15.dp))
+                    IconButton(onClick = onCopy, modifier = Modifier.size(26.dp)) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = tr("Copiar"), tint = TextMuted, modifier = Modifier.size(15.dp))
                     }
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed.copy(alpha = 0.8f), modifier = Modifier.size(15.dp))
+                    IconButton(onClick = onDelete, modifier = Modifier.size(26.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = tr("Eliminar"), tint = DangerRed.copy(alpha = 0.8f), modifier = Modifier.size(15.dp))
                     }
-                    IconButton(
-                        onClick = { expanded = !expanded },
-                        modifier = Modifier.size(28.dp)
-                    ) {
+                    IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(26.dp)) {
                         Icon(
                             imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = if (expanded) "Contraer" else "Expandir",
+                            contentDescription = if (expanded) tr("Contraer") else tr("Expandir"),
                             tint = HextechGold,
                             modifier = Modifier.size(18.dp)
                         )
@@ -826,7 +1076,7 @@ private fun ReportItemCard(
             // Título
             Text(
                 text = report.title,
-                color = if (isCompleted) TextPrimary.copy(alpha = 0.85f) else TextPrimary,
+                color = TextPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { expanded = !expanded }
@@ -834,104 +1084,169 @@ private fun ReportItemCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Descripción (acortada si no está expandido)
+            // Descripción
+            val cleanDescription = remember(report.description) {
+                cleanDescriptionText(report.description)
+            }
             Text(
-                text = report.description,
-                color = if (isCompleted) TextSecondary.copy(alpha = 0.8f) else TextSecondary,
+                text = cleanDescription,
+                color = TextSecondary,
                 fontSize = 12.5.sp,
                 lineHeight = 17.sp,
-                maxLines = if (expanded) Int.MAX_VALUE else 2,
+                maxLines = if (expanded) Int.MAX_VALUE else 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.clickable { expanded = !expanded }
             )
 
-            // Botón rápido de acción de estado al final de la tarjeta
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Botón interactivo para cambiar estado con un toque
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            if (isCompleted) HextechSurfaceVariant.copy(alpha = 0.8f)
-                            else HextechGreen.copy(alpha = 0.15f)
-                        )
-                        .border(
-                            width = 0.8.dp,
-                            color = if (isCompleted) TextMuted else HextechGreen,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                        .clickable(onClick = onToggleCompleted)
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+            // Miniaturas de Imágenes Adjuntas
+            if (attachedBitmaps.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isCompleted) Icons.Default.Replay else Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = if (isCompleted) TextMuted else HextechGreen,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Text(
-                            text = if (isCompleted) tr("Reabrir (Marcar por resolver)") else tr("Marcar como Completado"),
-                            color = if (isCompleted) TextMuted else HextechGreen,
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                    items(attachedBitmaps) { bmp ->
+                        Box(
+                            modifier = Modifier
+                                .size(54.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                .clickable { onOpenImage(bmp) }
+                        ) {
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = "Captura adjunta",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
                     }
-                }
-
-                if (!expanded) {
-                    Text(
-                        text = tr("Ver detalles ▾"),
-                        color = HextechGold.copy(alpha = 0.7f),
-                        fontSize = 10.5.sp,
-                        modifier = Modifier.clickable { expanded = true }
-                    )
                 }
             }
 
-            // Detalles Expandibles (Diagnóstico de teléfono y versión)
+            // CONTROLES DE ESTADO (Requisitos de selección para el usuario/admin)
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechDarkBg.copy(alpha = 0.7f))
+                    .border(0.6.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+            ) {
+                Column {
+                    Text(
+                        text = tr("Marcar estado:"),
+                        color = TextMuted,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    if (isBug) {
+                        // Opciones de Reportes: Pendiente | Leído | Solucionado
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            StatusActionButton(
+                                label = tr("Pendiente"),
+                                icon = Icons.Default.HourglassEmpty,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_PENDING,
+                                activeColor = Color(0xFFFFB300),
+                                modifier = Modifier.weight(1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_PENDING) }
+                            )
+                            StatusActionButton(
+                                label = tr("Leído"),
+                                icon = Icons.Default.Visibility,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_READ,
+                                activeColor = HextechCyan,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_READ) }
+                            )
+                            StatusActionButton(
+                                label = tr("Solucionado"),
+                                icon = Icons.Default.CheckCircle,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_SOLVED || currentStatus == FeedbackRepository.STATUS_COMPLETED,
+                                activeColor = HextechGreen,
+                                modifier = Modifier.weight(1.1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_SOLVED) }
+                            )
+                        }
+                    } else {
+                        // Opciones de Sugerencias: Pendiente | Aceptada | Rechazada
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            StatusActionButton(
+                                label = tr("Pendiente"),
+                                icon = Icons.Default.HourglassEmpty,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_PENDING,
+                                activeColor = Color(0xFFFFB300),
+                                modifier = Modifier.weight(1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_PENDING) }
+                            )
+                            StatusActionButton(
+                                label = tr("Aceptada"),
+                                icon = Icons.Default.Check,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_ACCEPTED,
+                                activeColor = HextechGold,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_ACCEPTED) }
+                            )
+                            StatusActionButton(
+                                label = tr("Rechazada"),
+                                icon = Icons.Default.Close,
+                                isSelected = currentStatus == FeedbackRepository.STATUS_REJECTED,
+                                activeColor = DangerRed,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onSelectStatus(FeedbackRepository.STATUS_REJECTED) }
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Diagnóstico y metadatos expandibles
             AnimatedVisibility(
                 visible = expanded,
-                enter = fadeIn(tween(150)),
-                exit = fadeOut(tween(150))
+                enter = fadeIn(tween(140)),
+                exit = fadeOut(tween(140))
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 10.dp)
+                        .padding(top = 8.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(HextechDarkBg.copy(alpha = 0.85f))
+                        .background(HextechDarkBg.copy(alpha = 0.9f))
                         .border(0.5.dp, HextechCardBorder, RoundedCornerShape(8.dp))
-                        .padding(10.dp),
+                        .padding(8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    val cleanDeviceInfo = remember(report.deviceInfo) {
+                        cleanDeviceInfoText(report.deviceInfo)
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Icon(Icons.Default.Smartphone, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Smartphone, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                         Text(
-                            text = "${tr("Dispositivo:")} ${report.deviceInfo}",
+                            text = "${tr("Dispositivo:")} $cleanDeviceInfo",
                             color = HextechCyan,
-                            fontSize = 11.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Icon(Icons.Default.Tune, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Tune, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
                         Text(
-                            text = "${tr("Versión App:")} ${report.appVersion}",
+                            text = "${tr("Versión:")} ${report.appVersion}",
                             color = HextechGold,
-                            fontSize = 11.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
-                    if (report.id != null) {
+                    if (!report.id.isNullOrBlank()) {
                         Text(
                             text = "UUID: ${report.id}",
                             color = TextMuted,
@@ -940,6 +1255,53 @@ private fun ReportItemCard(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun StatusActionButton(
+    label: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    activeColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(
+                if (isSelected) activeColor.copy(alpha = 0.25f)
+                else HextechSurface
+            )
+            .border(
+                width = if (isSelected) 1.2.dp else 0.6.dp,
+                color = if (isSelected) activeColor else HextechCardBorder.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(6.dp)
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) activeColor else TextMuted,
+                modifier = Modifier.size(12.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = label,
+                color = if (isSelected) activeColor else TextPrimary,
+                fontSize = 10.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                maxLines = 1
+            )
         }
     }
 }
@@ -961,4 +1323,34 @@ private fun formatReportDate(dateString: String?): String {
     } catch (e: Exception) {
         dateString.take(16).replace("T", " ")
     }
+}
+
+private fun cleanDescriptionText(text: String): String {
+    return text.substringBefore("[IMAGE_BASE64]").trim()
+}
+
+private fun cleanDeviceInfoText(text: String): String {
+    return text.substringBefore("[IMAGE_BASE64]").trim()
+}
+
+private fun extractBase64Images(rawText: String): List<Bitmap> {
+    val results = mutableListOf<Bitmap>()
+    if (!rawText.contains("[IMAGE_BASE64]")) return results
+    val parts = rawText.split("[IMAGE_BASE64]")
+    for (i in 1 until parts.size) {
+        val segment = parts[i].trim().substringBefore("\n\n").substringBefore("[IMAGE_BASE64]").trim()
+        if (segment.isNotEmpty()) {
+            try {
+                val cleanBase64 = if (segment.contains(",")) segment.substringAfter(",") else segment
+                val bytes = Base64.decode(cleanBase64, Base64.DEFAULT)
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (bmp != null) {
+                    results.add(bmp)
+                }
+            } catch (e: Exception) {
+                // Ignore corrupted image
+            }
+        }
+    }
+    return results
 }

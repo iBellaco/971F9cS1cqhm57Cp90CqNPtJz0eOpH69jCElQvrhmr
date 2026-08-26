@@ -607,7 +607,7 @@ object WildRiftSpellsAndRunes {
             id = "perseverance",
             name = "Perseverancia",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/perseverance/perseverance.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/conditioning/conditioning.png",
             description = "Otorga 10% de tenacidad. Otorga de 10 a 15 de armadura y resistencia mágica (🔺) durante 1,5 s cuando te inmovilizan. La duración se reinicia cuando te inmovilizan múltiples veces."
         ),
         RuneItem(
@@ -682,7 +682,7 @@ object WildRiftSpellsAndRunes {
             id = "botanist",
             name = "Botanista",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/sweettooth/sweettooth.png",
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/timewarptonic/timewarptonic.png",
             description = "Cuando destruyes una planta, obtienes 10 de oro y efectos potenciados de la planta.\nFrutos de miel: Cuando se consumen, aumenta el efecto curativo un 20%.\nFlor del adivino: Cuando se destruye, la visión que otorga dura un 20% más.\nPiña explosiva: Tras el empujón, otorga un 40% de velocidad de movimiento durante 2,5 s."
         ),
         RuneItem(
@@ -696,7 +696,7 @@ object WildRiftSpellsAndRunes {
             id = "ixtali_seedjar",
             name = "Semillero Ixtalí",
             category = "Brujería",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/4403_support_ixtaliseedjar.png",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4403.png",
             description = "Al destruir una planta, obtienes una semilla al instante que reemplaza tu talismán durante 60 s. La semilla madura y se autodestruye poco después tras plantarla en la ubicación objetivo. (Cuando un aliado destruye una planta, también aparecerán semillas que puedes recoger).\nLas semillas están disponibles a partir del minuto 2 de la partida.\nCada planta tiene un enfriamiento de 30 s.\nLas piñas explosivas que plantes te lanzan más lejos al detonar."
         )
     )
