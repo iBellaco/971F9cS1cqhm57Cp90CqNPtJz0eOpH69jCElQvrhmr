@@ -122,7 +122,8 @@ fun BugReportFeedbackDialog(
         }
     }
 
-    val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank() && selectedImages.isNotEmpty()
+    val isEmailValid = email.isBlank() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank() && selectedImages.isNotEmpty() && isEmailValid
 
     val sendFeedbackMessage: () -> Unit = {
         if (canPublish) {
@@ -319,6 +320,7 @@ fun BugReportFeedbackDialog(
                         .fillMaxWidth()
                         .testTag("feedback_email_input"),
                     singleLine = true,
+                    isError = email.isNotBlank() && !isEmailValid,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = HextechGold,
                         unfocusedBorderColor = HextechCardBorder,
@@ -328,6 +330,15 @@ fun BugReportFeedbackDialog(
                         unfocusedLabelColor = TextMuted
                     )
                 )
+                
+                if (email.isNotBlank() && !isEmailValid) {
+                    Text(
+                        text = tr("Formato de correo inválido"),
+                        color = Color(0xFFFF5252),
+                        fontSize = 11.sp,
+                        modifier = Modifier.padding(start = 4.dp, top = 2.dp)
+                    )
+                }
 
                 // Subir Imágenes (Max 3)
                 if (selectedImages.size < 3) {
