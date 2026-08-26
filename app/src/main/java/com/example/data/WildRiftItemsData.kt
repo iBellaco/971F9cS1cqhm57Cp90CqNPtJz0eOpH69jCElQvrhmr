@@ -2757,8 +2757,7 @@ object WildRiftItemsData {
             goldCost = 500,
             stats = "+200 <font color='#00BFFF'>maná máximo</font> • +5 <font color='#FFA500'>celeridad de habilidad</font>",
             statsEn = "+200 Max Mana • +5 Ability Haste",
-            passive = "Asombro: se reembolsa el 10% del maná gastado.
-Carga de maná: aumenta el maná máximo en 6 cada vez que se gasta maná. Tiene un límite de 700 maná adicional. Se activa hasta 3 veces cada 10 segundos. Solo puedes llevar un objeto Lágrima de la Diosa a la vez.",
+            passive = "Asombro: se reembolsa el 10% del maná gastado.\nCarga de maná: aumenta el maná máximo en 6 cada vez que se gasta maná. Tiene un límite de 700 maná adicional. Se activa hasta 3 veces cada 10 segundos. Solo puedes llevar un objeto Lágrima de la Diosa a la vez.",
             passiveEn = "Awe: 10% of Mana spent is refunded.\nMana Charge: Increases max Mana by 6 every time Mana is spent. Caps at 700 bonus Mana. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Compra este objeto al principio si usas un campeón que depende mucho del maná, ya que necesitas tiempo para cargarlo completamente y evolucionarlo.",
             coachTipEn = "",
@@ -2828,13 +2827,8 @@ Carga de maná: aumenta el maná máximo en 6 cada vez que se gasta maná. Tiene
             goldCost = 500,
             stats = "+10 <font color='#ffa500'>daño de ataque</font> o +20 <font color='#9370db'>poder de habilidad</font> (Adaptable)",
             statsEn = "+10 Attack Damage or +20 Ability Power (Adaptive)",
-            passive = "Versátil: Otorga daño de ataque o poder de habilidad.
-Tributo: Obtén orbes de energía. Usa habilidades o ataques para dañar campeones o estructuras y consumir orbes, ganando oro y vida.
-Centinela: Daño extra a guardianes.
-Misión: Gana 750 de oro para evolucionar este objeto a Espejo de Espejismo.",
-            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).
-Tribute: Gain 1 encircling energy orb(s) every 30 seconds.
-Quest: Earn 750 gold with this item to transform it.",
+            passive = "Versátil: Otorga daño de ataque o poder de habilidad.\nTributo: Obtén orbes de energía. Usa habilidades o ataques para dañar campeones o estructuras y consumir orbes, ganando oro y vida.\nCentinela: Daño extra a guardianes.\nMisión: Gana 750 de oro para evolucionar este objeto a Espejo de Espejismo.",
+            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 seconds.\nQuest: Earn 750 gold with this item to transform it.",
             coachTip = "El mejor objeto para soportes hechiceros. Asegúrate de usar tus habilidades para hostigar al enemigo y así completar tu misión lo más rápido posible.",
             coachTipEn = "The best item for enchanter/mage supports. Make sure to use your abilities to poke the enemy so you can complete your quest as quickly as possible.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390605_ring-of-revelation.webp"
@@ -2847,11 +2841,8 @@ Quest: Earn 750 gold with this item to transform it.",
             goldCost = 500,
             stats = "+125 <font color='#1aff00'>salud máxima</font>",
             statsEn = "+125 Max Health",
-            passive = "Tributo: Gana 1 orbe de energía circundante cada 30 segundos (máximo 3 orbes). Mientras estés cerca de un aliado, las habilidades o ataques que dañen campeones o estructuras, o que maten a súbditos por debajo del 65% de salud, consumirán un orbe. Esto te otorgará oro y restaurará tu salud y la de tu aliado.
-Centinela: Inflige daño extra a los centinelas revelados.
-Misión: Gana 750 de oro para evolucionar este objeto a Baluarte de la Montaña.",
-            passiveEn = "Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions will trigger Tribute to grant you 65 gold and restore your Health.
-Quest: After earning 750 gold, this item upgrades into Bulwark of the Mountain.",
+            passive = "Tributo: Gana 1 orbe de energía circundante cada 30 segundos (máximo 3 orbes). Mientras estés cerca de un aliado, las habilidades o ataques que dañen campeones o estructuras, o que maten a súbditos por debajo del 65% de salud, consumirán un orbe. Esto te otorgará oro y restaurará tu salud y la de tu aliado.\nCentinela: Inflige daño extra a los centinelas revelados.\nMisión: Gana 750 de oro para evolucionar este objeto a Baluarte de la Montaña.",
+            passiveEn = "Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions will trigger Tribute to grant you 65 gold and restore your Health.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain.",
             coachTip = "El objeto ideal para los soportes de tipo tanque. Úsalo para curarte a ti y a tu aliado mientras ejecutas súbditos de la línea, acelerando tu ganancia de oro y manteniendo la vida alta.",
             coachTipEn = "The ideal item for tank supports. Use it to heal yourself and your ally while executing minions, accelerating your gold income and keeping your health high.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp"
@@ -2864,13 +2855,8 @@ Quest: After earning 750 gold, this item upgrades into Bulwark of the Mountain."
             goldCost = 500,
             stats = "+10 <font color='#ffa500'>daño de ataque</font> o +20 <font color='#9370db'>poder de habilidad</font> (Adaptable)",
             statsEn = "+10 Attack Damage or +20 Ability Power (Adaptive)",
-            passive = "Versátil: Otorga daño de ataque o poder de habilidad.
-Tributo: Gana 1 orbe de energía giratorio cada 30 s (hasta 3). Atacar campeones o estructuras consume orbes para darte oro y curación.
-Centinela: Daño extra a guardianes.
-Misión: Gana 750 de oro para evolucionar a Guadaña de la Niebla Negra.",
-            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).
-Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions trigger Tribute granting gold.
-Quest: Earn 750 gold to transform into Black Mist Scythe.",
+            passive = "Versátil: Otorga daño de ataque o poder de habilidad.\nTributo: Gana 1 orbe de energía giratorio cada 30 s (hasta 3). Atacar campeones o estructuras consume orbes para darte oro y curación.\nCentinela: Daño extra a guardianes.\nMisión: Gana 750 de oro para evolucionar a Guadaña de la Niebla Negra.",
+            passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions trigger Tribute granting gold.\nQuest: Earn 750 gold to transform into Black Mist Scythe.",
             coachTip = "Ideal para soportes basados en daño de ataque. Acosa a tus enemigos constantemente en fase de líneas para acumular oro rápidamente y mejorar tu objeto.",
             coachTipEn = "Ideal for AD-based supports. Harass your enemies constantly in the laning phase to quickly stack gold and upgrade your item.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"
