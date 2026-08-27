@@ -43,42 +43,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Hoja lunaplata",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Diana_Passive_LunarBlade.png",
-                    description = "Cada tres golpes, inflige daño mágico adicional a los enemigos cercanos. Después de lanzar un hechizo, Diana obtiene velocidad de ataque durante 5 segundos.",
+                    name = "Toque Maldito",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/05075a2bfe7f8d885be0e9237738c055dcd4e4b1-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques básicos de Amumu infligen Maldición a sus enemigos, lo que hace que reciban daño verdadero adicional con el daño mágico que reciban.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Impacto creciente",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/DianaQ.png",
-                    description = "Libera un rayo de energía lunar en un arco que inflige daño mágico.Los enemigos golpeados se verán afectados por Luz lunar, que revela durante 3 s a los objetivos que no estén en sigilo.",
-                    cooldown = "8/7.5/7/6.5/6s"
+                    name = "Lanzamiento de Vendas",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/72c747828b9206739fe60fb4653341df0ab3df12-96x96.jpg?accountingTag=WR",
+                    description = "Amumu lanza una venda adhesiva a un objetivo que lo aturde y lo desplaza hacia él.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Cascada pálida",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/DianaOrbs.png",
-                    description = "Diana crea tres esferas que orbitan a su alrededor y explotan al entrar en contacto con enemigos, lo que inflige daño en una zona. También obtiene un escudo temporal que absorbe daño. Si la tercera esfera explota, el escudo absorbe más daño.",
-                    cooldown = "15/13.5/12/10.5/9s"
+                    name = "Desesperanza",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/01fccf6c11aee0d7b5a4602fd3c2c6ed5591ab62-96x96.jpg?accountingTag=WR",
+                    description = "Abrumados por la angustia, los enemigos cercanos pierden parte de su vida máxima por seg y sus Maldiciones se reinician.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Torrente lunar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/DianaTeleport.png",
-                    description = "Diana se transforma en la encarnación de la luna más vengativa, se desliza hacia un enemigo y le inflige daño mágico.Torrente lunar no tiene enfriamiento cuando se usa para deslizarse hacia un objetivo afectado por Luz lunar. El efecto de Luz lunar desaparecerá del resto de enemigos, independientemente de haber sido atacados con Torrente lunar o no.",
-                    cooldown = "22/20/18/16/14s"
+                    name = "Berrinche",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/38640333263d6002d9b1911ec7eda5f742e3ea33-96x96.jpg?accountingTag=WR",
+                    description = "Reduce de forma permanente el daño físico que recibe Amumu. Además, le permite desatar su furia para infligir daño a los enemigos cercanos. Los ataques que alcancen a Amumu reducen el enfriamiento de Berrinche por 0.5 seg.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Lluvia de luna",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/DianaR.png",
-                    description = "Diana revela y atrae a todos los enemigos cercanos, y los ralentiza.Si Diana atrae a un campeón enemigo o más, un torrente de luz lunar se precipita hacia ella tras unos instantes e inflige daño mágico en una zona a su alrededor, que aumenta por cada objetivo adicional atraído con la habilidad.",
-                    cooldown = "100/90/80s"
+                    name = "Maldición de la Momia Triste",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7a597597108f944a0001191562201d85e31e895c-96x96.jpg?accountingTag=WR",
+                    description = "Amumu envuelve en vendas a las unidades enemigas cercanas, lo que les aplica Maldición, les inflige daño, y hace que no puedan atacar ni moverse.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/diana",
@@ -121,42 +121,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Un simple espantapájaros",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/FiddlesticksP.png",
-                    description = "El talismán de Fiddlesticks se reemplaza por figuras de espantapájaros.",
+                    name = "RESONANCIA PULSAR-Z",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/9589c60f5329d26496ab94311c6eda2e1be33b0c-96x96.jpg?accountingTag=WR",
+                    description = "Cada tercer ataque o hechizo dañino al mismo objetivo inflige daño mágico adicional y le otorga a Ekko una ráfaga de velocidad si el objetivo es un campeón.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Terror",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/FiddleSticksQ.png",
-                    description = "Fiddlesticks infunde miedo al infligir daño con habilidades sin ser visto o al activar Terror seleccionando como objetivo a una unidad enemiga, provocando que los enemigos afectados huyan despavoridos mientras dure el efecto.",
-                    cooldown = "15/14.5/14/13.5/13s"
+                    name = "REBOBINADOR DE TIEMPO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/bb0ecba41db8d3f1cdd5cb284053bd58f49917c6-96x96.jpg?accountingTag=WR",
+                    description = "Ekko lanza una granada temporal que se expande y genera un campo de distorsión temporal al impactar contra un campeón enemigo, ralentizando y dañando a cualquiera que quede atrapado en él. Al cabo de unos instantes, la granada regresa a Ekko e inflige daño a su paso.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Cosecha abundante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/FiddleSticksW.png",
-                    description = "Fiddlesticks drena la vida de los enemigos cercanos e inflige daño de ejecución adicional al final del efecto.",
-                    cooldown = "10/9.5/9/8.5/8s"
+                    name = "CONVERGENCIA PARALELA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/055c1a1a4100c479fcaa1ce01a5a607f9fcee22c-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques básicos de Ekko infligen daño mágico adicional a los enemigos con poca vida. Puede lanzar Convergencia paralela para dividir la línea temporal, creando una anomalía después de unos segundos que ralentiza a los enemigos atrapados en ella. Si Ekko entra en la anomalía, obtiene un escudo y aturde a los enemigos congelándolos en el tiempo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Segar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/FiddleSticksE.png",
-                    description = "Fiddlesticks ataca en área con su guadaña, lo que ralentiza a todos los enemigos alcanzados y silencia a aquellos que golpea en el centro de la cuchillada.",
-                    cooldown = "10/9/8/7/6s"
+                    name = "SALTO DE FASE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fff8496d1fec4f7f3908f95c559980152eb48845-96x96.jpg?accountingTag=WR",
+                    description = "Ekko rueda evasivamente mientras carga su Pulsar-Z. Su siguiente ataque inflige daño adicional y distorsiona la realidad para teletransportarlo a su objetivo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Tormenta de cuervos",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/FiddleSticksR.png",
-                    description = "Una bandada de cuervos rodea a Fiddlesticks e inflige daño cada segundo a todas las unidades enemigas de la zona.",
-                    cooldown = "140/110/80s"
+                    name = "CRONORRUPTURA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/ecd1af4b45ea957dc369a91df31bf39f1e33a6dc-96x96.jpg?accountingTag=WR",
+                    description = "Ekko fragmenta su línea temporal, volviéndose inalcanzable y retrocediendo a un punto más favorable en el tiempo. Vuelve al momento en el que se encontraba hace unos segundos y se cura un porcentaje del daño recibido en ese lapso. Los enemigos cercanos al punto de llegada reciben mucho daño.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/fiddlesticks",
@@ -199,42 +199,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Nuevo destino",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/GravesTrueGrit.png",
-                    description = "La escopeta de Graves tiene características únicas. Tiene que recargar cuando se queda sin munición. Los ataques lanzan 4 balas que no pueden atravesar unidades. Hacen retroceder a los objetivos que no sean campeones y hayan sido alcanzados por varias balas.",
+                    name = "Hora Feliz",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/c19c83ad1e82baecf45d7b2796792d6d27dbf6b9-96x96.jpg?accountingTag=WR",
+                    description = "Gragas se cura periódicamente tras usar una habilidad.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Fin de trayecto",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/GravesQLineSpell.png",
-                    description = "Graves dispara un proyectil explosivo que detona tras 2 segundos, o tras 0,2 segundos si impacta en un obstáculo.",
-                    cooldown = "13/11.25/9.5/7.75/6s"
+                    name = "Barril Rodante",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/dd6a35997502bc3f7f41c9d0394d9ff0abace285-96x96.jpg?accountingTag=WR",
+                    description = "Gragas rueda su barril hasta una ubicación y puede activarlo para hacerlo explotar. Explotará por sí solo después de 3 seg. Los enemigos impactados por la explosión tendrán una reducción de velocidad de movimiento.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Pantalla de humo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/GravesSmokeGrenade.png",
-                    description = "Graves dispara una bomba al área seleccionada y crea una nube de humo que reduce el alcance de visión. Los enemigos a los que alcance el primer impacto sufren daño mágico y su velocidad de movimiento se reduce brevemente.",
-                    cooldown = "26/24/22/20/18s"
+                    name = "Furia Ebria",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/2e64b237e7186e7857ab4b01c83dd9371ff3b7a2-96x96.jpg?accountingTag=WR",
+                    description = "Gragas toma un buen trago de cerveza de su barril durante 1 seg. Al terminar de beber, estará potenciado por la bebida e infligirá daño mágico a todos los enemigos cercanos con su siguiente ataque básico y reducirá el daño que reciba.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Disparo veloz",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/GravesMove.png",
-                    description = "Graves se lanza hacia adelante, obteniendo una mejora de armadura durante varios segundos. Si se desplaza hacia un campeón enemigo, en cambio, gana dos acumulaciones de Auténtico valor. Golpear a los enemigos con ataques básicos reduce el enfriamiento de esta habilidad y renueva las mejoras defensivas.",
-                    cooldown = "16/15/14/13/12s"
+                    name = "Lanzamiento de Barriga",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/1c0a37f1132b68a257c33a883499bd8e300d8ad2-96x96.jpg?accountingTag=WR",
+                    description = "Gragas carga en una dirección, choca con la primera unidad enemiga que se encuentra y les inflige daño a todas las unidades enemigas cercanas y las aturde.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Daño colateral",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/GravesChargeShot.png",
-                    description = "Graves dispara un tiro explosivo que inflige mucho daño al primer campeón en el que impacte. Tras golpear a un campeón o llegar al final de su alcance, la bala explota infligiendo daño en un cono.",
-                    cooldown = "100/80/60s"
+                    name = "Tonel Explosivo",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/65c872d529c771b12d7f393df180bf38d72b9c8e-96x96.jpg?accountingTag=WR",
+                    description = "Gragas rueda su barril hasta una ubicación, lo que inflige daño y lanza hacia atrás a los enemigos atrapados en el radio de la explosión.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/graves",
@@ -277,42 +277,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "La guadaña de los oscuros",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Kayn_Passive_Primary.png",
-                    description = "Kayn es portador de un arma muy antigua y lucha contra Rhaast, el oscuro que alberga, en un tira y afloja por hacerse con el control. O Rhaast el oscuro triunfará o Kayn conseguirá dominarlo y se convertirá en el Asesino de las sombras.Oscuro: Se cura un porcentaje del daño de hechizos infligido a campeones.Asesino de las sombras: Inflige daño adicional durante los primeros segundos en combate contra campeones enemigos.",
+                    name = "SENDERO DE GUERRA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/90699903eb0a05252107d0d833ad8bf546ddd976-96x96.png?accountingTag=WR",
+                    description = "Hecarim obtiene daño de ataque igual a un porcentaje de su velocidad de movimiento adicional.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Corte de guadaña",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KaynQ.png",
-                    description = "Kayn se desliza y luego ataca. Ambas acciones infligen daño.",
-                    cooldown = "7/6.5/6/5.5/5s"
+                    name = "ATAQUE DE FURIA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/b61313dc1bb9e5387877b2779308f45aeca9b909-96x96.png?accountingTag=WR",
+                    description = "Hecarim golpea a los enemigos cercanos y les inflige daño físico. Si Hecarim daña al menos a un enemigo, aumenta el daño y reduce el enfriamiento de los siguientes Ataques de Furia.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Golpe de hoja",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KaynW.png",
-                    description = "Kayn daña y ralentiza a los objetivos en una línea.",
-                    cooldown = "13/12/11/10/9s"
+                    name = "ESPÍRITU DEL TERROR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6acf3dba72d549f599fcaa2edb95f643a7fa79fb-96x96.png?accountingTag=WR",
+                    description = "Hecarim obtiene armadura y resistencia mágica. Hecarim inflige daño mágico a los enemigos cercanos y obtiene vida igual a un porcentaje de cualquier daño que dichos enemigos reciban.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Pasos de sombra",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KaynE.png",
-                    description = "Kayn puede atravesar obstáculos de terreno.",
-                    cooldown = "21/19/17/15/13s"
+                    name = "CARGA DEVASTADORA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7b4048342aeb45771082de5832cac2429c02f634-96x96.png?accountingTag=WR",
+                    description = "Hecarim obtiene velocidad de movimiento en aumento y puede moverse a través de las unidades por un breve periodo. Su siguiente ataque lanza al objetivo hacia atrás e inflige daño físico adicional según la distancia que haya recorrido desde la activación de la habilidad.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Invasión sombría",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KaynR.png",
-                    description = "Kayn se oculta en el cuerpo de un enemigo e inflige un daño enorme al abandonarlo.",
-                    cooldown = "120/100/80s"
+                    name = "AVALANCHA DE SOMBRAS",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5289af14ade94e53faa9f047749cb8f4f764882d-96x96.png?accountingTag=WR",
+                    description = "Hecarim invoca jinetes espectrales y carga hacia delante, lo que inflige daño mágico en una línea. Hecarim crea una onda de choque al terminar su carga, lo que causa que los enemigos cercanos huyan aterrorizados.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/kayn",
@@ -355,42 +355,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Marca de Kindred",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Kindred_Passive.png",
-                    description = "Kindred puede marcar objetivos a los que cazar. Completar con éxito una caza potencia de forma permanente las habilidades básicas de Kindred. Cada 4 cazas completadas, el alcance de los ataques básicos de Kindred también aumenta.",
+                    name = "AMENAZA INVISIBLE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0371e2057feaccf934e6d986d6c79bd93d4be01a-96x96.jpg?accountingTag=WR",
+                    description = "Cuando el equipo enemigo pierde de vista a Kha'Zix, su siguiente ataque contra campeones enemigos inflige daño mágico adicional y los ralentiza brevemente.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Danza de flechas",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KindredQ.png",
-                    description = "Kindred se mueve y dispara hasta tres flechas a objetivos cercanos.",
-                    cooldown = "9s"
+                    name = "SABOREA SU MIEDO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5b105c59f8f629f500c7dd5eca1a2fbe6c7f1c07-96x96.jpg?accountingTag=WR",
+                    description = "Kha'Zix inflige daño físico mediante cortes con sus garras y causa daño adicional si el objetivo está aislado. Garras Segadoras Evolucionadas: los ataques básicos y Saborea su Miedo tienen un mayor alcance y, si un objetivo está aislado, es decir, si no tiene compañeros de equipo o torretas cerca, una parte significativa del enfriamiento de Saborea su Miedo se restablece.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Frenesí de lobo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KindredW.png",
-                    description = "Lobo enfurece y ataca a los enemigos de su alrededor. Cordera consigue acumulaciones de forma pasiva al moverse y atacar. Cuando esté al máximo, el siguiente ataque de Cordera restaura vida.",
-                    cooldown = "18/17/16/15/14s"
+                    name = "PÚAS DEL VACÍO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c4476f83828908e33f911768f91b812c09c810d3-96x96.jpg?accountingTag=WR",
+                    description = "Kha'Zix dispara púas para infligir daño físico a la vez que se cura parcialmente si está dentro de la explosión. Púas Evolucionadas: dispara púas adicionales que revelan y ralentizan a los enemigos durante una breve duración.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Temor creciente",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KindredEWrapper.png",
-                    description = "Cordera apunta cuidadosamente y su disparo ralentiza al objetivo. Si Cordera le ataca dos veces más, su tercer ataque hará que Lobo salte sobre el objetivo y le provoque un daño descomunal.",
-                    cooldown = "14/12.5/11/9.5/8s"
+                    name = "SALTO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/94aad1127a4858320821cf29c665ee69084530b0-96x96.jpg?accountingTag=WR",
+                    description = "Kha'Zix salta a un área determinada e inflige daño físico. Alas Evolucionadas: aumenta el alcance de esta habilidad y restablece el enfriamiento al derribar campeones.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Respiro de cordera",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KindredR.png",
-                    description = "Cordera proporciona a todos los seres vivos que estén dentro de una zona un respiro ante la muerte. Nada podrá morir hasta que se pase el efecto. Al final, se curan las unidades.",
-                    cooldown = "180/150/120s"
+                    name = "ATAQUE DEL VACÍO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/7de1100b260f41abc68b796d1fb076126b00de5f-96x96.jpg?accountingTag=WR",
+                    description = "Pasiva: cada rango en Ataque del Vacío le permite a Kha'Zix evolucionar una de sus habilidades. Activa: Kha'Zix se vuelve invisible y aumenta brevemente su velocidad de movimiento. Camuflaje Adaptable Evolucionado: la duración de la invisibilidad es mayor y puede lanzarse varias veces.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/kindred",
@@ -433,42 +433,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Rama de los sueños",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Lillia_Icon_Passive.png",
-                    description = "Golpear a un campeón o a un monstruo con una habilidad le infligirá daño por vida máxima adicional a lo largo del tiempo.",
+                    name = "Ráfaga",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/d054deda664ef785931ed10873e76909866ee1ba-96x96.jpg?accountingTag=WR",
+                    description = "Después de que Lee Sin usa una habilidad, sus siguientes 2 ataques básicos reciben velocidad de ataque y le restauran energía.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Golpes florecientes",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LilliaQ.png",
-                    description = "De forma pasiva, Lillia obtiene velocidad de movimiento acumulable al golpear a enemigos con sus hechizos. Puede activar la habilidad para infligir daño mágico a los enemigos cercanos e infligir daño verdadero adicional en el borde.",
-                    cooldown = "6/5.5/5/4.5/4s"
+                    name = "Onda Sónica / Golpe Resonante",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/9394488507d896bf008bd2aa52c570e9d26d3b51-96x96.jpg?accountingTag=WR",
+                    description = "Onda Sónica: Lee Sin proyecta una onda discordante para localizar a sus enemigos, lo que inflige daño físico al primer enemigo que encuentra. Si Onda Sónica alcanza a un enemigo, Lee Sin puede usar Golpe Resonante durante los próximos 3 seg. Golpe Resonante: Lee Sin se desplaza hacia el enemigo alcanzado por Onda Sónica y le inflige daño físico, según su vida faltante.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "¡Cuidado! ¡Yip!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LilliaW.png",
-                    description = "Lillia inflige daño en una zona cercana. El daño aumenta en el centro.",
-                    cooldown = "14/13/12/11/10s"
+                    name = "Salvaguarda / Voluntad de Hierro",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/884543307c6ae8a8113c682ca32c42dec89b05b8-96x96.jpg?accountingTag=WR",
+                    description = "Lee Sin se desplaza hacia la ubicación objetivo y se escuda contra daño si un campeón enemigo o monstruo está cerca de la dirección de su trayectoria. Después de utilizar Salvaguarda, Lee Sin puede usar Voluntad de Hierro durante los próximos seg. Voluntad de Hierro: el siguiente ataque de Lee Sin inflige daño mágico adicional y tiene omnivampirismo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Semilla rodante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LilliaE.png",
-                    description = "Lillia lanza una semilla que inflige daño y ralentiza a aquellos sobre los que aterriza. Si no impacta contra nada, seguirá rodando hasta impactar contra un muro o un objetivo.",
-                    cooldown = "14s"
+                    name = "Tempestad / Incapacitar",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/df423dd91f36e9ee792e167126705344585e8fd3-96x96.jpg?accountingTag=WR",
+                    description = "Tempestad: Lee Sin golpea el suelo, lo que genera una onda expansiva que inflige daño mágico y revela a las unidades enemigas impactadas. Si Tempestad alcanza a un enemigo, Lee Sin puede usar Incapacitar durante los próximos 3 seg. Incapacitar: Lee Sin incapacita a los enemigos cercanos que hayan sido impactados por Tempestad, lo que reduce su Velocidad de Movimiento durante 4 seg. La velocidad de movimiento se restablece gradualmente a lo largo del efecto.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Nana rítmica",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LilliaR.png",
-                    description = "Lillia provoca que todos los enemigos afectados por Polvo de los sueños queden aletargados hasta que se quedan dormidos. Esos enemigos reciben daño adicional al ser despertados a la fuerza.",
-                    cooldown = "150/130/110s"
+                    name = "Furia del Dragón",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8dfc7b2d51b5d53d6fb400fc38d8ef17da229877-96x96.jpg?accountingTag=WR",
+                    description = "Lee Sin realiza una poderosa patada circular que lanza a su objetivo hacia atrás, lo que inflige daño físico al objetivo y a los enemigos con los que impacta. Los enemigos con los que el objetivo impacta son lanzados por el aire por un breve momento.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/lillia",
@@ -511,42 +511,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Acecho",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Nidalee_Passive.png",
-                    description = "Moverse por la maleza aumenta la velocidad de movimiento de Nidalee un 10% durante 2 s. El aumento es del 30% si se mueve hacia campeones enemigos visibles a una distancia de 1400 o menos.Si daña a algún campeón o monstruo con Jabalina o Emboscada, se activa una Cacería contra él durante 4 s, lo que le otorga visión verdadera del objetivo y un 10% de velocidad de movimiento adicional (un 30% en dirección al objetivo Cazado). Además, cuando use Tumbar y Asalto contra él será más eficaz.",
+                    name = "Golpe Doble",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/91bf53294513d45bdfe562698d13afa117d1916a-96x96.jpg?accountingTag=WR",
+                    description = "Maestro Yi ataca dos veces cada cierto número de ataques básicos consecutivos.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Jabalina / Tumbar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/JavelinToss.png",
-                    description = "En forma humana, Nidalee lanza a su objetivo una jabalina cuyo daño aumenta proporcionalmente a la distancia. Como felino, intentará herir de muerte a su objetivo con su siguiente ataque, causándole más daño cuanta menos vida le quede.",
-                    cooldown = "6s"
+                    name = "Golpe Alfa",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/be69f33da86dc9196f37b179a6ecc597eda9846b-96x96.jpg?accountingTag=WR",
+                    description = "El Maestro Yi se teletransporta por el campo de batalla a toda velocidad, lo que inflige daño a múltiples unidades a su paso y lo vuelve inalcanzable. Golpe Alfa puede infligir golpes críticos e inflige daño físico adicional contra monstruos. Los ataques básicos reducen el enfriamiento de Golpe Alfa.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Emboscada / Asalto",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/Bushwhack.png",
-                    description = "En forma humana, Nidalee coloca una trampa para rivales incautos que revela y causa daño a quien la acciona. Como felino, salta en una dirección y causa daño de área donde aterriza.",
-                    cooldown = "13/12/11/10/9s"
+                    name = "Meditación",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ec8e23d4a69e7bfb47bc91abb493d0dafcd019a5-96x96.jpg?accountingTag=WR",
+                    description = "Maestro Yi enfoca su mente para rejuvenecer su cuerpo, lo que le restaura vida y reduce el daño recibido por un breve momento.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Tensión primaria / Zarpazo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/PrimalSurge.png",
-                    description = "En forma humana, Nidalee concentra el poder del espíritu felino para sanar a sus aliados y otorgarles velocidad de ataque durante un breve periodo de tiempo. Como felino, lanza zarpazos en una dirección e inflige daño a los enemigos que tiene delante.",
-                    cooldown = "12s"
+                    name = "Estilo Wuju",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5504824fb10d63628c08193f9a4cdd9c20f578f4-96x96.jpg?accountingTag=WR",
+                    description = "Otorga daño verdadero adicional a los ataques básicos.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Aspecto felino",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/AspectOfTheCougar.png",
-                    description = "Nidalee se transforma en felino salvaje, con lo que obtiene habilidades nuevas.",
-                    cooldown = "3s"
+                    name = "Imparable",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3b62831c3de9489edaf0d675c0c691e1395acffb-96x96.jpg?accountingTag=WR",
+                    description = "El Maestro Yi se mueve con agilidad inigualable, lo que incrementa sus velocidades de movimiento y de ataque de forma temporal, además de hacerlo inmune a todas las ralentizaciones. Al estar activa, los asesinatos o asistencias contra campeones extienden la duración de Imparable. Reduce el enfriamiento de sus otras habilidades de manera pasiva con cada asesinato o asistencia.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/nidalee",
@@ -589,42 +589,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Furia berserker",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Olaf_Passive.png",
-                    description = "Olaf obtiene velocidad de ataque y robo de vida según la vida que le falte.",
+                    name = "NAVAJAS DE LA PENUMBRA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c1a4425d2f2149c5b96e1417b64360a62c9b4fd2-256x256.png?accountingTag=WR",
+                    description = "Cada unos segundos, el siguiente ataque de Nocturne impacta a los enemigos a su alrededor, lo que les inflige daño físico adicional y le permite curarse a sí mismo. Los ataques básicos de Nocturne reducen este enfriamiento.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Lanzamiento",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/OlafAxeThrowCast.png",
-                    description = "Olaf lanza un hacha que impacta en la ubicación seleccionada. Inflige daño a los enemigos que atraviesa y reduce su armadura y su velocidad de movimiento. Si Olaf recoge el hacha, el enfriamiento de la habilidad se restablece.",
-                    cooldown = "9s"
+                    name = "PORTADOR DEL ANOCHECER",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b74f5ca63bd27b4e53d5a7fcb66e158a522608b3-256x256.png?accountingTag=WR",
+                    description = "Nocturne lanza una cuchilla de sombras que inflige daño, crea un rastro de oscuridad y hace que los campeones enemigos dejen un rastro de oscuridad a su paso. Mientras avanza sobre el rastro, Nocturne puede atravesar unidades y obtiene más velocidad de movimiento y daño de ataque.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Aguante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/OlafFrenziedStrikes.png",
-                    description = "Aumenta la velocidad de ataque de Olaf y obtiene un escudo.",
-                    cooldown = "16/15/14/13/12s"
+                    name = "MANTO DE OSCURIDAD",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8bc13c5453326b5bf1a589c61f626cefb706d17a-256x256.png?accountingTag=WR",
+                    description = "Nocturne potencia sus cuchillas y obtiene velocidad de ataque de forma pasiva. Activar Manto de Oscuridad le permite a Nocturne ocultarse en las sombras, lo que crea una barrera mágica que lo protege de una habilidad enemiga. Si bloquea un ataque con éxito, la velocidad de ataque pasiva se duplica.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Embestida temeraria",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/OlafRecklessStrike.png",
-                    description = "Olaf ataca con tal fuerza que causa daño verdadero a su objetivo y a sí mismo, pero el daño autoinfligido se recupera si destruye al objetivo.",
-                    cooldown = "11/10/9/8/7s"
+                    name = "HORROR INENARRABLE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aa575f463cba60382e395a1af55fbc1c30916e09-256x256.png?accountingTag=WR",
+                    description = "Nocturne siembra una pesadilla en la mente de su objetivo, lo que inflige daño cada segundo y aterroriza al enemigo si no se aleja del alcance de la habilidad antes de que termine la canalización.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Ragnarok",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/OlafRagnarok.png",
-                    description = "Olaf gana armadura y resistencia mágica de forma pasiva. Puede activar esta habilidad para volverse inmune a las incapacitaciones siempre y cuando siga atacando.",
-                    cooldown = "100/90/80s"
+                    name = "PARANOIA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/16b159ca0e703ce615826b2805999712abfb4f72-256x256.png?accountingTag=WR",
+                    description = "Nocturne reduce el radio de visión de todos los campeones enemigos y no les permite ver a sus aliados. Luego, puede lanzarse hacia un campeón enemigo cercano.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/olaf",
@@ -667,42 +667,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Armazón de pinchos",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Armordillo_ScavengeArmor.png",
-                    description = "Los ataques básicos de Rammus infligen daño mágico adicional que progresa con su armadura.",
+                    name = "VOLUNTAD DEL MORTAL",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d8edeb2027d59bf58c22269eb9f824751a88762a-96x96.jpg?accountingTag=WR",
+                    description = "Cada varios hechizos o ataques, el siguiente hechizo de Pantheon será potenciado.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Bola de poder",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/PowerBall.png",
-                    description = "Rammus se lanza como una bola a gran velocidad contra sus enemigos, infligiéndoles daño y ralentizando a los afectados por el impacto.",
-                    cooldown = "16/13.5/11/8.5/6s"
+                    name = "LANZA COMETA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/1aa0152655dbb4def4028e29012e46b311a090d9-96x96.jpg?accountingTag=WR",
+                    description = "Pantheon golpea con su lanza o la arroja en la dirección elegida. Los enemigos con poca vida reciben un golpe crítico. Voluntad del Mortal: inflige daño adicional.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Posición defensiva",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/DefensiveBallCurl.png",
-                    description = "Rammus se sitúa en posición defensiva, lo que aumenta drásticamente su armadura y su resistencia mágica, así como el poder de Armazón de pinchos; además, devuelve el daño a los enemigos que lo golpean con ataques básicos.",
-                    cooldown = "7s"
+                    name = "SALTO CON ESCUDO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5e80c2c36a2e0cc0992f920e02883aee50a26bc4-96x96.jpg?accountingTag=WR",
+                    description = "Pantheon se desplaza hacia un objetivo para infligirle daño y aturdirlo. Voluntad del Mortal: continúa con un ataque adicional que golpea 3 veces.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Provocación frenética",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/PuncturingTaunt.png",
-                    description = "Rammus provoca a un monstruo o a un campeón enemigo para que se lance a lo loco contra él. Además, obtiene velocidad de ataque durante un periodo corto, pero esta bonificación se ve prolongada al tener activo cualquiera de sus otros hechizos.",
-                    cooldown = "12s"
+                    name = "ÉGIDA DE ASALTO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/f60778df68cafcc4dbe5ac897bb8d9891c5883aa-96x96.jpg?accountingTag=WR",
+                    description = "Pantheon fija su escudo, lo que lo vuelve invulnerable al daño de frente, y lanza ataques repetidos con su lanza. Voluntad del Mortal: Pantheon obtiene velocidad de movimiento.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Golpe veloz",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/Tremors2.png",
-                    description = "Rammus salta y golpea una ubicación objetivo, lo que inflige daño mágico y ralentiza a los enemigos. Si se lanza mientras Rammus usa Bola de poder, Rammus también lanza por los aires a los enemigos que se encuentren cerca del centro.",
-                    cooldown = "90s"
+                    name = "GRAN DESCARGA ESTELAR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8af60988ad4fef1a9c403c103acbb213d003ce80-96x96.jpg?accountingTag=WR",
+                    description = "Pantheon se calma y luego salta para aterrizar en el lugar elegido como un cometa. Esto le permite ralentizar e infligir daño en una línea que apunta hacia donde aterriza.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/rammus",
@@ -745,42 +745,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Furia de la hija del dragón",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Shyvana_Passive.png",
-                    description = "Shyvana inflige daño adicional a los dragones y obtiene armadura y resistencia mágica. Cuantos más dragones asesine su equipo, mayor será su bonificación de armadura y resistencia mágica.",
+                    name = "DEPREDADOR INVISIBLE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fe3944441fc21ae6cd5e5cee2ee0ac0b7e5e87fe-96x96.jpg?accountingTag=WR",
+                    description = "Al atacar, si está en la maleza, Rengar salta hacia su objetivo. Los derribos de campeones enemigos únicos le otorgan daño de ataque adicional. Lanzar habilidades básicas le otorga a Rengar Ferocidad, lo que potencia sus habilidades básicas. Lanzar habilidades potenciadas le otorga velocidad de movimiento adicional por un tiempo breve.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Mordisco doble",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ShyvanaQ.png",
-                    description = "Shyvana golpea dos veces en su próximo ataque y se otorga velocidad de ataque en los próximos ataques. Los ataques básicos reducen el enfriamiento de Mordisco doble en 0,5 s.Forma de Dragón: Mordisco doble golpea a todas las unidades que hay ante Shyvana.",
-                    cooldown = "8/7.5/7/6.5/6s"
+                    name = "FIEREZA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8db8a6480c1c580365fed1ddfdae4e1296c5f475-96x96.jpg?accountingTag=WR",
+                    description = "Los próximos ataques de Rengar obtienen velocidad de ataque. El primer ataque inflige daño físico adicional y asesta un golpe crítico. La probabilidad de golpe crítico aumenta aún más el daño. Ferocidad: Rengar obtiene aún más velocidad de ataque y el primer ataque inflige aún más daño físico.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Quemado",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ShyvanaW.png",
-                    description = "Shyvana se rodea de fuego, inflige daño mágico cada segundo a los enemigos cercanos y se mueve más rápido durante 3 s. Cuando Shyvana vuelve a alcanzar con sus ataques básicos a un enemigo con el efecto de Quemado aún activo, recibe parte de ese daño de nuevo. La velocidad de movimiento se reduce mientras dura el hechizo. Los ataques básicos aumentan la duración de Quemado. Forma de dragón: Quemado aumenta su tamaño.",
-                    cooldown = "12s"
+                    name = "RUGIDO DE BATALLA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/58153a183007c4b43c36bedc6386cb2e706814ef-96x96.jpg?accountingTag=WR",
+                    description = "Rengar inflige daño a los enemigos cercanos y se cura algo del daño que recibió recientemente. Ferocidad: Rengar inflige daño adicional y elimina todos los efectos de control de masas en él.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Aliento de fuego",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ShyvanaE.png",
-                    description = "Shyvana lanza una bola de fuego que inflige daño a todos los enemigos con los que se encuentra y deja cenizas que los marcan durante 5 s. Los ataques básicos de Shyvana contra los objetivos marcados infligen un porcentaje de la vida máxima como daño al golpear.Forma de dragón: Aliento de fuego revienta al impactar o en la ubicación objetivo, lo que inflige daño adicional y abrasa el suelo durante un breve periodo de tiempo.",
-                    cooldown = "12/11/10/9/8s"
+                    name = "BOLEADORAS",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/ce817364650f8ca92bebe472c391511e667ff75d-96x96.jpg?accountingTag=WR",
+                    description = "Rengar arroja una boleadora que inflige daño físico y ralentiza al primer objetivo alcanzado. Además, la boleadora revela al objetivo y otorga visión del área circundante. Ferocidad: Rengar inflige daño adicional e inmoviliza al objetivo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Ascendencia de dragón",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ShyvanaR.png",
-                    description = "Shyvana se transforma en un dragón y vuela hacia un lugar objetivo. Los enemigos con los que se encuentre en su camino reciben daño y se ven empujados hacia su lugar objetivo.Shyvana obtiene furia de forma pasiva y 2 de furia con cada ataque básico.",
-                    cooldown = "0s"
+                    name = "ADRENALINA DEL CAZADOR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/3ef9f1ce11529afaae63a542796f2f2ea546cdb5-96x96.jpg?accountingTag=WR",
+                    description = "Rengar obtiene velocidad de movimiento y revela al campeón enemigo más cercano por un tiempo. Unos segundos después de lanzar la habilidad, Rengar entra en camuflaje y su siguiente ataque reduce la armadura del objetivo por un tiempo.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/shyvana",
@@ -823,42 +823,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Surfista de rocas",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Taliyah_Passive.png",
-                    description = "Taliyah obtiene velocidad de movimiento cerca de las paredes.",
+                    name = "HILOS DEL MOVIMIENTO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/326e7f2d1d5060f1181e6719d859db739e7d3fdb-256x256.png?accountingTag=WR",
+                    description = "Los ataques de Skarner, Tierra Desgarrada, Avasallar y Empalar aplican acumulaciones de Temblor. Con el máximo de acumulaciones de Temblor, los enemigos reciben daño mágico con relación a su vida máxima a lo largo de la duración.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Lanzarrocas",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TaliyahQ.png",
-                    description = "Taliyah lanza una ráfaga de rocas en la dirección objetivo. Durante el lanzamiento, se puede mover libremente. Esto crea una zona de tierra árida a sus pies. Si Taliyah activa Lanzarrocas en tierra árida, la consume para lanzar un pedrusco de mayor tamaño que ralentiza a los enemigos.",
-                    cooldown = "7/6/5/4/3s"
+                    name = "TIERRA DESGARRADA / AVASALLAR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c37f7109f557ebbb3a51ec897467f429a08491ba-256x256.png?accountingTag=WR",
+                    description = "Skarner arranca una roca del suelo que potencia sus ataques y que se puede lanzar como un poderoso proyectil.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Empujón sísmico",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TaliyahWVC.png",
-                    description = "Taliyah provoca que una zona de tierra entre en erupción y lance a los enemigos en la dirección que ella elija.",
-                    cooldown = "14/12.5/11/9.5/8s"
+                    name = "BASTIÓN SÍSMICO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/735d32aee2455bd6537970890ccca2e93620a6f5-256x256.png?accountingTag=WR",
+                    description = "Skarner obtiene un escudo y crea un terremoto cuya onda de choque inflige daño y ralentiza a los enemigos.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Tierra comprometida",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TaliyahE.png",
-                    description = "Taliyah crea un campo de minas que ralentiza y explota si los enemigos se deslizan o son empujados sobre él, lo que los aturde.",
-                    cooldown = "14s"
+                    name = "IMPACTO IXTALÍ",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/fa8ab350919f20376c02f1935fc6c7de47898e91-256x256.png?accountingTag=WR",
+                    description = "Skarner embiste hacia adelante y atraviesa el terreno. Si choca con un campeón o un monstruo grande, lo estrellará contra la siguiente pared con la que choque para infligirle daño y aturdirlo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Muro de la Tejedora",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TaliyahR.png",
-                    description = "Taliyah crea un muro muy largo y surfea sobre él.",
-                    cooldown = "180/150/120s"
+                    name = "EMPALAR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/226a5dbf56591d6b314401b81f8c5b0f085a7423-256x256.png?accountingTag=WR",
+                    description = "Las colas de Skarner se lanzan como látigos hacia adelante para infligir dañor y suprimir a los campeones enemigos. Skarner arrastrará consigo a las víctimas suprimidas mientras se mueve. Si impacta al menos a un campeón, obtiene velocidad de movimiento. Si Tierra Desgarrada está activa, Skarner primero lanzará Avasallar.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/taliyah",
@@ -901,42 +901,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Dominación soberana",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Viego_Passive.png",
-                    description = "Los enemigos que caen rendidos ante Viego se convierten en espectros. Al atacar a un espectro, Viego toma el control temporalmente del cadáver de su enemigo, lo que le cura un porcentaje de la vida máxima de su objetivo y le permite acceder a sus habilidades básicas y objetos. Sustituye la habilidad definitiva de su objetivo por un lanzamiento gratuito de la suya propia.",
+                    name = "GOLPES ABOLLANTES",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/bf1d2befd59d40514ea64e1739c0e309739a490e-96x96.jpg?accountingTag=WR",
+                    description = "Cada tercer ataque al mismo enemigo inflige un porcentaje de su vida máxima, reduce su armadura y le otorga a Vi velocidad de ataque.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Hoja del rey arruinado",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ViegoQ.png",
-                    description = "La espada espectral de Viego inflige daño por vida actual adicional de forma pasiva al golpear y golpea dos veces a los enemigos a los que haya golpeado recientemente con una habilidad, lo que les roba vida.Viego puede activar esta habilidad para atacar hacia delante con su espada a dos manos y empalar a los enemigos que se encuentren delante de él.",
-                    cooldown = "5/4.5/4/3.5/3s"
+                    name = "Rompebóvedas",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/182b204bbfca0be1fe480fbfe0b2fd923cd87b8f-96x96.jpg?accountingTag=WR",
+                    description = "Vi carga sus guanteletes y desata un golpe rompebóvedas, lo que la impulsa hacia adelante. Lanzará hacia atrás a los enemigos que golpee y recibirán una acumulación de Golpes Abollantes.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Fauces espectrales",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ViegoW.png",
-                    description = "Viego concentra su energía antes de deslizarse hacia delante y lanzar una bola de Niebla Negra condensada que aturde al primer enemigo golpeado.",
-                    cooldown = "8s"
+                    name = "ESCUDO EXPLOSIVO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/0fb4751e8fe0b5d3ca8bbc34afefd6406af6efd1-96x96.jpg?accountingTag=WR",
+                    description = "Vi obtiene acumulaciones de Escudo Explosivo al impactar a un enemigo con un ataque o habilidad. Activar Escudo Explosivo genera un escudo que absorbe daño. Al llegar al máximo de acumulaciones, Vi también obtiene velocidad de movimiento.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Camino del tormento",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ViegoE.png",
-                    description = "Viego ordena a la Niebla Negra que se manifieste y rodee un obstáculo del terreno. Viego se puede esconder en la Niebla en forma espectral, lo que le otorga camuflaje, velocidad de movimiento y velocidad de ataque.",
-                    cooldown = "14/12/10/8/6s"
+                    name = "Fuerza Excesiva",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/7330a72f7fdc8f04a07de37bfec0a7e4e9eb0fb8-96x96.jpg?accountingTag=WR",
+                    description = "El siguiente ataque de Vi atraviesa a su objetivo, lo que inflige daño a los enemigos que están detrás de él.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Rompecorazones",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ViegoR.png",
-                    description = "Viego se teleporta a una ubicación cercana y ejecuta a un campeón enemigo al llegar, atravesando su corazón y provocando una destructiva onda de choque a su alrededor que empuja a un lado al resto de enemigos.",
-                    cooldown = "120/100/80s"
+                    name = "Asalto y Lesiones",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8d6c285e075928129c29a0c1cec99c7b6fd06419-96x96.jpg?accountingTag=WR",
+                    description = "Vi se lanza hacia un enemigo, lanzando hacia un lado a cualquiera que se interponga en su camino. Cuando llega a su objetivo, lo lanza por el aire, salta tras él y lo devuelve al suelo con un golpe.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/viego",
@@ -979,42 +979,42 @@ object JungleChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Determinación",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/XinZhaoReworkP.png",
-                    description = "Cada tercer ataque inflige daño adicional y cura a Xin Zhao.",
+                    name = "SED INSACIABLE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/28a4e239c4de34c4773d6bdee6c16ea26bcf6b47-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques básicos de Warwick infligen daño mágico adicional. Si Warwick se encuentra por debajo del 50% de Vida, se cura esa cantidad.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Golpe de tres garras",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/XinZhaoQ.png",
-                    description = "Los 3 siguientes ataques normales de Xin Zhao infligen más daño. El tercero lanza a un oponente por los aires.",
-                    cooldown = "7/6.5/6/5.5/5s"
+                    name = "FAUCES DE LA BESTIA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7e73fada4059a4654ec2a3e7b077f532011d216b-96x96.jpg?accountingTag=WR",
+                    description = "Warwick se lanza hacia adelante y muerde a su objetivo, lo que le inflige daño según su vida máxima y cura a Warwick la misma cantidad de daño infligido.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "El viento se convierte en rayo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/XinZhaoW.png",
-                    description = "Xin Zhao carga hacia delante con su lanza y realiza una estocada al frente que ralentiza a los enemigos afectados y los marca como desafiados.",
-                    cooldown = "12/11/10/9/8s"
+                    name = "CACERÍA DE SANGRE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5fcbde3a0ae9cc88362cba2e51260801858296e4-96x96.jpg?accountingTag=WR",
+                    description = "Warwick siente a los enemigos con menos de 50% de Vida, con lo que gana velocidad de movimiento y de ataque contra ellos. Cuando la vida de los enemigos cae por debajo de un 20%, Warwick entra en frenesí y los efectos adicionales se triplican.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Carga audaz",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/XinZhaoE.png",
-                    description = "Xin Zhao carga contra un enemigo, obtiene velocidad de ataque, inflige daño y ralentiza brevemente a todos los enemigos en el área. El alcance de Carga audaz aumenta contra objetivos desafiados.",
-                    cooldown = "11s"
+                    name = "AULLIDO PRIMIGENIO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/4b8605b3cc0524b3fc44d7d50961aaadec78d1e7-96x96.jpg?accountingTag=WR",
+                    description = "Warwick obtiene reducción de daño durante 2.5 seg. Al final, o si se reactiva, aúlla y hace que los enemigos cercanos huyan por 1 seg.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Guardia de media luna",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/XinZhaoR.png",
-                    description = "Xin Zhao desafía a un enemigo al que haya infligido daño recientemente. Xin Zhao inflige daño a los enemigos cercanos según la vida que tengan, empuja a los objetivos no desafiados y se vuelve inmune al daño que infligen los campeones fuera del círculo creado.",
-                    cooldown = "120/110/100s"
+                    name = "OPRESIÓN INFINITA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7b5e3608177a4a811ef6bcbe9d409e03cb0621c3-96x96.jpg?accountingTag=WR",
+                    description = "Warwick salta en una dirección (progresa con su velocidad de movimiento adicional) y suprime al primer campeón que alcanza durante 1.5 seg.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/xin-zhao",

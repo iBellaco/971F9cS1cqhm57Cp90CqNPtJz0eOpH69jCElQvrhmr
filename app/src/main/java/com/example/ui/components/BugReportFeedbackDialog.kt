@@ -84,6 +84,10 @@ fun BugReportFeedbackDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var suggestedChampion by remember { mutableStateOf("") }
+    var suggestedRole by remember { mutableStateOf("") }
+    var suggestedRunes by remember { mutableStateOf("") }
+    var suggestedSpells by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -152,10 +156,16 @@ fun BugReportFeedbackDialog(
             isSubmitting = true
             statusMessage = null
             scope.launch {
+                var finalDesc = description
+                if (suggestedChampion.isNotBlank()) finalDesc += "\n\nCampeón Sugerido: $suggestedChampion"
+                if (suggestedRole.isNotBlank()) finalDesc += "\nRol Sugerido: $suggestedRole"
+                if (suggestedRunes.isNotBlank()) finalDesc += "\nRunas Sugeridas: $suggestedRunes"
+                if (suggestedSpells.isNotBlank()) finalDesc += "\nHechizos Sugeridos: $suggestedSpells"
+                
                 val result = FeedbackRepository.submitFeedback(
                     type = selectedType.name,
                     title = title,
-                    description = description,
+                    description = finalDesc,
                     email = email.trim().takeIf { it.isNotEmpty() },
                     imagesBase64 = selectedImages,
                     retentionDays = 7

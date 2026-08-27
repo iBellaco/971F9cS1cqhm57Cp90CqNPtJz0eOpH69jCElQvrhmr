@@ -43,42 +43,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Disparo a la cabeza",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Caitlyn_Headshot.png",
-                    description = "Cada pocos ataques básicos o contra un objetivo atrapado en una de sus trampas o en su red, Caitlyn realiza un tiro a la cabeza que inflige daño adicional, el cual aumenta con su probabilidad de crítico. El alcance de Disparo a la cabeza de Caitlyn se duplica cuando ataca a objetivos atrapados en una trampa o una red.",
+                    name = "Tiro Escarchado",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/23a3eff436b2ec32b2a79fe1b75221e2836ac8fb-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques de Ashe ralentizan a su objetivo, lo que ocasiona que inflija daño aumentado a dichos objetivos. Los golpes críticos de Ashe no infligen daño adicional, pero aplican una ralentización potenciada a sus objetivos.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Pacificadora de Piltover",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/CaitlynQ.png",
-                    description = "Caitlyn carga su rifle durante 1 s para liberar un disparo penetrante que provoca daño físico y se ensancha al alcanzar a un objetivo (causa menos daño a los objetivos posteriores).",
-                    cooldown = "10/9/8/7/6s"
+                    name = "Concentración de la Guardabosques",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/b3c24bd3116da83096509ee2b9dfcda6a3d7c087-96x96.jpg?accountingTag=WR",
+                    description = "Ashe acumula Concentración al atacar. Cuando tiene Concentración máxima, Ashe puede activar Concentración de la Guardabosques, que consume todas las acumulaciones de Concentración y aumenta su velocidad de ataque, lo que transforma su ataque básico en un poderoso torbellino de golpes durante ese tiempo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Trampa para yordles",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/CaitlynW.png",
-                    description = "Caitlyn pone una trampa que, al activarse, inmoviliza al campeón enemigo y lo revela durante 1,5 s, lo que permite que Caitlyn aseste un Disparo a la cabeza potenciado.",
-                    cooldown = "0.5s"
+                    name = "Descarga",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/19bd4b4200fec32c68be3a5f8513fbcc877c1efe-96x96.jpg?accountingTag=WR",
+                    description = "Ashe dispara 9 flechas en un arco para causar más daño. Además, aplica Tiro Escarchado.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Red de calibre 90",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/CaitlynE.png",
-                    description = "Caitlyn lanza una red pesada para ralentizar a su objetivo. El retroceso empuja hacia atrás a Caitlyn.",
-                    cooldown = "16/14/12/10/8s"
+                    name = "Tiro de Halcón",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/b3ee4b3f79a6b343907957f75470b9002a05dc19-96x96.jpg?accountingTag=WR",
+                    description = "Ashe puede enviar su Espíritu Halcón a cualquier parte del mapa en misión de exploración.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "As en la manga",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/CaitlynR.png",
-                    description = "Caitlyn se toma su tiempo para preparar el tiro perfecto, causando una gran cantidad de daño a un solo objetivo a gran distancia. Los campeones enemigos pueden interceptar la bala para sus aliados.",
-                    cooldown = "90s"
+                    name = "Flecha de Cristal Encantada",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/df785a4db250f45a6fb0e003926eb487d721ddb1-96x96.jpg?accountingTag=WR",
+                    description = "Ashe dispara un proyectil de hielo que puede dirigir en el aire. Si la flecha choca con un campeón enemigo, le inflige daño y lo aturde, y aturde por más tiempo entre más lejos haya volado la flecha. Además, las unidades enemigas circundantes reciben daño y quedan ralentizadas.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/caitlyn",
@@ -121,42 +121,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Fuerza de hechizo naciente",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Ezreal_RisingSpellForce.png",
-                    description = "La velocidad de ataque de Ezreal aumenta progresivamente cada vez que acierta un hechizo, hasta un máximo de 5 acumulaciones.",
+                    name = "LEAGUE OF DRAVEN",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e7103b14b366e5e0f58a59107e820e8148eaf9c6-96x96.jpg?accountingTag=WR",
+                    description = "Draven obtiene Adoración de sus seguidores cuando atrapa un Hacha Giratoria o cuando mata a un súbdito, monstruo o torre. Asesinar campeones enemigos le otorga oro adicional a Draven según la cantidad de Adoración que tenga.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Disparo místico",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/EzrealQ.png",
-                    description = "Ezreal lanza un rayo de energía que reduce brevemente todos sus enfriamientos si alcanza a alguna unidad enemiga.",
-                    cooldown = "5.5/5.25/5/4.75/4.5s"
+                    name = "HACHA GIRATORIA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5c9d5f18922fa553e748d9311685f46613805611-96x96.jpg?accountingTag=WR",
+                    description = "El siguiente ataque de Draven infligirá daño físico adicional. Esta hacha rebotará del enemigo hacia el aire. Si Draven la atrapa, preparará automáticamente otra Hacha Giratoria. Draven puede manejar dos Hachas Giratorias al mismo tiempo.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Flujo de esencia",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/EzrealW.png",
-                    description = "Ezreal dispara un orbe que se adhiere al primer campeón u objetivo alcanzado. Si Ezreal golpea a un enemigo con el orbe, este explota e inflige daño.",
-                    cooldown = "8s"
+                    name = "IMPULSO SANGRIENTO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7abde75366de2cc1742acea6432f3abf41697b19-96x96.jpg?accountingTag=WR",
+                    description = "Draven obtiene velocidad de movimiento y de ataque aumentadas. La velocidad de movimiento adicional se reduce rápidamente a lo largo de su duración. Atrapar un Hacha Giratoria restablecerá el enfriamiento de Impulso Sangriento.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Alteración arcana",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/EzrealE.png",
-                    description = "Ezreal se teleporta a una ubicación cercana a un objetivo y dispara un rayo certero que golpea a la unidad enemiga más cercana. Dará prioridad a los enemigos marcados con Flujo de esencia.",
-                    cooldown = "26/23/20/17/14s"
+                    name = "APÁRTATE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/7d13c4f940541575b69cb22a06d461f0af96ea43-96x96.jpg?accountingTag=WR",
+                    description = "Draven lanza sus hachas, lo que inflige daño físico a los objetivos impactados y los lanza a un lado. Los objetivos impactados quedan ralentizados.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Andanada certera",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/EzrealR.png",
-                    description = "Ezreal se prepara antes de disparar una potente andanada de energía que inflige mucho daño a cada unidad que atraviese (el daño es menor contra súbditos y monstruos no épicos).",
-                    cooldown = "120/105/90s"
+                    name = "MUERTE RODANTE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9a8400e05e90632cfb60df06188fa731ee2ebc8f-96x96.jpg?accountingTag=WR",
+                    description = "Draven arroja dos hachas gigantes que infligen daño físico a cada unidad impactada. Muerte Rodante revierte lentamente su dirección y regresa a Draven después de impactar a un campeón enemigo. Draven también puede activar esta habilidad mientras las hachas estén a medio trayecto para hacer que regresen antes. Inflige daño reducido por cada unidad impactada y se restablece cuando las hachas revierten su dirección.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/ezreal",
@@ -199,42 +199,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "¡A tope!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Jinx_Passive.png",
-                    description = "Jinx recibe un gran aumento de velocidad de movimiento y velocidad de ataque cuando ayuda a matar a un campeón enemigo, a un monstruo épico de la jungla o a destruir una estructura.",
+                    name = "Murmullo",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/e68c9203ae7b25e39a78d9486fbc04f736ef61de-96x96.jpg?accountingTag=WR",
+                    description = "El cañón de mano de Jhin, Murmullo, es un instrumento preciso diseñado para infligir grandes cantidades de daño. Realiza disparos con un ritmo fijo y solo tiene 4 balas. Jhin imbuye la última bala con magia oscura para realizar un golpe crítico e infligir daño de ejecución adicional. Cuando asesta un golpe crítico con Murmullo, Jhin obtiene una breve mejora de velocidad de movimiento.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "¡Cambiazo!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/JinxQ.png",
-                    description = "Jinx modifica sus ataques básicos al alternar entre Pium Pium, su ametralladora, y Espinas, su lanzacohetes. Los ataques con Pium Pium otorgan velocidad de ataque, mientras que con Espinas inflige daño en área e incrementa su alcance, pero drena maná y ataca más despacio.",
-                    cooldown = "0.9s"
+                    name = "Granada Bailarina",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/30d346e4c5cdadf6ef4c281cae0392aba29d8572-96x96.jpg?accountingTag=WR",
+                    description = "Jhin lanza un explosivo mágico a un enemigo. Puede impactar hasta cuatro objetivos y obtiene daño con cada unidad que mata.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "¡Zap!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/JinxW.png",
-                    description = "Jinx usa a Chispita, su pistola de rayos, para disparar un rayo que ralentiza e inflige daño al primer enemigo que golpea, revelándolo.",
-                    cooldown = "8/7/6/5/4s"
+                    name = "Brote Mortal",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d18698db86b50fc17aea51d87b9c1ba8b0c2fb89-96x96.jpg?accountingTag=WR",
+                    description = "Jhin dispara una sola bala con un enorme alcance. Atraviesa súbditos y monstruos, pero se detiene con el primer campeón al que impacta. El objetivo queda inmovilizado si fue alcanzado recientemente por ataques de aliados de Jhin, trampas de loto, o si recibió daño de Jhin.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "¡Mascafuegos!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/JinxE.png",
-                    description = "Jinx lanza una hilera de granadas paralizantes que explotan tras 5 s y envuelven en llamas a los enemigos circundantes. Las Mascafuegos morderán e inmovilizarán a los campeones enemigos que pasen por encima de ellas.",
-                    cooldown = "24/20.5/17/13.5/10s"
+                    name = "Audiencia Cautiva",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/b45ed71cf0afe522207dd31177f9ce3f5a270c57-96x96.jpg?accountingTag=WR",
+                    description = "Jhin coloca una trampa de loto invisible que se activa cuando un enemigo la pisa. Ralentiza a los enemigos cercanos antes de infligirles daño con una explosión de pétalos serrados. Cuando Jhin mata a un campeón enemigo, aparecerá una Trampa de Loto cerca del lugar del asesinato.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "¡Supermegacohete mortal!",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/JinxR.png",
-                    description = "Jinx dispara un supercohete por todo el mapa que va aumentando su daño a medida que avanza. El cohete explotará al impactar contra un campeón enemigo y tanto este como los enemigos circundantes recibirán una cantidad de daño proporcional a la vida que les falte en ese momento.",
-                    cooldown = "85/65/45s"
+                    name = "Llamado a Escena",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/a7675d9c1bc90207ebda6a9aeb4a67a2d10e0b8b-96x96.jpg?accountingTag=WR",
+                    description = "Jhin canaliza, lo que transforma a Murmullo en un megacañón montado al hombro. Dispara 4 superproyectiles a una distancia extrema que atraviesan a los súbditos y monstruos, pero se detienen en el primer campeón impactado. Murmullo incapacita a los enemigos impactados, lo que los ralentiza y les inflige daño de ejecución. El cuarto disparo está perfectamente elaborado y es épicamente poderoso, lo que garantiza un golpe crítico.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/jinx",
@@ -277,42 +277,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Aplomo marcial",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Kalista_Passive.png",
-                    description = "Si Kalista da una orden de movimiento mientras prepara un ataque básico o Atravesar, al asestar el golpe recorrerá una corta distancia en la dirección indicada.",
+                    name = "SEGUNDA PIEL",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/8e5a628441a54cf36112a519fa2f1a8d804f95ac-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques básicos de Kai'Sa acumulan Plasma, lo que inflige daño mágico adicional. Los efectos de inmovilización de sus aliados ayudan a acumular Plasma. Además, al comprar objetos, Kai'Sa puede mejorar sus hechizos básicos para que tengan propiedades más poderosas.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Atravesar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KalistaMysticShot.png",
-                    description = "Arroja una veloz lanza que atraviesa a los enemigos que asesina.",
-                    cooldown = "8s"
+                    name = "LLUVIA DE ICATHIA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/cbeadf202ac7a109004e6d1f36cf95767216ebca-96x96.jpg?accountingTag=WR",
+                    description = "Kai'Sa desata una lluvia de misiles que buscan objetivos cercanos. Arma Viviente: mejora Lluvia de Icathia para lanzar más misiles.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Centinela",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KalistaW.png",
-                    description = "Obtiene daño adicional cuando Kalista y su Juramentado golpean al mismo objetivo. Actívala para enviar un alma a patrullar una zona. El alma revelará la zona que tiene delante.",
-                    cooldown = "30s"
+                    name = "BUSCADORA DEL VACÍO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1b0597ebeabe60f303b2180b28135c1e0703c5c5-96x96.jpg?accountingTag=WR",
+                    description = "Kai'Sa dispara un misil de largo alcance que revela y marca a los enemigos con su pasiva. Arma Viviente: mejora Buscadora del Vacío para que aplique más marcas de Plasma y reduce su enfriamiento al impacto contra campeones.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Desgarrar",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KalistaExpungeWrapper.png",
-                    description = "Cuando ataca, atraviesa a sus enemigos con lanzas. Actívala para arrancarlas, lo que ralentiza a las víctimas y les causa daño en función del nivel.",
-                    cooldown = "0s"
+                    name = "SUPERCARGA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/caa3546d3aa43b20cb2313f3053b002426121a57-96x96.jpg?accountingTag=WR",
+                    description = "Kai'Sa incrementa su velocidad de movimiento por un breve momento y después incrementa su velocidad de ataque. Arma Viviente: mejora Supercarga para otorgar Invisibilidad por unos instantes.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Llamada del destino",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/KalistaRx.png",
-                    description = "Kalista teleporta al Juramentado hasta sí. Este adquiere la capacidad de lanzarse hacia una posición y derribar a los campeones enemigos con los que se encuentra.",
-                    cooldown = "160/140/120s"
+                    name = "INSTINTO ASESINO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/3495f169849118d9086b0e7e7ec744911c89fad7-96x96.jpg?accountingTag=WR",
+                    description = "Kai'Sa se desplaza cerca de un campeón enemigo marcado por Plasma y obtiene un escudo temporal.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/kalista",
@@ -355,42 +355,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Balas de luz",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Lucian_Passive.png",
-                    description = "Cuando Lucian usa una habilidad, su siguiente ataque es un disparo doble. Cuando Lucian recibe una curación o un escudo de un aliado, o se encuentra cerca de un campeón enemigo inmovilizado, sus siguientes 2 ataques básicos infligen daño mágico adicional.",
+                    name = "SORPRESA ICATHIANA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4ac81c154694c81a7df934e9a53956ad7ebaf683-800x800.png?accountingTag=WR",
+                    description = "Luego de morir,Kog'Maw continúa moviéndose y gana velocidad de movimiento por un breve tiempo. Tras un breve lapso de tiempo, Kog'Maw explota e inflige daño verdadero a los enemigos cercanos.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Luz lacerante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LucianQ.png",
-                    description = "Lucian dispara un rayo de luz lacerante a través de un objetivo.",
-                    cooldown = "9/8/7/6/5s"
+                    name = "BABA CÁUSTICA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4d26e193295b0a4d596edba5ec697afd8e01498e-800x800.png?accountingTag=WR",
+                    description = "Kog'Maw lanza un proyectil corrosivo que inflige daño mágico y reduce tanto la armadura como la resistencia mágica del objetivo durante un tiempo breve.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Resplandor ardiente",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LucianW.png",
-                    description = "Lucian dispara un misil que explota en forma de estrella, marca a los enemigos y los revela brevemente. Lucian obtiene velocidad de movimiento por atacar a los enemigos marcados.",
-                    cooldown = "14/13/12/11/10s"
+                    name = "DESCARGA BIOARCANA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d16e24a94abb4793b1ba1481f3ea7166f561e01e-800x800.png?accountingTag=WR",
+                    description = "Los ataques básicos de Kog'Maw obtienen alcance e infligen un porcentaje de la Vida máxima del objetivo como daño mágico.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Persecución implacable",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LucianE.png",
-                    description = "Lucian se desplaza una corta distancia. Los ataques de Balas de luz reducen el enfriamiento de Persecución implacable.",
-                    cooldown = "19/17.75/16.5/15.25/14s"
+                    name = "VACÍO SUPURANTE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/139235899b0a57dd87b9cdfe64a9f3929075b5dc-800x800.png?accountingTag=WR",
+                    description = "Kog'Maw lanza un fluido que daña a todos los enemigos que atraviesa. Además, deja un rastro que ralentiza a quienes lo pisen.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "El sacrificio",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/LucianR.png",
-                    description = "Lucian desata un torrente de disparos de sus armas.",
-                    cooldown = "110/100/90s"
+                    name = "ARTILLERÍA VIVIENTE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1564a9f4cf196fb021278a874aafbadaa704fd24-800x800.png?accountingTag=WR",
+                    description = "Pasiva: Kog'Maw obtiene velocidad de ataque.\nKog”Maw dispara ácido en un área, lo que inflige daño mágico y revela a los enemigos alcanzados. El daño aumenta si el enemigo objetivo tiene poca Vida. Por otra parte, el lanzamiento de múltiples Artillerías Vivientes en un breve periodo de tiempo significará un costo adicional de maná.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/lucian",
@@ -433,42 +433,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Júbilo sin fin",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/NIlahP.png",
-                    description = "Nilah obtiene experiencia adicional por asestar el último golpe a súbditos, además de la capacidad de mejorar y compartir la curación y los escudos de los aliados cercanos.",
+                    name = "Toque de Amor",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/f742630f390586c3f9336a63674f4a5b1ae6699c-96x96.jpg?accountingTag=WR",
+                    description = "Miss Fortune inflige daño físico adicional cuando usa un ataque básico contra un objetivo nuevo.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Hoja sin forma",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/NilahQ.png",
-                    description = "Con un chasquido de su espada látigo, Nilah daña a todos los enemigos golpeados en una línea recta en la dirección elegida. Esta acción aumenta brevemente el alcance de sus ataques.",
-                    cooldown = "4s"
+                    name = "Doble Bala",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/a5545d2400dc4cf4f5e7386013b7ea48d39a68f1-96x96.jpg?accountingTag=WR",
+                    description = "Miss Fortune dispara una bala que inflige daño a un enemigo y realiza golpes críticos a un objetivo detrás de él. Aplica efectos al impacto.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Velo exultante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/NilahW.png",
-                    description = "Nilah se envuelve en niebla, lo que aumenta su velocidad de movimiento y le permite esquivar con elegancia todos los ataques que reciba. Los aliados a los que toque durante la duración de la niebla también obtendrán este efecto.",
-                    cooldown = "26/25/24/23/22s"
+                    name = "Alarde",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/30f86fe40b11934974fe24b67161f38504d74905-96x96.jpg?accountingTag=WR",
+                    description = "Miss Fortune obtiene velocidad de movimiento de manera pasiva cuando no es atacada. Activar esta habilidad otorga velocidad de ataque adicional por unos segundos. Si está en enfriamiento, los Toques de Amor reducen el enfriamiento restante de Alarde.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Estela",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/NilahE.png",
-                    description = "Nilah se desliza hacia su objetivo con entusiasmo e inflige daño a todos los enemigos a los que atraviesa.",
-                    cooldown = "0.5s"
+                    name = "Lluvia de Plomo",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/b72564fd01759862bf34ad46f7ffd7df547cfa00-96x96.jpg?accountingTag=WR",
+                    description = "Miss Fortune revela un área con una lluvia de balas que inflige oleadas de daño a los enemigos y los ralentiza.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Apoteosis",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/NilahR.png",
-                    description = "Haciendo girar su espada látigo con gran regocijo, Nilah inflige daño a los enemigos que la rodean y los atrae hacia ella.",
-                    cooldown = "110/95/80s"
+                    name = "Balacera",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/d4d9e564880bee9ef9208743f72a65d7eca82149-96x96.jpg?accountingTag=WR",
+                    description = "Miss Fortune canaliza una ráfaga de balas en forma de cono frente a ella que inflige una enorme cantidad de daño a los enemigos. Cada oleada de Balacera puede infligir golpes críticos.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/nilah",
@@ -511,42 +511,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Mil pies",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Sivir_Passive.png",
-                    description = "Sivir obtiene un breve impulso de velocidad de movimiento cuando ataca a un campeón enemigo.",
+                    name = "IMPULSO TEMERARIO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/842434ad82a25eecdf9c8b20f8608efcf76bee7d-96x96.jpg?accountingTag=WR",
+                    description = "Samira crea un combo al infligir daño con ataques o habilidades contra campeones enemigos distintos al anterior. Los ataques cuerpo a cuerpo de Samira infligen daño mágico adicional. Los ataques de Samira contra enemigos bajo efectos inmovilizadores harán que Samira se desplace a su alcance de ataque. Si el enemigo es lanzado por el aire, ella lo mantendrá en el aire por un breve periodo.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Cuchilla bumerán",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SivirQ.png",
-                    description = "Sivir arroja su arma como un bumerán, causando daño tanto a la ida como a la vuelta.",
-                    cooldown = "10/9.5/9/8.5/8s"
+                    name = "INSTINTO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/8ca0e25878c87ec02760d3e2b418fd6dc6a65f60-96x96.jpg?accountingTag=WR",
+                    description = "Samira dispara o blande su espada para infligir daño. Si la lanza durante Carrera salvaje, golpea a todos los enemigos en su camino al terminar.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Ricochet",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SivirW.png",
-                    description = "Los siguientes ataques de Sivir obtienen velocidad de ataque adicional y rebotan en objetivos cercanos, lo que inflige cada vez menos daño.",
-                    cooldown = "12s"
+                    name = "CORTE TORBELLINO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/771365939e576d798f85293763ffd788d2e7353a-96x96.jpg?accountingTag=WR",
+                    description = "Samira realiza cortes a su alrededor, daña a los enemigos y destruye misiles enemigos.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Escudo de hechizos",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SivirE.png",
-                    description = "Crea una barrera mágica que bloquea una única habilidad enemiga utilizada sobre Sivir. Recibe vida y un aumento de velocidad de movimiento al bloquear una habilidad.",
-                    cooldown = "24/22.5/21/19.5/18s"
+                    name = "CARRERA SALVAJE",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/2076b0d2987e9b33f7087bba7151377ba5ed3c8f-96x96.jpg?accountingTag=WR",
+                    description = "Samira se desplaza a través de un enemigo (incluyendo estructuras) mientras hace un corte a los enemigos que atraviesa y obtiene velocidad de ataque. Matar a un campeón enemigo restablece el enfriamiento de esta habilidad.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "A la caza",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/SivirR.png",
-                    description = "Sivir lidera a sus aliados en combate y les otorga un incremento drástico de su velocidad de movimiento durante un tiempo. Además, los ataques de Sivir reducen los enfriamientos de sus habilidades.",
-                    cooldown = "120/100/80s"
+                    name = "GATILLO INFERNAL",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/21c0827d15a1b5996cda2f2c1af56fe89949bb0d-96x96.jpg?accountingTag=WR",
+                    description = "Samira libera un torrente de disparos de sus armas y dispara sin mucho cuidado a todos los enemigos a su alrededor.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/sivir",
@@ -589,42 +589,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Tiro certero",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/Tristana_Passive.png",
-                    description = "Aumenta el alcance de los ataques de Tristana cuando sube de nivel.",
+                    name = "DRAGÓN ENTRENANDO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bd99a83f831ff02bb0a43ad9a548aaa921342cdc-512x512.png?accountingTag=WR",
+                    description = "Al impactar a campeones con habilidades y derribar enemigos con Aliento Superabrasador, Smolder obtiene una acumulación de Dragón Entrenando. Las acumulaciones aumentan el daño de las habilidades básicas.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Tiro rápido",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TristanaQ.png",
-                    description = "Tristana incrementa su velocidad de ataque durante un breve tiempo.",
-                    cooldown = "20/19/18/17/16s"
+                    name = "ALIENTO SUPERABRASADOR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/99582dd343b2833485c2b9fab1fda6aab6d2c0a6-512x512.png?accountingTag=WR",
+                    description = "Smolder exhala fuego contra un enemigo, lo que inflige daño físico y mágico. Si el objetivo muere, el campeón recupera maná. Cuantas más acumulaciones de Dragón Entrenando reúna Smolder, más poderosa se volverá esta habilidad. Pasiva: Nivel 1 de acumulaciones: la habilidad inflige daño a todos los enemigos en el área. Nivel 2 de acumulaciones: la habilidad produce explosiones detrás del objetivo. Nivel 3 de acumulaciones: la habilidad quema e inflige daño verdadero al objetivo; además, ejecuta a los campeones enemigos que tengan poca vida.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Salto misil",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TristanaW.png",
-                    description = "Tristana dispara al suelo para propulsarse hasta un punto lejano. Al aterrizar, dañará y ralentizará durante un breve periodo de tiempo a las unidades circundantes.",
-                    cooldown = "22/20/18/16/14s"
+                    name = "¡ACHÚ!",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/50cba9719ad8cf7d30d5e56f8593fdf3e6f237db-512x512.png?accountingTag=WR",
+                    description = "Smolder lanza un adorable estornudo llameante que explota al impactar campeones enemigos. Las detonaciones posteriores de la habilidad infligen menos daño. Pasiva: la explosión inflige daño mágico adicional.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Carga explosiva",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TristanaE.png",
-                    description = "Cuando Tristana mata a una unidad, sus proyectiles estallan como metralla e infligen daño a los enemigos circundantes. Se puede activar para colocarle una bomba a un enemigo, que explotará al cabo de unos segundos y hará daño a todas las unidades circundantes.",
-                    cooldown = "16/15.5/15/14.5/14s"
+                    name = "VUELA, VUELA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9a4d780c2faa097cad4b3f6779655390df9b3d44-512x512.png?accountingTag=WR",
+                    description = "Smolder levanta el vuelo, ignora el terreno y bombardea al enemigo con menos vida. Mientras vuela, tiene un mayor radio de visión. Pasiva: inflige daño mágico adicional con cada impacto y lanza proyectiles adicionales.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Tiro destructor",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/TristanaR.png",
-                    description = "Tristana carga una gran bola de cañón en su arma y la dispara a la unidad enemiga, que sufre daño mágico y cae hacia atrás.",
-                    cooldown = "100s"
+                    name = "¡MAMÁAAA!",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/883c0867e6183e90565b1b8e251843b390981ddb-512x512.png?accountingTag=WR",
+                    description = "Smolder llama a su madre para que escupa fuego desde arriba, lo que inflige daño adicional y ralentiza a los enemigos en el centro del ataque. Si las llamas alcanzan a Smolder, el campeón recupera vida.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/tristana",
@@ -667,42 +667,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Venganza viviente",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/VarusPassive.png",
-                    description = "Tras conseguir un asesinato o asistencia, Varus obtiene temporalmente daño de ataque y poder de habilidad. Esta bonificación será mayor si el enemigo es un campeón.",
+                    name = "VENENO MORTAL",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d075a7841bc9f4a92cf466db39092fcadb46673d-96x96.jpg?accountingTag=WR",
+                    description = "Los ataques básicos de Twitch infectan al objetivo e infligen daño verdadero cada segundo.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Flecha penetrante",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/VarusQ.png",
-                    description = "Varus se prepara y luego dispara un tiro potente que goza de más alcance y daño cuanto más tiempo pase preparando el tiro.",
-                    cooldown = "16/15/14/13/12s"
+                    name = "EMBOSCADA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4ceec8b7ec8fdec497d2fa19ef75976a46f44849-96x96.jpg?accountingTag=WR",
+                    description = "Twitch obtiene camuflaje y Velocidad de Movimiento por un periodo breve. Al salir del camuflaje, Twitch obtiene Velocidad de Ataque por un periodo breve. Cuando muere un campeón enemigo bajo los efectos de Veneno Mortal, el enfriamiento de Emboscada se restablece.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Carcaj infectado",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/VarusW.png",
-                    description = "Pasiva: Los ataques básicos de Varus infligen daño mágico adicional y aplican Infección. Las demás habilidades de Varus detonan Infección, lo que inflige daño mágico según la vida máxima del objetivo. Activa: Varus potencia su siguiente Flecha penetrante.",
-                    cooldown = "40s"
+                    name = "TONEL DE VENENO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/e83894e52caacac80f3db5a5e56142685fe41059-96x96.jpg?accountingTag=WR",
+                    description = "Twitch lanza un barril de veneno que explota en una área, ralentiza a los objetivos y les aplica veneno mortal.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Lluvia de flechas",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/VarusE.png",
-                    description = "Varus lanza una lluvia de flechas que infligen daño físico y profanan el suelo. El suelo profanado ralentiza la velocidad de movimiento de los enemigos y reduce su curación propia y su regeneración.",
-                    cooldown = "18/16/14/12/10s"
+                    name = "CONTAMINAR",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/342b76bba6990b0ac7871e2511e0fcb408b55040-96x96.jpg?accountingTag=WR",
+                    description = "Twitch siembra el caos entre sus enemigos envenenados con una explosión de sus repugnantes enfermedades.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Cadena de corrupción",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/VarusR.png",
-                    description = "Varus lanza una mortífera espiral de corrupción que inmoviliza al primer campeón impactado y luego se expande hacia los campeones cercanos que no estén infectados, a los cuales también inmoviliza al tocarlos.",
-                    cooldown = "100/80/60s"
+                    name = "LLUVIA DE PROYECTILES",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/fe53e784a146aafad8afcc39ceb3eb5a27ad730e-96x96.jpg?accountingTag=WR",
+                    description = "Twitch desata todo el poder de su ballesta y dispara proyectiles a gran distancia que atraviesan a todos los enemigos que encuentran a su camino.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/varus",
@@ -749,42 +749,42 @@ object DragonLaneChampions {
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Promesa de las Tierras Originarias",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/champion/Yunara.png",
-                    description = "Los golpes críticos de Yunara no infligen daño físico adicional, sino que se convierten en ráfagas de daño mágico verdadero en función de su probabilidad de impacto crítico.",
+                    name = "CAZADORA NOCTURNA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/97e5965b2529a9e553b64325d547b1789de9ba7e-96x96.jpg?accountingTag=WR",
+                    description = "Vayne caza sin piedad a los malhechores y obtiene 30 de Velocidad de Movimiento cuando avanza hacia un campeón enemigo cercano.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Cultivo de Espíritu",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraQ.png",
-                    description = "Dispara una onda de energía espiritual que daña a los enemigos en línea recta, otorgando velocidad de ataque adicional si golpea a un campeón.",
-                    cooldown = "6s"
+                    name = "Voltereta",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/95118f38a406dc5f3e33127281ae20d6a5d2bdb7-96x96.jpg?accountingTag=WR",
+                    description = "Vayne realiza una voltereta y se prepara para su próximo disparo. Su siguiente ataque inflige daño adicional.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Arco del Juicio / Arco de la Ruina",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraW.png",
-                    description = "Yunara lanza un tajo circular curándose por un porcentaje del daño mágico infligido. Alterna entre dos tipos de arcos dependiendo de sus cargas pasivas.",
-                    cooldown = "10s"
+                    name = "Proyectiles de Plata",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e5406bc711247f3f78f3b7c190577b941fa029d5-96x96.jpg?accountingTag=WR",
+                    description = "La punta de los proyectiles de Vayne está hecha de un material único, tóxico para seres malignos. El tercer ataque o habilidad consecutivos contra el mismo objetivo inflige un porcentaje de la vida máxima del objetivo como daño verdadero adicional. Al activar esta habilidad, Vayne recibe velocidad de ataque adicional y se cura por un poco del daño de Proyectiles de Plata.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Pasos de Kanmei / Sombra Intocable",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraE.png",
-                    description = "Se desliza rápidamente en una dirección. Durante 1.5 segundos tras el deslizamiento, los ataques básicos que reciba tienen un porcentaje de fallar.",
-                    cooldown = "14s"
+                    name = "Condena",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e958e743a0fa920cde3da51bc893ace2db3b0b40-96x96.jpg?accountingTag=WR",
+                    description = "Vayne usa la pesada ballesta que lleva en su espalda y dispara un enorme proyectil a su objetivo, lo cual lo lanza hacia atrás y le inflige daño. Si colisiona contra el terreno, queda empalado, lo que le inflige daño adicional y lo aturde.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Trascender a uno mismo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/YunaraR.png",
-                    description = "Yunara entra en Estado Trascendental durante 10 segundos, eliminando los costos de maná, aumentando su alcance y haciendo que sus ataques básicos reboten a enemigos cercanos.",
-                    cooldown = "80s"
+                    name = "Hora Final",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ed832452c2e6c8e43c433491293750cd929f3657-96x96.jpg?accountingTag=WR",
+                    description = "Vayne se prepara para una confrontación épica y obtiene un aumento en su daño de ataque, invisibilidad durante Voltereta y mayor velocidad de movimiento adicional de Cazadora Nocturna. Cuando un campeón enemigo muere después de que Vayne le haya infligido daño, la duración de Hora Final se extiende.",
+                    cooldown = ""
                 )
             )
         ),
@@ -826,42 +826,42 @@ ItemSwap(coreItem="Borde infinito", coreItemIcon="https://ddragon.leagueoflegend
                 ChampionSkill(
                     slot = "P",
                     slotName = "Pasiva",
-                    name = "Batería cargada",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/passive/ZeriP.png",
-                    description = "Los ataques de Zeri infligen daño mágico y cuentan como habilidades. Al moverse y utilizar Fuego explosivo, Zeri acumula energía en su Batería portátil. Con el máximo de carga, su próximo ataque inflige daño adicional.",
+                    name = "BATERÍA HUMANA",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/ae2ee36768555f3c9a6ba35b1abc7d110e6ef2a7-96x96.jpg?accountingTag=WR",
+                    description = "Zeri obtiene velocidad de movimiento cada vez que recibe un escudo. Cuando daña un escudo enemigo, absorbe su energía y se protege a sí misma.",
                     cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "1",
                     slotName = "Habilidad 1",
-                    name = "Fuego explosivo",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZeriQ.png",
-                    description = "Fuego explosivo dispara 7 veces, lo que inflige daño de ataque al primer enemigo golpeado. Esta habilidad cuenta como un ataque.",
-                    cooldown = "0s"
+                    name = "RÁFAGA DE LUZ",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ddc82f059214d82338a4c39561dc13545e621e3c-96x96.jpg?accountingTag=WR",
+                    description = "Zeri dispara una ráfaga de proyectiles que infligen daño físico al primer enemigo impactado. Hay un límite de velocidad de ataque y velocidad de ataque adicional que se convertirán en daño de ataque; al lanzar de forma activa, disparará un relámpago que infligirá daño mágico y ralentizará.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "2",
                     slotName = "Habilidad 2",
-                    name = "Ultradescarga láser",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZeriW.png",
-                    description = "Zeri dispara un pulso eléctrico que ralentiza e inflige daño al primer enemigo golpeado. Si el pulso impacta contra un muro, se expande hasta convertirse en un láser de largo alcance.",
-                    cooldown = "12/11/10/9/8s"
+                    name = "LÁSER ULTRACARGADO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/85fa4709f7b287261c7f4247b3862e5195a7002b-96x96.jpg?accountingTag=WR",
+                    description = "Zeri dispara un pulso eléctrico que ralentiza y daña al primer enemigo alcanzado. Si el pulso impacta un muro, se expande en un láser de largo alcance.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "3",
                     slotName = "Habilidad 3",
-                    name = "Subida de tensión",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZeriE.png",
-                    description = "Zeri se desliza una corta distancia y potencia sus siguientes 3 disparos de Fuego explosivo, lo que hace que atraviesen a los enemigos. Salta y pasa por encima de cualquier obstáculo del terreno que toca.",
-                    cooldown = "22/21/20/19/18s"
+                    name = "CHISPAZO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/82343bfc9f5670ed5c926c46ef0ffc8a4b6fea1f-96x96.jpg?accountingTag=WR",
+                    description = "Zeri se desplaza a una corta distancia y energiza sus 3 siguientes tiros de Ráfaga de Luz, lo que hace que atraviesan a los enemigos. Zeri saltará y se arrastrará por cualquier terreno que toque.",
+                    cooldown = ""
                 ),
                 ChampionSkill(
                     slot = "4",
                     slotName = "Definitiva",
-                    name = "Choque de rayos",
-                    iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/spell/ZeriR.png",
-                    description = "Zeri libera una nova de electricidad y se sobrecarga, lo que aumenta el daño y acumula velocidad de movimiento que se reinicia y aumenta cada vez que golpea a un campeón enemigo. Mientras esté sobrecargada, Fuego explosivo se convierte en un disparo triple más rápido del que surgen rayos que rebotan entre los enemigos.",
-                    cooldown = "80/75/70s"
+                    name = "ESTALLIDO ELÉCTRICO",
+                    iconUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/f56d8327ca38ea2015244678275176b55b10664b-96x96.jpg?accountingTag=WR",
+                    description = "Zeri descarga una nova de electricidad y se sobrecarga, con lo que aumenta el daño y acumula velocidad de movimiento, que se actualiza y se vuelve más fuerte cada vez que golpea a un campeón enemigo. Mientras está sobrecargada, Ráfaga de Luz se convierte en un disparo triple más rápido que encadena rayos entre enemigos.",
+                    cooldown = ""
                 )
             ),
             wildRiftFireUrl = "https://www.wildriftfire.com/guide/zeri",
