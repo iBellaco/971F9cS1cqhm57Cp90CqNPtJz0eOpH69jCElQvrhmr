@@ -5,6 +5,9 @@ import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -113,7 +116,59 @@ fun InfoScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // App Identity & Icon Banner
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(14.dp)),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color(0xFF0F172A))
+                            .border(1.5.dp, HextechGold, RoundedCornerShape(14.dp))
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.custom_app_icon),
+                            contentDescription = "Wild Rift Coach Icon",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Wild Rift Coach",
+                            color = HextechGoldLight,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = tr("Asistente Táctico Oficial de Drafting"),
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = "v1.3.85 (Build 104) • Patch ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                            color = TextMuted,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
 
             // Section 1: Compatibilidad y Parche
             InfoCard(
