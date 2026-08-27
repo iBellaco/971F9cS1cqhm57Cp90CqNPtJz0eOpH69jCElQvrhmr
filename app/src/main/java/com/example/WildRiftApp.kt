@@ -74,10 +74,11 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             AppLogger.e("WildRiftApp", "Unhandled background exception caught safely", throwable)
         }
         CoroutineScope(Dispatchers.IO + handler).launch {
-            try {
-                AppLogger.d("WildRiftApp", "Sincronización con Supabase deshabilitada para uso 100% local.")
+                        try {
+                com.example.data.supabase.SupabaseClientManager.fetchCurrentPatchVersion()
+                AppLogger.d("WildRiftApp", "Parche sincronizado desde Supabase.")
             } catch (e: Exception) {
-                AppLogger.e("WildRiftApp", "Error sincronizando desde Supabase", e)
+                AppLogger.e("WildRiftApp", "Error sincronizando parche desde Supabase", e)
             }
             try {
                 ChineseMetaSyncService.syncChineseMeta(this@WildRiftApp, forceRefresh = true)

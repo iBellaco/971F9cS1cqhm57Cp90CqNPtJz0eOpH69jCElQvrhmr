@@ -279,25 +279,6 @@ fun DraftTeamPositionCard(
                                         modifier = Modifier.size(10.dp)
                                     )
                                 }
-
-                                // Badge de "TÚ" si es la posición activa del jugador
-                                if (isMyRole) {
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.BottomCenter)
-                                            .fillMaxWidth()
-                                            .background(HextechCyan.copy(alpha = 0.9f))
-                                            .padding(vertical = 1.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = tr("TÚ"),
-                                            color = Color.Black,
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.Black
-                                        )
-                                    }
-                                }
                             } else {
                                 // Casilla vacía con botón "+" para añadir
                                 Column(
