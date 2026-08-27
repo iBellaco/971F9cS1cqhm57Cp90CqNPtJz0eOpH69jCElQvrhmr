@@ -234,6 +234,9 @@ fun DraftingApp() {
     val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
+        // Inicializar listado maestro de campeones desde assets JSON
+        com.example.data.WildRiftRepository.initChampions(context)
+
         // Ejecuta la sincronización en segundo plano al arrancar la app para traer los datos desde la nube
         com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
         if (isLanguageSet) {

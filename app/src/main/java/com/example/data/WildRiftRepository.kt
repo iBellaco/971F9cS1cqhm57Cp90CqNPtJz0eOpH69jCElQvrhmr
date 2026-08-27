@@ -189,7 +189,18 @@ object WildRiftRepository {
     // ==========================================
     // ROSTER INTEGRAL DE CAMPEONES DE WILD RIFT
     // ==========================================
-    var champions: List<Champion> by mutableStateOf(com.example.data.champions.AllChampions.list)
+    var champions: List<Champion> by mutableStateOf(emptyList())
+
+    fun initChampions(context: android.content.Context) {
+        if (champions.isNotEmpty()) return
+        try {
+            val jsonString = context.assets.open("champions.json").bufferedReader().use { it.readText() }
+            val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+            champions = format.decodeFromString<List<Champion>>(jsonString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     fun getChampionByName(name: String): Champion? {
         return champions.find { it.name.equals(name, ignoreCase = true) }
