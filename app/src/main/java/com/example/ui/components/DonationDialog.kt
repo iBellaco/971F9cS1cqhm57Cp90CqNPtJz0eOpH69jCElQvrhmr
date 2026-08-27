@@ -153,18 +153,6 @@ fun DonationDialog(
                         }
                     )
 
-                    // Option 1: PayPal
-                    DonationMethodCard(
-                        icon = Icons.Default.Payment,
-                        title = "PayPal",
-                        subtitle = tr("Donación internacional rápida"),
-                        accentColor = Color(0xFF0079C1),
-                        actionText = tr("Abrir PayPal"),
-                        onAction = {
-                            openUrl(context, "https://www.paypal.com/donate/?business=barbachavezdiego@gmail.com")
-                        }
-                    )
-
                     // Option 3: Crypto (USDT - Tron TRC20)
                     DonationCryptoCard(
                         title = "USDT (TRC-20)",
@@ -182,17 +170,6 @@ fun DonationDialog(
                         address = "13fox2wPLWPSmC1AvbYHazXnjU4tSrRETu",
                         onCopy = {
                             copyToClipboard(context, "13fox2wPLWPSmC1AvbYHazXnjU4tSrRETu", "BTC")
-                        }
-                    )
-
-                    val aliasLabel = tr("Alias")
-                    // Option 5: Alias / Pix / Mercado Pago
-                    DonationCryptoCard(
-                        title = tr("Transferencia / Alias / Pix"),
-                        network = tr("Latinoamérica / Internacional"),
-                        address = "wildrift.coach.donaciones",
-                        onCopy = {
-                            copyToClipboard(context, "wildrift.coach.donaciones", aliasLabel)
                         }
                     )
 
@@ -586,12 +563,14 @@ private fun DonationPixCard(
                         text = "Beneficiario: BRLA DIGITAL LTDA",
                         color = HextechGold,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                     Text(
                         text = "Sao Paulo • R$ 26.45",
                         color = TextSecondary,
-                        fontSize = 11.5.sp
+                        fontSize = 11.5.sp,
+                        textAlign = TextAlign.Center
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -608,6 +587,20 @@ private fun DonationPixCard(
                         Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(tr("Copiar Código Pix"), color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedButton(
+                        onClick = { downloadQr(context, qrCodeUrl) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF32BCAD)),
+                        border = BorderStroke(1.dp, Color(0xFF32BCAD).copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.Download, contentDescription = null, tint = Color(0xFF32BCAD), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Descargar QR"), color = Color(0xFF32BCAD), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }
@@ -633,5 +626,21 @@ private fun copyToClipboard(context: Context, text: String, label: String) {
         Toast.makeText(context, "Copiado al portapapeles: $label", Toast.LENGTH_SHORT).show()
     } catch (e: Exception) {
         // ignore
+    }
+}
+
+private fun downloadQr(context: Context, url: String) {
+    try {
+        val request = android.app.DownloadManager.Request(Uri.parse(url))
+        request.setTitle("Pix QR Code")
+        request.setDescription("Descargando código QR Pix")
+        request.setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+        request.setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, "Pix_QR.png")
+        
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as android.app.DownloadManager
+        downloadManager.enqueue(request)
+        Toast.makeText(context, "Descarga iniciada...", Toast.LENGTH_SHORT).show()
+    } catch (e: Exception) {
+        Toast.makeText(context, "Error al descargar", Toast.LENGTH_SHORT).show()
     }
 }
