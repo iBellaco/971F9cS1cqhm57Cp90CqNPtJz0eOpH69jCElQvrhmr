@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.ui.theme.*
 import com.example.util.tr
 
@@ -142,6 +145,14 @@ fun DonationDialog(
                         fontWeight = FontWeight.Bold
                     )
 
+                    // Option: Pix (Brasil)
+                    DonationPixCard(
+                        pixCode = "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b55520400005303986540526.455802BR5917BRLA DIGITAL LTDA6009Sao Paulo622905258e3dc64ffc0c48fab562857a5630478FA",
+                        onCopy = {
+                            copyToClipboard(context, "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b55520400005303986540526.455802BR5917BRLA DIGITAL LTDA6009Sao Paulo622905258e3dc64ffc0c48fab562857a5630478FA", "Código Pix Copia e Cola")
+                        }
+                    )
+
                     // Option 1: PayPal
                     DonationMethodCard(
                         icon = Icons.Default.Payment,
@@ -154,23 +165,23 @@ fun DonationDialog(
                         }
                     )
 
-                    // Option 3: Crypto (USDT - Tron TRC20 / BEP20)
+                    // Option 3: Crypto (USDT - Tron TRC20)
                     DonationCryptoCard(
-                        title = "USDT (TRC-20 / BEP-20)",
-                        network = "TRC20 / BEP20 / Polygon",
-                        address = "TX9vW2Z5XQ7hRk4mNpLjA8sD9yE1uC3bF6",
+                        title = "USDT (TRC-20)",
+                        network = "TRC20 (Tron)",
+                        address = "TPwZJSMizLPVAx67Je7YB2eoK4VUBEh7QH",
                         onCopy = {
-                            copyToClipboard(context, "TX9vW2Z5XQ7hRk4mNpLjA8sD9yE1uC3bF6", "USDT")
+                            copyToClipboard(context, "TPwZJSMizLPVAx67Je7YB2eoK4VUBEh7QH", "USDT")
                         }
                     )
 
                     // Option 4: Bitcoin (BTC)
                     DonationCryptoCard(
                         title = "Bitcoin (BTC)",
-                        network = "Red Bitcoin Nativa",
-                        address = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+                        network = "Red Bitcoin Nativa (BTC)",
+                        address = "13fox2wPLWPSmC1AvbYHazXnjU4tSrRETu",
                         onCopy = {
-                            copyToClipboard(context, "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", "BTC")
+                            copyToClipboard(context, "13fox2wPLWPSmC1AvbYHazXnjU4tSrRETu", "BTC")
                         }
                     )
 
@@ -347,6 +358,258 @@ private fun DonationCryptoCard(
                     fontSize = 11.sp,
                     maxLines = 1
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DonationPixCard(
+    pixCode: String,
+    onCopy: () -> Unit
+) {
+    val context = LocalContext.current
+    var showQRModal by remember { mutableStateOf(false) }
+    // Generar URL del código QR codificado para el estándar Pix
+    val qrCodeUrl = remember(pixCode) {
+        val encoded = Uri.encode(pixCode)
+        "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=$encoded&bgcolor=ffffff&color=000000&margin=2"
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = BorderStroke(1.dp, Color(0xFF32BCAD).copy(alpha = 0.6f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF32BCAD).copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.QrCode,
+                            contentDescription = null,
+                            tint = Color(0xFF32BCAD),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Pix (Brasil)",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(0xFF32BCAD).copy(alpha = 0.2f))
+                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = "INSTANTÁNEO",
+                                    color = Color(0xFF32BCAD),
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+                        }
+                        Text(
+                            text = tr("QR Code e Pix Copia e Cola"),
+                            color = TextMuted,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Button(
+                        onClick = { showQRModal = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32BCAD)),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Icon(Icons.Default.QrCode2, contentDescription = "Ver QR", modifier = Modifier.size(15.dp), tint = Color.Black)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(tr("Ver QR"), color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    OutlinedButton(
+                        onClick = onCopy,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.7f)),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copiar Pix", modifier = Modifier.size(14.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Vista previa del QR interactiva y código copiable
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechDarkBg)
+                    .clickable { showQRModal = true }
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Miniatura QR
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.White)
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(qrCodeUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "QR Pix",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = tr("Toca para ampliar el QR o copia la clave:"),
+                        color = HextechCyan,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = pixCode,
+                        color = TextSecondary,
+                        fontSize = 10.sp,
+                        maxLines = 2
+                    )
+                }
+            }
+        }
+    }
+
+    // Modal para visualizar el código QR en grande
+    if (showQRModal) {
+        Dialog(onDismissRequest = { showQRModal = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(1.5.dp, Color(0xFF32BCAD), RoundedCornerShape(16.dp)),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.QrCode2, contentDescription = null, tint = Color(0xFF32BCAD))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Pix QR Code",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        }
+                        IconButton(onClick = { showQRModal = false }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // QR Card Blanco de alta visibilidad
+                    Box(
+                        modifier = Modifier
+                            .size(240.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White)
+                            .border(2.dp, Color(0xFF32BCAD), RoundedCornerShape(12.dp))
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(qrCodeUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = "Pix QR Ampliado",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Text(
+                        text = "Beneficiario: BRLA DIGITAL LTDA",
+                        color = HextechGold,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Sao Paulo • R$ 26.45",
+                        color = TextSecondary,
+                        fontSize = 11.5.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Button(
+                        onClick = {
+                            onCopy()
+                            showQRModal = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32BCAD)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Copiar Código Pix"), color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+                }
             }
         }
     }

@@ -540,12 +540,16 @@ fun MainDraftingScreen(
                 val context = LocalContext.current
                 val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
                 val instagramBannerUrl = "https://i.postimg.cc/CKW8kkH4/1787839327220.png"
-                Box(
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(instagramBannerUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Instagram Diego Barba Chavez",
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
+                        .wrapContentHeight()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(HextechSurface.copy(alpha = 0.85f))
-                        .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
                         .clickable {
                             try {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
@@ -555,20 +559,8 @@ fun MainDraftingScreen(
                             } catch (_: Exception) {}
                         }
                         .testTag("btn_instagram_creator"),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(instagramBannerUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "Instagram Diego Barba Chavez",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        contentScale = ContentScale.FillWidth
-                    )
-                }
+                    contentScale = ContentScale.FillWidth
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 
