@@ -189,13 +189,7 @@ object WildRiftRepository {
     // ==========================================
     // ROSTER INTEGRAL DE CAMPEONES DE WILD RIFT
     // ==========================================
-    var champions: List<Champion> by mutableStateOf((
-        com.example.data.champions.BaronLaneChampions.list +
-        com.example.data.champions.JungleChampions.list +
-        com.example.data.champions.MidLaneChampions.list +
-        com.example.data.champions.DragonLaneChampions.list +
-        com.example.data.champions.SupportChampions.list
-    ).distinctBy { it.id })
+    var champions: List<Champion> by mutableStateOf(com.example.data.champions.AllChampions.list)
 
     fun getChampionByName(name: String): Champion? {
         return champions.find { it.name.equals(name, ignoreCase = true) }
