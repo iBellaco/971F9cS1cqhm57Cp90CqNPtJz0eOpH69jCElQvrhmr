@@ -5,6 +5,7 @@ import com.example.utils.parseHtmlColorToAnnotatedString
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -473,14 +475,26 @@ fun ChampionDetailSheet(
             }
 
             // ==========================================
-            // SECCIÓN SEPARADA: HECHIZOS DE INVOCADOR
+            // BUILD BÁSICA (8 OBJETOS: 1-6 CORE + 7-8 SITUACIONALES)
             // ==========================================
-            Text(
-                text = "${tr("Hechizos de Invocador")} • ${selectedRole.shortName}",
-                color = HextechGold,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${tr("Build básica")} • ${selectedRole.shortName}",
+                    color = HextechGold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "8 Objetos (1-6 Core • 7-8 Situacionales)",
+                    color = HextechCyan,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
 
             Card(
@@ -490,56 +504,212 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Bolt, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = tr("Hechizos Recomendados para esta Línea:"),
-                            color = HextechCyan,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    val buildList = if (roleProfile.build8Items.isNotEmpty()) {
+                        roleProfile.build8Items
+                    } else {
+                        (roleProfile.coreItems + roleProfile.situationalItems).take(8)
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        roleProfile.spellsIcons.forEachIndexed { idx, iconUrl ->
-                            val rawSpellName = roleProfile.recommendedSpells.getOrNull(idx) ?: "Spell"
-                            val spellName = tr(rawSpellName)
-                            val dbSpell = com.example.data.WildRiftRepository.summonerSpells.find {
-                                it.name.equals(rawSpellName, ignoreCase = true) || rawSpellName.contains(it.name, ignoreCase = true) || it.name.contains(rawSpellName, ignoreCase = true)
+                        buildList.forEachIndexed { idx, rawName ->
+                            val isSituational = idx >= 6
+                            val dbItem = com.example.data.WildRiftRepository.items.find {
+                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase = true) || it.name.contains(rawName, ignoreCase = true)
                             }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                            val iconUrl = dbItem?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName)
+                            val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(HextechSurfaceVariant)
-                                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                    .clickable { if (dbSpell != null) spellForDetail = dbSpell }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                                    .clickable { if (dbItem != null) itemForDetail = dbItem }
+                                    .padding(vertical = 4.dp)
                             ) {
-                                AppAssetImage(
-                                    url = iconUrl,
-                                    contentDescription = spellName,
-                                    fallbackText = spellName,
-                                    modifier = Modifier.size(30.dp),
-                                    borderColor = HextechGold,
-                                    shape = RoundedCornerShape(6.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(spellName, color = TextPrimary, fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(HextechSurfaceVariant)
+                                        .border(
+                                            width = if (isSituational) 1.5.dp else 1.5.dp,
+                                            color = if (isSituational) HextechCyan.copy(alpha = 0.8f) else HextechGold,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                ) {
+                                    AppAssetImage(
+                                        url = iconUrl,
+                                        contentDescription = itemName,
+                                        fallbackText = itemName,
+                                        modifier = Modifier.size(42.dp),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(18.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isSituational) HextechCyan.copy(alpha = 0.25f) else HextechGold.copy(alpha = 0.25f))
+                                        .border(1.dp, if (isSituational) HextechCyan else HextechGold, CircleShape)
+                                ) {
+                                    Text(
+                                        text = "${idx + 1}",
+                                        color = if (isSituational) HextechCyan else HextechGold,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // ==========================================
-            // SECCIÓN SEPARADA: RUNAS META & ÁRBOL
+            // BOTAS Y MEJORAS + HECHIZOS (DOS COLUMNAS)
+            // ==========================================
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Card 1: Botas y Mejoras
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(
+                            text = tr("Botas y Mejoras"),
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            val bootBaseName = roleProfile.bootBase.ifBlank { "Botas blindadas" }
+                            val bootUpgradeName = roleProfile.bootUpgrade.ifBlank { "Avance blindado" }
+                            
+                            val dbBoot1 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootBaseName, ignoreCase = true) || bootBaseName.contains(it.name, ignoreCase = true) }
+                            val dbBoot2 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootUpgradeName, ignoreCase = true) || bootUpgradeName.contains(it.name, ignoreCase = true) }
+                            
+                            val boot1Icon = dbBoot1?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(bootBaseName)
+                            val boot2Icon = dbBoot2?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(bootUpgradeName)
+
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(HextechSurfaceVariant)
+                                    .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
+                                    .clickable { if (dbBoot1 != null) itemForDetail = dbBoot1 }
+                            ) {
+                                AppAssetImage(
+                                    url = boot1Icon,
+                                    contentDescription = tr(bootBaseName),
+                                    fallbackText = tr(bootBaseName),
+                                    modifier = Modifier.fillMaxSize(),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = ">",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(HextechSurfaceVariant)
+                                    .border(1.dp, HextechCyan, RoundedCornerShape(8.dp))
+                                    .clickable { if (dbBoot2 != null) itemForDetail = dbBoot2 }
+                            ) {
+                                AppAssetImage(
+                                    url = boot2Icon,
+                                    contentDescription = tr(bootUpgradeName),
+                                    fallbackText = tr(bootUpgradeName),
+                                    modifier = Modifier.fillMaxSize(),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Card 2: Hechizos de Invocador
+                Card(
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(
+                            text = tr("Hechizos"),
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            roleProfile.spellsIcons.take(2).forEachIndexed { idx, iconUrl ->
+                                val rawSpellName = roleProfile.recommendedSpells.getOrNull(idx) ?: "Destello"
+                                val spellName = tr(rawSpellName)
+                                val dbSpell = com.example.data.WildRiftRepository.summonerSpells.find {
+                                    it.name.equals(rawSpellName, ignoreCase = true) || rawSpellName.contains(it.name, ignoreCase = true) || it.name.contains(rawSpellName, ignoreCase = true)
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechSurfaceVariant)
+                                        .border(1.5.dp, HextechCyan, CircleShape)
+                                        .clickable { if (dbSpell != null) spellForDetail = dbSpell }
+                                ) {
+                                    AppAssetImage(
+                                        url = iconUrl,
+                                        contentDescription = spellName,
+                                        fallbackText = spellName,
+                                        modifier = Modifier.fillMaxSize(),
+                                        shape = CircleShape
+                                    )
+                                }
+                                if (idx == 0) Spacer(modifier = Modifier.width(12.dp))
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // ==========================================
+            // SECCIÓN RUNAS (1ª OPCIÓN & 2ª OPCIÓN)
             // ==========================================
             Text(
                 text = "${tr("Runas")} • ${selectedRole.shortName}",
@@ -556,194 +726,161 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Psychology, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
+                    val opt1 = if (roleProfile.runesOption1.isNotEmpty()) {
+                        roleProfile.runesOption1
+                    } else {
+                        val parsed = roleProfile.runeTreeDetails.replace(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+:\\s*"), "").split("•").map { it.trim() }.filter { it.isNotEmpty() }
+                        listOf(roleProfile.recommendedRunes) + parsed
+                    }
+
+                    // 1ª Opción
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = tr("Configuración de Runas para esta Línea:"),
+                            text = tr("1º opción") + " (Meta)",
                             color = HextechCyan,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
+                        if (opt1.isNotEmpty()) {
+                            Text(
+                                text = tr(opt1.first()),
+                                color = HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (roleProfile.primaryRuneIconUrl.isNotBlank()) {
-                            AppAssetImage(
-                                url = roleProfile.primaryRuneIconUrl,
-                                contentDescription = roleProfile.recommendedRunes,
-                                fallbackText = "Runa",
-                                modifier = Modifier.size(38.dp).clickable { 
-                                    val dbRune = com.example.data.WildRiftRepository.runes.find {
-                                        it.name.equals(roleProfile.recommendedRunes, ignoreCase = true) || roleProfile.recommendedRunes.contains(it.name, ignoreCase = true) || it.name.contains(roleProfile.recommendedRunes, ignoreCase = true)
-                                    }
-                                    if (dbRune != null) runeForDetail = dbRune
-                                },
-                                borderColor = HextechCyan,
-                                shape = CircleShape
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                        }
-                        Column {
-                            Text(
-                                text = tr(roleProfile.recommendedRunes),
-                                color = TextPrimary,
-                                fontSize = 13.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (roleProfile.runeTreeDetails.isNotBlank()) {
-                                val parsedRunes = roleProfile.runeTreeDetails
-                                    .replace(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+:\\s*"), "")
-                                    .split("•")
-                                    .map { it.trim() }
-                                    .filter { it.isNotEmpty() }
-                                
-                                if (parsedRunes.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    FlowRow(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        parsedRunes.forEach { rName ->
-                                            val allRunes = com.example.data.WildRiftRepository.runes
-                                            val foundRune = allRunes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
-                                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { if (foundRune != null) runeForDetail = foundRune }) {
-                                                if (foundRune != null) {
-                                                    com.example.ui.components.AppAssetImage(
-                                                        url = foundRune.iconUrl,
-                                                        contentDescription = tr(foundRune.name),
-                                                        fallbackText = "",
-                                                        modifier = Modifier.size(20.dp),
-                                                        shape = CircleShape
-                                                    )
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                } else {
-                                                    Box(modifier = Modifier.size(4.dp).background(HextechCyan, CircleShape))
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                }
-                                                Text(tr(rName), color = TextMuted, fontSize = 11.5.sp)
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = tr(roleProfile.runeTreeDetails),
-                                        color = TextMuted,
-                                        fontSize = 12.sp,
-                                        lineHeight = 16.sp
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        opt1.take(5).forEachIndexed { idx, rName ->
+                            val isKeystone = idx == 0
+                            val foundRune = com.example.data.WildRiftSpellsAndRunes.getRuneByName(rName)
+                                ?: com.example.data.WildRiftRepository.runes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
+                            val iconUrl = foundRune?.iconUrl ?: com.example.data.WildRiftSpellsAndRunes.getRuneIconByName(rName)
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(if (isKeystone) 42.dp else 36.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechSurfaceVariant)
+                                    .border(
+                                        width = if (isKeystone) 2.dp else 1.dp,
+                                        color = if (isKeystone) HextechGold else HextechCyan.copy(alpha = 0.6f),
+                                        shape = CircleShape
                                     )
-                                }
+                                    .clickable { 
+                                        runeForDetail = foundRune ?: com.example.model.RuneItem(
+                                            id = rName.lowercase().replace(" ", "_"),
+                                            name = rName,
+                                            category = if (isKeystone) "Clave" else "Secundaria",
+                                            iconUrl = iconUrl,
+                                            description = "Runa oficial de Wild Rift recomendada para esta configuración táctica."
+                                        )
+                                    }
+                            ) {
+                                AppAssetImage(
+                                    url = iconUrl,
+                                    contentDescription = tr(rName),
+                                    fallbackText = tr(rName),
+                                    modifier = Modifier.fillMaxSize(),
+                                    shape = CircleShape
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    androidx.compose.material3.HorizontalDivider(
+                        color = HextechCardBorder.copy(alpha = 0.6f),
+                        thickness = 1.dp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    val opt2 = if (roleProfile.runesOption2.isNotEmpty()) {
+                        roleProfile.runesOption2
+                    } else {
+                        listOf("Irrupción de Fase", "Banda de Maná", "Trascendencia", "Piroláser", "Se Avecina Tormenta")
+                    }
+
+                    // 2ª Opción
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tr("2º opción") + " (Situacional)",
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (opt2.isNotEmpty()) {
+                            Text(
+                                text = tr(opt2.first()),
+                                color = HextechCyan,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        opt2.take(5).forEachIndexed { idx, rName ->
+                            val isKeystone = idx == 0
+                            val foundRune = com.example.data.WildRiftSpellsAndRunes.getRuneByName(rName)
+                                ?: com.example.data.WildRiftRepository.runes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
+                            val iconUrl = foundRune?.iconUrl ?: com.example.data.WildRiftSpellsAndRunes.getRuneIconByName(rName)
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(if (isKeystone) 42.dp else 36.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechSurfaceVariant)
+                                    .border(
+                                        width = if (isKeystone) 2.dp else 1.dp,
+                                        color = if (isKeystone) HextechCyan else HextechCardBorder,
+                                        shape = CircleShape
+                                    )
+                                    .clickable { 
+                                        runeForDetail = foundRune ?: com.example.model.RuneItem(
+                                            id = rName.lowercase().replace(" ", "_"),
+                                            name = rName,
+                                            category = if (isKeystone) "Clave" else "Secundaria",
+                                            iconUrl = iconUrl,
+                                            description = "Runa oficial de Wild Rift recomendada para esta configuración táctica."
+                                        )
+                                    }
+                            ) {
+                                AppAssetImage(
+                                    url = iconUrl,
+                                    contentDescription = tr(rName),
+                                    fallbackText = tr(rName),
+                                    modifier = Modifier.fillMaxSize(),
+                                    shape = CircleShape
+                                )
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ==========================================
-            // OBJETOS CLAVE (CORE & SITUACIONALES CON EXPLICACIÓN TÁCTICA)
-            // ==========================================
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${tr("Objetos Clave (Build Recomendada)")} • ${selectedRole.shortName}",
-                    color = HextechGold,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "💡 Toca situacionales",
-                    color = HextechCyan,
-                    fontSize = 11.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text(tr("Build Completa (6 Objetos):"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        roleProfile.coreItems.forEachIndexed { idx, rawName ->
-                            val dbItem = com.example.data.WildRiftRepository.items.find { 
-                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase = true) || it.name.contains(rawName, ignoreCase = true)
-                            }
-                            val iconUrl = dbItem?.iconUrl ?: roleProfile.coreItemsIcons.getOrNull(idx) ?: ""
-                            val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(HextechSurfaceVariant)
-                                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                    .clickable { if (dbItem != null) itemForDetail = dbItem }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            ) {
-                                AppAssetImage(
-                                    url = iconUrl,
-                                    contentDescription = itemName,
-                                    fallbackText = itemName,
-                                    modifier = Modifier.size(28.dp),
-                                    borderColor = HextechGold,
-                                    shape = RoundedCornerShape(6.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(itemName, color = TextPrimary, fontSize = 12.sp)
-                            }
-                        }
-                    }
-
-                    if (roleProfile.situationalItems.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(tr("Objetos Situacionales Recomendados:"), color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            roleProfile.situationalItems.forEachIndexed { idx, rawName ->
-                                val iconUrl = roleProfile.situationalItemsIcons.getOrNull(idx) ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName) ?: ""
-                                val itemName = tr(rawName)
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurfaceVariant)
-                                        .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            selectedSituationalItem = rawName
-                                        }
-                                        .padding(horizontal = 8.dp, vertical = 5.dp)
-                                ) {
-                                    AppAssetImage(
-                                        url = iconUrl,
-                                        contentDescription = itemName,
-                                        fallbackText = itemName,
-                                        modifier = Modifier.size(28.dp),
-                                        borderColor = HextechCyan,
-                                        shape = RoundedCornerShape(6.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(itemName, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                                }
-                            }
-                        }
-                    }
+            Spacer(modifier = Modifier.height(14.dp))
 
                     if (roleProfile.itemSwaps.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(14.dp))
@@ -818,8 +955,6 @@ fun ChampionDetailSheet(
                             }
                         }
                     }
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

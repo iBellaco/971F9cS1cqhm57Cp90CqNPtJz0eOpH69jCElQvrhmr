@@ -64,13 +64,19 @@ import com.example.ui.theme.TextPrimary
 import com.example.util.tr
 import kotlinx.coroutines.launch
 
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+
 enum class FeedbackType(
     val title: String,
     val icon: ImageVector,
     val label: String
 ) {
     BUG("Reportar Bug", Icons.Default.BugReport, "Bug / Error"),
-    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Sugerencia")
+    SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Sugerencia"),
+    BUILD_SUGGESTION("Sugerir Build", Icons.Default.SportsEsports, "Sugerir Build")
 }
 
 @Composable
@@ -85,9 +91,15 @@ fun BugReportFeedbackDialog(
     var description by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var suggestedChampion by remember { mutableStateOf("") }
-    var suggestedRole by remember { mutableStateOf("") }
+    var championSearchQuery by remember { mutableStateOf("") }
+    var showChampionDropdown by remember { mutableStateOf(false) }
+    var suggestedRole by remember { mutableStateOf("Mid") }
     var suggestedRunes by remember { mutableStateOf("") }
     var suggestedSpells by remember { mutableStateOf("") }
+    var suggestedCoreItems by remember { mutableStateOf("") }
+    var suggestedSituationalItems by remember { mutableStateOf("") }
+    var suggestedBoots by remember { mutableStateOf("") }
+
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -100,7 +112,7 @@ fun BugReportFeedbackDialog(
         )
     }
     
-        val successMsg = tr("Imagen adjuntada correctamente")
+    val successMsg = tr("Imagen adjuntada correctamente")
     val errorMsg = tr("Error al procesar la imagen")
     val limitMsg = tr("La imagen excede el límite de 2 MB")
     
@@ -122,7 +134,6 @@ fun BugReportFeedbackDialog(
                             cursor.close()
                         }
                         
-                        // Si el tamaño es mayor a 2 MB (2 * 1024 * 1024 = 2097152 bytes), rechazar
                         if (sizeInBytes > 2 * 1024 * 1024) {
                             Toast.makeText(context, limitMsg, Toast.LENGTH_LONG).show()
                             continue
@@ -149,22 +160,45 @@ fun BugReportFeedbackDialog(
     }
 
     val isEmailValid = email.isBlank() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val canPublish = title.trim().isNotBlank() && description.trim().isNotBlank() && selectedImages.isNotEmpty() && isEmailValid
+    val canPublish = if (selectedType == FeedbackType.BUILD_SUGGESTION) {
+        suggestedChampion.isNotBlank() && (suggestedCoreItems.isNotBlank() || title.isNotBlank() || description.isNotBlank()) && isEmailValid
+    } else {
+        title.trim().isNotBlank() && description.trim().isNotBlank() && isEmailValid
+    }
 
     val sendFeedbackMessage: () -> Unit = {
         if (canPublish) {
             isSubmitting = true
             statusMessage = null
             scope.launch {
+                var finalTitle = title.ifBlank { "Sugerencia de Build para $suggestedChampion ($suggestedRole)" }
                 var finalDesc = description
-                if (suggestedChampion.isNotBlank()) finalDesc += "\n\nCampeón Sugerido: $suggestedChampion"
-                if (suggestedRole.isNotBlank()) finalDesc += "\nRol Sugerido: $suggestedRole"
-                if (suggestedRunes.isNotBlank()) finalDesc += "\nRunas Sugeridas: $suggestedRunes"
-                if (suggestedSpells.isNotBlank()) finalDesc += "\nHechizos Sugeridos: $suggestedSpells"
+                if (selectedType == FeedbackType.BUILD_SUGGESTION) {
+                    val buildDetails = buildString {
+                        appendLine("--- SUGERENCIA DE BUILD DE COMUNIDAD ---")
+                        appendLine("• Campeón: $suggestedChampion")
+                        appendLine("• Rol/Línea: $suggestedRole")
+                        if (suggestedCoreItems.isNotBlank()) appendLine("• Objetos Core (1-6): $suggestedCoreItems")
+                        if (suggestedSituationalItems.isNotBlank()) appendLine("• Objetos Situacionales (7-8): $suggestedSituationalItems")
+                        if (suggestedBoots.isNotBlank()) appendLine("• Botas y Mejora: $suggestedBoots")
+                        if (suggestedRunes.isNotBlank()) appendLine("• Runas: $suggestedRunes")
+                        if (suggestedSpells.isNotBlank()) appendLine("• Hechizos: $suggestedSpells")
+                        if (description.isNotBlank()) {
+                            appendLine("\n• Notas / Explicación Táctica:")
+                            appendLine(description)
+                        }
+                    }
+                    finalDesc = buildDetails
+                } else {
+                    if (suggestedChampion.isNotBlank()) finalDesc += "\n\nCampeón Sugerido: $suggestedChampion"
+                    if (suggestedRole.isNotBlank()) finalDesc += "\nRol Sugerido: $suggestedRole"
+                    if (suggestedRunes.isNotBlank()) finalDesc += "\nRunas Sugeridas: $suggestedRunes"
+                    if (suggestedSpells.isNotBlank()) finalDesc += "\nHechizos Sugeridos: $suggestedSpells"
+                }
                 
                 val result = FeedbackRepository.submitFeedback(
                     type = selectedType.name,
-                    title = title,
+                    title = finalTitle,
                     description = finalDesc,
                     email = email.trim().takeIf { it.isNotEmpty() },
                     imagesBase64 = selectedImages,
@@ -172,7 +206,7 @@ fun BugReportFeedbackDialog(
                 )
                 isSubmitting = false
                 if (result.isSuccess) {
-                    Toast.makeText(context, "✅ ¡Mensaje enviado con éxito!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "✅ ¡Sugerencia/Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
                     onDismiss()
                 } else {
                     val err = result.exceptionOrNull()?.message ?: "Error desconocido"
@@ -181,7 +215,12 @@ fun BugReportFeedbackDialog(
                 }
             }
         } else {
-            Toast.makeText(context, "Por favor completa el título y la descripción", Toast.LENGTH_SHORT).show()
+            val msg = if (selectedType == FeedbackType.BUILD_SUGGESTION) {
+                "Por favor selecciona un campeón e indica la build o título"
+            } else {
+                "Por favor completa el título y la descripción"
+            }
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -277,16 +316,199 @@ fun BugReportFeedbackDialog(
                     }
                 }
 
+                // ==========================================
+                // CAMPOS ESPECÍFICOS PARA SUGERIR BUILD
+                // ==========================================
+                if (selectedType == FeedbackType.BUILD_SUGGESTION) {
+                    // Selector de Campeón
+                    Column {
+                        Text(
+                            text = tr("Campeón específico:"),
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedTextField(
+                            value = if (suggestedChampion.isNotEmpty()) suggestedChampion else championSearchQuery,
+                            onValueChange = {
+                                championSearchQuery = it
+                                suggestedChampion = it
+                                showChampionDropdown = it.isNotEmpty()
+                            },
+                            placeholder = { Text(tr("Escribe el nombre del campeón (ej. Ahri, Zed, Yasuo)..."), fontSize = 11.5.sp, color = TextMuted) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HextechCyan,
+                                unfocusedBorderColor = HextechCardBorder,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+                        
+                        // Lista de sugerencias de campeones
+                        val filteredChamps = remember(championSearchQuery) {
+                            if (championSearchQuery.isBlank()) emptyList<com.example.model.Champion>()
+                            else WildRiftRepository.champions.filter {
+                                it.name.contains(championSearchQuery, ignoreCase = true)
+                            }.take(6)
+                        }
+
+                        if (filteredChamps.isNotEmpty() && suggestedChampion != filteredChamps.firstOrNull()?.name) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                items(filteredChamps) { champ ->
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(HextechSurfaceVariant)
+                                            .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
+                                            .clickable {
+                                                suggestedChampion = champ.name
+                                                championSearchQuery = champ.name
+                                            }
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(champ.name, color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Selector de Rol / Línea
+                    Column {
+                        Text(
+                            text = tr("Rol / Línea:"),
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        val roles = listOf("Solo / Baron", "Jungla", "Mid", "Dúo / ADC", "Soporte")
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            roles.forEach { r ->
+                                val isRSelected = suggestedRole == r
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isRSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                                        .border(1.dp, if (isRSelected) HextechCyan else HextechCardBorder, RoundedCornerShape(6.dp))
+                                        .clickable { suggestedRole = r }
+                                        .padding(vertical = 6.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = r.split("/").last().trim(),
+                                        color = if (isRSelected) HextechCyan else TextMuted,
+                                        fontSize = 10.sp,
+                                        fontWeight = if (isRSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Objetos Core (1 al 6)
+                    OutlinedTextField(
+                        value = suggestedCoreItems,
+                        onValueChange = { suggestedCoreItems = it },
+                        label = { Text(tr("Objetos Core 1 al 6"), fontSize = 11.sp) },
+                        placeholder = { Text(tr("Ej: Eco de Luden, Sombrero de Rabadon, Bastón del Vacío..."), fontSize = 11.sp, color = TextMuted) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+
+                    // Objetos Situacionales (7 y 8)
+                    OutlinedTextField(
+                        value = suggestedSituationalItems,
+                        onValueChange = { suggestedSituationalItems = it },
+                        label = { Text(tr("Objetos Situacionales (7 y 8)"), fontSize = 11.sp) },
+                        placeholder = { Text(tr("Ej: 7. Morellonomicón • 8. Velo de Banshee"), fontSize = 11.sp, color = TextMuted) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+
+                    // Botas y Mejora
+                    OutlinedTextField(
+                        value = suggestedBoots,
+                        onValueChange = { suggestedBoots = it },
+                        label = { Text(tr("Botas y Encantamiento / Mejora"), fontSize = 11.sp) },
+                        placeholder = { Text(tr("Ej: Botas de dinamismo -> Avance magnético"), fontSize = 11.sp, color = TextMuted) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+
+                    // Runas (Principal y Secundarias)
+                    OutlinedTextField(
+                        value = suggestedRunes,
+                        onValueChange = { suggestedRunes = it },
+                        label = { Text(tr("Runas Sugeridas (Principal + 4 Secundarias)"), fontSize = 11.sp) },
+                        placeholder = { Text(tr("Ej: Electrocutar • Impacto súbito, Golpe de gracia, Colección de ojos, Trascendencia"), fontSize = 11.sp, color = TextMuted) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+
+                    // Hechizos
+                    OutlinedTextField(
+                        value = suggestedSpells,
+                        onValueChange = { suggestedSpells = it },
+                        label = { Text(tr("Hechizos de Invocador"), fontSize = 11.sp) },
+                        placeholder = { Text(tr("Ej: Destello + Prender / Barrera"), fontSize = 11.sp, color = TextMuted) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+                }
+
                 // Campo Título
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text(tr("Título del reporte o sugerencia"), fontSize = 12.sp) },
+                    label = { Text(if (selectedType == FeedbackType.BUILD_SUGGESTION) tr("Título o resumen de la build") else tr("Título del reporte o sugerencia"), fontSize = 12.sp) },
                     placeholder = {
                         Text(
                             when (selectedType) {
                                 FeedbackType.BUG -> tr("Ej: El overlay no detecta la pantalla de selección")
                                 FeedbackType.SUGGESTION -> tr("Ej: Agregar temporizador de dragones con audio")
+                                FeedbackType.BUILD_SUGGESTION -> tr("Ej: Build de Burst Letal para Midlane")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -310,12 +532,13 @@ fun BugReportFeedbackDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text(tr("Descripción detallada"), fontSize = 12.sp) },
+                    label = { Text(if (selectedType == FeedbackType.BUILD_SUGGESTION) tr("Justificación táctica / Matchups (Opcional)") else tr("Descripción detallada"), fontSize = 12.sp) },
                     placeholder = {
                         Text(
                             when (selectedType) {
                                 FeedbackType.BUG -> tr("Describe qué sucedió o cómo reproducir el error...")
                                 FeedbackType.SUGGESTION -> tr("Describe tu idea o mejora para la aplicación...")
+                                FeedbackType.BUILD_SUGGESTION -> tr("Explica contra qué composición usar esta build, power spikes...")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -323,9 +546,9 @@ fun BugReportFeedbackDialog(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
+                        .height(100.dp)
                         .testTag("feedback_desc_input"),
-                    maxLines = 5,
+                    maxLines = 4,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = HextechGold,
                         unfocusedBorderColor = HextechCardBorder,
@@ -500,6 +723,7 @@ fun BugReportFeedbackDialog(
             val buttonText = when (selectedType) {
                 FeedbackType.BUG -> tr("Enviar reporte")
                 FeedbackType.SUGGESTION -> tr("Enviar sugerencia")
+                FeedbackType.BUILD_SUGGESTION -> tr("Enviar sugerencia de build")
             }
 
             Button(

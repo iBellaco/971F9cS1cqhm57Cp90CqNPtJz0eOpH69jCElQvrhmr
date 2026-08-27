@@ -4,17 +4,17 @@ import com.example.model.RuneItem
 import com.example.model.SummonerSpellItem
 
 object WildRiftSpellsAndRunes {
-    const val SPELL_FLASH = "https://i.postimg.cc/6qHRh6Gt/1691694210-flash.webp"
-    const val SPELL_IGNITE = "https://i.postimg.cc/4y8t14hN/1691695236-ignite.webp"
-    const val SPELL_SMITE = "https://static.wikia.nocookie.net/leagueoflegends/images/0/05/Smite.png/revision/latest?cb=20180514003641"
-    const val SPELL_BARRIER = "https://i.postimg.cc/2yHvxjBV/1691695152-barrier.webp"
-    const val SPELL_EXHAUST = "https://i.postimg.cc/gjMRKc6r/1691695333-exhaust.webp"
-    const val SPELL_GHOST = "https://i.postimg.cc/RhPfTCnS/1691694862-ghost.webp"
-    const val SPELL_HEAL = "https://i.postimg.cc/d3Wd9QT3/1691695008-heal.webp"
+    const val SPELL_FLASH = "https://i.postimg.cc/0QxWRpqC/1691694210-flash.webp"
+    const val SPELL_IGNITE = "https://i.postimg.cc/Pxh3smk2/1691695236-ignite.webp"
+    const val SPELL_SMITE = "https://i.postimg.cc/qRLmkzkK/1691695616-smite.webp"
+    const val SPELL_BARRIER = "https://i.postimg.cc/1tHW9f9G/1691695152-barrier.webp"
+    const val SPELL_EXHAUST = "https://i.postimg.cc/j5X8sLsz/1691695333-exhaust.webp"
+    const val SPELL_GHOST = "https://i.postimg.cc/G2r7wk1Q/1691694862-ghost.webp"
+    const val SPELL_HEAL = "https://i.postimg.cc/XJ82VpVd/1691695008-heal.webp"
     const val SPELL_CLARITY = "https://static.wikia.nocookie.net/leagueoflegends/images/7/71/Claridad.png/revision/latest?cb=20141013024826&path-prefix=es"
     const val SPELL_MARK = "https://static.wikia.nocookie.net/leagueoflegends/images/5/55/Marca.png/revision/latest?cb=20150802150053&path-prefix=es"
-    const val SPELL_TELEPORT = "https://i.postimg.cc/J0TJQ7B7/1611110740-teleport-enchant.png"
-    const val SPELL_CLEANSE = "https://i.postimg.cc/kGj8yMt5/1735511112-cleanse.webp"
+    const val SPELL_TELEPORT = "https://i.postimg.cc/gJdSFvPs/1611110740-teleport-enchant.png"
+    const val SPELL_CLEANSE = "https://i.postimg.cc/ydPfVkV0/1735511112-cleanse.webp"
     const val SPELL_CHILLING_SMITE = "https://i.postimg.cc/NFNTxGrg/1691695722-chilling-smite.png"
 
     fun getRuneDrawableRes(nameOrId: String): Int? {
@@ -22,17 +22,27 @@ object WildRiftSpellsAndRunes {
     }
 
     fun getSpellIconByName(name: String): String {
-        return when (name.trim().lowercase()) {
-            "destello", "flash" -> SPELL_FLASH
-            "prender", "ignición", "ignite", "ignicion", "incendiar" -> SPELL_IGNITE
-            "castigo", "smite" -> SPELL_SMITE
-            "barrera", "barrier" -> SPELL_BARRIER
-            "extenuación", "extenuacion", "exhaust" -> SPELL_EXHAUST
-            "fantasma", "ghost" -> SPELL_GHOST
-            "curar", "curación", "curacion", "heal" -> SPELL_HEAL
-            "claridad", "clarity" -> SPELL_CLARITY
-            "marca", "marca / lanzamiento", "mark", "snowball" -> SPELL_MARK
-            "teleportación", "teletransporte", "teleport" -> SPELL_TELEPORT
+        val clean = name.trim().lowercase()
+        val found = summonerSpells.find {
+            it.name.equals(clean, ignoreCase = true) ||
+            it.id.equals(clean, ignoreCase = true) ||
+            it.name.lowercase().contains(clean) ||
+            clean.contains(it.name.lowercase())
+        }
+        if (found != null && found.iconUrl.isNotBlank()) return found.iconUrl
+
+        return when {
+            clean.contains("flash") || clean.contains("destello") -> SPELL_FLASH
+            clean.contains("ignit") || clean.contains("prend") || clean.contains("incendi") -> SPELL_IGNITE
+            clean.contains("smite") || clean.contains("castigo") || clean.contains("aplast") -> SPELL_SMITE
+            clean.contains("barri") || clean.contains("barrer") -> SPELL_BARRIER
+            clean.contains("exhaus") || clean.contains("extenu") -> SPELL_EXHAUST
+            clean.contains("ghost") || clean.contains("fantasm") -> SPELL_GHOST
+            clean.contains("heal") || clean.contains("cura") -> SPELL_HEAL
+            clean.contains("cleanse") || clean.contains("limpi") -> SPELL_CLEANSE
+            clean.contains("teleport") || clean.contains("teletrans") -> SPELL_TELEPORT
+            clean.contains("clarity") || clean.contains("claridad") -> SPELL_CLARITY
+            clean.contains("mark") || clean.contains("marca") || clean.contains("bola") -> SPELL_MARK
             else -> SPELL_FLASH
         }
     }
