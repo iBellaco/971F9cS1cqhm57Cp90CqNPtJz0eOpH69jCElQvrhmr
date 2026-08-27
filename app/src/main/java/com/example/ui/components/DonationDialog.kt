@@ -592,14 +592,14 @@ private fun downloadQr(context: Context, url: String) {
 @Composable
 private fun DonationPixCombinedCard() {
     val context = androidx.compose.ui.platform.LocalContext.current
-    var selectedOption by androidx.compose.runtime.remember { androidx.compose.runtime.mutableIntStateOf(1) }
+    var selectedOption by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<Int?>(null) }
     var showQRModal by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
 
     val pixCode1 = "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b5552040000530398654045.275802BR5917BRLA DIGITAL LTDA6009Sao Paulo62290525c898e88196a346fa968d9eada6304654C"
     val pixCode2 = "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b55520400005303986540526.455802BR5917BRLA DIGITAL LTDA6009Sao Paulo622905258e3dc64ffc0c48fab562857a5630478FA"
     
-    val currentPixCode = if (selectedOption == 1) pixCode1 else pixCode2
-    val currentAmountText = if (selectedOption == 1) "R$ 5.27" else "R$ 26.45"
+    val currentPixCode = if (selectedOption == 1) pixCode1 else if (selectedOption == 2) pixCode2 else ""
+    val currentAmountText = if (selectedOption == 1) "R$ 5.27" else if (selectedOption == 2) "R$ 26.45" else ""
     
     val qrCodeUrl = androidx.compose.runtime.remember(currentPixCode) {
         val encoded = android.net.Uri.encode(currentPixCode)
@@ -688,58 +688,60 @@ private fun DonationPixCombinedCard() {
 
             androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(12.dp))
             
-            androidx.compose.material3.Text(
-                text = "Sao Paulo • $currentAmountText",
-                color = HextechGold,
-                fontSize = 13.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-            )
-            
-            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
-            androidx.compose.material3.Text(
-                text = tr("QR Code e Pix Copia e Cola"),
-                color = TextMuted,
-                fontSize = 12.sp,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
-            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
-
-            // QR code centrado
-            androidx.compose.foundation.layout.Box(
-                modifier = androidx.compose.ui.Modifier
-                    .size(160.dp)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                    .background(androidx.compose.ui.graphics.Color.White)
-                    .clickable { showQRModal = true }
-                    .border(2.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.3f), androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                    .padding(8.dp),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                coil.compose.AsyncImage(
-                    model = coil.request.ImageRequest.Builder(context)
-                        .data(qrCodeUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "QR Pix",
-                    modifier = androidx.compose.ui.Modifier.fillMaxSize(),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+            if (selectedOption != null) {
+                androidx.compose.material3.Text(
+                    text = "Sao Paulo • $currentAmountText",
+                    color = HextechGold,
+                    fontSize = 13.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                 )
-            }
-            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
-            
-            androidx.compose.material3.Button(
-                onClick = { copyToClipboard(context, currentPixCode, "Código Pix Copia e Cola") },
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = HextechBlue),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-                modifier = androidx.compose.ui.Modifier.fillMaxWidth(0.8f)
-            ) {
-                androidx.compose.material3.Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.ContentCopy,
-                    contentDescription = "Copy",
-                    modifier = androidx.compose.ui.Modifier.size(16.dp)
+                
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                androidx.compose.material3.Text(
+                    text = tr("QR Code e Pix Copia e Cola"),
+                    color = TextMuted,
+                    fontSize = 12.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
-                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
-                androidx.compose.material3.Text("Copiar Código Pix", fontSize = 13.sp)
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
+    
+                // QR code centrado
+                androidx.compose.foundation.layout.Box(
+                    modifier = androidx.compose.ui.Modifier
+                        .size(160.dp)
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                        .background(androidx.compose.ui.graphics.Color.White)
+                        .clickable { showQRModal = true }
+                        .border(2.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.3f), androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                        .padding(8.dp),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    coil.compose.AsyncImage(
+                        model = coil.request.ImageRequest.Builder(context)
+                            .data(qrCodeUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "QR Pix",
+                        modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                    )
+                }
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
+                
+                androidx.compose.material3.Button(
+                    onClick = { copyToClipboard(context, currentPixCode, "Código Pix Copia e Cola") },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = HextechBlue),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                    modifier = androidx.compose.ui.Modifier.fillMaxWidth(0.8f)
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.ContentCopy,
+                        contentDescription = "Copy",
+                        modifier = androidx.compose.ui.Modifier.size(16.dp)
+                    )
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                    androidx.compose.material3.Text("Copiar Código Pix", fontSize = 13.sp)
+                }
             }
         }
     }

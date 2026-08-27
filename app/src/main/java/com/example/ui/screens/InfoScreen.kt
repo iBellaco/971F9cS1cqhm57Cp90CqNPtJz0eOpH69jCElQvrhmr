@@ -313,6 +313,13 @@ fun InfoScreen(
                     fontSize = 11.5.sp,
                     lineHeight = 16.sp
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Alfa v${com.example.BuildConfig.VERSION_NAME} (${com.example.BuildConfig.VERSION_CODE})",
+                    color = TextMuted,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
                 androidx.compose.foundation.Image(

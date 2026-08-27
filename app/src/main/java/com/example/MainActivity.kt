@@ -82,14 +82,7 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.fillMaxSize()) {
                         DraftingApp()
                         
-                        Text(
-                            text = "Alfa v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-                            color = com.example.ui.theme.TextMuted.copy(alpha = 0.8f),
-                            fontSize = 10.sp,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(8.dp)
-                        )
+
                     }
                 }
             }

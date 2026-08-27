@@ -199,10 +199,8 @@ object WildRiftRepository {
         if (champions.isNotEmpty()) return
         try {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val parsed = context.assets.open("champions.json.gz").use { inputStream ->
-                java.util.zip.GZIPInputStream(inputStream).bufferedReader().use { reader ->
-                    format.decodeFromString<List<Champion>>(reader.readText())
-                }
+            val parsed = context.resources.openRawResource(com.example.R.raw.champions).bufferedReader().use { reader ->
+                format.decodeFromString<List<Champion>>(reader.readText())
             }
             champions.clear()
             champions.addAll(parsed)
