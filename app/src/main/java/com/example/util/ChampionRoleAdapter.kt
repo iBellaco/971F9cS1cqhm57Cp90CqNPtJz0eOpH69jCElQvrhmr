@@ -209,16 +209,7 @@ object ChampionRoleAdapter {
         val (opt1Runes, opt2Runes) = generateRunesOptions(champ, champ.primaryRole)
         val primaryRuneIcon = WildRiftSpellsAndRunes.getRuneIconByName(opt1Runes.firstOrNull() ?: extractMainRune(champ.recommendedRunes))
 
-        val syncedSwaps = if (champ.itemSwaps.isNotEmpty()) {
-            champ.itemSwaps.map { swap ->
-                swap.copy(
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(swap.coreItem),
-                    altItemIcon = WildRiftItemsData.getItemIconByName(swap.altItem)
-                )
-            }
-        } else {
-            generateDefaultSwaps(completedCoreItems, situationalItems, champ.damageType, champ.isFrontline)
-        }
+        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, champ.isFrontline, champ.itemSwaps)
 
         return ChampionRoleProfile(
             role = champ.primaryRole,
@@ -312,7 +303,7 @@ object ChampionRoleAdapter {
         val (opt1Runes, opt2Runes) = generateRunesOptions(champ, role)
         val primaryRuneIcon = WildRiftSpellsAndRunes.getRuneIconByName(opt1Runes.firstOrNull() ?: extractMainRune(champ.recommendedRunes))
 
-        val syncedSwaps = generateDefaultSwaps(completedCoreItems, situationalItems, champ.damageType, isTank)
+        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, isTank, emptyList())
 
         val flexWinrate = adjustRate(champ.winrate, -1.2)
         val flexPickRate = adjustRate(champ.pickRate * 0.4, 0.0)
@@ -356,90 +347,108 @@ object ChampionRoleAdapter {
         )
     }
 
-    private fun generateDefaultSwaps(
-        coreItems: List<String>,
+    private fun generateSituationalSwaps(
         situationalItems: List<String>,
         damageType: DamageType,
-        isTank: Boolean
+        isTank: Boolean,
+        explicitSwaps: List<ItemSwap> = emptyList()
     ): List<ItemSwap> {
+        val s1 = situationalItems.getOrElse(0) { "Ángel custodio" }
+        val s2 = situationalItems.getOrElse(1) { "Morellonomicón" }
+
+        if (explicitSwaps.isNotEmpty()) {
+            return explicitSwaps.mapIndexed { idx, swap ->
+                val baseSituational = if (idx == 0) s1 else s2
+                val slotNumber = if (idx == 0) "7" else "8"
+                swap.copy(
+                    coreItem = baseSituational,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(baseSituational),
+                    altItemIcon = WildRiftItemsData.getItemIconByName(swap.altItem),
+                    reasonTitle = if (!swap.reasonTitle.contains("OBJETO", ignoreCase = true)) {
+                        "OBJETO $slotNumber (SITUACIONAL ${idx + 1}) ➔ ${swap.reasonTitle}"
+                    } else swap.reasonTitle
+                )
+            }
+        }
+
         val swaps = mutableListOf<ItemSwap>()
 
         if (damageType == DamageType.MAGIC) {
-            val validCoreItems = coreItems.filter { !isBootItem(it) }.distinct()
-            val coreTarget1 = validCoreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: validCoreItems.firstOrNull() ?: "Luden's Echo"
-            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
+            val alt1 = if (s1.equals("Morellonomicón", ignoreCase = true)) "El reloj de arena de Zhonya" else "Morellonomicón"
+            val alt2 = if (s2.equals("El reloj de arena de Zhonya", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Velo de alma en pena" else "El reloj de arena de Zhonya"
+
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget1,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
-                    altItem = "Morellonomicón",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Morellonomicón"),
-                    reasonTitle = "ANTI-CURACIÓN (HERIDAS GRAVES)",
-                    reasonDesc = "Reduce las curaciones y regeneraciones masivas de campeones enemigos.",
-                    againstWho = "Soraka, Dr. Mundo, Aatrox, Warwick, Vladimir"
+                    coreItem = s1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
+                    altItem = alt1,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-CURACIÓN",
+                    reasonDesc = "Si el equipo enemigo tiene alta regeneración o curanderos masivos, sustituye el objeto situacional 7 por Heridas Graves.",
+                    againstWho = "Soraka, Dr. Mundo, Aatrox, Warwick, Vladimir, Yuumi"
                 )
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget2,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
-                    altItem = "El reloj de arena de Zhonya",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("El reloj de arena de Zhonya"),
-                    reasonTitle = "SUPERVIVENCIA & INVULNERABILIDAD",
-                    reasonDesc = "Otorga éxtasis temporal de 2.5s para esquivar combos letales de asesinos.",
-                    againstWho = "Zed, Talon, Fizz, Kayn, Syndra"
+                    coreItem = s2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
+                    altItem = alt2,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ SUPERVIVENCIA & ÉXTASIS",
+                    reasonDesc = "Si sufres de emboscadas o burst explosivo enemigo en peleas de equipo, sustituye el objeto situacional 8 por estasis.",
+                    againstWho = "Zed, Talon, Fizz, Kayn, Syndra, Rengar"
                 )
             )
         } else if (isTank) {
-            val validCoreItems = coreItems.filter { !isBootItem(it) }.distinct()
-            val coreTarget1 = validCoreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: validCoreItems.firstOrNull() ?: "Plato del hombre muerto"
-            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
+            val alt1 = if (s1.equals("malla de espinas", ignoreCase = true)) "El presagio de Randuin" else "malla de espinas"
+            val alt2 = if (s2.equals("Fuerza de la naturaleza", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Corona abrasadora" else "Fuerza de la naturaleza"
+
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget1,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
-                    altItem = "malla de espinas",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
-                    reasonTitle = "ANTI-CURACIÓN & ARMADURA",
-                    reasonDesc = "Aplica Heridas Graves al recibir daño y devuelve daño mágico.",
-                    againstWho = "Aatrox, Warwick, Soraka, Yuumi, Samira"
+                    coreItem = s1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
+                    altItem = alt1,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-CURACIÓN & ARMADURA",
+                    reasonDesc = "Si los rivales dependen de vampirismo y robo de vida físico, adapta tu objeto situacional 7 con Malla de Espinas.",
+                    againstWho = "Aatrox, Warwick, Maestro Yi, Samira, Olaf"
                 )
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget2,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
-                    altItem = "El presagio de Randuin",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("El presagio de Randuin"),
-                    reasonTitle = "ANTI-CRÍTICO",
-                    reasonDesc = "Reduce el daño de golpes críticos y frena hipercarries de autoataques.",
-                    againstWho = "Yasuo, Yone, Jinx, Tristana, Caitlyn"
+                    coreItem = s2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
+                    altItem = alt2,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ RESISTENCIA MÁGICA & MOVILIDAD",
+                    reasonDesc = "Contra daño mágico sostenido o múltiple fuente AP en composiciones enemigas, adapta el objeto 8.",
+                    againstWho = "Evelynn, Teemo, Brand, Aurelion Sol, Gwen"
                 )
             )
         } else {
-            val validCoreItems = coreItems.filter { !isBootItem(it) }.distinct()
-            val coreTarget1 = validCoreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: validCoreItems.firstOrNull() ?: "Black Cleaver"
-            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
+            val alt1 = if (s1.equals("Colmillo de serpiente", ignoreCase = true)) "malla de espinas" else "Colmillo de serpiente"
+            val alt2 = if (s2.equals("Ángel custodio", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Fajín de mercurio" else "Ángel custodio"
+
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget1,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
-                    altItem = "Colmillo de serpiente",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Colmillo de serpiente"),
-                    reasonTitle = "DESTRUCTOR DE ESCUDOS",
-                    reasonDesc = "Reduce drásticamente la absorción de escudos enemigos al impactar con daño físico.",
-                    againstWho = "Sett, Shen, Karma, Lulu, Sterak"
+                    coreItem = s1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
+                    altItem = alt1,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-ESCUDOS",
+                    reasonDesc = "Si la composición rival cuenta con escudos masivos (escudos de área o habilidades), cambia el objeto situacional 7 por Colmillo de Serpiente.",
+                    againstWho = "Sett, Shen, Karma, Lulu, Sterak, Janna"
                 )
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget2,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
-                    altItem = "malla de espinas",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
-                    reasonTitle = "ARMADURA & ANTI-CURACIÓN",
-                    reasonDesc = "Corta el sustain enemigo y resiste composiciones de alto daño físico.",
-                    againstWho = "Aatrox, Warwick, Maestro Yi, Samira"
+                    coreItem = s2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
+                    altItem = alt2,
+                    altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ SEGUNDA VIDA / RESURRECCIÓN",
+                    reasonDesc = "Para peleas decisivas de Baron o Dragón Anciano donde una eliminación temprana costaría la partida, adapta tu objeto 8.",
+                    againstWho = "Asesinos letales, composiciones de engage y wombo-combos"
                 )
             )
         }

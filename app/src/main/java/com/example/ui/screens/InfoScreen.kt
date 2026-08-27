@@ -1,5 +1,10 @@
 package com.example.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -220,6 +225,56 @@ fun InfoScreen(
                     Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(tr("Abrir Panel de Reportes & Sugerencias"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                }
+            }
+
+            // Section 5: Desarrollador & Derechos de Autor
+            val context = LocalContext.current
+            InfoCard(
+                title = tr("5. Desarrollador y Derechos de Autor"),
+                icon = Icons.Default.Person
+            ) {
+                Text(
+                    text = tr("Aplicación creada y desarrollada por Diego Barba Chavez."),
+                    color = TextPrimary,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "© 2026 Diego Barba Chavez. " + tr("Todos los derechos reservados."),
+                    color = HextechGoldLight,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = tr("Diseñado para la comunidad competitiva de League of Legends: Wild Rift."),
+                    color = TextSecondary,
+                    fontSize = 11.5.sp,
+                    lineHeight = 16.sp
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE1306C),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.CameraAlt, contentDescription = "Instagram", modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Instagram: @Diego.Barba.Chavez", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
             }
 

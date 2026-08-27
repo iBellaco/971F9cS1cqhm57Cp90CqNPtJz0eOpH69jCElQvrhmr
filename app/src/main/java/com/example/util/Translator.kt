@@ -330,6 +330,11 @@ val translations = mapOf(
         "💡 Si tu dispositivo muestra 'conflicto con un paquete', desinstala la versión anterior de tu teléfono una sola vez e instala la nueva APK (ocurre por cambio de firma de depurado a producción)." to "💡 Se o seu dispositivo mostrar 'conflito de pacote', desinstale a versão anterior do seu telefone uma vez e instale o novo APK (ocorre devido à alteração da assinatura de depuração para produção)."
 ,
         "Acerca De" to "Sobre",
+        "5. Desarrollador y Derechos de Autor" to "5. Desenvolvedor e Direitos Autorais",
+        "Aplicación creada y desarrollada por Diego Barba Chavez." to "Aplicativo criado e desenvolvido por Diego Barba Chavez.",
+        "Todos los derechos reservados." to "Todos os direitos reservados.",
+        "Creador & Desarrollador Principal • Todos los derechos reservados" to "Criador & Desenvolvedor Principal • Todos os direitos reservados",
+        "Diseñado para la comunidad competitiva de League of Legends: Wild Rift." to "Projetado para a comunidade competitiva de League of Legends: Wild Rift.",
         "Asistente Táctico Wild Rift" to "Assistente Tático Wild Rift",
         "Guía en Tiempo Real para Selección de Campeones" to "Guia em Tempo Real para Seleção de Campeões",
         "1. Acerca del Asistente" to "1. Sobre o Assistente",
@@ -1382,6 +1387,11 @@ val translations = mapOf(
         "💡 Si tu dispositivo muestra 'conflicto con un paquete', desinstala la versión anterior de tu teléfono una sola vez e instala la nueva APK (ocurre por cambio de firma de depurado a producción)." to "💡 If your device shows 'package conflict', uninstall the previous version from your phone once and install the new APK (occurs due to signature change from debug to production)."
 ,
         "Acerca De" to "About",
+        "5. Desarrollador y Derechos de Autor" to "5. Developer & Copyright",
+        "Aplicación creada y desarrollada por Diego Barba Chavez." to "App created and developed by Diego Barba Chavez.",
+        "Todos los derechos reservados." to "All rights reserved.",
+        "Creador & Desarrollador Principal • Todos los derechos reservados" to "Creator & Lead Developer • All rights reserved",
+        "Diseñado para la comunidad competitiva de League of Legends: Wild Rift." to "Designed for the competitive League of Legends: Wild Rift community.",
         "Asistente Táctico Wild Rift" to "Wild Rift Tactical Assistant",
         "Guía en Tiempo Real para Selección de Campeones" to "Real-Time Guide for Champion Selection",
         "1. Acerca del Asistente" to "1. About the Assistant",

@@ -87,6 +87,13 @@ import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.isLightAppTheme
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.graphics.Color
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
 import androidx.compose.foundation.BorderStroke
@@ -520,6 +527,75 @@ fun MainDraftingScreen(
                         color = HextechGold,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Botón Red Social Instagram - Diego Barba Chavez
+                val context = LocalContext.current
+                androidx.compose.material3.OutlinedButton(
+                    onClick = {
+                        val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(44.dp)
+                        .testTag("btn_instagram_creator"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.85f),
+                        contentColor = Color(0xFFE1306C)
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE1306C).copy(alpha = 0.7f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Instagram",
+                        tint = Color(0xFFE1306C),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Instagram: @Diego.Barba.Chavez",
+                        color = Color(0xFFFF7597),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Derechos de autor y créditos de creador
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(HextechSurface.copy(alpha = 0.5f))
+                        .border(1.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "© 2026 Diego Barba Chavez",
+                        color = HextechGoldLight,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = tr("Creador & Desarrollador Principal • Todos los derechos reservados"),
+                        color = TextMuted,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
                     )
                 }
 

@@ -1,6 +1,9 @@
 package com.example.ui.screens
 
 import com.example.utils.parseHtmlColorToAnnotatedString
+import com.example.data.WildRiftItemsData
+import com.example.model.WildRiftItem
+import com.example.ui.theme.HextechGoldLight
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -519,16 +522,23 @@ fun ChampionDetailSheet(
                     ) {
                         buildList.forEachIndexed { idx, rawName ->
                             val isSituational = idx >= 6
-                            val dbItem = com.example.data.WildRiftRepository.items.find {
-                                it.name.equals(rawName, ignoreCase = true) || rawName.contains(it.name, ignoreCase = true) || it.name.contains(rawName, ignoreCase = true)
-                            }
-                            val iconUrl = dbItem?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(rawName)
+                            val dbItem = WildRiftItemsData.getItemByName(rawName)
+                                ?: com.example.data.WildRiftRepository.items.find {
+                                    it.name.equals(rawName, ignoreCase = true) || it.nameEn.equals(rawName, ignoreCase = true)
+                                }
+                            val iconUrl = dbItem?.iconUrl ?: WildRiftItemsData.getItemIconByName(rawName)
                             val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
 
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .clickable { if (dbItem != null) itemForDetail = dbItem }
+                                    .clickable {
+                                        if (dbItem != null) {
+                                            itemForDetail = dbItem
+                                        } else {
+                                            selectedSituationalItem = rawName
+                                        }
+                                    }
                                     .padding(vertical = 4.dp)
                             ) {
                                 Box(
@@ -892,10 +902,7 @@ fun ChampionDetailSheet(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 12.dp)
-                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        selectedSituationalItem = swap.altItem
-                                    },
+                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF07121A)),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
@@ -907,24 +914,45 @@ fun ChampionDetailSheet(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.Center
                                     ) {
-                                        // Core Item
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                                        // Primer Objeto (Situacional Base 7 u 8)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    val db = WildRiftItemsData.getItemByName(swap.coreItem)
+                                                    if (db != null) {
+                                                        itemForDetail = db
+                                                    } else {
+                                                        selectedSituationalItem = swap.coreItem
+                                                    }
+                                                }
+                                                .padding(4.dp)
+                                        ) {
                                             AppAssetImage(
                                                 url = swap.coreItemIcon,
                                                 contentDescription = tr(swap.coreItem),
                                                 fallbackText = tr(swap.coreItem),
-                                                modifier = Modifier.size(42.dp),
+                                                modifier = Modifier.size(44.dp),
                                                 borderColor = HextechGold,
-                                                shape = RoundedCornerShape(6.dp)
+                                                shape = RoundedCornerShape(8.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
-                                            Text(tr(swap.coreItem), color = TextMuted, fontSize = 10.sp, textAlign = TextAlign.Center, lineHeight = 12.sp)
+                                            Text(
+                                                text = "${tr("Base")}\n${tr(swap.coreItem)}",
+                                                color = HextechGoldLight,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                textAlign = TextAlign.Center,
+                                                lineHeight = 12.sp
+                                            )
                                         }
                                         
                                         // Arrow
                                         Box(
                                             modifier = Modifier
-                                                .padding(horizontal = 8.dp)
+                                                .padding(horizontal = 6.dp)
                                                 .clip(RoundedCornerShape(6.dp))
                                                 .background(HextechCyan.copy(alpha = 0.2f))
                                                 .border(1.dp, HextechCyan, RoundedCornerShape(6.dp))
@@ -933,18 +961,39 @@ fun ChampionDetailSheet(
                                             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Swap", tint = HextechGold, modifier = Modifier.size(16.dp))
                                         }
                                         
-                                        // Alt Item
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                                        // Segundo Objeto (Alternativa Situacional)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    val db = WildRiftItemsData.getItemByName(swap.altItem)
+                                                    if (db != null) {
+                                                        itemForDetail = db
+                                                    } else {
+                                                        selectedSituationalItem = swap.altItem
+                                                    }
+                                                }
+                                                .padding(4.dp)
+                                        ) {
                                             AppAssetImage(
                                                 url = swap.altItemIcon,
                                                 contentDescription = tr(swap.altItem),
                                                 fallbackText = tr(swap.altItem),
-                                                modifier = Modifier.size(42.dp),
+                                                modifier = Modifier.size(44.dp),
                                                 borderColor = HextechCyan,
-                                                shape = RoundedCornerShape(6.dp)
+                                                shape = RoundedCornerShape(8.dp)
                                             )
                                             Spacer(modifier = Modifier.height(4.dp))
-                                            Text(tr(swap.altItem), color = TextPrimary, fontSize = 10.sp, textAlign = TextAlign.Center, lineHeight = 12.sp)
+                                            Text(
+                                                text = "${tr("Reemplazo")}\n${tr(swap.altItem)}",
+                                                color = HextechCyan,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                textAlign = TextAlign.Center,
+                                                lineHeight = 12.sp
+                                            )
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))

@@ -127,20 +127,40 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.unit.Dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.model.Champion
+import com.example.model.RuneItem
+import com.example.model.SummonerSpellItem
 import com.example.data.remote.model.FeedbackReport
 import com.example.data.supabase.FeedbackRepository
+import com.example.data.WildRiftItemsData
+import com.example.data.WildRiftSpellsAndRunes
+import com.example.data.WildRiftRepository
+import com.example.model.WildRiftItem
+import com.example.ui.components.AppAssetImage
+import com.example.ui.components.FormattedWildRiftText
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
+import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.HextechGreen
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
+import com.example.util.LocalLanguage
 import com.example.util.tr
+import com.example.utils.parseHtmlColorToAnnotatedString
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -175,6 +195,7 @@ fun AdminFeedbackBottomSheet(
     var isDeleting by remember { mutableStateOf(false) }
     var isPurging by remember { mutableStateOf(false) }
     var previewImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
 
     fun refreshStatusMap(list: List<FeedbackReport>) {
         statusMap.clear()
@@ -737,7 +758,8 @@ fun AdminFeedbackBottomSheet(
                                     clipboard.setPrimaryClip(ClipData.newPlainText("Feedback Report", textToCopy))
                                     Toast.makeText(context, "📋 Reporte copiado al portapapeles", Toast.LENGTH_SHORT).show()
                                 },
-                                onOpenImage = { bmp -> previewImageBitmap = bmp }
+                                onOpenImage = { bmp -> previewImageBitmap = bmp },
+                                onItemClick = { itemForDetail = it }
                             )
                         }
                     }
@@ -1050,6 +1072,14 @@ fun AdminFeedbackBottomSheet(
             }
         }
     }
+
+    // Diálogo emergente de Detalle de Objeto (al tocar un objeto en la build)
+    itemForDetail?.let { item ->
+        AdminItemDetailDialog(
+            item = item,
+            onDismiss = { itemForDetail = null }
+        )
+    }
 }
 
 @Composable
@@ -1110,11 +1140,17 @@ private fun ComprehensiveFeedbackCard(
     onSelectStatus: (String) -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
-    onOpenImage: (Bitmap) -> Unit
+    onOpenImage: (Bitmap) -> Unit,
+    onItemClick: (WildRiftItem) -> Unit
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     val isBug = report.type.equals("BUG", ignoreCase = true)
+
+    // Parsear sugerencia de build si contiene el formato estructurado
+    val parsedBuild = remember(report.cleanDescription, report.description) {
+        parseBuildSuggestionFromText(report.cleanDescription.ifEmpty { report.description })
+    }
 
     // Parsear imágenes base64 si existen
     val attachedBitmaps = remember(report.deviceInfo, report.description) {
@@ -1124,6 +1160,8 @@ private fun ComprehensiveFeedbackCard(
     // Información del tipo
     val (typeColor, typeIcon, typeLabel) = if (isBug) {
         Triple(DangerRed, Icons.Default.BugReport, "BUG / ERROR")
+    } else if (parsedBuild != null) {
+        Triple(HextechGold, Icons.Default.Star, "BUILD SUGERIDA")
     } else {
         Triple(Color(0xFFFFB74D), Icons.Default.Lightbulb, "SUGERENCIA")
     }
@@ -1272,46 +1310,56 @@ private fun ComprehensiveFeedbackCard(
 
             Spacer(modifier = Modifier.height(5.dp))
 
-            // Descripción con botón para copiarla directamente
+            // RENDERIZADO DE SUGERENCIA DE BUILD GRÁFICA O DESCRIPCIÓN ESTÁNDAR
             val cleanDescription = remember(report.cleanDescription) {
                 cleanDescriptionText(report.cleanDescription)
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(HextechDarkBg.copy(alpha = 0.25f))
-                    .padding(horizontal = 8.dp, vertical = 5.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = cleanDescription,
-                    color = TextSecondary,
-                    fontSize = 12.5.sp,
-                    lineHeight = 17.sp,
-                    maxLines = if (expanded) Int.MAX_VALUE else 3,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { expanded = !expanded }
+
+            if (parsedBuild != null) {
+                Spacer(modifier = Modifier.height(2.dp))
+                GraphicalBuildSuggestionView(
+                    build = parsedBuild,
+                    onItemClick = onItemClick
                 )
-                IconButton(
-                    onClick = {
-                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        clipboard.setPrimaryClip(ClipData.newPlainText("Descripción", cleanDescription))
-                        Toast.makeText(context, "📋 Descripción copiada al portapapeles", Toast.LENGTH_SHORT).show()
-                    },
+                Spacer(modifier = Modifier.height(4.dp))
+            } else {
+                Row(
                     modifier = Modifier
-                        .size(24.dp)
-                        .padding(start = 2.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(HextechDarkBg.copy(alpha = 0.25f))
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Copiar descripción",
-                        tint = HextechCyan,
-                        modifier = Modifier.size(13.5.dp)
+                    Text(
+                        text = cleanDescription,
+                        color = TextSecondary,
+                        fontSize = 12.5.sp,
+                        lineHeight = 17.sp,
+                        maxLines = if (expanded) Int.MAX_VALUE else 3,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { expanded = !expanded }
                     )
+                    IconButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText("Descripción", cleanDescription))
+                            Toast.makeText(context, "📋 Descripción copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(start = 2.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copiar descripción",
+                            tint = HextechCyan,
+                            modifier = Modifier.size(13.5.dp)
+                        )
+                    }
                 }
             }
 
@@ -1470,6 +1518,43 @@ private fun ComprehensiveFeedbackCard(
                 ) {
                     val cleanDeviceInfo = remember(report.deviceInfo) {
                         cleanDeviceInfoText(report.deviceInfo)
+                    }
+
+                    if (parsedBuild != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(HextechSurfaceVariant.copy(alpha = 0.4f))
+                                .padding(horizontal = 6.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = tr("Texto crudo de la sugerencia:"),
+                                color = HextechGold,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            IconButton(
+                                onClick = {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("Build Cruda", cleanDescription))
+                                    Toast.makeText(context, "📋 Build copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier.size(22.dp)
+                            ) {
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Copiar", tint = HextechGold, modifier = Modifier.size(13.dp))
+                            }
+                        }
+                        Text(
+                            text = cleanDescription,
+                            color = TextSecondary,
+                            fontSize = 10.5.sp,
+                            lineHeight = 14.5.sp,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically, 
@@ -1697,3 +1782,753 @@ private fun saveBitmapToGallery(context: Context, bitmap: Bitmap) {
         Toast.makeText(context, "Error al guardar imagen: ${e.localizedMessage ?: "Error desconocido"}", Toast.LENGTH_SHORT).show()
     }
 }
+
+// ==========================================
+// MODELOS Y PARSER DE SUGERENCIAS DE BUILD
+// ==========================================
+
+data class ParsedBuildSuggestion(
+    val championName: String,
+    val championAvatar: String?,
+    val role: String?,
+    val coreItems: List<WildRiftItem>,
+    val situationalItems: List<WildRiftItem>,
+    val altSituationalItems: List<WildRiftItem>,
+    val boots: WildRiftItem?,
+    val keystoneRune: RuneItem?,
+    val secondaryRunes: List<RuneItem>,
+    val spells: List<SummonerSpellItem>,
+    val tacticalNotes: String?
+)
+
+private fun normalizeSearchString(text: String): String {
+    return text.lowercase(Locale.ROOT)
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+        .replace("ü", "u")
+        .replace("ñ", "n")
+        .replace(Regex("[^a-z0-9]"), "")
+        .trim()
+}
+
+private fun findItemByName(rawName: String): WildRiftItem? {
+    val clean = rawName.trim()
+    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
+    val norm = normalizeSearchString(clean)
+    
+    // Búsqueda exacta primero
+    WildRiftItemsData.list.firstOrNull { it.name.equals(clean, ignoreCase = true) || it.nameEn.equals(clean, ignoreCase = true) }?.let { return it }
+    WildRiftItemsData.list.firstOrNull { normalizeSearchString(it.name) == norm || normalizeSearchString(it.nameEn) == norm }?.let { return it }
+    
+    // Búsqueda por contención
+    WildRiftItemsData.list.firstOrNull { 
+        val normEs = normalizeSearchString(it.name)
+        val normEn = normalizeSearchString(it.nameEn)
+        normEs.contains(norm) || norm.contains(normEs) || normEn.contains(norm) || norm.contains(normEn)
+    }?.let { return it }
+    
+    return null
+}
+
+private fun findRuneByName(rawName: String): RuneItem? {
+    val clean = rawName.trim()
+    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
+    val norm = normalizeSearchString(clean)
+    
+    WildRiftSpellsAndRunes.runes.firstOrNull { it.name.equals(clean, ignoreCase = true) || it.nameEn.equals(clean, ignoreCase = true) }?.let { return it }
+    WildRiftSpellsAndRunes.runes.firstOrNull { normalizeSearchString(it.name) == norm || normalizeSearchString(it.nameEn) == norm }?.let { return it }
+    WildRiftSpellsAndRunes.runes.firstOrNull { 
+        val normEs = normalizeSearchString(it.name)
+        val normEn = normalizeSearchString(it.nameEn)
+        normEs.contains(norm) || norm.contains(normEs) || normEn.contains(norm) || norm.contains(normEn)
+    }?.let { return it }
+    return null
+}
+
+private fun findSpellByName(rawName: String): SummonerSpellItem? {
+    val clean = rawName.trim()
+    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
+    val norm = normalizeSearchString(clean)
+    
+    WildRiftSpellsAndRunes.summonerSpells.firstOrNull { it.name.equals(clean, ignoreCase = true) || it.nameEn.equals(clean, ignoreCase = true) }?.let { return it }
+    WildRiftSpellsAndRunes.summonerSpells.firstOrNull { normalizeSearchString(it.name) == norm || normalizeSearchString(it.nameEn) == norm }?.let { return it }
+    WildRiftSpellsAndRunes.summonerSpells.firstOrNull { 
+        val normEs = normalizeSearchString(it.name)
+        val normEn = normalizeSearchString(it.nameEn)
+        normEs.contains(norm) || norm.contains(normEs) || normEn.contains(norm) || norm.contains(normEn)
+    }?.let { return it }
+    return null
+}
+
+fun parseBuildSuggestionFromText(text: String): ParsedBuildSuggestion? {
+    if (!text.contains("SUGERENCIA DE BUILD", ignoreCase = true) &&
+        !text.contains("OBJETOS CORE", ignoreCase = true) &&
+        !text.contains("OBJETOS SITUACIONALES", ignoreCase = true) &&
+        !text.contains("RUNAS", ignoreCase = true) &&
+        !text.contains("CAMPEÓN", ignoreCase = true) &&
+        !text.contains("CAMPEON", ignoreCase = true)) {
+        return null
+    }
+
+    try {
+        val lines = text.lines()
+        var champName = ""
+        var role: String? = null
+        val coreItemsList = mutableListOf<WildRiftItem>()
+        val sitItemsList = mutableListOf<WildRiftItem>()
+        val altSitItemsList = mutableListOf<WildRiftItem>()
+        var bootsItem: WildRiftItem? = null
+        var keystone: RuneItem? = null
+        val secondaryRunesList = mutableListOf<RuneItem>()
+        val spellsList = mutableListOf<SummonerSpellItem>()
+        val notesBuilder = StringBuilder()
+        var isReadingNotes = false
+
+        for (rawLine in lines) {
+            val line = rawLine.trim()
+            if (line.isEmpty()) continue
+
+            if (isReadingNotes) {
+                notesBuilder.appendLine(rawLine)
+                continue
+            }
+
+            val upper = line.uppercase(Locale.ROOT)
+
+            if (upper.contains("CAMPEÓN:") || upper.contains("CAMPEON:")) {
+                val value = line.substringAfter(":").trim()
+                if (value.contains("(") && value.contains(")")) {
+                    champName = value.substringBefore("(").trim().removePrefix("•").trim()
+                    role = value.substringAfter("(").substringBefore(")").trim()
+                } else {
+                    champName = value.removePrefix("•").trim()
+                }
+            } else if (upper.contains("ROL/LÍNEA:") || upper.contains("ROL/LINEA:") || upper.contains("LÍNEA / ROL:") || upper.contains("LINEA / ROL:") || upper.contains("ROL:")) {
+                role = line.substringAfter(":").trim().removePrefix("•").trim()
+            } else if (upper.contains("BOTAS") || upper.contains("ENCANTAMIENTO")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                findItemByName(valStr)?.let { bootsItem = it }
+            } else if (upper.contains("RUNAS:") || upper.contains("RUNA CLAVE:") || upper.contains("RUNA PRINCIPAL:")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                if (valStr.contains("|") || valStr.contains("+") || valStr.contains(",")) {
+                    val parts = valStr.split(Regex("[|+,]")).map { it.trim().removePrefix("Clave:").removePrefix("Secundarias:").trim() }.filter { it.isNotEmpty() }
+                    if (parts.isNotEmpty()) {
+                        findRuneByName(parts[0])?.let { keystone = it }
+                        for (i in 1 until parts.size) {
+                            findRuneByName(parts[i])?.let { 
+                                if (!secondaryRunesList.contains(it)) secondaryRunesList.add(it)
+                            }
+                        }
+                    }
+                } else {
+                    findRuneByName(valStr)?.let { keystone = it }
+                }
+            } else if (upper.contains("SECUNDARIAS:") || upper.contains("RUNAS SECUNDARIAS:")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                val parts = valStr.split(Regex("[,|+]| - | • ")).map { it.trim() }.filter { it.isNotEmpty() }
+                for (part in parts) {
+                    findRuneByName(part)?.let {
+                        if (!secondaryRunesList.contains(it)) secondaryRunesList.add(it)
+                    }
+                }
+            } else if (upper.contains("HECHIZOS:") || upper.contains("HECHIZOS DE INVOCADOR:")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                val parts = valStr.split(Regex("[,|+]| / | - | • ")).map { it.trim() }.filter { it.isNotEmpty() }
+                for (part in parts) {
+                    findSpellByName(part)?.let {
+                        if (!spellsList.contains(it)) spellsList.add(it)
+                    }
+                }
+            } else if (upper.contains("OBJETOS CORE") || upper.contains("OBJETOS PRINCIPALES")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                val parts = valStr.split(Regex("[•,+]| - ")).map { it.trim() }.filter { it.isNotEmpty() }
+                for (part in parts) {
+                    findItemByName(part)?.let {
+                        if (!coreItemsList.contains(it)) coreItemsList.add(it)
+                    }
+                }
+            } else if (upper.contains("OBJETOS SITUACIONALES") || upper.contains("SITUACIONALES (7-8)") || upper.contains("SITUACIONALES (7 Y 8)")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                val parts = valStr.split(Regex("[•,+]| - ")).map { it.trim() }.filter { it.isNotEmpty() }
+                for (part in parts) {
+                    findItemByName(part)?.let {
+                        if (!sitItemsList.contains(it)) sitItemsList.add(it)
+                    }
+                }
+            } else if (upper.contains("ALTERNATIVAS SITUACIONALES") || upper.contains("ALT SITUACIONAL") || upper.contains("ALT SIT")) {
+                val valStr = line.substringAfter(":").trim().removePrefix("•").trim()
+                val parts = valStr.split(Regex("[•,+]| - ")).map { it.trim() }.filter { it.isNotEmpty() }
+                for (part in parts) {
+                    findItemByName(part)?.let {
+                        if (!altSitItemsList.contains(it)) altSitItemsList.add(it)
+                    }
+                }
+            } else if (upper.contains("NOTAS / EXPLICACIÓN TÁCTICA:") || upper.contains("NOTAS / EXPLICACION TACTICA:") || upper.contains("EXPLICACIÓN TÁCTICA:") || upper.contains("EXPLICACION TACTICA:") || upper.contains("NOTAS:")) {
+                isReadingNotes = true
+                val remaining = line.substringAfter(":").trim()
+                if (remaining.isNotEmpty()) {
+                    notesBuilder.appendLine(remaining)
+                }
+            } else if (Regex("""^[1-6]\.\s*""").containsMatchIn(line)) {
+                // Item core 1 a 6
+                val itemName = line.replace(Regex("""^[1-6]\.\s*"""), "").trim()
+                findItemByName(itemName)?.let { if (!coreItemsList.contains(it)) coreItemsList.add(it) }
+            } else if (line.startsWith("7.") || line.startsWith("8.") || upper.contains("SITUACIONAL 1") || upper.contains("SITUACIONAL 2")) {
+                val itemName = line.substringAfter(":").ifEmpty { line.replace(Regex("""^[78]\.\s*(\(.*\))?\s*:?"""), "") }.trim()
+                findItemByName(itemName)?.let { if (!sitItemsList.contains(it)) sitItemsList.add(it) }
+            }
+        }
+
+        if (champName.isBlank() && coreItemsList.isEmpty() && sitItemsList.isEmpty()) {
+            return null
+        }
+
+        // Buscar avatar del campeón si existe en los assets
+        val champAvatar = if (champName.isNotBlank()) {
+            val normChamp = normalizeSearchString(champName)
+            "file:///android_asset/champions/${normChamp}.png"
+        } else null
+
+        return ParsedBuildSuggestion(
+            championName = champName.ifBlank { "Campeón" },
+            championAvatar = champAvatar,
+            role = role,
+            coreItems = coreItemsList,
+            situationalItems = sitItemsList,
+            altSituationalItems = altSitItemsList,
+            boots = bootsItem,
+            keystoneRune = keystone,
+            secondaryRunes = secondaryRunesList,
+            spells = spellsList,
+            tacticalNotes = notesBuilder.toString().trim().ifEmpty { null }
+        )
+    } catch (e: Exception) {
+        return null
+    }
+}
+
+// ==========================================
+// VISTA GRÁFICA DE SUGERENCIA DE BUILD
+// ==========================================
+
+@Composable
+private fun GraphicalBuildSuggestionView(
+    build: ParsedBuildSuggestion,
+    onItemClick: (WildRiftItem) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(HextechDarkBg.copy(alpha = 0.85f))
+            .border(1.dp, HextechGold.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // ENCABEZADO: Campeón + Rol
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .border(1.5.dp, HextechGold, CircleShape)
+                    .background(HextechSurface)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(build.championAvatar)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = build.championName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = build.championName,
+                    color = HextechGold,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (!build.role.isNullOrBlank()) {
+                    Text(
+                        text = "Rol / Línea: ${build.role}",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            // Hechizos y Runa Clave en el header si están disponibles
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                for (spell in build.spells) {
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .border(1.dp, HextechCyan.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                            .background(Color.Black)
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(spell.iconUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = spell.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+                build.keystoneRune?.let { rune ->
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, HextechGold, CircleShape)
+                            .background(Color.Black)
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(rune.iconUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = rune.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+        }
+
+        HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.6f), thickness = 0.8.dp)
+
+        // SECCIÓN 1: OBJETOS CORE (Slots 1 al 6)
+        if (build.coreItems.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = tr("OBJETOS CORE (1 al 6):"),
+                    color = HextechGold,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(build.coreItems) { item ->
+                        BuildItemSlot(
+                            item = item,
+                            badgeText = "${build.coreItems.indexOf(item) + 1}",
+                            onClick = { onItemClick(item) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // SECCIÓN 2: OBJETOS SITUACIONALES (Slots 7 y 8)
+        if (build.situationalItems.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = tr("OBJETOS SITUACIONALES (7 y 8):"),
+                        color = HextechCyan,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = tr("(Adaptación estándar)"),
+                        color = TextMuted,
+                        fontSize = 9.5.sp
+                    )
+                }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(build.situationalItems) { item ->
+                        val slotNum = 7 + build.situationalItems.indexOf(item)
+                        BuildItemSlot(
+                            item = item,
+                            badgeText = "$slotNum",
+                            badgeColor = HextechCyan,
+                            onClick = { onItemClick(item) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // SECCIÓN 3: ALTERNATIVAS SITUACIONALES (Vs Composición Rival)
+        if (build.altSituationalItems.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = tr("ALTERNATIVAS SITUACIONALES:"),
+                        color = Color(0xFFFFB74D),
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = tr("(Vs composición enemiga)"),
+                        color = TextMuted,
+                        fontSize = 9.5.sp
+                    )
+                }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(build.altSituationalItems) { item ->
+                        BuildItemSlot(
+                            item = item,
+                            badgeText = "Alt",
+                            badgeColor = Color(0xFFFFB74D),
+                            onClick = { onItemClick(item) }
+                        )
+                    }
+                }
+            }
+        }
+
+        // SECCIÓN 4: BOTAS + RUNAS SECUNDARIAS + HECHIZOS
+        if (build.boots != null || build.secondaryRunes.isNotEmpty() || build.spells.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechSurfaceVariant.copy(alpha = 0.5f))
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Botas
+                build.boots?.let { boot ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        BuildItemSlot(
+                            item = boot,
+                            badgeText = "👢",
+                            size = 32.dp,
+                            onClick = { onItemClick(boot) }
+                        )
+                        Column {
+                            Text(
+                                text = tr("Botas"),
+                                color = TextMuted,
+                                fontSize = 9.sp
+                            )
+                            Text(
+                                text = boot.name,
+                                color = TextPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                // Runas Secundarias
+                if (build.secondaryRunes.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        for (rune in build.secondaryRunes) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .border(0.8.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
+                                    .background(Color.Black)
+                            ) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(rune.iconUrl)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = rune.name,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // SECCIÓN 5: NOTAS TÁCTICAS
+        if (!build.tacticalNotes.isNullOrBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(11.dp))
+                        Text(
+                            text = tr("Explicación / Guía táctica:"),
+                            color = HextechGold,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = build.tacticalNotes,
+                        color = TextSecondary,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BuildItemSlot(
+    item: WildRiftItem,
+    badgeText: String,
+    badgeColor: Color = HextechGold,
+    size: Dp = 38.dp,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(RoundedCornerShape(6.dp))
+            .background(HextechSurface)
+            .border(1.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+            .clickable(onClick = onClick)
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(item.iconUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = item.name,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Badge de posición o tipo en esquina
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(topStart = 4.dp))
+                .padding(horizontal = 3.dp, vertical = 1.dp)
+        ) {
+            Text(
+                text = badgeText,
+                color = badgeColor,
+                fontSize = 8.5.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+// ==========================================
+// DIÁLOGO DE DETALLE DE OBJETO EN ADMIN
+// ==========================================
+
+@Composable
+private fun AdminItemDetailDialog(
+    item: WildRiftItem,
+    onDismiss: () -> Unit
+) {
+    val statsList = remember(item) {
+        if (item.stats.isNotBlank()) {
+            item.stats.split(Regex("[•\n]")).map { it.trim() }.filter { it.isNotBlank() }
+        } else emptyList()
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.92f)
+                .clip(RoundedCornerShape(16.dp))
+                .border(1.5.dp, HextechGold, RoundedCornerShape(16.dp)),
+            colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Header con Icono + Nombre + Costo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(54.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(1.5.dp, HextechGold, RoundedCornerShape(10.dp))
+                            .background(HextechSurface)
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(item.iconUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = item.name,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = item.name,
+                            color = HextechGold,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "🪙 ${item.goldCost} oro",
+                                color = Color(0xFFFFD54F),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            if (item.category.isNotBlank()) {
+                                Text(
+                                    text = "• ${item.category}",
+                                    color = HextechCyan,
+                                    fontSize = 11.5.sp
+                                )
+                            }
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(HextechSurfaceVariant.copy(alpha = 0.5f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary, modifier = Modifier.size(16.dp))
+                    }
+                }
+
+                HorizontalDivider(color = HextechCardBorder, thickness = 1.dp)
+
+                // Stats del objeto
+                if (statsList.isNotEmpty()) {
+                    Text(
+                        text = tr("Estadísticas:"),
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurface.copy(alpha = 0.6f))
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        statsList.forEach { stat ->
+                            Text(
+                                text = "• $stat",
+                                color = TextPrimary,
+                                fontSize = 11.5.sp
+                            )
+                        }
+                    }
+                }
+
+                // Pasivas y Coach Tips con formato Wild Rift
+                if (item.passive.isNotBlank() || item.coachTip.isNotBlank()) {
+                    Text(
+                        text = tr("Efectos y Consejos:"),
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurface.copy(alpha = 0.6f))
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        if (item.passive.isNotBlank()) {
+                            FormattedWildRiftText(
+                                text = item.passive,
+                                fontSize = 11.sp,
+                                lineHeight = 15.sp
+                            )
+                        }
+                        if (item.coachTip.isNotBlank()) {
+                            FormattedWildRiftText(
+                                text = "💡 ${item.coachTip}",
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.5.sp
+                            )
+                        }
+                    }
+                }
+
+                // Botón Entendido / Cerrar
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = tr("Entendido"),
+                        color = HextechDarkBg,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
