@@ -21,7 +21,7 @@ enum class DamageType(val displayName: String) {
 @Serializable
 enum class ItemCategory(val displayName: String, val sectionTitle: String, val iconEmoji: String) {
     BASIC("Artículos Básicos", "ARTÍCULOS BÁSICOS", "🔰"),
-    MID_TIER("Artículos de Nivel Medio", "ARTÍCULOS DE NIVEL MEDIO", "⚔️"),
+    MID_TIER("Objetos de Nivel Medio", "OBJETOS DE NIVEL MEDIO", "⚔️"),
     PHYSICAL("Objetos con Daños Físicos", "OBJETOS CON DAÑOS FÍSICOS", "🗡️"),
     MAGIC("Objetos de Daño Mágico", "OBJETOS DE DAÑO MÁGICO", "🔮"),
     DEFENSE("Artículos de Defensa", "ARTÍCULOS DE DEFENSA", "🛡️"),
