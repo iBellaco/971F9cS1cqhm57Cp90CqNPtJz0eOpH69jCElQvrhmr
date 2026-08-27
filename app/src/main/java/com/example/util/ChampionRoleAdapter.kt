@@ -201,41 +201,41 @@ object ChampionRoleAdapter {
                 if (isAp) {
                     Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Colección de Globos Oculares • Cazador Incesante", "Electrocutar")
                 } else if (isTank) {
-                    Triple("Reverberacción", "Fuente de Vida • Condicionamiento • Sobrecrecimiento • Inquebrantable", "Reverberacción")
+                    Triple("Reverberacción", "Fuente de Vida • Perseverancia • Sobrecrecimiento • Inquebrantable", "Reverberacción")
                 } else {
                     Triple("Conquistador", "Triunfo • Leyenda: Presteza • Último Esfuerzo • Cazador Incesante", "Conquistador")
                 }
             }
             LaneRole.SUPPORT -> {
                 if (isTank || champ.id == "alistar") {
-                    Triple("Reverberacción", "Fuente de Vida • Coraza Ósea • Sobrecrecimiento • Goloso", "Reverberacción")
+                    Triple("Reverberacción", "Fuente de Vida • Revestimiento de Huesos • Sobrecrecimiento • Botanista", "Reverberacción")
                 } else if (isSupportEnchanter) {
-                    Triple("Aery", "Anillo de Flujo de Maná • Trascendencia • Se avecina tormenta • Goloso", "Aery")
+                    Triple("Aery", "Banda de Maná • Trascendencia • Se Avecina Tormenta • Botanista", "Aery")
                 } else {
-                    Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Goloso", "Electrocutar")
+                    Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Botanista", "Electrocutar")
                 }
             }
             LaneRole.TOP -> {
                 if (champ.id == "alistar" || isTank) {
-                    Triple("Garras del Inmortal", "Demolición • Coraza Ósea • Sobrecrecimiento • Goloso", "Garras del Inmortal")
+                    Triple("Garras del Inmortal", "Demoler • Revestimiento de Huesos • Sobrecrecimiento • Botanista", "Garras del Inmortal")
                 } else if (isAp) {
-                    Triple("Conquistador", "Triunfo • Golpe de Gracia • Leyenda: Presteza • Coraza Ósea", "Conquistador")
+                    Triple("Conquistador", "Triunfo • Golpe de Gracia • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
                 } else {
-                    Triple("Conquistador", "Triunfo • Último Esfuerzo • Leyenda: Presteza • Coraza Ósea", "Conquistador")
+                    Triple("Conquistador", "Triunfo • Último Esfuerzo • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
                 }
             }
             LaneRole.MID -> {
                 if (isAp) {
-                    Triple("Primer Golpe", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Anillo de Flujo de Maná", "Primer Golpe")
+                    Triple("Primer Golpe", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Banda de Maná", "Primer Golpe")
                 } else {
                     Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Colección de Globos Oculares • Cazador Incesante", "Electrocutar")
                 }
             }
             LaneRole.ADC -> {
                 if (isAp) {
-                    Triple("Primer Golpe", "Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Anillo de Flujo de Maná", "Primer Golpe")
+                    Triple("Primer Golpe", "Hextello • Botanista • Semillero Ixtalí • Banda de Maná", "Primer Golpe")
                 } else {
-                    Triple("Compás Letal", "Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea", "Compás Letal")
+                    Triple("Compás Letal", "Triunfo • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos", "Compás Letal")
                 }
             }
         }
@@ -355,7 +355,8 @@ object ChampionRoleAdapter {
         val swaps = mutableListOf<ItemSwap>()
 
         if (damageType == DamageType.MAGIC) {
-            val coreTarget = coreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: coreItems.firstOrNull() ?: "Luden's Echo"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
+            val coreTarget = validCoreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: validCoreItems.firstOrNull() ?: "Luden's Echo"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
@@ -379,7 +380,8 @@ object ChampionRoleAdapter {
                 )
             )
         } else if (isTank) {
-            val coreTarget = coreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: coreItems.firstOrNull() ?: "Plato del hombre muerto"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
+            val coreTarget = validCoreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: validCoreItems.firstOrNull() ?: "Plato del hombre muerto"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
@@ -403,7 +405,8 @@ object ChampionRoleAdapter {
                 )
             )
         } else {
-            val coreTarget = coreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: coreItems.firstOrNull() ?: "Black Cleaver"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
+            val coreTarget = validCoreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: validCoreItems.firstOrNull() ?: "Black Cleaver"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
