@@ -1,5 +1,7 @@
 package com.example.data
 
+import kotlinx.serialization.json.decodeFromStream
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -196,10 +198,11 @@ object WildRiftRepository {
     fun initChampions(context: android.content.Context) {
         if (champions.isNotEmpty()) return
         try {
-            val bytes = context.assets.open("champions.json").use { it.readBytes() }
-            val jsonString = String(bytes, Charsets.UTF_8)
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val parsed = format.decodeFromString<List<Champion>>(jsonString)
+            val parsed = context.resources.openRawResource(com.example.R.raw.champions).use { inputStream ->
+                @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+                format.decodeFromStream<List<Champion>>(inputStream)
+            }
             champions.clear()
             champions.addAll(parsed)
             android.util.Log.d("WildRiftRepository", "Loaded ${champions.size} champions successfully")
