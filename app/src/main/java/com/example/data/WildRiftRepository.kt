@@ -1,6 +1,6 @@
 package com.example.data
 
-import kotlinx.serialization.json.decodeFromStream
+
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -199,9 +199,10 @@ object WildRiftRepository {
         if (champions.isNotEmpty()) return
         try {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val parsed = context.resources.openRawResource(com.example.R.raw.champions).use { inputStream ->
-                @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-                format.decodeFromStream<List<Champion>>(inputStream)
+            val parsed = context.assets.open("champions.json.gz").use { inputStream ->
+                java.util.zip.GZIPInputStream(inputStream).bufferedReader().use { reader ->
+                    format.decodeFromString<List<Champion>>(reader.readText())
+                }
             }
             champions.clear()
             champions.addAll(parsed)
