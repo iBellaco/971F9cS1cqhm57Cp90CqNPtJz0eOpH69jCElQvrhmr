@@ -345,262 +345,208 @@ private fun DonationPixCard(
     pixCode: String,
     onCopy: () -> Unit
 ) {
-    val context = LocalContext.current
-    var showQRModal by remember { mutableStateOf(false) }
-    // Generar URL del código QR codificado para el estándar Pix
-    val qrCodeUrl = remember(pixCode) {
-        val encoded = Uri.encode(pixCode)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var showQRModal by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    
+    val qrCodeUrl = androidx.compose.runtime.remember(pixCode) {
+        val encoded = android.net.Uri.encode(pixCode)
         "https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=$encoded&bgcolor=ffffff&color=000000&margin=2"
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = BorderStroke(1.dp, Color(0xFF32BCAD).copy(alpha = 0.6f))
+    androidx.compose.material3.Card(
+        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechSurface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.5f))
     ) {
-        Column(
-            modifier = Modifier
+        androidx.compose.foundation.layout.Column(
+            modifier = androidx.compose.ui.Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(16.dp),
+            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            androidx.compose.foundation.layout.Row(
+                modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.QrCode,
+                    contentDescription = null,
+                    tint = androidx.compose.ui.graphics.Color(0xFF32BCAD),
+                    modifier = androidx.compose.ui.Modifier.size(20.dp)
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                androidx.compose.material3.Text(
+                    text = "Pix (Brasil)",
+                    color = TextPrimary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                androidx.compose.foundation.layout.Box(
+                    modifier = androidx.compose.ui.Modifier
+                        .clip(androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+                        .background(androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.2f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF32BCAD).copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.QrCode,
-                            contentDescription = null,
-                            tint = Color(0xFF32BCAD),
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Pix (Brasil)",
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color(0xFF32BCAD).copy(alpha = 0.2f))
-                                    .padding(horizontal = 5.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    text = "INSTANTÁNEO",
-                                    color = Color(0xFF32BCAD),
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Black
-                                )
-                            }
-                        }
-                        Text(
-                            text = tr("QR Code e Pix Copia e Cola"),
-                            color = TextMuted,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Button(
-                        onClick = { showQRModal = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32BCAD)),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Icon(Icons.Default.QrCode2, contentDescription = "Ver QR", modifier = Modifier.size(15.dp), tint = Color.Black)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(tr("Ver QR"), color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    OutlinedButton(
-                        onClick = onCopy,
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
-                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.7f)),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copiar Pix", modifier = Modifier.size(14.dp))
-                    }
+                    androidx.compose.material3.Text(
+                        text = "INSTANTÁNEO",
+                        color = androidx.compose.ui.graphics.Color(0xFF32BCAD),
+                        fontSize = 9.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black
+                    )
                 }
             }
+            
+            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(6.dp))
+            androidx.compose.material3.Text(
+                text = tr("QR Code e Pix Copia e Cola"),
+                color = TextMuted,
+                fontSize = 12.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
 
-            // Vista previa del QR interactiva y código copiable
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(HextechDarkBg)
+            // QR code centrado y más grande
+            androidx.compose.foundation.layout.Box(
+                modifier = androidx.compose.ui.Modifier
+                    .size(160.dp)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                    .background(androidx.compose.ui.graphics.Color.White)
                     .clickable { showQRModal = true }
+                    .border(2.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.3f), androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
                     .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
-                // Miniatura QR
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color.White)
-                        .padding(2.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(context)
-                            .data(qrCodeUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "QR Pix",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                coil.compose.AsyncImage(
+                    model = coil.request.ImageRequest.Builder(context)
+                        .data(qrCodeUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "QR Pix",
+                    modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                )
+            }
 
-                Spacer(modifier = Modifier.width(10.dp))
+            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = tr("Toca para ampliar el QR o copia la clave:"),
-                        color = HextechCyan,
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = pixCode,
-                        color = TextSecondary,
-                        fontSize = 10.sp,
-                        maxLines = 2
-                    )
-                }
+            androidx.compose.material3.Button(
+                onClick = { showQRModal = true },
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFF32BCAD)),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
+                modifier = androidx.compose.ui.Modifier.fillMaxWidth()
+            ) {
+                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.QrCode2, contentDescription = "Ver QR", modifier = androidx.compose.ui.Modifier.size(18.dp), tint = androidx.compose.ui.graphics.Color.Black)
+                androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                androidx.compose.material3.Text(tr("Ver QR Ampliado"), color = androidx.compose.ui.graphics.Color.Black, fontSize = 13.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
         }
     }
 
-    // Modal para visualizar el código QR en grande
     if (showQRModal) {
-        Dialog(onDismissRequest = { showQRModal = false }) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .clip(RoundedCornerShape(16.dp))
-                    .border(1.5.dp, Color(0xFF32BCAD), RoundedCornerShape(16.dp)),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+        androidx.compose.ui.window.Dialog(onDismissRequest = { showQRModal = false }) {
+            androidx.compose.material3.Card(
+                modifier = androidx.compose.ui.Modifier
+                    .fillMaxWidth(0.95f)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
+                    .border(1.5.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD), androidx.compose.foundation.shape.RoundedCornerShape(16.dp)),
+                colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechDarkBg)
             ) {
-                Column(
-                    modifier = Modifier
+                androidx.compose.foundation.layout.Column(
+                    modifier = androidx.compose.ui.Modifier
                         .fillMaxWidth()
-                        .padding(18.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(20.dp),
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    androidx.compose.foundation.layout.Row(
+                        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.QrCode2, contentDescription = null, tint = Color(0xFF32BCAD))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
+                        androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.QrCode2, contentDescription = null, tint = androidx.compose.ui.graphics.Color(0xFF32BCAD))
+                            androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                            androidx.compose.material3.Text(
                                 text = "Pix QR Code",
                                 color = TextPrimary,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                 fontSize = 16.sp
                             )
                         }
-                        IconButton(onClick = { showQRModal = false }, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                        androidx.compose.material3.IconButton(onClick = { showQRModal = false }, modifier = androidx.compose.ui.Modifier.size(28.dp)) {
+                            androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // QR Card Blanco de alta visibilidad
-                    Box(
-                        modifier = Modifier
-                            .size(240.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White)
-                            .border(2.dp, Color(0xFF32BCAD), RoundedCornerShape(12.dp))
-                            .padding(10.dp),
-                        contentAlignment = Alignment.Center
+                    
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
+                    
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier
+                            .size(260.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                            .background(androidx.compose.ui.graphics.Color.White)
+                            .border(2.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD), androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                            .padding(12.dp),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
                     ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
+                        coil.compose.AsyncImage(
+                            model = coil.request.ImageRequest.Builder(context)
                                 .data(qrCodeUrl)
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "Pix QR Ampliado",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
+                            modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
+                    
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(16.dp))
+                    
+                    androidx.compose.material3.Text(
                         text = "Beneficiario: BRLA DIGITAL LTDA",
                         color = HextechGold,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontSize = 13.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
-                    Text(
+                    androidx.compose.material3.Text(
                         text = "Sao Paulo • R$ 26.45",
                         color = TextSecondary,
-                        fontSize = 11.5.sp,
-                        textAlign = TextAlign.Center
+                        fontSize = 12.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Button(
+                    
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(20.dp))
+                    
+                    androidx.compose.material3.Button(
                         onClick = {
                             onCopy()
                             showQRModal = false
                         },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32BCAD)),
-                        shape = RoundedCornerShape(10.dp)
+                        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFF32BCAD)),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                     ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(tr("Copiar Código Pix"), color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.ContentCopy, contentDescription = null, tint = androidx.compose.ui.graphics.Color.Black, modifier = androidx.compose.ui.Modifier.size(16.dp))
+                        androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                        androidx.compose.material3.Text(tr("Copiar Código Pix"), color = androidx.compose.ui.graphics.Color.Black, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 13.sp)
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.height(10.dp))
 
-                    OutlinedButton(
+                    androidx.compose.material3.OutlinedButton(
                         onClick = { downloadQr(context, qrCodeUrl) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF32BCAD)),
-                        border = BorderStroke(1.dp, Color(0xFF32BCAD).copy(alpha = 0.5f)),
-                        shape = RoundedCornerShape(10.dp)
+                        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color(0xFF32BCAD)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, androidx.compose.ui.graphics.Color(0xFF32BCAD).copy(alpha = 0.6f)),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
                     ) {
-                        Icon(Icons.Default.Download, contentDescription = null, tint = Color(0xFF32BCAD), modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(tr("Descargar QR"), color = Color(0xFF32BCAD), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Default.Download, contentDescription = null, tint = androidx.compose.ui.graphics.Color(0xFF32BCAD), modifier = androidx.compose.ui.Modifier.size(16.dp))
+                        androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                        androidx.compose.material3.Text(tr("Descargar QR"), color = androidx.compose.ui.graphics.Color(0xFF32BCAD), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
             }

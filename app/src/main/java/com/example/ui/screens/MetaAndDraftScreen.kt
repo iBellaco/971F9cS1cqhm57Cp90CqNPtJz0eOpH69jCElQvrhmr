@@ -187,13 +187,13 @@ fun MetaAndDraftScreen(
 
     // Draft State con asignación dinámica por rol en cada apertura
     val usedDraftChampIds = remember { mutableSetOf<String>() }
-    val allySlots = remember {
+    val allySlots = remember(WildRiftRepository.champions) {
         mutableStateListOf<DraftSlot>().apply {
             addAll(generateRoleBasedDraft(usedDraftChampIds))
         }
     }
 
-    val enemySlots = remember {
+    val enemySlots = remember(WildRiftRepository.champions) {
         mutableStateListOf<DraftSlot>().apply {
             addAll(generateRoleBasedDraft(usedDraftChampIds))
         }
@@ -517,7 +517,7 @@ private fun ChampionsCatalogTab(
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
     var isGridView by remember { mutableStateOf(true) }
 
-    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState) {
+    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState, WildRiftRepository.champions) {
         val list = WildRiftRepository.champions.filter { champ ->
             val matchesQuery = searchQuery.isBlank() ||
                     champ.name.contains(searchQuery, ignoreCase = true) ||
@@ -817,7 +817,7 @@ private fun TierListTab(
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
     var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
 
-    val rawChampionsToDisplay = remember(selectedLane, syncState) {
+    val rawChampionsToDisplay = remember(selectedLane, syncState, WildRiftRepository.champions) {
         if (selectedLane == null) WildRiftRepository.champions
         else WildRiftRepository.getChampionsByRole(selectedLane!!)
     }
@@ -3235,7 +3235,7 @@ private fun DraftChampionPickerSheet(
     var search by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(suggestedRole) }
 
-    val availableChamps = remember(search, alreadySelected, selectedRoleFilter) {
+    val availableChamps = remember(search, alreadySelected, selectedRoleFilter, WildRiftRepository.champions) {
         val list = WildRiftRepository.champions.filter { champ ->
             val notSelected = !alreadySelected.contains(champ.id)
             val matchesQuery = search.isBlank() ||

@@ -539,12 +539,8 @@ fun MainDraftingScreen(
                 // Banner Red Social Instagram - Diego Barba Chavez
                 val context = LocalContext.current
                 val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
-                val instagramBannerUrl = "https://i.postimg.cc/CKW8kkH4/1787839327220.png"
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(instagramBannerUrl)
-                        .crossfade(true)
-                        .build(),
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_instagram_banner),
                     contentDescription = "Instagram Diego Barba Chavez",
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
