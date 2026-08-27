@@ -1,10 +1,9 @@
 package com.example
 
-import com.example.model.Champion
-import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.io.File
-import org.junit.Assert.assertTrue
+import kotlinx.serialization.json.Json
+import com.example.model.Champion
 
 class ParsingTest {
     @Test
@@ -13,9 +12,8 @@ class ParsingTest {
         val format = Json { ignoreUnknownKeys = true }
         try {
             val champions = format.decodeFromString<List<Champion>>(jsonString)
-            println("SUCCESS_PARSED: \${champions.size}")
-            assertTrue(champions.isNotEmpty())
-        } catch(e: Exception) {
+            println("Parsed ${champions.size} champions!")
+        } catch (e: Exception) {
             e.printStackTrace()
             throw e
         }

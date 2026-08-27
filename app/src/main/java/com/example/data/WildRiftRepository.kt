@@ -189,16 +189,22 @@ object WildRiftRepository {
     // ==========================================
     // ROSTER INTEGRAL DE CAMPEONES DE WILD RIFT
     // ==========================================
-    var champions: List<Champion> by mutableStateOf(emptyList())
+    val champions = androidx.compose.runtime.mutableStateListOf<Champion>()
+    var lastError: String? by mutableStateOf(null)
+
 
     fun initChampions(context: android.content.Context) {
         if (champions.isNotEmpty()) return
         try {
             val jsonString = context.assets.open("champions.json").bufferedReader().use { it.readText() }
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            champions = format.decodeFromString<List<Champion>>(jsonString)
+            val parsed = format.decodeFromString<List<Champion>>(jsonString)
+            champions.clear()
+            champions.addAll(parsed)
+            android.util.Log.d("WildRiftRepository", "Loaded ${champions.size} champions successfully")
         } catch (e: Exception) {
-            e.printStackTrace()
+            lastError = e.stackTraceToString()
+            android.util.Log.e("WildRiftRepository", "Failed to load champions", e)
         }
     }
 

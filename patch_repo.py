@@ -1,16 +1,32 @@
 import re
 
-with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'r', encoding='utf-8') as f:
+with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'r') as f:
     content = f.read()
 
-old_offrole = r'reasonParts\.add\("Este campeón no es idóneo para esta línea\. Jugarlo aquí es considerado atípico o desventajoso para el equipo\."\)'
-new_offrole = r'''val msgEs = "Llevar a ${champ.name} a ${com.example.util.trStr(lang, myRole.displayName)} es una selección atípica (off-meta). Sus habilidades no están diseñadas para ganar esta línea. ${champ.tacticalAdvice}"
-            val msgPt = "Levar ${champ.name} para ${com.example.util.trStr(lang, myRole.displayName)} é uma escolha atípica (off-meta). Suas habilidades não são projetadas para esta rota. ${champ.tacticalAdvice}"
-            val msgEn = "Taking ${champ.name} to ${com.example.util.trStr(lang, myRole.displayName)} is an off-meta pick. Their kit isn't designed for this lane. ${champ.tacticalAdvice}"
-            reasonParts.add(t(lang, msgEn, msgPt, msgEs))'''
+old_func = """    fun initChampions(context: android.content.Context) {
+        if (champions.isNotEmpty()) return
+        try {
+            val jsonString = context.assets.open("champions.json").bufferedReader().use { it.readText() }
+            val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+            champions = format.decodeFromString<List<Champion>>(jsonString)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }"""
 
-content = re.sub(old_offrole, new_offrole, content)
+new_func = """    fun initChampions(context: android.content.Context) {
+        if (champions.isNotEmpty()) return
+        try {
+            val jsonString = context.assets.open("champions.json").bufferedReader().use { it.readText() }
+            val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+            champions = format.decodeFromString<List<Champion>>(jsonString)
+            android.util.Log.d("WildRiftRepository", "Loaded ${champions.size} champions successfully")
+        } catch (e: Exception) {
+            android.util.Log.e("WildRiftRepository", "Failed to load champions", e)
+        }
+    }"""
 
-with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'w', encoding='utf-8') as f:
+content = content.replace(old_func, new_func)
+
+with open('app/src/main/java/com/example/data/WildRiftRepository.kt', 'w') as f:
     f.write(content)
-

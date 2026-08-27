@@ -145,8 +145,20 @@ fun DonationDialog(
                         fontWeight = FontWeight.Bold
                     )
 
-                    // Option: Pix (Brasil)
+                    // Option 1: Pix (Brasil) 1
                     DonationPixCard(
+                        title = "Pix (Brasil) Opción 1",
+                        amountText = "Sao Paulo • R$ 5.27",
+                        pixCode = "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b5552040000530398654045.275802BR5917BRLA DIGITAL LTDA6009Sao Paulo62290525c898e88196a346fa968d9eada6304654C",
+                        onCopy = {
+                            copyToClipboard(context, "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b5552040000530398654045.275802BR5917BRLA DIGITAL LTDA6009Sao Paulo62290525c898e88196a346fa968d9eada6304654C", "Código Pix Copia e Cola")
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // Option 2: Pix (Brasil) 2
+                    DonationPixCard(
+                        title = "Pix (Brasil) Opción 2",
+                        amountText = "Sao Paulo • R$ 26.45",
                         pixCode = "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b55520400005303986540526.455802BR5917BRLA DIGITAL LTDA6009Sao Paulo622905258e3dc64ffc0c48fab562857a5630478FA",
                         onCopy = {
                             copyToClipboard(context, "00020126580014br.gov.bcb.pix0136ff439919-4119-405d-838a-6c3e3efd8b55520400005303986540526.455802BR5917BRLA DIGITAL LTDA6009Sao Paulo622905258e3dc64ffc0c48fab562857a5630478FA", "Código Pix Copia e Cola")
@@ -342,6 +354,8 @@ private fun DonationCryptoCard(
 
 @Composable
 private fun DonationPixCard(
+    title: String,
+    amountText: String,
     pixCode: String,
     onCopy: () -> Unit
 ) {
@@ -378,7 +392,7 @@ private fun DonationPixCard(
                 )
                 androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
                 androidx.compose.material3.Text(
-                    text = "Pix (Brasil)",
+                    text = title,
                     color = TextPrimary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     fontSize = 15.sp
@@ -513,7 +527,7 @@ private fun DonationPixCard(
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     androidx.compose.material3.Text(
-                        text = "Sao Paulo • R$ 26.45",
+                        text = amountText,
                         color = TextSecondary,
                         fontSize = 12.sp,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center

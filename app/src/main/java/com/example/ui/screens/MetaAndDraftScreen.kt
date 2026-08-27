@@ -187,13 +187,13 @@ fun MetaAndDraftScreen(
 
     // Draft State con asignación dinámica por rol en cada apertura
     val usedDraftChampIds = remember { mutableSetOf<String>() }
-    val allySlots = remember(WildRiftRepository.champions) {
+    val allySlots = remember(WildRiftRepository.champions.toList()) {
         mutableStateListOf<DraftSlot>().apply {
             addAll(generateRoleBasedDraft(usedDraftChampIds))
         }
     }
 
-    val enemySlots = remember(WildRiftRepository.champions) {
+    val enemySlots = remember(WildRiftRepository.champions.toList()) {
         mutableStateListOf<DraftSlot>().apply {
             addAll(generateRoleBasedDraft(usedDraftChampIds))
         }
@@ -332,6 +332,9 @@ fun MetaAndDraftScreen(
                 val totalRunes = WildRiftRepository.runes.size
                 val totalSpells = WildRiftRepository.summonerSpells.size
 
+                if (WildRiftRepository.lastError != null) {
+                    Text("ERROR: ${WildRiftRepository.lastError}", color = androidx.compose.ui.graphics.Color.Red)
+                }
                 val catalogTabs = listOf(
                     CatalogTabItem(tr("Campeones"), totalChamps),
                     CatalogTabItem(tr("Tier List")),
@@ -517,7 +520,7 @@ private fun ChampionsCatalogTab(
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
     var isGridView by remember { mutableStateOf(true) }
 
-    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState, WildRiftRepository.champions) {
+    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState, WildRiftRepository.champions.toList()) {
         val list = WildRiftRepository.champions.filter { champ ->
             val matchesQuery = searchQuery.isBlank() ||
                     champ.name.contains(searchQuery, ignoreCase = true) ||
@@ -817,7 +820,7 @@ private fun TierListTab(
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
     var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
 
-    val rawChampionsToDisplay = remember(selectedLane, syncState, WildRiftRepository.champions) {
+    val rawChampionsToDisplay = remember(selectedLane, syncState, WildRiftRepository.champions.toList()) {
         if (selectedLane == null) WildRiftRepository.champions
         else WildRiftRepository.getChampionsByRole(selectedLane!!)
     }
@@ -3235,7 +3238,7 @@ private fun DraftChampionPickerSheet(
     var search by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(suggestedRole) }
 
-    val availableChamps = remember(search, alreadySelected, selectedRoleFilter, WildRiftRepository.champions) {
+    val availableChamps = remember(search, alreadySelected, selectedRoleFilter, WildRiftRepository.champions.toList()) {
         val list = WildRiftRepository.champions.filter { champ ->
             val notSelected = !alreadySelected.contains(champ.id)
             val matchesQuery = search.isBlank() ||

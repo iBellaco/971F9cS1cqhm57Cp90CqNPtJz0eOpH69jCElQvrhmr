@@ -111,7 +111,7 @@ object WildRiftLocalCache {
             if (!championsJson.isNullOrBlank()) {
                 val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
                 if (loadedChamps.isNotEmpty()) {
-                    WildRiftRepository.champions = loadedChamps
+                    WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
                     hasLoadedAny = true
                 }
             }

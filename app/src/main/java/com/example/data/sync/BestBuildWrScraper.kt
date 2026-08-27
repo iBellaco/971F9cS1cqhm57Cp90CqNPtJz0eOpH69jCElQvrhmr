@@ -81,7 +81,7 @@ object BestBuildWrScraper {
                     connectChampionWithCatalog(champ, responseHtml)
                 }
 
-                WildRiftRepository.champions = updatedChampions
+                WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(updatedChampions)
                 updatedCount = updatedChampions.size
 
                 AppLogger.d(TAG, "Sincronización completada: $updatedCount campeones interconectados con catálogo.")

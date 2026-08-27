@@ -192,7 +192,7 @@ object ChineseMetaSyncService {
                 editor.apply()
 
                 // Actualizar repositorio
-                WildRiftRepository.champions = updatedChampions
+                WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(updatedChampions)
 
                 // Guardar en Supabase y Caché Local para persistencia y sincronización global
                 try {

@@ -332,7 +332,7 @@ private fun OverlayRunesTabContent(
     onClearChampion: () -> Unit
 ) {
     if (lockedChampion == null) {
-        val matchingChampions = remember(searchQuery, WildRiftRepository.champions) {
+        val matchingChampions = remember(searchQuery, WildRiftRepository.champions.toList()) {
             WildRiftRepository.champions.filter { champ ->
                 searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true)
             }
@@ -537,7 +537,7 @@ private fun OverlaySpellsTabContent(
     onClearChampion: () -> Unit
 ) {
     if (lockedChampion == null) {
-        val matchingChampions = remember(searchQuery, WildRiftRepository.champions) {
+        val matchingChampions = remember(searchQuery, WildRiftRepository.champions.toList()) {
             WildRiftRepository.champions.filter { champ ->
                 searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true)
             }

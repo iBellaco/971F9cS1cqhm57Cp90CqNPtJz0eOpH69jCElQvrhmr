@@ -112,7 +112,7 @@ class MetaScrapingWorker(
                                 }
                             }
                             if (updatedCount > 0) {
-                                WildRiftRepository.champions = allChamps
+                                WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(allChamps)
                                 AppLogger.d("MetaScrapingWorker", "Direct sync completed for $updatedCount champions.")
                             }
                         }
