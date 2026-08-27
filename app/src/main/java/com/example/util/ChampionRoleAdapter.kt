@@ -140,7 +140,7 @@ object ChampionRoleAdapter {
         val defaultSituational = when {
             damageType == DamageType.MAGIC -> listOf("Morellonomicón", "El reloj de arena de Zhonya", "Velo de alma en pena", "Malignance")
             isTank || role == LaneRole.SUPPORT -> listOf("malla de espinas", "El presagio de Randuin", "Placa de piedra de gárgola", "Redención")
-            else -> listOf("malla de espinas", "Serpent's Fang", "Ángel custodio", "Fajín de mercurio")
+            else -> listOf("malla de espinas", "Colmillo de serpiente", "Ángel custodio", "Fajín de mercurio")
         }
 
         for (item in defaultSituational) {
@@ -424,8 +424,8 @@ object ChampionRoleAdapter {
                 ItemSwap(
                     coreItem = coreTarget1,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
-                    altItem = "Serpent's Fang",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Serpent's Fang"),
+                    altItem = "Colmillo de serpiente",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Colmillo de serpiente"),
                     reasonTitle = "DESTRUCTOR DE ESCUDOS",
                     reasonDesc = "Reduce drásticamente la absorción de escudos enemigos al impactar con daño físico.",
                     againstWho = "Sett, Shen, Karma, Lulu, Sterak"

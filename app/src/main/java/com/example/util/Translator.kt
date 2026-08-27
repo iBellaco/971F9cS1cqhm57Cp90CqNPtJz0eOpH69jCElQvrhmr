@@ -24,7 +24,10 @@ val translations = mapOf(
         "Teleport" to "Teleportar",
         "Clarity" to "Claridad",
         "Mark / Dash" to "Marca y Deslizamiento",
-
+        "Serpent's Fang" to "Colmillo de serpiente",
+        "Chempunk Chainsword" to "Espada sierra quimopunk",
+        "Sterak's Gage" to "Guantelete de Sterak",
+        "Parche 7.2d" to "Parche 7.2d",
     ),
     "pt" to mapOf(
         "Cosecha Oscura" to "Colheita Sombria",
@@ -260,6 +263,7 @@ val translations = mapOf(
         "parche" to "patch",
         "Parches" to "Patches",
         "parches" to "patches",
+        "Parche 7.2d" to "Patch 7.2d",
         "Parche 7.2c" to "Patch 7.2c",
         "Parche 7.2b" to "Patch 7.2b",
         "Parche 7.2a" to "Patch 7.2a",
@@ -1322,6 +1326,7 @@ val translations = mapOf(
         "parche" to "patch",
         "Parches" to "Patches",
         "parches" to "patches",
+        "Parche 7.2d" to "Patch 7.2d",
         "Parche 7.2c" to "Patch 7.2c",
         "Parche 7.2b" to "Patch 7.2b",
         "Parche 7.2a" to "Patch 7.2a",
