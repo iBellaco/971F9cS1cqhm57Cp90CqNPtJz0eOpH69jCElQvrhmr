@@ -133,53 +133,53 @@ object ChampionRoleAdapter {
         val coreItems: List<String> = when (role) {
             LaneRole.JUNGLE -> {
                 if (isAp) {
-                    listOf("Diente de Nashor", "Eco de Luden", "Orbe del Infinito", "Botas Jonias de la Lucidez", "Sombrero Mortal de Rabadon", "Báculo del Vacío")
+                    listOf("Diente de Nashor", "Luden's Echo", "Orbe infinito", "Botas jonias de la lucidez", "Gorro de muerte del miércoles", "Bastón vacío")
                 } else if (isTank) {
-                    listOf("Coraza del Muerto", "Malla de Espinas", "Fuerza de la Naturaleza", "Punteras Revestidas", "Corona Abrasadora", "Protector Pétreo")
+                    listOf("Plato del hombre muerto", "malla de espinas", "Fuerza de la naturaleza", "Botas blindadas", "Corona abrasadora", "Placa de piedra de gárgola")
                 } else if (isMarksman) {
-                    listOf("Fuerza de la Trinidad", "Recaudadora", "Filo del Infinito", "Grebas Berserker", "Recuerdos de Lord Dominik", "Ángel Guardián")
+                    listOf("Fuerza trinitaria", "El coleccionista", "Borde infinito", "Grebas de berserker", "Saludos de Dominik", "Ángel custodio")
                 } else {
-                    listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte", "Punteras Revestidas", "Calibrador de Sterak", "Ángel Guardián")
+                    listOf("Fuerza trinitaria", "Black Cleaver", "La danza de la muerte", "Botas blindadas", "Sterak's Gage", "Ángel custodio")
                 }
             }
             LaneRole.SUPPORT -> {
                 if (isAp && !isSupportEnchanter) {
-                    listOf("Hoz Espectral", "Eco de Luden", "Orbe del Infinito", "Botas Jonias de la Lucidez", "Sombrero Mortal de Rabadon", "Morellonomicón")
+                    listOf("Hoz espectral", "Luden's Echo", "Orbe infinito", "Botas jonias de la lucidez", "Gorro de muerte del miércoles", "Morellonomicón")
                 } else if (isTank) {
-                    listOf("Baluarte de la Montaña", "Coraza del Muerto", "Manto del Amanecer", "Punteras Revestidas", "Convergencia de Zeke", "Fuerza de la Naturaleza")
+                    listOf("Baluarte de la montaña", "Plato del hombre muerto", "Sudario del alba", "Botas blindadas", "La convergencia de Zeke", "Fuerza de la naturaleza")
                 } else if (isSupportEnchanter) {
-                    listOf("Hoz Espectral", "Incensario Ardiente", "Bastón de Aguas Fluidas", "Botas Jonias de la Lucidez", "Redención", "Promesa del Caballero")
+                    listOf("Hoz espectral", "Incensario Ardiente", "Staff of Flowing Water", "Botas jonias de la lucidez", "Redención", "Voto de caballero")
                 } else {
-                    listOf("Hoz Espectral", "Cuchilla Negra", "Filoscuro de Draktharr", "Punteras Revestidas", "Colmillo de Serpiente", "Ángel Guardián")
+                    listOf("Hoz espectral", "Black Cleaver", "Hoja del Ocaso de Draktharr", "Botas blindadas", "Serpent's Fang", "Ángel custodio")
                 }
             }
             LaneRole.TOP -> {
                 if (champ.id == "alistar" || (isTank && !champ.isRanged)) {
-                    listOf("Guantelete de Hielo", "Coraza del Muerto", "Malla de Espinas", "Punteras Revestidas", "Fuerza de la Naturaleza", "Protección Gemela de Amaranth")
+                    listOf("Guantelete nacido del hielo", "Plato del hombre muerto", "malla de espinas", "Botas blindadas", "Fuerza de la naturaleza", "Guardia gemela de amaranto")
                 } else if (isAp) {
-                    listOf("Creagrietas", "Diente de Nashor", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                    listOf("Hacedor de grietas", "Diente de Nashor", "Gorro de muerte del miércoles", "Botas jonias de la lucidez", "Bastón vacío", "El reloj de arena de Zhonya")
                 } else if (isMarksman) {
-                    listOf("Hoja del Rey Arruinado", "Bailarín Espectral", "Filo del Infinito", "Grebas Berserker", "Recuerdos de Lord Dominik", "Ángel Guardián")
+                    listOf("Espada del Rey Arruinado", "Bailarina fantasma", "Borde infinito", "Grebas de berserker", "Saludos de Dominik", "Ángel custodio")
                 } else {
-                    listOf("Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte", "Punteras Revestidas", "Calibrador de Sterak", "Rompecascos")
+                    listOf("Fuerza trinitaria", "Black Cleaver", "La danza de la muerte", "Botas blindadas", "Sterak's Gage", "Rompecascos")
                 }
             }
             LaneRole.MID -> {
                 if (isAp) {
-                    listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                    listOf("Luden's Echo", "Orbe infinito", "Gorro de muerte del miércoles", "Botas jonias de la lucidez", "Bastón vacío", "El reloj de arena de Zhonya")
                 } else if (isMarksman) {
-                    listOf("Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik", "Grebas Berserker", "Sanguinaria", "Ángel Guardián")
+                    listOf("Borde infinito", "Blaster magnético", "Saludos de Dominik", "Grebas de berserker", "sanguinario", "Ángel custodio")
                 } else if (isTank) {
-                    listOf("Corona de la Reina Ahogada", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                    listOf("Luden's Echo", "Orbe infinito", "Gorro de muerte del miércoles", "Botas jonias de la lucidez", "Bastón vacío", "El reloj de arena de Zhonya")
                 } else {
-                    listOf("Filoscuro de Draktharr", "Filo Fantasma de Youmuu", "Colmillo de Serpiente", "Grebas Berserker", "Rencor de Serylda", "Ángel Guardián")
+                    listOf("Hoja del Ocaso de Draktharr", "El cuchillo fantasma de Youmuu", "Serpent's Fang", "Grebas de berserker", "El rencor de Serylda", "Ángel custodio")
                 }
             }
             LaneRole.ADC -> {
                 if (isAp) {
-                    listOf("Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon", "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya")
+                    listOf("Luden's Echo", "Orbe infinito", "Gorro de muerte del miércoles", "Botas jonias de la lucidez", "Bastón vacío", "El reloj de arena de Zhonya")
                 } else {
-                    listOf("Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik", "Grebas Berserker", "Sanguinaria", "Ángel Guardián")
+                    listOf("Borde infinito", "Blaster magnético", "Saludos de Dominik", "Grebas de berserker", "sanguinario", "Ángel custodio")
                 }
             }
         }
@@ -188,10 +188,10 @@ object ChampionRoleAdapter {
 
         // 3. Situational Items for flex role
         val situationalItems = when {
-            isAp -> listOf("Reloj de Arena de Zhonya", "Báculo del Vacío", "Morellonomicón", "Velo de la Banshee", "Tridente de Oceánida")
-            isTank -> listOf("Malla de Espinas", "Presagio de Randuin", "Protector Pétreo", "Protección Gemela de Amaranth", "Rookern Kaénico")
-            isMarksman -> listOf("Recordatorio Mortal", "Fajín de Mercurio", "Ángel Guardián", "Filo de la Noche", "Cimitarra Mercurial")
-            else -> listOf("Malla de Espinas", "Danza de la Muerte", "Colmillo de Serpiente", "Fuerza de la Naturaleza", "Espada Sierra Quimopunk")
+            isAp -> listOf("El reloj de arena de Zhonya", "Bastón vacío", "Morellonomicón", "Velo de alma en pena", "Tridente de Oceanida")
+            isTank -> listOf("malla de espinas", "El presagio de Randuin", "Placa de piedra de gárgola", "Guardia gemela de amaranto", "Kaenic Rookern")
+            isMarksman -> listOf("Recordatorio mortal", "Fajín de mercurio", "Ángel custodio", "Edge of Night", "Cimitarra mercurial")
+            else -> listOf("malla de espinas", "La danza de la muerte", "Serpent's Fang", "Fuerza de la naturaleza", "Chempunk Chainsword")
         }
         val situationalItemsIcons = situationalItems.map { WildRiftItemsData.getItemIconByName(it) }
 
@@ -199,43 +199,43 @@ object ChampionRoleAdapter {
         val (recommendedRunes, runeTreeDetails, primaryRuneName) = when (role) {
             LaneRole.JUNGLE -> {
                 if (isAp) {
-                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Colección de Ojos • Pionero", "Electrocutar")
+                    Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Colección de Globos Oculares • Cazador Incesante", "Electrocutar")
                 } else if (isTank) {
-                    Triple("Réplica (Valor)", "Valor: Fuente de Vida • Acondicionamiento • Sobrecrecimiento • Pionero", "Réplica")
+                    Triple("Reverberacción", "Fuente de Vida • Condicionamiento • Sobrecrecimiento • Inquebrantable", "Reverberacción")
                 } else {
-                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Leyenda: Presteza • Cazador Titánico • Pionero", "Conquistador")
+                    Triple("Conquistador", "Triunfo • Leyenda: Presteza • Último Esfuerzo • Cazador Incesante", "Conquistador")
                 }
             }
             LaneRole.SUPPORT -> {
                 if (isTank || champ.id == "alistar") {
-                    Triple("Réplica (Valor)", "Valor: Fuente de Vida • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos", "Réplica")
+                    Triple("Reverberacción", "Fuente de Vida • Coraza Ósea • Sobrecrecimiento • Goloso", "Reverberacción")
                 } else if (isSupportEnchanter) {
-                    Triple("Invocar a Aery (Brujería)", "Brujería: Banda de Maná • Trascendencia • Tormenta Creciente • Dulces Frutos", "Invocar a Aery")
+                    Triple("Aery", "Anillo de Flujo de Maná • Trascendencia • Se avecina tormenta • Goloso", "Aery")
                 } else {
-                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Cazador Ingenioso • Dulces Frutos", "Electrocutar")
+                    Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Goloso", "Electrocutar")
                 }
             }
             LaneRole.TOP -> {
                 if (champ.id == "alistar" || isTank) {
-                    Triple("Agarre del Perpetuo (Valor)", "Valor: Demolición • Revestimiento de Huesos • Sobrecrecimiento • Dulces Frutos", "Agarre del Perpetuo")
+                    Triple("Garras del Inmortal", "Demolición • Coraza Ósea • Sobrecrecimiento • Goloso", "Garras del Inmortal")
                 } else if (isAp) {
-                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
+                    Triple("Conquistador", "Triunfo • Golpe de Gracia • Leyenda: Presteza • Coraza Ósea", "Conquistador")
                 } else {
-                    Triple("Conquistador (Precisión)", "Precisión: Triunfo • Último Esfuerzo • Leyenda: Presteza • Revestimiento de Huesos", "Conquistador")
+                    Triple("Conquistador", "Triunfo • Último Esfuerzo • Leyenda: Presteza • Coraza Ósea", "Conquistador")
                 }
             }
             LaneRole.MID -> {
                 if (isAp) {
-                    Triple("Primer Golpe (Inspiración)", "Dominación: Impacto Repentino • Marca del Verdugo • Cazador Ingenioso • Banda de Maná", "Primer Golpe")
+                    Triple("Primer Golpe", "Impacto Repentino • Golpe Bajo • Cazador Ingenioso • Anillo de Flujo de Maná", "Primer Golpe")
                 } else {
-                    Triple("Electrocutar (Dominación)", "Dominación: Impacto Repentino • Marca del Verdugo • Colección de Ojos • Cazador Voraz", "Electrocutar")
+                    Triple("Electrocutar", "Impacto Repentino • Golpe Bajo • Colección de Globos Oculares • Cazador Incesante", "Electrocutar")
                 }
             }
             LaneRole.ADC -> {
                 if (isAp) {
-                    Triple("Primer Golpe (Inspiración)", "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Banda de Maná", "Primer Golpe")
+                    Triple("Primer Golpe", "Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Anillo de Flujo de Maná", "Primer Golpe")
                 } else {
-                    Triple("Cadencia Letal (Precisión)", "Precisión: Triunfo • Leyenda: Linaje • Golpe de Gracia • Revestimiento de Huesos", "Cadencia Letal")
+                    Triple("Compás Letal", "Triunfo • Leyenda: Linaje • Golpe de Gracia • Coraza Ósea", "Compás Letal")
                 }
             }
         }
@@ -312,20 +312,20 @@ object ChampionRoleAdapter {
         val result = currentItems.toMutableList()
         val defaultFillers = when {
             isTank || role == LaneRole.SUPPORT -> listOf(
-                "Coraza del Muerto", "Malla de Espinas", "Fuerza de la Naturaleza",
-                "Punteras Revestidas", "Manto del Amanecer", "Protector Pétreo", "Protección Gemela de Amaranth"
+                "Plato del hombre muerto", "malla de espinas", "Fuerza de la naturaleza",
+                "Botas blindadas", "Sudario del alba", "Placa de piedra de gárgola", "Guardia gemela de amaranto"
             )
             damageType == DamageType.MAGIC -> listOf(
-                "Eco de Luden", "Orbe del Infinito", "Sombrero Mortal de Rabadon",
-                "Botas Jonias de la Lucidez", "Báculo del Vacío", "Reloj de Arena de Zhonya", "Morellonomicón"
+                "Luden's Echo", "Orbe infinito", "Gorro de muerte del miércoles",
+                "Botas jonias de la lucidez", "Bastón vacío", "El reloj de arena de Zhonya", "Morellonomicón"
             )
             isRanged -> listOf(
-                "Filo del Infinito", "Cañón de Fuego Rápido", "Recuerdos de Lord Dominik",
-                "Grebas Berserker", "Sanguinaria", "Ángel Guardián", "Bailarín Espectral"
+                "Borde infinito", "Blaster magnético", "Saludos de Dominik",
+                "Grebas de berserker", "sanguinario", "Ángel custodio", "Bailarina fantasma"
             )
             else -> listOf(
-                "Fuerza de la Trinidad", "Cuchilla Negra", "Danza de la Muerte",
-                "Punteras Revestidas", "Calibrador de Sterak", "Ángel Guardián", "Malla de Espinas"
+                "Fuerza trinitaria", "Black Cleaver", "La danza de la muerte",
+                "Botas blindadas", "Sterak's Gage", "Ángel custodio", "malla de espinas"
             )
         }
 
@@ -340,9 +340,9 @@ object ChampionRoleAdapter {
 
     private fun getDefaultSituationalItems(damageType: DamageType, isTank: Boolean): List<String> {
         return when {
-            damageType == DamageType.MAGIC -> listOf("Reloj de Arena de Zhonya", "Morellonomicón", "Báculo del Vacío", "Velo de la Banshee")
-            isTank -> listOf("Malla de Espinas", "Presagio de Randuin", "Protector Pétreo", "Protección Gemela de Amaranth")
-            else -> listOf("Malla de Espinas", "Colmillo de Serpiente", "Danza de la Muerte", "Ángel Guardián")
+            damageType == DamageType.MAGIC -> listOf("El reloj de arena de Zhonya", "Morellonomicón", "Bastón vacío", "Velo de alma en pena")
+            isTank -> listOf("malla de espinas", "El presagio de Randuin", "Placa de piedra de gárgola", "Guardia gemela de amaranto")
+            else -> listOf("malla de espinas", "Serpent's Fang", "La danza de la muerte", "Ángel custodio")
         }
     }
 
@@ -355,7 +355,7 @@ object ChampionRoleAdapter {
         val swaps = mutableListOf<ItemSwap>()
 
         if (damageType == DamageType.MAGIC) {
-            val coreTarget = coreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: coreItems.firstOrNull() ?: "Eco de Luden"
+            val coreTarget = coreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: coreItems.firstOrNull() ?: "Luden's Echo"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
@@ -371,21 +371,21 @@ object ChampionRoleAdapter {
                 ItemSwap(
                     coreItem = coreTarget,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
-                    altItem = "Reloj de Arena de Zhonya",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Reloj de Arena de Zhonya"),
+                    altItem = "El reloj de arena de Zhonya",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("El reloj de arena de Zhonya"),
                     reasonTitle = "SUPERVIVENCIA & INVULNERABILIDAD",
                     reasonDesc = "Otorga éxtasis temporal de 2.5s para esquivar combos letales de asesinos.",
                     againstWho = "Zed, Talon, Fizz, Kayn, Syndra"
                 )
             )
         } else if (isTank) {
-            val coreTarget = coreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: coreItems.firstOrNull() ?: "Coraza del Muerto"
+            val coreTarget = coreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: coreItems.firstOrNull() ?: "Plato del hombre muerto"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
-                    altItem = "Malla de Espinas",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Malla de Espinas"),
+                    altItem = "malla de espinas",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
                     reasonTitle = "ANTI-CURACIÓN & ARMADURA",
                     reasonDesc = "Aplica Heridas Graves al recibir daño y devuelve daño mágico.",
                     againstWho = "Aatrox, Warwick, Soraka, Yuumi, Samira"
@@ -395,21 +395,21 @@ object ChampionRoleAdapter {
                 ItemSwap(
                     coreItem = coreTarget,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
-                    altItem = "Presagio de Randuin",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Presagio de Randuin"),
+                    altItem = "El presagio de Randuin",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("El presagio de Randuin"),
                     reasonTitle = "ANTI-CRÍTICO",
                     reasonDesc = "Reduce el daño de golpes críticos y frena hipercarries de autoataques.",
                     againstWho = "Yasuo, Yone, Jinx, Tristana, Caitlyn"
                 )
             )
         } else {
-            val coreTarget = coreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: coreItems.firstOrNull() ?: "Cuchilla Negra"
+            val coreTarget = coreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: coreItems.firstOrNull() ?: "Black Cleaver"
             swaps.add(
                 ItemSwap(
                     coreItem = coreTarget,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
-                    altItem = "Colmillo de Serpiente",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Colmillo de Serpiente"),
+                    altItem = "Serpent's Fang",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("Serpent's Fang"),
                     reasonTitle = "DESTRUCTOR DE ESCUDOS",
                     reasonDesc = "Reduce drásticamente la absorción de escudos enemigos al impactar con daño físico.",
                     againstWho = "Sett, Shen, Karma, Lulu, Sterak"
@@ -419,8 +419,8 @@ object ChampionRoleAdapter {
                 ItemSwap(
                     coreItem = coreTarget,
                     coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
-                    altItem = "Malla de Espinas",
-                    altItemIcon = WildRiftItemsData.getItemIconByName("Malla de Espinas"),
+                    altItem = "malla de espinas",
+                    altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
                     reasonTitle = "ARMADURA & ANTI-CURACIÓN",
                     reasonDesc = "Corta el sustain enemigo y resiste composiciones de alto daño físico.",
                     againstWho = "Aatrox, Warwick, Maestro Yi, Samira"
