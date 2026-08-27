@@ -588,9 +588,9 @@ fun MainDraftingScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Alfa v${com.example.BuildConfig.VERSION_NAME} (${com.example.BuildConfig.VERSION_CODE})",
-                        color = TextMuted.copy(alpha = 0.5f),
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Normal,
+                        color = TextMuted.copy(alpha = 0.9f),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center
                     )
                 }

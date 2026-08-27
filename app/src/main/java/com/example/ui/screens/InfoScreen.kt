@@ -316,9 +316,9 @@ fun InfoScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Alfa v${com.example.BuildConfig.VERSION_NAME} (${com.example.BuildConfig.VERSION_CODE})",
-                    color = TextMuted,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium
+                    color = TextMuted.copy(alpha = 0.9f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"

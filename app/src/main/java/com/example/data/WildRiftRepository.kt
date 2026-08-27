@@ -199,11 +199,15 @@ object WildRiftRepository {
         if (champions.isNotEmpty()) return
         try {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-            val parsed = context.resources.openRawResource(com.example.R.raw.champions).bufferedReader().use { reader ->
+            val parsed1 = context.resources.openRawResource(com.example.R.raw.champions_part1).bufferedReader().use { reader ->
+                format.decodeFromString<List<Champion>>(reader.readText())
+            }
+            val parsed2 = context.resources.openRawResource(com.example.R.raw.champions_part2).bufferedReader().use { reader ->
                 format.decodeFromString<List<Champion>>(reader.readText())
             }
             champions.clear()
-            champions.addAll(parsed)
+            champions.addAll(parsed1)
+            champions.addAll(parsed2)
             android.util.Log.d("WildRiftRepository", "Loaded ${champions.size} champions successfully")
         } catch (e: Exception) {
             lastError = e.stackTraceToString()
