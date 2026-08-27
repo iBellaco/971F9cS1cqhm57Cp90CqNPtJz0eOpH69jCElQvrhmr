@@ -102,9 +102,12 @@ object ChineseMetaSyncService {
                 var onlineDataFetched = false
                 var sourceUsed = "Tencent LOLM China (Live API V2)"
                 var parsedDataList: Map<String, Triple<Double, Double, Double>>? = null
+                var dtStatDate: String? = null
 
                 try {
-                    parsedDataList = fetchAndParseTencentLiveStats(targetTier)
+                    val pair = fetchAndParseTencentLiveStats(targetTier)
+                    dtStatDate = pair.first
+                    parsedDataList = pair.second
                     if (parsedDataList.isNotEmpty()) {
                         onlineDataFetched = true
                     }
@@ -148,7 +151,7 @@ object ChineseMetaSyncService {
                 val nowFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).apply {
                     timeZone = java.util.TimeZone.getDefault()
                 }
-                val nowTimestamp = nowFormat.format(Date())
+                val nowTimestamp = if (!dtStatDate.isNullOrEmpty()) "${dtStatDate!!.substring(0,4)}-${dtStatDate!!.substring(4,6)}-${dtStatDate!!.substring(6,8)} (API)" else nowFormat.format(Date())
 
                 // Actualizar campeones en memoria
                 val updatedChampions = WildRiftRepository.champions.map { champ ->
@@ -225,7 +228,7 @@ object ChineseMetaSyncService {
         }
     }
 
-    private fun fetchAndParseTencentLiveStats(targetTier: TencentRankTier): Map<String, Triple<Double, Double, Double>> {
+    private fun fetchAndParseTencentLiveStats(targetTier: TencentRankTier): Pair<String, Map<String, Triple<Double, Double, Double>>> {
         val heroIdToEnglishMap = mutableMapOf<String, String>()
 
         // 1. Fetch Metadata (hero_list.js)
@@ -286,16 +289,18 @@ object ChineseMetaSyncService {
             .build()
 
         val resRank = httpClient.newCall(reqRank).execute()
-        val resultMap = mutableMapOf<String, Triple<Double, Double, Double>>() // HeroId -> (WinRate, PickRate, BanRate)
+        val resultMap = mutableMapOf<String, Triple<Double, Double, Double>>()
+        var dtStatDate = ""
         
         if (resRank.isSuccessful) {
             val body = resRank.body?.string() ?: ""
             val jsonRoot = JSONObject(body)
-            val dataObj = jsonRoot.optJSONObject("data") ?: return resultMap
+            val dataObj = jsonRoot.optJSONObject("data") ?: return Pair(dtStatDate, resultMap)
+            dtStatDate = jsonRoot.optString("dtstatdate", "")
             
             // Map the selected tier to the Tencent API keys
             val tierKey = targetTier.code // e.g. "0" (Diamond+), "1" (Master+)
-            val tierData = dataObj.optJSONObject(tierKey) ?: return resultMap
+            val tierData = dataObj.optJSONObject(tierKey) ?: return Pair(dtStatDate, resultMap)
             
             // Accumulators for aggregating stats across lanes
             val totalAppearsMap = mutableMapOf<String, Double>()
@@ -335,7 +340,7 @@ object ChineseMetaSyncService {
             }
         }
         
-        return resultMap
+        return Pair(dtStatDate, resultMap)
     }
 
     private fun roundTwoDecimals(value: Double): Double {
