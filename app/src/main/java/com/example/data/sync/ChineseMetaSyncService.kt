@@ -22,8 +22,8 @@ import kotlin.math.roundToInt
 
 enum class TencentRankTier(val code: String, val shortName: String, val displayName: String) {
     CHALLENGER("3", "Retador / Soberano", "Retador / Soberano"),
-    MASTER_PLUS("2", "Maestro / Gran Maestro", "Maestro / Gran Maestro"),
-    DIAMOND_PLUS("1", "Esmeralda / Diamante", "Esmeralda / Diamante"),
+    MASTER_PLUS("1", "Maestro / Gran Maestro", "Maestro / Gran Maestro"),
+    DIAMOND_PLUS("0", "Esmeralda / Diamante", "Esmeralda / Diamante"),
     ALL_RANKS("0", "General", "General")
 }
 
@@ -42,7 +42,7 @@ sealed class ChineseSyncState {
 
 /**
  * Servicio Crawler y Sincronizador de Datos del Servidor Chino Oficial (Tencent / LOLM China).
- * Extrae y calcula las estadísticas de Win Rate (胜率), Pick Rate (登场率), Ban Rate (禁用率)
+ * Extrae y calcula las estadísticas de Win Rate, Pick Rate, Ban Rate
  * y la comparativa de variación diaria respecto al día anterior (Deltas vs. Ayer).
  */
 object ChineseMetaSyncService {
@@ -52,13 +52,13 @@ object ChineseMetaSyncService {
     private const val KEY_SELECTED_TIER = "cn_selected_tier"
     private const val KEY_YESTERDAY_PREFIX = "cn_yesterday_champ_"
 
-    // Endpoints oficiales y mirrors del servidor chino de Wild Rift (Tencent / lolm.qq.com)
-    private const val CN_API_URL_PRIMARY = "https://game.gtimg.cn/images/lolm/act/a20220818ranking/champion_rank.json"
-    private const val CN_API_URL_SECONDARY = "https://lolm.qq.com/act/a20220818ranking/index.html"
+    // Endpoints oficiales del servidor chino de Wild Rift (Tencent)
+    private const val CN_API_URL_HERO_LIST = "https://game.gtimg.cn/images/lgamem/act/lrlib/js/heroList/hero_list.js"
+    private const val CN_API_URL_RANK = "https://mlol.qt.qq.com/go/lgame_battle_info/hero_rank_list_v2"
 
     private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(8, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
         .build()
 
     private val _syncState = MutableStateFlow<ChineseSyncState>(ChineseSyncState.Idle)
@@ -87,10 +87,6 @@ object ChineseMetaSyncService {
         return Pair(tier.displayName, formattedTime)
     }
 
-    /**
-     * Sincroniza instantáneamente las estadísticas oficiales del servidor chino de Tencent
-     * sin importar el día ni la hora.
-     */
     suspend fun syncChineseMeta(
         context: Context,
         targetTier: TencentRankTier = _currentTier.value,
@@ -103,45 +99,60 @@ object ChineseMetaSyncService {
             try {
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 
-                // Intentar scraping / fetch directo desde endpoint de Tencent
                 var onlineDataFetched = false
-                var sourceUsed = "Tencent LOLM China (Live API)"
+                var sourceUsed = "Tencent LOLM China (Live API V2)"
                 var parsedDataList: Map<String, Triple<Double, Double, Double>>? = null
 
                 try {
-                    val request = Request.Builder()
-                        .url(CN_API_URL_PRIMARY)
-                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                        .header("Referer", "https://lolm.qq.com/")
-                        .build()
-
-                    httpClient.newCall(request).execute().use { response ->
-                        if (response.isSuccessful) {
-                            val bodyString = response.body?.string()
-                            if (!bodyString.isNullOrBlank()) {
-                                parsedDataList = parseTencentJson(bodyString)
-                                if (parsedDataList != null && parsedDataList!!.isNotEmpty()) {
-                                    onlineDataFetched = true
-                                }
-                            }
-                        }
+                    parsedDataList = fetchAndParseTencentLiveStats(targetTier)
+                    if (parsedDataList.isNotEmpty()) {
+                        onlineDataFetched = true
                     }
                 } catch (netEx: Exception) {
-                    Log.w(TAG, "Consulta online a servidor Tencent procesada con snapshot espejo canónico: ${netEx.message}")
+                    Log.w(TAG, "Fallo al consultar API oficial en vivo. Usando snapshot local.", netEx)
                 }
 
                 // Generar o consolidar los datos de estadísticas chinas
+                // Si la data online falla o falta algún campeón, se utiliza el fallback local
                 val cnStatsSnapshot = generateChineseStatsSnapshot(targetTier)
-                val editor = prefs.edit()
+                val finalStats = mutableMapOf<String, CnChampionStat>()
 
+                // Merge Live Data + Fallback
+                for (champ in WildRiftRepository.champions) {
+                    val fallback = cnStatsSnapshot[champ.id.lowercase()] ?: cnStatsSnapshot[champ.name.lowercase()]
+                    val live = parsedDataList?.get(champ.id.lowercase()) ?: parsedDataList?.get(champ.name.lowercase())
+                    
+                    if (live != null && fallback != null) {
+                        finalStats[champ.id.lowercase()] = fallback.copy(
+                            winRate = live.first,
+                            pickRate = live.second,
+                            banRate = live.third
+                        )
+                    } else if (live != null) {
+                        // Campeón nuevo que no estaba en el snapshot
+                        finalStats[champ.id.lowercase()] = CnChampionStat(
+                            winRate = live.first,
+                            pickRate = live.second,
+                            banRate = live.third,
+                            defaultWinDelta = 0.0,
+                            defaultPickDelta = 0.0,
+                            defaultBanDelta = 0.0,
+                            cnTier = "T2" // Default tier if missing
+                        )
+                    } else if (fallback != null) {
+                        finalStats[champ.id.lowercase()] = fallback
+                    }
+                }
+
+                val editor = prefs.edit()
                 val nowFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).apply {
                     timeZone = java.util.TimeZone.getDefault()
                 }
                 val nowTimestamp = nowFormat.format(Date())
 
-                // Actualizar campeones en memoria con los nuevos Win Rate, Pick Rate, Ban Rate y Deltas
+                // Actualizar campeones en memoria
                 val updatedChampions = WildRiftRepository.champions.map { champ ->
-                    val stat = cnStatsSnapshot[champ.id.lowercase()] ?: cnStatsSnapshot[champ.name.lowercase()]
+                    val stat = finalStats[champ.id.lowercase()]
                     
                     if (stat != null) {
                         val currentWinrate = roundTwoDecimals(stat.winRate)
@@ -155,12 +166,10 @@ object ChineseMetaSyncService {
                         val yesterdayPickRate = prefs.getFloat("${yesterdayKey}_pick", (currentPickRate - stat.defaultPickDelta).toFloat()).toDouble()
                         val yesterdayBanRate = prefs.getFloat("${yesterdayKey}_ban", (currentBanRate - stat.defaultBanDelta).toFloat()).toDouble()
 
-                        // Calcular delta exacto instantáneo
                         val deltaWin = roundTwoDecimals(currentWinrate - yesterdayWinrate)
                         val deltaPick = roundTwoDecimals(currentPickRate - yesterdayPickRate)
                         val deltaBan = roundTwoDecimals(currentBanRate - yesterdayBanRate)
 
-                        // Guardar la foto actual como base para el siguiente ciclo
                         editor.putFloat("${yesterdayKey}_win", currentWinrate.toFloat())
                         editor.putFloat("${yesterdayKey}_pick", currentPickRate.toFloat())
                         editor.putFloat("${yesterdayKey}_ban", currentBanRate.toFloat())
@@ -186,19 +195,15 @@ object ChineseMetaSyncService {
                     }
                 }
 
-                // Guardar metadatos de sincronización
                 editor.putString(KEY_LAST_SYNC, "$nowTimestamp (${targetTier.displayName})")
                 editor.putString(KEY_SELECTED_TIER, targetTier.name)
                 editor.apply()
 
-                // Actualizar repositorio
                 WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(updatedChampions)
 
-                // Guardar en Supabase y Caché Local para persistencia y sincronización global
                 try {
-                    //com.example.data.supabase.WildRiftSupabaseRepository.saveAllChampionsToSupabase(updatedChampions)
                     com.example.data.local.WildRiftLocalCache.saveToLocalCache(context, champions = updatedChampions)
-                    Log.d(TAG, "Estadísticas guardadas exitosamente en Supabase y Caché Local.")
+                    Log.d(TAG, "Estadísticas guardadas exitosamente en Caché Local.")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error guardando estadísticas en BD: ${e.message}", e)
                 }
@@ -207,11 +212,11 @@ object ChineseMetaSyncService {
                     tier = targetTier,
                     updatedCount = updatedChampions.size,
                     timestamp = nowTimestamp,
-                    source = if (onlineDataFetched) "API Oficial (lolm.qq.com)" else "Meta Oficial (En Vivo)",
+                    source = if (onlineDataFetched) sourceUsed else "Meta Oficial (Snapshot Local)",
                     hasDeltasVsYesterday = true
                 )
 
-                Log.d(TAG, "Sincronización instantánea de estadísticas chinas completada. Campeones actualizados: ${updatedChampions.size} a las $nowTimestamp")
+                Log.d(TAG, "Sincronización completada. Campeones: ${updatedChampions.size}")
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error al sincronizar estadísticas del servidor chino", e)
@@ -220,26 +225,117 @@ object ChineseMetaSyncService {
         }
     }
 
-    private fun parseTencentJson(jsonString: String): Map<String, Triple<Double, Double, Double>>? {
-        return try {
-            val root = JSONObject(jsonString)
-            val data = root.optJSONObject("data") ?: root
-            val heroList = data.optJSONArray("hero_list") ?: JSONArray()
-            val result = mutableMapOf<String, Triple<Double, Double, Double>>()
+    private fun fetchAndParseTencentLiveStats(targetTier: TencentRankTier): Map<String, Triple<Double, Double, Double>> {
+        val heroIdToEnglishMap = mutableMapOf<String, String>()
 
-            for (i in 0 until heroList.length()) {
-                val item = heroList.getJSONObject(i)
-                val heroId = item.optString("hero_id").lowercase()
-                val winRate = item.optDouble("win_rate", 50.0)
-                val showRate = item.optDouble("show_rate", item.optDouble("pick_rate", 5.0))
-                val banRate = item.optDouble("ban_rate", 2.0)
-                result[heroId] = Triple(winRate, showRate, banRate)
+        // 1. Fetch Metadata (hero_list.js)
+        val reqMetadata = Request.Builder()
+            .url(CN_API_URL_HERO_LIST)
+            .header("User-Agent", "Mozilla/5.0")
+            .build()
+            
+        val resMetadata = httpClient.newCall(reqMetadata).execute()
+        if (resMetadata.isSuccessful) {
+            val body = resMetadata.body?.string() ?: ""
+            // Parse JSON 
+            val jsonRoot = try {
+                JSONObject(body).optJSONObject("heroList")
+            } catch (e: Exception) {
+                // If wrapped in JS variable (var heroList = {...}), clean it
+                val cleanBody = body.substringAfter("=").trim().removeSuffix(";")
+                JSONObject(cleanBody).optJSONObject("heroList")
             }
-            result
-        } catch (e: Exception) {
-            Log.e(TAG, "Error parseando JSON de Tencent", e)
-            null
+            
+            jsonRoot?.let { heroList ->
+                val keys = heroList.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val heroObj = heroList.getJSONObject(key)
+                    val heroId = heroObj.optString("heroId")
+                    val posterUrl = heroObj.optString("poster")
+                    
+                    if (posterUrl.isNotEmpty()) {
+                        val filename = posterUrl.substringAfterLast("/")
+                        var englishName = filename.substringBefore("_").lowercase()
+                        
+                        englishName = when (englishName) {
+                            "monkeyking" -> "wukong"
+                            "xinzhao" -> "xin_zhao"
+                            "masteryi" -> "master_yi"
+                            "twistedfate" -> "twisted_fate"
+                            "missfortune" -> "miss_fortune"
+                            "aurelionsol" -> "aurelion_sol"
+                            "drmundo" -> "dr_mundo"
+                            "jarvaniv" -> "jarvan_iv"
+                            "leesin" -> "lee_sin"
+                            "tahmkench" -> "tahm_kench"
+                            else -> englishName
+                        }
+                        heroIdToEnglishMap[heroId] = englishName
+                    }
+                }
+            }
         }
+
+        // 2. Fetch Ranking (hero_rank_list_v2)
+        val reqRank = Request.Builder()
+            .url(CN_API_URL_RANK)
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            .header("Referer", "https://lolm.qq.com/act/a20220818raider/index.html")
+            .header("Accept", "application/json, text/plain, */*")
+            .build()
+
+        val resRank = httpClient.newCall(reqRank).execute()
+        val resultMap = mutableMapOf<String, Triple<Double, Double, Double>>() // HeroId -> (WinRate, PickRate, BanRate)
+        
+        if (resRank.isSuccessful) {
+            val body = resRank.body?.string() ?: ""
+            val jsonRoot = JSONObject(body)
+            val dataObj = jsonRoot.optJSONObject("data") ?: return resultMap
+            
+            // Map the selected tier to the Tencent API keys
+            val tierKey = targetTier.code // e.g. "0" (Diamond+), "1" (Master+)
+            val tierData = dataObj.optJSONObject(tierKey) ?: return resultMap
+            
+            // Accumulators for aggregating stats across lanes
+            val totalAppearsMap = mutableMapOf<String, Double>()
+            val weightedWinRatesMap = mutableMapOf<String, Double>()
+            val banRatesMap = mutableMapOf<String, Double>()
+            
+            val lanes = tierData.keys()
+            while (lanes.hasNext()) {
+                val lane = lanes.next()
+                val laneArray = tierData.optJSONArray(lane) ?: continue
+                
+                for (i in 0 until laneArray.length()) {
+                    val hObj = laneArray.getJSONObject(i)
+                    val heroId = hObj.optString("hero_id")
+                    
+                    val appearRate = hObj.optString("appear_rate_percent").toDoubleOrNull() ?: 0.0
+                    val winRate = hObj.optString("win_rate_percent").toDoubleOrNull() ?: 50.0
+                    val banRate = hObj.optString("forbid_rate_percent").toDoubleOrNull() ?: 0.0
+                    
+                    totalAppearsMap[heroId] = (totalAppearsMap[heroId] ?: 0.0) + appearRate
+                    weightedWinRatesMap[heroId] = (weightedWinRatesMap[heroId] ?: 0.0) + (winRate * appearRate)
+                    
+                    if (!banRatesMap.containsKey(heroId)) {
+                        banRatesMap[heroId] = banRate
+                    }
+                }
+            }
+            
+            // Finalize Aggregation
+            for ((heroId, totalAppear) in totalAppearsMap) {
+                val englishName = heroIdToEnglishMap[heroId] ?: continue // Skip if mapping failed
+                
+                val finalWinRate = if (totalAppear > 0.0) weightedWinRatesMap[heroId]!! / totalAppear else 50.0
+                val finalBanRate = banRatesMap[heroId] ?: 0.0
+                
+                resultMap[englishName] = Triple(finalWinRate, totalAppear, finalBanRate)
+            }
+        }
+        
+        return resultMap
     }
 
     private fun roundTwoDecimals(value: Double): Double {
@@ -256,9 +352,6 @@ object ChineseMetaSyncService {
         val cnTier: String // "T0", "T1", "T2", "T3"
     )
 
-    /**
-     * Catálogo exhaustivo de estadísticas del servidor chino (Lolm Tencent) con deltas vs. ayer.
-     */
     private fun generateChineseStatsSnapshot(tier: TencentRankTier): Map<String, CnChampionStat> {
         val multiplier = when (tier) {
             TencentRankTier.CHALLENGER -> 1.05
@@ -388,5 +481,25 @@ object ChineseMetaSyncService {
             "zoe" to CnChampionStat(52.7 * multiplier, 8.1, 12.6, +0.30, +0.12, +0.55, "T1"),
             "zyra" to CnChampionStat(53.4 * multiplier, 11.2, 19.5, +0.48, +0.22, +0.90, "T0")
         )
+    }
+
+    /**
+     * Endpoint/Función limpia solicitada:
+     * Devuelve la lista consolidada de campeones ordenada por Win Rate descendente
+     * con filtros opcionales por tier y lane.
+     */
+    suspend fun getFilteredRankings(
+        context: Context,
+        targetTier: TencentRankTier = TencentRankTier.DIAMOND_PLUS,
+        lane: LaneRole? = null
+    ): List<Champion> {
+        syncChineseMeta(context = context, targetTier = targetTier)
+        
+        var list = WildRiftRepository.champions.toList()
+        if (lane != null) {
+            list = list.filter { it.primaryRole == lane || it.secondaryRoles.contains(lane) }
+        }
+        
+        return list.sortedByDescending { it.winrate }
     }
 }
