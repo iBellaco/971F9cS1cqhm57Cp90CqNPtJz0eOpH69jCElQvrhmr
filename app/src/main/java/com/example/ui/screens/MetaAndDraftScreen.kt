@@ -170,23 +170,33 @@ fun MetaAndDraftScreen(
         primaryRole = LaneRole.TOP
     )
 
-    // Draft State con asignación explícita de línea
+    // Generador dinámico de composiciones de draft iniciales basadas estrictamente en el rol
+    fun generateRoleBasedDraft(excludeIds: MutableSet<String>): List<DraftSlot> {
+        val roles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+        return roles.mapNotNull { role ->
+            val rolePool = WildRiftRepository.champions.filter { champ ->
+                !excludeIds.contains(champ.id) && (champ.primaryRole == role || champ.secondaryRoles.contains(role))
+            }
+            val chosen = rolePool.shuffled().firstOrNull()
+                ?: WildRiftRepository.champions.filter { !excludeIds.contains(it.id) }.shuffled().firstOrNull()
+                ?: defaultChamp
+            excludeIds.add(chosen.id)
+            DraftSlot(chosen, role)
+        }
+    }
+
+    // Draft State con asignación dinámica por rol en cada apertura
+    val usedDraftChampIds = remember { mutableSetOf<String>() }
     val allySlots = remember {
-        mutableStateListOf(
-            DraftSlot(WildRiftRepository.getChampionById("chogath") ?: WildRiftRepository.champions.getOrNull(8) ?: defaultChamp, LaneRole.TOP),
-            DraftSlot(WildRiftRepository.getChampionById("viego") ?: WildRiftRepository.champions.getOrNull(1) ?: defaultChamp, LaneRole.JUNGLE),
-            DraftSlot(WildRiftRepository.getChampionById("vayne") ?: WildRiftRepository.champions.getOrNull(3) ?: defaultChamp, LaneRole.ADC),
-            DraftSlot(WildRiftRepository.getChampionById("janna") ?: WildRiftRepository.champions.getOrNull(4) ?: defaultChamp, LaneRole.SUPPORT)
-        )
+        mutableStateListOf<DraftSlot>().apply {
+            addAll(generateRoleBasedDraft(usedDraftChampIds))
+        }
     }
 
     val enemySlots = remember {
-        mutableStateListOf(
-            DraftSlot(WildRiftRepository.getChampionById("sett") ?: WildRiftRepository.champions.getOrNull(2) ?: defaultChamp, LaneRole.TOP),
-            DraftSlot(WildRiftRepository.getChampionById("vi") ?: WildRiftRepository.champions.getOrNull(7) ?: defaultChamp, LaneRole.JUNGLE),
-            DraftSlot(WildRiftRepository.getChampionById("caitlyn") ?: WildRiftRepository.champions.getOrNull(6) ?: defaultChamp, LaneRole.ADC),
-            DraftSlot(WildRiftRepository.getChampionById("nautilus") ?: WildRiftRepository.champions.getOrNull(5) ?: defaultChamp, LaneRole.SUPPORT)
-        )
+        mutableStateListOf<DraftSlot>().apply {
+            addAll(generateRoleBasedDraft(usedDraftChampIds))
+        }
     }
 
     // Modal Champion Picker & Detail State

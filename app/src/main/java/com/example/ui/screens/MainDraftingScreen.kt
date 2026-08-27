@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -89,6 +90,9 @@ import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
 import android.content.Intent
 import android.net.Uri
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.graphics.Color
@@ -532,41 +536,37 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Botón Red Social Instagram - Diego Barba Chavez
+                // Banner Red Social Instagram - Diego Barba Chavez
                 val context = LocalContext.current
-                androidx.compose.material3.OutlinedButton(
-                    onClick = {
-                        val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
-                        } catch (_: Exception) {}
-                    },
+                val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
+                val instagramBannerUrl = "https://i.postimg.cc/CKW8kkH4/1787839327220.png"
+                Box(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
-                        .height(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(HextechSurface.copy(alpha = 0.85f))
+                        .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .clickable {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        }
                         .testTag("btn_instagram_creator"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                        containerColor = HextechSurface.copy(alpha = 0.85f),
-                        contentColor = Color(0xFFE1306C)
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE1306C).copy(alpha = 0.7f))
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Instagram",
-                        tint = Color(0xFFE1306C),
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Instagram: @Diego.Barba.Chavez",
-                        color = Color(0xFFFF7597),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(instagramBannerUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Instagram Diego Barba Chavez",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        contentScale = ContentScale.FillWidth
                     )
                 }
 

@@ -1148,8 +1148,8 @@ private fun ComprehensiveFeedbackCard(
     val isBug = report.type.equals("BUG", ignoreCase = true)
 
     // Parsear sugerencia de build si contiene el formato estructurado
-    val parsedBuild = remember(report.cleanDescription, report.description) {
-        parseBuildSuggestionFromText(report.cleanDescription.ifEmpty { report.description })
+    val parsedBuild = remember(report.cleanDescription, report.description, report.title) {
+        parseBuildSuggestionFromText(report.cleanDescription.ifEmpty { report.description }, report.title)
     }
 
     // Parsear imágenes base64 si existen
@@ -1790,6 +1790,7 @@ private fun saveBitmapToGallery(context: Context, bitmap: Bitmap) {
 data class ParsedBuildSuggestion(
     val championName: String,
     val championAvatar: String?,
+    val championObj: Champion? = null,
     val role: String?,
     val coreItems: List<WildRiftItem>,
     val situationalItems: List<WildRiftItem>,
@@ -1814,6 +1815,22 @@ private fun normalizeSearchString(text: String): String {
         .trim()
 }
 
+private fun findChampionByName(rawName: String): Champion? {
+    val clean = rawName.trim().removePrefix("•").trim()
+    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true) || clean.equals("General", ignoreCase = true) || clean.equals("Campeon General", ignoreCase = true) || clean.equals("Campeón General", ignoreCase = true)) return null
+    val norm = normalizeSearchString(clean)
+
+    // Búsqueda exacta
+    WildRiftRepository.champions.firstOrNull { it.name.equals(clean, ignoreCase = true) || it.nameEn.equals(clean, ignoreCase = true) }?.let { return it }
+    WildRiftRepository.champions.firstOrNull { normalizeSearchString(it.name) == norm || normalizeSearchString(it.nameEn) == norm || it.id.equals(norm, ignoreCase = true) }?.let { return it }
+    WildRiftRepository.champions.firstOrNull {
+        val normEs = normalizeSearchString(it.name)
+        val normEn = normalizeSearchString(it.nameEn)
+        normEs.contains(norm) || norm.contains(normEs) || normEn.contains(norm) || norm.contains(normEn)
+    }?.let { return it }
+    return null
+}
+
 private fun findItemByName(rawName: String): WildRiftItem? {
     val clean = rawName.trim()
     if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
@@ -1834,8 +1851,8 @@ private fun findItemByName(rawName: String): WildRiftItem? {
 }
 
 private fun findRuneByName(rawName: String): RuneItem? {
-    val clean = rawName.trim()
-    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
+    val clean = rawName.trim().removePrefix("Clave:").removePrefix("Secundarias:").trim()
+    if (clean.isEmpty() || clean.equals("Ninguno", ignoreCase = true) || clean.equals("Ninguna", ignoreCase = true) || clean.equals("N/A", ignoreCase = true)) return null
     val norm = normalizeSearchString(clean)
     
     WildRiftSpellsAndRunes.runes.firstOrNull { it.name.equals(clean, ignoreCase = true) || it.nameEn.equals(clean, ignoreCase = true) }?.let { return it }
@@ -1863,13 +1880,15 @@ private fun findSpellByName(rawName: String): SummonerSpellItem? {
     return null
 }
 
-fun parseBuildSuggestionFromText(text: String): ParsedBuildSuggestion? {
+fun parseBuildSuggestionFromText(text: String, title: String = ""): ParsedBuildSuggestion? {
     if (!text.contains("SUGERENCIA DE BUILD", ignoreCase = true) &&
         !text.contains("OBJETOS CORE", ignoreCase = true) &&
+        !text.contains("OBJETOS PRINCIPALES", ignoreCase = true) &&
         !text.contains("OBJETOS SITUACIONALES", ignoreCase = true) &&
         !text.contains("RUNAS", ignoreCase = true) &&
         !text.contains("CAMPEÓN", ignoreCase = true) &&
-        !text.contains("CAMPEON", ignoreCase = true)) {
+        !text.contains("CAMPEON", ignoreCase = true) &&
+        !title.contains("Build", ignoreCase = true)) {
         return null
     }
 
@@ -1966,7 +1985,7 @@ fun parseBuildSuggestionFromText(text: String): ParsedBuildSuggestion? {
                         if (!altSitItemsList.contains(it)) altSitItemsList.add(it)
                     }
                 }
-            } else if (upper.contains("NOTAS / EXPLICACIÓN TÁCTICA:") || upper.contains("NOTAS / EXPLICACION TACTICA:") || upper.contains("EXPLICACIÓN TÁCTICA:") || upper.contains("EXPLICACION TACTICA:") || upper.contains("NOTAS:")) {
+            } else if (upper.contains("JUSTIFICACIÓN TÁCTICA") || upper.contains("JUSTIFICACION TACTICA") || upper.contains("NOTAS / EXPLICACIÓN TÁCTICA:") || upper.contains("NOTAS / EXPLICACION TACTICA:") || upper.contains("EXPLICACIÓN TÁCTICA:") || upper.contains("EXPLICACION TACTICA:") || upper.contains("NOTAS:")) {
                 isReadingNotes = true
                 val remaining = line.substringAfter(":").trim()
                 if (remaining.isNotEmpty()) {
@@ -1982,19 +2001,41 @@ fun parseBuildSuggestionFromText(text: String): ParsedBuildSuggestion? {
             }
         }
 
-        if (champName.isBlank() && coreItemsList.isEmpty() && sitItemsList.isEmpty()) {
+        // Si el campeón no fue detectado en el cuerpo, extraerlo del título (ej: "Sugerencia de Build para Zed (Mid)")
+        if (champName.isBlank() && title.isNotBlank()) {
+            if (title.contains("para ", ignoreCase = true)) {
+                val extracted = title.substringAfter("para ", "").substringBefore("(").trim()
+                if (extracted.isNotBlank()) {
+                    val matchChamp = findChampionByName(extracted)
+                    champName = matchChamp?.name ?: extracted
+                }
+            }
+            if (champName.isBlank()) {
+                for (c in WildRiftRepository.champions) {
+                    if (title.contains(c.name, ignoreCase = true) || title.contains(c.nameEn, ignoreCase = true)) {
+                        champName = c.name
+                        break
+                    }
+                }
+            }
+            if (role == null && title.contains("(") && title.contains(")")) {
+                role = title.substringAfter("(").substringBefore(")").trim()
+            }
+        }
+
+        if (champName.isBlank() && coreItemsList.isEmpty() && sitItemsList.isEmpty() && bootsItem == null) {
             return null
         }
 
-        // Buscar avatar del campeón si existe en los assets
-        val champAvatar = if (champName.isNotBlank()) {
-            val normChamp = normalizeSearchString(champName)
-            "file:///android_asset/champions/${normChamp}.png"
-        } else null
+        // Buscar el objeto Champion real de la base de datos para obtener avatarUrl oficial y tier
+        val foundChamp = if (champName.isNotBlank()) findChampionByName(champName) else null
+        val effectiveChampName = foundChamp?.name ?: champName.ifBlank { "Campeón" }
+        val champAvatar = foundChamp?.avatarUrl?.takeIf { it.isNotBlank() }
 
         return ParsedBuildSuggestion(
-            championName = champName.ifBlank { "Campeón" },
+            championName = effectiveChampName,
             championAvatar = champAvatar,
+            championObj = foundChamp,
             role = role,
             coreItems = coreItemsList,
             situationalItems = sitItemsList,
@@ -2028,37 +2069,77 @@ private fun GraphicalBuildSuggestionView(
             .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // ENCABEZADO: Campeón + Rol
+        // ENCABEZADO: Campeón + Rol + Badges
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(38.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
-                    .border(1.5.dp, HextechGold, CircleShape)
-                    .background(HextechSurface)
+                    .border(2.dp, HextechGold, CircleShape)
+                    .background(HextechSurface),
+                contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(build.championAvatar)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = build.championName,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                if (build.championObj != null) {
+                    ChampionAvatar(
+                        champion = build.championObj,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else if (!build.championAvatar.isNullOrBlank()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(build.championAvatar)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = build.championName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(HextechGold.copy(alpha = 0.25f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = build.championName.take(2).uppercase(),
+                            color = HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = build.championName,
-                    color = HextechGold,
-                    fontSize = 13.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = build.championName,
+                        color = HextechGold,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (build.championObj != null) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(HextechCyan.copy(alpha = 0.2f))
+                                .border(0.8.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = "Tier ${build.championObj.tier}",
+                                color = HextechCyan,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
                 if (!build.role.isNullOrBlank()) {
                     Text(
                         text = "Rol / Línea: ${build.role}",
@@ -2117,25 +2198,42 @@ private fun GraphicalBuildSuggestionView(
 
         HorizontalDivider(color = HextechCardBorder.copy(alpha = 0.6f), thickness = 0.8.dp)
 
-        // SECCIÓN 1: OBJETOS CORE (Slots 1 al 6)
-        if (build.coreItems.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(
-                    text = tr("OBJETOS CORE (1 al 6):"),
-                    color = HextechGold,
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
+        // SECCIÓN 1: OBJETOS CORE (Slots 1 al 5) Y BOTAS (Slot 6)
+        if (build.coreItems.isNotEmpty() || build.boots != null) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = tr("OBJETOS CORE (1 al 5) & OBJETO 6 (BOTAS):"),
+                        color = HextechGold,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(build.coreItems) { item ->
+                    val core5 = build.coreItems.take(5)
+                    items(core5) { item ->
                         BuildItemSlot(
                             item = item,
-                            badgeText = "${build.coreItems.indexOf(item) + 1}",
+                            badgeText = "${core5.indexOf(item) + 1}",
                             onClick = { onItemClick(item) }
                         )
+                    }
+                    build.boots?.let { boot ->
+                        item {
+                            BuildItemSlot(
+                                item = boot,
+                                badgeText = "6 👢",
+                                badgeColor = HextechGold,
+                                onClick = { onItemClick(boot) }
+                            )
+                        }
                     }
                 }
             }
@@ -2212,7 +2310,7 @@ private fun GraphicalBuildSuggestionView(
             }
         }
 
-        // SECCIÓN 4: BOTAS + RUNAS SECUNDARIAS + HECHIZOS
+        // SECCIÓN 4: BOTAS DETALLE + RUNAS SECUNDARIAS + HECHIZOS
         if (build.boots != null || build.secondaryRunes.isNotEmpty() || build.spells.isNotEmpty()) {
             Row(
                 modifier = Modifier
@@ -2237,7 +2335,7 @@ private fun GraphicalBuildSuggestionView(
                         )
                         Column {
                             Text(
-                                text = tr("Botas"),
+                                text = tr("Botas (Slot 6)"),
                                 color = TextMuted,
                                 fontSize = 9.sp
                             )
@@ -2282,13 +2380,14 @@ private fun GraphicalBuildSuggestionView(
             }
         }
 
-        // SECCIÓN 5: NOTAS TÁCTICAS
+        // SECCIÓN 5: JUSTIFICACIÓN TÁCTICA / MATCHUPS
         if (!build.tacticalNotes.isNullOrBlank()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(6.dp))
                     .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                    .border(0.8.dp, HextechGold.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
                     .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -2296,17 +2395,17 @@ private fun GraphicalBuildSuggestionView(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(11.dp))
+                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
                         Text(
-                            text = tr("Explicación / Guía táctica:"),
+                            text = tr("Justificación Táctica / Matchups:"),
                             color = HextechGold,
-                            fontSize = 10.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
                         text = build.tacticalNotes,
-                        color = TextSecondary,
+                        color = TextPrimary,
                         fontSize = 11.sp,
                         lineHeight = 15.sp
                     )

@@ -3,9 +3,13 @@ package com.example.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.res.painterResource
 import com.example.R
 import androidx.compose.foundation.background
@@ -310,26 +314,35 @@ fun InfoScreen(
                     lineHeight = 16.sp
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
-                        } catch (_: Exception) {}
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE1306C),
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
+                val instagramBannerUrl = "https://i.postimg.cc/CKW8kkH4/1787839327220.png"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(HextechSurface.copy(alpha = 0.85f))
+                        .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .clickable {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = "Instagram", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Instagram: @Diego.Barba.Chavez", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(instagramBannerUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Instagram Diego Barba Chavez",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        contentScale = ContentScale.FillWidth
+                    )
                 }
             }
 
