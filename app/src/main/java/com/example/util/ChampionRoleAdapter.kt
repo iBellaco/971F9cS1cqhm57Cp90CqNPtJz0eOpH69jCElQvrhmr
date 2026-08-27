@@ -309,7 +309,7 @@ object ChampionRoleAdapter {
         isRanged: Boolean,
         role: LaneRole
     ): List<String> {
-        val result = currentItems.toMutableList()
+        val result = currentItems.distinct().toMutableList()
         val defaultFillers = when {
             isTank || role == LaneRole.SUPPORT -> listOf(
                 "Plato del hombre muerto", "malla de espinas", "Fuerza de la naturaleza",
@@ -328,7 +328,6 @@ object ChampionRoleAdapter {
                 "Botas blindadas", "Sterak's Gage", "Ángel custodio", "malla de espinas"
             )
         }
-
         for (item in defaultFillers) {
             if (result.size >= 6) break
             if (!result.contains(item)) {
@@ -355,12 +354,13 @@ object ChampionRoleAdapter {
         val swaps = mutableListOf<ItemSwap>()
 
         if (damageType == DamageType.MAGIC) {
-            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
-            val coreTarget = validCoreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: validCoreItems.firstOrNull() ?: "Luden's Echo"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }.distinct()
+            val coreTarget1 = validCoreItems.find { it.contains("Rabadon") || it.contains("Infinito") || it.contains("Luden") } ?: validCoreItems.firstOrNull() ?: "Luden's Echo"
+            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
                     altItem = "Morellonomicón",
                     altItemIcon = WildRiftItemsData.getItemIconByName("Morellonomicón"),
                     reasonTitle = "ANTI-CURACIÓN (HERIDAS GRAVES)",
@@ -370,8 +370,8 @@ object ChampionRoleAdapter {
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
                     altItem = "El reloj de arena de Zhonya",
                     altItemIcon = WildRiftItemsData.getItemIconByName("El reloj de arena de Zhonya"),
                     reasonTitle = "SUPERVIVENCIA & INVULNERABILIDAD",
@@ -380,12 +380,13 @@ object ChampionRoleAdapter {
                 )
             )
         } else if (isTank) {
-            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
-            val coreTarget = validCoreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: validCoreItems.firstOrNull() ?: "Plato del hombre muerto"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }.distinct()
+            val coreTarget1 = validCoreItems.find { it.contains("Fuerza") || it.contains("Amanecer") || it.contains("Muerto") } ?: validCoreItems.firstOrNull() ?: "Plato del hombre muerto"
+            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
                     altItem = "malla de espinas",
                     altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
                     reasonTitle = "ANTI-CURACIÓN & ARMADURA",
@@ -395,8 +396,8 @@ object ChampionRoleAdapter {
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
                     altItem = "El presagio de Randuin",
                     altItemIcon = WildRiftItemsData.getItemIconByName("El presagio de Randuin"),
                     reasonTitle = "ANTI-CRÍTICO",
@@ -405,12 +406,13 @@ object ChampionRoleAdapter {
                 )
             )
         } else {
-            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }
-            val coreTarget = validCoreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: validCoreItems.firstOrNull() ?: "Black Cleaver"
+            val validCoreItems = coreItems.filter { !it.contains("Botas", ignoreCase = true) && !it.contains("Grebas", ignoreCase = true) }.distinct()
+            val coreTarget1 = validCoreItems.find { it.contains("Danza") || it.contains("Cuchilla") || it.contains("Fuego") } ?: validCoreItems.firstOrNull() ?: "Black Cleaver"
+            val coreTarget2 = validCoreItems.find { it != coreTarget1 } ?: validCoreItems.getOrNull(1) ?: coreTarget1
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget1,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget1),
                     altItem = "Serpent's Fang",
                     altItemIcon = WildRiftItemsData.getItemIconByName("Serpent's Fang"),
                     reasonTitle = "DESTRUCTOR DE ESCUDOS",
@@ -420,8 +422,8 @@ object ChampionRoleAdapter {
             )
             swaps.add(
                 ItemSwap(
-                    coreItem = coreTarget,
-                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget),
+                    coreItem = coreTarget2,
+                    coreItemIcon = WildRiftItemsData.getItemIconByName(coreTarget2),
                     altItem = "malla de espinas",
                     altItemIcon = WildRiftItemsData.getItemIconByName("malla de espinas"),
                     reasonTitle = "ARMADURA & ANTI-CURACIÓN",
@@ -430,7 +432,6 @@ object ChampionRoleAdapter {
                 )
             )
         }
-
         return swaps
     }
 
