@@ -136,7 +136,6 @@ fun MainDraftingScreen(
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showBugReportDialog by remember { mutableStateOf(false) }
-    var showAdminFeedbackPanel by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showDonationDialog by remember { mutableStateOf(false) }
 
@@ -182,10 +181,9 @@ fun MainDraftingScreen(
     }
 
     // Si hay un diálogo o modal abierto en la pantalla de inicio, el botón atrás lo cierra primero
-    BackHandler(enabled = showPermissionDialog || showBugReportDialog || showAdminFeedbackPanel) {
+    BackHandler(enabled = showPermissionDialog || showBugReportDialog) {
         if (showPermissionDialog) showPermissionDialog = false
         if (showBugReportDialog) showBugReportDialog = false
-        if (showAdminFeedbackPanel) showAdminFeedbackPanel = false
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -315,23 +313,7 @@ fun MainDraftingScreen(
                             )
                         }
 
-                        IconButton(
-                            onClick = { showAdminFeedbackPanel = true },
-                            modifier = Modifier
-                                .padding(end = 6.dp)
-                                .clip(CircleShape)
-                                .background(HextechSurface)
-                                .border(1.dp, HextechCyan.copy(alpha = 0.6f), CircleShape)
-                                .size(38.dp)
-                                .testTag("nav_admin_feedback_button")
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Inbox,
-                                contentDescription = "Buzón y Panel de Reportes",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+
                     },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
                 )
@@ -650,12 +632,6 @@ fun MainDraftingScreen(
         if (showBugReportDialog) {
             BugReportFeedbackDialog(
                 onDismiss = { showBugReportDialog = false }
-            )
-        }
-
-        if (showAdminFeedbackPanel) {
-            AdminFeedbackBottomSheet(
-                onDismiss = { showAdminFeedbackPanel = false }
             )
         }
 

@@ -54,17 +54,10 @@ fun InfoScreen(
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
     var showThemeDialog by remember { mutableStateOf(false) }
-    var showFeedbackPanel by remember { mutableStateOf(false) }
 
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
             onDismiss = { showThemeDialog = false }
-        )
-    }
-
-    if (showFeedbackPanel) {
-        AdminFeedbackBottomSheet(
-            onDismiss = { showFeedbackPanel = false }
         )
     }
 
@@ -257,33 +250,6 @@ fun InfoScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(tr("Cambiar Tema"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
-                }
-            }
-
-            // Section 4: Buzón de Reportes y Sugerencias
-            InfoCard(
-                title = tr("4. Gestión de Reportes & Sugerencias"),
-                icon = Icons.Default.AdminPanelSettings
-            ) {
-                Text(
-                    text = tr("Accede al panel de control para revisar los reportes de bugs (marcar como Leído o Solucionado) y las sugerencias de la comunidad (marcar como Aceptada o Rechazada)."),
-                    color = TextSecondary,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Button(
-                    onClick = { showFeedbackPanel = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = HextechGold,
-                        contentColor = HextechDarkBg
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(tr("Abrir Panel de Reportes & Sugerencias"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
             }
 
