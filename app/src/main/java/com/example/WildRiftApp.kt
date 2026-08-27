@@ -81,7 +81,7 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         }
         CoroutineScope(Dispatchers.IO + handler).launch {
                         try {
-                com.example.data.supabase.SupabaseClientManager.fetchCurrentPatchVersion()
+                // com.example.data.supabase.SupabaseClientManager.fetchCurrentPatchVersion()
                 AppLogger.d("WildRiftApp", "Parche sincronizado desde Supabase.")
             } catch (e: Exception) {
                 AppLogger.e("WildRiftApp", "Error sincronizando parche desde Supabase", e)

@@ -1,28 +1,32 @@
 import re
 
-with open('app/src/main/java/com/example/data/local/WildRiftLocalCache.kt', 'r', encoding='utf-8') as f:
+with open('app/src/main/java/com/example/data/local/WildRiftLocalCache.kt', 'r') as f:
     content = f.read()
 
-replacement = """
-                if (loadedItems.isNotEmpty()) {
-                    // Filter out spells that were previously saved as basic items
-                    val spellIds = com.example.data.WildRiftSpellsAndRunes.summonerSpells.map { it.id }.toSet()
-                    val filteredItems = loadedItems.filter { item ->
-                        val isSpell = item.id.endsWith("_basic") && item.id.replace("_basic", "") in spellIds.map { it.replace("spell_", "") }
-                        !isSpell && !item.id.startsWith("spell_")
-                    }
-                    WildRiftRepository.items = if (filteredItems.isNotEmpty()) filteredItems else loadedItems
+old_cache_champs = """            val championsJson = prefs.getString(KEY_CHAMPIONS, null)
+            if (!championsJson.isNullOrBlank()) {
+                val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
+                if (loadedChamps.isNotEmpty()) {
+                    WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
                     hasLoadedAny = true
                 }
-"""
+            }"""
 
-# Replace the block
-content = re.sub(
-    r'if\s*\(loadedItems\.isNotEmpty\(\)\)\s*\{\s*WildRiftRepository\.items\s*=\s*loadedItems\s*hasLoadedAny\s*=\s*true\s*\}',
-    replacement,
-    content
-)
+new_cache_champs = """            val championsJson = prefs.getString(KEY_CHAMPIONS, null)
+            if (!championsJson.isNullOrBlank()) {
+                try {
+                    val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
+                    if (loadedChamps.isNotEmpty()) {
+                        WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
+                        hasLoadedAny = true
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("WildRiftLocalCache", "Corrupted champions cache, clearing", e)
+                    prefs.edit().remove(KEY_CHAMPIONS).apply()
+                }
+            }"""
 
-with open('app/src/main/java/com/example/data/local/WildRiftLocalCache.kt', 'w', encoding='utf-8') as f:
+content = content.replace(old_cache_champs, new_cache_champs)
+
+with open('app/src/main/java/com/example/data/local/WildRiftLocalCache.kt', 'w') as f:
     f.write(content)
-

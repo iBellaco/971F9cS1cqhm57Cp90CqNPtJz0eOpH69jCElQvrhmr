@@ -8,6 +8,10 @@ plugins {
 }
 
 android {
+  androidResources {
+    noCompress.add("json")
+  }
+
   namespace = "com.example"
   compileSdk = 36
 
@@ -15,8 +19,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 122
-    versionName = "1.3.103"
+    versionCode = 124
+    versionName = "1.3.105"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 

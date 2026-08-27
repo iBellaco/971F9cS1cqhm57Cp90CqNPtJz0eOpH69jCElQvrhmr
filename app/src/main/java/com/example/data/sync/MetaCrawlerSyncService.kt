@@ -80,7 +80,7 @@ object MetaCrawlerSyncService {
 
                 val patchPrefix = if (isEnglish) "Patch" else "Parche"
                 if (fetchedVersion != null) {
-                    WildRiftRepository.CURRENT_PATCH_VERSION = "$patchPrefix $fetchedVersion"
+                    // WildRiftRepository.CURRENT_PATCH_VERSION = "$patchPrefix $fetchedVersion"
                 } else if (isEnglish && WildRiftRepository.CURRENT_PATCH_VERSION.startsWith("Parche")) {
                      WildRiftRepository.CURRENT_PATCH_VERSION = WildRiftRepository.CURRENT_PATCH_VERSION.replace("Parche", "Patch")
                 }

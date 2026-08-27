@@ -109,10 +109,15 @@ object WildRiftLocalCache {
 
             val championsJson = prefs.getString(KEY_CHAMPIONS, null)
             if (!championsJson.isNullOrBlank()) {
-                val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
-                if (loadedChamps.isNotEmpty()) {
-                    WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
-                    hasLoadedAny = true
+                try {
+                    val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
+                    if (loadedChamps.isNotEmpty()) {
+                        WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
+                        hasLoadedAny = true
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("WildRiftLocalCache", "Corrupted champions cache, clearing", e)
+                    prefs.edit().remove(KEY_CHAMPIONS).apply()
                 }
             }
 
