@@ -161,7 +161,7 @@ fun DonationDialog(
                         accentColor = Color(0xFF0079C1),
                         actionText = tr("Abrir PayPal"),
                         onAction = {
-                            openUrl(context, "https://paypal.me/wildriftcoach")
+                            openUrl(context, "https://www.paypal.com/donate/?business=barbachavezdiego@gmail.com")
                         }
                     )
 
