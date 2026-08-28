@@ -553,20 +553,12 @@ fun ChampionDetailSheet(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val tabLabels = listOf(
-                    "1. Meta Core",
-                    "2. Ráfaga",
-                    "3. Anti-Tanques",
-                    "4. Anti-Magos"
-                )
-                val tabIcons = listOf(
-                    "⚡", "🔥", "🛡️", "🔮"
-                )
+                // Los títulos se extraerán directamente de opt.title
 
                 buildOptionsList.forEachIndexed { idx, opt ->
                     val isSelected = selectedBuildOptionIndex == idx
-                    val label = tabLabels.getOrElse(idx) { "Opción ${idx + 1}" }
-                    val emoji = tabIcons.getOrElse(idx) { "⚔️" }
+                    val rawTitle = opt.title.replace(Regex("^Opción \\d: "), "")
+                    val label = "${idx + 1}. $rawTitle"
 
                     Box(
                         modifier = Modifier
@@ -583,11 +575,6 @@ fun ChampionDetailSheet(
                             .padding(horizontal = 12.dp, vertical = 7.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = emoji,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(end = 5.dp)
-                            )
                             Text(
                                 text = label,
                                 color = if (isSelected) HextechGold else TextMuted,
@@ -622,12 +609,14 @@ fun ChampionDetailSheet(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = "Ref: ${activeOption.source}",
-                                color = HextechCyan,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            if (activeOption.source.isNotBlank()) {
+                                Text(
+                                    text = "Ref: ${activeOption.source}",
+                                    color = HextechCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                         Box(
                             modifier = Modifier
