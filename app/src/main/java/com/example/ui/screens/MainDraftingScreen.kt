@@ -37,8 +37,19 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.data.sync.OfflineResourceManager
+import com.example.data.sync.DownloadState
+import com.example.ui.theme.DangerRed
+
+
+
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -58,7 +69,6 @@ import androidx.compose.material.icons.filled.Download
 
 import com.example.util.tr
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -105,7 +115,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.collectAsState
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.util.SystemPermissionHelper
@@ -116,6 +125,7 @@ import com.example.service.screen.ScreenCaptureManager
 import android.content.Context
 
 @OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun MainDraftingScreen(
     onNavigateToInfo: () -> Unit,
@@ -488,35 +498,9 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                androidx.compose.material3.OutlinedButton(
-                    onClick = onNavigateToInfo,
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .height(44.dp)
-                        .testTag("btn_about_below_download"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                        containerColor = HextechSurface.copy(alpha = 0.85f),
-                        contentColor = HextechGold
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = HextechGold,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tr("Acerca De"),
-                        color = HextechGold,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
+                
+                OfflineResourceDownloadCard()
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Banner Red Social Instagram - Diego Barba Chavez
                 val context = LocalContext.current
@@ -540,7 +524,8 @@ fun MainDraftingScreen(
                     contentScale = ContentScale.FillWidth
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+Spacer(modifier = Modifier.height(10.dp))
 
                 // Derechos de autor y créditos de creador
                 Column(
@@ -576,6 +561,37 @@ fun MainDraftingScreen(
                         textAlign = TextAlign.Center
                     )
                 }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onNavigateToInfo,
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(44.dp)
+                        .testTag("btn_about_below_download"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.85f),
+                        contentColor = HextechGold
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Acerca De"),
+                        color = HextechGold,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Spacer(modifier = Modifier.height(30.dp))
             }
@@ -645,6 +661,142 @@ fun MainDraftingScreen(
             com.example.ui.components.DonationDialog(
                 onDismiss = { showDonationDialog = false }
             )
+        }
+    }
+}
+
+
+@Composable
+fun OfflineResourceDownloadCard() {
+    val downloadState by OfflineResourceManager.downloadState.collectAsState()
+    val progress by OfflineResourceManager.progress.collectAsState()
+    val downloaded by OfflineResourceManager.downloadedCount.collectAsState()
+    val total by OfflineResourceManager.totalCount.collectAsState()
+    val context = LocalContext.current
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.CloudDownload, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                Text(
+                    text = tr("Descarga de Recursos Offline"),
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Text(
+                text = tr("Imágenes (campeones, habilidades, objetos, runas y hechizos) para usar sin conexión y carga más rápida."),
+                color = TextSecondary,
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+
+            when (downloadState) {
+                DownloadState.IDLE -> {
+                    Button(
+                        onClick = { OfflineResourceManager.startDownload(context) },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(tr("Descargar Recursos"), fontWeight = FontWeight.Bold)
+                    }
+                }
+                DownloadState.DOWNLOADING -> {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = HextechCyan,
+                        trackColor = HextechSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("$downloaded / $total", color = TextPrimary, fontSize = 12.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { OfflineResourceManager.pauseDownload() },
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
+                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                            ) {
+                                Text(tr("Pausar"), fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+                DownloadState.PAUSED -> {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = HextechGold,
+                        trackColor = HextechSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(tr("Pausado") + " - $downloaded / $total", color = HextechGold, fontSize = 12.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { OfflineResourceManager.cancelDownload() },
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                                contentPadding = PaddingValues(horizontal = 12.dp)
+                            ) {
+                                Text(tr("Cancelar"), fontSize = 12.sp)
+                            }
+                            Button(
+                                onClick = { OfflineResourceManager.resumeDownload(context) },
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
+                                contentPadding = PaddingValues(horizontal = 12.dp)
+                            ) {
+                                Text(tr("Reanudar"), fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+                DownloadState.COMPLETED -> {
+                    LinearProgressIndicator(
+                        progress = { 1f },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = HextechGold,
+                        trackColor = HextechSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(tr("¡Descarga Completada!"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+                DownloadState.ERROR -> {
+                    Text(tr("Error en la descarga. Comprueba tu conexión."), color = DangerRed, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { OfflineResourceManager.startDownload(context) },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(tr("Reintentar"), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
         }
     }
 }
