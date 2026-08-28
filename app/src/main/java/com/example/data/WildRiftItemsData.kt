@@ -2862,51 +2862,240 @@ object WildRiftItemsData {
     private val itemAliases: Map<String, String> = mapOf(
         "black cleaver" to "black_cleaver",
         "cuchilla negra" to "black_cleaver",
+        "la cuchilla negra" to "black_cleaver",
         "sterak's gage" to "sterak_s_gage",
         "guantelete de sterak" to "sterak_s_gage",
+        "el guantelete de sterak" to "sterak_s_gage",
         "wit's end" to "wit_s_end",
         "al filo de la cordura" to "wit_s_end",
+        "filo de la cordura" to "wit_s_end",
         "edge of night" to "edge_of_night",
         "filo de la noche" to "edge_of_night",
+        "el filo de la noche" to "edge_of_night",
         "luden's echo" to "luden_s_echo",
         "eco de luden" to "luden_s_echo",
+        "el eco de luden" to "luden_s_echo",
         "archangel's staff" to "archangel_s_staff",
         "baculo del arcangel" to "archangel_s_staff",
         "báculo del arcángel" to "archangel_s_staff",
+        "el baculo del arcangel" to "archangel_s_staff",
+        "el báculo del arcángel" to "archangel_s_staff",
         "seraph's embrace" to "seraph_s_embrace",
         "abrazo del serafin" to "seraph_s_embrace",
         "abrazo del serafín" to "seraph_s_embrace",
+        "el abrazo del serafin" to "seraph_s_embrace",
         "winter's approach" to "winter_s_approach",
         "llegada del invierno" to "winter_s_approach",
+        "la llegada del invierno" to "winter_s_approach",
         "kaenic rookern" to "kaenic_rookern",
         "torreon de kaenic" to "kaenic_rookern",
         "torreón de kaenic" to "kaenic_rookern",
+        "el torreon de kaenic" to "kaenic_rookern",
         "staff of flowing water" to "staff_of_flowing_water",
         "baston de aguas fluidas" to "staff_of_flowing_water",
         "bastón de aguas fluidas" to "staff_of_flowing_water",
+        "el baston de aguas fluidas" to "staff_of_flowing_water",
         "imperial mandate" to "imperial_mandate",
         "mandato imperial" to "imperial_mandate",
+        "el mandato imperial" to "imperial_mandate",
         "sundered sky" to "sundered_sky",
         "cielo desgarrado" to "sundered_sky",
+        "el cielo desgarrado" to "sundered_sky",
         "tridente de oceanida" to "oceanid_s_trident",
         "tridente de oceánida" to "oceanid_s_trident",
+        "el tridente de oceanida" to "oceanid_s_trident",
         "dawnshroud" to "dawnshroud",
         "velo del amanecer" to "dawnshroud",
         "sudario del alba" to "dawnshroud",
+        "el sudario del alba" to "dawnshroud",
         "knight's vow" to "knight_s_vow",
         "voto de caballero" to "knight_s_vow",
+        "el voto de caballero" to "knight_s_vow",
         "promesa de caballero" to "knight_s_vow",
         "cryptbloom" to "cryptbloom",
         "flor de cripta" to "cryptbloom",
+        "la flor de cripta" to "cryptbloom",
         "florescencia sepulcral" to "cryptbloom",
         "zhonya's hourglass" to "zhonya_s_hourglass",
         "reloj de arena de zhonya" to "zhonya_s_hourglass",
         "el reloj de arena de zhonya" to "zhonya_s_hourglass",
         "rabadon's deathcap" to "rabadon_s_deathcap",
         "sombrero mortal de rabadon" to "rabadon_s_deathcap",
+        "el sombrero mortal de rabadon" to "rabadon_s_deathcap",
         "gorro mortal de rabadon" to "rabadon_s_deathcap",
         "gorro de muerte del miercoles" to "rabadon_s_deathcap",
-        "gorro de muerte del miércoles" to "rabadon_s_deathcap"
+        "gorro de muerte del miércoles" to "rabadon_s_deathcap",
+        "liandry's torment" to "liandry_s_torment",
+        "tormento de liandry" to "liandry_s_torment",
+        "el tormento de liandry" to "liandry_s_torment",
+        "rylai's crystal scepter" to "rylai_s_crystal_scepter",
+        "cetro de cristal de rylai" to "rylai_s_crystal_scepter",
+        "el cetro de cristal de rylai" to "rylai_s_crystal_scepter",
+        "cetros de cristal de rylai" to "rylai_s_crystal_scepter",
+        "los cetros de cristal de rylai" to "rylai_s_crystal_scepter",
+        "blade of the ruined king" to "blade_of_the_ruined_king",
+        "espada del rey arruinado" to "blade_of_the_ruined_king",
+        "la espada del rey arruinado" to "blade_of_the_ruined_king",
+        "hoja del rey arruinado" to "blade_of_the_ruined_king",
+        "botrk" to "blade_of_the_ruined_king",
+        "infinity edge" to "infinity_edge",
+        "borde infinito" to "infinity_edge",
+        "el borde infinito" to "infinity_edge",
+        "filo infinito" to "infinity_edge",
+        "the collector" to "the_collector",
+        "el coleccionista" to "the_collector",
+        "coleccionista" to "the_collector",
+        "el recaudador" to "the_collector",
+        "recaudador" to "the_collector",
+        "lord dominik's regards" to "lord_dominik_s_regards",
+        "saludos de dominik" to "lord_dominik_s_regards",
+        "lord dominik" to "lord_dominik_s_regards",
+        "mortal reminder" to "mortal_reminder",
+        "recordatorio mortal" to "mortal_reminder",
+        "el recordatorio mortal" to "mortal_reminder",
+        "bloodthirster" to "bloodthirster",
+        "sanguinario" to "bloodthirster",
+        "la sanguinaria" to "bloodthirster",
+        "el sanguinario" to "bloodthirster",
+        "heartsteel" to "heartsteel",
+        "corazon de acero" to "heartsteel",
+        "corazón de acero" to "heartsteel",
+        "el corazon de acero" to "heartsteel",
+        "thornmail" to "thornmail",
+        "malla de espinas" to "thornmail",
+        "la malla de espinas" to "thornmail",
+        "sunfire aegis" to "sunfire_aegis",
+        "egida de fuego solar" to "sunfire_aegis",
+        "égida de fuego solar" to "sunfire_aegis",
+        "la egida de fuego solar" to "sunfire_aegis",
+        "egida del fuego solar" to "sunfire_aegis",
+        "force of nature" to "force_of_nature",
+        "fuerza de la naturaleza" to "force_of_nature",
+        "la fuerza de la naturaleza" to "force_of_nature",
+        "randuin's omen" to "randuin_s_omen",
+        "presagio de randuin" to "randuin_s_omen",
+        "el presagio de randuin" to "randuin_s_omen",
+        "warmog's armor" to "warmog_s_armor",
+        "armadura de warmog" to "warmog_s_armor",
+        "la armadura de warmog" to "warmog_s_armor",
+        "trinity force" to "trinity_force",
+        "fuerza trinitaria" to "trinity_force",
+        "la fuerza trinitaria" to "trinity_force",
+        "fuerza de la trinidad" to "trinity_force",
+        "riftmaker" to "riftmaker",
+        "hacedor de grietas" to "riftmaker",
+        "el hacedor de grietas" to "riftmaker",
+        "void staff" to "void_staff",
+        "baston del vacio" to "void_staff",
+        "bastón del vacío" to "void_staff",
+        "el baston del vacio" to "void_staff",
+        "baston vacio" to "void_staff",
+        "bastón vacío" to "void_staff",
+        "infinity orb" to "infinity_orb",
+        "orbe infinito" to "infinity_orb",
+        "el orbe infinito" to "infinity_orb",
+        "morellonomicon" to "morellonomicon",
+        "morellonomicon" to "morellonomicon",
+        "morellonomicón" to "morellonomicon",
+        "el morellonomicon" to "morellonomicon",
+        "cosmic drive" to "cosmic_drive",
+        "impulso cosmico" to "cosmic_drive",
+        "impulso cósmico" to "cosmic_drive",
+        "el impulso cosmico" to "cosmic_drive",
+        "horizon focus" to "horizon_focus",
+        "enfoque del horizonte" to "horizon_focus",
+        "el enfoque del horizonte" to "horizon_focus",
+        "banshee's veil" to "banshee_s_veil",
+        "velo de alma en pena" to "banshee_s_veil",
+        "el velo de alma en pena" to "banshee_s_veil",
+        "mikael's blessing" to "mikael_s_blessing",
+        "la bendicion de michael" to "mikael_s_blessing",
+        "la bendición de michael" to "mikael_s_blessing",
+        "bendicion de mikael" to "mikael_s_blessing",
+        "bendición de mikael" to "mikael_s_blessing",
+        "ardent censer" to "ardent_censer",
+        "incensario ardiente" to "ardent_censer",
+        "el incensario ardiente" to "ardent_censer",
+        "harmonic echo" to "harmonic_echo",
+        "eco armonico" to "harmonic_echo",
+        "eco armónico" to "harmonic_echo",
+        "el eco armonico" to "harmonic_echo",
+        "zeke's convergence" to "zeke_s_convergence",
+        "la convergencia de zeke" to "zeke_s_convergence",
+        "convergencia de zeke" to "zeke_s_convergence",
+        "amaranth twinguard" to "amaranth_twinguard",
+        "guardia gemela de amaranto" to "amaranth_twinguard",
+        "la guardia gemela de amaranto" to "amaranth_twinguard",
+        "searing crown" to "searing_crown",
+        "corona abrasadora" to "searing_crown",
+        "la corona abrasadora" to "searing_crown",
+        "dead man's plate" to "dead_man_s_plate",
+        "coraza del muerto" to "dead_man_s_plate",
+        "la coraza del muerto" to "dead_man_s_plate",
+        "plato del hombre muerto" to "dead_man_s_plate",
+        "youmuu's ghostblade" to "youmuu_s_ghostblade",
+        "el cuchillo fantasma de youmuu" to "youmuu_s_ghostblade",
+        "espada fantasmal de youmuu" to "youmuu_s_ghostblade",
+        "duskblade of draktharr" to "duskblade_of_draktharr",
+        "hoja del ocaso de draktharr" to "duskblade_of_draktharr",
+        "la hoja del ocaso de draktharr" to "duskblade_of_draktharr",
+        "serylda's grudge" to "serylda_s_grudge",
+        "el rencor de serylda" to "serylda_s_grudge",
+        "rencor de serylda" to "serylda_s_grudge",
+        "serpent's fang" to "serpent_s_fang",
+        "colmillo de serpiente" to "serpent_s_fang",
+        "el colmillo de serpiente" to "serpent_s_fang",
+        "guardian angel" to "guardian_angel",
+        "angel custodio" to "guardian_angel",
+        "ángel custodio" to "guardian_angel",
+        "el angel custodio" to "guardian_angel",
+        "death's dance" to "death_s_dance",
+        "la danza de la muerte" to "death_s_dance",
+        "danza de la muerte" to "death_s_dance",
+        "magnetic blaster" to "magnetic_blaster",
+        "blaster magnetico" to "magnetic_blaster",
+        "blaster magnético" to "magnetic_blaster",
+        "el blaster magnetico" to "magnetic_blaster",
+        "rapid firecannon" to "rapid_firecannon",
+        "canon de fuego rapido" to "rapid_firecannon",
+        "cañón de fuego rápido" to "rapid_firecannon",
+        "phantom dancer" to "phantom_dancer",
+        "bailarina fantasma" to "phantom_dancer",
+        "la bailarina fantasma" to "phantom_dancer",
+        "runaan's hurricane" to "runaan_s_hurricane",
+        "el huracan de runaan" to "runaan_s_hurricane",
+        "el huracán de runaan" to "runaan_s_hurricane",
+        "huracan de runaan" to "runaan_s_hurricane",
+        "immortal shieldbow" to "immortal_shieldbow",
+        "arcoescudo inmortal" to "immortal_shieldbow",
+        "el arcoescudo inmortal" to "immortal_shieldbow",
+        "hullbreaker" to "hullbreaker",
+        "rompecascos" to "hullbreaker",
+        "el rompecascos" to "hullbreaker",
+        "nashor's tooth" to "nashor_s_tooth",
+        "diente de nashor" to "nashor_s_tooth",
+        "el diente de nashor" to "nashor_s_tooth",
+        "maw of malmortius" to "maw_of_malmortius",
+        "fauces de malmortius" to "maw_of_malmortius",
+        "las fauces de malmortius" to "maw_of_malmortius",
+        "abyssal mask" to "abyssal_mask",
+        "mascara abisal" to "abyssal_mask",
+        "máscara abisal" to "abyssal_mask",
+        "la mascara abisal" to "abyssal_mask",
+        "rod of ages" to "rod_of_ages",
+        "vara de las edades" to "rod_of_ages",
+        "la vara de las edades" to "rod_of_ages",
+        "locket of the iron solari" to "locket_of_the_iron_solari",
+        "relicario de los solari de hierro" to "locket_of_the_iron_solari",
+        "el relicario de los solari de hierro" to "locket_of_the_iron_solari",
+        "redemption" to "redemption_wild_rift",
+        "redencion" to "redemption_wild_rift",
+        "redención" to "redemption_wild_rift",
+        "la redencion" to "redemption_wild_rift",
+        "quicksilver sash" to "quicksilver_sash_mid_tier",
+        "fajin de mercurio" to "quicksilver_sash_mid_tier",
+        "fajín de mercurio" to "quicksilver_sash_mid_tier",
+        "el fajin de mercurio" to "quicksilver_sash_mid_tier"
     )
 
     private fun normalizeString(input: String): String {
@@ -2916,24 +3105,107 @@ object WildRiftItemsData {
             .trim()
     }
 
+    private fun cleanItemKey(input: String): String {
+        var s = normalizeString(input)
+        val articles = listOf("el ", "la ", "los ", "las ", "the ", "un ", "una ", "unos ", "unas ")
+        for (a in articles) {
+            if (s.startsWith(a)) {
+                s = s.substring(a.length).trim()
+            }
+        }
+        return s
+    }
+
     fun getItemByName(name: String): WildRiftItem? {
         val raw = name.trim()
         if (raw.isBlank()) return null
         val q = raw.lowercase()
         val normalized = normalizeString(raw)
+        val cleaned = cleanItemKey(raw)
 
         // 1. Alias lookup by ID
-        val aliasId = itemAliases[q] ?: itemAliases[normalized]
+        val aliasId = itemAliases[q] ?: itemAliases[normalized] ?: itemAliases[cleaned]
         if (aliasId != null) {
             val byId = list.find { it.id == aliasId }
             if (byId != null) return byId
         }
 
-        // 2. Direct exact matches
-        return list.find { it.name.equals(raw, ignoreCase = true) || it.nameEn.equals(raw, ignoreCase = true) || it.id.equals(raw, ignoreCase = true) }
-            ?: list.find { normalizeString(it.name) == normalized || normalizeString(it.nameEn) == normalized }
-            ?: list.find { it.name.contains(raw, ignoreCase = true) || it.nameEn.contains(raw, ignoreCase = true) }
-            ?: list.find { normalizeString(it.name).contains(normalized) || normalizeString(it.nameEn).contains(normalized) }
+        // 2. Direct exact matches (by name, nameEn, or id)
+        list.find { it.name.equals(raw, ignoreCase = true) || it.nameEn.equals(raw, ignoreCase = true) || it.id.equals(raw, ignoreCase = true) }?.let { return it }
+
+        // 3. Normalized exact matches
+        list.find { normalizeString(it.name) == normalized || normalizeString(it.nameEn) == normalized }?.let { return it }
+
+        // 4. Cleaned key matches (stripping articles)
+        list.find { cleanItemKey(it.name) == cleaned || cleanItemKey(it.nameEn) == cleaned }?.let { return it }
+
+        // 5. Bidirectional substring matching
+        list.find { 
+            val itemNorm = normalizeString(it.name)
+            val itemEnNorm = normalizeString(it.nameEn)
+            itemNorm.contains(normalized) || normalized.contains(itemNorm) ||
+            itemEnNorm.contains(normalized) || normalized.contains(itemEnNorm)
+        }?.let { return it }
+
+        // 6. Cleaned bidirectional substring matching
+        list.find {
+            val itemClean = cleanItemKey(it.name)
+            val itemEnClean = cleanItemKey(it.nameEn)
+            itemClean.contains(cleaned) || cleaned.contains(itemClean) ||
+            itemEnClean.contains(cleaned) || cleaned.contains(itemEnClean)
+        }?.let { return it }
+
+        // 7. Tactical keyword fallbacks
+        when {
+            cleaned.contains("rylai") -> return list.find { it.id == "rylai_s_crystal_scepter" }
+            cleaned.contains("liandry") -> return list.find { it.id == "liandry_s_torment" }
+            cleaned.contains("rabadon") || cleaned.contains("gorro") -> return list.find { it.id == "rabadon_s_deathcap" }
+            cleaned.contains("sterak") -> return list.find { it.id == "sterak_s_gage" }
+            cleaned.contains("cleaver") || cleaned.contains("cuchilla negra") -> return list.find { it.id == "black_cleaver" }
+            cleaned.contains("heartsteel") || cleaned.contains("corazon de acero") -> return list.find { it.id == "heartsteel" }
+            cleaned.contains("thornmail") || cleaned.contains("malla de espinas") -> return list.find { it.id == "thornmail" }
+            cleaned.contains("randuin") -> return list.find { it.id == "randuin_s_omen" }
+            cleaned.contains("kaenic") || cleaned.contains("torreon") -> return list.find { it.id == "kaenic_rookern" }
+            cleaned.contains("luden") -> return list.find { it.id == "luden_s_echo" }
+            cleaned.contains("zhonya") || cleaned.contains("estasis") || cleaned.contains("stasis") -> return list.find { it.id == "zhonya_s_hourglass" }
+            cleaned.contains("nashor") -> return list.find { it.id == "nashor_s_tooth" }
+            cleaned.contains("serylda") -> return list.find { it.id == "serylda_s_grudge" }
+            cleaned.contains("youmuu") -> return list.find { it.id == "youmuu_s_ghostblade" }
+            cleaned.contains("draktharr") -> return list.find { it.id == "duskblade_of_draktharr" }
+            cleaned.contains("collector") || cleaned.contains("coleccionista") || cleaned.contains("recaudador") -> return list.find { it.id == "the_collector" }
+            cleaned.contains("dominik") -> return list.find { it.id == "lord_dominik_s_regards" }
+            cleaned.contains("mikael") || cleaned.contains("michael") -> return list.find { it.id == "mikael_s_blessing" }
+            cleaned.contains("redencion") || cleaned.contains("redemption") -> return list.find { it.id == "redemption_wild_rift" }
+            cleaned.contains("solari") -> return list.find { it.id == "locket_of_the_iron_solari" }
+            cleaned.contains("fuego solar") || cleaned.contains("sunfire") -> return list.find { it.id == "sunfire_aegis" }
+            cleaned.contains("naturaleza") || cleaned.contains("nature") -> return list.find { it.id == "force_of_nature" }
+            cleaned.contains("arcangel") || cleaned.contains("archangel") -> return list.find { it.id == "archangel_s_staff" }
+            cleaned.contains("serafin") || cleaned.contains("seraph") -> return list.find { it.id == "seraph_s_embrace" }
+            cleaned.contains("hacedor") || cleaned.contains("riftmaker") -> return list.find { it.id == "riftmaker" }
+            cleaned.contains("banshee") || cleaned.contains("alma en pena") -> return list.find { it.id == "banshee_s_veil" }
+            cleaned.contains("trinidad") || cleaned.contains("trinity") -> return list.find { it.id == "trinity_force" }
+            cleaned.contains("arruinado") || cleaned.contains("botrk") -> return list.find { it.id == "blade_of_the_ruined_king" }
+            cleaned.contains("sanguinario") || cleaned.contains("sanguinaria") || cleaned.contains("bloodthirster") -> return list.find { it.id == "bloodthirster" }
+            cleaned.contains("borde infinito") || cleaned.contains("filo infinito") -> return list.find { it.id == "infinity_edge" }
+            cleaned.contains("blaster") || cleaned.contains("magnetico") -> return list.find { it.id == "magnetic_blaster" }
+            cleaned.contains("runaan") -> return list.find { it.id == "runaan_s_hurricane" }
+            cleaned.contains("cielo desgarrado") || cleaned.contains("sundered") -> return list.find { it.id == "sundered_sky" }
+            cleaned.contains("oceanida") || cleaned.contains("oceanid") -> return list.find { it.id == "oceanid_s_trident" }
+            cleaned.contains("sudario") || cleaned.contains("dawnshroud") -> return list.find { it.id == "dawnshroud" }
+            cleaned.contains("voto de caballero") || cleaned.contains("knight") -> return list.find { it.id == "knight_s_vow" }
+            cleaned.contains("cryptbloom") || cleaned.contains("flor de cripta") -> return list.find { it.id == "cryptbloom" }
+            cleaned.contains("fajin") || cleaned.contains("quicksilver") -> return list.find { it.id == "quicksilver_sash_mid_tier" }
+            cleaned.contains("amaranto") || cleaned.contains("amaranth") -> return list.find { it.id == "amaranth_twinguard" }
+            cleaned.contains("abrasadora") || cleaned.contains("searing") -> return list.find { it.id == "searing_crown" }
+            cleaned.contains("rompecascos") || cleaned.contains("hullbreaker") -> return list.find { it.id == "hullbreaker" }
+            cleaned.contains("morello") -> return list.find { it.id == "morellonomicon" }
+            cleaned.contains("aguas fluidas") || cleaned.contains("flowing water") -> return list.find { it.id == "staff_of_flowing_water" }
+            cleaned.contains("incensario") || cleaned.contains("censer") -> return list.find { it.id == "ardent_censer" }
+            cleaned.contains("eco armonico") || cleaned.contains("harmonic") -> return list.find { it.id == "harmonic_echo" }
+            cleaned.contains("mandato") || cleaned.contains("mandate") -> return list.find { it.id == "imperial_mandate" }
+        }
+
+        return null
     }
 
     fun getItemIconByName(name: String): String {
