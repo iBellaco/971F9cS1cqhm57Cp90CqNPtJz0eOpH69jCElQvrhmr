@@ -609,14 +609,6 @@ fun ChampionDetailSheet(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                            if (activeOption.source.isNotBlank()) {
-                                Text(
-                                    text = "Ref: ${activeOption.source}",
-                                    color = HextechCyan,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
                         }
                         Box(
                             modifier = Modifier

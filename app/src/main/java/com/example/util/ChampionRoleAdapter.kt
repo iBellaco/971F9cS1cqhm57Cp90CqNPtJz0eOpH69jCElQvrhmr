@@ -298,7 +298,7 @@ object ChampionRoleAdapter {
         val (opt1Runes, opt2Runes) = generateRunesOptions(champ, champ.primaryRole)
         val primaryRuneIcon = WildRiftSpellsAndRunes.getRuneIconByName(opt1Runes.firstOrNull() ?: extractMainRune(champ.recommendedRunes))
 
-        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, champ.isFrontline, champ.itemSwaps, role = champ.primaryRole)
+        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, champ.isFrontline, champ.itemSwaps, role = champ.primaryRole, fullBuild = build8)
 
         val buildOptions = generate4BuildOptions(
             champ = champ,
@@ -346,7 +346,7 @@ object ChampionRoleAdapter {
 
     private fun buildFlexRoleProfile(champ: Champion, role: LaneRole): ChampionRoleProfile {
         val isAp = champ.damageType == DamageType.MAGIC
-        val isTank = champ.isFrontline || role == LaneRole.SUPPORT || (role == LaneRole.TOP && !champ.isRanged)
+        val isTank = champ.isFrontline || (role == LaneRole.SUPPORT && !isAp && !champ.isRanged)
         val isMarksman = champ.isRanged && champ.damageType == DamageType.PHYSICAL
 
         // 1. Spells for flex role (ensuring 2 distinct spells)
@@ -407,7 +407,7 @@ object ChampionRoleAdapter {
         val (opt1Runes, opt2Runes) = generateRunesOptions(champ, role)
         val primaryRuneIcon = WildRiftSpellsAndRunes.getRuneIconByName(opt1Runes.firstOrNull() ?: extractMainRune(champ.recommendedRunes))
 
-        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, isTank, emptyList(), role = role)
+        val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, isTank, emptyList(), role = role, fullBuild = build8)
 
         val flexWinrate = adjustRate(champ.winrate, -1.2)
         val flexPickRate = adjustRate(champ.pickRate * 0.4, 0.0)
@@ -559,7 +559,7 @@ object ChampionRoleAdapter {
         defaultSpellsIcons: List<String>
     ): List<ChampionBuildOption> {
         val isAp = champ.damageType == DamageType.MAGIC
-        val isTank = champ.isFrontline || role == LaneRole.SUPPORT || (role == LaneRole.TOP && !champ.isRanged)
+        val isTank = champ.isFrontline || (role == LaneRole.SUPPORT && !isAp && !champ.isRanged)
         val isMarksman = champ.isRanged && champ.damageType == DamageType.PHYSICAL
         val isSupport = role == LaneRole.SUPPORT
         val isSpecialDamageSupport = isSupport && (champ.name.equals("Pyke", ignoreCase = true) || champ.name.equals("Senna", ignoreCase = true))
@@ -748,7 +748,8 @@ object ChampionRoleAdapter {
         damageType: DamageType,
         isTank: Boolean,
         explicitSwaps: List<ItemSwap> = emptyList(),
-        role: LaneRole? = null
+        role: LaneRole? = null,
+        fullBuild: List<String> = emptyList()
     ): List<ItemSwap> {
         val s1 = situationalItems.getOrElse(0) { if (role == LaneRole.SUPPORT) "Relicario de los Solari de Hierro" else "Ángel custodio" }
         val s2 = situationalItems.getOrElse(1) { if (role == LaneRole.SUPPORT) "Redención" else "Morellonomicón" }
@@ -769,10 +770,19 @@ object ChampionRoleAdapter {
         }
 
         val swaps = mutableListOf<ItemSwap>()
+        
+        fun getSafeAlt(preferred: String, vararg fallbacks: String): String {
+            val buildLower = fullBuild.map { it.lowercase() }
+            if (!buildLower.contains(preferred.lowercase())) return preferred
+            for (fallback in fallbacks) {
+                if (!buildLower.contains(fallback.lowercase())) return fallback
+            }
+            return fallbacks.lastOrNull() ?: preferred // ultimate fallback
+        }
 
         if (role == LaneRole.SUPPORT && !isTank) {
-            val alt1 = if (s1.equals("Relicario de los Solari de Hierro", ignoreCase = true)) "Redención" else "Relicario de los Solari de Hierro"
-            val alt2 = if (s2.equals("Bendición de Mikael", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Incensario ardiente" else "Bendición de Mikael"
+            val alt1 = getSafeAlt("Redención", "Relicario de los Solari de Hierro", "Promesa del protector")
+            val alt2 = getSafeAlt("Incensario ardiente", "Bendición de Mikael", "Mandato imperial")
 
             swaps.add(
                 ItemSwap(
@@ -797,8 +807,8 @@ object ChampionRoleAdapter {
                 )
             )
         } else if (damageType == DamageType.MAGIC && role != LaneRole.SUPPORT) {
-            val alt1 = if (s1.equals("Morellonomicón", ignoreCase = true)) "Reloj de arena de Zhonya" else "Morellonomicón"
-            val alt2 = if (s2.equals("Reloj de arena de Zhonya", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Velo de alma en pena" else "Reloj de arena de Zhonya"
+            val alt1 = getSafeAlt("Morellonomicón", "Reloj de arena de Zhonya", "Orbe infinito")
+            val alt2 = getSafeAlt("Reloj de arena de Zhonya", "Velo de alma en pena", "Corona de la Reina Fragmentada")
 
             swaps.add(
                 ItemSwap(
@@ -823,8 +833,8 @@ object ChampionRoleAdapter {
                 )
             )
         } else if (isTank) {
-            val alt1 = if (s1.equals("Malla de espinas", ignoreCase = true)) "Presagio de Randuin" else "Malla de espinas"
-            val alt2 = if (s2.equals("Fuerza de la naturaleza", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Corona abrasadora" else "Fuerza de la naturaleza"
+            val alt1 = getSafeAlt("Malla de espinas", "Presagio de Randuin", "Corazón de hielo")
+            val alt2 = getSafeAlt("Fuerza de la naturaleza", "Corona abrasadora", "Apariencia espiritual")
 
             swaps.add(
                 ItemSwap(
@@ -849,8 +859,8 @@ object ChampionRoleAdapter {
                 )
             )
         } else {
-            val alt1 = if (s1.equals("Colmillo de serpiente", ignoreCase = true)) "Malla de espinas" else "Colmillo de serpiente"
-            val alt2 = if (s2.equals("Ángel custodio", ignoreCase = true) || s2.equals(alt1, ignoreCase = true)) "Fajín de mercurio" else "Ángel custodio"
+            val alt1 = getSafeAlt("Colmillo de serpiente", "Malla de espinas", "Recordatorio mortal")
+            val alt2 = getSafeAlt("Ángel custodio", "Fajín de mercurio", "Filo de la noche")
 
             swaps.add(
                 ItemSwap(
