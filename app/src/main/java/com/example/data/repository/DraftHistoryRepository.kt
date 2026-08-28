@@ -37,7 +37,7 @@ object DraftHistoryRepository {
         analysis: DraftAnalysisResult,
         title: String? = null,
         notes: String = "",
-        matchResult: String = "PENDING"
+        matchResult: String = "VICTORY"
     ): Long {
         val allyDataList = allies.map {
             SavedDraftSlotData(

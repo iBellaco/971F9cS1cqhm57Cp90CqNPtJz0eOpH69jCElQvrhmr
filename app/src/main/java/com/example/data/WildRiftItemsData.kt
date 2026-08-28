@@ -133,16 +133,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "black_cleaver",
-            name = "Black Cleaver",
+            name = "Cuchilla negra",
             nameEn = "Black Cleaver",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
-            stats = "+400 Max Health • +40 Attack Damage • +20 Ability Haste",
+            stats = "+400 Salud máxima • +40 Daño de ataque • +20 Aceleración de habilidad",
             statsEn = "+400 Max Health • +40 Attack Damage • +20 Ability Haste",
-            passive = "Sunder: Dealing physical damage to a champion reduces their Armor by 6% for 6 seconds, stacking 5 times for 30% reduction.\nRage: Gain 20 Movement Speed when you deal physical damage. When moving toward enemy champions with 5 Sunder stacks, gain 40 Move Speed. Ranged champions gain halved values.",
+            passive = "Hender: Infligir daño físico a un campeón reduce su armadura en un 6% durante 6 s (se acumula hasta 5 veces, 30% de reducción).\nRabia: Infligir daño físico otorga 20 de velocidad de movimiento durante 2 s. Moverse hacia campeones enemigos con 5 acumulaciones otorga 40 de velocidad de movimiento.",
             passiveEn = "Sunder: Dealing physical damage to a champion reduces their Armor by 6% for 6 seconds, stacking 5 times for 30% reduction.\nRage: Gain 20 Movement Speed when you deal physical damage. When moving toward enemy champions with 5 Sunder stacks, gain 40 Move Speed. Ranged champions gain halved values.",
-            coachTip = "This item is perfect for champions who deal physical damage and need to fight tanky opponents. The \"Sunder\" effect reduces the enemy’s armor when dealing physical damage, making it effective at shredding through tanks with high resistance. The movement speed bonus, activated when dealing physical damage, helps maintain mobility on the battlefield. It's a great choice for fighters and junglers who can quickly apply multiple stacks of the item’s passive, reducing the enemy's armor and increasing the overall damage dealt.",
-            coachTipEn = "This item is perfect for champions who deal physical damage and need to fight tanky opponents. The \"Sunder\" effect reduces the enemy’s armor when dealing physical damage, making it effective at shredding through tanks with high resistance. The movement speed bonus, activated when dealing physical damage, helps maintain mobility on the battlefield. It's a great choice for fighters and junglers who can quickly apply multiple stacks of the item’s passive, reducing the enemy's armor and increasing the overall damage dealt.",
+            coachTip = "Objeto indispensable para campeones de daño físico contra rivales con armadura. Reduce la armadura enemiga con cada impacto físico y otorga velocidad de movimiento para mantener el hostigamiento.",
+            coachTipEn = "This item is perfect for champions who deal physical damage and need to fight tanky opponents. Sunder reduces armor on physical hits while Rage grants movement speed.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301421_black-cleaver.webp"
         ),
         WildRiftItem(
@@ -245,16 +245,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "wit_s_end",
-            name = "Wit's End",
+            name = "Al filo de la cordura",
             nameEn = "Wit's End",
             category = "Objetos con Daños Físicos",
             goldCost = 2800,
-            stats = "+45% Attack Speed • +45 Magic Resistance",
+            stats = "+45% Velocidad de ataque • +45 Resistencia mágica",
             statsEn = "+45% Attack Speed • +45 Magic Resistance",
-            passive = "At Wit's End: Basic attacks deal 10-55 bonus magic damage. While below 50%Health, dealing damage to an enemy champion heals you for (Melee 100% / Range 66%) of this effect's post-mitigation damage.",
+            passive = "Al filo de la cordura: Los ataques básicos infligen 10-55 de daño mágico adicional al golpear. Al tener menos del 50% de vida, infligir daño a un campeón te cura.",
             passiveEn = "At Wit's End: Basic attacks deal 10-55 bonus magic damage. While below 50%Health, dealing damage to an enemy champion heals you for (Melee 100% / Range 66%) of this effect's post-mitigation damage.",
-            coachTip = "This item is perfect for champions who want to deal sustained damage and have some defensive stats against magic damage threats. It provides bonuses to attack speed and magic resistance, as well as adding magic damage to your auto-attacks, making it effective against magic-based threats. The \"While below 50% Health\" effect heals you when dealing damage to an enemy champion, increasing survivability in fights. This item is especially useful for champions like Vayne, Irelia, or Master Yi, who can benefit from its on-hit magic damage and health restoration effect.",
-            coachTipEn = "This item is perfect for champions who want to deal sustained damage and have some defensive stats against magic damage threats. It provides bonuses to attack speed and magic resistance, as well as adding magic damage to your auto-attacks, making it effective against magic-based threats. The \"While below 50% Health\" effect heals you when dealing damage to an enemy champion, increasing survivability in fights. This item is especially useful for champions like Vayne, Irelia, or Master Yi, who can benefit from its on-hit magic damage and health restoration effect.",
+            coachTip = "Excelente para duelistas y tiradores contra composiciones con alto daño mágico. Proporciona velocidad de ataque, daño mágico al impactar y curación por debajo del 50% de vida.",
+            coachTipEn = "This item is perfect for champions who want sustained damage and magic defense. Provides attack speed, on-hit magic damage, and healing below 50% HP.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302068_wits-end.webp"
         ),
         WildRiftItem(
@@ -301,16 +301,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "edge_of_night",
-            name = "Edge of Night",
+            name = "Filo de la noche",
             nameEn = "Edge of Night",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
-            stats = "+250 Max Health • +50 Attack Damage",
+            stats = "+250 Salud máxima • +50 Daño de ataque",
             statsEn = "+250 Max Health • +50 Attack Damage",
-            passive = "Gouge: +12 Armor Penetration.\nAnnul: Grants a spell shield that blocks the next hostile ability. This spell shield refreshes upon leaving combat with enemy champions. (35 second cooldown)",
+            passive = "Gubia: +12 Penetración de armadura.\nAnular: Otorga un escudo de hechizos que bloquea la siguiente habilidad enemiga (35 s de enfriamiento).",
             passiveEn = "Gouge: +12 Armor Penetration.\nAnnul: Grants a spell shield that blocks the next hostile ability. This spell shield refreshes upon leaving combat with enemy champions. (35 second cooldown)",
-            coachTip = "This item is perfect for champions who need a mix of offense and defense. It provides bonuses to maximum health and attack damage, along with increased armor penetration to help you shred through enemy defenses. The \"Annul\" effect grants you a spell shield, blocking the next enemy ability. This spell shield refreshes when leaving combat with enemy champions, making the item a great choice for champions who need protection from crowd control and to engage in fights, such as Ashe, Lux, or Morgana.",
-            coachTipEn = "This item is perfect for champions who need a mix of offense and defense. It provides bonuses to maximum health and attack damage, along with increased armor penetration to help you shred through enemy defenses. The \"Annul\" effect grants you a spell shield, blocking the next enemy ability. This spell shield refreshes when leaving combat with enemy champions, making the item a great choice for champions who need protection from crowd control and to engage in fights, such as Ashe, Lux, or Morgana.",
+            coachTip = "Ideal para asesinos y tiradores de letalidad. Otorga penetración de armadura y un escudo que bloquea la primera habilidad enemiga, permitiendo entrar a las peleas con total seguridad.",
+            coachTipEn = "This item is perfect for assassins and lethality carries, providing armor penetration and a spell shield to block critical enemy crowd control or burst.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302335_edge-of-night.webp"
         ),
         WildRiftItem(
@@ -371,16 +371,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "sterak_s_gage",
-            name = "Sterak's Gage",
+            name = "Guantelete de Sterak",
             nameEn = "Sterak's Gage",
             category = "Objetos con Daños Físicos",
             goldCost = 3200,
-            stats = "+400 Max Health",
+            stats = "+400 Salud máxima",
             statsEn = "+400 Max Health",
-            passive = "Heavy Handed: +50% base Attack Damage as bonus Attack Damage.\nLifeline: Damage that puts you under 35% Health grants a shield that equal to 75% of your bonus health that decays over 3 seconds (75s Cooldown).\nSterak's Fury: Triggering Lifeline increases size, empowers you, removes all crowd control effects on you (except Airborne), and grants 30% Tenacity for 4 seconds.",
+            passive = "Mano dura: +50% del daño de ataque base como daño de ataque adicional.\nLínea de vida: Al recibir daño que reduzca tu vida por debajo del 35%, otorga un escudo equivalente al 75% de la vida adicional (75 s de enfriamiento).\nFuria de Sterak: Activar Línea de vida aumenta el tamaño, elimina efectos de control y otorga 30% de tenacidad durante 4 s.",
             passiveEn = "Heavy Handed: +50% base Attack Damage as bonus Attack Damage.\nLifeline: Damage that puts you under 35% Health grants a shield that equal to 75% of your bonus health that decays over 3 seconds (75s Cooldown).\nSterak's Fury: Triggering Lifeline increases size, empowers you, removes all crowd control effects on you (except Airborne), and grants 30% Tenacity for 4 seconds.",
-            coachTip = "This item is perfect for champions who need survivability in team fights, especially for tanks and fighters who take frontline positions. It provides bonuses to maximum health, attack damage, and helps increase your survivability. The \"Lifeline\" effect activates when your health drops below 35%, granting a shield that absorbs damage, helping you survive heavy hits. \"Sterak's Fury\" empowers you, increases your size, removes crowd control effects (except airborne), and grants 30% tenacity for 4 seconds, allowing you to survive and continue fighting through heavy crowd control and burst damage from enemies. This item is especially useful against champions with burst damage, such as Zed and Talon, and against champions with heavy CC, like Lissandra and Nautilus.",
-            coachTipEn = "This item is perfect for champions who need survivability in team fights, especially for tanks and fighters who take frontline positions. It provides bonuses to maximum health, attack damage, and helps increase your survivability. The \"Lifeline\" effect activates when your health drops below 35%, granting a shield that absorbs damage, helping you survive heavy hits. \"Sterak's Fury\" empowers you, increases your size, removes crowd control effects (except airborne), and grants 30% tenacity for 4 seconds, allowing you to survive and continue fighting through heavy crowd control and burst damage from enemies. This item is especially useful against champions with burst damage, such as Zed and Talon, and against champions with heavy CC, like Lissandra and Nautilus.",
+            coachTip = "Esencial para luchadores y colosos de primera línea. Otorga gran daño según tu AD base y un escudo masivo con tenacidad cuando tu vida baja críticamente.",
+            coachTipEn = "This item is essential for frontline fighters, granting bonus attack damage and a large shield with tenacity when health drops below 35%.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305021_steraks-gage.webp"
         ),
         WildRiftItem(
@@ -427,16 +427,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "sundered_sky",
-            name = "Sundered Sky",
+            name = "Cielo desgarrado",
             nameEn = "Sundered Sky",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
-            stats = "+350 Max Health • +40 Attack Damage • +15 Ability Haste",
+            stats = "+350 Salud máxima • +40 Daño de ataque • +15 Aceleración de habilidad",
             statsEn = "+350 Max Health • +40 Attack Damage • +15 Ability Haste",
-            passive = "Lightshield Strike: The first attack against an enemy champion deals Critically Strikes (6s cooldown per target), dealing 160% damage and restores Health (equal to 125% base Attack Damage + 6% of missing Health to you.",
+            passive = "Golpe de escudo de luz: El primer ataque contra un campeón enemigo asesta un golpe crítico garantizado (160% de daño) y te restaura vida equivalente a 125% AD base + 6% de la vida faltante (6 s de enfriamiento por objetivo).",
             passiveEn = "Lightshield Strike: The first attack against an enemy champion deals Critically Strikes (6s cooldown per target), dealing 160% damage and restores Health (equal to 125% base Attack Damage + 6% of missing Health to you.",
-            coachTip = "This item is perfect for AD bruisers who deal physical damage and need sustain during fights. It provides bonuses to maximum health, attack damage, and ability haste, helping to improve both survivability and damage output. The \"Lightshield Strike\" effect causes your first attack against an enemy champion to critically strike, dealing 160% damage and restoring health based on your base attack damage and a percentage of your missing health. This makes the item a great choice for AD bruisers who engage in fights and require both extra damage and sustain.",
-            coachTipEn = "This item is perfect for AD bruisers who deal physical damage and need sustain during fights. It provides bonuses to maximum health, attack damage, and ability haste, helping to improve both survivability and damage output. The \"Lightshield Strike\" effect causes your first attack against an enemy champion to critically strike, dealing 160% damage and restoring health based on your base attack damage and a percentage of your missing health. This makes the item a great choice for AD bruisers who engage in fights and require both extra damage and sustain.",
+            coachTip = "Excelente para iniciaciones y escaramuzas en línea. Tu primer golpe a cada enemigo inflige un impacto crítico devastador y te cura una porción de tu vida faltante.",
+            coachTipEn = "This item is perfect for AD bruisers who deal physical damage and need sustain during fights. The first strike critically hits and heals based on missing HP.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305059_sundered-sky.webp"
         ),
         WildRiftItem(
@@ -609,11 +609,11 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "luden_s_echo",
-            name = "Luden's Echo",
+            name = "Eco de Luden",
             nameEn = "Luden's Echo",
             category = "Objetos de Daño Mágico",
             goldCost = 2800,
-            stats = "+100 poder de habilidad • +500 maná máximo • +10 celeridad de habilidad",
+            stats = "+100 Poder de habilidad • +500 Maná máximo • +10 Celeridad de habilidad",
             statsEn = "+100 Ability Power • +500 Max Mana • +10 Ability Haste",
             passive = "Eco: Tu próxima habilidad dañina o ataque potenciado inflige un 140 + 15% de daño mágico adicional al objetivo y hasta 3 enemigos cercanos. (9s de tiempo de reutilización)",
             passiveEn = "Echo: Your next damaging ability or empowered attack deals an additional 140 + 15% magic damage to the target and up to 3 nearby enemies. (9s Cooldown)",
@@ -721,30 +721,30 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "archangel_s_staff",
-            name = "Archangel's Staff",
+            name = "Báculo del arcángel",
             nameEn = "Archangel's Staff",
             category = "Objetos de Daño Mágico",
             goldCost = 3000,
-            stats = "+60 Ability Power • +500 Max Mana • +25 Ability Haste",
+            stats = "+60 Poder de habilidad • +500 Maná máximo • +25 Celeridad de habilidad",
             statsEn = "+60 Ability Power • +500 Max Mana • +25 Ability Haste",
-            passive = "Awe: Grants Ability Power equal to 1% max Mana and refunds 25% of all Mana spent.\nMana Charge: Increases max Mana by 14 every time Mana is spent. Caps at 700 bonus Mana, transforming Archangel's Staff into Seraph's Embrace. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
+            passive = "Pavor: Otorga poder de habilidad equivalente al 1% del maná máximo y reembolsa el 25% del maná gastado.\nCarga de maná: Aumenta el maná máximo en 14 al gastar maná (máximo 700 adicional, transformándose en Abrazo del serafín).",
             passiveEn = "Awe: Grants Ability Power equal to 1% max Mana and refunds 25% of all Mana spent.\nMana Charge: Increases max Mana by 14 every time Mana is spent. Caps at 700 bonus Mana, transforming Archangel's Staff into Seraph's Embrace. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
-            coachTip = "This item is perfect for mages who rely on a large mana pool and need a significant boost to their ability power. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste, helping you deal damage and use your abilities frequently. The \"Awe\" effect increases your ability power based on your maximum mana and refunds a portion of mana spent, helping you sustain in fights. The \"Mana Charge\" effect increases your maximum mana every time you spend mana, eventually transforming the item into Seraph's Embrace, giving you additional bonuses. This item is ideal for champions who want to scale well into the late game with a large amount of AP and mana.",
-            coachTipEn = "This item is perfect for mages who rely on a large mana pool and need a significant boost to their ability power. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste, helping you deal damage and use your abilities frequently. The \"Awe\" effect increases your ability power based on your maximum mana and refunds a portion of mana spent, helping you sustain in fights. The \"Mana Charge\" effect increases your maximum mana every time you spend mana, eventually transforming the item into Seraph's Embrace, giving you additional bonuses. This item is ideal for champions who want to scale well into the late game with a large amount of AP and mana.",
+            coachTip = "Objeto de escalado masivo para magos que dependen de un gran depósito de maná (Orianna, Kassadin, Ryze, Ziggs). Al completarse se transforma en Abrazo del serafín, otorgando un escudo vitalicio.",
+            coachTipEn = "This item is perfect for mages who rely on a large mana pool and need significant ability power scaling.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388461_archangels-staff.webp"
         ),
         WildRiftItem(
             id = "seraph_s_embrace",
-            name = "Seraph's Embrace",
+            name = "Abrazo del serafín",
             nameEn = "Seraph's Embrace",
             category = "Objetos de Daño Mágico",
             goldCost = 2950,
-            stats = "+60 Ability Power • +1200 Max Mana • +25 Ability Haste",
+            stats = "+60 Poder de habilidad • +1200 Maná máximo • +25 Celeridad de habilidad",
             statsEn = "+60 Ability Power • +1200 Max Mana • +25 Ability Haste",
-            passive = "Awe: Grants Ability Power equal to 2% max Mana and refunds 25% of all Mana spent.\nLifeline: Damage that puts you under 35% Health consumes 20% of your current Mana to grant a shield, equal to that amount +100 for 2 seconds. (70s cooldown).",
+            passive = "Pavor: Otorga poder de habilidad equivalente al 2% del maná máximo y reembolsa el 25% del maná gastado.\nLínea de vida: Al recibir daño que baje tu vida del 35%, consume el 20% del maná actual para otorgar un escudo de absorción durante 2 s (70 s de enfriamiento).",
             passiveEn = "Awe: Grants Ability Power equal to 2% max Mana and refunds 25% of all Mana spent.\nLifeline: Damage that puts you under 35% Health consumes 20% of your current Mana to grant a shield, equal to that amount +100 for 2 seconds. (70s cooldown).",
-            coachTip = "This item is perfect for mages who need a large mana pool and survivability in team fights. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste, helping you deal damage and use your abilities effectively. The \"Awe\" effect increases your ability power based on your maximum mana and refunds a portion of mana spent, allowing you to stay in fights longer. The \"Lifeline\" effect activates when your health drops below 35%, granting a shield that helps you survive the initial burst damage and prolong your presence in the fight. This item is ideal for champions who want to scale well into the late game with a large amount of AP and mana, while also gaining extra survivability.",
-            coachTipEn = "This item is perfect for mages who need a large mana pool and survivability in team fights. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste, helping you deal damage and use your abilities effectively. The \"Awe\" effect increases your ability power based on your maximum mana and refunds a portion of mana spent, allowing you to stay in fights longer. The \"Lifeline\" effect activates when your health drops below 35%, granting a shield that helps you survive the initial burst damage and prolong your presence in the fight. This item is ideal for champions who want to scale well into the late game with a large amount of AP and mana, while also gaining extra survivability.",
+            coachTip = "Transformación definitiva del Báculo del arcángel. Otorga un inmenso poder de habilidad por maná y un escudo automático para sobrevivir al daño de ráfaga asesino.",
+            coachTipEn = "Upgraded form of Archangel's Staff. Grants massive AP based on mana and an emergency lifeline shield.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388429_seraphs-embrace.webp"
         ),
         WildRiftItem(
@@ -1141,16 +1141,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "winter_s_approach",
-            name = "Winter's Approach",
+            name = "Llegada del invierno",
             nameEn = "Winter's Approach",
             category = "Artículos de Defensa",
             goldCost = 2600,
-            stats = "+350 Max Health • +500 Max Mana • +15 Ability Haste",
+            stats = "+350 Salud máxima • +500 Maná máximo • +15 Celeridad de habilidad",
             statsEn = "+350 Max Health • +500 Max Mana • +15 Ability Haste",
-            passive = "Awe: Grants bonus health equal to 8% of max Mana and refunds 15% of all Mana spent.\nMana Charge: Increases max Mana by 12 every attack, when Mana is spent or when taking damage from champions, epic monsters, or towers. Caps at 700 bonus Mana, transforming Winter's Approach into Fimbulwinter. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
+            passive = "Pavor: Otorga vida adicional equivalente al 8% del maná máximo y reembolsa el 15% del maná gastado.\nCarga de maná: Aumenta el maná en 12 al atacar, gastar maná o recibir daño (máximo 700, transformándose en Fimbulinvierno).",
             passiveEn = "Awe: Grants bonus health equal to 8% of max Mana and refunds 15% of all Mana spent.\nMana Charge: Increases max Mana by 12 every attack, when Mana is spent or when taking damage from champions, epic monsters, or towers. Caps at 700 bonus Mana, transforming Winter's Approach into Fimbulwinter. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
-            coachTip = "This item is perfect for defensive champions, especially tanks who rely on frequent ability casts and auto-attacks. It provides bonuses to health, maximum mana, and ability haste, while also refunding a portion of mana spent, helping you stay in fights longer. The \"Mana Charge\" effect increases your maximum mana on each basic attack, mana expenditure, or when taking damage from champions, epic monsters, or turrets, allowing you to build a massive mana pool and eventually transform the item into a more powerful version. Combined with its health and defensive stats, this grants immense survivability and the ability to cast spells more often—ideal for spell-weaving tanks who can build huge shields and effectively control engagements.",
-            coachTipEn = "This item is perfect for defensive champions, especially tanks who rely on frequent ability casts and auto-attacks. It provides bonuses to health, maximum mana, and ability haste, while also refunding a portion of mana spent, helping you stay in fights longer. The \"Mana Charge\" effect increases your maximum mana on each basic attack, mana expenditure, or when taking damage from champions, epic monsters, or turrets, allowing you to build a massive mana pool and eventually transform the item into a more powerful version. Combined with its health and defensive stats, this grants immense survivability and the ability to cast spells more often—ideal for spell-weaving tanks who can build huge shields and effectively control engagements.",
+            coachTip = "Excelente objeto defensivo para tanques y colosos que gastan mucho maná y quieren acumular reservas para obtener el escudo pasivo de Fimbulinvierno.",
+            coachTipEn = "Perfect defensive item for tanks needing mana scaling and massive shielding upon transforming.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389175_winters-approach.webp"
         ),
         WildRiftItem(
@@ -1295,7 +1295,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "kaenic_rookern",
-            name = "Kaenic Rookern",
+            name = "Torreón de Kaenic",
             nameEn = "Kaenic Rookern",
             category = "Artículos de Defensa",
             goldCost = 2800,
@@ -1303,8 +1303,8 @@ object WildRiftItemsData {
             statsEn = "+350 Max Health • +100% Health Regen • +85 Magic Resistance",
             passive = "Magebane: después de no recibir daño mágico durante 12 segundos, obtienes un escudo mágico que absorbe daño equivalente a 50-150 + 14% de la salud máxima.",
             passiveEn = "Magebane: After not taking magic damage for 12 seconds, gain a magic shield that absorbs damage equal to 50-150 + 14% of max Health.",
-            coachTip = "Este objeto es perfecto para campeones que necesitan protección adicional contra el daño mágico, especialmente cuando pasan algún tiempo fuera de combate. Proporciona importantes bonificaciones de salud, regeneración y resistencia mágica. La pasiva \"Magebane\" se activa después de 12 segundos sin recibir daño mágico, lo que te otorga un escudo mágico que absorbe el daño según tu salud máxima. Esto te permite recuperarte de forma segura entre peleas y volver a entrar en combate con confianza. Es especialmente efectivo contra equipos con mucho daño AP.",
-            coachTipEn = "This item is perfect for champions who need extra protection against magic damage, particularly when spending some time out of combat. It provides significant bonuses to health, regeneration, and magic resistance. The “Magebane” passive activates after 12 seconds without taking magic damage, granting you a magic shield that absorbs damage based on your maximum health. This allows you to safely recover between fights and confidently re-enter combat. It’s especially effective against teams heavy in AP damage.",
+            coachTip = "El objeto defensivo definitivo contra composiciones enemigas repletas de magos o daño mágico. Otorga +85 de resistencia mágica y un escudo pasivo antimage.",
+            coachTipEn = "The premier magic resistance item against heavy AP damage, granting high MR and a scaling magic damage absorption shield.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389228_kaenic-rookern.webp"
         ),
         WildRiftItem(
@@ -1519,21 +1519,21 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "staff_of_flowing_water",
-            name = "Staff of Flowing Water",
+            name = "Bastón de aguas fluidas",
             nameEn = "Staff of Flowing Water",
             category = "Artículos de Apoyo",
             goldCost = 2500,
-            stats = "+100 Max Health • +50 Ability Power • +50% Mana Regen • +15 Ability Haste • +5% Heal and Shield Strength",
+            stats = "+100 Vida máxima • +50 Poder de habilidad • +50% Regeneración de maná • +15 Velocidad de habilidades • +5% Poder de curaciones y escudos",
             statsEn = "+100 Max Health • +50 Ability Power • +50% Mana Regen • +15 Ability Haste • +5% Heal and Shield Strength",
-            passive = "Rapids: Healing or shielding an ally grants you both +15 Ability Haste and 30-50 (based on target's level) Ability Power for 6 seconds.",
+            passive = "Rápidos: Otorgar escudos o curar a un aliado os otorga a ambos 15 de velocidad de habilidades y de 30 a 50 de poder de habilidad (según el nivel del objetivo) durante 6 s.",
             passiveEn = "Rapids: Healing or shielding an ally grants you both +15 Ability Haste and 30-50 (based on target's level) Ability Power for 6 seconds.",
-            coachTip = "This item is perfect for champions who rely on healing or shielding abilities to support their team. It provides bonuses to maximum health, ability power, ability haste, and amplifies healing and shielding effects. The \"Rapids\" effect activates when you heal or shield an ally, granting both you and your ally bonuses to ability haste and ability power for 6 seconds. This item is especially useful for champions who actively support their team, such as Soraka, Nami, or Lulu.",
-            coachTipEn = "This item is perfect for champions who rely on healing or shielding abilities to support their team. It provides bonuses to maximum health, ability power, ability haste, and amplifies healing and shielding effects. The \"Rapids\" effect activates when you heal or shield an ally, granting both you and your ally bonuses to ability haste and ability power for 6 seconds. This item is especially useful for champions who actively support their team, such as Soraka, Nami, or Lulu.",
+            coachTip = "Objeto insignia para encantadores (Nami, Lulu, Yuumi, Sona, Soraka) con aliados que aprovechan el AP y la aceleración de habilidades. Cada escudo o curación potencia el daño mágico de tu carry.",
+            coachTipEn = "Premier support item for enchanters with AP allies, buffing both you and your ally with ability power and haste upon heals or shields.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388553_staff-of-flowing-water.webp"
         ),
         WildRiftItem(
             id = "oceanid_s_trident",
-            name = "Tridente de Oceanida",
+            name = "Tridente de oceánida",
             nameEn = "Oceanid's Trident",
             category = "Artículos de Apoyo",
             goldCost = 2600,
@@ -1547,16 +1547,16 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "imperial_mandate",
-            name = "Imperial Mandate",
+            name = "Mandato imperial",
             nameEn = "Imperial Mandate",
             category = "Artículos de Apoyo",
             goldCost = 2500,
-            stats = "+200 Max Health • +50 Ability Power • +20 Ability Haste",
+            stats = "+200 Vida máxima • +50 Poder de habilidad • +20 Velocidad de habilidades",
             statsEn = "+200 Max Health • +50 Ability Power • +20 Ability Haste",
-            passive = "Coordinated Fire: Abilities that Slow or Immobilize a champion deal 47-75 bonus magic damage and marks them for 4 seconds (6 seconds cooldown per enemy champion). Allied champion damage detonates the mark, dealing an additional 94-150 magic damage (based on ally level) and granting you both 20% Move Speed, for 2 seconds.",
+            passive = "Fuego coordinado: Las habilidades que ralentizan o inmovilizan a un campeón le infligen 47-75 de daño mágico adicional y marcan al objetivo durante 4 s (6 s de enfriamiento por cada campeón enemigo). El daño de los campeones aliados detona la marca, lo que inflige 94-150 de daño mágico adicional (según el nivel del aliado) y os otorga a ambos un 20% de velocidad de movimiento durante 2 s.",
             passiveEn = "Coordinated Fire: Abilities that Slow or Immobilize a champion deal 47-75 bonus magic damage and marks them for 4 seconds (6 seconds cooldown per enemy champion). Allied champion damage detonates the mark, dealing an additional 94-150 magic damage (based on ally level) and granting you both 20% Move Speed, for 2 seconds.",
-            coachTip = "This item is perfect for support champions who have abilities that slow or immobilize enemies, allowing you to activate effects for your team. It provides bonuses to maximum health, ability power, and ability haste, helping you deal damage while also enhancing teamwork with your allies. The \"Coordinated Fire\" effect activates when you slow or immobilize an enemy, dealing bonus magic damage and marking them for 4 seconds. When an allied champion damages the marked target, it detonates the mark, dealing additional magic damage and granting both you and your ally 20% bonus movement speed for 2 seconds. This item is especially useful for champions with crowd control abilities.",
-            coachTipEn = "This item is perfect for support champions who have abilities that slow or immobilize enemies, allowing you to activate effects for your team. It provides bonuses to maximum health, ability power, and ability haste, helping you deal damage while also enhancing teamwork with your allies. The \"Coordinated Fire\" effect activates when you slow or immobilize an enemy, dealing bonus magic damage and marking them for 4 seconds. When an allied champion damages the marked target, it detonates the mark, dealing additional magic damage and granting both you and your ally 20% bonus movement speed for 2 seconds. This item is especially useful for champions with crowd control abilities.",
+            coachTip = "Fundamental para apoyos con control de masas (Karma, Morgana, Nami, Lux, Seraphine). Marca a los enemigos inmovilizados o ralentizados para que tus aliados detonen daño mágico adicional masivo y velocidad.",
+            coachTipEn = "Ideal for supports with CC. Marks enemies to allow allies to detonate extra magic burst and gain movement speed.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388613_imperial-mandate.webp"
         ),
         WildRiftItem(
@@ -2859,10 +2859,81 @@ object WildRiftItemsData {
         }
     }
 
+    private val itemAliases: Map<String, String> = mapOf(
+        "black cleaver" to "black_cleaver",
+        "cuchilla negra" to "black_cleaver",
+        "sterak's gage" to "sterak_s_gage",
+        "guantelete de sterak" to "sterak_s_gage",
+        "wit's end" to "wit_s_end",
+        "al filo de la cordura" to "wit_s_end",
+        "edge of night" to "edge_of_night",
+        "filo de la noche" to "edge_of_night",
+        "luden's echo" to "luden_s_echo",
+        "eco de luden" to "luden_s_echo",
+        "archangel's staff" to "archangel_s_staff",
+        "baculo del arcangel" to "archangel_s_staff",
+        "báculo del arcángel" to "archangel_s_staff",
+        "seraph's embrace" to "seraph_s_embrace",
+        "abrazo del serafin" to "seraph_s_embrace",
+        "abrazo del serafín" to "seraph_s_embrace",
+        "winter's approach" to "winter_s_approach",
+        "llegada del invierno" to "winter_s_approach",
+        "kaenic rookern" to "kaenic_rookern",
+        "torreon de kaenic" to "kaenic_rookern",
+        "torreón de kaenic" to "kaenic_rookern",
+        "staff of flowing water" to "staff_of_flowing_water",
+        "baston de aguas fluidas" to "staff_of_flowing_water",
+        "bastón de aguas fluidas" to "staff_of_flowing_water",
+        "imperial mandate" to "imperial_mandate",
+        "mandato imperial" to "imperial_mandate",
+        "sundered sky" to "sundered_sky",
+        "cielo desgarrado" to "sundered_sky",
+        "tridente de oceanida" to "oceanid_s_trident",
+        "tridente de oceánida" to "oceanid_s_trident",
+        "dawnshroud" to "dawnshroud",
+        "velo del amanecer" to "dawnshroud",
+        "sudario del alba" to "dawnshroud",
+        "knight's vow" to "knight_s_vow",
+        "voto de caballero" to "knight_s_vow",
+        "promesa de caballero" to "knight_s_vow",
+        "cryptbloom" to "cryptbloom",
+        "flor de cripta" to "cryptbloom",
+        "florescencia sepulcral" to "cryptbloom",
+        "zhonya's hourglass" to "zhonya_s_hourglass",
+        "reloj de arena de zhonya" to "zhonya_s_hourglass",
+        "el reloj de arena de zhonya" to "zhonya_s_hourglass",
+        "rabadon's deathcap" to "rabadon_s_deathcap",
+        "sombrero mortal de rabadon" to "rabadon_s_deathcap",
+        "gorro mortal de rabadon" to "rabadon_s_deathcap",
+        "gorro de muerte del miercoles" to "rabadon_s_deathcap",
+        "gorro de muerte del miércoles" to "rabadon_s_deathcap"
+    )
+
+    private fun normalizeString(input: String): String {
+        return java.text.Normalizer.normalize(input, java.text.Normalizer.Form.NFD)
+            .replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
+            .lowercase()
+            .trim()
+    }
+
     fun getItemByName(name: String): WildRiftItem? {
-        val q = name.lowercase().trim()
-        return list.find { it.name.lowercase() == q || it.nameEn.lowercase() == q }
-            ?: list.find { it.name.lowercase().contains(q) || it.nameEn.lowercase().contains(q) }
+        val raw = name.trim()
+        if (raw.isBlank()) return null
+        val q = raw.lowercase()
+        val normalized = normalizeString(raw)
+
+        // 1. Alias lookup by ID
+        val aliasId = itemAliases[q] ?: itemAliases[normalized]
+        if (aliasId != null) {
+            val byId = list.find { it.id == aliasId }
+            if (byId != null) return byId
+        }
+
+        // 2. Direct exact matches
+        return list.find { it.name.equals(raw, ignoreCase = true) || it.nameEn.equals(raw, ignoreCase = true) || it.id.equals(raw, ignoreCase = true) }
+            ?: list.find { normalizeString(it.name) == normalized || normalizeString(it.nameEn) == normalized }
+            ?: list.find { it.name.contains(raw, ignoreCase = true) || it.nameEn.contains(raw, ignoreCase = true) }
+            ?: list.find { normalizeString(it.name).contains(normalized) || normalizeString(it.nameEn).contains(normalized) }
     }
 
     fun getItemIconByName(name: String): String {

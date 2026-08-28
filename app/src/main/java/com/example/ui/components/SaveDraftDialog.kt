@@ -75,7 +75,7 @@ fun SaveDraftDialog(
     onDismiss: () -> Unit,
     onSave: (result: String, notes: String) -> Unit
 ) {
-    var selectedResult by remember { mutableStateOf("VICTORY") } // "VICTORY", "DEFEAT", "PENDING"
+    var selectedResult by remember { mutableStateOf("VICTORY") } // "VICTORY", "DEFEAT"
     var notes by remember { mutableStateOf("") }
 
     Dialog(
@@ -242,7 +242,7 @@ fun SaveDraftDialog(
                 // Result Buttons / Cards
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     // Option 1: Victoria
                     val isVictorySelected = selectedResult == "VICTORY"
@@ -264,15 +264,15 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 6.dp),
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "🏆", fontSize = 18.sp)
+                            Text(text = "🏆", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Victoria"),
                                 color = if (isVictorySelected) Color(0xFF81C784) else TextSecondary,
-                                fontSize = 11.5.sp,
+                                fontSize = 12.5.sp,
                                 fontWeight = if (isVictorySelected) FontWeight.Bold else FontWeight.Medium
                             )
                         }
@@ -298,50 +298,16 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 6.dp),
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "💀", fontSize = 18.sp)
+                            Text(text = "💀", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Derrota"),
                                 color = if (isDefeatSelected) DangerRed else TextSecondary,
-                                fontSize = 11.5.sp,
+                                fontSize = 12.5.sp,
                                 fontWeight = if (isDefeatSelected) FontWeight.Bold else FontWeight.Medium
-                            )
-                        }
-                    }
-
-                    // Option 3: Pendiente
-                    val isPendingSelected = selectedResult == "PENDING"
-                    Card(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(10.dp))
-                            .border(
-                                width = if (isPendingSelected) 1.5.dp else 1.dp,
-                                color = if (isPendingSelected) HextechGold else HextechCardBorder,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .clickable { selectedResult = "PENDING" }
-                            .testTag("save_result_pending"),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isPendingSelected) HextechGold.copy(alpha = 0.25f) else HextechSurface
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 6.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(text = "⏳", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = tr("Pendiente"),
-                                color = if (isPendingSelected) HextechGold else TextSecondary,
-                                fontSize = 11.5.sp,
-                                fontWeight = if (isPendingSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         }
                     }
@@ -404,10 +370,9 @@ fun SaveDraftDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = when (selectedResult) {
                                 "VICTORY" -> Color(0xFF2E7D32)
-                                "DEFEAT" -> DangerRed.copy(alpha = 0.85f)
-                                else -> HextechGold
+                                else -> DangerRed.copy(alpha = 0.85f)
                             },
-                            contentColor = if (selectedResult == "PENDING") HextechDarkBg else Color.White
+                            contentColor = Color.White
                         )
                     ) {
                         Icon(

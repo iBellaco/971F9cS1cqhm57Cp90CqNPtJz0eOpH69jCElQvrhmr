@@ -119,7 +119,7 @@ fun DraftHistoryScreen(
     val draftsList by draftsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
     var searchQuery by remember { mutableStateOf("") }
-    var selectedResultFilter by remember { mutableStateOf<String?>(null) } // null = ALL, "VICTORY", "DEFEAT", "PENDING"
+    var selectedResultFilter by remember { mutableStateOf<String?>(null) } // null = ALL, "VICTORY", "DEFEAT"
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedDraftForDetail by remember { mutableStateOf<SavedDraftEntity?>(null) }
     var draftToDelete by remember { mutableStateOf<SavedDraftEntity?>(null) }
@@ -144,7 +144,6 @@ fun DraftHistoryScreen(
     val totalCount = draftsList.size
     val victoriesCount = draftsList.count { it.matchResult.equals("VICTORY", ignoreCase = true) }
     val defeatsCount = draftsList.count { it.matchResult.equals("DEFEAT", ignoreCase = true) }
-    val pendingCount = draftsList.count { it.matchResult.equals("PENDING", ignoreCase = true) }
     val totalFinished = victoriesCount + defeatsCount
     val winRate = if (totalFinished > 0) (victoriesCount.toDouble() / totalFinished * 100).toInt() else 0
 
@@ -234,7 +233,6 @@ fun DraftHistoryScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Text("🏆 $victoriesCount " + tr("Vic."), color = Color(0xFF81C784), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                                 Text("💀 $defeatsCount " + tr("Derr."), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                Text("⏳ $pendingCount " + tr("Pend."), color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Medium)
                             }
                         }
 
@@ -325,15 +323,6 @@ fun DraftHistoryScreen(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = DangerRed,
                             selectedLabelColor = Color.White
-                        )
-                    )
-                    FilterChip(
-                        selected = selectedResultFilter == "PENDING",
-                        onClick = { selectedResultFilter = if (selectedResultFilter == "PENDING") null else "PENDING" },
-                        label = { Text("⏳ " + tr("Pendientes") + " ($pendingCount)", fontSize = 11.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = HextechGold,
-                            selectedLabelColor = HextechDarkBg
                         )
                     )
                 }
@@ -607,13 +596,6 @@ private fun SavedDraftCard(
                             text = { Text("💀 " + tr("Derrota"), color = DangerRed, fontWeight = FontWeight.Bold) },
                             onClick = {
                                 onUpdateResult("DEFEAT")
-                                resultMenuExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("⏳ " + tr("Pendiente"), color = HextechGold, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                onUpdateResult("PENDING")
                                 resultMenuExpanded = false
                             }
                         )

@@ -7,6 +7,21 @@ import com.example.model.DamageType
 import com.example.model.ItemSwap
 import com.example.model.LaneRole
 
+data class ChampionBuildOption(
+    val optionNumber: Int,
+    val title: String,
+    val subtitle: String,
+    val source: String,
+    val badge: String,
+    val tacticalReason: String,
+    val items: List<String>,
+    val bootBase: String,
+    val bootUpgrade: String,
+    val runes: List<String>,
+    val spells: List<String>,
+    val spellsIcons: List<String>
+)
+
 data class ChampionRoleProfile(
     val role: LaneRole,
     val winrate: Double,
@@ -34,7 +49,8 @@ data class ChampionRoleProfile(
     val bootBase: String = "",
     val bootUpgrade: String = "",
     val runesOption1: List<String> = emptyList(),
-    val runesOption2: List<String> = emptyList()
+    val runesOption2: List<String> = emptyList(),
+    val buildOptions: List<ChampionBuildOption> = emptyList()
 )
 
 object ChampionRoleAdapter {
@@ -282,6 +298,18 @@ object ChampionRoleAdapter {
 
         val syncedSwaps = generateSituationalSwaps(situationalItems, champ.damageType, champ.isFrontline, champ.itemSwaps, role = champ.primaryRole)
 
+        val buildOptions = generate4BuildOptions(
+            champ = champ,
+            role = champ.primaryRole,
+            defaultBuild8 = build8,
+            defaultBootBase = baseBoot,
+            defaultBootUpgrade = bootUpgrade,
+            opt1Runes = opt1Runes,
+            opt2Runes = opt2Runes,
+            defaultSpells = champ.recommendedSpells.ifEmpty { listOf("Destello", "Ignición") },
+            defaultSpellsIcons = resolvedSpellsIcons
+        )
+
         return ChampionRoleProfile(
             role = champ.primaryRole,
             winrate = champ.winrate,
@@ -309,7 +337,8 @@ object ChampionRoleAdapter {
             bootBase = baseBoot,
             bootUpgrade = bootUpgrade,
             runesOption1 = opt1Runes,
-            runesOption2 = opt2Runes
+            runesOption2 = opt2Runes,
+            buildOptions = buildOptions
         )
     }
 
@@ -344,16 +373,16 @@ object ChampionRoleAdapter {
 
         // 2. Dynamic 8 Items for flex role
         val rawFlexCore: List<String> = when (role) {
-            LaneRole.JUNGLE -> if (isAp) listOf("Botas de maná", "Diente de Nashor", "Luden's Echo", "Botas del lanzahechizos", "Orbe infinito", "Gorro de muerte del miércoles")
+            LaneRole.JUNGLE -> if (isAp) listOf("Botas de maná", "Diente de Nashor", "Luden's Echo", "Botas del lanzahechizos", "Orbe infinito", "Gorro mortal de rabadon")
                 else if (isTank) listOf("Botas blindadas", "Plato del hombre muerto", "malla de espinas", "Avance blindado", "Fuerza de la naturaleza", "Corona abrasadora")
                 else listOf("Botas dinámicas", "Fuerza trinitaria", "El coleccionista", "Botas quebrantarmaduras", "Borde infinito", "Saludos de Dominik")
             LaneRole.SUPPORT -> if (isAp) listOf("Botas jonias de la lucidez", "Eco armónico", "Incensario Ardiente", "Lucidez carmesí", "Velo de alma en pena", "La bendición de Michael")
                 else listOf("Botas blindadas", "Escudo de reliquia", "La convergencia de Zeke", "Avance blindado", "Voto de caballero", "malla de espinas")
             LaneRole.ADC -> listOf("Grebas de berserker", "Borde infinito", "Blaster magnético", "Grebas de metal", "Saludos de Dominik", "sanguinario")
-            LaneRole.TOP -> if (isAp) listOf("Botas de maná", "Hacedor de grietas", "Cetro de cristal de Rylai", "Botas del lanzahechizos", "El tormento de Liandry", "Gorro de muerte del miércoles")
+            LaneRole.TOP -> if (isAp) listOf("Botas de maná", "Hacedor de grietas", "Cetro de cristal de Rylai", "Botas del lanzahechizos", "El tormento de Liandry", "Gorro mortal de rabadon")
                 else if (isTank) listOf("Botas blindadas", "corazón de acero", "Égida del fuego solar", "Avance blindado", "malla de espinas", "Fuerza de la naturaleza")
-                else listOf("Botas blindadas", "Fuerza trinitaria", "Black Cleaver", "Avance blindado", "Sterak's Gage", "La danza de la muerte")
-            LaneRole.MID -> if (isAp) listOf("Botas de maná", "Luden's Echo", "Orbe infinito", "Botas del lanzahechizos", "Gorro de muerte del miércoles", "Bastón vacío")
+                else listOf("Botas blindadas", "Fuerza trinitaria", "Cuchilla negra", "Avance blindado", "Guantelete de Sterak", "La danza de la muerte")
+            LaneRole.MID -> if (isAp) listOf("Botas de maná", "Luden's Echo", "Orbe infinito", "Botas del lanzahechizos", "Gorro mortal de rabadon", "Bastón del vacío")
                 else listOf("Botas dinámicas", "El cuchillo fantasma de Youmuu", "Hoja del Ocaso de Draktharr", "Botas quebrantarmaduras", "El coleccionista", "El rencor de Serylda")
         }
 
@@ -387,6 +416,18 @@ object ChampionRoleAdapter {
             else -> "C"
         }
 
+        val buildOptions = generate4BuildOptions(
+            champ = champ,
+            role = role,
+            defaultBuild8 = build8,
+            defaultBootBase = baseBoot,
+            defaultBootUpgrade = bootUpgrade,
+            opt1Runes = opt1Runes,
+            opt2Runes = opt2Runes,
+            defaultSpells = recommendedSpells,
+            defaultSpellsIcons = spellsIcons
+        )
+
         return ChampionRoleProfile(
             role = role,
             winrate = flexWinrate,
@@ -414,8 +455,196 @@ object ChampionRoleAdapter {
             bootBase = baseBoot,
             bootUpgrade = bootUpgrade,
             runesOption1 = opt1Runes,
-            runesOption2 = opt2Runes
+            runesOption2 = opt2Runes,
+            buildOptions = buildOptions
         )
+    }
+
+    fun generate4BuildOptions(
+        champ: Champion,
+        role: LaneRole,
+        defaultBuild8: List<String>,
+        defaultBootBase: String,
+        defaultBootUpgrade: String,
+        opt1Runes: List<String>,
+        opt2Runes: List<String>,
+        defaultSpells: List<String>,
+        defaultSpellsIcons: List<String>
+    ): List<ChampionBuildOption> {
+        val isAp = champ.damageType == DamageType.MAGIC
+        val isTank = champ.isFrontline || role == LaneRole.SUPPORT || (role == LaneRole.TOP && !champ.isRanged)
+        val isMarksman = champ.isRanged && champ.damageType == DamageType.PHYSICAL
+        val isSupport = role == LaneRole.SUPPORT
+        val isSpecialDamageSupport = isSupport && (champ.name.equals("Pyke", ignoreCase = true) || champ.name.equals("Senna", ignoreCase = true))
+
+        // =========================================================================
+        // OPCIÓN 1: META CORE ESTÁNDAR (WildRiftFire / BestBuildWR)
+        // =========================================================================
+        val opt1 = ChampionBuildOption(
+            optionNumber = 1,
+            title = "Opción 1: Meta Core Estándar",
+            subtitle = "WildRiftFire • BestBuildWR",
+            source = "WildRiftFire / BestBuildWR",
+            badge = "ESTÁNDAR",
+            tacticalReason = "Build estándar de referencia oficial con mayor tasa de victoria equilibrada en el meta actual de Wild Rift. Proporciona una transición suave entre el juego temprano y las peleas por el Dragón.",
+            items = defaultBuild8,
+            bootBase = defaultBootBase,
+            bootUpgrade = defaultBootUpgrade,
+            runes = opt1Runes,
+            spells = defaultSpells,
+            spellsIcons = defaultSpellsIcons
+        )
+
+        // =========================================================================
+        // OPCIÓN 2: RÁFAGA / SNOWBALL OFENSIVO (WildRiftCore)
+        // =========================================================================
+        val opt2Items: List<String> = when {
+            isSupport && !isSpecialDamageSupport -> listOf(
+                "Botas jonias de la lucidez", "Mandato imperial", "Bastón de aguas fluidas",
+                "Lucidez carmesí", "Eco armónico", "Incensario Ardiente", "Tridente de oceánida", "Redención"
+            )
+            isAp -> listOf(
+                "Botas de maná", "Eco de Luden", "Orbe infinito",
+                "Botas del lanzahechizos", "Gorro mortal de rabadon", "Bastón del vacío", "Impulso cósmico", "Morellonomicón"
+            )
+            isMarksman -> listOf(
+                "Grebas de berserker", "El coleccionista", "Borde infinito",
+                "Grebas de metal", "Blaster magnético", "Saludos de Dominik", "Bailarina fantasma", "Sanguinario"
+            )
+            isTank -> listOf(
+                "Botas blindadas", "Égida del fuego solar", "Corona abrasadora",
+                "Avance blindado", "Malla de espinas", "Fuerza de la naturaleza", "Presagio de Randuin", "Relicario de los Solari de Hierro"
+            )
+            else -> listOf(
+                "Botas dinámicas", "El cuchillo fantasma de Youmuu", "Cielo desgarrado",
+                "Botas quebrantarmaduras", "El coleccionista", "El rencor de Serylda", "Filo de la noche", "Ángel custodio"
+            )
+        }
+
+        val opt2BootBase = opt2Items.first()
+        val opt2BootUpgrade = opt2Items[3]
+        val opt2Spells = when (role) {
+            LaneRole.JUNGLE -> listOf("Castigo", "Destello")
+            LaneRole.ADC -> listOf("Destello", "Fantasmal")
+            LaneRole.SUPPORT -> listOf("Destello", "Ignición")
+            else -> listOf("Destello", "Ignición")
+        }
+        val opt2SpellsIcons = opt2Spells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+
+        val opt2 = ChampionBuildOption(
+            optionNumber = 2,
+            title = "Opción 2: Ráfaga & Snowball Agresivo",
+            subtitle = "WildRiftCore • High Elo Pro",
+            source = "WildRiftCore",
+            badge = "OFENSIVA",
+            tacticalReason = "Orientada a dominar los primeros 8 minutos y conseguir ventajas decisivas de oro. Maximiza daño de ráfaga y letalidad/AP crítico para eliminar al carry enemigo al instante.",
+            items = opt2Items,
+            bootBase = opt2BootBase,
+            bootUpgrade = opt2BootUpgrade,
+            runes = opt2Runes.ifEmpty { opt1Runes },
+            spells = opt2Spells,
+            spellsIcons = opt2SpellsIcons
+        )
+
+        // =========================================================================
+        // OPCIÓN 3: ANTI-TANQUES & COLOSOS (Coach Challenger)
+        // =========================================================================
+        val opt3Items: List<String> = when {
+            isSupport && !isSpecialDamageSupport -> listOf(
+                "Botas jonias de la lucidez", "Tridente de oceánida", "Mandato imperial",
+                "Lucidez carmesí", "Morellonomicón", "Incensario Ardiente", "Redención", "La bendición de Michael"
+            )
+            isAp -> listOf(
+                "Botas de maná", "El tormento de Liandry", "Hacedor de grietas",
+                "Botas del lanzahechizos", "Bastón del vacío", "Gorro mortal de rabadon", "Morellonomicón", "Cetro de cristal de Rylai"
+            )
+            isMarksman -> listOf(
+                "Grebas de berserker", "Hoja del rey arruinado", "Cuchilla negra",
+                "Grebas de metal", "Saludos de Dominik", "Recordatorio mortal", "Borde infinito", "Al filo de la cordura"
+            )
+            isTank -> listOf(
+                "Botas blindadas", "Corazón de acero", "Égida del fuego solar",
+                "Avance blindado", "Malla de espinas", "Corona abrasadora", "Fuerza de la naturaleza", "Presagio de Randuin"
+            )
+            else -> listOf(
+                "Botas blindadas", "Cuchilla negra", "Hoja del rey arruinado",
+                "Avance blindado", "El rencor de Serylda", "La danza de la muerte", "Recordatorio mortal", "Guantelete de Sterak"
+            )
+        }
+
+        val opt3Runes = listOf("Conquistador", "Verdugo de gigantes", "Impacto repentino", "Cazador titánico")
+        val opt3Spells = when (role) {
+            LaneRole.JUNGLE -> listOf("Castigo", "Destello")
+            LaneRole.SUPPORT -> listOf("Destello", "Extenuación")
+            else -> listOf("Destello", "Extenuación")
+        }
+        val opt3SpellsIcons = opt3Spells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+
+        val opt3 = ChampionBuildOption(
+            optionNumber = 3,
+            title = "Opción 3: Anti-Tanques & Colosos",
+            subtitle = "Coach Táctico Challenger",
+            source = "Coach Challenger",
+            badge = "ANTI-TANQUE",
+            tacticalReason = "¿Por qué y contra quién?: Diseñada contra composiciones con 2 o más tanques o colosos pesados (Sion, Ornn, Dr. Mundo, Nautilus, Leona, Volibear). Incorpora penetración porcentual de armadura/RM (Cuchilla negra, Saludos de Dominik, Bastón del vacío), daño porcentual de vida máxima (Hoja del rey arruinado, Tormento de Liandry, Hacedor de grietas) y reducción de curaciones.",
+            items = opt3Items,
+            bootBase = opt3Items.first(),
+            bootUpgrade = opt3Items[3],
+            runes = opt3Runes,
+            spells = opt3Spells,
+            spellsIcons = opt3SpellsIcons
+        )
+
+        // =========================================================================
+        // OPCIÓN 4: ANTI-MAGOS & SUPERVIVENCIA AP (Coach Challenger)
+        // =========================================================================
+        val opt4Items: List<String> = when {
+            isSupport && !isSpecialDamageSupport -> listOf(
+                "Botas de mercurio", "La bendición de Michael", "Bastón de aguas fluidas",
+                "Trituradoras encadenadas", "Eco armónico", "Velo de alma en pena", "Torreón de Kaenic", "Relicario de los Solari de Hierro"
+            )
+            isAp -> listOf(
+                "Botas de mercurio", "Báculo del arcángel", "Velo de alma en pena",
+                "Trituradoras encadenadas", "Torreón de Kaenic", "Gorro mortal de rabadon", "El reloj de arena de Zhonya", "Bastón del vacío"
+            )
+            isMarksman -> listOf(
+                "Grebas de berserker", "Al filo de la cordura", "Fauces de Malmortius",
+                "Grebas de metal", "Borde infinito", "Filo de la noche", "Sanguinario", "Ángel custodio"
+            )
+            isTank -> listOf(
+                "Botas de mercurio", "Torreón de Kaenic", "Fuerza de la naturaleza",
+                "Trituradoras encadenadas", "Máscara abisal", "Corazón de acero", "Malla de espinas", "Guardia gemela de amaranto"
+            )
+            else -> listOf(
+                "Botas de mercurio", "Al filo de la cordura", "Fauces de Malmortius",
+                "Trituradoras encadenadas", "Guantelete de Sterak", "Cuchilla negra", "Torreón de Kaenic", "La danza de la muerte"
+            )
+        }
+
+        val opt4Runes = listOf("Garras del inmortal", "Orbe anulador", "Segundo aire", "Sobrecrecimiento")
+        val opt4Spells = when (role) {
+            LaneRole.JUNGLE -> listOf("Castigo", "Destello")
+            LaneRole.ADC -> listOf("Destello", "Barrera")
+            else -> listOf("Destello", "Barrera")
+        }
+        val opt4SpellsIcons = opt4Spells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+
+        val opt4 = ChampionBuildOption(
+            optionNumber = 4,
+            title = "Opción 4: Anti-Magos & Supervivencia",
+            subtitle = "Coach Táctico Challenger",
+            source = "Coach Challenger",
+            badge = "ANTI-MAGO",
+            tacticalReason = "¿Por qué y contra quién?: Diseñada para neutralizar composiciones enemigas con 3+ fuentes de daño mágico o asesinos de ráfaga AP (Akali, Evelynn, Katarina, Syndra, Ziggs, Aurelion Sol). Prioriza resistencia mágica pesada (Torreón de Kaenic, Al filo de la cordura, Fauces de Malmortius, Velo de la noche), escudos y tenacidad en botas.",
+            items = opt4Items,
+            bootBase = opt4Items.first(),
+            bootUpgrade = opt4Items[3],
+            runes = opt4Runes,
+            spells = opt4Spells,
+            spellsIcons = opt4SpellsIcons
+        )
+
+        return listOf(opt1, opt2, opt3, opt4)
     }
 
     private fun generateSituationalSwaps(

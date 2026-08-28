@@ -56,44 +56,27 @@ object BestBuildWrScraper {
 
         return withContext(Dispatchers.IO) {
             try {
-                AppLogger.d(TAG, "Iniciando conexión con $CHAMPIONS_URL...")
+                AppLogger.d(TAG, "Conectando e indexando catálogo interno de objetos, runas y hechizos...")
 
-                val request = Request.Builder()
-                    .url(CHAMPIONS_URL)
-                    .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36")
-                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                    .build()
-
-                var responseHtml = ""
-                try {
-                    httpClient.newCall(request).execute().use { response ->
-                        if (response.isSuccessful) {
-                            responseHtml = response.body?.string() ?: ""
-                        }
-                    }
-                } catch (e: Exception) {
-                    AppLogger.w(TAG, "Conexión remota fallback a normalización interna de catálogo: ${e.message}")
-                }
-
-                // Normalizar e interconectar todos los campeones con el catálogo canónico
-                var updatedCount = 0
+                // Normalizar e interconectar todos los campeones directamente con el catálogo canónico local
                 val updatedChampions = WildRiftRepository.champions.map { champ ->
-                    connectChampionWithCatalog(champ, responseHtml)
+                    connectChampionWithCatalog(champ)
                 }
 
-                WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(updatedChampions)
-                updatedCount = updatedChampions.size
+                WildRiftRepository.champions.clear()
+                WildRiftRepository.champions.addAll(updatedChampions)
+                val updatedCount = updatedChampions.size
 
-                AppLogger.d(TAG, "Sincronización completada: $updatedCount campeones interconectados con catálogo.")
+                AppLogger.d(TAG, "Sincronización interna completada: $updatedCount campeones vinculados con el catálogo.")
                 _syncState.value = BestBuildSyncState.Success(
                     championsUpdated = updatedCount,
-                    sourceUrl = CHAMPIONS_URL,
+                    sourceUrl = "Local Catalog",
                     timestamp = System.currentTimeMillis()
                 )
                 true
             } catch (e: Exception) {
-                AppLogger.e(TAG, "Error durante sincronización con BestBuildWR", e)
-                _syncState.value = BestBuildSyncState.Error(e.localizedMessage ?: "Error al conectar con BestBuildWR")
+                AppLogger.e(TAG, "Error durante vinculación de catálogo", e)
+                _syncState.value = BestBuildSyncState.Error(e.localizedMessage ?: "Error al vincular catálogo")
                 false
             }
         }

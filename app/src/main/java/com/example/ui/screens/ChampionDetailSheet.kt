@@ -117,6 +117,7 @@ fun ChampionDetailSheet(
     var itemForDetail by remember { mutableStateOf<com.example.model.WildRiftItem?>(null) }
     var runeForDetail by remember { mutableStateOf<com.example.model.RuneItem?>(null) }
     var spellForDetail by remember { mutableStateOf<com.example.model.SummonerSpellItem?>(null) }
+    var selectedBuildOptionIndex by remember(champion.id, selectedRole) { mutableStateOf(0) }
 
     // Perfil dinámico de estadísticas, build, runas y counters adaptados a la línea elegida
     val roleProfile = remember(champion.id, selectedRole) {
@@ -500,7 +501,7 @@ fun ChampionDetailSheet(
             }
 
             // ==========================================
-            // BUILD BÁSICA (8 OBJETOS: 1-6 CORE + 7-8 SITUACIONALES)
+            // BUILDS TÁCTICAS (4 OPCIONES SEGÚN META Y CRITERIO COACH)
             // ==========================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -508,20 +509,99 @@ fun ChampionDetailSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${tr("Build básica")} • ${selectedRole.shortName}",
+                    text = "${tr("Builds tácticas")} • ${selectedRole.shortName}",
                     color = HextechGold,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "8 Objetos (1-6 Core • 7-8 Situacionales)",
+                    text = "4 Opciones Adaptadas",
                     color = HextechCyan,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
+            val buildOptionsList = roleProfile.buildOptions.ifEmpty {
+                // Fallback default options
+                listOf(
+                    com.example.util.ChampionBuildOption(
+                        optionNumber = 1,
+                        title = "Opción 1: Meta Core Estándar",
+                        subtitle = "WildRiftFire • BestBuildWR",
+                        source = "WildRiftFire / BestBuildWR",
+                        badge = "ESTÁNDAR",
+                        tacticalReason = "Build estándar de referencia oficial con mayor tasa de victoria equilibrada en el meta actual de Wild Rift.",
+                        items = if (roleProfile.build8Items.isNotEmpty()) roleProfile.build8Items else (roleProfile.coreItems + roleProfile.situationalItems).take(8),
+                        bootBase = roleProfile.bootBase.ifBlank { "Botas blindadas" },
+                        bootUpgrade = roleProfile.bootUpgrade.ifBlank { "Avance blindado" },
+                        runes = roleProfile.runesOption1.ifEmpty { listOf(roleProfile.recommendedRunes) },
+                        spells = roleProfile.recommendedSpells,
+                        spellsIcons = roleProfile.spellsIcons
+                    )
+                )
+            }
+
+            val activeOption = buildOptionsList.getOrNull(selectedBuildOptionIndex.coerceIn(0, buildOptionsList.size - 1))
+                ?: buildOptionsList.first()
+
+            // 4-Option Selector Tabs
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val tabLabels = listOf(
+                    "1. Meta Core",
+                    "2. Ráfaga",
+                    "3. Anti-Tanques",
+                    "4. Anti-Magos"
+                )
+                val tabIcons = listOf(
+                    "⚡", "🔥", "🛡️", "🔮"
+                )
+
+                buildOptionsList.forEachIndexed { idx, opt ->
+                    val isSelected = selectedBuildOptionIndex == idx
+                    val label = tabLabels.getOrElse(idx) { "Opción ${idx + 1}" }
+                    val emoji = tabIcons.getOrElse(idx) { "⚔️" }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                if (isSelected) HextechGold.copy(alpha = 0.2f) else HextechSurface
+                            )
+                            .border(
+                                width = if (isSelected) 1.5.dp else 1.dp,
+                                color = if (isSelected) HextechGold else HextechCardBorder,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .clickable { selectedBuildOptionIndex = idx }
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = emoji,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(end = 5.dp)
+                            )
+                            Text(
+                                text = label,
+                                color = if (isSelected) HextechGold else TextMuted,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Main Card of Active Option
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -529,11 +609,103 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    val buildList = if (roleProfile.build8Items.isNotEmpty()) {
-                        roleProfile.build8Items
-                    } else {
-                        (roleProfile.coreItems + roleProfile.situationalItems).take(8)
+                    // Header with Title, Badge and Source
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = activeOption.title,
+                                color = HextechGold,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Ref: ${activeOption.source}",
+                                color = HextechCyan,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(
+                                    when (activeOption.optionNumber) {
+                                        2 -> Color(0xFFE53935).copy(alpha = 0.2f)
+                                        3 -> Color(0xFFFB8C00).copy(alpha = 0.2f)
+                                        4 -> Color(0xFF8E24AA).copy(alpha = 0.2f)
+                                        else -> HextechCyan.copy(alpha = 0.2f)
+                                    }
+                                )
+                                .border(
+                                    1.dp,
+                                    when (activeOption.optionNumber) {
+                                        2 -> Color(0xFFE53935)
+                                        3 -> Color(0xFFFB8C00)
+                                        4 -> Color(0xFF8E24AA)
+                                        else -> HextechCyan
+                                    },
+                                    RoundedCornerShape(6.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = activeOption.badge,
+                                color = when (activeOption.optionNumber) {
+                                    2 -> Color(0xFFFF5252)
+                                    3 -> Color(0xFFFFB74D)
+                                    4 -> Color(0xFFCE93D8)
+                                    else -> HextechCyan
+                                },
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Tactical Reason ("¿Por qué y contra quién?")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant.copy(alpha = 0.7f))
+                            .border(1.dp, HextechCardBorder.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                            .padding(10.dp)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "💡 OBJETIVO TÁCTICO & CUÁNDO USAR",
+                                    color = HextechGold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = activeOption.tacticalReason,
+                                color = TextPrimary,
+                                fontSize = 11.5.sp,
+                                lineHeight = 16.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 8 Items List
+                    Text(
+                        text = "8 Objetos (1-6 Core • 7-8 Situacionales)",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     Row(
                         modifier = Modifier
@@ -542,7 +714,7 @@ fun ChampionDetailSheet(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        buildList.forEachIndexed { idx, rawName ->
+                        activeOption.items.forEachIndexed { idx, rawName ->
                             val isSituational = idx >= 6
                             val dbItem = WildRiftItemsData.getItemByName(rawName)
                                 ?: com.example.data.WildRiftRepository.items.find {
@@ -570,7 +742,7 @@ fun ChampionDetailSheet(
                                         .clip(RoundedCornerShape(10.dp))
                                         .background(HextechSurfaceVariant)
                                         .border(
-                                            width = if (isSituational) 1.5.dp else 1.5.dp,
+                                            width = 1.5.dp,
                                             color = if (isSituational) HextechCyan.copy(alpha = 0.8f) else HextechGold,
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -605,7 +777,7 @@ fun ChampionDetailSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // ==========================================
             // BOTAS Y MEJORAS + HECHIZOS (DOS COLUMNAS)
@@ -614,7 +786,7 @@ fun ChampionDetailSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Card 1: Botas y Mejoras
+                // Card 1: Botas y Mejoras de esta Opción
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -634,8 +806,8 @@ fun ChampionDetailSheet(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            val bootBaseName = roleProfile.bootBase.ifBlank { "Botas blindadas" }
-                            val bootUpgradeName = roleProfile.bootUpgrade.ifBlank { "Avance blindado" }
+                            val bootBaseName = activeOption.bootBase.ifBlank { "Botas blindadas" }
+                            val bootUpgradeName = activeOption.bootUpgrade.ifBlank { "Avance blindado" }
                             
                             val dbBoot1 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootBaseName, ignoreCase = true) || bootBaseName.contains(it.name, ignoreCase = true) }
                             val dbBoot2 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootUpgradeName, ignoreCase = true) || bootUpgradeName.contains(it.name, ignoreCase = true) }
@@ -689,7 +861,7 @@ fun ChampionDetailSheet(
                     }
                 }
 
-                // Card 2: Hechizos de Invocador
+                // Card 2: Hechizos de Invocador de esta Opción
                 Card(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -709,8 +881,8 @@ fun ChampionDetailSheet(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            roleProfile.spellsIcons.take(2).forEachIndexed { idx, iconUrl ->
-                                val rawSpellName = roleProfile.recommendedSpells.getOrNull(idx) ?: "Destello"
+                            activeOption.spellsIcons.take(2).forEachIndexed { idx, iconUrl ->
+                                val rawSpellName = activeOption.spells.getOrNull(idx) ?: "Destello"
                                 val spellName = tr(rawSpellName)
                                 val dbSpell = com.example.data.WildRiftRepository.summonerSpells.find {
                                     it.name.equals(rawSpellName, ignoreCase = true) || rawSpellName.contains(it.name, ignoreCase = true) || it.name.contains(rawSpellName, ignoreCase = true)
@@ -738,15 +910,15 @@ fun ChampionDetailSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // ==========================================
-            // SECCIÓN RUNAS (1ª OPCIÓN & 2ª OPCIÓN)
+            // SECCIÓN RUNAS ASOCIADAS A ESTA OPCIÓN
             // ==========================================
             Text(
-                text = "${tr("Runas")} • ${selectedRole.shortName}",
+                text = "${tr("Runas")} • ${activeOption.title}",
                 color = HextechGold,
-                fontSize = 15.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -758,42 +930,37 @@ fun ChampionDetailSheet(
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    val opt1 = if (roleProfile.runesOption1.isNotEmpty()) {
-                        roleProfile.runesOption1
-                    } else {
-                        val parsed = roleProfile.runeTreeDetails.replace(Regex("^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+:\\s*"), "").split("•").map { it.trim() }.filter { it.isNotEmpty() }
-                        listOf(roleProfile.recommendedRunes) + parsed
+                    val runesForActiveOption = activeOption.runes.ifEmpty {
+                        listOf("Conquistador", "Triunfo", "Golpe de gracia", "Linaje")
                     }
 
-                    // 1ª Opción
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = tr("1º opción") + " (Meta)",
-                            color = HextechCyan,
+                            text = "Runa Clave: " + tr(runesForActiveOption.firstOrNull() ?: "Principal"),
+                            color = HextechGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        if (opt1.isNotEmpty()) {
-                            Text(
-                                text = tr(opt1.first()),
-                                color = HextechGold,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
+                        Text(
+                            text = "Secundarias: " + runesForActiveOption.drop(1).joinToString(" • "),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        opt1.take(5).forEachIndexed { idx, rName ->
+                        runesForActiveOption.take(5).forEachIndexed { idx, rName ->
                             val isKeystone = idx == 0
                             val foundRune = com.example.data.WildRiftSpellsAndRunes.getRuneByName(rName)
                                 ?: com.example.data.WildRiftRepository.runes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
@@ -802,7 +969,7 @@ fun ChampionDetailSheet(
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .size(if (isKeystone) 42.dp else 36.dp)
+                                    .size(if (isKeystone) 44.dp else 36.dp)
                                     .clip(CircleShape)
                                     .background(HextechSurfaceVariant)
                                     .border(
@@ -816,86 +983,7 @@ fun ChampionDetailSheet(
                                             name = rName,
                                             category = if (isKeystone) "Clave" else "Secundaria",
                                             iconUrl = iconUrl,
-                                            description = "Runa oficial de Wild Rift recomendada para esta configuración táctica."
-                                        )
-                                    }
-                            ) {
-                                AppAssetImage(
-                                    url = iconUrl,
-                                    contentDescription = tr(rName),
-                                    fallbackText = tr(rName),
-                                    modifier = Modifier.fillMaxSize(),
-                                    shape = CircleShape
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-                    androidx.compose.material3.HorizontalDivider(
-                        color = HextechCardBorder.copy(alpha = 0.6f),
-                        thickness = 1.dp
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    val opt2 = if (roleProfile.runesOption2.isNotEmpty()) {
-                        roleProfile.runesOption2
-                    } else {
-                        listOf("Irrupción de Fase", "Banda de Maná", "Trascendencia", "Piroláser", "Se Avecina Tormenta")
-                    }
-
-                    // 2ª Opción
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = tr("2º opción") + " (Situacional)",
-                            color = HextechCyan,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (opt2.isNotEmpty()) {
-                            Text(
-                                text = tr(opt2.first()),
-                                color = HextechCyan,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        opt2.take(5).forEachIndexed { idx, rName ->
-                            val isKeystone = idx == 0
-                            val foundRune = com.example.data.WildRiftSpellsAndRunes.getRuneByName(rName)
-                                ?: com.example.data.WildRiftRepository.runes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
-                            val iconUrl = foundRune?.iconUrl ?: com.example.data.WildRiftSpellsAndRunes.getRuneIconByName(rName)
-
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .size(if (isKeystone) 42.dp else 36.dp)
-                                    .clip(CircleShape)
-                                    .background(HextechSurfaceVariant)
-                                    .border(
-                                        width = if (isKeystone) 2.dp else 1.dp,
-                                        color = if (isKeystone) HextechCyan else HextechCardBorder,
-                                        shape = CircleShape
-                                    )
-                                    .clickable { 
-                                        runeForDetail = foundRune ?: com.example.model.RuneItem(
-                                            id = rName.lowercase().replace(" ", "_"),
-                                            name = rName,
-                                            category = if (isKeystone) "Clave" else "Secundaria",
-                                            iconUrl = iconUrl,
-                                            description = "Runa oficial de Wild Rift recomendada para esta configuración táctica."
+                                            description = "Runa recomendada para esta opción táctica en Wild Rift."
                                         )
                                     }
                             ) {
