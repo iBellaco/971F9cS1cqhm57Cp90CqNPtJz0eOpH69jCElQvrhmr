@@ -41,6 +41,7 @@ import com.example.ui.components.AppUpdateDialog
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
+import com.example.ui.screens.MetaScreenMode
 import com.example.ui.screens.MetaAndDraftScreen
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
@@ -103,7 +104,7 @@ fun DashboardScreen(
     currentLanguage: String,
     onLanguageChange: (String) -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    var selectedTab by remember { mutableStateOf(2) }
     var showExitDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -117,8 +118,12 @@ fun DashboardScreen(
         )
     }
 
-    BackHandler(enabled = selectedTab == 0) {
-        showExitDialog = true
+    BackHandler(enabled = true) {
+        if (selectedTab == 2) {
+            showExitDialog = true
+        } else {
+            selectedTab = 2
+        }
     }
 
     val navBg = AppThemeManager.getNavBarBackgroundColor()
@@ -135,10 +140,39 @@ fun DashboardScreen(
                 containerColor = navBg,
                 contentColor = navSelectedText
             ) {
+                // 1. Selección (Traducido de Drafting)
                 NavigationBarItem(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                    icon = { Icon(Icons.Default.Groups, contentDescription = "Selección") },
+                    label = { Text(tr("Selección")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
+                    )
+                )
+                // 2. Tier List (Pestaña de Tier List por delante de Campeón)
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
+                    icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
+                    label = { Text(tr("Tier List")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
+                    )
+                )
+                // 3. Inicio (Al centro)
+                NavigationBarItem(
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2 },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
                     label = { Text(tr("Inicio")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,
@@ -148,22 +182,10 @@ fun DashboardScreen(
                         unselectedTextColor = navUnselected
                     )
                 )
+                // 4. Catálogo (Objetos, Runas, Hechizos)
                 NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.Groups, contentDescription = "Drafting") },
-                    label = { Text(tr("Drafting")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
-                    )
-                )
-                NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
+                    selected = selectedTab == 3,
+                    onClick = { selectedTab = 3 },
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Catálogo") },
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -178,32 +200,58 @@ fun DashboardScreen(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            if (selectedTab == 0) {
-                MainDraftingScreen(
-                    onNavigateToInfo = onNavigateToInfo,
-                    onNavigateToMeta = { selectedTab = 2 }, // Navigates to Catalog tab
-                    onNavigateToLogin = onNavigateToLogin,
-                    mainRole = mainRole,
-                    onMainRoleChange = onMainRoleChange,
-                    secondRole = secondRole,
-                    onSecondRoleChange = onSecondRoleChange,
-                    autofillRole = autofillRole,
-                    onAutofillRoleChange = onAutofillRoleChange,
-                    currentLanguage = currentLanguage,
-                    onLanguageChange = onLanguageChange
-                )
-            } else if (selectedTab == 1) {
-                MetaAndDraftScreen(
-                    showOnlyDrafting = true,
-                    userMainRole = mainRole,
-                    onNavigateBack = { selectedTab = 0 }
-                )
-            } else {
-                MetaAndDraftScreen(
-                    showOnlyDrafting = false,
-                    userMainRole = mainRole,
-                    onNavigateBack = { selectedTab = 0 }
-                )
+            when (selectedTab) {
+                0 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.DRAFTING,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 2 }
+                    )
+                }
+                1 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.TIER_LIST,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 2 }
+                    )
+                }
+                2 -> {
+                    MainDraftingScreen(
+                        onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToMeta = { selectedTab = 3 },
+                        onNavigateToLogin = onNavigateToLogin,
+                        mainRole = mainRole,
+                        onMainRoleChange = onMainRoleChange,
+                        secondRole = secondRole,
+                        onSecondRoleChange = onSecondRoleChange,
+                        autofillRole = autofillRole,
+                        onAutofillRoleChange = onAutofillRoleChange,
+                        currentLanguage = currentLanguage,
+                        onLanguageChange = onLanguageChange
+                    )
+                }
+                3 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.CATALOG,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 2 }
+                    )
+                }
+                else -> {
+                    MainDraftingScreen(
+                        onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToMeta = { selectedTab = 3 },
+                        onNavigateToLogin = onNavigateToLogin,
+                        mainRole = mainRole,
+                        onMainRoleChange = onMainRoleChange,
+                        secondRole = secondRole,
+                        onSecondRoleChange = onSecondRoleChange,
+                        autofillRole = autofillRole,
+                        onAutofillRoleChange = onAutofillRoleChange,
+                        currentLanguage = currentLanguage,
+                        onLanguageChange = onLanguageChange
+                    )
+                }
             }
         }
     }

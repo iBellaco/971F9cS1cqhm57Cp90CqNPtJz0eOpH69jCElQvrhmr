@@ -22,6 +22,9 @@ enum class DownloadState {
 }
 
 object OfflineResourceManager {
+    private const val PREFS_NAME = "wr_offline_resources_prefs"
+    private const val KEY_COMPLETED = "resources_download_completed_v1"
+
     private val _downloadState = MutableStateFlow(DownloadState.IDLE)
     val downloadState: StateFlow<DownloadState> = _downloadState.asStateFlow()
 
@@ -39,6 +42,17 @@ object OfflineResourceManager {
     private var isPaused = false
 
     private val urlsToDownload = mutableListOf<String>()
+
+    fun isCompleted(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_COMPLETED, false)
+    }
+
+    fun markCompleted(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_COMPLETED, true).apply()
+        _downloadState.value = DownloadState.COMPLETED
+    }
 
     fun initUrls() {
         if (urlsToDownload.isNotEmpty()) return
@@ -113,6 +127,7 @@ object OfflineResourceManager {
                     delay(25)
                 }
                 
+                markCompleted(context)
                 _downloadState.value = DownloadState.COMPLETED
             } catch (e: Exception) {
                 _downloadState.value = DownloadState.ERROR

@@ -2666,48 +2666,6 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783191133_verdant_barrier_item_hd_11zon.png"
         ),
         WildRiftItem(
-            id = "prophet_s_pendant_wild_rift",
-            name = "Colgante del profeta",
-            nameEn = "Prophet's Pendant",
-            category = "Objetos de Nivel Medio",
-            goldCost = 1000,
-            stats = "+125 <font color='#1AFF00'>vida máxima</font> • +30 <font color='#9370db'>poder de habilidad</font>",
-            statsEn = "+125 Max Health • +30 Ability Power",
-            passive = "Augurio: Otorga +12 de Penetración mágica.",
-            passiveEn = "Doomsayer: Grants +12 Magic Penetration.",
-            coachTip = "Excelente componente intermedio para magos en juego temprano que buscan maximizar el daño mágico verdadero contra objetivos con poca resistencia mágica.",
-            coachTipEn = "Excellent early component for mages to spike magic penetration against low magic resistance targets.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985718_3916.png"
-        ),
-        WildRiftItem(
-            id = "crystalline_bracer_wild_rift",
-            name = "Brazal de cristal",
-            nameEn = "Crystalline Bracer",
-            category = "Objetos de Nivel Medio",
-            goldCost = 1000,
-            stats = "+200 <font color='#1AFF00'>vida máxima</font> • +50% <font color='#4CAF50'>regeneración de vida</font>",
-            statsEn = "+200 Max Health • +50% Base Health Regen",
-            passive = "",
-            passiveEn = "",
-            coachTip = "Otorga salud y excelente regeneración para tanques y soportes que buscan aguantar el hostigamiento constante.",
-            coachTipEn = "Grants health and health regeneration for sustain against enemy poke.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986347_3801.png"
-        ),
-        WildRiftItem(
-            id = "bandleglass_mirror_wild_rift",
-            name = "Espejo de cristal de Bandle",
-            nameEn = "Bandleglass Mirror",
-            category = "Objetos de Nivel Medio",
-            goldCost = 950,
-            stats = "+20 <font color='#9370db'>poder de habilidad</font> • +10 <font color='#FFA500'>celeridad de habilidad</font> • +50% <font color='#00BFFF'>regeneración de maná</font>",
-            statsEn = "+20 Ability Power • +10 Ability Haste • +50% Base Mana Regen",
-            passive = "",
-            passiveEn = "",
-            coachTip = "Componente óptimo para soportes y magos de utilidad que necesitan maná, enfriamiento y daño simultáneamente.",
-            coachTipEn = "Optimal component for utility supports and casters needing mana regen, haste, and AP.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2024-12/1735325004_forbidden_idol_item_hd.webp"
-        ),
-        WildRiftItem(
             id = "boots_of_speed",
             name = "Botas de velocidad",
             nameEn = "Boots of Speed",

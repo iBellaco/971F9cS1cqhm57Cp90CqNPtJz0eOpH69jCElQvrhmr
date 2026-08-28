@@ -191,9 +191,21 @@ fun BugReportFeedbackDialog(
     }
 
     val isEmailValid = email.isBlank() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    val hasBuildContent = selectedChampionObj != null || suggestedChampion.isNotBlank()
+    val isBuildSuggestionComplete = selectedChampionObj != null &&
+        suggestedRole.isNotBlank() &&
+        selectedCoreItems.size == 5 &&
+        selectedBootsItem != null &&
+        selectedSituationalItems.size == 2 &&
+        selectedAltSituationalItems.size == 2 &&
+        selectedKeystoneRune != null &&
+        selectedSecondaryRunes.size == 4 &&
+        selectedSpells.size == 2 &&
+        title.trim().isNotBlank() &&
+        description.trim().isNotBlank() &&
+        isEmailValid
+
     val canPublish = if (selectedType == FeedbackType.BUILD_SUGGESTION) {
-        hasBuildContent && selectedCoreItems.isNotEmpty() && selectedBootsItem != null && description.trim().isNotBlank() && isEmailValid
+        isBuildSuggestionComplete
     } else {
         title.trim().isNotBlank() && description.trim().isNotBlank() && isEmailValid
     }

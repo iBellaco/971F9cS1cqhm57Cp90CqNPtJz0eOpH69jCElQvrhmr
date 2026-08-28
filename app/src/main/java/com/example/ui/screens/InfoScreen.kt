@@ -53,13 +53,6 @@ fun InfoScreen(
     var isTestingSupabase by remember { mutableStateOf(false) }
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
-    var showThemeDialog by remember { mutableStateOf(false) }
-
-    if (showThemeDialog) {
-        com.example.ui.components.ThemeCustomizationBottomSheet(
-            onDismiss = { showThemeDialog = false }
-        )
-    }
 
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -206,57 +199,10 @@ fun InfoScreen(
                 )
             }
 
-            // Section 3: Personalización de Temas y Barra de Navegación
-            InfoCard(
-                title = tr("3. Temas y Barra de Navegación"),
-                icon = Icons.Default.Palette
-            ) {
-                Text(
-                    text = tr("Personaliza el aspecto de la aplicación seleccionando entre múltiples temas inspirados en las regiones de Runaterra y configurando la paleta de colores de la barra de navegación."),
-                    color = TextSecondary,
-                    fontSize = 13.sp,
-                    lineHeight = 18.sp
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = tr("Tema actual:") + " ${tr(AppThemeManager.currentTheme.titleKey)}",
-                            color = HextechCyan,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.5.sp
-                        )
-                        Text(
-                            text = tr("Barra:") + " ${tr(AppThemeManager.currentNavBarOption.titleKey)}",
-                            color = HextechGold,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 11.5.sp
-                        )
-                    }
-                    Button(
-                        onClick = { showThemeDialog = true },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = HextechGold,
-                            contentColor = HextechDarkBg
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
-                    ) {
-                        Icon(Icons.Default.ColorLens, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(tr("Cambiar Tema"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    }
-                }
-            }
-
-            // Section 5: Desarrollador & Derechos de Autor
+            // Section 3: Desarrollador & Derechos de Autor
             val context = LocalContext.current
             InfoCard(
-                title = tr("5. Desarrollador y Derechos de Autor"),
+                title = tr("3. Desarrollador y Derechos de Autor"),
                 icon = Icons.Default.Person
             ) {
                 Text(

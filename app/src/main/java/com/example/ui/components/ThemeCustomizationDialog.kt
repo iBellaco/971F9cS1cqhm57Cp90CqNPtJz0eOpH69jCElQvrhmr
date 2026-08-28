@@ -363,8 +363,8 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         NavigationBarItem(
                             selected = previewSelectedTab == 0,
                             onClick = { previewSelectedTab = 0 },
-                            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                            label = { Text(tr("Inicio"), fontSize = 9.5.sp) },
+                            icon = { Icon(Icons.Default.Groups, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Selección"), fontSize = 9.sp) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = navIconColor,
                                 selectedTextColor = navAccentColor,
@@ -376,8 +376,8 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         NavigationBarItem(
                             selected = previewSelectedTab == 1,
                             onClick = { previewSelectedTab = 1 },
-                            icon = { Icon(Icons.Default.Groups, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                            label = { Text(tr("Drafting"), fontSize = 9.5.sp) },
+                            icon = { Icon(Icons.Default.TrendingUp, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Tier List"), fontSize = 9.sp) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = navIconColor,
                                 selectedTextColor = navAccentColor,
@@ -389,8 +389,21 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         NavigationBarItem(
                             selected = previewSelectedTab == 2,
                             onClick = { previewSelectedTab = 2 },
+                            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(20.dp)) },
+                            label = { Text(tr("Inicio"), fontSize = 9.sp) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = navIconColor,
+                                selectedTextColor = navAccentColor,
+                                indicatorColor = navAccentColor.copy(alpha = 0.22f),
+                                unselectedIconColor = navUnselectedColor,
+                                unselectedTextColor = navUnselectedColor
+                            )
+                        )
+                        NavigationBarItem(
+                            selected = previewSelectedTab == 3,
+                            onClick = { previewSelectedTab = 3 },
                             icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                            label = { Text(tr("Catálogo"), fontSize = 9.5.sp) },
+                            label = { Text(tr("Catálogo"), fontSize = 9.sp) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = navIconColor,
                                 selectedTextColor = navAccentColor,

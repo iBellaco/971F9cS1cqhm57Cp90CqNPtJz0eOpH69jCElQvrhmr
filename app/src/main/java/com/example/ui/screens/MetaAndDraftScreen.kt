@@ -7,6 +7,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,6 +53,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -72,6 +78,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
@@ -151,10 +158,18 @@ import com.example.ui.theme.TierSPlusColor
 
 import com.example.util.LocalLanguage
 
+enum class MetaScreenMode {
+    DRAFTING,
+    TIER_LIST,
+    CATALOG
+}
+
+private data class MetaNavTabItem(val title: String, val count: Int? = null)
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MetaAndDraftScreen(
-    showOnlyDrafting: Boolean = false,
+    mode: MetaScreenMode = MetaScreenMode.CATALOG,
     userMainRole: LaneRole,
     onNavigateBack: () -> Unit
 ) {
@@ -241,6 +256,12 @@ fun MetaAndDraftScreen(
         }
     }
 
+    val topBarTitle = when (mode) {
+        MetaScreenMode.DRAFTING -> tr("Selección de Campeones")
+        MetaScreenMode.TIER_LIST -> tr("Tier List & Campeones")
+        MetaScreenMode.CATALOG -> tr("Catálogo")
+    }
+
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {
@@ -248,7 +269,7 @@ fun MetaAndDraftScreen(
                 title = {
                     Column {
                         Text(
-                            text = tr("Wild Rift Coach"),
+                            text = topBarTitle,
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -285,153 +306,242 @@ fun MetaAndDraftScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (showOnlyDrafting) {
-                DraftAnalysisTab(
-                    myChampion = myChampion,
-                    activeRole = activeRole,
-                    allySlots = allySlots,
-                    enemySlots = enemySlots,
-                    analysis = analysis,
-                    isFirstPick = isFirstPick,
-                    enemyLaneOpponent = enemyLaneOpponent,
-                    onToggleFirstPick = { isFirstPick = !isFirstPick },
-                    onChangeRole = { showRoleChangeDialog = true },
-                    onPickAllyRole = { role ->
-                        suggestedPickingRole = role
-                        pickingForTeam = "ALLY"
-                    },
-                    onPickEnemyRole = { role ->
-                        suggestedPickingRole = role
-                        pickingForTeam = "ENEMY"
-                    },
-                    onRemoveAllyRole = { role ->
-                        val idx = allySlots.indexOfFirst { it.assignedRole == role }
-                        if (idx >= 0) allySlots.removeAt(idx)
-                    },
-                    onRemoveEnemyRole = { role ->
-                        val idx = enemySlots.indexOfFirst { it.assignedRole == role }
-                        if (idx >= 0) enemySlots.removeAt(idx)
-                    },
-                    onPickRecommendation = { champ ->
-                        val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
-                        if (existingIndex >= 0) {
-                            allySlots[existingIndex] = DraftSlot(champ, activeRole)
-                        } else {
-                            if (allySlots.size >= 5) {
-                                allySlots.removeAt(allySlots.size - 1)
+            when (mode) {
+                MetaScreenMode.DRAFTING -> {
+                    DraftAnalysisTab(
+                        myChampion = myChampion,
+                        activeRole = activeRole,
+                        allySlots = allySlots,
+                        enemySlots = enemySlots,
+                        analysis = analysis,
+                        isFirstPick = isFirstPick,
+                        enemyLaneOpponent = enemyLaneOpponent,
+                        onToggleFirstPick = { isFirstPick = !isFirstPick },
+                        onChangeRole = { showRoleChangeDialog = true },
+                        onPickAllyRole = { role ->
+                            suggestedPickingRole = role
+                            pickingForTeam = "ALLY"
+                        },
+                        onPickEnemyRole = { role ->
+                            suggestedPickingRole = role
+                            pickingForTeam = "ENEMY"
+                        },
+                        onRemoveAllyRole = { role ->
+                            val idx = allySlots.indexOfFirst { it.assignedRole == role }
+                            if (idx >= 0) allySlots.removeAt(idx)
+                        },
+                        onRemoveEnemyRole = { role ->
+                            val idx = enemySlots.indexOfFirst { it.assignedRole == role }
+                            if (idx >= 0) enemySlots.removeAt(idx)
+                        },
+                        onPickRecommendation = { champ ->
+                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                            if (existingIndex >= 0) {
+                                allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                            } else {
+                                if (allySlots.size >= 5) {
+                                    allySlots.removeAt(allySlots.size - 1)
+                                }
+                                allySlots.add(0, DraftSlot(champ, activeRole))
                             }
-                            allySlots.add(0, DraftSlot(champ, activeRole))
-                        }
-                    },
-                    onSelectChampion = { selectedDetailChampion = it }
-                )
-            } else {
-                data class CatalogTabItem(val title: String, val count: Int? = null)
-                val totalChamps = WildRiftRepository.champions.size
-                val totalItems = WildRiftRepository.items.size
-                val totalRunes = WildRiftRepository.runes.size
-                val totalSpells = WildRiftRepository.summonerSpells.size
-
-                if (WildRiftRepository.lastError != null) {
-                    Text("ERROR: ${WildRiftRepository.lastError}", color = androidx.compose.ui.graphics.Color.Red)
+                        },
+                        onSelectChampion = { selectedDetailChampion = it }
+                    )
                 }
-                val catalogTabs = listOf(
-                    CatalogTabItem(tr("Campeones"), totalChamps),
-                    CatalogTabItem(tr("Tier List")),
-                    CatalogTabItem(tr("Objetos"), totalItems),
-                    CatalogTabItem(tr("Runas"), totalRunes),
-                    CatalogTabItem(tr("Hechizos"), totalSpells),
-                    CatalogTabItem(tr("Objetivos"))
-                )
+                MetaScreenMode.TIER_LIST -> {
+                    val totalChamps = WildRiftRepository.champions.size
 
-                ScrollableTabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = HextechSurface,
-                    contentColor = HextechCyan,
-                    edgePadding = 12.dp,
-                    indicator = { tabPositions ->
-                        if (selectedTabIndex in tabPositions.indices) {
-                            TabRowDefaults.SecondaryIndicator(
-                                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                                color = HextechCyan,
-                                height = 3.dp
-                            )
+                    val tierTabs = listOf(
+                        MetaNavTabItem(tr("Tier List")),
+                        MetaNavTabItem(tr("Campeones"), totalChamps)
+                    )
+
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = HextechSurface,
+                        contentColor = HextechCyan,
+                        edgePadding = 12.dp,
+                        indicator = { tabPositions ->
+                            if (selectedTabIndex in tabPositions.indices) {
+                                TabRowDefaults.SecondaryIndicator(
+                                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                    color = HextechCyan,
+                                    height = 3.dp
+                                )
+                            }
                         }
-                    }
-                ) {
-                    catalogTabs.forEachIndexed { index, tabItem ->
-                        val isSelected = selectedTabIndex == index
-                        Tab(
-                            selected = isSelected,
-                            onClick = { selectedTabIndex = index },
-                            text = {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                    modifier = Modifier
-                                        .background(
-                                            if (isSelected) HextechCyan.copy(alpha = 0.15f) else Color.Transparent,
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .border(
-                                            if (isSelected) 1.dp else 0.dp,
-                                            if (isSelected) HextechCyan.copy(alpha = 0.6f) else Color.Transparent,
-                                            RoundedCornerShape(8.dp)
-                                        )
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = tabItem.title,
-                                        color = if (isSelected) HextechCyan else TextMuted,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                        fontSize = 12.5.sp
-                                    )
-                                    if (tabItem.count != null) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(
-                                                    if (isSelected) HextechCyan else HextechSurfaceVariant,
-                                                    RoundedCornerShape(10.dp)
-                                                )
-                                                .border(
-                                                    0.5.dp,
-                                                    if (isSelected) HextechGold else HextechCardBorder,
-                                                    RoundedCornerShape(10.dp)
-                                                )
-                                                .padding(horizontal = 6.dp, vertical = 1.dp)
-                                        ) {
-                                            Text(
-                                                text = "${tabItem.count}",
-                                                color = if (isSelected) HextechDarkBg else HextechGold,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold
+                    ) {
+                        tierTabs.forEachIndexed { index, tabItem ->
+                            val isSelected = selectedTabIndex == index
+                            Tab(
+                                selected = isSelected,
+                                onClick = { selectedTabIndex = index },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                        modifier = Modifier
+                                            .background(
+                                                if (isSelected) HextechCyan.copy(alpha = 0.15f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
                                             )
+                                            .border(
+                                                if (isSelected) 1.dp else 0.dp,
+                                                if (isSelected) HextechCyan.copy(alpha = 0.6f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = tabItem.title,
+                                            color = if (isSelected) HextechCyan else TextMuted,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 12.5.sp
+                                        )
+                                        if (tabItem.count != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(
+                                                        if (isSelected) HextechCyan else HextechSurfaceVariant,
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .border(
+                                                        0.5.dp,
+                                                        if (isSelected) HextechGold else HextechCardBorder,
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .padding(horizontal = 6.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = "${tabItem.count}",
+                                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }
+                            )
+                        }
+                    }
+
+                    AnimatedContent(
+                        targetState = selectedTabIndex,
+                        transitionSpec = {
+                            if (targetState > initialState) {
+                                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                            } else {
+                                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
                             }
-                        )
+                        },
+                        label = "tier_tab_animation"
+                    ) { targetIndex ->
+                        when (targetIndex) {
+                            0 -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
+                            1 -> ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                            else -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
+                        }
                     }
                 }
+                MetaScreenMode.CATALOG -> {
+                    val totalItems = WildRiftRepository.items.size
+                    val totalRunes = WildRiftRepository.runes.size
+                    val totalSpells = WildRiftRepository.summonerSpells.size
 
-                AnimatedContent(
-                    targetState = selectedTabIndex,
-                    transitionSpec = {
-                        if (targetState > initialState) {
-                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
-                        } else {
-                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                    val catalogTabs = listOf(
+                        MetaNavTabItem(tr("Objetos"), totalItems),
+                        MetaNavTabItem(tr("Runas"), totalRunes),
+                        MetaNavTabItem(tr("Hechizos"), totalSpells)
+                    )
+
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = HextechSurface,
+                        contentColor = HextechCyan,
+                        edgePadding = 12.dp,
+                        indicator = { tabPositions ->
+                            if (selectedTabIndex in tabPositions.indices) {
+                                TabRowDefaults.SecondaryIndicator(
+                                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                    color = HextechCyan,
+                                    height = 3.dp
+                                )
+                            }
                         }
-                    },
-                    label = "tab_animation"
-                ) { targetIndex ->
-                    when (targetIndex) {
-                        0 -> ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
-                        1 -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
-                        2 -> ItemsCatalogTab()
-                        3 -> RunesTab()
-                        4 -> SpellsTab()
-                        5 -> MapObjectivesTab()
+                    ) {
+                        catalogTabs.forEachIndexed { index, tabItem ->
+                            val isSelected = selectedTabIndex == index
+                            Tab(
+                                selected = isSelected,
+                                onClick = { selectedTabIndex = index },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                        modifier = Modifier
+                                            .background(
+                                                if (isSelected) HextechCyan.copy(alpha = 0.15f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .border(
+                                                if (isSelected) 1.dp else 0.dp,
+                                                if (isSelected) HextechCyan.copy(alpha = 0.6f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = tabItem.title,
+                                            color = if (isSelected) HextechCyan else TextMuted,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 12.5.sp
+                                        )
+                                        if (tabItem.count != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(
+                                                        if (isSelected) HextechCyan else HextechSurfaceVariant,
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .border(
+                                                        0.5.dp,
+                                                        if (isSelected) HextechGold else HextechCardBorder,
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .padding(horizontal = 6.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = "${tabItem.count}",
+                                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    AnimatedContent(
+                        targetState = selectedTabIndex,
+                        transitionSpec = {
+                            if (targetState > initialState) {
+                                (slideInHorizontally { width -> width } + fadeIn()).togetherWith(slideOutHorizontally { width -> -width } + fadeOut())
+                            } else {
+                                (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(slideOutHorizontally { width -> width } + fadeOut())
+                            }
+                        },
+                        label = "catalog_tab_animation"
+                    ) { targetIndex ->
+                        when (targetIndex) {
+                            0 -> ItemsCatalogTab()
+                            1 -> RunesTab()
+                            2 -> SpellsTab()
+                            else -> ItemsCatalogTab()
+                        }
                     }
                 }
             }
@@ -519,6 +629,7 @@ private fun ChampionsCatalogTab(
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
     var isGridView by remember { mutableStateOf(true) }
+    var showFilterChips by remember { mutableStateOf(true) }
 
     val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState, WildRiftRepository.champions.toList()) {
         val list = WildRiftRepository.champions.filter { champ ->
@@ -591,46 +702,83 @@ private fun ChampionsCatalogTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Role Filter Chips
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
+        // Collapsible Header for Role Filters
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { showFilterChips = !showFilterChips }
+                .padding(vertical = 4.dp, horizontal = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            val totalCount = WildRiftRepository.champions.size
-            val isAllSelected = selectedRoleFilter == null
-            FilterChip(
-                selected = isAllSelected,
-                onClick = { selectedRoleFilter = null },
-                label = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(tr("Todos los Roles"), fontSize = 11.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tr("Filtrar por Rol"),
+                    color = HextechCyan,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (!showFilterChips) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    val roleLabel = selectedRoleFilter?.displayName ?: "Todos los Roles"
+                    Surface(
+                        color = HextechGold.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.5f))
+                    ) {
                         Text(
-                            text = "($totalCount)",
-                            color = if (isAllSelected) HextechDarkBg else HextechGold,
+                            text = tr(roleLabel),
+                            color = HextechGold,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 10.5.sp
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg
+                }
+            }
+            IconButton(
+                onClick = { showFilterChips = !showFilterChips },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (showFilterChips) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (showFilterChips) tr("Minimizar filtros") else tr("Expandir filtros"),
+                    tint = HextechGold,
+                    modifier = Modifier.size(20.dp)
                 )
-            )
-            LaneRole.entries.forEach { role ->
-                val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
-                val isSelected = selectedRoleFilter == role
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showFilterChips,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            // Role Filter Chips
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val totalCount = WildRiftRepository.champions.size
+                val isAllSelected = selectedRoleFilter == null
                 FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                    selected = isAllSelected,
+                    onClick = { selectedRoleFilter = null },
                     label = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(tr(role.shortName), fontSize = 11.sp)
+                            Text(tr("Todos los Roles"), fontSize = 11.sp)
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "($count)",
-                                color = if (isSelected) HextechDarkBg else HextechGold,
+                                text = "($totalCount)",
+                                color = if (isAllSelected) HextechDarkBg else HextechGold,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.5.sp
                             )
@@ -641,6 +789,30 @@ private fun ChampionsCatalogTab(
                         selectedLabelColor = HextechDarkBg
                     )
                 )
+                LaneRole.entries.forEach { role ->
+                    val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
+                    val isSelected = selectedRoleFilter == role
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(tr(role.shortName), fontSize = 11.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "($count)",
+                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.5.sp
+                                )
+                            }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
             }
         }
 
@@ -1151,6 +1323,7 @@ private fun ItemsCatalogTab() {
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var isGridView by remember { mutableStateOf(true) }
+    var showFilterChips by remember { mutableStateOf(true) }
     var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
 
     val allItems = WildRiftRepository.items
@@ -1297,34 +1470,95 @@ private fun ItemsCatalogTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Category Filter Chips
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
+        // Collapsible Header for Item Categories
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { showFilterChips = !showFilterChips }
+                .padding(vertical = 4.dp, horizontal = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            filterOptions.forEach { (key, label) ->
-                val count = if (key == "TODOS") allItems.size else allItems.count { it.category.equals(key, ignoreCase = true) }
-                val isSelected = (selectedCategory == null && key == "TODOS") || (selectedCategory != null && selectedCategory.equals(key, ignoreCase = true))
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedCategory = if (key == "TODOS") null else key },
-                    label = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(tr(label), fontSize = 11.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "($count)",
-                                color = if (isSelected) HextechDarkBg else HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
-                        selectedLabelColor = HextechDarkBg
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(16.dp)
                 )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tr("Filtrar por Categoría"),
+                    color = HextechCyan,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (!showFilterChips) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    val catLabel = selectedCategory ?: "Todos"
+                    Surface(
+                        color = HextechGold.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.5f))
+                    ) {
+                        Text(
+                            text = tr(catLabel),
+                            color = HextechGold,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            IconButton(
+                onClick = { showFilterChips = !showFilterChips },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (showFilterChips) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (showFilterChips) tr("Minimizar filtros") else tr("Expandir filtros"),
+                    tint = HextechGold,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showFilterChips,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            // Category Filter Chips
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                filterOptions.forEach { (key, label) ->
+                    val count = if (key == "TODOS") allItems.size else allItems.count { it.category.equals(key, ignoreCase = true) }
+                    val isSelected = (selectedCategory == null && key == "TODOS") || (selectedCategory != null && selectedCategory.equals(key, ignoreCase = true))
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedCategory = if (key == "TODOS") null else key },
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(tr(label), fontSize = 11.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "($count)",
+                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.5.sp
+                                )
+                            }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
             }
         }
 
@@ -1749,6 +1983,7 @@ private fun RunesTab() {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("TODOS") }
     var isGridView by remember { mutableStateOf(true) }
+    var showFilterChips by remember { mutableStateOf(true) }
     var selectedRune by remember { mutableStateOf<RuneItem?>(null) }
 
     val allCategories = remember(com.example.data.WildRiftRepository.runes) {
@@ -1881,34 +2116,95 @@ private fun RunesTab() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Category Filter Chips
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
+        // Collapsible Header for Rune Categories
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { showFilterChips = !showFilterChips }
+                .padding(vertical = 4.dp, horizontal = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            filterOptions.forEach { (key, label) ->
-                val count = if (key == "TODOS") WildRiftRepository.runes.size else WildRiftRepository.runes.count { it.category.equals(key, ignoreCase = true) }
-                val isSelected = selectedFilter == key
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedFilter = key },
-                    label = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(tr(label), fontSize = 11.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "($count)",
-                                color = if (isSelected) HextechDarkBg else HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
-                        selectedLabelColor = HextechDarkBg
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(16.dp)
                 )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tr("Filtrar por Categoría"),
+                    color = HextechCyan,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (!showFilterChips) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    val currentLabel = filterOptions.firstOrNull { it.first == selectedFilter }?.second ?: "Todos"
+                    Surface(
+                        color = HextechGold.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.5f))
+                    ) {
+                        Text(
+                            text = tr(currentLabel),
+                            color = HextechGold,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            IconButton(
+                onClick = { showFilterChips = !showFilterChips },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = if (showFilterChips) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (showFilterChips) tr("Minimizar filtros") else tr("Expandir filtros"),
+                    tint = HextechGold,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showFilterChips,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            // Category Filter Chips
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                filterOptions.forEach { (key, label) ->
+                    val count = if (key == "TODOS") WildRiftRepository.runes.size else WildRiftRepository.runes.count { it.category.equals(key, ignoreCase = true) }
+                    val isSelected = selectedFilter == key
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedFilter = key },
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(tr(label), fontSize = 11.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "($count)",
+                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.5.sp
+                                )
+                            }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
             }
         }
 
