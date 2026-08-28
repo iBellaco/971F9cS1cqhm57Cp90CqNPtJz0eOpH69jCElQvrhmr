@@ -36,7 +36,8 @@ object DraftHistoryRepository {
         enemies: List<DraftSlot>,
         analysis: DraftAnalysisResult,
         title: String? = null,
-        notes: String = ""
+        notes: String = "",
+        matchResult: String = "PENDING"
     ): Long {
         val allyDataList = allies.map {
             SavedDraftSlotData(
@@ -92,7 +93,7 @@ object DraftHistoryRepository {
             myChampionName = myChampion?.name ?: "",
             enemyLaneOpponentName = enemyLaneOpponent?.name ?: "",
             estimatedWinrate = estimatedWr,
-            matchResult = "PENDING",
+            matchResult = matchResult,
             allyDamagePhysical = analysis.allyPhysicalDamagePercent,
             allyDamageMagic = analysis.allyMagicDamagePercent,
             allyDamageTrue = analysis.allyTrueDamagePercent,

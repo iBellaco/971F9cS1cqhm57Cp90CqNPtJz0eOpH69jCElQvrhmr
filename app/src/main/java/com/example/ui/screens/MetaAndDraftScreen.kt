@@ -3038,7 +3038,42 @@ private fun DraftAnalysisTab(
     val tabContext = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isSavedRecently by remember { mutableStateOf(false) }
+    var showSaveDraftDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
+    val victoryToastText = "🏆 " + tr("Draft registrado como Victoria")
+    val defeatToastText = "💀 " + tr("Draft registrado como Derrota")
+
+    if (showSaveDraftDialog) {
+        com.example.ui.components.SaveDraftDialog(
+            myChampion = myChampion,
+            enemyLaneOpponent = enemyLaneOpponent,
+            userRole = activeRole,
+            estimatedWinrate = analysis.bestOverallPick?.estimatedWinrate ?: 50.0,
+            onDismiss = { showSaveDraftDialog = false },
+            onSave = { result, notes ->
+                coroutineScope.launch {
+                    DraftHistoryRepository.saveDraft(
+                        context = tabContext,
+                        myRole = activeRole,
+                        isFirstPick = isFirstPick,
+                        allies = allySlots,
+                        enemies = enemySlots,
+                        analysis = analysis,
+                        notes = notes,
+                        matchResult = result
+                    )
+                    isSavedRecently = true
+                    showSaveDraftDialog = false
+                    val toastMsg = when (result) {
+                        "VICTORY" -> victoryToastText
+                        "DEFEAT" -> defeatToastText
+                        else -> "✅ $savedDraftToastText"
+                    }
+                    Toast.makeText(tabContext, toastMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -3116,18 +3151,7 @@ private fun DraftAnalysisTab(
         ) {
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        DraftHistoryRepository.saveDraft(
-                            context = tabContext,
-                            myRole = activeRole,
-                            isFirstPick = isFirstPick,
-                            allies = allySlots,
-                            enemies = enemySlots,
-                            analysis = analysis
-                        )
-                        isSavedRecently = true
-                        Toast.makeText(tabContext, "✅ $savedDraftToastText", Toast.LENGTH_SHORT).show()
-                    }
+                    showSaveDraftDialog = true
                 },
                 modifier = Modifier
                     .weight(1f)

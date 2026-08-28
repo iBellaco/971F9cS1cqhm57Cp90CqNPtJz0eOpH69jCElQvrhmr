@@ -203,14 +203,37 @@ fun MainDraftingScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Text(
-                            text = "Wild Rift Coach",
-                            color = TextPrimary,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 0.5.sp,
-                            modifier = Modifier.testTag("app_title_centered")
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Wild Rift Coach",
+                                color = TextPrimary,
+                                fontSize = 17.5.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 0.5.sp,
+                                modifier = Modifier.testTag("app_title_centered")
+                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechCyan)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = tr(com.example.data.WildRiftRepository.CURRENT_PATCH_VERSION),
+                                    color = HextechCyan,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.2.sp
+                                )
+                            }
+                        }
                     },
                     navigationIcon = {
                         Row {
@@ -321,12 +344,7 @@ fun MainDraftingScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Banner de estado del Meta de Wild Rift
-                WildRiftVersionBanner()
-
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }

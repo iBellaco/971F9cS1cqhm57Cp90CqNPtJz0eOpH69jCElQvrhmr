@@ -1,0 +1,429 @@
+package com.example.ui.components
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.model.Champion
+import com.example.model.LaneRole
+import com.example.ui.theme.DangerRed
+import com.example.ui.theme.HextechCardBorder
+import com.example.ui.theme.HextechCyan
+import com.example.ui.theme.HextechDarkBg
+import com.example.ui.theme.HextechGold
+import com.example.ui.theme.HextechGoldLight
+import com.example.ui.theme.HextechSurface
+import com.example.ui.theme.HextechSurfaceVariant
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.util.tr
+
+@Composable
+fun SaveDraftDialog(
+    myChampion: Champion?,
+    enemyLaneOpponent: Champion?,
+    userRole: LaneRole,
+    estimatedWinrate: Double,
+    onDismiss: () -> Unit,
+    onSave: (result: String, notes: String) -> Unit
+) {
+    var selectedResult by remember { mutableStateOf("VICTORY") } // "VICTORY", "DEFEAT", "PENDING"
+    var notes by remember { mutableStateOf("") }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.92f)
+                .clip(RoundedCornerShape(18.dp))
+                .border(1.5.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(18.dp))
+                .testTag("save_draft_dialog"),
+            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(HextechGold.copy(alpha = 0.15f))
+                                .border(1.dp, HextechGold.copy(alpha = 0.5f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.BookmarkAdd,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = tr("Guardar en Historial"),
+                                color = TextPrimary,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = tr("Registra el resultado de la partida"),
+                                color = HextechCyan,
+                                fontSize = 11.5.sp
+                            )
+                        }
+                    }
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = tr("Cerrar"),
+                            tint = TextMuted,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Matchup Summary Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (myChampion != null) {
+                                AppAssetImage(
+                                    url = myChampion.avatarUrl,
+                                    contentDescription = myChampion.name,
+                                    fallbackText = myChampion.name.take(2).uppercase(),
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .border(1.dp, HextechGold, CircleShape)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            Column {
+                                Text(
+                                    text = if (myChampion != null && enemyLaneOpponent != null) {
+                                        "${myChampion.name} vs ${enemyLaneOpponent.name}"
+                                    } else if (myChampion != null) {
+                                        myChampion.name
+                                    } else {
+                                        tr("Draft de Equipo")
+                                    },
+                                    color = TextPrimary,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Shield,
+                                        contentDescription = null,
+                                        tint = HextechGold,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = tr(userRole.displayName),
+                                        color = HextechGold,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = "${estimatedWinrate.toInt()}% WR",
+                            color = HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(HextechCyan.copy(alpha = 0.12f))
+                                .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Result selector title
+                Text(
+                    text = tr("¿Cuál fue el resultado de la partida?"),
+                    color = TextPrimary,
+                    fontSize = 13.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Result Buttons / Cards
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Option 1: Victoria
+                    val isVictorySelected = selectedResult == "VICTORY"
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                width = if (isVictorySelected) 1.5.dp else 1.dp,
+                                color = if (isVictorySelected) Color(0xFF81C784) else HextechCardBorder,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable { selectedResult = "VICTORY" }
+                            .testTag("save_result_victory"),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isVictorySelected) Color(0xFF2E7D32).copy(alpha = 0.35f) else HextechSurface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 6.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "🏆", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = tr("Victoria"),
+                                color = if (isVictorySelected) Color(0xFF81C784) else TextSecondary,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isVictorySelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // Option 2: Derrota
+                    val isDefeatSelected = selectedResult == "DEFEAT"
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                width = if (isDefeatSelected) 1.5.dp else 1.dp,
+                                color = if (isDefeatSelected) DangerRed else HextechCardBorder,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable { selectedResult = "DEFEAT" }
+                            .testTag("save_result_defeat"),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDefeatSelected) DangerRed.copy(alpha = 0.25f) else HextechSurface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 6.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "💀", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = tr("Derrota"),
+                                color = if (isDefeatSelected) DangerRed else TextSecondary,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isDefeatSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // Option 3: Pendiente
+                    val isPendingSelected = selectedResult == "PENDING"
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                width = if (isPendingSelected) 1.5.dp else 1.dp,
+                                color = if (isPendingSelected) HextechGold else HextechCardBorder,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable { selectedResult = "PENDING" }
+                            .testTag("save_result_pending"),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isPendingSelected) HextechGold.copy(alpha = 0.25f) else HextechSurface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 6.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "⏳", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = tr("Pendiente"),
+                                color = if (isPendingSelected) HextechGold else TextSecondary,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isPendingSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Notes Field
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { notes = it },
+                    label = { Text(tr("Notas o recordatorio (opcional)"), fontSize = 11.5.sp) },
+                    placeholder = { Text(tr("Ej: Buen counter en early, build con cortacuras..."), fontSize = 11.sp, color = TextMuted) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(72.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = HextechGold,
+                        unfocusedBorderColor = HextechCardBorder,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
+                        focusedContainerColor = HextechSurface,
+                        unfocusedContainerColor = HextechSurface,
+                        focusedLabelColor = HextechGold,
+                        unfocusedLabelColor = TextMuted
+                    ),
+                    maxLines = 2,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                // Action Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(42.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(1.dp, HextechCardBorder),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextMuted)
+                    ) {
+                        Text(text = tr("Cancelar"), fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    Button(
+                        onClick = {
+                            onSave(selectedResult, notes)
+                        },
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .height(42.dp)
+                            .testTag("confirm_save_draft_button"),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = when (selectedResult) {
+                                "VICTORY" -> Color(0xFF2E7D32)
+                                "DEFEAT" -> DangerRed.copy(alpha = 0.85f)
+                                else -> HextechGold
+                            },
+                            contentColor = if (selectedResult == "PENDING") HextechDarkBg else Color.White
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Guardar"),
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

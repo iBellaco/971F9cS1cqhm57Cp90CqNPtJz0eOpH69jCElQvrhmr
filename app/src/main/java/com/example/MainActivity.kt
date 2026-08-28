@@ -104,7 +104,7 @@ fun DashboardScreen(
     currentLanguage: String,
     onLanguageChange: (String) -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(2) }
+    var selectedTab by remember { mutableStateOf(0) }
     var showExitDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -119,10 +119,10 @@ fun DashboardScreen(
     }
 
     BackHandler(enabled = true) {
-        if (selectedTab == 2) {
+        if (selectedTab == 0) {
             showExitDialog = true
         } else {
-            selectedTab = 2
+            selectedTab = 0
         }
     }
 
@@ -140,10 +140,24 @@ fun DashboardScreen(
                 containerColor = navBg,
                 contentColor = navSelectedText
             ) {
-                // 1. Selección (Traducido de Drafting)
+                // 1. Inicio
                 NavigationBarItem(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+                    label = { Text(tr("Inicio")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
+                    )
+                )
+                // 2. Selección (Drafting)
+                NavigationBarItem(
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Default.Groups, contentDescription = "Selección") },
                     label = { Text(tr("Selección")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -154,26 +168,12 @@ fun DashboardScreen(
                         unselectedTextColor = navUnselected
                     )
                 )
-                // 2. Tier List (Pestaña de Tier List por delante de Campeón)
-                NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
-                    label = { Text(tr("Tier List")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
-                    )
-                )
-                // 3. Inicio (Al centro)
+                // 3. Tier List
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
-                    label = { Text(tr("Inicio")) },
+                    icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
+                    label = { Text(tr("Tier List")) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = navSelectedIcon,
                         selectedTextColor = navSelectedText,
@@ -202,23 +202,9 @@ fun DashboardScreen(
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTab) {
                 0 -> {
-                    MetaAndDraftScreen(
-                        mode = MetaScreenMode.DRAFTING,
-                        userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 2 }
-                    )
-                }
-                1 -> {
-                    MetaAndDraftScreen(
-                        mode = MetaScreenMode.TIER_LIST,
-                        userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 2 }
-                    )
-                }
-                2 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToMeta = { selectedTab = 3 },
+                        onNavigateToMeta = { selectedTab = 2 },
                         onNavigateToLogin = onNavigateToLogin,
                         mainRole = mainRole,
                         onMainRoleChange = onMainRoleChange,
@@ -230,17 +216,31 @@ fun DashboardScreen(
                         onLanguageChange = onLanguageChange
                     )
                 }
+                1 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.DRAFTING,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 0 }
+                    )
+                }
+                2 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.TIER_LIST,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 0 }
+                    )
+                }
                 3 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.CATALOG,
                         userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 2 }
+                        onNavigateBack = { selectedTab = 0 }
                     )
                 }
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToMeta = { selectedTab = 3 },
+                        onNavigateToMeta = { selectedTab = 2 },
                         onNavigateToLogin = onNavigateToLogin,
                         mainRole = mainRole,
                         onMainRoleChange = onMainRoleChange,
