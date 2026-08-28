@@ -1,0 +1,15 @@
+{
+  "default_region": "NA",
+  "supported_regions": ["NA", "CN"],
+  "urls": {
+    "NA": "https://wildriftstats.org",
+    "CN": "https://lolm.qq.com/zlkdatasys/m/hero_list.shtml"
+  },
+  "api_base_url": "https://wildriftstats.org/api",
+  "schedule_interval_hours": 24,
+  "delay_min_seconds": 2,
+  "delay_max_seconds": 5,
+  "timeout_seconds": 30,
+  "max_retries": 3,
+  "headless": true
+}
