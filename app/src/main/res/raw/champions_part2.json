@@ -56,12 +56,12 @@
     "situationalItems": [
       "El reloj de arena de Zhonya",
       "Morellonomicón",
-      "Sombrero mortífero de Rabadon"
+      "Mandato imperial"
     ],
     "situationalItemsIcons": [
       "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp",
       "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp",
-      "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/item/3078.png"
+      "https://wr-meta.com/uploads/posts/2025-07/1753388764_imperial-mandate.webp"
     ],
     "skillOrder": "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
     "skills": [
@@ -836,7 +836,7 @@
     "name": "Norra",
     "title": "la Maestra de los Portales",
     "ddragonId": "norra",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yuumi.png",
+    "avatarUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a1ba2f0d1178b81cf869741e94e9453ffd3e69f-285x323.jpg?accountingTag=WR",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT"
@@ -8404,12 +8404,12 @@
     ],
     "situationalItems": [
       "Morellonomicón",
-      "Sombrero mortífero de Rabadon",
+      "Mandato imperial",
       "El reloj de arena de Zhonya"
     ],
     "situationalItemsIcons": [
       "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp",
-      "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/item/3078.png",
+      "https://wr-meta.com/uploads/posts/2025-07/1753388764_imperial-mandate.webp",
       "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
     ],
     "skillOrder": "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
