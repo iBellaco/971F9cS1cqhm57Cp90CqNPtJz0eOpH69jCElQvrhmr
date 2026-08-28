@@ -57,6 +57,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.local.FavoriteChampionsManager
 import com.example.data.SituationalItemAdvisor
 import com.example.model.Champion
 import com.example.model.LaneRole
@@ -86,6 +91,10 @@ fun ChampionDetailSheet(
     onDismiss: () -> Unit
 ) {
     if (champion == null) return
+
+    val context = LocalContext.current
+    val favorites by FavoriteChampionsManager.favoritesFlow.collectAsStateWithLifecycle()
+    val isFavorite = favorites.contains(champion.id.lowercase())
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     // Solo las líneas Main y Flex en las que realmente se juega el campeón
@@ -172,8 +181,21 @@ fun ChampionDetailSheet(
                         )
                     }
                 }
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { FavoriteChampionsManager.toggleFavorite(context, champion.id) },
+                        modifier = Modifier.testTag("detail_fav_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = if (isFavorite) tr("Quitar de Favoritos") else tr("Marcar como Favorito"),
+                            tint = if (isFavorite) HextechGold else TextMuted.copy(alpha = 0.4f),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
+                    }
                 }
             }
 

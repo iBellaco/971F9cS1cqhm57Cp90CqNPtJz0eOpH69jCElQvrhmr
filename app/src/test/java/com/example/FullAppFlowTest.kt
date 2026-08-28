@@ -8,6 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.example.ui.screens.MetaAndDraftScreen
+import com.example.ui.screens.MetaScreenMode
 import com.example.ui.theme.MyApplicationTheme
 import com.example.model.LaneRole
 import com.example.util.LocalLanguage
@@ -27,7 +28,7 @@ class FullAppFlowTest {
             MyApplicationTheme {
                 CompositionLocalProvider(LocalLanguage provides "es") {
                     MetaAndDraftScreen(
-                        showOnlyDrafting = false,
+                        mode = MetaScreenMode.CATALOG,
                         onNavigateBack = {},
                         userMainRole = LaneRole.MID
                     )
@@ -70,10 +71,6 @@ class FullAppFlowTest {
         composeTestRule.onNodeWithText("Hechizos").performClick()
         composeTestRule.waitForIdle()
 
-        // 6. Tab Objetivos
-        composeTestRule.onNodeWithText("Objetivos").performClick()
-        composeTestRule.waitForIdle()
-
         // Return to Campeones
         composeTestRule.onNodeWithText("Campeones").performClick()
         composeTestRule.waitForIdle()
@@ -86,7 +83,7 @@ class FullAppFlowTest {
             MyApplicationTheme {
                 CompositionLocalProvider(LocalLanguage provides "es") {
                     MetaAndDraftScreen(
-                        showOnlyDrafting = true,
+                        mode = MetaScreenMode.DRAFTING,
                         onNavigateBack = {},
                         userMainRole = LaneRole.TOP
                     )

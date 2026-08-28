@@ -57,6 +57,11 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.History
+import android.widget.Toast
+import com.example.data.local.FavoriteChampionsManager
+import com.example.data.repository.DraftHistoryRepository
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
@@ -219,6 +224,23 @@ fun MetaAndDraftScreen(
     var suggestedPickingRole by remember { mutableStateOf<LaneRole?>(null) }
     var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
     var isFirstPick by remember { mutableStateOf(false) }
+    var showDraftHistoryScreen by remember { mutableStateOf(false) }
+
+    if (showDraftHistoryScreen) {
+        DraftHistoryScreen(
+            onNavigateBack = { showDraftHistoryScreen = false },
+            onLoadDraft = { allies, enemies, role, firstPick ->
+                allySlots.clear()
+                allySlots.addAll(allies)
+                enemySlots.clear()
+                enemySlots.addAll(enemies)
+                activeRole = role
+                isFirstPick = firstPick
+                showDraftHistoryScreen = false
+            }
+        )
+        return
+    }
 
     // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
     val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
@@ -295,7 +317,18 @@ fun MetaAndDraftScreen(
                     }
                 },
                 actions = {
-                    // Botón superior derecho retirado según solicitud
+                    if (mode == MetaScreenMode.DRAFTING) {
+                        IconButton(
+                            onClick = { showDraftHistoryScreen = true },
+                            modifier = Modifier.testTag("nav_draft_history_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = tr("Historial de Drafts"),
+                                tint = HextechGold
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
             )
@@ -345,7 +378,8 @@ fun MetaAndDraftScreen(
                                 allySlots.add(0, DraftSlot(champ, activeRole))
                             }
                         },
-                        onSelectChampion = { selectedDetailChampion = it }
+                        onSelectChampion = { selectedDetailChampion = it },
+                        onOpenHistory = { showDraftHistoryScreen = true }
                     )
                 }
                 MetaScreenMode.TIER_LIST -> {
@@ -624,14 +658,16 @@ private fun ChampionsCatalogTab(
     val coroutineScope = rememberCoroutineScope()
     val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
+    val favorites by FavoriteChampionsManager.favoritesFlow.collectAsStateWithLifecycle()
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedTierFilter by remember { mutableStateOf<String?>(null) }
+    var showOnlyFavorites by remember { mutableStateOf(false) }
     var isGridView by remember { mutableStateOf(true) }
     var showFilterChips by remember { mutableStateOf(true) }
 
-    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, syncState, WildRiftRepository.champions.toList()) {
+    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, showOnlyFavorites, favorites, syncState, WildRiftRepository.champions.toList()) {
         val list = WildRiftRepository.champions.filter { champ ->
             val matchesQuery = searchQuery.isBlank() ||
                     champ.name.contains(searchQuery, ignoreCase = true) ||
@@ -644,7 +680,8 @@ private fun ChampionsCatalogTab(
                     champ.primaryRole == selectedRoleFilter ||
                     champ.secondaryRoles.contains(selectedRoleFilter)
             val matchesTier = selectedTierFilter == null || champ.tier == selectedTierFilter
-            matchesQuery && matchesRole && matchesTier
+            val matchesFavorite = !showOnlyFavorites || favorites.contains(champ.id.lowercase())
+            matchesQuery && matchesRole && matchesTier && matchesFavorite
         }
         if (selectedRoleFilter != null) {
             list.sortedWith(
@@ -762,16 +799,46 @@ private fun ChampionsCatalogTab(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            // Role Filter Chips
+            // Role & Favorites Filter Chips
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // 1. Favoritos Filter Chip
+                val favCount = favorites.size
+                FilterChip(
+                    selected = showOnlyFavorites,
+                    onClick = {
+                        showOnlyFavorites = !showOnlyFavorites
+                        if (showOnlyFavorites) selectedRoleFilter = null
+                    },
+                    label = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("⭐ " + tr("Favoritos"), fontSize = 11.sp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "($favCount)",
+                                color = if (showOnlyFavorites) HextechDarkBg else HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechGold,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+
+                // 2. Todos los Roles
                 val totalCount = WildRiftRepository.champions.size
-                val isAllSelected = selectedRoleFilter == null
+                val isAllSelected = selectedRoleFilter == null && !showOnlyFavorites
                 FilterChip(
                     selected = isAllSelected,
-                    onClick = { selectedRoleFilter = null },
+                    onClick = {
+                        selectedRoleFilter = null
+                        showOnlyFavorites = false
+                    },
                     label = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(tr("Todos los Roles"), fontSize = 11.sp)
@@ -791,10 +858,13 @@ private fun ChampionsCatalogTab(
                 )
                 LaneRole.entries.forEach { role ->
                     val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
-                    val isSelected = selectedRoleFilter == role
+                    val isSelected = selectedRoleFilter == role && !showOnlyFavorites
                     FilterChip(
                         selected = isSelected,
-                        onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                        onClick = {
+                            showOnlyFavorites = false
+                            selectedRoleFilter = if (selectedRoleFilter == role) null else role
+                        },
                         label = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(tr(role.shortName), fontSize = 11.sp)
@@ -818,11 +888,49 @@ private fun ChampionsCatalogTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Champions List
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
+        // Champions List or Empty State
+        if (filteredChampions.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 32.dp, horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = if (showOnlyFavorites) Icons.Default.Star else Icons.Default.Search,
+                        contentDescription = null,
+                        tint = if (showOnlyFavorites) HextechGold else HextechCyan,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = if (showOnlyFavorites) tr("No tienes campeones favoritos") else tr("No se encontraron campeones"),
+                        color = TextPrimary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = if (showOnlyFavorites)
+                            tr("Toca la estrella ⭐ en cualquier campeón de la lista para añadirlo a tus favoritos y tener acceso directo.")
+                        else
+                            tr("Prueba a buscar con otro nombre o restablece los filtros."),
+                        color = TextMuted,
+                        fontSize = 12.5.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
             items(filteredChampions) { champion ->
                 Card(
                     modifier = Modifier
@@ -847,12 +955,32 @@ private fun ChampionsCatalogTab(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = champion.name,
-                                    color = TextPrimary,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                ) {
+                                    val isFav = favorites.contains(champion.id.lowercase())
+                                    IconButton(
+                                        onClick = { FavoriteChampionsManager.toggleFavorite(context, champion.id) },
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .testTag("fav_btn_${champion.id}")
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = if (isFav) tr("Quitar de Favoritos") else tr("Marcar como Favorito"),
+                                            tint = if (isFav) HextechGold else TextMuted.copy(alpha = 0.35f),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = champion.name,
+                                        color = TextPrimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -967,6 +1095,7 @@ private fun ChampionsCatalogTab(
             }
         }
     }
+}
 }
 
 // ====================================================================
@@ -2903,8 +3032,14 @@ private fun DraftAnalysisTab(
     onRemoveAllyRole: (LaneRole) -> Unit,
     onRemoveEnemyRole: (LaneRole) -> Unit,
     onPickRecommendation: (Champion) -> Unit,
-    onSelectChampion: (Champion) -> Unit
+    onSelectChampion: (Champion) -> Unit,
+    onOpenHistory: () -> Unit
 ) {
+    val tabContext = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var isSavedRecently by remember { mutableStateOf(false) }
+    val savedDraftToastText = tr("¡Draft guardado en el Historial!")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2967,6 +3102,82 @@ private fun DraftAnalysisTab(
                         uncheckedTrackColor = HextechSurfaceVariant
                     ),
                     modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Actions Row: Guardar Draft & Historial de Partidas
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        DraftHistoryRepository.saveDraft(
+                            context = tabContext,
+                            myRole = activeRole,
+                            isFirstPick = isFirstPick,
+                            allies = allySlots,
+                            enemies = enemySlots,
+                            analysis = analysis
+                        )
+                        isSavedRecently = true
+                        Toast.makeText(tabContext, "✅ $savedDraftToastText", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp)
+                    .testTag("save_draft_button"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSavedRecently) Color(0xFF2E7D32).copy(alpha = 0.35f) else HextechGold.copy(alpha = 0.18f),
+                    contentColor = if (isSavedRecently) Color(0xFF81C784) else HextechGold
+                ),
+                border = BorderStroke(1.dp, if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.6f)),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(
+                    imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = if (isSavedRecently) tr("Guardado") else tr("Guardar Draft"),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
+            }
+
+            Button(
+                onClick = onOpenHistory,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(40.dp)
+                    .testTag("open_draft_history_button"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HextechSurface,
+                    contentColor = HextechCyan
+                ),
+                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tr("Ver Historial"),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    color = HextechCyan
                 )
             }
         }
