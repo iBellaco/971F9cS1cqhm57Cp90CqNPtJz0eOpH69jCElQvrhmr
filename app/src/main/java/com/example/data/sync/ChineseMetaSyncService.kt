@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -63,6 +64,28 @@ object ChineseMetaSyncService {
 
     private val _syncState = MutableStateFlow<ChineseSyncState>(ChineseSyncState.Idle)
     val syncState: StateFlow<ChineseSyncState> = _syncState.asStateFlow()
+
+    private val _currentRegion = MutableStateFlow("CN")
+    val currentRegion: StateFlow<String> = _currentRegion.asStateFlow()
+
+    fun loadRegion(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        _currentRegion.value = prefs.getString("META_REGION", "CN") ?: "CN"
+    }
+
+    fun setRegion(context: Context, region: String, coroutineScope: kotlinx.coroutines.CoroutineScope) {
+        _currentRegion.value = region
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString("META_REGION", region).apply()
+        
+        if (region == "NA") {
+            WildRiftRepository.initChampions(context, forceReload = true)
+        } else {
+            coroutineScope.launch {
+                syncChineseMeta(context, _currentTier.value, forceRefresh = true)
+            }
+        }
+    }
 
     private val _currentTier = MutableStateFlow(TencentRankTier.DIAMOND_PLUS)
     val currentTier: StateFlow<TencentRankTier> = _currentTier.asStateFlow()

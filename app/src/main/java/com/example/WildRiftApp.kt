@@ -87,7 +87,10 @@ class WildRiftApp : Application(), ImageLoaderFactory {
                 AppLogger.e("WildRiftApp", "Error sincronizando parche desde Supabase", e)
             }
             try {
-                ChineseMetaSyncService.syncChineseMeta(this@WildRiftApp, forceRefresh = true)
+                ChineseMetaSyncService.loadRegion(this@WildRiftApp)
+                if (ChineseMetaSyncService.currentRegion.value == "CN") {
+                    ChineseMetaSyncService.syncChineseMeta(this@WildRiftApp, forceRefresh = true)
+                }
             } catch (e: Exception) {
                 AppLogger.e("WildRiftApp", "Error en auto-sincronización instantánea", e)
             }

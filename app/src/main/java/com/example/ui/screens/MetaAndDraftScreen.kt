@@ -658,6 +658,7 @@ private fun ChampionsCatalogTab(
     val coroutineScope = rememberCoroutineScope()
     val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
+    val currentRegion by ChineseMetaSyncService.currentRegion.collectAsStateWithLifecycle()
     val favorites by FavoriteChampionsManager.favoritesFlow.collectAsStateWithLifecycle()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -708,7 +709,7 @@ private fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        TierSelectionPanel(currentTier, syncState, context, coroutineScope)
+        TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
 
 
         // Search Bar
@@ -1117,6 +1118,7 @@ private fun TierListTab(
     val coroutineScope = rememberCoroutineScope()
     val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
+    val currentRegion by ChineseMetaSyncService.currentRegion.collectAsStateWithLifecycle()
 
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
     var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
@@ -1146,7 +1148,7 @@ private fun TierListTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        TierSelectionPanel(currentTier, syncState, context, coroutineScope)
+        TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -4111,6 +4113,7 @@ private fun SpellGridCard(
 private fun TierSelectionPanel(
     currentTier: TencentRankTier,
     syncState: ChineseSyncState,
+    currentRegion: String,
     context: android.content.Context,
     coroutineScope: kotlinx.coroutines.CoroutineScope
 ) {
@@ -4121,19 +4124,27 @@ private fun TierSelectionPanel(
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
+            // REGION SELECTION
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TencentRankTier.entries.forEach { tier ->
-                    val isSelected = currentTier == tier
+                Text(
+                    text = tr("Región:"),
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                listOf("NA", "CN").forEach { region ->
+                    val isSelected = currentRegion == region
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .heightIn(min = 34.dp)
+                            .heightIn(min = 28.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .background(
-                                if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
+                                if (isSelected) HextechCyan.copy(alpha = 0.2f) else HextechSurfaceVariant.copy(alpha = 0.3f)
                             )
                             .border(
                                 width = if (isSelected) 1.dp else 0.5.dp,
@@ -4141,40 +4152,83 @@ private fun TierSelectionPanel(
                                 shape = RoundedCornerShape(6.dp)
                             )
                             .clickable {
-                                coroutineScope.launch {
-                                    ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
-                                }
+                                ChineseMetaSyncService.setRegion(context, region, coroutineScope)
                             }
-                            .padding(horizontal = 2.dp, vertical = 4.dp),
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = tr(tier.shortName),
+                            text = if (region == "NA") tr("América (NA)") else tr("China (CN)"),
                             color = if (isSelected) HextechCyan else TextMuted,
-                            fontSize = 8.5.sp,
-                            lineHeight = 10.5.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            maxLines = 2
+                            fontSize = 10.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            val lastSyncInfo = remember(syncState) { ChineseMetaSyncService.getLastSyncInfo(context) }
+            
+            Spacer(modifier = Modifier.height(6.dp))
+            
+            // TIER SELECTION (Only enable/show clearly if CN or just keep it)
+            AnimatedVisibility(visible = currentRegion == "CN") {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        TencentRankTier.entries.forEach { tier ->
+                            val isSelected = currentTier == tier
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .heightIn(min = 34.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(
+                                        if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
+                                    )
+                                    .border(
+                                        width = if (isSelected) 1.dp else 0.5.dp,
+                                        color = if (isSelected) HextechCyan else HextechCardBorder,
+                                        shape = RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable {
+                                        coroutineScope.launch {
+                                            ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
+                                        }
+                                    }
+                                    .padding(horizontal = 2.dp, vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = tr(tier.shortName),
+                                    color = if (isSelected) HextechCyan else TextMuted,
+                                    fontSize = 8.5.sp,
+                                    lineHeight = 10.5.sp,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    maxLines = 2
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+
+            val lastSyncInfo = remember(syncState, currentRegion) { ChineseMetaSyncService.getLastSyncInfo(context) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = when (val s = syncState) {
+                    text = if (currentRegion == "NA") "🟢 ${tr("Estadísticas NA Actualizadas")}" else when (val s = syncState) {
                         is ChineseSyncState.Syncing -> tr("Sincronizando...")
                         is ChineseSyncState.Success -> "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
                         is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
                         ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
                     },
-                    color = when (syncState) {
+                    color = if (currentRegion == "NA") Color(0xFF4CAF50) else when (syncState) {
                         is ChineseSyncState.Syncing -> HextechCyan
                         is ChineseSyncState.Success -> Color(0xFF4CAF50)
                         is ChineseSyncState.Error -> Color(0xFFFFA726)
@@ -4184,7 +4238,7 @@ private fun TierSelectionPanel(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = tr("Instantáneo 24/7"),
+                    text = if (currentRegion == "NA") tr("Global") else tr("Instantáneo 24/7"),
                     color = HextechGold,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold

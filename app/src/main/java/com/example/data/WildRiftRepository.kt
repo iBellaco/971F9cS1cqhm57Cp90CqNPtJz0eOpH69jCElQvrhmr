@@ -195,8 +195,8 @@ object WildRiftRepository {
     var lastError: String? by mutableStateOf(null)
 
 
-    fun initChampions(context: android.content.Context) {
-        if (champions.isNotEmpty()) return
+    fun initChampions(context: android.content.Context, forceReload: Boolean = false) {
+        if (champions.isNotEmpty() && !forceReload) return
         try {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
             val parsed1 = context.resources.openRawResource(com.example.R.raw.champions_part1).bufferedReader().use { reader ->
