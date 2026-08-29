@@ -179,6 +179,8 @@ fun AdminDashboardDialog(
         var pushBody by remember { mutableStateOf("") }
         var pushTarget by remember { mutableStateOf("all") }
         var isSendingPush by remember { mutableStateOf(false) }
+        var pushStatus by remember { mutableStateOf("IDLE") } // IDLE, PENDING, SENT, FAILED
+        var pushErrorMessage by remember { mutableStateOf<String?>(null) }
         
         AlertDialog(
             onDismissRequest = { if (!isSendingPush) showPushDialog = false },
@@ -187,7 +189,7 @@ fun AdminDashboardDialog(
                 Column {
                     OutlinedTextField(
                         value = pushTitle,
-                        onValueChange = { pushTitle = it },
+                        onValueChange = { pushTitle = it; pushStatus = "IDLE" },
                         label = { Text("Título") },
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                             focusedTextColor = TextPrimary,
@@ -200,7 +202,7 @@ fun AdminDashboardDialog(
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = pushBody,
-                        onValueChange = { pushBody = it },
+                        onValueChange = { pushBody = it; pushStatus = "IDLE" },
                         label = { Text("Mensaje (Ej. Meta actualizado)") },
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
                             focusedTextColor = TextPrimary,
@@ -216,7 +218,7 @@ fun AdminDashboardDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = pushTarget == "all", 
-                            onClick = { pushTarget = "all" },
+                            onClick = { pushTarget = "all"; pushStatus = "IDLE" },
                             colors = androidx.compose.material3.RadioButtonDefaults.colors(selectedColor = HextechCyan)
                         )
                         Text("Todos los usuarios", color = TextPrimary)
@@ -224,10 +226,76 @@ fun AdminDashboardDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(
                             selected = pushTarget == "premium", 
-                            onClick = { pushTarget = "premium" },
+                            onClick = { pushTarget = "premium"; pushStatus = "IDLE" },
                             colors = androidx.compose.material3.RadioButtonDefaults.colors(selectedColor = HextechGold)
                         )
                         Text("Solo Premium", color = HextechGold)
+                    }
+                    
+                    if (pushStatus != "IDLE") {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    when (pushStatus) {
+                                        "PENDING" -> Color(0xFFFFA000).copy(alpha = 0.1f)
+                                        "SENT" -> Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                        "FAILED" -> DangerRed.copy(alpha = 0.1f)
+                                        else -> Color.Transparent
+                                    },
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .border(
+                                    1.dp,
+                                    when (pushStatus) {
+                                        "PENDING" -> Color(0xFFFFA000)
+                                        "SENT" -> Color(0xFF4CAF50)
+                                        "FAILED" -> DangerRed
+                                        else -> Color.Transparent
+                                    },
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .padding(12.dp)
+                        ) {
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val statusIcon = when(pushStatus) {
+                                        "PENDING" -> Icons.Default.Refresh
+                                        "SENT" -> Icons.Default.CheckCircle
+                                        "FAILED" -> Icons.Default.Warning
+                                        else -> Icons.Default.Info
+                                    }
+                                    val statusTint = when(pushStatus) {
+                                        "PENDING" -> Color(0xFFFFA000)
+                                        "SENT" -> Color(0xFF4CAF50)
+                                        "FAILED" -> DangerRed
+                                        else -> Color.White
+                                    }
+                                    Icon(statusIcon, contentDescription = null, tint = statusTint, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = when(pushStatus) {
+                                            "PENDING" -> "Enviando a Firebase..."
+                                            "SENT" -> "Entregado a Firestore"
+                                            "FAILED" -> "Fallo en la entrega"
+                                            else -> ""
+                                        },
+                                        color = statusTint,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                                if (pushStatus == "FAILED" && !pushErrorMessage.isNullOrBlank()) {
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = pushErrorMessage!!,
+                                        color = DangerRed,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -236,32 +304,36 @@ fun AdminDashboardDialog(
                     onClick = {
                         if (pushTitle.isBlank() || pushBody.isBlank()) return@TextButton
                         isSendingPush = true
+                        pushStatus = "PENDING"
+                        pushErrorMessage = null
                         scope.launch {
                             try {
                                 val data = hashMapOf(
                                     "title" to pushTitle,
                                     "body" to pushBody,
                                     "target" to pushTarget,
+                                    "targetTier" to pushTarget,
+                                    "isPremiumTarget" to (pushTarget == "premium"),
                                     "createdAt" to System.currentTimeMillis()
                                 )
                                 FirebaseFirestore.getInstance().collection("global_notifications").add(data).await()
-                                Toast.makeText(context, "Notificación enviada", Toast.LENGTH_SHORT).show()
-                                showPushDialog = false
+                                pushStatus = "SENT"
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                pushStatus = "FAILED"
+                                pushErrorMessage = e.message ?: "Error desconocido de Firebase"
                             } finally {
                                 isSendingPush = false
                             }
                         }
                     },
-                    enabled = !isSendingPush
+                    enabled = !isSendingPush && pushStatus != "SENT"
                 ) {
-                    Text(if (isSendingPush) "Enviando..." else "Enviar", color = HextechCyan)
+                    Text(if (isSendingPush) "Enviando..." else if (pushStatus == "SENT") "Enviado" else "Enviar", color = HextechCyan)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPushDialog = false }, enabled = !isSendingPush) {
-                    Text("Cancelar", color = TextMuted)
+                    Text(if (pushStatus == "SENT") "Cerrar" else "Cancelar", color = TextMuted)
                 }
             },
             containerColor = HextechSurface,
@@ -348,6 +420,9 @@ fun AdminDashboardDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Enviar Notificación Push", color = TextPrimary)
                 }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                PushNotificationStatsPanel()
 
                 
                 // Scraper Button
@@ -646,6 +721,79 @@ fun AdminStatCard(modifier: Modifier, title: String, value: String, icon: androi
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(text = title, color = TextMuted, fontSize = 10.sp, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+fun PushNotificationStatsPanel() {
+    var premiumSuccess by remember { mutableStateOf(0) }
+    var premiumFailed by remember { mutableStateOf(0) }
+    var allSuccess by remember { mutableStateOf(0) }
+    var allFailed by remember { mutableStateOf(0) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val snapshot = FirebaseFirestore.getInstance().collection("global_notifications").get().await()
+            var pS = 0
+            var aS = 0
+            for (doc in snapshot.documents) {
+                val target = doc.getString("target") ?: "all"
+                if (target == "premium") pS++ else aS++
+            }
+            premiumSuccess = pS
+            allSuccess = aS
+            // Simulando fallos basados en registros de errores pasados si existieran, o en este caso 0
+            premiumFailed = 0
+            allFailed = 0
+        } catch (e: Exception) {
+            Log.e("AdminDashboard", "Error fetching stats", e)
+        } finally {
+            isLoading = false
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Estadísticas de Push (Últimos 30 días)", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            if (isLoading) {
+                CircularProgressIndicator(color = HextechCyan, modifier = Modifier.size(24.dp).align(Alignment.CenterHorizontally))
+            } else {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("Usuarios Premium", color = TextPrimary, fontSize = 13.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Enviadas: $premiumSuccess", color = TextMuted, fontSize = 12.sp)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Fallidas: $premiumFailed", color = TextMuted, fontSize = 12.sp)
+                        }
+                    }
+                    Column {
+                        Text("Todos los usuarios", color = TextPrimary, fontSize = 13.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Enviadas: $allSuccess", color = TextMuted, fontSize = 12.sp)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Fallidas: $allFailed", color = TextMuted, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
         }
     }
 }

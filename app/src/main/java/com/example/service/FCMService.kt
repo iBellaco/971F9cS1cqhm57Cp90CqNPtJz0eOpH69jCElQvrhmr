@@ -55,7 +55,7 @@ class FCMService : FirebaseMessagingService() {
         val channelId = "premium_updates_channel"
         Log.d("FCMService", "Showing FCM notification: $title - $body")
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)

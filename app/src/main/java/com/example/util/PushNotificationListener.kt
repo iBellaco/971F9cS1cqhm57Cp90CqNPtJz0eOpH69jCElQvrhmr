@@ -16,14 +16,14 @@ import com.google.firebase.firestore.DocumentChange
 import kotlin.random.Random
 
 object PushNotificationListener {
-    
     private var isListening = false
     private var startTime = System.currentTimeMillis()
+    private val processedIds = mutableSetOf<String>()
 
     fun startListening(context: Context) {
         if (isListening) return
         isListening = true
-        startTime = System.currentTimeMillis()
+        startTime = System.currentTimeMillis() - (5 * 60 * 1000)
 
         FirebaseFirestore.getInstance().collection("global_notifications")
             .whereGreaterThan("createdAt", startTime)
@@ -32,10 +32,13 @@ object PushNotificationListener {
                     Log.w("PushListener", "Listen failed.", e)
                     return@addSnapshotListener
                 }
-
                 Log.d("PushListener", "Snapshot received. Changes size: ${snapshots?.documentChanges?.size}")
                 for (dc in snapshots!!.documentChanges) {
                     if (dc.type == DocumentChange.Type.ADDED) {
+                        val docId = dc.document.id
+                        if (processedIds.contains(docId)) continue
+                        processedIds.add(docId)
+                        
                         Log.d("PushListener", "Added document: ${dc.document.data}")
                         val title = dc.document.getString("title") ?: "Alerta"
                         val body = dc.document.getString("body") ?: "Nueva actualización"
@@ -63,11 +66,10 @@ object PushNotificationListener {
             context, 0, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-
         val channelId = "premium_updates_channel"
         Log.d("PushListener", "Showing local notification: $title - $body")
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -75,7 +77,6 @@ object PushNotificationListener {
             .setContentIntent(pendingIntent)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -84,7 +85,6 @@ object PushNotificationListener {
             )
             notificationManager.createNotificationChannel(channel)
         }
-
         try {
             notificationManager.notify(Random.nextInt(), notificationBuilder.build())
         } catch (e: SecurityException) {
