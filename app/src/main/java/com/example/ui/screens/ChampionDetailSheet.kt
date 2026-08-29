@@ -714,6 +714,8 @@ fun ChampionDetailSheet(
                                 }
                             val iconUrl = dbItem?.iconUrl ?: WildRiftItemsData.getItemIconByName(rawName)
                             val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
+                            val isResolved = iconUrl.isNotBlank() && iconUrl.startsWith("http")
+                            val finalBorderColor = if (!isResolved) com.example.ui.theme.DangerRed else if (isSituational) HextechCyan.copy(alpha = 0.8f) else HextechGold
 
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -735,7 +737,7 @@ fun ChampionDetailSheet(
                                         .background(HextechSurfaceVariant)
                                         .border(
                                             width = 1.5.dp,
-                                            color = if (isSituational) HextechCyan.copy(alpha = 0.8f) else HextechGold,
+                                            color = finalBorderColor,
                                             shape = RoundedCornerShape(10.dp)
                                         )
                                 ) {
@@ -957,6 +959,8 @@ fun ChampionDetailSheet(
                             val foundRune = com.example.data.WildRiftSpellsAndRunes.getRuneByName(rName)
                                 ?: com.example.data.WildRiftRepository.runes.find { r -> r.name.equals(rName, ignoreCase = true) || rName.contains(r.name, ignoreCase = true) || r.name.contains(rName, ignoreCase = true) }
                             val iconUrl = foundRune?.iconUrl ?: com.example.data.WildRiftSpellsAndRunes.getRuneIconByName(rName)
+                            val isResolved = iconUrl.isNotBlank() && iconUrl.startsWith("http")
+                            val finalRuneBorderColor = if (!isResolved) com.example.ui.theme.DangerRed else if (isKeystone) HextechGold else HextechCyan.copy(alpha = 0.6f)
 
                             Box(
                                 contentAlignment = Alignment.Center,
@@ -966,7 +970,7 @@ fun ChampionDetailSheet(
                                     .background(HextechSurfaceVariant)
                                     .border(
                                         width = if (isKeystone) 2.dp else 1.dp,
-                                        color = if (isKeystone) HextechGold else HextechCyan.copy(alpha = 0.6f),
+                                        color = finalRuneBorderColor,
                                         shape = CircleShape
                                     )
                                     .clickable { 

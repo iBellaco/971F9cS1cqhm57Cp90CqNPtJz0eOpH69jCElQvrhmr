@@ -1,4 +1,15 @@
-package com.example.ui.components
+with open('app/src/main/java/com/example/ui/components/ChampionAvatar.kt', 'r') as f:
+    text = f.read()
+
+# We know the function ends before @Composable fun AppAssetImage
+# Let's find @Composable fun AppAssetImage and insert a missing } right before it if it is missing.
+
+# First, let's just count the brackets.
+def count_brackets(s):
+    return s.count('{') - s.count('}')
+
+# Let's just fix the whole file by writing it from scratch
+new_content = """package com.example.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -194,3 +205,8 @@ fun AppAssetImage(
         }
     }
 }
+"""
+
+with open('app/src/main/java/com/example/ui/components/ChampionAvatar.kt', 'w') as f:
+    f.write(new_content)
+print("Rewrote ChampionAvatar.kt entirely to fix all syntax errors")

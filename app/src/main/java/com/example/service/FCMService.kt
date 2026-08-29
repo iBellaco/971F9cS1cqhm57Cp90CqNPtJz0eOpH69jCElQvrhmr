@@ -53,8 +53,9 @@ class FCMService : FirebaseMessagingService() {
         )
 
         val channelId = "premium_updates_channel"
+        Log.d("FCMService", "Showing FCM notification: $title - $body")
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher) // Use the app's default icon
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -75,6 +76,10 @@ class FCMService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(Random.nextInt(), notificationBuilder.build())
+        try {
+            notificationManager.notify(Random.nextInt(), notificationBuilder.build())
+        } catch (e: SecurityException) {
+            Log.e("FCMService", "Missing POST_NOTIFICATIONS permission", e)
+        }
     }
 }

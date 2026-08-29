@@ -33,8 +33,10 @@ object PushNotificationListener {
                     return@addSnapshotListener
                 }
 
+                Log.d("PushListener", "Snapshot received. Changes size: ${snapshots?.documentChanges?.size}")
                 for (dc in snapshots!!.documentChanges) {
                     if (dc.type == DocumentChange.Type.ADDED) {
+                        Log.d("PushListener", "Added document: ${dc.document.data}")
                         val title = dc.document.getString("title") ?: "Alerta"
                         val body = dc.document.getString("body") ?: "Nueva actualización"
                         val target = dc.document.getString("target") ?: "all"
@@ -63,8 +65,9 @@ object PushNotificationListener {
         )
 
         val channelId = "premium_updates_channel"
+        Log.d("PushListener", "Showing local notification: $title - $body")
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -82,6 +85,10 @@ object PushNotificationListener {
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(Random.nextInt(), notificationBuilder.build())
+        try {
+            notificationManager.notify(Random.nextInt(), notificationBuilder.build())
+        } catch (e: SecurityException) {
+            Log.e("PushListener", "Missing POST_NOTIFICATIONS permission", e)
+        }
     }
 }
