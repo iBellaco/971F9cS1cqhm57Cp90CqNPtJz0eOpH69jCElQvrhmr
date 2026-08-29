@@ -85,7 +85,11 @@ fun AdminDashboardDialog(
     var isLoading by remember { mutableStateOf(true) }
     
     var showReportsPanel by remember { mutableStateOf(false) }
+    
     var showPushDialog by remember { mutableStateOf(false) }
+    var showScraperDialog by remember { mutableStateOf(false) }
+    var scraperProgress by remember { mutableStateOf("") }
+
 
 
     fun loadUsers() {
@@ -113,7 +117,64 @@ fun AdminDashboardDialog(
     }
 
     
+    
+    if (showScraperDialog) {
+        var isScraping by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = { if (!isScraping) showScraperDialog = false },
+            title = { Text("Web Scraper (BestBuildWR)", color = HextechCyan) },
+            text = {
+                Column {
+                    Text(
+                        "Al ejecutar este proceso, la aplicación extraerá en tiempo real las builds y campeones actualizados y guardará los archivos (JSON, CSV, URLS) en la carpeta de Descargas de tu dispositivo.",
+                        color = TextPrimary,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if (isScraping || scraperProgress.isNotEmpty()) {
+                        Text(
+                            text = scraperProgress,
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        isScraping = true
+                        scope.launch {
+                            val success = com.example.util.BestBuildScraper.runScraper(context) { progress ->
+                                scraperProgress = progress
+                            }
+                            if (success) {
+                                isScraping = false
+                                // we keep the dialog open to show success or let the user close it
+                            } else {
+                                isScraping = false
+                            }
+                        }
+                    },
+                    enabled = !isScraping
+                ) {
+                    Text(if (isScraping) "Extrayendo..." else "Ejecutar", color = HextechCyan)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showScraperDialog = false }, enabled = !isScraping) {
+                    Text("Cerrar", color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            titleContentColor = HextechCyan
+        )
+    }
+
     if (showPushDialog) {
+
         var pushTitle by remember { mutableStateOf("") }
         var pushBody by remember { mutableStateOf("") }
         var pushTarget by remember { mutableStateOf("all") }
@@ -288,7 +349,23 @@ fun AdminDashboardDialog(
                     Text("Enviar Notificación Push", color = TextPrimary)
                 }
 
+                
+                // Scraper Button
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { showScraperDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Download, contentDescription = null, tint = HextechCyan)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Ejecutar BestBuildWR Scraper", color = TextPrimary)
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
+
 
                 
                 // --- ADMIN STATS DASHBOARD ---
