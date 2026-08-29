@@ -26,8 +26,8 @@
     </queries>
 
     <application android:name=".WildRiftApp"
-        android:usesCleartextTraffic="true"
-        android:allowBackup="true"
+        android:usesCleartextTraffic="false"
+        android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

@@ -25,9 +25,6 @@ object SupabaseClientManager {
     private const val KEY_CUSTOM_URL = "custom_supabase_url"
     private const val KEY_CUSTOM_KEY = "custom_supabase_key"
 
-    private const val DEFAULT_URL = "https://yreknglctxujpetgqhnw.supabase.co"
-    private const val DEFAULT_KEY = "sb_publishable_bQJGpyYVR-uxtBmN03F5yA_ZuibUcAr"
-
     @Volatile
     private var customUrl: String? = null
     @Volatile
@@ -44,13 +41,13 @@ object SupabaseClientManager {
     fun getActiveUrl(): String {
         return customUrl?.takeIf { it.isNotBlank() }
             ?: BuildConfig.SUPABASE_URL.takeIf { it.isNotBlank() }
-            ?: DEFAULT_URL
+            ?: ""
     }
 
     fun getActiveKey(): String {
         return customKey?.takeIf { it.isNotBlank() }
             ?: BuildConfig.SUPABASE_ANON_KEY.takeIf { it.isNotBlank() }
-            ?: DEFAULT_KEY
+            ?: ""
     }
 
     fun isUsingCustomCredentials(): Boolean {
@@ -136,7 +133,8 @@ object SupabaseClientManager {
      * Retorna el script SQL oficial para que el usuario pueda crearlo con 1 clic en Supabase SQL Editor.
      */
         fun getSupabaseSqlSchema(): String {
-        return """-- =========================================================
+        return """
+-- =========================================================
 -- ESQUEMA OFICIAL SUPABASE PARA WILD RIFT APP (REPORTES Y PARCHE)
 -- =========================================================
 
@@ -160,15 +158,14 @@ CREATE TABLE IF NOT EXISTS public.feedbacks (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. HABILITAR SEGURIDAD (RLS) Y PERMITIR LECTURA/ESCRITURA PÚBLICA (ANON)
+-- 3. HABILITAR SEGURIDAD (RLS) ESTRICTA
 ALTER TABLE public.wr_patches ENABLE ROW LEVEL SECURITY;
+-- Solo lectura pública para los parches (la actualización se hace manual desde el panel de Supabase)
 CREATE POLICY "Allow public read wr_patches" ON public.wr_patches FOR SELECT USING (true);
-CREATE POLICY "Allow public all wr_patches" ON public.wr_patches FOR ALL USING (true) WITH CHECK (true);
 
 ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read feedbacks" ON public.feedbacks FOR SELECT USING (true);
+-- Los usuarios solo pueden insertar nuevos reportes, nunca leer los de otros ni modificarlos
 CREATE POLICY "Allow public insert feedbacks" ON public.feedbacks FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update feedbacks" ON public.feedbacks FOR UPDATE USING (true);
         """.trimIndent()
     }
 }
