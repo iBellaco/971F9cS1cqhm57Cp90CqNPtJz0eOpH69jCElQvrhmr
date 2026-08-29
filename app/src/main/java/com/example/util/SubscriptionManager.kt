@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,18 +70,10 @@ object SubscriptionManager {
                     val isPrem = role == "premium" || role == "admin"
                     _isPremium.value = isPrem
                     
-                    // Manage FCM Topic subscription for Premium users
-                    if (isPrem) {
-                        FirebaseMessaging.getInstance().subscribeToTopic("premium_meta_updates")
-                            .addOnSuccessListener { Log.d("SubscriptionManager", "Subscribed to premium_meta_updates") }
-                    } else {
-                        FirebaseMessaging.getInstance().unsubscribeFromTopic("premium_meta_updates")
-                            .addOnSuccessListener { Log.d("SubscriptionManager", "Unsubscribed from premium_meta_updates") }
-                    }
+                    // Manejado ahora por PushNotificationListener nativo
                 } else {
                                 _userRole.value = "free"
             _isPremium.value = false
-            FirebaseMessaging.getInstance().unsubscribeFromTopic("premium_meta_updates")
                 }
             }
         }

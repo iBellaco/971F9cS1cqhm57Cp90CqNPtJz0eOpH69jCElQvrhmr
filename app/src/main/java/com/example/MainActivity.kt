@@ -103,6 +103,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         super.onCreate(savedInstanceState)
                 AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
+        com.example.util.PushNotificationListener.startListening(this)
         askNotificationPermission()
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)

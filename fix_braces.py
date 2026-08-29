@@ -1,10 +1,11 @@
-import re
+with open('app/src/main/java/com/example/util/SubscriptionManager.kt', 'r') as f:
+    lines = f.readlines()
 
-with open("app/src/main/java/com/example/ui/components/admin/AdminRunesSpellsEditor.kt", "r") as f:
-    code = f.read()
+out = []
+for idx, line in enumerate(lines):
+    if idx == 73 and "}" in line:
+        continue  # skip the extra closing brace
+    out.append(line)
 
-# Let's count braces to see where the issue is.
-open_b = code.count('{')
-close_b = code.count('}')
-print(f"Open: {open_b}, Close: {close_b}")
-
+with open('app/src/main/java/com/example/util/SubscriptionManager.kt', 'w') as f:
+    f.writelines(out)
