@@ -229,30 +229,22 @@ fun DashboardScreen(
                     )
                 }
                 1 -> {
-                    MainDraftingScreen(
-                        onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToMeta = { selectedTab = 2 },
-                        onNavigateToLogin = onNavigateToLogin,
-                        mainRole = mainRole,
-                        onMainRoleChange = onMainRoleChange,
-                        secondRole = secondRole,
-                        onSecondRoleChange = onSecondRoleChange,
-                        autofillRole = autofillRole,
-                        onAutofillRoleChange = onAutofillRoleChange,
-                        currentLanguage = currentLanguage,
-                        onLanguageChange = onLanguageChange
-                    )
-                }
-                2 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.DRAFTING,
                         userMainRole = mainRole,
                         onNavigateBack = { selectedTab = 0 }
                     )
                 }
-                3 -> {
+                2 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.TIER_LIST,
+                        userMainRole = mainRole,
+                        onNavigateBack = { selectedTab = 0 }
+                    )
+                }
+                3 -> {
+                    MetaAndDraftScreen(
+                        mode = MetaScreenMode.CATALOG,
                         userMainRole = mainRole,
                         onNavigateBack = { selectedTab = 0 }
                     )

@@ -43,6 +43,7 @@ import com.example.util.tr
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ThemeCustomizationBottomSheet(
+    isPremium: Boolean = false,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -142,15 +143,15 @@ fun ThemeCustomizationBottomSheet(
             Spacer(modifier = Modifier.height(12.dp))
 
             when (activeTab) {
-                0 -> ThemesListTab(context = context)
-                1 -> NavBarCustomizationTab(context = context)
+                0 -> ThemesListTab(context = context, isPremium = isPremium)
+                1 -> NavBarCustomizationTab(context = context, isPremium = isPremium)
             }
         }
     }
 }
 
 @Composable
-private fun ThemesListTab(context: android.content.Context) {
+private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) {
     val currentTheme = AppThemeManager.currentTheme
 
     LazyColumn(
@@ -200,7 +201,11 @@ private fun ThemesListTab(context: android.content.Context) {
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        AppThemeManager.setTheme(theme, context)
+                        if (isPremium) {
+                            AppThemeManager.setTheme(theme, context)
+                        } else {
+                            android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
+                        }
                     },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = theme.surface),
@@ -292,7 +297,7 @@ private fun ThemesListTab(context: android.content.Context) {
 }
 
 @Composable
-private fun NavBarCustomizationTab(context: android.content.Context) {
+private fun NavBarCustomizationTab(context: android.content.Context, isPremium: Boolean) {
     val currentNavOption = AppThemeManager.currentNavBarOption
     val currentTheme = AppThemeManager.currentTheme
 
@@ -445,7 +450,11 @@ private fun NavBarCustomizationTab(context: android.content.Context) {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .clickable {
-                            AppThemeManager.setNavBarOption(option, context)
+                            if (isPremium) {
+                                AppThemeManager.setNavBarOption(option, context)
+                            } else {
+                                android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar estilo.", android.widget.Toast.LENGTH_SHORT).show()
+                            }
                         },
                     shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),

@@ -95,18 +95,12 @@ fun LoginScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.Center
         ) {
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.fillMaxWidth(0.8f)) {
                 SocialLoginButton(
                     text = "Google",
                     onClick = { /* TODO: Implement Google Sign-In */ }
-                )
-            }
-            Box(modifier = Modifier.weight(1f)) {
-                SocialLoginButton(
-                    text = "Apple",
-                    onClick = { /* TODO: Implement Apple Sign-In */ }
                 )
             }
         }
