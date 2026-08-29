@@ -16,9 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -196,12 +194,41 @@ fun DashboardScreen(
                         unselectedTextColor = navUnselected
                     )
                 )
+                // 5. Usuario
+                NavigationBarItem(
+                    selected = selectedTab == 4,
+                    onClick = { selectedTab = 4 },
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Usuario") },
+                    label = { Text(tr("Usuario")) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = navSelectedIcon,
+                        selectedTextColor = navSelectedText,
+                        indicatorColor = navIndicator,
+                        unselectedIconColor = navUnselected,
+                        unselectedTextColor = navUnselected
+                    )
+                )
             }
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             when (selectedTab) {
                 0 -> {
+                    MainDraftingScreen(
+                        onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToMeta = { selectedTab = 2 },
+                        onNavigateToLogin = { selectedTab = 4 },
+                        mainRole = mainRole,
+                        onMainRoleChange = onMainRoleChange,
+                        secondRole = secondRole,
+                        onSecondRoleChange = onSecondRoleChange,
+                        autofillRole = autofillRole,
+                        onAutofillRoleChange = onAutofillRoleChange,
+                        currentLanguage = currentLanguage,
+                        onLanguageChange = onLanguageChange
+                    )
+                }
+                1 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
                         onNavigateToMeta = { selectedTab = 2 },
@@ -216,32 +243,28 @@ fun DashboardScreen(
                         onLanguageChange = onLanguageChange
                     )
                 }
-                1 -> {
+                2 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.DRAFTING,
                         userMainRole = mainRole,
                         onNavigateBack = { selectedTab = 0 }
                     )
                 }
-                2 -> {
+                3 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.TIER_LIST,
                         userMainRole = mainRole,
                         onNavigateBack = { selectedTab = 0 }
                     )
                 }
-                3 -> {
-                    MetaAndDraftScreen(
-                        mode = MetaScreenMode.CATALOG,
-                        userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 0 }
-                    )
+                4 -> {
+                    com.example.ui.auth.AuthFlowContainer()
                 }
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
                         onNavigateToMeta = { selectedTab = 2 },
-                        onNavigateToLogin = onNavigateToLogin,
+                        onNavigateToLogin = { selectedTab = 4 },
                         mainRole = mainRole,
                         onMainRoleChange = onMainRoleChange,
                         secondRole = secondRole,

@@ -1,0 +1,127 @@
+package com.example.ui.auth
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.ui.theme.HextechCyan
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+
+@Composable
+fun RegisterScreen(
+    viewModel: AuthViewModel,
+    onNavigateToLogin: () -> Unit,
+    onRegisterSuccess: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val username by viewModel.username.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val confirmPassword by viewModel.confirmPassword.collectAsState()
+    val passwordStrength by viewModel.passwordStrength.collectAsState()
+
+    if (uiState.isSuccess) {
+        onRegisterSuccess()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AuthHeader(
+            title = "Crear una cuenta",
+            subtitle = "Regístrate para comenzar"
+        )
+
+        AuthTextField(
+            value = username,
+            onValueChange = viewModel::updateUsername,
+            label = "Nombre de usuario"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AuthTextField(
+            value = email,
+            onValueChange = viewModel::updateEmail,
+            label = "Correo electrónico"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        PasswordTextField(
+            value = password,
+            onValueChange = viewModel::updatePassword,
+            label = "Contraseña",
+            imeAction = ImeAction.Next
+        )
+
+        PasswordStrengthIndicator(strength = passwordStrength)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        PasswordTextField(
+            value = confirmPassword,
+            onValueChange = viewModel::updateConfirmPassword,
+            label = "Confirmar contraseña",
+            imeAction = ImeAction.Done
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Password Requirements
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text("Requisitos de contraseña:", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Text("- Mínimo 8 caracteres", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Text("- Una letra mayúscula y minúscula", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Text("- Un número y carácter especial", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (uiState.error != null) {
+            Text(
+                text = uiState.error!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+        }
+
+        AuthPrimaryButton(
+            text = "Crear cuenta",
+            onClick = { viewModel.register() },
+            isLoading = uiState.isLoading
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "¿Ya tienes una cuenta? ", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Inicia sesión",
+                color = HextechCyan,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .clickable { onNavigateToLogin() }
+                    .padding(4.dp)
+            )
+        }
+    }
+}

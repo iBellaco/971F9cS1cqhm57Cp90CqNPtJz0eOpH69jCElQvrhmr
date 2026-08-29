@@ -1,0 +1,132 @@
+package com.example.ui.auth
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.ui.theme.HextechCyan
+import com.example.ui.theme.TextPrimary
+
+@Composable
+fun LoginScreen(
+    viewModel: AuthViewModel,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgot: () -> Unit,
+    onLoginSuccess: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+
+    if (uiState.isSuccess) {
+        onLoginSuccess()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AuthHeader(
+            title = "Bienvenido de nuevo",
+            subtitle = "Inicia sesión para continuar"
+        )
+
+        AuthTextField(
+            value = email,
+            onValueChange = viewModel::updateEmail,
+            label = "Correo electrónico"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        PasswordTextField(
+            value = password,
+            onValueChange = viewModel::updatePassword,
+            label = "Contraseña",
+            imeAction = ImeAction.Done
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Text(
+                text = "¿Olvidaste tu contraseña?",
+                color = HextechCyan,
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .clickable { onNavigateToForgot() }
+                    .padding(8.dp)
+            )
+        }
+
+        if (uiState.error != null) {
+            Text(
+                text = uiState.error!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        AuthPrimaryButton(
+            text = "Iniciar Sesión",
+            onClick = { viewModel.login() },
+            isLoading = uiState.isLoading
+        )
+
+        AuthDivider("o continúa con")
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                SocialLoginButton(
+                    text = "Google",
+                    onClick = { /* TODO: Implement Google Sign-In */ }
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                SocialLoginButton(
+                    text = "Apple",
+                    onClick = { /* TODO: Implement Apple Sign-In */ }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "¿No tienes una cuenta? ", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = "Regístrate",
+                color = HextechCyan,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier
+                    .clickable { onNavigateToRegister() }
+                    .padding(4.dp)
+            )
+        }
+    }
+}
