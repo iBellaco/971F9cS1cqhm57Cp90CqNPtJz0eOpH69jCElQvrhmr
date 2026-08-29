@@ -54,7 +54,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             icon = Icons.Default.AutoAwesome
         ),
         OnboardingPage(
-            title = "Sube a Challenger con Premium",
+            title = "Premium",
             description = "Desbloquea el verdadero poder analítico y toma el control total de tus drafts.",
             icon = Icons.Default.WorkspacePremium,
             isPremiumHighlight = true,

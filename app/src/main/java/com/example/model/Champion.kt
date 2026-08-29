@@ -92,6 +92,8 @@ data class Champion(
     val coreItemsIcons: List<String> = emptyList(),
     val situationalItems: List<String> = emptyList(),
     val situationalItemsIcons: List<String> = emptyList(),
+    val build2Runes: String = "",
+    val build2Spells: List<String> = emptyList(),
     val itemSwaps: List<ItemSwap> = emptyList(),
     val skillOrder: String = "",
     val skills: List<ChampionSkill> = emptyList(),

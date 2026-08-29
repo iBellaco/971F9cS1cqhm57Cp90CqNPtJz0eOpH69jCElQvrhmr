@@ -1,0 +1,151 @@
+550:    fun generate4BuildOptions(
+551-        champ: Champion,
+552-        role: LaneRole,
+553-        defaultBuild8: List<String>,
+554-        defaultBootBase: String,
+555-        defaultBootUpgrade: String,
+556-        opt1Runes: List<String>,
+557-        opt2Runes: List<String>,
+558-        defaultSpells: List<String>,
+559-        defaultSpellsIcons: List<String>
+560-    ): List<ChampionBuildOption> {
+561-        val isAp = champ.damageType == DamageType.MAGIC
+562-        val isTank = champ.isFrontline || (role == LaneRole.SUPPORT && !isAp && !champ.isRanged)
+563-        val isMarksman = champ.isRanged && champ.damageType == DamageType.PHYSICAL
+564-        val isSupport = role == LaneRole.SUPPORT
+565-        val isSpecialDamageSupport = isSupport && (champ.name.equals("Pyke", ignoreCase = true) || champ.name.equals("Senna", ignoreCase = true))
+566-
+567-        val resolvedSpells1 = ensureUniqueSpells(defaultSpells, role)
+568-        val resolvedSpellsIcons1 = resolvedSpells1.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+569-
+570-        // =========================================================================
+571-        // OPCIÓN 1: META CORE ESTÁNDAR
+572-        // =========================================================================
+573-        val opt1 = ChampionBuildOption(
+574-            optionNumber = 1,
+575-            title = "Opción 1: Core Meta Estándar",
+576-            subtitle = "",
+577-            source = "",
+578-            badge = "ESTÁNDAR",
+579-            tacticalReason = "Build estándar más consistente para este campeón en el meta actual. Ofrece un equilibrio perfecto para la mayoría de las composiciones y proporciona el pico de poder óptimo para las peleas por el primer Dragón.",
+580-            items = defaultBuild8,
+581-            bootBase = defaultBootBase,
+582-            bootUpgrade = defaultBootUpgrade,
+583-            runes = opt1Runes,
+584-            spells = resolvedSpells1,
+585-            spellsIcons = resolvedSpellsIcons1
+586-        )
+587-
+588-        // =========================================================================
+589-        // OPCIÓN 2, 3 y 4: COACHING ADAPTATIVO
+590-        // =========================================================================
+591-        val opt2Title: String
+592-        val opt2Reason: String
+593-        val opt2Items: List<String>
+594-        val opt2Badge: String
+595-
+596-        val opt3Title: String
+597-        val opt3Reason: String
+598-        val opt3Items: List<String>
+599-        val opt3Badge: String
+600-
+601-        val opt4Title: String
+602-        val opt4Reason: String
+603-        val opt4Items: List<String>
+604-        val opt4Badge: String
+605-        
+606-        when {
+607-            isSupport && !isSpecialDamageSupport -> {
+608-                // Soportes de Utilidad/Pokeo
+609-                opt2Title = "Opción 2: Pokeo & Desgaste Constante"
+610-                opt2Reason = "Maximiza la recuperación de maná y reducción de enfriamiento para hostigar sin parar en fase de líneas. Ideal para dominar el carril y forzar el recall del ADC enemigo."
+611-                opt2Badge = "POKEO"
+612-                opt2Items = listOf("Hoz espectral", "Eco armónico", "Mandato imperial", "Bastón de aguas fluidas", "Tridente de oceánida", "Incensario ardiente", "Corona de la Reina Fragmentada", "Sombrero mortal de Rabadon")
+613-
+614-                opt3Title = "Opción 3: Supervivencia & Peel al Carry"
+615-                opt3Reason = "Build 100% enfocada en mantener a tu ADC con vida. Úsala cuando el equipo enemigo tenga asesinos que hagan focus o mucho daño en ráfaga (Ej. Zed, Kha'Zix, Akali)."
+616-                opt3Badge = "PEEL / ANTI-DAÑO"
+617-                opt3Items = listOf("Hoz espectral", "Relicario de los Solari de Hierro", "Bendición de Mikael", "Redención", "Convergencia de Zeke", "Protector pétreo de gárgola", "Juramento del protector", "Corazón de hielo")
+618-                
+619-                opt4Title = "Opción 4: Escalado Mágico Completo"
+620-                opt4Reason = "Para partidas que se alargan demasiado. Sacrificas algo de utilidad temprana por daño mágico y curaciones masivas que decidirán peleas de equipo en late game."
+621-                opt4Badge = "LATE GAME"
+622-                opt4Items = listOf("Hoz espectral", "Eco de Luden", "Sombrero mortal de Rabadon", "Bastón del vacío", "Orbe infinito", "Báculo del arcángel", "Impulso cósmico", "Despertar del robaalmas")
+623-            }
+624-            isAp && !isTank && !isSupport -> {
+625-                // Magos Mid/Top/Sup de Daño
+626-                opt2Title = "Opción 2: Burst Letal / One-Shot"
+627-                opt2Reason = "Prioriza penetración mágica plana y AP bruto para desintegrar a los campeones frágiles del enemigo con un solo combo."
+628-                opt2Badge = "DELETEO"
+629-                opt2Items = listOf("Eco de Luden", "Orbe infinito", "Sombrero mortal de Rabadon", "Bastón del vacío", "Impulso cósmico", "Llama sombría", "Despertar del robaalmas", "Antorcha de fuego negro")
+630-
+631-                opt3Title = "Opción 3: Desgaste Prolongado (Anti-Tanques)"
+632-                opt3Reason = "Equípate para quemar a los tanques. El daño porcentual sostenido destrozará composiciones con mucha Vida (HP). Escencial contra Dr. Mundo, Sion o Sett."
+633-                opt3Badge = "ANTI-TANQUE"
+634-                opt3Items = listOf("Tormento de Liandry", "Hacedor de grietas", "Bastón del vacío", "Sombrero mortal de Rabadon", "Cetro de cristal de Rylai", "Morellonomicón", "Impulso cósmico", "Tormenta de Luden")
+635-
+636-                opt4Title = "Opción 4: Mago de Batalla / Supervivencia"
+637-                opt4Reason = "Cuando eres el focus principal del enemigo. Ofrece escudos mágicos y estasis para sobrevivir a la ráfaga de los asesinos sin perder tu impacto en la pelea."
+638-                opt4Badge = "ANTI-BURST"
+639-                opt4Items = listOf("Báculo del arcángel", "Corona de la Reina Fragmentada", "Torreón de Kaenic", "Reloj de arena de Zhonya", "Sombrero mortal de Rabadon", "Bastón del vacío", "Morellonomicón", "Velo de alma en pena")
+640-            }
+641-            isTank && !isSupport -> {
+642-                // Tanques Top/Jg
+643-                opt2Title = "Opción 2: Inmortalidad & Supervivencia Extrema"
+644-                opt2Reason = "Conviértete en una muralla de mitigación masiva. Esta configuración bloquea el daño híbrido de hyper-carrys y te permite hacer el engage inicial absorbiendo habilidades definitivas."
+645-                opt2Badge = "ANTI-DAÑO"
+646-                opt2Items = listOf("Corazón de acero", "Égida de fuego solar", "Guardia gemela de amaranto", "Corazón de hielo", "Fuerza de la naturaleza", "Protector pétreo de gárgola", "Placa del hombre muerto", "Presagio de Randuin")
+647-
+648-                opt3Title = "Opción 3: Utilidad Pesada & Control (CDR)"
+649-                opt3Reason = "Diseñada para aplicar Control de Masas continuamente y ser la molestia táctica del equipo. Excelente enfriamiento (CDR) para lanzar tus habilidades de inmovilización repetidas veces."
+650-                opt3Badge = "CONTROL / UTILIDAD"
+651-                opt3Items = listOf("Guantelete del hijo del hielo", "Llegada del invierno", "Malla de espinas", "Máscara abisal", "Corazón de hielo", "Juramento del protector", "Gloria encantada", "Cota de espinas")
+652-
+653-                opt4Title = "Opción 4: Coloso Ofensivo (Daño Bruiser)"
+654-                opt4Reason = "Para partidas en las que tu equipo no tiene suficiente daño sostenido y estás ganando tu línea. Transforma tu tanque en una amenaza duelista capaz de deletear squishies."
+655-                opt4Badge = "BRUISER"
+656-                opt4Items = listOf("Cuchilla negra", "Égida de fuego solar", "Corona abrasadora", "Guantelete de Sterak", "Corazón de acero", "Cielo desgarrado", "Malla de espinas", "Fuerza de la Trinidad")
+657-            }
+658-            isMarksman && !isSupport -> {
+659-                // ADCs
+660-                opt2Title = "Opción 2: Hiper-Carry DPS (Crítico al máximo)"
+661-                opt2Reason = "La senda del hyper-carry clásico. Ofrece daño crítico implacable y limpieza de área rápida para derretir equipos en peleas grupales."
+662-                opt2Badge = "HYPER-CARRY"
+663-                opt2Items = listOf("Borde infinito", "Cañón de fuego rápido", "El coleccionista", "Saludos de Dominik", "Sanguinario", "Bailarina fantasma", "El huracán de Runaan", "Ángel custodio")
+664-
+665-                opt3Title = "Opción 3: Caza-Tanques & Perforación"
+666-                opt3Reason = "Destruye a los colosos enemigos mediante daño físico porcentual a la Vida y penetración de armadura pesada. Ninguna armadura aguantará tus básicos."
+667-                opt3Badge = "ANTI-TANQUE"
+668-                opt3Items = listOf("Espada del Rey Arruinado", "Saludos de Dominik", "Cuchilla negra", "Recordatorio mortal", "Al filo de la cordura", "Terminus", "Sanguinario", "Ángel custodio")
+669-
+670-                opt4Title = "Opción 4: Kiteo y Auto-Supervivencia"
+671-                opt4Reason = "Ideal contra composiciones de engage o Asesinos con movilidad (Ej. Yone, Akali, Lee Sin). Prioriza robo de vida, escudos y evasión para asegurar tu posición táctica."
+672-                opt4Badge = "SUPERVIVENCIA"
+673-                opt4Items = listOf("Sanguinario", "Arcoescudo inmortal", "Al filo de la cordura", "Fajín de mercurio", "Recordatorio mortal", "Ángel custodio", "Filo de la noche", "La danza de la muerte")
+674-            }
+675-            else -> {
+676-                // Asesinos y Peleadores / Bruisers AD
+677-                opt2Title = "Opción 2: Burst Letal / Deleteo Rápido"
+678-                opt2Reason = "Build enfocada en maximizar tu letalidad al máximo. Entra a la pelea, asesina al ADC o Mago frágil en 0.5 segundos y sal ileso."
+679-                opt2Badge = "DELETEO"
+680-                opt2Items = listOf("El cuchillo fantasma de Youmuu", "Draktharr", "El coleccionista", "Arco axial", "Filo de la noche", "El rencor de Serylda", "Cielo desgarrado", "Ángel custodio")
+681-
+682-                opt3Title = "Opción 3: Duelista & Split-Push Constante"
+683-                opt3Reason = "Diseñada para dominar los duelos 1 contra 1 en los carriles laterales. Tira torres, atrae la presión enemiga y asegura victorias en combates aislados."
+684-                opt3Badge = "DUELISTA 1v1"
+685-                opt3Items = listOf("Fuerza de la Trinidad", "Espada del Rey Arruinado", "Cuchilla negra", "Rompecascos", "Guantelete de Sterak", "La danza de la muerte", "Cielo desgarrado", "Hidra voraz")
+686-
+687-                opt4Title = "Opción 4: Frente de Batalla Híbrido (Resistencia)"
+688-                opt4Reason = "Para batallas frontales largas donde recibes daño mixto. Incorpora mitigación y regeneración (Bruiser), manteniéndote como un peligro físico duradero en la teamfight."
+689-                opt4Badge = "FRONTLINE"
+690-                opt4Items = listOf("Cuchilla negra", "La danza de la muerte", "Fauces de Malmortius", "Guantelete de Sterak", "Cielo desgarrado", "Ángel custodio", "Apariencia espiritual", "Égida de fuego solar")
+691-            }
+692-        }
+693-
+694-        val opt2BootBase = getBaseTier2Boot(opt2Items, champ.damageType, isTank, champ.isRanged, role)
+695-        val opt3BootBase = getBaseTier2Boot(opt3Items, champ.damageType, isTank, champ.isRanged, role)
+696-        val opt4BootBase = getBaseTier2Boot(opt4Items, champ.damageType, isTank, champ.isRanged, role)
+697-
+698-        val opt2 = ChampionBuildOption(
+699-            optionNumber = 2,
+700-            title = opt2Title,

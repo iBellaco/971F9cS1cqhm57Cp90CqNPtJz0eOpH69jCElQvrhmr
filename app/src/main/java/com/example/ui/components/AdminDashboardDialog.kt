@@ -302,12 +302,12 @@ fun UserManagementCard(
                 var newName by remember { mutableStateOf(user.name) }
                 AlertDialog(
                     onDismissRequest = { showNameEdit = false },
-                    title = { Text("Cambiar Nombre", color = HextechCyan) },
+                    title = { Text("Cambiar Nombre de Usuario", color = HextechCyan) },
                     text = {
                         OutlinedTextField(
                             value = newName,
                             onValueChange = { newName = it },
-                            label = { Text("Nombre") }
+                            label = { Text("Nombre de Usuario") }
                         )
                     },
                     confirmButton = {
@@ -393,7 +393,7 @@ fun UserManagementCard(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Cambiar Nombre", color = HextechGold) },
+                        text = { Text("Cambiar Nombre de Usuario", color = HextechGold) },
                         onClick = { 
                             showNameEdit = true
                             expanded = false

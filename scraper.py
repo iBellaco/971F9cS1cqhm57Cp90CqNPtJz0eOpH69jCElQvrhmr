@@ -1,44 +1,37 @@
-import urllib.request
-from bs4 import BeautifulSoup
-import json
-import re
+import urllib.request, re, json, time, concurrent.futures
 
-url = "https://wr-meta.com/items/"
-req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-html = urllib.request.urlopen(req).read()
+def fetch_champion(slug):
+    req = urllib.request.Request(f'https://bestbuildwr.com/champions/{slug}', headers={'User-Agent': 'Mozilla/5.0'})
+    try:
+        html = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
+        match = re.search(r'<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>', html)
+        if match:
+            data = json.loads(match.group(1))
+            builds = data.get('props', {}).get('pageProps', {}).get('champion', {}).get('builds', [])
+            return slug, builds
+    except Exception as e:
+        pass
+    return slug, []
 
-soup = BeautifulSoup(html, 'html.parser')
-
-items = []
-categories = ["PHYSICAL DAMAGE ITEMS", "MAGIC DAMAGE ITEMS", "DEFENSIVE ITEMS", "BOOTS", "ENCHANTMENTS"]
-
-for category_div in soup.find_all('div', class_='equip-col-in'):
-    for item_div in category_div.find_all('div', class_='imgstyle'):
-        img = item_div.find('img')
-        if not img: continue
-        alt = img.get('alt', '')
-        name = alt.replace('Wild Rift Items:', '').strip()
-        data_src = img.get('data-src', '')
+req = urllib.request.Request('https://bestbuildwr.com/champions', headers={'User-Agent': 'Mozilla/5.0'})
+try:
+    html = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
+    match = re.search(r'<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>', html)
+    if match:
+        data = json.loads(match.group(1))
+        champions = data.get('props', {}).get('pageProps', {}).get('champions', [])
+        slugs = [c['slug'] for c in champions]
+        print(f"Found {len(slugs)} champions.")
         
-        # Try to parse cDragonId from the image url like 1733876753_3072.webp -> maybe 3072?
-        # or from data-src
-        c_id = 0
-        m = re.search(r'_(\d+)\.webp', data_src)
-        if m:
-            c_id = int(m.group(1))
-            
-        iconUrl = f"https://wr-meta.com{data_src}"
-        id_str = name.lower().replace(' ', '_').replace("'", "").replace("-", "_")
-        
-        items.append({
-            "id": id_str,
-            "cDragonId": c_id,
-            "name": name,
-            "category": "FÍSICO", # I will need to map categories properly
-            "goldCost": 0,
-            "stats": "",
-            "passive": "",
-            "iconUrl": iconUrl
-        })
-
-print(f"Found {len(items)} items")
+        results = {}
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(fetch_champion, slug): slug for slug in slugs}
+            for future in concurrent.futures.as_completed(futures):
+                slug, builds = future.result()
+                results[slug] = builds
+                print(f"Fetched {slug}, {len(builds)} builds")
+                
+        with open('scraped_builds_list.json', 'w') as f:
+            json.dump(results, f)
+except Exception as e:
+    print(e)
