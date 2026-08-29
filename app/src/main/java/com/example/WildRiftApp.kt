@@ -100,8 +100,11 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             }
             try {
                 ChineseMetaSyncService.loadRegion(this@WildRiftApp)
-                if (ChineseMetaSyncService.currentRegion.value == "CN") {
+                val region = ChineseMetaSyncService.currentRegion.value
+                if (region == "CN") {
                     ChineseMetaSyncService.syncChineseMeta(this@WildRiftApp, forceRefresh = true)
+                } else if (region == "BestBuildWR") {
+                    com.example.data.sync.BestBuildWrScraper.syncGlobalTierList(this@WildRiftApp)
                 }
             } catch (e: Exception) {
                 AppLogger.e("WildRiftApp", "Error en auto-sincronización instantánea", e)

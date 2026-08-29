@@ -4136,7 +4136,7 @@ private fun TierSelectionPanel(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
-                listOf("NA", "CN").forEach { region ->
+                listOf("NA", "CN", "BestBuildWR").forEach { region ->
                     val isSelected = currentRegion == region
                     Box(
                         modifier = Modifier
@@ -4158,7 +4158,7 @@ private fun TierSelectionPanel(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (region == "NA") tr("América (NA)") else tr("China (CN)"),
+                            text = if (region == "NA") tr("América (NA)") else if (region == "CN") tr("China (CN)") else tr("Global (Web)"),
                             color = if (isSelected) HextechCyan else TextMuted,
                             fontSize = 10.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
@@ -4227,7 +4227,7 @@ private fun TierSelectionPanel(
                         "🟢 ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
                     } else when (val s = syncState) {
                         is ChineseSyncState.Syncing -> tr("Sincronizando...")
-                        is ChineseSyncState.Success -> "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR") "🟢 ${tr("Sincronizado")} ${s.timestamp}" else "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
                         is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
                         ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
                     },
@@ -4241,7 +4241,7 @@ private fun TierSelectionPanel(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = if (currentRegion == "NA") tr("Global") else tr("Instantáneo 24/7"),
+                    text = if (currentRegion == "NA") tr("Base") else if (currentRegion == "BestBuildWR") tr("Web") else tr("Instantáneo 24/7"),
                     color = HextechGold,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold

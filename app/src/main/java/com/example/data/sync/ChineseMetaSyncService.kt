@@ -73,6 +73,7 @@ object ChineseMetaSyncService {
         _currentRegion.value = prefs.getString("META_REGION", "CN") ?: "CN"
     }
 
+    
     fun setRegion(context: Context, region: String, coroutineScope: kotlinx.coroutines.CoroutineScope) {
         _currentRegion.value = region
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -80,12 +81,31 @@ object ChineseMetaSyncService {
         
         if (region == "NA") {
             WildRiftRepository.initChampions(context, forceReload = true)
+            _syncState.value = ChineseSyncState.Idle
+        } else if (region == "BestBuildWR") {
+            coroutineScope.launch {
+                WildRiftRepository.initChampions(context, forceReload = true)
+                _syncState.value = ChineseSyncState.Syncing
+                val success = com.example.data.sync.BestBuildWrScraper.syncGlobalTierList(context)
+                if (success) {
+                    _syncState.value = ChineseSyncState.Success(
+                        TencentRankTier.DIAMOND_PLUS,
+                        WildRiftRepository.champions.size,
+                        "Reciente",
+                        "BestBuildWR",
+                        false
+                    )
+                } else {
+                    _syncState.value = ChineseSyncState.Error("Fallo al obtener BestBuildWR")
+                }
+            }
         } else {
             coroutineScope.launch {
                 syncChineseMeta(context, _currentTier.value, forceRefresh = true)
             }
         }
     }
+
 
     private val _currentTier = MutableStateFlow(TencentRankTier.DIAMOND_PLUS)
     val currentTier: StateFlow<TencentRankTier> = _currentTier.asStateFlow()

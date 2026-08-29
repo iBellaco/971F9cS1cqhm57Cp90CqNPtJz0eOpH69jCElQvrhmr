@@ -1,153 +1,9 @@
-package com.example.data.sync
+import re
 
-import android.content.Context
-import android.util.Log
-import com.example.data.WildRiftItemsData
-import com.example.data.WildRiftRepository
-import com.example.data.WildRiftSpellsAndRunes
-import com.example.model.Champion
-import com.example.util.AppLogger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.util.concurrent.TimeUnit
+with open('app/src/main/java/com/example/data/sync/BestBuildWrScraper.kt', 'r') as f:
+    text = f.read()
 
-sealed class BestBuildSyncState {
-    object Idle : BestBuildSyncState()
-    object Syncing : BestBuildSyncState()
-    data class Success(val championsUpdated: Int, val sourceUrl: String, val timestamp: Long) : BestBuildSyncState()
-    data class Error(val message: String) : BestBuildSyncState()
-}
-
-/**
- * Scraper y sincronizador de alto rendimiento para https://bestbuildwr.com/champions.
- *
- * Conecta e interconecta todas las builds, objetos, runas y hechizos de invocador
- * directamente con los catálogos canónicos de la aplicación:
- * - [WildRiftItemsData] para items con descripciones, estadísticas y consejos del Coach.
- * - [WildRiftSpellsAndRunes] para runas principales, secundarias y hechizos.
- */
-object BestBuildWrScraper {
-    private const val TAG = "BestBuildWrScraper"
-    private const val BASE_URL = "https://bestbuildwr.com"
-    private const val CHAMPIONS_URL = "https://bestbuildwr.com/champions"
-
-    private val httpClient: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .followRedirects(true)
-            .build()
-    }
-
-    private val _syncState = MutableStateFlow<BestBuildSyncState>(BestBuildSyncState.Idle)
-    val syncState: StateFlow<BestBuildSyncState> = _syncState.asStateFlow()
-
-    /**
-     * Sincroniza builds en tiempo real desde BestBuildWR conectando con el catálogo de objetos,
-     * runas y hechizos de la app.
-     */
-    suspend fun syncAllChampionBuilds(context: Context, forceRefresh: Boolean = false): Boolean {
-        _syncState.value = BestBuildSyncState.Syncing
-
-        return try {
-            val championsSnapshot = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { 
-                WildRiftRepository.champions.toList() 
-            }
-            
-            val updatedChampions = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                AppLogger.d(TAG, "Conectando e indexando catálogo interno de objetos, runas y hechizos...")
-                championsSnapshot.map { champ ->
-                    connectChampionWithCatalog(champ)
-                }
-            }
-
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                WildRiftRepository.champions.clear()
-                WildRiftRepository.champions.addAll(updatedChampions)
-            }
-
-            val updatedCount = updatedChampions.size
-            AppLogger.d(TAG, "Sincronización interna completada: $updatedCount campeones vinculados con el catálogo.")
-            _syncState.value = BestBuildSyncState.Success(
-                championsUpdated = updatedCount,
-                sourceUrl = "Local Catalog",
-                timestamp = System.currentTimeMillis()
-            )
-            true
-        } catch (e: Exception) {
-            AppLogger.e(TAG, "Error durante vinculación de catálogo", e)
-            _syncState.value = BestBuildSyncState.Error(e.localizedMessage ?: "Error al vincular catálogo")
-            false
-        }
-    }
-
-    /**
-     * Asegura que todos los ítems, runas y hechizos del campeón estén perfectamente vinculados
-     * a las entidades del catálogo con nombres oficiales, íconos y consejos.
-     */
-    fun connectChampionWithCatalog(champ: Champion, htmlContext: String = ""): Champion {
-        // 1. Mapear y validar Core Items con el catálogo de objetos
-        val connectedCoreItems = champ.coreItems.map { rawItemName ->
-            val matchedItem = WildRiftItemsData.getItemByName(rawItemName)
-            matchedItem?.name ?: rawItemName
-        }
-
-        val connectedCoreIcons = connectedCoreItems.map { itemName ->
-            WildRiftItemsData.getItemIconByName(itemName)
-        }
-
-        // 2. Mapear y validar Situational Items
-        val connectedSituationalItems = champ.situationalItems.map { rawItemName ->
-            val matchedItem = WildRiftItemsData.getItemByName(rawItemName)
-            matchedItem?.name ?: rawItemName
-        }
-
-        val connectedSituationalIcons = connectedSituationalItems.map { itemName ->
-            WildRiftItemsData.getItemIconByName(itemName)
-        }
-
-        // 3. Mapear y validar Hechizos de Invocador
-        val connectedSpells = champ.recommendedSpells.map { rawSpell ->
-            val matchedSpell = WildRiftSpellsAndRunes.getSpellByName(rawSpell)
-            matchedSpell?.name ?: rawSpell
-        }
-
-        val connectedSpellsIcons = if (connectedSpells.isNotEmpty()) {
-            connectedSpells.map { spellName ->
-                WildRiftSpellsAndRunes.getSpellIconByName(spellName)
-            }
-        } else {
-            champ.spellsIcons
-        }
-
-        // 4. Mapear Runa Principal
-        val resolvedPrimaryRuneIcon = if (champ.primaryRuneIconUrl.isNotBlank() && !champ.primaryRuneIconUrl.contains("item/")) {
-            champ.primaryRuneIconUrl
-        } else {
-            WildRiftSpellsAndRunes.getRuneIconByName(champ.recommendedRunes)
-        }
-
-        // 5. Garantizar URL canónica de BestBuildWR
-        val slug = champ.name.lowercase().replace(" ", "-").replace("'", "").replace(".", "")
-        val championBestBuildUrl = "$BASE_URL/champions/$slug"
-
-        return champ.copy(
-            coreItems = connectedCoreItems,
-            coreItemsIcons = connectedCoreIcons,
-            situationalItems = connectedSituationalItems,
-            situationalItemsIcons = connectedSituationalIcons,
-            recommendedSpells = connectedSpells,
-            spellsIcons = connectedSpellsIcons,
-            primaryRuneIconUrl = resolvedPrimaryRuneIcon,
-            bestBuildWrUrl = championBestBuildUrl
-        )
-    }
-
+replacement = """
     suspend fun syncGlobalTierList(context: Context): Boolean {
         _syncState.value = BestBuildSyncState.Syncing
         return try {
@@ -210,7 +66,7 @@ object BestBuildWrScraper {
             }
             if (html.isEmpty()) return champTiers
 
-            val regex = "<script id=\"__NEXT_DATA__\" type=\"application/json\">(.*?)</script>".toRegex()
+            val regex = "<script id=\\"__NEXT_DATA__\\" type=\\"application/json\\">(.*?)</script>".toRegex()
             val matchResult = regex.find(html)
             if (matchResult != null) {
                 val jsonString = matchResult.groupValues[1]
@@ -324,4 +180,9 @@ object BestBuildWrScraper {
     private fun isHigherTier(newTier: String, oldTier: String): Boolean {
         return getTierValue(newTier) > getTierValue(oldTier)
     }
-}
+"""
+
+text = re.sub(r'suspend fun syncGlobalTierList.*$', replacement.strip() + "\n}", text, flags=re.DOTALL)
+
+with open('app/src/main/java/com/example/data/sync/BestBuildWrScraper.kt', 'w') as f:
+    f.write(text)

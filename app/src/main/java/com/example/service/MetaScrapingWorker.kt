@@ -124,8 +124,11 @@ class MetaScrapingWorker(
 
             // Sincronizar usando el servicio integral de estadísticas de Tencent China con cálculo de deltas y snapshot canónico
             ChineseMetaSyncService.loadRegion(applicationContext)
-            if (ChineseMetaSyncService.currentRegion.value == "CN") {
+            val region = ChineseMetaSyncService.currentRegion.value
+            if (region == "CN") {
                 ChineseMetaSyncService.syncChineseMeta(applicationContext, TencentRankTier.DIAMOND_PLUS, forceRefresh = true)
+            } else if (region == "BestBuildWR") {
+                com.example.data.sync.BestBuildWrScraper.syncGlobalTierList(applicationContext)
             }
             
             AppLogger.d("MetaScrapingWorker", "Estadísticas extraídas y deltas calculados correctamente del servidor CN.")
