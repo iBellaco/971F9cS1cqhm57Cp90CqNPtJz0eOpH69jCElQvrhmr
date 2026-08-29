@@ -105,6 +105,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.util.tr
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -130,6 +131,7 @@ import com.example.data.sync.ChineseSyncState
 import com.example.data.sync.TencentRankTier
 import kotlinx.coroutines.launch
 import com.example.model.Champion
+import com.example.util.SubscriptionManager
 import com.example.model.DamageType
 import com.example.model.DraftAnalysisResult
 import com.example.model.DraftSlot
@@ -178,6 +180,7 @@ fun MetaAndDraftScreen(
     userMainRole: LaneRole,
     onNavigateBack: () -> Unit
 ) {
+    val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     var activeRole by remember { mutableStateOf(userMainRole) }

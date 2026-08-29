@@ -1,6 +1,11 @@
 package com.example.ui.auth
 
 import androidx.compose.animation.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+
+import androidx.compose.foundation.clickable
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +27,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.platform.LocalContext
 import com.example.util.SubscriptionManager
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Palette
 import com.example.ui.theme.DangerRed
@@ -38,19 +42,19 @@ fun AuthFlowContainer(
 ) {
     val auth = AuthManager.getAuth()
     val context = LocalContext.current
-    var userEmail by remember { mutableStateOf(auth?.currentUser?.email) }
+    var currentUser by remember { mutableStateOf(auth?.currentUser) }
     
-    LaunchedEffect(userEmail) {
+    LaunchedEffect(currentUser) {
         SubscriptionManager.init(context)
     }
     
     // Check if user is already authenticated
-    if (userEmail != null) {
+    if (currentUser != null) {
         AuthenticatedProfilePanel(
-            email = userEmail!!,
+            user = currentUser!!,
             onSignOut = {
                 auth?.signOut()
-                userEmail = null
+                currentUser = null
             }
         )
         return
@@ -60,7 +64,7 @@ fun AuthFlowContainer(
 
     // Triggered when login/register succeeds to force a recomposition with the new user state
     val onAuthSuccess: () -> Unit = {
-        userEmail = auth?.currentUser?.email
+        currentUser = auth?.currentUser
         SubscriptionManager.init(context)
     }
 
@@ -114,7 +118,7 @@ fun AuthFlowContainer(
 }
 
 @Composable
-fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
+fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSignOut: () -> Unit) {
     val context = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
@@ -158,12 +162,32 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
                 subtitle = "Sesión iniciada correctamente"
             )
             
+                        val displayName = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: "Usuario"
             Text(
-                text = email,
-                color = HextechCyan,
-                fontSize = 16.sp
+                text = displayName,
+                color = com.example.ui.theme.HextechGold,
+                fontSize = 20.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
             )
-
+            
+            var isEmailVisible by remember { mutableStateOf(false) }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp).clickable { isEmailVisible = !isEmailVisible }
+            ) {
+                Text(
+                    text = if (isEmailVisible) (user.email ?: "") else "••••••••@••••.com",
+                    color = com.example.ui.theme.TextMuted,
+                    fontSize = 14.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = com.example.ui.theme.TextMuted,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             // Premium Status Card

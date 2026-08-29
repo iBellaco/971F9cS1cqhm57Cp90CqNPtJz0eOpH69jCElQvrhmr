@@ -64,6 +64,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.local.FavoriteChampionsManager
 import com.example.data.SituationalItemAdvisor
 import com.example.model.Champion
+import com.example.util.SubscriptionManager
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.model.LaneRole
 import com.example.util.LocalLanguage
 import com.example.ui.components.AppAssetImage
@@ -90,6 +93,7 @@ fun ChampionDetailSheet(
     champion: Champion?,
     onDismiss: () -> Unit
 ) {
+    val isPremium by SubscriptionManager.isPremium.collectAsState()
     if (champion == null) return
 
     val context = LocalContext.current

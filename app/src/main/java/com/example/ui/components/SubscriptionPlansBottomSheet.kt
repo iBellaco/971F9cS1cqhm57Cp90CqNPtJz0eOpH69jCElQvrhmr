@@ -9,6 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.WorkspacePremium
@@ -83,11 +85,13 @@ fun SubscriptionPlansBottomSheet(
                 price = "$1.00",
                 period = "/ mes",
                 features = listOf(
-                    FeatureItem("Acceso completo al Asistente de Draft", true),
+                                        FeatureItem("Acceso completo al Asistente de Draft", true),
                     FeatureItem("Tier List y Catálogo actualizados", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Panel de Temas Exclusivo", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Barra de Navegación Personalizable", true, isHighlight = true, icon = Icons.Default.AutoAwesome)
+                    FeatureItem("Barra de Navegación Personalizable", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Guardar Draft y ver Historial", true, isHighlight = true, icon = Icons.Default.Save),
+                    FeatureItem("Agregar Campeones a Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
                     Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
@@ -105,11 +109,12 @@ fun SubscriptionPlansBottomSheet(
                 title = "Plan Gratuito",
                 price = "Gratis",
                 features = listOf(
-                    FeatureItem("Acceso básico al Asistente de Draft", true),
+                                        FeatureItem("Acceso básico al Asistente de Draft", true),
                     FeatureItem("Tier List y Catálogo", true),
                     FeatureItem("Descarga de recursos offline", true),
-                    FeatureItem("Panel de Temas Exclusivo", false),
-                    FeatureItem("Barra de Navegación Personalizable", false)
+                    FeatureItem("Temas y Barra Personalizables", false),
+                    FeatureItem("Guardar Draft y ver Historial", false),
+                    FeatureItem("Agregar Campeones a Favoritos", false)
                 )
             )
 
