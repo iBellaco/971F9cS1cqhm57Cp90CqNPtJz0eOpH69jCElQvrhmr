@@ -1,30 +1,62 @@
 package com.example.ui.components
 
+
+import androidx.compose.ui.text.AnnotatedString
+
+import com.google.firebase.auth.FirebaseAuth
+
+import android.widget.Toast
+
 import android.util.Log
+
 import androidx.compose.foundation.background
+
 import androidx.compose.foundation.border
+
 import androidx.compose.foundation.layout.*
+
 import androidx.compose.foundation.lazy.LazyColumn
+
 import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.shape.RoundedCornerShape
+
 import androidx.compose.material.icons.Icons
+
 import androidx.compose.material.icons.filled.*
+
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
+
 import androidx.compose.ui.draw.clip
+
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.text.font.FontWeight
+
 import androidx.compose.ui.unit.dp
+
 import androidx.compose.ui.unit.sp
+
 import androidx.compose.ui.window.Dialog
+
 import androidx.compose.ui.window.DialogProperties
+
 import com.example.ui.theme.*
+
 import com.example.util.SubscriptionManager
+
 import com.example.util.tr
+
 import com.google.firebase.firestore.FirebaseFirestore
+
 import kotlinx.coroutines.tasks.await
+
 import kotlinx.coroutines.launch
 
 data class UserRecord(
@@ -35,6 +67,7 @@ data class UserRecord(
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun AdminDashboardDialog(
     onDismiss: () -> Unit
@@ -197,7 +230,11 @@ fun AdminDashboardDialog(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(users) { user ->
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
                             UserManagementCard(
+                                context = context,
+                                clipboard = clipboard,
                                 user = user,
                                 onRoleChange = { newRole ->
                                     scope.launch {
@@ -222,9 +259,12 @@ fun AdminDashboardDialog(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun UserManagementCard(
     user: UserRecord,
+    context: android.content.Context,
+    clipboard: androidx.compose.ui.platform.ClipboardManager,
     onRoleChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -254,6 +294,7 @@ fun UserManagementCard(
                     val roleColor = when(user.role) {
                         "admin" -> DangerRed
                         "premium" -> HextechGold
+                        "banned" -> Color.Gray
                         else -> TextMuted
                     }
                     Box(
@@ -289,6 +330,31 @@ fun UserManagementCard(
                     modifier = Modifier.background(HextechSurface)
                 ) {
                     DropdownMenuItem(
+                        text = { Text("Copiar ID de Usuario", color = TextSecondary) },
+                        onClick = { 
+                            clipboard.setText(AnnotatedString(user.uid))
+                            Toast.makeText(context, "ID copiado", Toast.LENGTH_SHORT).show()
+                            expanded = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Copiar Correo", color = TextSecondary) },
+                        onClick = { 
+                            clipboard.setText(AnnotatedString(user.email))
+                            Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
+                            expanded = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Restablecer Contraseña", color = HextechCyan) },
+                        onClick = { 
+                            FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
+                            Toast.makeText(context, "Correo enviado", Toast.LENGTH_SHORT).show()
+                            expanded = false 
+                        }
+                    )
+                    HorizontalDivider(color = TextMuted.copy(alpha = 0.2f))
+                    DropdownMenuItem(
                         text = { Text("Asignar GRATIS", color = TextPrimary) },
                         onClick = { 
                             onRoleChange("free")
@@ -302,11 +368,19 @@ fun UserManagementCard(
                             expanded = false 
                         }
                     )
+                    DropdownMenuItem(
+                        text = { Text("Suspender Usuario (BAN)", color = DangerRed) },
+                        onClick = { 
+                            onRoleChange("banned")
+                            expanded = false 
+                        }
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun AdminStatCard(modifier: Modifier, title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {

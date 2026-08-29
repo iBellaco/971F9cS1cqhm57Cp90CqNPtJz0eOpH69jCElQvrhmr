@@ -12,6 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.TextPrimary
 
@@ -25,6 +27,7 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
+    val context = LocalContext.current
 
     if (uiState.isSuccess) {
         onLoginSuccess()
@@ -90,20 +93,6 @@ fun LoginScreen(
             onClick = { viewModel.login() },
             isLoading = uiState.isLoading
         )
-
-        AuthDivider("o continúa con")
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Box(modifier = Modifier.fillMaxWidth(0.8f)) {
-                SocialLoginButton(
-                    text = "Google",
-                    onClick = { /* TODO: Implement Google Sign-In */ }
-                )
-            }
-        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

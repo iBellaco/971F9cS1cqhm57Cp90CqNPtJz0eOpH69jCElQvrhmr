@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import android.widget.Toast
 import com.example.util.SubscriptionManager
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,6 +36,7 @@ fun SubscriptionPlansBottomSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -88,7 +90,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Barra de Navegación Personalizable", true, isHighlight = true, icon = Icons.Default.AutoAwesome)
                 ),
                 onSubscribe = {
-                    SubscriptionManager.upgradeToPremium()
+                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
                     scope.launch {
                         sheetState.hide()
                         onDismiss()
