@@ -32,6 +32,18 @@ import okhttp3.OkHttpClient
 class WildRiftApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
+        
+        // --- Firebase App Check (Play Integrity) ---
+        try {
+            com.google.firebase.FirebaseApp.initializeApp(this)
+            val firebaseAppCheck = com.google.firebase.appcheck.FirebaseAppCheck.getInstance()
+            firebaseAppCheck.installAppCheckProviderFactory(
+                com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory.getInstance()
+            )
+            AppLogger.d("APP", "Firebase App Check (Play Integrity) initialized.")
+        } catch (e: Exception) {
+            AppLogger.e("APP", "Error initializing Firebase App Check", e)
+        }
 
         // Global Exception Handler to guard against unexpected background thread crashes
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
