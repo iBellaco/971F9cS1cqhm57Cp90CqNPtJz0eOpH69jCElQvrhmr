@@ -1,0 +1,279 @@
+package com.example.ui.components
+
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.ui.theme.*
+import com.example.util.SubscriptionManager
+import com.example.util.tr
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
+
+data class UserRecord(
+    val uid: String,
+    val email: String,
+    val role: String
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminDashboardDialog(
+    onDismiss: () -> Unit
+) {
+    val userRole by SubscriptionManager.userRole.collectAsState()
+    if (userRole != "admin") {
+        LaunchedEffect(Unit) { onDismiss() }
+        return
+    }
+
+    val scope = rememberCoroutineScope()
+    var users by remember { mutableStateOf<List<UserRecord>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var showReportsPanel by remember { mutableStateOf(false) }
+
+    fun loadUsers() {
+        isLoading = true
+        scope.launch {
+            try {
+                val snapshot = FirebaseFirestore.getInstance().collection("users").get().await()
+                val list = snapshot.documents.mapNotNull { doc ->
+                    val email = doc.getString("email") ?: "Sin email"
+                    val role = doc.getString("role") ?: "free"
+                    UserRecord(doc.id, email, role)
+                }.sortedBy { it.email }
+                users = list
+            } catch (e: Exception) {
+                Log.e("AdminDashboard", "Error loading users", e)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        loadUsers()
+    }
+
+    if (showReportsPanel) {
+        AdminFeedbackBottomSheet(
+            onDismiss = { showReportsPanel = false }
+        )
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+            shape = RoundedCornerShape(24.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(20.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings,
+                            contentDescription = null,
+                            tint = DangerRed,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Panel de Control Admin",
+                            color = HextechGold,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Reports Button
+                Button(
+                    onClick = { showReportsPanel = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.BugReport, contentDescription = null, tint = HextechGold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Abrir Buzón de Reportes y Sugerencias", color = TextPrimary)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = "Gestión de Usuarios (${users.size})",
+                    color = HextechCyan,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                HorizontalDivider(color = TextMuted.copy(alpha = 0.2f))
+
+                if (isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = HextechGold)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(users) { user ->
+                            UserManagementCard(
+                                user = user,
+                                onRoleChange = { newRole ->
+                                    scope.launch {
+                                        try {
+                                            FirebaseFirestore.getInstance().collection("users")
+                                                .document(user.uid)
+                                                .update("role", newRole)
+                                                .await()
+                                            loadUsers() // Reload to reflect changes
+                                        } catch (e: Exception) {
+                                            Log.e("AdminDashboard", "Error updating role", e)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserManagementCard(
+    user: UserRecord,
+    onRoleChange: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, TextMuted.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = user.email,
+                    color = TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val roleColor = when(user.role) {
+                        "admin" -> DangerRed
+                        "premium" -> HextechGold
+                        else -> TextMuted
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(roleColor.copy(alpha = 0.2f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = user.role.uppercase(),
+                            color = roleColor,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "ID: ${user.uid.take(6)}...",
+                        color = TextMuted,
+                        fontSize = 10.sp
+                    )
+                }
+            }
+            
+            // Dropdown Menu for Roles
+            Box {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Cambiar Rol", tint = HextechCyan)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(HextechSurface)
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Asignar GRATIS", color = TextPrimary) },
+                        onClick = { 
+                            onRoleChange("free")
+                            expanded = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Asignar PREMIUM", color = HextechGold) },
+                        onClick = { 
+                            onRoleChange("premium")
+                            expanded = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Asignar ADMIN", color = DangerRed) },
+                        onClick = { 
+                            onRoleChange("admin")
+                            expanded = false 
+                        }
+                    )
+                }
+            }
+        }
+    }
+}

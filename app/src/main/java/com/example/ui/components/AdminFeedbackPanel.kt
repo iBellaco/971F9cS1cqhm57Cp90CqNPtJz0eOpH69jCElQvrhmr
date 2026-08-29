@@ -104,6 +104,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -177,6 +178,16 @@ enum class FeedbackCategoryTab(val titleKey: String, val icon: ImageVector) {
 fun AdminFeedbackBottomSheet(
     onDismiss: () -> Unit
 ) {
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
+    
+    // Explicit UI navigation logic verification
+    if (userRole != "admin") {
+        LaunchedEffect(Unit) {
+            onDismiss()
+        }
+        return
+    }
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

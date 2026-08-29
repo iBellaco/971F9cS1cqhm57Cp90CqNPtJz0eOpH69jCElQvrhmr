@@ -55,6 +55,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,6 +109,9 @@ fun BugReportFeedbackDialog(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
+    val isAdmin = userRole == "admin"
+
     var selectedType by remember { mutableStateOf(FeedbackType.BUG) }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -135,14 +139,7 @@ fun BugReportFeedbackDialog(
     var isSubmitting by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var selectedImages by remember { mutableStateOf<List<String>>(emptyList()) }
-    var showAdminPanel by remember { mutableStateOf(false) }
 
-    if (showAdminPanel) {
-        AdminFeedbackBottomSheet(
-            onDismiss = { showAdminPanel = false }
-        )
-    }
-    
     val successMsg = tr("Imagen adjuntada correctamente")
     val errorMsg = tr("Error al procesar la imagen")
     val limitMsg = tr("La imagen excede el límite de 2 MB")
@@ -1134,29 +1131,6 @@ fun BugReportFeedbackDialog(
                         text = statusMessage!!,
                         color = Color(0xFFFF5252),
                         fontSize = 11.sp
-                    )
-                }
-
-                // Botón para acceder directamente al Panel de Gestión
-                OutlinedButton(
-                    onClick = { showAdminPanel = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = HextechSurface)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AdminPanelSettings,
-                        contentDescription = null,
-                        tint = HextechGold,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = tr("Ver Panel de Reportes & Sugerencias"),
-                        color = HextechGold,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
                     )
                 }
 

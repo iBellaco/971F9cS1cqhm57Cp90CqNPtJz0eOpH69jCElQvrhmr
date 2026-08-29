@@ -67,4 +67,18 @@ object SubscriptionManager {
             }
         }
     }
+
+    fun upgradeToPremium() {
+        val user = AuthManager.getAuth()?.currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+        
+        userRef.set(hashMapOf("role" to "premium"), SetOptions.merge())
+            .addOnSuccessListener {
+                Log.d("SubscriptionManager", "Successfully upgraded to premium")
+            }
+            .addOnFailureListener {
+                Log.e("SubscriptionManager", "Failed to upgrade", it)
+            }
+    }
 }

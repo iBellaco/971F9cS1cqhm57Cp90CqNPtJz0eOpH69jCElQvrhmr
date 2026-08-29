@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.util.SubscriptionManager
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Palette
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -119,6 +120,7 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
     val userRole by SubscriptionManager.userRole.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
+    var showAdminDashboard by remember { mutableStateOf(false) }
 
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
@@ -130,6 +132,12 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
     if (showPlansDialog) {
         com.example.ui.components.SubscriptionPlansBottomSheet(
             onDismiss = { showPlansDialog = false }
+        )
+    }
+
+    if (showAdminDashboard) {
+        com.example.ui.components.AdminDashboardDialog(
+            onDismiss = { showAdminDashboard = false }
         )
     }
 
@@ -226,13 +234,28 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
             
+            if (userRole == "admin") {
+                Button(
+                    onClick = { showAdminDashboard = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.DangerRed),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.AdminPanelSettings, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Panel de Administración", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            
             Button(
                 onClick = onSignOut,
-                colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.3f))
             ) {
-                Text("Cerrar Sesión")
+                Text("Cerrar Sesión", color = DangerRed)
             }
         }
     }

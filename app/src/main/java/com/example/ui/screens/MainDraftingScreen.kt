@@ -348,27 +348,7 @@ fun MainDraftingScreen(
                 
                 // Hide buttons if user is already logged in
                 val isLoggedIn = com.example.util.AuthManager.getAuth()?.currentUser != null
-                if (!isLoggedIn) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
-                    ) {
-                        Button(
-                            onClick = { onNavigateToLogin() },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                            modifier = Modifier.weight(1f).height(48.dp)
-                        ) {
-                            Text(tr("Iniciar Sesión"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = { onNavigateToLogin() },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                            modifier = Modifier.weight(1f).height(48.dp)
-                        ) {
-                            Text(tr("Registrar"), color = HextechDarkBg, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
+                // Botones de inicio de sesión eliminados del panel principal
 
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }

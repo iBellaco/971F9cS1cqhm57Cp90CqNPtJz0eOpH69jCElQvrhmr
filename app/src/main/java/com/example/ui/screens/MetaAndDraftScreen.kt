@@ -4222,7 +4222,10 @@ private fun TierSelectionPanel(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (currentRegion == "NA") "🟢 ${tr("Estadísticas NA Actualizadas")}" else when (val s = syncState) {
+                    text = if (currentRegion == "NA") {
+                        val formatter = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                        "🟢 ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
+                    } else when (val s = syncState) {
                         is ChineseSyncState.Syncing -> tr("Sincronizando...")
                         is ChineseSyncState.Success -> "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
                         is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"

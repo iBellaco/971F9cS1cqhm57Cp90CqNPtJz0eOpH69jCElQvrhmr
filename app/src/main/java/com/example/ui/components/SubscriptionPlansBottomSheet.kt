@@ -24,6 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.util.SubscriptionManager
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +34,7 @@ fun SubscriptionPlansBottomSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -74,7 +78,7 @@ fun SubscriptionPlansBottomSheet(
             // Premium Card (High Fidelity)
             PremiumPlanCard(
                 title = "Coach Premium",
-                price = "$2.99",
+                price = "$1.00",
                 period = "/ mes",
                 features = listOf(
                     FeatureItem("Acceso completo al Asistente de Draft", true),
@@ -82,7 +86,14 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Panel de Temas Exclusivo", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Barra de Navegación Personalizable", true, isHighlight = true, icon = Icons.Default.AutoAwesome)
-                )
+                ),
+                onSubscribe = {
+                    SubscriptionManager.upgradeToPremium()
+                    scope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -117,7 +128,8 @@ private fun PremiumPlanCard(
     title: String,
     price: String,
     period: String,
-    features: List<FeatureItem>
+    features: List<FeatureItem>,
+    onSubscribe: () -> Unit
 ) {
     val gradientBrush = Brush.linearGradient(
         colors = listOf(HextechGold, HextechCyan)
@@ -213,7 +225,7 @@ private fun PremiumPlanCard(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Button(
-                        onClick = { /* TODO: Trigger Billing Flow */ },
+                        onClick = onSubscribe,
                         colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
                         modifier = Modifier
                             .fillMaxWidth()
