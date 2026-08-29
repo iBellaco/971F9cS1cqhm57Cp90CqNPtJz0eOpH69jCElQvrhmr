@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -114,6 +116,7 @@ fun AuthFlowContainer(
 fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
     val context = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
+    val userRole by SubscriptionManager.userRole.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
 
@@ -173,7 +176,7 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
                 ) {
                     Column {
                         Text(
-                            text = if (isPremium) "Suscripción Premium" else "Plan Gratuito",
+                            text = if (isPremium) "Suscripción Activa" else "Plan Gratuito",
                             color = if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.TextPrimary,
                             fontSize = 16.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -184,14 +187,21 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
                             fontSize = 12.sp
                         )
                     }
-                    Switch(
-                        checked = isPremium,
-                        onCheckedChange = { SubscriptionManager.setPremium(context, it) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = com.example.ui.theme.HextechDarkBg,
-                            checkedTrackColor = com.example.ui.theme.HextechGold
+                    
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (userRole == "admin") com.example.ui.theme.DangerRed else if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.HextechSurface)
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = userRole.uppercase(),
+                            color = if (userRole == "free") com.example.ui.theme.TextPrimary else com.example.ui.theme.HextechDarkBg,
+                            fontSize = 12.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                         )
-                    )
+                    }
                 }
             }
             

@@ -7,15 +7,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
@@ -40,64 +45,221 @@ fun SubscriptionPlansBottomSheet(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                imageVector = Icons.Default.WorkspacePremium,
+                contentDescription = null,
+                tint = HextechGold,
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(bottom = 8.dp)
+            )
+            
             Text(
-                text = "Planes de Suscripción",
+                text = "Desbloquea tu Máximo Potencial",
                 color = TextPrimary,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = "Elige el plan que mejor se adapte a tu estilo de juego y personaliza tu experiencia al máximo.",
+                color = TextSecondary,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Free Card
-            PlanCard(
+            // Premium Card (High Fidelity)
+            PremiumPlanCard(
+                title = "Coach Premium",
+                price = "$2.99",
+                period = "/ mes",
+                features = listOf(
+                    FeatureItem("Acceso completo al Asistente de Draft", true),
+                    FeatureItem("Tier List y Catálogo actualizados", true),
+                    FeatureItem("Descarga de recursos offline", true),
+                    FeatureItem("Panel de Temas Exclusivo", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Barra de Navegación Personalizable", true, isHighlight = true, icon = Icons.Default.AutoAwesome)
+                )
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Free Card (Muted)
+            FreePlanCard(
                 title = "Plan Gratuito",
                 price = "Gratis",
-                isPremium = false,
                 features = listOf(
-                    Pair("Acceso al Asistente de Draft", true),
-                    Pair("Tier List y Catálogo", true),
-                    Pair("Descarga de recursos offline", true),
-                    Pair("Temas personalizados", false),
-                    Pair("Estilos de barra de navegación", false)
+                    FeatureItem("Acceso básico al Asistente de Draft", true),
+                    FeatureItem("Tier List y Catálogo", true),
+                    FeatureItem("Descarga de recursos offline", true),
+                    FeatureItem("Panel de Temas Exclusivo", false),
+                    FeatureItem("Barra de Navegación Personalizable", false)
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(40.dp))
+        }
+    }
+}
 
-            // Premium Card
-            PlanCard(
-                title = "Coach Premium",
-                price = "$2.99 / mes",
-                isPremium = true,
-                features = listOf(
-                    Pair("Acceso al Asistente de Draft", true),
-                    Pair("Tier List y Catálogo", true),
-                    Pair("Descarga de recursos offline", true),
-                    Pair("Temas personalizados ilimitados", true),
-                    Pair("Estilos de barra de navegación", true)
-                )
+data class FeatureItem(
+    val text: String,
+    val isIncluded: Boolean,
+    val isHighlight: Boolean = false,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+)
+
+@Composable
+private fun PremiumPlanCard(
+    title: String,
+    price: String,
+    period: String,
+    features: List<FeatureItem>
+) {
+    val gradientBrush = Brush.linearGradient(
+        colors = listOf(HextechGold, HextechCyan)
+    )
+    
+    val bgGradientBrush = Brush.linearGradient(
+        colors = listOf(HextechGold.copy(alpha = 0.15f), HextechCyan.copy(alpha = 0.05f))
+    )
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp), // Space for the floating badge
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            border = BorderStroke(2.dp, gradientBrush)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(bgGradientBrush)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = title,
+                                color = HextechGold,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = price,
+                                    color = TextPrimary,
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                                Text(
+                                    text = period,
+                                    color = TextSecondary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                    HorizontalDivider(color = HextechGold.copy(alpha = 0.3f))
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    features.forEach { feature ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (feature.isHighlight) HextechGold.copy(alpha = 0.2f) else Color.Transparent),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = feature.icon ?: Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = if (feature.isHighlight) HextechGold else HextechCyan,
+                                    modifier = Modifier.size(if (feature.isHighlight) 16.dp else 20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = feature.text,
+                                color = if (feature.isHighlight) HextechGold else TextPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = if (feature.isHighlight) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Button(
+                        onClick = { /* TODO: Trigger Billing Flow */ },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(54.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = "Suscribirse Ahora",
+                            color = HextechDarkBg,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Floating Badge
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .background(gradientBrush, RoundedCornerShape(50))
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "MÁS POPULAR",
+                color = HextechDarkBg,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
             )
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
 
 @Composable
-private fun PlanCard(
+private fun FreePlanCard(
     title: String,
     price: String,
-    isPremium: Boolean,
-    features: List<Pair<String, Boolean>>
+    features: List<FeatureItem>
 ) {
-    val borderColor = if (isPremium) HextechGold else TextMuted.copy(alpha = 0.5f)
-    val bgColor = if (isPremium) HextechGold.copy(alpha = 0.05f) else HextechSurface
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        border = BorderStroke(1.dp, borderColor)
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = BorderStroke(1.dp, TextMuted.copy(alpha = 0.2f))
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -108,48 +270,27 @@ private fun PlanCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isPremium) {
-                            Icon(
-                                imageVector = Icons.Default.WorkspacePremium,
-                                contentDescription = null,
-                                tint = HextechGold,
-                                modifier = Modifier.size(20.dp).padding(end = 4.dp)
-                            )
-                        }
-                        Text(
-                            text = title,
-                            color = if (isPremium) HextechGold else TextPrimary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = title,
+                        color = TextSecondary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Text(
                         text = price,
-                        color = if (isPremium) HextechCyan else TextSecondary,
-                        fontSize = 14.sp,
+                        color = TextMuted,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-                
-                if (isPremium) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(HextechGold)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text("PRO", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = borderColor.copy(alpha = 0.3f))
+            HorizontalDivider(color = TextMuted.copy(alpha = 0.1f))
             Spacer(modifier = Modifier.height(16.dp))
 
-            features.forEach { (feature, isIncluded) ->
+            features.forEach { feature ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -157,16 +298,17 @@ private fun PlanCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = if (isIncluded) Icons.Default.Check else Icons.Default.Close,
+                        imageVector = if (feature.isIncluded) Icons.Default.Check else Icons.Default.Close,
                         contentDescription = null,
-                        tint = if (isIncluded) HextechCyan else DangerRed,
+                        tint = if (feature.isIncluded) TextSecondary else DangerRed.copy(alpha = 0.7f),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = feature,
-                        color = if (isIncluded) TextPrimary else TextMuted,
-                        fontSize = 13.sp
+                        text = feature.text,
+                        color = if (feature.isIncluded) TextSecondary else TextMuted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Normal
                     )
                 }
             }
