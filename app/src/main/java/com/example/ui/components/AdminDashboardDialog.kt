@@ -30,7 +30,8 @@ import kotlinx.coroutines.launch
 data class UserRecord(
     val uid: String,
     val email: String,
-    val role: String
+    val role: String,
+    val lastActive: Long
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +58,8 @@ fun AdminDashboardDialog(
                 val list = snapshot.documents.mapNotNull { doc ->
                     val email = doc.getString("email") ?: "Sin email"
                     val role = doc.getString("role") ?: "free"
-                    UserRecord(doc.id, email, role)
+                    val lastActive = doc.getLong("last_active") ?: 0L
+                    UserRecord(doc.id, email, role, lastActive)
                 }.sortedBy { it.email }
                 users = list
             } catch (e: Exception) {
@@ -134,6 +136,41 @@ fun AdminDashboardDialog(
                     Icon(Icons.Default.BugReport, contentDescription = null, tint = HextechGold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Abrir Buzón de Reportes y Sugerencias", color = TextPrimary)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // --- ADMIN STATS DASHBOARD ---
+                val totalUsers = users.size
+                val premiumUsers = users.count { it.role == "premium" }
+                // Active in the last 15 minutes (15 * 60 * 1000 ms)
+                val onlineUsers = users.count { System.currentTimeMillis() - it.lastActive < 900_000 }
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    AdminStatCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Total",
+                        value = totalUsers.toString(),
+                        icon = Icons.Default.Group,
+                        color = HextechCyan
+                    )
+                    AdminStatCard(
+                        modifier = Modifier.weight(1f),
+                        title = "En Línea",
+                        value = onlineUsers.toString(),
+                        icon = Icons.Default.Person,
+                        color = Color(0xFF00FF7F) // Zaun Green style
+                    )
+                    AdminStatCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Premium",
+                        value = premiumUsers.toString(),
+                        icon = Icons.Default.Star,
+                        color = HextechGold
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -265,15 +302,28 @@ fun UserManagementCard(
                             expanded = false 
                         }
                     )
-                    DropdownMenuItem(
-                        text = { Text("Asignar ADMIN", color = DangerRed) },
-                        onClick = { 
-                            onRoleChange("admin")
-                            expanded = false 
-                        }
-                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun AdminStatCard(modifier: Modifier, title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.3f))
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = value, color = TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = title, color = TextMuted, fontSize = 10.sp, maxLines = 1)
         }
     }
 }

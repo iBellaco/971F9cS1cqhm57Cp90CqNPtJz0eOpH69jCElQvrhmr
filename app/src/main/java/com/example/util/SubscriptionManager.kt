@@ -42,9 +42,12 @@ object SubscriptionManager {
                     // Create if it doesn't exist. Use SetOptions.merge() just in case.
                     val userData = hashMapOf(
                         "role" to "free",
-                        "email" to (user.email ?: "")
+                        "email" to (user.email ?: ""),
+                        "last_active" to System.currentTimeMillis()
                     )
                     userRef.set(userData, SetOptions.merge())
+                } else {
+                    userRef.set(hashMapOf("last_active" to System.currentTimeMillis()), SetOptions.merge())
                 }
             }
             
