@@ -32,7 +32,7 @@
       "Samira"
     ],
     "tacticalAdvice": "Coloca Escudo Negro (E) sobre tu tirador cuando reciba ganchos o aturdimientos para anular completamente el control de masas.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -127,7 +127,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -163,7 +163,7 @@
       "Miss Fortune"
     ],
     "tacticalAdvice": "Aplica Bendici\u00f3n de la Marea (E) sobre Lucian o tu tirador para ralentizar al rival y facilitar el acierto de la Prisi\u00f3n de Agua (Q).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Aery,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -258,7 +258,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Aery,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "build2Spells": [
       "Curar",
       "Destello"
@@ -420,7 +420,7 @@
       "Yasuo"
     ],
     "tacticalAdvice": "Usa tu L\u00ednea de Dragado (Q) contra el terreno para escapar r\u00e1pidamente o inicia con Carga de las Profundidades (R) imparable.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Coraje Del Coloso,Fuerzas Renovadas,Perseverancia,Hextello",
     "runeTreeDetails": "Inspiraci\u00f3n: Destello Hextech \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
     "recommendedSpells": [
@@ -517,7 +517,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Electrocutar,Hextello,Trascendencia,Capa Del Nimbo,Sobrecrecimiento",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -553,7 +553,7 @@
       "Leona"
     ],
     "tacticalAdvice": "Acierta tu Jabalina (Q) a distancia para activar Cacer\u00eda y transformarte en puma con Golpe Rematador potenciado.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cosecha Oscura,Impacto Repentino,Tirano,Cazador Incesante,Sobrecrecimiento",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Cazador Voraz \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -650,7 +650,7 @@
     "primaryRunes": [
       "Cometa Arcano"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cosecha Oscura,Impacto Repentino,Tirano,Cazador Incesante,Sobrecrecimiento",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -795,7 +795,7 @@
       "Twisted Fate"
     ],
     "tacticalAdvice": "Oscurece la visi\u00f3n global con Paranoia (R) y l\u00e1nzate directo sobre el tirador desposicionado sin que puedan reaccionar.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Trascendencia",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Presteza \u2022 Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -892,7 +892,7 @@
     "primaryRunes": [
       "Electrocutar"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Trascendencia",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -930,7 +930,7 @@
       "Malphite"
     ],
     "tacticalAdvice": "Invoca portales dimensionales para sorprender con habilidades cruzadas desde \u00e1ngulos ciegos de la jungla.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cosecha Oscura,Impacto Repentino,Tirano,Colecci\u00f3n De Globos Oculares,Se Avecina Tormenta",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -1025,7 +1025,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cosecha Oscura,Impacto Repentino,Tirano,Colecci\u00f3n De Globos Oculares,Se Avecina Tormenta",
     "build2Spells": [
       "Destello",
       "Barrera"
@@ -1061,7 +1061,7 @@
       "Orianna"
     ],
     "tacticalAdvice": "Haz bolas de nieve gigantes (W) desde el r\u00edo para emboscar a gran velocidad y asegura dragones con Voracidad (Q) + Castigo.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Leyenda: Tenacidad",
     "runeTreeDetails": "Brujer\u00eda: Capa del Nimbo \u2022 Celeridad \u2022 Caminar sobre Agua \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
     "recommendedSpells": [
@@ -1156,7 +1156,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Mejora Glacial,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Leyenda: Tenacidad",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -1194,7 +1194,7 @@
       "Karma"
     ],
     "tacticalAdvice": "Activa Ragnarok (R) para volverte imparable e ignorar cualquier control de masas mientras persigues al tirador enemigo.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Triunfo,Derribado,Leyenda: Linaje,Capa Del Nimbo",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -1291,7 +1291,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Triunfo,Derribado,Leyenda: Linaje,Capa Del Nimbo",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -1327,7 +1327,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Coloca la esfera sobre tu iniciador con Proteger (E) y desata Onda de Choque (R) cuando entre al medio de los enemigos.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Revestimiento De Huesos",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
     "recommendedSpells": [
@@ -1424,7 +1424,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Revestimiento De Huesos",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -1573,7 +1573,7 @@
       "Taliyah"
     ],
     "tacticalAdvice": "Carga tu Salto con Escudo (W) con 5 cargas de pasiva para aturdir y aplicar tres golpes instant\u00e1neos. Rota con Gran Descarga Celestial (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Brutal",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
     "recommendedSpells": [
@@ -1670,7 +1670,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Brutal",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -1709,7 +1709,7 @@
       "Gnar"
     ],
     "tacticalAdvice": "Activa Presencia Inquebrantable (W) para bloquear todos los saltos y deslizamientos de los asesinos rivales.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Garras Del Inmortal,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
     "runeTreeDetails": "Valor: Golpe de Escudo \u2022 Revestimiento de Hueso \u2022 Sobrecrecimiento \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
@@ -1806,7 +1806,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Pies Veloces,Inquebrantable,Revestimiento De Huesos,Sobrecrecimiento,Trascendencia",
     "build2Spells": [
       "Destello",
       "Aplastar"
@@ -1844,7 +1844,7 @@
       "Jhin"
     ],
     "tacticalAdvice": "Ejecuta con Muerte de las Profundidades (R) para repartir oro duplicado a tu tirador y reiniciar el salto inmediatamente.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Electrocutar,Inquebrantable,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Cazador Voraz \u2022 Pionero",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -1939,7 +1939,7 @@
     "primaryRunes": [
       "Electrocutar"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Electrocutar,Inquebrantable,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -1975,7 +1975,7 @@
       "Yasuo"
     ],
     "tacticalAdvice": "Entra con La Gran Entrada (W) + Presteza (R) para encantar a los 5 enemigos y regresa a salvo con Danza de Batalla (E) a tu tirador.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Coraje Del Coloso,Fuerzas Renovadas,Perseverancia,Trascendencia",
     "runeTreeDetails": "Inspiraci\u00f3n: Calzado M\u00e1gico \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
     "recommendedSpells": [
@@ -2071,7 +2071,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Electrocutar,Impacto Repentino,Tirano,Guardi\u00e1n Zombi,Revestimiento De Huesos",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -2218,7 +2218,7 @@
       "Yasuo"
     ],
     "tacticalAdvice": "Destruye los escudos enemigos con Rompemauras (Q) y atrae a todo el equipo contrario con Tormenta Magn\u00e9tica (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Inquebrantable,Fuerzas Renovadas,Perseverancia,Celeridad",
     "runeTreeDetails": "Inspiraci\u00f3n: Destello Hextech \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
     "recommendedSpells": [
@@ -2315,7 +2315,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Mejora Glacial,Inquebrantable,Fuerzas Renovadas,Perseverancia,Celeridad",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -2351,7 +2351,7 @@
       "Taliyah"
     ],
     "tacticalAdvice": "Entra con 50+ de furia para romper escudos y aturdir durante 1.5s con Depredador Implacable (W) potenciado.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Coraje Del Coloso,Revestimiento De Huesos,Sobrecrecimiento,Brutal",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -2448,7 +2448,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Coraje Del Coloso,Revestimiento De Huesos,Sobrecrecimiento,Brutal",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -2707,7 +2707,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Mant\u00e9n la barra de calor en la Zona Peligrosa (50-90) para potenciar tu Lanzallamas y traza El Equilibrador (R) en cuellos de botella.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cosecha Oscura,Golpe Bajo,Tirano,Colecci\u00f3n De Globos Oculares,Revestimiento De Huesos",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -2804,7 +2804,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Garras Del Inmortal,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Trascendencia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -2842,7 +2842,7 @@
       "Nautilus"
     ],
     "tacticalAdvice": "Descarga la rotaci\u00f3n E+W+Q para atrapar instant\u00e1neamente y activar la velocidad de movimiento de Fase Veloz.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Irrupci\u00f3n De Fase,Banda De Man\u00e1,Concentraci\u00f3n Absoluta,Capa Del Nimbo,Sobrecrecimiento",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Tormenta Creciente \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
     "recommendedSpells": [
@@ -2937,7 +2937,7 @@
     "primaryRunes": [
       "Electrocutar"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Irrupci\u00f3n De Fase,Banda De Man\u00e1,Concentraci\u00f3n Absoluta,Capa Del Nimbo,Sobrecrecimiento",
     "build2Spells": [
       "Fantasmal",
       "Destello"
@@ -2973,7 +2973,7 @@
       "Leona"
     ],
     "tacticalAdvice": "Encadena ataques y habilidades alternadas para subir de rango E a S r\u00e1pidamente y activar Gatillo Infernal (R) mientras bloqueas proyectiles con W.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Brutal,Golpe De Gracia,Leyenda: Linaje,Impacto Repentino",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -3070,7 +3070,7 @@
     "primaryRunes": [
       "Comp\u00e1s Letal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Brutal,Golpe De Gracia,Leyenda: Linaje,Impacto Repentino",
     "build2Spells": [
       "Destello",
       "Barrera"
@@ -3234,7 +3234,7 @@
       "Ashe"
     ],
     "tacticalAdvice": "Lanza Bis (R) a trav\u00e9s de tus aliados para extender el alcance del hechizo hasta el fondo de las filas enemigas.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Cazador Ingenioso",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -3356,7 +3356,7 @@
       "Yuumi"
     ],
     "tacticalAdvice": "Guarda Rompecaras (W) para cuando tu barra de Agallas est\u00e9 al m\u00e1ximo y desata el pu\u00f1etazo de da\u00f1o verdadero central.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,\u00daltimo Esfuerzo",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -3453,7 +3453,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,\u00daltimo Esfuerzo",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -3491,7 +3491,7 @@
       "Kha'Zix"
     ],
     "tacticalAdvice": "Usa Refugio Espiritual (W) para anular los ataques b\u00e1sicos enemigos y salva a tu aliado con Mantener la Postura (R) a trav\u00e9s del mapa.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Garras Del Inmortal,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
     "runeTreeDetails": "Valor: Fuente de Vida \u2022 Revestimiento de Hueso \u2022 Sobrecrecimiento \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
@@ -3588,7 +3588,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Garras Del Inmortal,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
     "build2Spells": [
       "Destello",
       "Teleportar"
@@ -3624,7 +3624,7 @@
       "Orianna"
     ],
     "tacticalAdvice": "Asegura todos los dragones elementales para potenciar pasivamente tus estad\u00edsticas y habilidades drac\u00f3nicas.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -3721,7 +3721,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Sobrecrecimiento",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -3757,7 +3757,7 @@
       "Zilean"
     ],
     "tacticalAdvice": "Haz proxy farming tras las torres enemigas para atraer al jungla y corre dejando tu Rastro de Veneno (Q) activo.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Irrupci\u00f3n De Fase,Inquebrantable,Fuerzas Renovadas,Perseverancia,Capa Del Nimbo",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -3854,7 +3854,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Irrupci\u00f3n De Fase,Inquebrantable,Fuerzas Renovadas,Perseverancia,Capa Del Nimbo",
     "build2Spells": [
       "Fantasmal",
       "Destello"
@@ -3890,7 +3890,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Carga Impacto Descendente (Q) desde la maleza para no ser visto y embiste torretas enemigas con Imparable (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Garras Del Inmortal,Demoler,Fuerzas Renovadas,Sobrecrecimiento,Cazador Ingenioso",
     "runeTreeDetails": "Valor: Demolici\u00f3n \u2022 Condicionamiento \u2022 Sobrecrecimiento \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
@@ -3987,7 +3987,7 @@
     "primaryRunes": [
       "Garras del Inmortal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Garras Del Inmortal,Demoler,Fuerzas Renovadas,Sobrecrecimiento,Cazador Ingenioso",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -4023,7 +4023,7 @@
       "Karma"
     ],
     "tacticalAdvice": "Usa Escudo de Hechizos (E) para bloquear ganchos y habilidades definitivas y activa A la Caza (R) para iniciar asedios con tu equipo.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Banda de Man\u00e1",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -4118,7 +4118,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Extenuaci\u00f3n",
       "Destello"
@@ -4156,7 +4156,7 @@
       "Samira"
     ],
     "tacticalAdvice": "Atraviesa muros con tu E y arrastra al carry enemigo hacia tu torre con Empalar (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Garras Del Inmortal,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Trascendencia",
     "runeTreeDetails": "Valor: Fuente de Vida \u2022 Condicionamiento \u2022 Sobrecrecimiento \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/aftershock/aftershock.png",
     "recommendedSpells": [
@@ -4253,7 +4253,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Mejora Glacial,Coraje Del Coloso,Fuerzas Renovadas,Sobrecrecimiento,Leyenda: Presteza",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -4291,7 +4291,7 @@
       "Nami"
     ],
     "tacticalAdvice": "Acumula 225 cargas de Dracoman\u00eda para desbloquear da\u00f1o verdadero en \u00e1rea y ejecuci\u00f3n en su Aliento de Fuego (Q).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Pies Veloces,Fervor De Batalla,Derribado,Leyenda: Presteza,Trascendencia",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -4386,7 +4386,7 @@
     "primaryRunes": [
       "Pies Veloces"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Pies Veloces,Fervor De Batalla,Derribado,Leyenda: Presteza,Trascendencia",
     "build2Spells": [
       "Extenuaci\u00f3n",
       "Destello"
@@ -4422,7 +4422,7 @@
       "Seraphine"
     ],
     "tacticalAdvice": "Rota constantemente tus tres auras en peleas de equipo y usa Crescendo (R) para cortar las canalizaciones rivales.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Inquebrantable,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -4517,7 +4517,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Mejora Glacial,Inquebrantable,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "build2Spells": [
       "Curar",
       "Destello"
@@ -4553,7 +4553,7 @@
       "Tristana"
     ],
     "tacticalAdvice": "Acierta Invocaci\u00f3n Estelar (Q) para regenerar vida antes de curar a tu aliado con W a coste cero de vida. Cura globalmente con Plegaria (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Aery,Inquebrantable,Revestimiento De Huesos,Revitalizar,Axioma Arcano",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -4648,7 +4648,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Aery,Inquebrantable,Revestimiento De Huesos,Revitalizar,Axioma Arcano",
     "build2Spells": [
       "Curar",
       "Destello"
@@ -4687,7 +4687,7 @@
       "Samira"
     ],
     "tacticalAdvice": "Mant\u00e9n Ascensi\u00f3n Demon\u00edaca (R) activa manteni\u00e9ndote en rango de los campeones enemigos mientras drenas vida perpetuamente.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Irrupci\u00f3n De Fase,Axioma Arcano,Celeridad,Se Avecina Tormenta,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -4784,7 +4784,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Irrupci\u00f3n De Fase,Axioma Arcano,Celeridad,Se Avecina Tormenta,Sobrecrecimiento",
     "build2Spells": [
       "Fantasmal",
       "Destello"
@@ -4820,7 +4820,7 @@
       "Lee Sin"
     ],
     "tacticalAdvice": "Acumula esferas oscuras con tu Q en el suelo antes de dispersar a los enemigos con Dispersar a los D\u00e9biles (E) y desatar Poder Desatado (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Axioma Arcano,Trascendencia,Capa Del Nimbo,Golpe De Gracia",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Cazador Voraz \u2022 Banda de Man\u00e1",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -4917,7 +4917,7 @@
     "primaryRunes": [
       "Electrocutar"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Axioma Arcano,Trascendencia,Capa Del Nimbo,Golpe De Gracia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -5066,7 +5066,7 @@
       "Jarvan IV"
     ],
     "tacticalAdvice": "Salta los muros del mapa con Sendero del Asesino (E) para emboscar desde \u00e1ngulos ciegos y activar tu pasiva de sangrado.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Fervor De Batalla,Derribado,Leyenda: Presteza,Impacto Repentino",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Ingenio Cazador \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -5162,7 +5162,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Electrocutar,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Se Avecina Tormenta",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -5200,7 +5200,7 @@
       "Lillia"
     ],
     "tacticalAdvice": "Ciega con Dardo Cegador (Q) a los atacantes autom\u00e1ticos y siembra hongos en las entradas de dragones y barones.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Pies Veloces,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Derribado",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Presteza \u2022 Banda de Man\u00e1",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
     "recommendedSpells": [
@@ -5295,7 +5295,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Pies Veloces,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Derribado",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -5331,7 +5331,7 @@
       "Draven"
     ],
     "tacticalAdvice": "Lanza tu Linterna (W) para rescatar a un aliado en peligro o acercar a tu jungla para una emboscada sorpresa.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Mejora Glacial,Inquebrantable,Revestimiento De Huesos,Sobrecrecimiento,Hextello",
     "runeTreeDetails": "Inspiraci\u00f3n: Destello Hextech \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
     "recommendedSpells": [
@@ -5428,7 +5428,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Mejora Glacial,Inquebrantable,Revestimiento De Huesos,Sobrecrecimiento,Hextello",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -5466,7 +5466,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Carga la Carga Explosiva (E) con 4 disparos para reiniciar tu Salto Cohete (W) y encadenar derribos.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -5563,7 +5563,7 @@
     "primaryRunes": [
       "Pies Veloces"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Extenuaci\u00f3n",
       "Destello"
@@ -5601,7 +5601,7 @@
       "Zilean"
     ],
     "tacticalAdvice": "Gestiona Furia Inmortal (R) en el \u00faltimo instante para absorber todo el da\u00f1o enemigo antes de girar con E hacia la seguridad.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,\u00daltimo Esfuerzo,Leyenda: Presteza,Perseverancia",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Presteza \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -5696,7 +5696,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,\u00daltimo Esfuerzo,Leyenda: Presteza,Perseverancia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -5732,7 +5732,7 @@
       "Camille"
     ],
     "tacticalAdvice": "Selecciona la Carta Dorada de Escoge una Carta (W) antes de teletransportarte con Destino (R) para un aturdimiento ineludible.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Inspiraci\u00f3n: Calzado M\u00e1gico \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
@@ -5827,7 +5827,7 @@
     "primaryRunes": [
       "Cometa Arcano"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -5974,7 +5974,7 @@
       "Malphite"
     ],
     "tacticalAdvice": "Gira alrededor del objetivo para disparar todas las escopetas de tus piernas con Purga (W) y ejecuta con Miedo de Ultratumba (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Fortalecimiento,Brutal,Derribado,Leyenda: Tenacidad,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
     "recommendedSpells": [
@@ -6071,7 +6071,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Fortalecimiento,Brutal,Derribado,Leyenda: Tenacidad,Sobrecrecimiento",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -6109,7 +6109,7 @@
       "Braum"
     ],
     "tacticalAdvice": "Detona las 3 marcas de Infecci\u00f3n (W) disparando una Flecha Penetrante (Q) totalmente cargada para un da\u00f1o letal a distancia.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -6205,7 +6205,7 @@
     "primaryRunes": [
       "Pies Veloces"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Destello",
       "Fantasmal"
@@ -6243,7 +6243,7 @@
       "Janna"
     ],
     "tacticalAdvice": "Usa Voltereta (Q) durante Hora Final (R) para volverte invisible durante 1s y estampar enemigos contra la pared con Condena (E).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -6338,7 +6338,7 @@
     "primaryRunes": [
       "Comp\u00e1s Letal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Destello",
       "Extenuaci\u00f3n"
@@ -6610,7 +6610,7 @@
       "Jarvan IV"
     ],
     "tacticalAdvice": "Interrumpe los saltos y deslizamientos rivales con la pasiva Penumbra y encadena lanzamientos de Oleada Sombra (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Electrocutar,Impacto Repentino,Tirano,Colecci\u00f3n De Globos Oculares,Golpe De Gracia",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Cazador Voraz \u2022 Banda de Man\u00e1",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -6707,7 +6707,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Electrocutar,Impacto Repentino,Tirano,Colecci\u00f3n De Globos Oculares,Golpe De Gracia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -6868,7 +6868,7 @@
       "Lulu"
     ],
     "tacticalAdvice": "Posee los cuerpos de los enemigos ca\u00eddos para obtener sus habilidades, curarte e invocar Rompecorazones (R) sin coste.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Fortalecimiento,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Presteza \u2022 Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -6963,7 +6963,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Fortalecimiento,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -6999,7 +6999,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Aumenta tu Rayo de la Muerte (E) para limpiar oleadas de un solo tiro y corta canalizaciones con Tormenta del Caos (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Pies Veloces,Ataque Potenciado,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Trascendencia",
     "runeTreeDetails": "Inspiraci\u00f3n: Calzado M\u00e1gico \u2022 Entrega de Galletas \u2022 Perspicacia C\u00f3smica \u2022 Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
     "recommendedSpells": [
@@ -7094,7 +7094,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Pies Veloces,Ataque Potenciado,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Trascendencia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -7132,7 +7132,7 @@
       "Jarvan IV"
     ],
     "tacticalAdvice": "Carga tu Transfusi\u00f3n (Q) para desatar el mordisco potenciado y usa Charco de Sangre (W) para esquivar definitivas enemigas.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Irrupci\u00f3n De Fase,Fervor De Batalla,Derribado,Leyenda: Tenacidad,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Tormenta Creciente \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
     "recommendedSpells": [
@@ -7227,7 +7227,7 @@
     "primaryRunes": [
       "Cometa Arcano"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Irrupci\u00f3n De Fase,Fervor De Batalla,Derribado,Leyenda: Tenacidad,Trascendencia",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -7350,7 +7350,7 @@
     "primaryRunes": [
       "Garras del Inmortal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Fervor De Batalla,\u00daltimo Esfuerzo,Leyenda: Presteza,Sobrecrecimiento",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -7388,7 +7388,7 @@
       "Seraphine"
     ],
     "tacticalAdvice": "Sigue el rastro de Cacer\u00eda de Sangre (W) para emboscar enemigos bajos de vida y suprime con Opresi\u00f3n Infinita (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Fortalecimiento,Brutal,Golpe De Gracia,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Tenacidad \u2022 Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -7483,7 +7483,7 @@
     "primaryRunes": [
       "Garras del Inmortal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Fortalecimiento,Brutal,Golpe De Gracia,Leyenda: Presteza,Sobrecrecimiento",
     "build2Spells": [
       "Fantasmal",
       "Aplastar"
@@ -7606,7 +7606,7 @@
     "primaryRunes": [
       "Soberano G\u00e9lido"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Leyenda: Presteza",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -7642,7 +7642,7 @@
       "Leona"
     ],
     "tacticalAdvice": "Esquiva habilidades mortales saltando con Tormenta de Plumas (R) y atrae todas las plumas con Invocadora de Cuchillas (E) para inmovilizar.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Linaje,Revestimiento De Huesos",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -7737,7 +7737,7 @@
     "primaryRunes": [
       "Pies Veloces"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Linaje,Revestimiento De Huesos",
     "build2Spells": [
       "Extenuaci\u00f3n",
       "Destello"
@@ -7775,7 +7775,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Activa Guardia Creciente (R) para repeler a los rivales y volverte inmune al da\u00f1o de todos los enemigos fuera de tu c\u00edrculo.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Presteza \u2022 Impacto Repentino",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -7872,7 +7872,7 @@
     "primaryRunes": [
       "Garras del Inmortal"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Conquistador,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
     "build2Spells": [
       "Aplastar",
       "Destello"
@@ -8036,7 +8036,7 @@
       "Orianna"
     ],
     "tacticalAdvice": "Sal en Alma Desatada (E) para comerciar da\u00f1o seguro y regresa a tu cuerpo limpiando ralentizaciones tras ejecutar Destino Sellado (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -8131,7 +8131,7 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -8169,7 +8169,7 @@
       "Braum"
     ],
     "tacticalAdvice": "Mant\u00e9n la distancia m\u00e1xima de hostigamiento y aprovecha tus r\u00e1fagas potenciadas para desgastar a los tiradores rivales.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisi\u00f3n: Triunfo \u2022 Golpe de Gracia \u2022 Leyenda: Linaje \u2022 Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -8264,7 +8264,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Comp\u00e1s Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "build2Spells": [
       "Barrera",
       "Destello"
@@ -8300,7 +8300,7 @@
       "Zeri"
     ],
     "tacticalAdvice": "S\u00e1ltate botas y Destello; acompa\u00f1a a tu carry con \u00a1T\u00fa y Yo! (W) y cura continuamente con \u00a1Presteza Gatuna! (E).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Aery,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -8397,7 +8397,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Aery,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Trascendencia",
     "build2Spells": [
       "Curar",
       "Barrera"
@@ -8435,7 +8435,7 @@
       "Vi"
     ],
     "tacticalAdvice": "Coloca tu Sombra Viviente (W) de forma lateral para conectar una doble Shuriken (Q) y asegura la eliminaci\u00f3n con Marca de la Muerte (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Electrocutar,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Ingenio Cazador \u2022 Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -8531,7 +8531,7 @@
     "primaryRunes": [
       "Electrocutar"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colecci\u00f3n De Globos Oculares,Revestimiento De Huesos",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -8678,7 +8678,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Ejecuta torretas bajas de vida instant\u00e1neamente con Carga Concentrada (W) y bombardea peleas lejanas con Megabomba Infernal (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cometa Arcano,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Derribado",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -8773,7 +8773,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cometa Arcano,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Derribado",
     "build2Spells": [
       "Extenuaci\u00f3n",
       "Destello"
@@ -8811,7 +8811,7 @@
       "Master Yi"
     ],
     "tacticalAdvice": "Acelera a tus luchadores aliados con Distorsi\u00f3n Temporal (E) y resucita al carry con Cambio Temporal (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cometa Arcano,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Guardi\u00e1n Zombi",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
     "recommendedSpells": [
@@ -8906,7 +8906,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cometa Arcano,Banda De Man\u00e1,Trascendencia,Se Avecina Tormenta,Guardi\u00e1n Zombi",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -8942,7 +8942,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Lanza Burbuja Dormilona (E) a trav\u00e9s de muros para multiplicar su alcance y conecta una Estrella Fugaz (Q) a m\u00e1xima distancia.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Primer Golpe,Botanista,Trascendencia,Capa Del Nimbo,Impacto Repentino",
     "runeTreeDetails": "Dominaci\u00f3n: Impacto Repentino \u2022 Cazador de Ojos \u2022 Cazador Voraz \u2022 Banda de Man\u00e1",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -9039,7 +9039,7 @@
     "primaryRunes": [
       "Primer Golpe"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Primer Golpe,Botanista,Trascendencia,Capa Del Nimbo,Impacto Repentino",
     "build2Spells": [
       "Prender",
       "Destello"
@@ -9078,7 +9078,7 @@
       "Ashe"
     ],
     "tacticalAdvice": "Siembra semillas con W antes de lanzar Q o E para hacer brotar plantas escupidoras y enfur\u00e9celas con Tuercespinas (R).",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
     "runeTreeDetails": "Brujer\u00eda: Banda de Man\u00e1 \u2022 Trascendencia \u2022 Pirol\u00e1ser \u2022 Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
     "recommendedSpells": [
@@ -9173,7 +9173,7 @@
     "primaryRunes": [
       "Aery"
     ],
-    "build2Runes": "Conquistador",
+    "build2Runes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
     "build2Spells": [
       "Prender",
       "Destello"

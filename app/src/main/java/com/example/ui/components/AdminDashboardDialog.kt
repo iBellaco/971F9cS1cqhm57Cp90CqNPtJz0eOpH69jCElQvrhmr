@@ -80,9 +80,13 @@ fun AdminDashboardDialog(
     }
 
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
     var users by remember { mutableStateOf<List<UserRecord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    
     var showReportsPanel by remember { mutableStateOf(false) }
+    var showPushDialog by remember { mutableStateOf(false) }
+
 
     fun loadUsers() {
         isLoading = true
@@ -108,7 +112,104 @@ fun AdminDashboardDialog(
         loadUsers()
     }
 
+    
+    if (showPushDialog) {
+        var pushTitle by remember { mutableStateOf("") }
+        var pushBody by remember { mutableStateOf("") }
+        var pushTarget by remember { mutableStateOf("all") }
+        var isSendingPush by remember { mutableStateOf(false) }
+        
+        AlertDialog(
+            onDismissRequest = { if (!isSendingPush) showPushDialog = false },
+            title = { Text("Nueva Notificación Push", color = HextechGold) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = pushTitle,
+                        onValueChange = { pushTitle = it },
+                        label = { Text("Título") },
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedBorderColor = HextechGold
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = pushBody,
+                        onValueChange = { pushBody = it },
+                        label = { Text("Mensaje (Ej. Meta actualizado)") },
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedBorderColor = HextechGold
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Destinatarios:", color = TextMuted)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = pushTarget == "all", 
+                            onClick = { pushTarget = "all" },
+                            colors = androidx.compose.material3.RadioButtonDefaults.colors(selectedColor = HextechCyan)
+                        )
+                        Text("Todos los usuarios", color = TextPrimary)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = pushTarget == "premium", 
+                            onClick = { pushTarget = "premium" },
+                            colors = androidx.compose.material3.RadioButtonDefaults.colors(selectedColor = HextechGold)
+                        )
+                        Text("Solo Premium", color = HextechGold)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (pushTitle.isBlank() || pushBody.isBlank()) return@TextButton
+                        isSendingPush = true
+                        scope.launch {
+                            try {
+                                val data = hashMapOf(
+                                    "title" to pushTitle,
+                                    "body" to pushBody,
+                                    "target" to pushTarget,
+                                    "createdAt" to System.currentTimeMillis()
+                                )
+                                FirebaseFirestore.getInstance().collection("global_notifications").add(data).await()
+                                Toast.makeText(context, "Notificación enviada", Toast.LENGTH_SHORT).show()
+                                showPushDialog = false
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                            } finally {
+                                isSendingPush = false
+                            }
+                        }
+                    },
+                    enabled = !isSendingPush
+                ) {
+                    Text(if (isSendingPush) "Enviando..." else "Enviar", color = HextechCyan)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPushDialog = false }, enabled = !isSendingPush) {
+                    Text("Cancelar", color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            titleContentColor = HextechGold
+        )
+    }
+
     if (showReportsPanel) {
+
         AdminFeedbackBottomSheet(
             onDismiss = { showReportsPanel = false }
         )
@@ -172,7 +273,23 @@ fun AdminDashboardDialog(
                     Text("Abrir Buzón de Reportes y Sugerencias", color = TextPrimary)
                 }
 
+                
+                // Push Notifications Button
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = { showPushDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Notifications, contentDescription = null, tint = HextechGold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Enviar Notificación Push", color = TextPrimary)
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
+
                 
                 // --- ADMIN STATS DASHBOARD ---
                 val totalUsers = users.size

@@ -61,7 +61,6 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             premiumFeatures = listOf(
                 "Guardado de Drafts e Historial de Partidas",
                 "Repertorio de Campeones Favoritos",
-                "Alertas Push en tiempo real sobre el Meta",
                 "Personalización de Temas Visuales"
             )
         )

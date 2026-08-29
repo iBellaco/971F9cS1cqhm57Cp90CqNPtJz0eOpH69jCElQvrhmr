@@ -572,7 +572,7 @@ object ChampionRoleAdapter {
             items = champ.coreItems,
             bootBase = defaultBootBase,
             bootUpgrade = defaultBootUpgrade,
-            runes = listOf(champ.recommendedRunes),
+            runes = champ.recommendedRunes.split(",").map { it.trim() }.filter { it.isNotBlank() },
             spells = resolvedSpells1,
             spellsIcons = resolvedSpellsIcons1
         )
@@ -590,7 +590,7 @@ object ChampionRoleAdapter {
             items = champ.situationalItems.ifEmpty { champ.coreItems.reversed() },
             bootBase = defaultBootBase,
             bootUpgrade = defaultBootUpgrade,
-            runes = listOf(if (champ.build2Runes.isNotBlank()) champ.build2Runes else champ.recommendedRunes),
+            runes = (if (champ.build2Runes.isNotBlank()) champ.build2Runes else champ.recommendedRunes).split(",").map { it.trim() }.filter { it.isNotBlank() },
             spells = resolvedSpells2,
             spellsIcons = resolvedSpellsIcons2
         )
