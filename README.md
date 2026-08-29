@@ -47,6 +47,14 @@ Toda recomendación del asistente sigue el estándar profesional de análisis:
 4. **Ruta de Objetos e Itemización Dinámica Situacional (Cortacuras, Penetración, Tenacidad).**
 5. **Plan de Juego Macro y Objetivos (Fase de líneas niveles 1-5, mid/late game y micro-tips).**
 
+### 5. 🔐 Autenticación y Cuentas (Firebase)
+- **Inicio de Sesión Seguro:** Integración oficial con el SDK de Firebase Authentication usando `google-services.json`.
+- **Perfiles de Coach:** Permite la creación de usuarios mediante correo y contraseña para tener historiales e identidad en la app.
+
+### 6. 🤖 Scraper Autónomo de Estadísticas (CI/CD)
+- **Extracción Diaria Automática:** Un scraper de Python (con Playwright) actualiza automáticamente el meta del juego, obteniendo Winrates, Pickrates y Banrates oficiales.
+- **Workflow de GitHub Actions:** Cada 24 horas, la granja de servidores de GitHub ejecuta el scraper y sube los datos renovados (SQLite/JSON) directo al repositorio sin intervención humana.
+
 ---
 
 ## 🏗️ Arquitectura del Sistema
