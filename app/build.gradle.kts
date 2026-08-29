@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 183
-    versionName = "1.3.164"
+    versionCode = 187
+    versionName = "1.3.168"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -93,6 +93,7 @@ secrets {
 dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
   implementation(libs.firebase.firestore)
   implementation(libs.firebase.appcheck.playintegrity)
   implementation(libs.kotlinx.serialization.json)

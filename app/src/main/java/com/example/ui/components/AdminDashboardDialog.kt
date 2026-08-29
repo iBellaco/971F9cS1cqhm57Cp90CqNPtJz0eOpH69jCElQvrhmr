@@ -63,7 +63,8 @@ data class UserRecord(
     val uid: String,
     val email: String,
     val role: String,
-    val lastActive: Long
+    val lastActive: Long,
+    val name: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -248,6 +249,19 @@ fun AdminDashboardDialog(
                                             Log.e("AdminDashboard", "Error updating role", e)
                                         }
                                     }
+                                },
+                                onNameChange = { newName ->
+                                    scope.launch {
+                                        try {
+                                            FirebaseFirestore.getInstance().collection("users")
+                                                .document(user.uid)
+                                                .update("name", newName)
+                                                .await()
+                                            loadUsers()
+                                        } catch (e: Exception) {
+                                            Log.e("AdminDashboard", "Error updating name", e)
+                                        }
+                                    }
                                 }
                             )
                         }
@@ -265,7 +279,8 @@ fun UserManagementCard(
     user: UserRecord,
     context: android.content.Context,
     clipboard: androidx.compose.ui.platform.ClipboardManager,
-    onRoleChange: (String) -> Unit
+    onRoleChange: (String) -> Unit,
+    onNameChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     
@@ -282,7 +297,39 @@ fun UserManagementCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var showNameEdit by remember { mutableStateOf(false) }
+            if (showNameEdit) {
+                var newName by remember { mutableStateOf(user.name) }
+                AlertDialog(
+                    onDismissRequest = { showNameEdit = false },
+                    title = { Text("Cambiar Nombre", color = HextechCyan) },
+                    text = {
+                        OutlinedTextField(
+                            value = newName,
+                            onValueChange = { newName = it },
+                            label = { Text("Nombre") }
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { 
+                            onNameChange(newName)
+                            showNameEdit = false
+                        }) {
+                            Text("Guardar", color = HextechGold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showNameEdit = false }) {
+                            Text("Cancelar", color = TextMuted)
+                        }
+                    },
+                    containerColor = HextechSurface
+                )
+            }
             Column(modifier = Modifier.weight(1f)) {
+                if (user.name.isNotEmpty()) {
+                    Text(text = user.name, color = HextechGold, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
                 Text(
                     text = user.email,
                     color = TextPrimary,
@@ -343,6 +390,13 @@ fun UserManagementCard(
                             clipboard.setText(AnnotatedString(user.email))
                             Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
                             expanded = false 
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Cambiar Nombre", color = HextechGold) },
+                        onClick = { 
+                            showNameEdit = true
+                            expanded = false
                         }
                     )
                     DropdownMenuItem(

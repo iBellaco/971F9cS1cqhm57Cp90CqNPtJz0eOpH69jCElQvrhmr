@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 object SubscriptionManager {
     private val _userRole = MutableStateFlow("free")
     val userRole: StateFlow<String> = _userRole.asStateFlow()
+
+    private val _isBanned = MutableStateFlow(false)
+    val isBanned: StateFlow<Boolean> = _isBanned.asStateFlow()
 
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
@@ -60,12 +64,25 @@ object SubscriptionManager {
                 }
 
                 if (listenSnapshot != null && listenSnapshot.exists()) {
-                    val role = listenSnapshot.getString("role") ?: "free"
+                                                            val role = listenSnapshot.getString("role") ?: "free"
+                    val banned = listenSnapshot.getBoolean("banned") ?: false
                     _userRole.value = role
-                    _isPremium.value = role == "premium" || role == "admin"
+                    _isBanned.value = (role == "banned" || banned)
+                    val isPrem = role == "premium" || role == "admin"
+                    _isPremium.value = isPrem
+                    
+                    // Manage FCM Topic subscription for Premium users
+                    if (isPrem) {
+                        FirebaseMessaging.getInstance().subscribeToTopic("premium_meta_updates")
+                            .addOnSuccessListener { Log.d("SubscriptionManager", "Subscribed to premium_meta_updates") }
+                    } else {
+                        FirebaseMessaging.getInstance().unsubscribeFromTopic("premium_meta_updates")
+                            .addOnSuccessListener { Log.d("SubscriptionManager", "Unsubscribed from premium_meta_updates") }
+                    }
                 } else {
-                    _userRole.value = "free"
-                    _isPremium.value = false
+                                _userRole.value = "free"
+            _isPremium.value = false
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("premium_meta_updates")
                 }
             }
         }

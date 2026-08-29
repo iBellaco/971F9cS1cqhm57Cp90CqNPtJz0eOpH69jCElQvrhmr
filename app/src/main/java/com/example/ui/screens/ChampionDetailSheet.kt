@@ -187,8 +187,15 @@ fun ChampionDetailSheet(
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
                     IconButton(
-                        onClick = { FavoriteChampionsManager.toggleFavorite(context, champion.id) },
+                        onClick = { 
+                            if (isPremium) {
+                                FavoriteChampionsManager.toggleFavorite(context, champion.id) 
+                            } else {
+                                android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        },
                         modifier = Modifier.testTag("detail_fav_button")
                     ) {
                         Icon(

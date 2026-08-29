@@ -112,6 +112,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.example.ui.components.FormattedWildRiftText
@@ -659,6 +661,8 @@ private fun ChampionsCatalogTab(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
     val syncState by ChineseMetaSyncService.syncState.collectAsStateWithLifecycle()
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
     val currentRegion by ChineseMetaSyncService.currentRegion.collectAsStateWithLifecycle()
@@ -965,7 +969,14 @@ private fun ChampionsCatalogTab(
                                 ) {
                                     val isFav = favorites.contains(champion.id.lowercase())
                                     IconButton(
-                                        onClick = { FavoriteChampionsManager.toggleFavorite(context, champion.id) },
+                                        onClick = { 
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            if (isPremium) {
+                                                FavoriteChampionsManager.toggleFavorite(context, champion.id) 
+                                            } else {
+                                                android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
                                         modifier = Modifier
                                             .size(24.dp)
                                             .testTag("fav_btn_${champion.id}")
@@ -3042,6 +3053,8 @@ private fun DraftAnalysisTab(
 ) {
     val tabContext = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
     var isSavedRecently by remember { mutableStateOf(false) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
@@ -3156,7 +3169,12 @@ private fun DraftAnalysisTab(
         ) {
             Button(
                 onClick = {
-                    showSaveDraftDialog = true
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (isPremium) {
+                        showSaveDraftDialog = true
+                    } else {
+                        android.widget.Toast.makeText(tabContext, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -3183,7 +3201,14 @@ private fun DraftAnalysisTab(
             }
 
             Button(
-                onClick = onOpenHistory,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    if (isPremium) {
+                        onOpenHistory()
+                    } else {
+                        android.widget.Toast.makeText(tabContext, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(40.dp)

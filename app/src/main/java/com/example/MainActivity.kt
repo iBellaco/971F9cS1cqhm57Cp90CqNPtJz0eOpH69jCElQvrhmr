@@ -1,6 +1,11 @@
 package com.example
 
 import android.content.Context
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import android.os.Bundle
 
 import androidx.activity.ComponentActivity
@@ -17,6 +22,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+
+import androidx.compose.foundation.background
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.util.LocalLanguage
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +49,7 @@ import com.example.ui.components.AppUpdateDialog
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
+import com.example.ui.screens.OnboardingScreen
 import com.example.ui.screens.MetaScreenMode
 import com.example.ui.screens.MetaAndDraftScreen
 import com.example.ui.theme.HextechDarkBg
@@ -46,6 +57,7 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.AppThemeManager
+import com.example.ui.theme.TextSecondary
 import com.example.util.tr
 import com.example.util.AppUpdateManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +68,7 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.*
 enum class AppScreen {
+    ONBOARDING,
     LOGIN,
     LANGUAGE_SELECTION,
     MAIN,
@@ -63,11 +76,34 @@ enum class AppScreen {
     META
 }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission is granted
+        } else {
+            // Permission is denied
+        }
+    }
+
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // FCM SDK (and your app) can post notifications.
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppThemeManager.init(this)
+                AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
+        askNotificationPermission()
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -103,9 +139,10 @@ fun DashboardScreen(
     currentLanguage: String,
     onLanguageChange: (String) -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { 5 })
     var showExitDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     if (showExitDialog) {
         com.example.ui.components.ExitConfirmationDialog(
@@ -118,10 +155,10 @@ fun DashboardScreen(
     }
 
     BackHandler(enabled = true) {
-        if (selectedTab == 0) {
+        if (pagerState.currentPage == 0) {
             showExitDialog = true
         } else {
-            selectedTab = 0
+            coroutineScope.launch { pagerState.animateScrollToPage(0) }
         }
     }
 
@@ -141,8 +178,8 @@ fun DashboardScreen(
             ) {
                 // 1. Inicio
                 NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
+                    selected = pagerState.currentPage == 0,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                     icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
                     label = { Text(tr("Inicio")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -155,8 +192,8 @@ fun DashboardScreen(
                 )
                 // 2. Selección (Drafting)
                 NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
+                    selected = pagerState.currentPage == 1,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                     icon = { Icon(Icons.Default.Groups, contentDescription = "Selección") },
                     label = { Text(tr("Selección")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -169,8 +206,8 @@ fun DashboardScreen(
                 )
                 // 3. Tier List
                 NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
+                    selected = pagerState.currentPage == 2,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                     icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
                     label = { Text(tr("Tier List")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -183,8 +220,8 @@ fun DashboardScreen(
                 )
                 // 4. Catálogo (Objetos, Runas, Hechizos)
                 NavigationBarItem(
-                    selected = selectedTab == 3,
-                    onClick = { selectedTab = 3 },
+                    selected = pagerState.currentPage == 3,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Catálogo") },
                     label = { Text(tr("Catálogo")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -197,8 +234,8 @@ fun DashboardScreen(
                 )
                 // 5. Usuario
                 NavigationBarItem(
-                    selected = selectedTab == 4,
-                    onClick = { selectedTab = 4 },
+                    selected = pagerState.currentPage == 4,
+                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                     icon = { Icon(Icons.Default.Person, contentDescription = "Usuario") },
                     label = { Text(tr("Usuario")) },
                     colors = NavigationBarItemDefaults.colors(
@@ -213,12 +250,17 @@ fun DashboardScreen(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            when (selectedTab) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = true
+            ) { page ->
+                when (page) {
                 0 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToMeta = { selectedTab = 2 },
-                        onNavigateToLogin = { selectedTab = 4 },
+                        onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
+                        onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
                         onMainRoleChange = onMainRoleChange,
                         secondRole = secondRole,
@@ -233,21 +275,21 @@ fun DashboardScreen(
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.DRAFTING,
                         userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 0 }
+                        onNavigateBack = { coroutineScope.launch { pagerState.animateScrollToPage(0) } }
                     )
                 }
                 2 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.TIER_LIST,
                         userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 0 }
+                        onNavigateBack = { coroutineScope.launch { pagerState.animateScrollToPage(0) } }
                     )
                 }
                 3 -> {
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.CATALOG,
                         userMainRole = mainRole,
-                        onNavigateBack = { selectedTab = 0 }
+                        onNavigateBack = { coroutineScope.launch { pagerState.animateScrollToPage(0) } }
                     )
                 }
                 4 -> {
@@ -256,8 +298,8 @@ fun DashboardScreen(
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToMeta = { selectedTab = 2 },
-                        onNavigateToLogin = { selectedTab = 4 },
+                        onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
+                        onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
                         onMainRoleChange = onMainRoleChange,
                         secondRole = secondRole,
@@ -269,6 +311,7 @@ fun DashboardScreen(
                     )
                 }
             }
+            } // HorizontalPager
         }
     }
 }
@@ -279,9 +322,15 @@ fun DraftingApp() {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     var isLanguageSet by remember { mutableStateOf(sharedPrefs.getBoolean("is_language_set", false)) }
-
+    var hasSeenOnboarding by remember { mutableStateOf(sharedPrefs.getBoolean("has_seen_onboarding", false)) }
     var currentScreen by remember { 
-        mutableStateOf(if (isLanguageSet) AppScreen.MAIN else AppScreen.LANGUAGE_SELECTION) 
+        mutableStateOf(
+            when {
+                !isLanguageSet -> AppScreen.LANGUAGE_SELECTION
+                !hasSeenOnboarding -> AppScreen.ONBOARDING
+                else -> AppScreen.MAIN
+            }
+        ) 
     }
     
     val coroutineScope = rememberCoroutineScope()
@@ -289,6 +338,7 @@ fun DraftingApp() {
     var secondRole by remember { mutableStateOf(LaneRole.MID) }
     var autofillRole by remember { mutableStateOf(LaneRole.SUPPORT) }
     val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
+    val isBanned by com.example.util.SubscriptionManager.isBanned.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         // Inicializar listado maestro de campeones desde assets JSON
@@ -304,6 +354,22 @@ fun DraftingApp() {
     var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
 
     CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
+        if (isBanned) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(HextechDarkBg),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+                    Icon(Icons.Default.Block, contentDescription = null, tint = Color.Red, modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Cuenta Suspendida", color = Color.Red, fontSize = 24.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Tu acceso ha sido revocado permanentemente. Contacta con soporte si crees que esto es un error.", color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                }
+            }
+            return@CompositionLocalProvider
+        }
+        
         // Modal de Alerta de Actualización Disponible con opción de descarga directa
         activeUpdateInfo?.let { update ->
             if (update.isUpdateAvailable) {
@@ -336,6 +402,15 @@ fun DraftingApp() {
         when (screen) {
             AppScreen.LOGIN -> {
             }
+                        AppScreen.ONBOARDING -> {
+                OnboardingScreen(
+                    onFinish = {
+                        sharedPrefs.edit().putBoolean("has_seen_onboarding", true).apply()
+                        hasSeenOnboarding = true
+                        currentScreen = AppScreen.MAIN
+                    }
+                )
+            }
             AppScreen.LANGUAGE_SELECTION -> {
                 LanguageSelectionScreen(
                     onLanguageSelected = { langCode ->
@@ -345,7 +420,11 @@ fun DraftingApp() {
                             .apply()
                         isLanguageSet = true
                         selectedLanguage = langCode
-                        currentScreen = AppScreen.MAIN
+                        if (!hasSeenOnboarding) {
+                            currentScreen = AppScreen.ONBOARDING
+                        } else {
+                            currentScreen = AppScreen.MAIN
+                        }
                         // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
                         coroutineScope.launch {
                             AppUpdateManager.checkForUpdates(context, true)

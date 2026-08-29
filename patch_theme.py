@@ -1,27 +1,34 @@
 import re
 
-with open('app/src/main/java/com/example/ui/theme/Theme.kt', 'r', encoding='utf-8') as f:
-    content = f.read()
+with open('app/src/main/java/com/example/ui/theme/Theme.kt', 'r') as f:
+    text = f.read()
 
-# Make surface and surfaceVariant semi-transparent in both dark and light schemes
-dark_scheme = r'''surface = HextechSurface,
-            onSurface = TextPrimary,
-            surfaceVariant = HextechSurfaceVariant,'''
-dark_scheme_new = r'''surface = HextechSurface.copy(alpha = 0.65f),
-            onSurface = TextPrimary,
-            surfaceVariant = HextechSurfaceVariant.copy(alpha = 0.65f),'''
+theme_logic_old = """    val theme = AppThemeManager.currentTheme
+    val colorScheme = if (theme.isDark) {"""
 
-light_scheme = r'''surface = HextechSurface,
-            onSurface = TextPrimary,
-            surfaceVariant = HextechSurfaceVariant,'''
-light_scheme_new = r'''surface = HextechSurface.copy(alpha = 0.85f),
-            onSurface = TextPrimary,
-            surfaceVariant = HextechSurfaceVariant.copy(alpha = 0.85f),'''
+theme_logic_new = """    val isPremium by com.example.util.SubscriptionManager.isPremium.androidx.lifecycle.compose.collectAsStateWithLifecycle(initialValue = false)
+    val isSystemDark = isSystemInDarkTheme()
+    
+    // Si no es premium, forzamos sincronización con sistema y sobreescribimos el tema elegido
+    val effectiveTheme = if (!isPremium) {
+        if (isSystemDark) AppTheme.HEXTECH else AppTheme.LIGHT_HEXTECH
+    } else {
+        AppThemeManager.currentTheme
+    }
 
-# They are identical matches, let's just do a global replace for HextechSurface, and HextechSurfaceVariant in color scheme definitions
-content = content.replace("surface = HextechSurface,", "surface = HextechSurface.copy(alpha = if (theme.isDark) 0.6f else 0.85f),")
-content = content.replace("surfaceVariant = HextechSurfaceVariant,", "surfaceVariant = HextechSurfaceVariant.copy(alpha = if (theme.isDark) 0.6f else 0.85f),")
+    val colorScheme = if (effectiveTheme.isDark) {"""
 
-with open('app/src/main/java/com/example/ui/theme/Theme.kt', 'w', encoding='utf-8') as f:
-    f.write(content)
+text = text.replace(theme_logic_old, theme_logic_new)
 
+# Add imports for collectAsStateWithLifecycle
+if 'import androidx.lifecycle.compose.collectAsStateWithLifecycle' not in text:
+    text = text.replace('import androidx.compose.runtime.Composable', 'import androidx.compose.runtime.Composable\nimport androidx.compose.runtime.getValue\nimport androidx.lifecycle.compose.collectAsStateWithLifecycle')
+
+# Fix the collectAsStateWithLifecycle package
+text = text.replace('.androidx.lifecycle.compose.collectAsStateWithLifecycle', '.collectAsStateWithLifecycle')
+
+# Fix surface logic to use effectiveTheme
+text = text.replace('theme.isDark', 'effectiveTheme.isDark')
+
+with open('app/src/main/java/com/example/ui/theme/Theme.kt', 'w') as f:
+    f.write(text)

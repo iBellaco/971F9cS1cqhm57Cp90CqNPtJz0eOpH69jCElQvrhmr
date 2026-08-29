@@ -5,6 +5,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.util.tr
 import androidx.compose.ui.graphics.Color
 
@@ -14,6 +16,19 @@ fun MyApplicationTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle(initialValue = false)
+    val isSystemDark = isSystemInDarkTheme()
+    
+    androidx.compose.runtime.LaunchedEffect(isSystemDark, isPremium) {
+        if (!isPremium) {
+            val forcedTheme = if (isSystemDark) AppTheme.HEXTECH else AppTheme.LIGHT_HEXTECH
+            if (AppThemeManager.currentTheme != forcedTheme) {
+                AppThemeManager.setTheme(forcedTheme, null)
+            }
+            AppThemeManager.setNavBarOption(NavBarColorOption.THEME_AUTO, null)
+        }
+    }
+
     val theme = AppThemeManager.currentTheme
     val colorScheme = if (theme.isDark) {
         darkColorScheme(

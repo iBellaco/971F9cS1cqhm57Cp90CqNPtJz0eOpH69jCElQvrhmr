@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
@@ -345,29 +346,29 @@ fun DraftHistoryScreen(
                             shape = CircleShape,
                             color = HextechSurface,
                             border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
-                            modifier = Modifier.size(72.dp)
+                            modifier = Modifier.size(100.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    imageVector = Icons.Default.History,
+                                    imageVector = Icons.Default.Description,
                                     contentDescription = null,
                                     tint = HextechGold,
-                                    modifier = Modifier.size(36.dp)
+                                    modifier = Modifier.size(48.dp)
                                 )
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = if (draftsList.isEmpty()) tr("No tienes drafts guardados aún") else tr("No se encontraron partidas con ese filtro"),
+                            text = if (draftsList.isEmpty()) tr("Tu historial está limpio.") else tr("No se encontraron partidas con ese filtro"),
                             color = TextPrimary,
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = if (draftsList.isEmpty())
-                                tr("Cuando analices o elijas una composición en Selección de Campeones, toca 'Guardar Draft' para registrarla aquí y evaluar tu progreso.")
+                                tr("Ve al Asistente de Draft, crea tu primera composición y guárdala para analizarla después.")
                             else
                                 tr("Intenta cambiar el término de búsqueda o restablecer los filtros de resultado y rol."),
                             color = TextMuted,
