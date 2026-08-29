@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import com.example.util.SubscriptionManager
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Palette
 import com.example.ui.theme.DangerRed
@@ -31,7 +34,12 @@ fun AuthFlowContainer(
     viewModel: AuthViewModel = viewModel()
 ) {
     val auth = AuthManager.getAuth()
+    val context = LocalContext.current
     var userEmail by remember { mutableStateOf(auth?.currentUser?.email) }
+    
+    LaunchedEffect(userEmail) {
+        SubscriptionManager.init(context)
+    }
     
     // Check if user is already authenticated
     if (userEmail != null) {
@@ -50,6 +58,7 @@ fun AuthFlowContainer(
     // Triggered when login/register succeeds to force a recomposition with the new user state
     val onAuthSuccess: () -> Unit = {
         userEmail = auth?.currentUser?.email
+        SubscriptionManager.init(context)
     }
 
     Box(
@@ -103,15 +112,21 @@ fun AuthFlowContainer(
 
 @Composable
 fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
-    // Para propositos de demostracion, agregamos un toggle para simular Premium.
-    // En produccion esto vendria del Backend/Purchases.
-    var isPremium by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val isPremium by SubscriptionManager.isPremium.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showPlansDialog by remember { mutableStateOf(false) }
 
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
             isPremium = isPremium,
             onDismiss = { showThemeDialog = false }
+        )
+    }
+
+    if (showPlansDialog) {
+        com.example.ui.components.SubscriptionPlansBottomSheet(
+            onDismiss = { showPlansDialog = false }
         )
     }
 
@@ -171,7 +186,7 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
                     }
                     Switch(
                         checked = isPremium,
-                        onCheckedChange = { isPremium = it },
+                        onCheckedChange = { SubscriptionManager.setPremium(context, it) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = com.example.ui.theme.HextechDarkBg,
                             checkedTrackColor = com.example.ui.theme.HextechGold
@@ -180,7 +195,13 @@ fun AuthenticatedProfilePanel(email: String, onSignOut: () -> Unit) {
                 }
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            TextButton(onClick = { showPlansDialog = true }) {
+                Text("Comparar Planes", color = com.example.ui.theme.HextechCyan, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = { showThemeDialog = true },
