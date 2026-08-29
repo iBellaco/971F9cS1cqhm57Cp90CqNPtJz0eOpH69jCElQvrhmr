@@ -82,6 +82,40 @@ jobs:
           mkdir -p ~/.android
           cp ./debug.keystore ~/.android/debug.keystore 2>/dev/null || true
 
+      - name: Create google-services.json
+        run: |
+          cat << 'EOF' > app/google-services.json
+          {
+            "project_info": {
+              "project_number": "500606030430",
+              "project_id": "wild-rift-drafting",
+              "storage_bucket": "wild-rift-drafting.firebasestorage.app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:500606030430:android:d32178b0d793e97aa7dacf",
+                  "android_client_info": {
+                    "package_name": "com.aistudio.wildriftdrafting.wrdftx"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDFUZjKmw2K5IJT-p6E6vBvQ9Ons6xUhck"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+
       - name: Build Debug APK
         run: |
           gradle :app:assembleDebug
