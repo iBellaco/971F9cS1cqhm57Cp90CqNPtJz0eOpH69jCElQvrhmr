@@ -38,6 +38,17 @@ import com.example.ui.theme.*
 import com.example.util.SubscriptionManager
 import com.example.util.tr
 
+fun getRarityColor(rarity: String): Color {
+    return when (rarity.lowercase()) {
+        "común", "comun" -> Color(0xFF9E9E9E)
+        "raro" -> Color(0xFF3B82F6) // HextechCyan-like
+        "épico", "epico" -> Color(0xFFA855F7) // Purple
+        "legendario" -> Color(0xFFEF4444) // Red
+        "mítico", "mitico" -> Color(0xFFEC4899) // Pink
+        else -> HextechGold
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarSelectionBottomSheet(
@@ -54,31 +65,15 @@ fun AvatarSelectionBottomSheet(
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
 
-            val filterOptions = listOf(
-        "Todos",
-        "Jonia",
-        "Zaun / Piltóver",
-        "Demacia / Noxus",
-        "Freljord / Shurima",
-        "Runaterra / Varios"
-    )
+            val filterOptions = remember {
+        listOf("Todos") + AvatarCatalog.avatars.map { it.region }.distinct().sorted()
+    }
 
     val groupedAvatars = remember(selectedFilter) {
-        val filtered = when (selectedFilter) {
-            "Jonia" -> AvatarCatalog.avatars.filter { it.region.equals("Jonia", ignoreCase = true) }
-            "Zaun / Piltóver" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Zaun", ignoreCase = true) || it.region.contains("Piltóver", ignoreCase = true)
-            }
-            "Demacia / Noxus" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Demacia", ignoreCase = true) || it.region.contains("Noxus", ignoreCase = true)
-            }
-            "Freljord / Shurima" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Freljord", ignoreCase = true) || it.region.contains("Shurima", ignoreCase = true)
-            }
-            "Runaterra / Varios" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true)
-            }
-            else -> AvatarCatalog.avatars
+        val filtered = if (selectedFilter == "Todos") {
+            AvatarCatalog.avatars
+        } else {
+            AvatarCatalog.avatars.filter { it.region.equals(selectedFilter, ignoreCase = true) }
         }
         filtered.groupBy { it.region }.toSortedMap()
     }
@@ -151,10 +146,11 @@ fun AvatarSelectionBottomSheet(
 
             // Current Equipped Avatar Banner
             val currentAvatar = AvatarCatalog.getAvatarById(currentAvatarId)
+            val currentRarityColorTop = getRarityColor(currentAvatar.rarity)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                    .border(1.dp, currentRarityColorTop.copy(alpha = 0.7f), RoundedCornerShape(12.dp)),
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechSurface)
             ) {
@@ -178,15 +174,16 @@ fun AvatarSelectionBottomSheet(
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.width(6.dp))
+                            val currentRarityColor = getRarityColor(currentAvatar.rarity)
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(HextechGold.copy(alpha = 0.2f))
+                                    .background(currentRarityColor.copy(alpha = 0.2f))
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     text = currentAvatar.rarity.uppercase(),
-                                    color = HextechGold,
+                                    color = currentRarityColor,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.ExtraBold
                                 )
@@ -311,11 +308,8 @@ fun AvatarSelectionBottomSheet(
                     val isGifted = unlockedAvatars.contains(avatar.id)
                     val canEquip = isPremium || userRole == "admin" || avatar.isDefault || isGifted
 
-                    val parsedBorder = try {
-                        Color(android.graphics.Color.parseColor(avatar.borderHex))
-                    } catch (e: Exception) {
-                        HextechGold
-                    }
+                    val rarityColor = getRarityColor(avatar.rarity)
+                    val parsedBorder = rarityColor
 
                     Card(
                         modifier = Modifier
@@ -340,12 +334,12 @@ fun AvatarSelectionBottomSheet(
                             }
                             .border(
                                 width = if (isEquipped) 2.dp else 1.dp,
-                                color = if (isEquipped) HextechGold else if (canEquip) parsedBorder.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.4f),
+                                color = if (isEquipped) rarityColor else if (canEquip) rarityColor.copy(alpha = 0.8f) else HextechCardBorder.copy(alpha = 0.4f),
                                 shape = RoundedCornerShape(12.dp)
                             ),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isEquipped) HextechGold.copy(alpha = 0.12f) else if (!canEquip) HextechSurface.copy(alpha = 0.5f) else HextechSurface
+                            containerColor = if (isEquipped) rarityColor.copy(alpha = 0.15f) else if (!canEquip) HextechSurface.copy(alpha = 0.5f) else HextechSurface
                         )
                     ) {
                         Column(
