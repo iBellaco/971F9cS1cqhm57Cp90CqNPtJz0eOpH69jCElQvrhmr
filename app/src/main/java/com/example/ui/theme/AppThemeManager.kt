@@ -159,28 +159,6 @@ enum class AppTheme(
         textSecondary = Color(0xFFD4B483),
         textMuted = Color(0xFF9E8055),
         isDark = true
-    ),
-    LIGHT_HEXTECH(
-        id = "LIGHT_HEXTECH",
-        titleKey = "Hextech Día (Claro)",
-        regionTag = "Modo Claro",
-        descKey = "Interfaz diurna de alto contraste con blanco puro y acentos dorados.",
-        background = Color(0xFFF1F5F9),
-        surface = Color(0xFFFFFFFF),
-        surfaceVariant = Color(0xFFE2E8F0),
-        cardBorder = Color(0xFFCBD5E1),
-        primary = Color(0xFF0284C7),
-        primaryLight = Color(0xFF0369A1),
-        primaryDark = Color(0xFF075985),
-        primaryGlow = Color(0xFF38BDF8),
-        secondary = Color(0xFFB45309),
-        secondaryLight = Color(0xFFD97706),
-        secondaryDark = Color(0xFF78350F),
-        secondaryGlow = Color(0xFFF59E0B),
-        textPrimary = Color(0xFF0F172A),
-        textSecondary = Color(0xFF334155),
-        textMuted = Color(0xFF64748B),
-        isDark = false
     )
 }
 
@@ -320,12 +298,8 @@ object AppThemeManager {
         }
     }
 
-    fun toggleLightDark(context: Context? = null) {
-        if (currentTheme == AppTheme.LIGHT_HEXTECH) {
-            setTheme(AppTheme.HEXTECH, context)
-        } else {
-            setTheme(AppTheme.LIGHT_HEXTECH, context)
-        }
+        fun toggleLightDark(context: Context? = null) {
+        // Now a no-op, since light mode is removed
     }
 
     fun getNavBarBackgroundColor(): Color {
@@ -343,6 +317,7 @@ object AppThemeManager {
             currentNavBarOption.accentColor
         }
     }
+
 
     fun getNavBarIndicatorColor(): Color {
         val accent = getNavBarAccentColor()

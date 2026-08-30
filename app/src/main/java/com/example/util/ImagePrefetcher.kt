@@ -74,7 +74,7 @@ object ImagePrefetcher {
     fun cancelPrefetch() {
         if (_isDownloading.value) {
             activeJob?.cancel()
-            addLog("🚫 Descarga pausada por el usuario.")
+            addLog(" Descarga pausada por el usuario.")
             _isDownloading.value = false
             //_downloadProgress.value = 0f
         //_downloadedMb.value = 0f
@@ -186,7 +186,7 @@ object ImagePrefetcher {
             if (totalDownloadedMb > 0) {
                 addLog("Total descargado: ${String.format("%.2f", totalDownloadedMb)} MB")
             }
-            addLog("✅ Descarga completada con éxito. (${downloaded} nuevos, ${skipped} en caché)")
+            addLog(" Descarga completada con éxito. (${downloaded} nuevos, ${skipped} en caché)")
             _isDownloading.value = false
             _isFullyDownloaded.value = true
 

@@ -232,8 +232,8 @@ fun DraftHistoryScreen(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text("🏆 $victoriesCount " + tr("Vic."), color = Color(0xFF81C784), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                Text("💀 $defeatsCount " + tr("Derr."), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                Text(" $victoriesCount " + tr("Vic."), color = Color(0xFF81C784), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                Text(" $defeatsCount " + tr("Derr."), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -311,7 +311,7 @@ fun DraftHistoryScreen(
                     FilterChip(
                         selected = selectedResultFilter == "VICTORY",
                         onClick = { selectedResultFilter = if (selectedResultFilter == "VICTORY") null else "VICTORY" },
-                        label = { Text("🏆 " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
+                        label = { Text(" " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = Color(0xFF81C784),
                             selectedLabelColor = Color.Black
@@ -320,7 +320,7 @@ fun DraftHistoryScreen(
                     FilterChip(
                         selected = selectedResultFilter == "DEFEAT",
                         onClick = { selectedResultFilter = if (selectedResultFilter == "DEFEAT") null else "DEFEAT" },
-                        label = { Text("💀 " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
+                        label = { Text(" " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = DangerRed,
                             selectedLabelColor = Color.White
@@ -521,8 +521,8 @@ private fun SavedDraftCard(
         else -> HextechGold
     }
     val resultLabel = when (draft.matchResult.uppercase()) {
-        "VICTORY" -> "🏆 " + tr("Victoria")
-        "DEFEAT" -> "💀 " + tr("Derrota")
+        "VICTORY" -> " " + tr("Victoria")
+        "DEFEAT" -> " " + tr("Derrota")
         else -> "⏳ " + tr("Pendiente")
     }
 
@@ -587,14 +587,14 @@ private fun SavedDraftCard(
                         modifier = Modifier.background(HextechSurface)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("🏆 " + tr("Victoria"), color = Color(0xFF81C784), fontWeight = FontWeight.Bold) },
+                            text = { Text(" " + tr("Victoria"), color = Color(0xFF81C784), fontWeight = FontWeight.Bold) },
                             onClick = {
                                 onUpdateResult("VICTORY")
                                 resultMenuExpanded = false
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("💀 " + tr("Derrota"), color = DangerRed, fontWeight = FontWeight.Bold) },
+                            text = { Text(" " + tr("Derrota"), color = DangerRed, fontWeight = FontWeight.Bold) },
                             onClick = {
                                 onUpdateResult("DEFEAT")
                                 resultMenuExpanded = false
@@ -684,7 +684,7 @@ private fun SavedDraftCard(
             if (draft.notes.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "📝 ${draft.notes}",
+                    text = " ${draft.notes}",
                     color = TextSecondary,
                     fontSize = 11.5.sp,
                     maxLines = 1,

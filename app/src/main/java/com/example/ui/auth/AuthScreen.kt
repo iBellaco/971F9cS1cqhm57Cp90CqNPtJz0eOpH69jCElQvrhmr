@@ -122,6 +122,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     val context = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
+    val savedUserName by SubscriptionManager.userName.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
@@ -162,7 +163,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 subtitle = "Sesión iniciada correctamente"
             )
             
-                        val displayName = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: "Usuario"
+                        val displayName = savedUserName.takeIf { it.isNotBlank() } ?: user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: "Usuario"
             Text(
                 text = displayName,
                 color = com.example.ui.theme.HextechGold,

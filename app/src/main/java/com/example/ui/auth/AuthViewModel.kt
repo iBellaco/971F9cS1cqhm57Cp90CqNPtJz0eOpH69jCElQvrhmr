@@ -129,7 +129,11 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                auth.createUserWithEmailAndPassword(_email.value, _password.value).await()
+                val result = auth.createUserWithEmailAndPassword(_email.value, _password.value).await()
+                val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                    .setDisplayName(_username.value)
+                    .build()
+                result.user?.updateProfile(profileUpdates)?.await()
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
                 val errorMsg = e.localizedMessage ?: "Error al registrar la cuenta."

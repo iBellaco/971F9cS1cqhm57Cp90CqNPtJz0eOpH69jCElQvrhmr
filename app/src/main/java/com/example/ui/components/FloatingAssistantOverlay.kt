@@ -462,7 +462,7 @@ private fun OverlayRunesTabContent(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "🔮 " + tr("Runa Clave Recomendada"),
+                        text = " " + tr("Runa Clave Recomendada"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -667,7 +667,7 @@ private fun OverlaySpellsTabContent(
             ) {
                 Column(modifier = Modifier.padding(10.dp)) {
                     Text(
-                        text = "⚡ " + tr("Hechizos de Invocador Recomendados"),
+                        text = " " + tr("Hechizos de Invocador Recomendados"),
                         color = HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -700,7 +700,7 @@ private fun OverlaySpellsTabContent(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "🎯 " + tr("Prioridad de Habilidades"),
+                        text = " " + tr("Prioridad de Habilidades"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold

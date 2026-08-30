@@ -162,7 +162,7 @@ fun DownloadProgressWidget() {
                                         rawLog.startsWith("En caché: ") -> tr("En caché") + ": " + rawLog.substringAfter("En caché: ")
                                         rawLog.startsWith("Reintentando: ") -> tr("Reintentando") + ": " + rawLog.substringAfter("Reintentando: ")
                                         rawLog.startsWith("Total de elementos: ") -> tr("Total de elementos") + ": " + rawLog.substringAfter("Total de elementos: ")
-                                        rawLog.startsWith("✅ Descarga completada con éxito") -> tr("Descarga completada")
+                                        rawLog.startsWith(" Descarga completada con éxito") -> tr("Descarga completada")
                                         else -> tr(rawLog)
                                     }
                                     Text(

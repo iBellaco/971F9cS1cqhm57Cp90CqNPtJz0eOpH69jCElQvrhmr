@@ -267,7 +267,7 @@ fun SaveDraftDialog(
                                 .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "🏆", fontSize = 20.sp)
+                            Text(text = "", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Victoria"),
@@ -301,7 +301,7 @@ fun SaveDraftDialog(
                                 .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "💀", fontSize = 20.sp)
+                            Text(text = "", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Derrota"),

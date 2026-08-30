@@ -1117,10 +1117,10 @@ private fun ChampionsCatalogTab(
 // TAB 2: TIER LIST OFICIAL WILD RIFT (POR LÍNEAS Y TIERS)
 // ====================================================================
 enum class TierSortOption(val displayName: String, val shortLabel: String) {
-    BY_TIER("Por Tier", "Tier 👑"),
-    WIN_RATE("Win Rate", "Win Rate 📈"),
-    PICK_RATE("Pick Rate", "Pick Rate 🎯"),
-    BAN_RATE("Ban Rate", "Ban Rate 🚫")
+    BY_TIER("Por Tier", "Tier "),
+    WIN_RATE("Win Rate", "Win Rate "),
+    PICK_RATE("Pick Rate", "Pick Rate "),
+    BAN_RATE("Ban Rate", "Ban Rate ")
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -1859,7 +1859,7 @@ private fun selectedRuneItemModal(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "🟡 ${itm.goldCost} ${tr("Oro")}",
+                                text = " ${itm.goldCost} ${tr("Oro")}",
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1934,7 +1934,7 @@ private fun selectedRuneItemModal(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text("💡", fontSize = 13.sp)
+                                    Text("", fontSize = 13.sp)
                                     Text(
                                         text = tr("Consejos del Coach:"),
                                         color = HextechGoldLight,
@@ -2059,7 +2059,7 @@ private fun ItemListCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(localizedName, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
-                    Text("🟡 ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                    Text(" ${item.goldCost} G", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                 }
                 Text(tr(item.category), color = HextechCyan, fontSize = 10.5.sp)
                 if (statsList.isNotEmpty()) {
@@ -2102,7 +2102,7 @@ private fun ItemListCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text("💡", fontSize = 10.sp)
+                        Text("", fontSize = 10.sp)
                         Text(
                             text = localizedCoachTip,
                             color = HextechGoldLight.copy(alpha = 0.9f),
@@ -2560,7 +2560,7 @@ private fun RunesTab() {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr("💡 Consejo del Coach:"),
+                        text = tr(" Consejo del Coach:"),
                         color = HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -2568,29 +2568,29 @@ private fun RunesTab() {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = tr(when (rune.name.lowercase()) {
-                            "electrocutar" -> "💡 Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
-                            "cosecha oscura" -> "💡 Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
-                            "fortalecimiento" -> "💡 Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
-                            "compás letal", "cadencia letal" -> "💡 Fundamental en hypercarries como Jinx o Vayne para dominar las peleas largas."
-                            "pies veloces" -> "💡 Útil para sobrevivir líneas difíciles gracias a su curación y movilidad al kitear."
-                            "conquistador" -> "💡 La mejor opción para luchadores y duelistas que buscan intercambios prolongados (ej. Darius, Riven)."
-                            "garras del inmortal" -> "💡 Indispensable en tanques y colosos para tener sustain y escalar vida máxima."
-                            "guardián" -> "💡 Selecciona esta runa en soportes protectores (ej. Braum, Lulu) para mitigar burst enemigo."
-                            "aery", "invocar a aery" -> "💡 Muy versátil para soportes encantadores o magos de pokeo constante (ej. Karma, Orianna)."
-                            "cometa arcano" -> "💡 Ideal para magos de artillería que pokean a distancia (ej. Ziggs, Lux)."
-                            "irrupción de fase" -> "💡 Perfecta para magos de combo que necesitan reposicionarse rápido (ej. Orianna, Vladimir)."
-                            "primer golpe" -> "💡 Útil en asesinos o magos de ráfaga para escalar en oro rápidamente y explotar objetivos."
-                            "soberano gélido" -> "💡 Excelente para soportes de iniciación (ej. Leona, Nautilus) para potenciar su CC."
-                            "réplica" -> "💡 Runa perfecta para tanques de iniciación masiva (ej. Amumu, Alistar) que necesitan resistir el focus enemigo post-combo."
-                            "triunfo" -> "💡 Ideal en peleas de equipo cerradas. Te recompensa con vida vital tras cada eliminación o asistencia."
-                            "fervor de batalla" -> "💡 Útil en intercambios sostenidos cortos, incrementa tu daño para asegurar duelos tempranos."
-                            "derribado" -> "💡 Obligatorio si el equipo enemigo tiene muchos tanques y campeones con mucha vida extra."
-                            "golpe de gracia" -> "💡 Para asesinos o ADC que buscan asegurar la baja (ejecutar) a enemigos que intenten escapar a baja vida."
-                            "leyenda: presteza" -> "💡 Escoge esta runa si priorizas maximizar tu DPS (daño por segundo) a través de ataques básicos rápidos."
-                            "leyenda: tenacidad" -> "💡 Vital si el equipo enemigo está lleno de control de masas (Stun, Inmovilización, etc). Evitará que te eliminen encadenado."
-                            "leyenda: linaje" -> "💡 Si tu campeón no armará Robo de Vida temprano pero necesita sustento para sobrevivir y farmear."
-                            "último esfuerzo" -> "💡 Excelente en duelistas como Olaf o Tryndamere que se vuelven más letales cuando se acercan a la muerte."
-                            else -> "💡 Runa situacional: Úsala para complementar el estilo de juego de tu campeón frente a esta composición específica."
+                            "electrocutar" -> " Ideal para combos cortos de asesinos o magos que buscan estallar a un rival rápido."
+                            "cosecha oscura" -> " Perfecto para campeones que escalan y aseguran asesinatos en peleas largas (ej. Katarina, Khazix)."
+                            "fortalecimiento" -> " Excelente para tiradores o luchadores que dependen de ataques básicos rápidos."
+                            "compás letal", "cadencia letal" -> " Fundamental en hypercarries como Jinx o Vayne para dominar las peleas largas."
+                            "pies veloces" -> " Útil para sobrevivir líneas difíciles gracias a su curación y movilidad al kitear."
+                            "conquistador" -> " La mejor opción para luchadores y duelistas que buscan intercambios prolongados (ej. Darius, Riven)."
+                            "garras del inmortal" -> " Indispensable en tanques y colosos para tener sustain y escalar vida máxima."
+                            "guardián" -> " Selecciona esta runa en soportes protectores (ej. Braum, Lulu) para mitigar burst enemigo."
+                            "aery", "invocar a aery" -> " Muy versátil para soportes encantadores o magos de pokeo constante (ej. Karma, Orianna)."
+                            "cometa arcano" -> " Ideal para magos de artillería que pokean a distancia (ej. Ziggs, Lux)."
+                            "irrupción de fase" -> " Perfecta para magos de combo que necesitan reposicionarse rápido (ej. Orianna, Vladimir)."
+                            "primer golpe" -> " Útil en asesinos o magos de ráfaga para escalar en oro rápidamente y explotar objetivos."
+                            "soberano gélido" -> " Excelente para soportes de iniciación (ej. Leona, Nautilus) para potenciar su CC."
+                            "réplica" -> " Runa perfecta para tanques de iniciación masiva (ej. Amumu, Alistar) que necesitan resistir el focus enemigo post-combo."
+                            "triunfo" -> " Ideal en peleas de equipo cerradas. Te recompensa con vida vital tras cada eliminación o asistencia."
+                            "fervor de batalla" -> " Útil en intercambios sostenidos cortos, incrementa tu daño para asegurar duelos tempranos."
+                            "derribado" -> " Obligatorio si el equipo enemigo tiene muchos tanques y campeones con mucha vida extra."
+                            "golpe de gracia" -> " Para asesinos o ADC que buscan asegurar la baja (ejecutar) a enemigos que intenten escapar a baja vida."
+                            "leyenda: presteza" -> " Escoge esta runa si priorizas maximizar tu DPS (daño por segundo) a través de ataques básicos rápidos."
+                            "leyenda: tenacidad" -> " Vital si el equipo enemigo está lleno de control de masas (Stun, Inmovilización, etc). Evitará que te eliminen encadenado."
+                            "leyenda: linaje" -> " Si tu campeón no armará Robo de Vida temprano pero necesita sustento para sobrevivir y farmear."
+                            "último esfuerzo" -> " Excelente en duelistas como Olaf o Tryndamere que se vuelven más letales cuando se acercan a la muerte."
+                            else -> " Runa situacional: Úsala para complementar el estilo de juego de tu campeón frente a esta composición específica."
                         }),
                         color = TextMuted,
                         fontSize = 11.5.sp,
@@ -2934,7 +2934,7 @@ private fun SpellsTab() {
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr("💡 Recomendación de Invocador:"),
+                        text = tr(" Recomendación de Invocador:"),
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -3058,8 +3058,8 @@ private fun DraftAnalysisTab(
     var isSavedRecently by remember { mutableStateOf(false) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
-    val victoryToastText = "🏆 " + tr("Draft registrado como Victoria")
-    val defeatToastText = "💀 " + tr("Draft registrado como Derrota")
+    val victoryToastText = " " + tr("Draft registrado como Victoria")
+    val defeatToastText = " " + tr("Draft registrado como Derrota")
 
     if (showSaveDraftDialog) {
         com.example.ui.components.SaveDraftDialog(
@@ -3085,7 +3085,7 @@ private fun DraftAnalysisTab(
                     val toastMsg = when (result) {
                         "VICTORY" -> victoryToastText
                         "DEFEAT" -> defeatToastText
-                        else -> "✅ $savedDraftToastText"
+                        else -> " $savedDraftToastText"
                     }
                     Toast.makeText(tabContext, toastMsg, Toast.LENGTH_SHORT).show()
                 }
@@ -3361,9 +3361,9 @@ private fun DraftAnalysisTab(
             val shouldChange = isOffRole || myEval.advantageBadge.contains("ATÍPICA") || (myEval.estimatedWinrate < 48.0) || (isDirectLaneWeakness && myEval.estimatedWinrate < 50.0)
             
             val recommendationText = when {
-                shouldChange -> tr("⚠️ Considera cambiarlo")
-                myEval.advantageBadge.contains("DOMINAS LÍNEA") || myEval.advantageBadge.contains("COUNTER") -> tr("⚡ Favorable en carril")
-                else -> tr("✅ Buena elección para tu línea")
+                shouldChange -> tr("️ Considera cambiarlo")
+                myEval.advantageBadge.contains("DOMINAS LÍNEA") || myEval.advantageBadge.contains("COUNTER") -> tr(" Favorable en carril")
+                else -> tr(" Buena elección para tu línea")
             }
             
             Card(
@@ -3423,7 +3423,7 @@ private fun DraftAnalysisTab(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = tr("🔮 Runas:") + " ${myEval.champion.recommendedRunes} • " + tr("Toca para ver build completa"),
+                        text = tr(" Runas:") + " ${myEval.champion.recommendedRunes} • " + tr("Toca para ver build completa"),
                         color = TextPrimary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -3454,7 +3454,7 @@ private fun DraftAnalysisTab(
 
         // Live Recommendations Header
         Text(
-            text = if (isFirstPick) tr("★ Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("★ Mejor Opción según tu Equipo y el Rival"),
+            text = if (isFirstPick) tr(" Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr(" Mejor Opción según tu Equipo y el Rival"),
             color = HextechGold,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold
@@ -3480,7 +3480,7 @@ private fun DraftAnalysisTab(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = if (isFirstPick) tr("👑 #1 RECOMENDACIÓN BLIND PICK") else tr("👑 #1 MEJOR ELECCIÓN TÁCTICA"),
+                            text = if (isFirstPick) tr(" #1 RECOMENDACIÓN BLIND PICK") else tr(" #1 MEJOR ELECCIÓN TÁCTICA"),
                             color = HextechGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Black
@@ -3546,7 +3546,7 @@ private fun DraftAnalysisTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = tr("🔮 Runas:") + " ${topPick.champion.recommendedRunes}",
+                            text = tr(" Runas:") + " ${topPick.champion.recommendedRunes}",
                             color = TextPrimary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
@@ -3682,7 +3682,7 @@ private fun TeamChampionSlot(
                         if (isMyPick) {
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "👑 TÚ",
+                                text = " TÚ",
                                 color = HextechGold,
                                 fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Black
@@ -4252,12 +4252,12 @@ private fun TierSelectionPanel(
                 Text(
                     text = if (currentRegion == "NA") {
                         val formatter = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
-                        "🟢 ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
+                        " ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
                     } else when (val s = syncState) {
                         is ChineseSyncState.Syncing -> tr("Sincronizando...")
-                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR") "🟢 ${tr("Sincronizado")} ${s.timestamp}" else "🟢 ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
-                        is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
-                        ChineseSyncState.Idle -> "🟢 ${lastSyncInfo.second}"
+                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR") " ${tr("Sincronizado")} ${s.timestamp}" else " ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                        is ChineseSyncState.Error -> "️ ${tr("Caché:")} ${lastSyncInfo.second}"
+                        ChineseSyncState.Idle -> " ${lastSyncInfo.second}"
                     },
                     color = if (currentRegion == "NA") Color(0xFF4CAF50) else when (syncState) {
                         is ChineseSyncState.Syncing -> HextechCyan

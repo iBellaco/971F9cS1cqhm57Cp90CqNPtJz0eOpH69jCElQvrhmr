@@ -21,7 +21,7 @@ fun MyApplicationTheme(
     
     androidx.compose.runtime.LaunchedEffect(isSystemDark, isPremium) {
         if (!isPremium) {
-            val forcedTheme = if (isSystemDark) AppTheme.HEXTECH else AppTheme.LIGHT_HEXTECH
+            val forcedTheme = AppTheme.HEXTECH
             if (AppThemeManager.currentTheme != forcedTheme) {
                 AppThemeManager.setTheme(forcedTheme, null)
             }

@@ -516,7 +516,7 @@ fun AdminFeedbackBottomSheet(
                 if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.BUGS) {
                     item {
                         StatusFilterChip(
-                            label = tr("👁️ Leídos"),
+                            label = tr("️ Leídos"),
                             count = when (currentCategoryTab) {
                                 FeedbackCategoryTab.ALL -> readCount
                                 FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_READ }
@@ -530,7 +530,7 @@ fun AdminFeedbackBottomSheet(
 
                     item {
                         StatusFilterChip(
-                            label = tr("✅ Solucionados"),
+                            label = tr(" Solucionados"),
                             count = when (currentCategoryTab) {
                                 FeedbackCategoryTab.ALL -> solvedCount
                                 FeedbackCategoryTab.BUGS -> bugList.count { val s = statusMap[it.id ?: "${it.title}_${it.createdAt}"]; s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED }
@@ -546,7 +546,7 @@ fun AdminFeedbackBottomSheet(
                 if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.SUGGESTIONS) {
                     item {
                         StatusFilterChip(
-                            label = tr("✨ Aceptadas"),
+                            label = tr(" Aceptadas"),
                             count = when (currentCategoryTab) {
                                 FeedbackCategoryTab.ALL -> acceptedCount
                                 FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_ACCEPTED }
@@ -560,7 +560,7 @@ fun AdminFeedbackBottomSheet(
 
                     item {
                         StatusFilterChip(
-                            label = tr("❌ Rechazadas"),
+                            label = tr(" Rechazadas"),
                             count = when (currentCategoryTab) {
                                 FeedbackCategoryTab.ALL -> rejectedCount
                                 FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_REJECTED }
@@ -620,7 +620,7 @@ fun AdminFeedbackBottomSheet(
                                 val res = FeedbackRepository.purgeOldReports(days = 7)
                                 isPurging = false
                                 if (res.isSuccess) {
-                                    Toast.makeText(context, "🧹 Purga de reportes >7 días completada", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, " Purga de reportes >7 días completada", Toast.LENGTH_SHORT).show()
                                     loadReports()
                                 } else {
                                     Toast.makeText(context, "Error al purgar: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
@@ -747,10 +747,10 @@ fun AdminFeedbackBottomSheet(
                                         }
                                     }
                                     val msg = when (newStatus) {
-                                        FeedbackRepository.STATUS_SOLVED -> "✅ Marcado como Solucionado"
-                                        FeedbackRepository.STATUS_READ -> "👁️ Marcado como Leído"
-                                        FeedbackRepository.STATUS_ACCEPTED -> "✨ Sugerencia Aceptada"
-                                        FeedbackRepository.STATUS_REJECTED -> "❌ Sugerencia Rechazada"
+                                        FeedbackRepository.STATUS_SOLVED -> " Marcado como Solucionado"
+                                        FeedbackRepository.STATUS_READ -> "️ Marcado como Leído"
+                                        FeedbackRepository.STATUS_ACCEPTED -> " Sugerencia Aceptada"
+                                        FeedbackRepository.STATUS_REJECTED -> " Sugerencia Rechazada"
                                         else -> "⏳ Marcado como Pendiente"
                                     }
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
@@ -767,7 +767,7 @@ fun AdminFeedbackBottomSheet(
                                         Fecha: ${report.createdAt ?: "N/A"}
                                     """.trimIndent()
                                     clipboard.setPrimaryClip(ClipData.newPlainText("Feedback Report", textToCopy))
-                                    Toast.makeText(context, "📋 Reporte copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, " Reporte copiado al portapapeles", Toast.LENGTH_SHORT).show()
                                 },
                                 onOpenImage = { bmp -> previewImageBitmap = bmp },
                                 onItemClick = { itemForDetail = it }
@@ -818,7 +818,7 @@ fun AdminFeedbackBottomSheet(
                                 val res = FeedbackRepository.deleteFeedback(id)
                                 isDeleting = false
                                 if (res.isSuccess) {
-                                    Toast.makeText(context, "🗑️ Elemento eliminado", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "️ Elemento eliminado", Toast.LENGTH_SHORT).show()
                                     reportToDelete = null
                                     loadReports()
                                 } else {
@@ -877,7 +877,7 @@ fun AdminFeedbackBottomSheet(
                             isDeleting = false
                             showClearAllConfirm = false
                             if (res.isSuccess) {
-                                Toast.makeText(context, "🗑️ Todos los reportes fueron eliminados", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "️ Todos los reportes fueron eliminados", Toast.LENGTH_SHORT).show()
                                 loadReports()
                             } else {
                                 Toast.makeText(context, "Error: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
@@ -1071,7 +1071,7 @@ fun AdminFeedbackBottomSheet(
                         .padding(bottom = 36.dp)
                 ) {
                     Text(
-                        text = tr("💡 Pellizca o usa los botones para hacer zoom y arrastrar\nToca la pantalla para ocultar los controles"),
+                        text = tr(" Pellizca o usa los botones para hacer zoom y arrastrar\nToca la pantalla para ocultar los controles"),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -1306,7 +1306,7 @@ private fun ComprehensiveFeedbackCard(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("Título", report.title))
-                        Toast.makeText(context, "📋 Título copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, " Título copiado al portapapeles", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.size(24.dp)
                 ) {
@@ -1358,7 +1358,7 @@ private fun ComprehensiveFeedbackCard(
                         onClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("Descripción", cleanDescription))
-                            Toast.makeText(context, "📋 Descripción copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, " Descripción copiada al portapapeles", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .size(24.dp)
@@ -1551,7 +1551,7 @@ private fun ComprehensiveFeedbackCard(
                                 onClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("Build Cruda", cleanDescription))
-                                    Toast.makeText(context, "📋 Build copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, " Build copiada al portapapeles", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier.size(22.dp)
                             ) {
@@ -1576,7 +1576,7 @@ private fun ComprehensiveFeedbackCard(
                             .clickable {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(ClipData.newPlainText("Dispositivo", cleanDeviceInfo))
-                                Toast.makeText(context, "📱 Dispositivo copiado", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, " Dispositivo copiado", Toast.LENGTH_SHORT).show()
                             }
                             .padding(vertical = 2.dp, horizontal = 4.dp)
                     ) {
@@ -1599,7 +1599,7 @@ private fun ComprehensiveFeedbackCard(
                             .clickable {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(ClipData.newPlainText("Versión", report.appVersion))
-                                Toast.makeText(context, "🔧 Versión copiada", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, " Versión copiada", Toast.LENGTH_SHORT).show()
                             }
                             .padding(vertical = 2.dp, horizontal = 4.dp)
                     ) {
@@ -1624,7 +1624,7 @@ private fun ComprehensiveFeedbackCard(
                                 .clickable {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("Correo", report.parsedEmail))
-                                    Toast.makeText(context, "✉️ Correo copiado", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "️ Correo copiado", Toast.LENGTH_SHORT).show()
                                 }
                                 .padding(vertical = 2.dp, horizontal = 4.dp)
                         ) {
@@ -1769,7 +1769,7 @@ private fun saveBitmapToGallery(context: Context, bitmap: Bitmap) {
                 contentValues.clear()
                 contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
                 resolver.update(imageUri, contentValues, null, null)
-                Toast.makeText(context, "💾 Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, " Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
                 return
             }
         } else {
@@ -1786,7 +1786,7 @@ private fun saveBitmapToGallery(context: Context, bitmap: Bitmap) {
                 arrayOf("image/png"),
                 null
             )
-            Toast.makeText(context, "💾 Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, " Captura guardada en Galería (Imágenes)", Toast.LENGTH_SHORT).show()
             return
         }
     } catch (e: Exception) {
@@ -2240,7 +2240,7 @@ private fun GraphicalBuildSuggestionView(
                         item {
                             BuildItemSlot(
                                 item = boot,
-                                badgeText = "6 👢",
+                                badgeText = "6 ",
                                 badgeColor = HextechGold,
                                 onClick = { onItemClick(boot) }
                             )
@@ -2340,7 +2340,7 @@ private fun GraphicalBuildSuggestionView(
                     ) {
                         BuildItemSlot(
                             item = boot,
-                            badgeText = "👢",
+                            badgeText = "",
                             size = 32.dp,
                             onClick = { onItemClick(boot) }
                         )
@@ -2537,7 +2537,7 @@ private fun AdminItemDetailDialog(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(
-                                text = "🪙 ${item.goldCost} oro",
+                                text = " ${item.goldCost} oro",
                                 color = Color(0xFFFFD54F),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -2615,7 +2615,7 @@ private fun AdminItemDetailDialog(
                         }
                         if (item.coachTip.isNotBlank()) {
                             FormattedWildRiftText(
-                                text = "💡 ${item.coachTip}",
+                                text = " ${item.coachTip}",
                                 fontSize = 10.5.sp,
                                 lineHeight = 14.5.sp
                             )

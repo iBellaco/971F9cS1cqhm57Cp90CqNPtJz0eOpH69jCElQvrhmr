@@ -265,7 +265,7 @@ object WildRiftRepository {
         val isOffRole = champ.primaryRole != myRole && !champ.secondaryRoles.contains(myRole)
         if (isOffRole) {
             score -= 15.0 // heavy penalty
-            badge = "❌ SELECCIÓN ATÍPICA (OFF-META)"
+            badge = " SELECCIÓN ATÍPICA (OFF-META)"
             val msgEs = "Llevar a ${champ.name} a ${com.example.util.trStr(lang, myRole.displayName)} es una selección atípica (off-meta). Sus habilidades no están diseñadas para ganar esta línea. ${champ.tacticalAdvice}"
             val msgPt = "Levar ${champ.name} para ${com.example.util.trStr(lang, myRole.displayName)} é uma escolha atípica (off-meta). Suas habilidades não são projetadas para esta rota. ${champ.tacticalAdvice}"
             val msgEn = "Taking ${champ.name} to ${com.example.util.trStr(lang, myRole.displayName)} is an off-meta pick. Their kit isn't designed for this lane. ${champ.tacticalAdvice}"
@@ -321,11 +321,11 @@ object WildRiftRepository {
             
             if (isDirectLaneCounter) {
                 score += 5.0
-                if (badge.isBlank()) badge = "⚡ DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
+                if (badge.isBlank()) badge = " DOMINAS LÍNEA (${champ.name} vs ${opponent.name})"
                 reasonParts.add("Ventaja directa de carril contra ${opponent.name}. Tienes superioridad en tradeos y escalado.")
             } else if (isDirectLaneWeakness) {
                 score -= 4.0
-                if (badge.isBlank()) badge = "⚠️ MATCHUP DESFAVORABLE (${opponent.name})"
+                if (badge.isBlank()) badge = "️ MATCHUP DESFAVORABLE (${opponent.name})"
                 reasonParts.add("Línea difícil contra ${opponent.name}. Evita tradeos largos en early y solicita apoyo del jungla.")
             }
             
@@ -343,25 +343,25 @@ object WildRiftRepository {
         
         if (badge.isBlank()) {
             if (directCounters.isNotEmpty() && directCounters.size >= directWeaknesses.size) {
-                badge = "⚡ COUNTER FUERTE (+" + directCounters.size + ")"
+                badge = " COUNTER FUERTE (+" + directCounters.size + ")"
                 reasonParts.add("Tienes ventaja sobre " + directCounters.joinToString(", ") + ".")
             } else if (directWeaknesses.isNotEmpty() && directWeaknesses.size > directCounters.size) {
-                badge = "⚠️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
+                badge = "️ PELIGRO MATCHUP (-" + directWeaknesses.size + ")"
                 reasonParts.add("Cuidado: Sufres contra " + directWeaknesses.joinToString(", ") + ".")
             } else if (directSynergies.isNotEmpty()) {
-                badge = "⚡ SINERGIA CON EQUIPO (+" + directSynergies.size + ")"
+                badge = " SINERGIA CON EQUIPO (+" + directSynergies.size + ")"
                 reasonParts.add("Sinergia óptima con " + directSynergies.joinToString(", ") + ".")
             } else if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
-                badge = "🔮 APERTURA MÁGICA"
+                badge = " APERTURA MÁGICA"
                 reasonParts.add("Aportas el daño mágico necesario para evitar que apilen armadura.")
             } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
-                badge = "🗡️ APERTURA FÍSICA"
+                badge = "️ APERTURA FÍSICA"
                 reasonParts.add("Aportas daño físico para evitar resistencia mágica.")
             } else if (frontlineAllies == 0 && champ.isFrontline) {
-                badge = "🛡️ SALVADOR FRONTLINE"
+                badge = "️ SALVADOR FRONTLINE"
                 reasonParts.add("Cubres la falta de tanques e iniciación.")
             } else {
-                badge = "⚖️ SELECCIÓN ESTÁNDAR"
+                badge = "️ SELECCIÓN ESTÁNDAR"
                 reasonParts.add("Opción neutral y consistente en este escenario.")
             }
         }
@@ -553,9 +553,9 @@ object WildRiftRepository {
                 }
 
                 val badge = when {
-                    isSafeBlind && champ.tier == "S+" -> t(lang, "★ BEST 1ST PICK (Safe Blind Pick)", "★ MELHOR 1º PICK (Blind Pick Seguro)", "★ MEJOR PRIMER PICK (Blind Pick Seguro)")
-                    isSafeBlind -> t(lang, "★ VERSATILE BLIND PICK", "★ BLIND PICK VERSÁTIL", "★ BLIND PICK VERSÁTIL")
-                    champ.tier == "S+" -> t(lang, "★ TIER S+ META", "★ TIER S+ META", "★ TIER S+ META")
+                    isSafeBlind && champ.tier == "S+" -> t(lang, " BEST 1ST PICK (Safe Blind Pick)", " MELHOR 1º PICK (Blind Pick Seguro)", " MEJOR PRIMER PICK (Blind Pick Seguro)")
+                    isSafeBlind -> t(lang, " VERSATILE BLIND PICK", " BLIND PICK VERSÁTIL", " BLIND PICK VERSÁTIL")
+                    champ.tier == "S+" -> t(lang, " TIER S+ META", " TIER S+ META", " TIER S+ META")
                     else -> t(lang, "General Pick in ${myRole.shortName}", "Opção Geral no ${myRole.shortName}", "Opción General en ${myRole.shortName}")
                 }
 
@@ -624,11 +624,11 @@ object WildRiftRepository {
                 }
 
                 val badge = when {
-                    directCounters.isNotEmpty() && directSynergies.isNotEmpty() -> t(lang, "★ #1 BEST OPTION (Synergy + Counter)", "★ #1 MELHOR OPÇÃO (Sinergia + Counter)", "★ #1 MEJOR OPCIÓN (Sinergia + Counter)")
-                    directCounters.isNotEmpty() && champ.tier == "S+" -> t(lang, "★ S+ TIER COUNTER (+${directCounters.size})", "★ COUNTER TIER S+ (+${directCounters.size})", "★ COUNTER TIER S+ (+${directCounters.size})")
-                    directCounters.isNotEmpty() -> t(lang, "✔ DIRECT COUNTER (+${directCounters.size} Enemy)", "✔ COUNTER DIRETO (+${directCounters.size} Inimigo)", "✔ COUNTER DIRECTO (+${directCounters.size} Rival)")
-                    directSynergies.isNotEmpty() -> t(lang, "⚡ TEAM SYNERGY (+${directSynergies.size})", "⚡ SINERGIA DE EQUIPE (+${directSynergies.size})", "⚡ SINERGIA CON EQUIPO (+${directSynergies.size})")
-                    champ.tier == "S+" -> t(lang, "★ S+ TIER (High Priority)", "★ TIER S+ (Alta Prioridade)", "★ TIER S+ (Alta Prioridad)")
+                    directCounters.isNotEmpty() && directSynergies.isNotEmpty() -> t(lang, " #1 BEST OPTION (Synergy + Counter)", " #1 MELHOR OPÇÃO (Sinergia + Counter)", " #1 MEJOR OPCIÓN (Sinergia + Counter)")
+                    directCounters.isNotEmpty() && champ.tier == "S+" -> t(lang, " S+ TIER COUNTER (+${directCounters.size})", " COUNTER TIER S+ (+${directCounters.size})", " COUNTER TIER S+ (+${directCounters.size})")
+                    directCounters.isNotEmpty() -> t(lang, " DIRECT COUNTER (+${directCounters.size} Enemy)", " COUNTER DIRETO (+${directCounters.size} Inimigo)", " COUNTER DIRECTO (+${directCounters.size} Rival)")
+                    directSynergies.isNotEmpty() -> t(lang, " TEAM SYNERGY (+${directSynergies.size})", " SINERGIA DE EQUIPE (+${directSynergies.size})", " SINERGIA CON EQUIPO (+${directSynergies.size})")
+                    champ.tier == "S+" -> t(lang, " S+ TIER (High Priority)", " TIER S+ (Alta Prioridade)", " TIER S+ (Alta Prioridad)")
                     else -> t(lang, "Balanced Recommendation", "Recomendação Balanceada", "Recomendación Balanceada")
                 }
 

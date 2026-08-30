@@ -672,7 +672,7 @@ fun ChampionDetailSheet(
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "💡 OBJETIVO TÁCTICO & CUÁNDO USAR",
+                                    text = " OBJETIVO TÁCTICO & CUÁNDO USAR",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
@@ -1302,7 +1302,7 @@ fun ChampionDetailSheet(
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
-                                        text = "⚔️ $target",
+                                        text = "️ $target",
                                         color = TextPrimary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Medium
@@ -1339,7 +1339,7 @@ fun ChampionDetailSheet(
                             .padding(8.dp)
                     ) {
                         Text(
-                            text = "💡 ${advice.recommendationTip}",
+                            text = " ${advice.recommendationTip}",
                             color = TextPrimary,
                             fontSize = 11.5.sp,
                             lineHeight = 15.sp
@@ -1469,7 +1469,7 @@ fun ChampionDetailSheet(
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         ) {
                             Text(
-                                text = "🟡 ${item.goldCost} ${tr("Oro")}",
+                                text = " ${item.goldCost} ${tr("Oro")}",
                                 color = com.example.ui.theme.HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1541,7 +1541,7 @@ fun ChampionDetailSheet(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    Text("💡", fontSize = 13.sp)
+                                    Text("", fontSize = 13.sp)
                                     Text(
                                         text = tr("Consejos del Coach:"),
                                         color = com.example.ui.theme.HextechGoldLight,

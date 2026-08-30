@@ -741,7 +741,7 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) "★ " + tr("1ª Elección Segura") else "★ " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
+                                    text = if (isFirstPick) " " + tr("1ª Elección Segura") else " " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold

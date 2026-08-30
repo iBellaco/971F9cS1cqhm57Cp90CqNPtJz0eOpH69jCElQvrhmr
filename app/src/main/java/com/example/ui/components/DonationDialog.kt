@@ -180,7 +180,7 @@ fun DonationDialog(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "✨ " + tr("¡Gracias por apoyar a la comunidad!"),
+                                text = " " + tr("¡Gracias por apoyar a la comunidad!"),
                                 color = HextechGold,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,

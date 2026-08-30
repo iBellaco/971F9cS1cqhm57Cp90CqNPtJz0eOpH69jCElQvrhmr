@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 object SubscriptionManager {
     private val _userRole = MutableStateFlow("free")
     val userRole: StateFlow<String> = _userRole.asStateFlow()
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
 
     private val _isBanned = MutableStateFlow(false)
     val isBanned: StateFlow<Boolean> = _isBanned.asStateFlow()
@@ -47,11 +49,17 @@ object SubscriptionManager {
                     val userData = hashMapOf(
                         "role" to "free",
                         "email" to (user.email ?: ""),
+                        "name" to (user.displayName ?: ""),
                         "last_active" to System.currentTimeMillis()
                     )
                     userRef.set(userData, SetOptions.merge())
                 } else {
-                    userRef.set(hashMapOf("last_active" to System.currentTimeMillis()), SetOptions.merge())
+                    val updateData = hashMapOf<String, Any>("last_active" to System.currentTimeMillis())
+                    if (user.displayName?.isNotBlank() == true) {
+                         // Only if we don't already have a name in the snapshot, or just rely on what is already in DB.
+                         // Actually, we shouldn't overwrite the DB name if the DB already exists, because the admin might have changed it.
+                    }
+                    userRef.set(updateData, SetOptions.merge())
                 }
             }
             

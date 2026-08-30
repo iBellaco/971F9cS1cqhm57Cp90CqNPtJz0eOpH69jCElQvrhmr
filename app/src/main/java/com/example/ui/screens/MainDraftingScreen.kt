@@ -267,7 +267,7 @@ fun MainDraftingScreen(
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             ) {
-                                Text("🇪🇸", fontSize = 16.sp)
+                                Text("", fontSize = 16.sp)
                             }
                             androidx.compose.material3.DropdownMenu(
                                 expanded = expandedLang,
@@ -277,7 +277,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇪🇸 Español", color = TextPrimary, fontWeight = FontWeight.Bold)
+                                            Text(" Español", color = TextPrimary, fontWeight = FontWeight.Bold)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(Activo)", color = HextechCyan, fontSize = 12.sp)
                                         }
@@ -290,7 +290,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇺🇸 English", color = TextMuted)
+                                            Text(" English", color = TextMuted)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(En mant.)", color = TextMuted, fontSize = 11.sp)
                                         }
@@ -301,7 +301,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇧🇷 Português", color = TextMuted)
+                                            Text(" Português", color = TextMuted)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(Em manut.)", color = TextMuted, fontSize = 11.sp)
                                         }

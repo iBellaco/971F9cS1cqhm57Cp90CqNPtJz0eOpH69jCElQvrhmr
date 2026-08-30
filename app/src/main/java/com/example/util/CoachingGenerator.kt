@@ -50,11 +50,11 @@ object CoachingGenerator {
                 val localizedKeyEffect = trStr(advice.keyEffect, lang)
                 val localizedTip = trStr(advice.recommendationTip, lang)
                 if (isEs) {
-                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Efectivo contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efecto clave:** $localizedKeyEffect\n\n💡 **Consejo:** $localizedTip"
+                    "️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Efectivo contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efecto clave:** $localizedKeyEffect\n\n **Consejo:** $localizedTip"
                 } else if (isPt) {
-                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Eficaz contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efeito chave:** $localizedKeyEffect\n\n💡 **Dica:** $localizedTip"
+                    "️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Eficaz contra:** ${advice.bestAgainst.joinToString(", ")}\n• **Efeito chave:** $localizedKeyEffect\n\n **Dica:** $localizedTip"
                 } else {
-                    "🛡️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Effective against:** ${advice.bestAgainst.joinToString(", ")}\n• **Key effect:** $localizedKeyEffect\n\n💡 **Coach Tip:** $localizedTip"
+                    "️ **$localizedName ($localizedCat)**\n\n$localizedPurpose\n\n• **Effective against:** ${advice.bestAgainst.joinToString(", ")}\n• **Key effect:** $localizedKeyEffect\n\n **Coach Tip:** $localizedTip"
                 }
             }
             else -> { // Sinergia

@@ -99,7 +99,8 @@ fun AdminDashboardDialog(
                     val email = doc.getString("email") ?: "Sin email"
                     val role = doc.getString("role") ?: "free"
                     val lastActive = doc.getLong("last_active") ?: 0L
-                    UserRecord(doc.id, email, role, lastActive)
+                    val name = doc.getString("name") ?: ""
+                    UserRecord(doc.id, email, role, lastActive, name)
                 }.sortedBy { it.email }
                 users = list
             } catch (e: Exception) {

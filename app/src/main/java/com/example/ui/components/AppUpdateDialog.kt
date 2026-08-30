@@ -116,7 +116,7 @@ fun AppUpdateDialog(
                             fontWeight = FontWeight.Medium
                         )
                         Text(
-                            text = " ➔ ",
+                            text = "  ",
                             color = HextechGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
@@ -163,7 +163,7 @@ fun AppUpdateDialog(
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr("💡 Si tu dispositivo muestra 'conflicto con un paquete', desinstala la versión anterior de tu teléfono una sola vez e instala la nueva APK (ocurre por cambio de firma de depurado a producción)."),
+                        text = tr(" Si tu dispositivo muestra 'conflicto con un paquete', desinstala la versión anterior de tu teléfono una sola vez e instala la nueva APK (ocurre por cambio de firma de depurado a producción)."),
                         color = Color(0xFF94A3B8),
                         fontSize = 11.sp,
                         lineHeight = 14.sp,

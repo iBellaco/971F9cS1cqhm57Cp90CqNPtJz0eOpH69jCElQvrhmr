@@ -261,11 +261,11 @@ fun BugReportFeedbackDialog(
                 )
                 isSubmitting = false
                 if (result.isSuccess) {
-                    Toast.makeText(context, "✅ ¡Sugerencia/Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, " ¡Sugerencia/Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
                     onDismiss()
                 } else {
                     val err = result.exceptionOrNull()?.message ?: "Error desconocido"
-                    statusMessage = "❌ Error al enviar: $err"
+                    statusMessage = " Error al enviar: $err"
                     Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
                 }
             }
@@ -634,7 +634,7 @@ fun BugReportFeedbackDialog(
                                         .padding(horizontal = 5.dp, vertical = 1.dp)
                                 ) {
                                     Text(
-                                        text = if (selectedBootsItem != null) "✓ " + tr("Elegidas") else "* " + tr("Obligatorio"),
+                                        text = if (selectedBootsItem != null) " " + tr("Elegidas") else "* " + tr("Obligatorio"),
                                         color = if (selectedBootsItem != null) HextechGold else DangerRed,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -694,7 +694,7 @@ fun BugReportFeedbackDialog(
                                     fontWeight = if (boots != null) FontWeight.Bold else FontWeight.Normal
                                 )
                                 Text(
-                                    text = if (boots != null) "${boots.category} • ${boots.goldCost} 💰" else tr("Disponible: Botas Nivel 2 o Botas Nivel 3 (Encantamiento)"),
+                                    text = if (boots != null) "${boots.category} • ${boots.goldCost} " else tr("Disponible: Botas Nivel 2 o Botas Nivel 3 (Encantamiento)"),
                                     color = HextechCyan,
                                     fontSize = 10.sp
                                 )
@@ -1143,7 +1143,7 @@ fun BugReportFeedbackDialog(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "${tr("📱 Dispositivo:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${tr(WildRiftRepository.CURRENT_PATCH_VERSION)}",
+                        text = "${tr(" Dispositivo:")} ${Build.MODEL} • Android ${Build.VERSION.RELEASE} • ${tr(WildRiftRepository.CURRENT_PATCH_VERSION)}",
                         color = TextMuted,
                         fontSize = 10.sp
                     )

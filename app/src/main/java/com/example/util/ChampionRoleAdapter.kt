@@ -617,7 +617,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(baseSituational),
                     altItemIcon = WildRiftItemsData.getItemIconByName(swap.altItem),
                     reasonTitle = if (!swap.reasonTitle.contains("OBJETO", ignoreCase = true)) {
-                        "OBJETO $slotNumber (SITUACIONAL ${idx + 1}) ➔ ${swap.reasonTitle}"
+                        "OBJETO $slotNumber (SITUACIONAL ${idx + 1})  ${swap.reasonTitle}"
                     } else swap.reasonTitle
                 )
             }
@@ -644,7 +644,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
                     altItem = alt1,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
-                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ PROTECCIÓN EN ÁREA & ESCUDOS",
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1)  PROTECCIÓN EN ÁREA & ESCUDOS",
                     reasonDesc = "Contra daño explosivo o definitivas en área del equipo enemigo, activa el Relicario o Redención para salvar a tus aliados.",
                     againstWho = "Kennen, Miss Fortune, Katarina, Brand, Diana, Fiddlesticks"
                 )
@@ -655,7 +655,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
                     altItem = alt2,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
-                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ PURIFICACIÓN & DESBLOQUEO DE CC",
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2)  PURIFICACIÓN & DESBLOQUEO DE CC",
                     reasonDesc = "Si el rival tiene aturdimientos o inmovilizaciones decisivas sobre tu tirador carry, equipa Bendición de Mikael.",
                     againstWho = "Ashe, Twisted Fate, Leona, Nautilus, Morgana, Sejuani"
                 )
@@ -670,7 +670,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
                     altItem = alt1,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
-                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-CURACIÓN",
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1)  ANTI-CURACIÓN",
                     reasonDesc = "Si el equipo enemigo tiene alta regeneración o curanderos masivos, sustituye el objeto situacional 7 por Heridas Graves.",
                     againstWho = "Soraka, Dr. Mundo, Aatrox, Warwick, Vladimir, Yuumi"
                 )
@@ -681,7 +681,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
                     altItem = alt2,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
-                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ SUPERVIVENCIA & ÉSTASIS",
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2)  SUPERVIVENCIA & ÉSTASIS",
                     reasonDesc = "Si sufres de emboscadas o burst explosivo enemigo en peleas de equipo, sustituye el objeto situacional 8 por estasis.",
                     againstWho = "Zed, Talon, Fizz, Kayn, Syndra, Rengar"
                 )
@@ -696,7 +696,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
                     altItem = alt1,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
-                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-CURACIÓN & ARMADURA",
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1)  ANTI-CURACIÓN & ARMADURA",
                     reasonDesc = "Si los rivales dependen de vampirismo y robo de vida físico, adapta tu objeto situacional 7 con Malla de Espinas.",
                     againstWho = "Aatrox, Warwick, Maestro Yi, Samira, Olaf"
                 )
@@ -707,7 +707,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
                     altItem = alt2,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
-                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ RESISTENCIA MÁGICA & MOVILIDAD",
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2)  RESISTENCIA MÁGICA & MOVILIDAD",
                     reasonDesc = "Contra daño mágico sostenido o múltiple fuente AP en composiciones enemigas, adapta el objeto 8.",
                     againstWho = "Evelynn, Teemo, Brand, Aurelion Sol, Gwen"
                 )
@@ -722,7 +722,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s1),
                     altItem = alt1,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt1),
-                    reasonTitle = "OBJETO 7 (SITUACIONAL 1) ➔ ANTI-ESCUDOS",
+                    reasonTitle = "OBJETO 7 (SITUACIONAL 1)  ANTI-ESCUDOS",
                     reasonDesc = "Si la composición rival cuenta con escudos masivos (escudos de área o habilidades), cambia el objeto situacional 7 por Colmillo de Serpiente.",
                     againstWho = "Sett, Shen, Karma, Lulu, Sterak, Janna"
                 )
@@ -733,7 +733,7 @@ private fun generateSituationalSwaps(
                     coreItemIcon = WildRiftItemsData.getItemIconByName(s2),
                     altItem = alt2,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
-                    reasonTitle = "OBJETO 8 (SITUACIONAL 2) ➔ SEGUNDA VIDA / RESURRECCIÓN",
+                    reasonTitle = "OBJETO 8 (SITUACIONAL 2)  SEGUNDA VIDA / RESURRECCIÓN",
                     reasonDesc = "Para peleas decisivas de Baron o Dragón Anciano donde una eliminación temprana costaría la partida, adapta tu objeto 8.",
                     againstWho = "Asesinos letales, composiciones de engage y wombo-combos"
                 )
