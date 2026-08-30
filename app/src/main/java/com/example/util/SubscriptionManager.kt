@@ -138,7 +138,7 @@ object SubscriptionManager {
         }
 
         if (!canEquipAvatar(avatarId)) {
-            onError("Este avatar requiere suscripción Premium o haber sido obsequiado por un Administrador.")
+            onError("Este avatar requiere suscripción Premium.")
             return
         }
 

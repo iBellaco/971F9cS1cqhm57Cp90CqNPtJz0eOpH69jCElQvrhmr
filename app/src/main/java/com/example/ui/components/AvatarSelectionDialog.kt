@@ -53,13 +53,14 @@ fun AvatarSelectionBottomSheet(
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
 
-    val filterOptions = listOf(
+        val filterOptions = listOf(
         "Todos",
         "Jonia",
         "Zaun / Piltóver",
         "Demacia / Noxus",
-        "Freljord / Islas",
-        "Mascotas / Épicos"
+        "Freljord / Shurima",
+        "Runaterra / Islas",
+        "Mascotas / Yordles"
     )
 
     val filteredAvatars = remember(selectedFilter) {
@@ -71,11 +72,14 @@ fun AvatarSelectionBottomSheet(
             "Demacia / Noxus" -> AvatarCatalog.avatars.filter {
                 it.region.contains("Demacia", ignoreCase = true) || it.region.contains("Noxus", ignoreCase = true)
             }
-            "Freljord / Islas" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Freljord", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true)
+            "Freljord / Shurima" -> AvatarCatalog.avatars.filter {
+                it.region.contains("Freljord", ignoreCase = true) || it.region.contains("Shurima", ignoreCase = true)
             }
-            "Mascotas / Épicos" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Grieta", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true) || it.region.contains("Arcade", ignoreCase = true) || it.isDefault
+            "Runaterra / Islas" -> AvatarCatalog.avatars.filter {
+                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true)
+            }
+            "Mascotas / Yordles" -> AvatarCatalog.avatars.filter {
+                it.region.contains("Mascotas", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true) || it.isDefault
             }
             else -> AvatarCatalog.avatars
         }
@@ -261,7 +265,7 @@ fun AvatarSelectionBottomSheet(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = tr("El cambio de avatares requiere membresía Premium o ser obsequiado por un Admin."),
+                                text = tr("El cambio de avatares requiere membresía Premium."),
                                 color = TextPrimary,
                                 fontSize = 11.sp,
                                 lineHeight = 14.sp
@@ -499,7 +503,7 @@ fun AvatarSelectionBottomSheet(
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = tr("Para equipar este avatar legendario de League of Legends necesitas una membresía Premium activa o que un Administrador te lo obsequie desde el panel de control."),
+                        text = tr("Para equipar este avatar legendario de League of Legends necesitas una membresía Premium activa."),
                         color = TextSecondary,
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center,
