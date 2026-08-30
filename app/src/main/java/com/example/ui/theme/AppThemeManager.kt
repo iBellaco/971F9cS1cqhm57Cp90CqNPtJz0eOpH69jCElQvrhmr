@@ -516,15 +516,20 @@ object AppThemeManager {
     var isOledMode by mutableStateOf(false)
         private set
 
+    var isParticlesEnabled by mutableStateOf(true)
+        private set
+
     fun init(context: Context) {
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val savedThemeId = prefs.getString(PREFS_KEY_THEME, AppTheme.PILTOVER.id) ?: AppTheme.PILTOVER.id
         val savedNavId = prefs.getString(PREFS_KEY_NAV_BAR, NavBarColorOption.THEME_AUTO.id) ?: NavBarColorOption.THEME_AUTO.id
         val savedOled = prefs.getBoolean(PREFS_KEY_OLED_MODE, false)
+        val savedParticles = prefs.getBoolean("particles_enabled", true)
 
         currentTheme = AppTheme.fromId(savedThemeId)
         currentNavBarOption = NavBarColorOption.entries.find { it.id == savedNavId } ?: NavBarColorOption.THEME_AUTO
         isOledMode = savedOled
+        isParticlesEnabled = savedParticles
     }
 
     fun setOledMode(enabled: Boolean, context: Context? = null) {
@@ -532,6 +537,14 @@ object AppThemeManager {
         context?.let {
             val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
             prefs.edit().putBoolean(PREFS_KEY_OLED_MODE, enabled).apply()
+        }
+    }
+    
+    fun setParticlesEnabled(enabled: Boolean, context: Context? = null) {
+        isParticlesEnabled = enabled
+        context?.let {
+            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("particles_enabled", enabled).apply()
         }
     }
 

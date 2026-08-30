@@ -61,21 +61,21 @@ fun AvatarSelectionBottomSheet(
     val unlockedAvatars by SubscriptionManager.unlockedAvatars.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
 
-    var selectedFilter by remember { mutableStateOf("Todos") }
+    val validRegions = remember {
+        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun")
+    }
+    
+    val filterOptions = remember {
+        AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
+    }
+    var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "") }
+    
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
 
-            val filterOptions = remember {
-        listOf("Todos") + AvatarCatalog.avatars.map { it.region }.distinct().sorted()
-    }
-
     val groupedAvatars = remember(selectedFilter) {
-        val filtered = if (selectedFilter == "Todos") {
-            AvatarCatalog.avatars
-        } else {
-            AvatarCatalog.avatars.filter { it.region.equals(selectedFilter, ignoreCase = true) }
-        }
-        filtered.groupBy { it.region }.toSortedMap()
+        AvatarCatalog.avatars.filter { it.region.equals(selectedFilter, ignoreCase = true) }
+            .groupBy { it.region }.toSortedMap()
     }
 
     // Modal Bottom Sheet / Full Screen Dialog
@@ -124,7 +124,7 @@ fun AvatarSelectionBottomSheet(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = tr("Galería de Avatares LoL"),
+                            text = tr("Avatares"),
                             color = HextechGoldLight,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -306,7 +306,7 @@ fun AvatarSelectionBottomSheet(
                     items(avatarsInRegion, key = { it.id }) { avatar ->
                     val isEquipped = currentAvatarId.equals(avatar.id, ignoreCase = true)
                     val isGifted = unlockedAvatars.contains(avatar.id)
-                    val canEquip = isPremium || userRole == "admin" || avatar.isDefault || isGifted
+                    val canEquip = isPremium || userRole == "admin" || avatar.isDefault || isGifted || avatar.rarity.equals("común", true) || avatar.rarity.equals("comun", true)
 
                     val rarityColor = getRarityColor(avatar.rarity)
                     val parsedBorder = rarityColor
@@ -334,7 +334,7 @@ fun AvatarSelectionBottomSheet(
                             }
                             .border(
                                 width = if (isEquipped) 2.dp else 1.dp,
-                                color = if (isEquipped) rarityColor else if (canEquip) rarityColor.copy(alpha = 0.8f) else HextechCardBorder.copy(alpha = 0.4f),
+                                color = rarityColor.copy(alpha = if (isEquipped) 1f else 0.8f),
                                 shape = RoundedCornerShape(12.dp)
                             ),
                         shape = RoundedCornerShape(12.dp),
@@ -354,7 +354,7 @@ fun AvatarSelectionBottomSheet(
                                 UserAvatarView(
                                     avatarId = avatar.id,
                                     size = 54.dp,
-                                    customBorderColor = if (isEquipped) HextechGold else parsedBorder
+                                    customBorderColor = rarityColor
                                 )
 
                                 if (isEquipped) {

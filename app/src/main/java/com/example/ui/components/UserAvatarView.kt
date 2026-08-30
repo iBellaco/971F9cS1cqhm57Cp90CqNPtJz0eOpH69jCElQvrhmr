@@ -46,16 +46,16 @@ fun UserAvatarView(
         HextechGold
     }
 
-    val runicBorderBrush = Brush.sweepGradient(
-        listOf(
-            parsedBorderColor,
-            HextechGoldLight,
-            HextechCyan.copy(alpha = 0.8f),
-            parsedBorderColor,
-            HextechGoldLight,
-            parsedBorderColor
-        )
-    )
+    val isCommon = avatar.rarity.equals("común", true) || avatar.rarity.equals("comun", true)
+    
+    val runicBorderBrush = when (avatar.rarity.lowercase()) {
+        "legendario" -> Brush.sweepGradient(listOf(parsedBorderColor, Color(0xFFFCA5A5), Color(0xFFB91C1C), parsedBorderColor))
+        "mítico", "mitico" -> Brush.linearGradient(listOf(parsedBorderColor, Color(0xFF8B5CF6), parsedBorderColor))
+        "épico", "epico" -> Brush.radialGradient(listOf(parsedBorderColor, Color(0xFFD8B4FE), Color(0xFF7E22CE)))
+        else -> Brush.sweepGradient(listOf(parsedBorderColor, HextechGoldLight, HextechCyan.copy(alpha = 0.8f), parsedBorderColor))
+    }
+
+    val actualShowBorder = showBorder && !isCommon
 
     Box(
         modifier = modifier
@@ -71,7 +71,7 @@ fun UserAvatarView(
                 )
             )
             .then(
-                if (showBorder) {
+                if (actualShowBorder) {
                     Modifier.border(
                         width = if (size > 60.dp) 2.5.dp else 1.5.dp,
                         brush = runicBorderBrush,
