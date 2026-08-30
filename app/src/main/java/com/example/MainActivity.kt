@@ -389,11 +389,13 @@ fun DashboardScreen(
                     .background(navBg)
             ) {
                 // Ambient Runic Particles Floating across Bottom Navigation Bar in background
-                RunicNavBarParticleAnimation(
-                    modifier = Modifier.matchParentSize(),
-                    particleCount = 16,
-                    accentColor = navAccent
-                )
+                if (AppThemeManager.isParticlesEnabled) {
+                    RunicNavBarParticleAnimation(
+                        modifier = Modifier.matchParentSize(),
+                        particleCount = 16,
+                        accentColor = navAccent
+                    )
+                }
 
                 // Top golden/accent glowing divider line
                 Box(
@@ -488,13 +490,15 @@ fun DashboardScreen(
                 }
 
                 // Ambient Runic Particles Floating across Bottom Navigation Bar
-                RunicNavBarParticleAnimation(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clipToBounds(),
-                    particleCount = 14,
-                    accentColor = navAccent
-                )
+                if (AppThemeManager.isParticlesEnabled) {
+                    RunicNavBarParticleAnimation(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clipToBounds(),
+                        particleCount = 14,
+                        accentColor = navAccent
+                    )
+                }
             }
         }
     ) { paddingValues ->

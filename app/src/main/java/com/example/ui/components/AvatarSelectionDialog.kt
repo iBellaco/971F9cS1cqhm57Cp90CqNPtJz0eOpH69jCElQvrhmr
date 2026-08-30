@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
@@ -66,16 +67,20 @@ fun AvatarSelectionBottomSheet(
     }
     
     val filterOptions = remember {
-        AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
+        listOf("Todas") + AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
     }
-    var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "") }
+    var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "Todas") }
     
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val groupedAvatars = remember(selectedFilter) {
-        AvatarCatalog.avatars.filter { it.region.equals(selectedFilter, ignoreCase = true) }
-            .groupBy { it.region }.toSortedMap()
+    val groupedAvatars = remember(selectedFilter, searchQuery) {
+        AvatarCatalog.avatars.filter {
+            val matchesRegion = selectedFilter == "Todas" || it.region.equals(selectedFilter, ignoreCase = true)
+            val matchesSearch = searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true)
+            matchesRegion && matchesSearch
+        }.groupBy { it.region }.toSortedMap()
     }
 
     // Modal Bottom Sheet / Full Screen Dialog
@@ -206,6 +211,27 @@ fun AvatarSelectionBottomSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                placeholder = { Text(tr("Buscar avatar..."), color = TextMuted) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechGold,
+                    unfocusedBorderColor = HextechCardBorder,
+                    focusedContainerColor = HextechDarkBg,
+                    unfocusedContainerColor = HextechSurface,
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextSecondary
+                )
+            )
+
             // Filter Chips Carousel
             ScrollableTabRow(
                 selectedTabIndex = filterOptions.indexOf(selectedFilter).coerceAtLeast(0),
@@ -333,8 +359,15 @@ fun AvatarSelectionBottomSheet(
                                 }
                             }
                             .border(
-                                width = if (isEquipped) 2.dp else 1.dp,
-                                color = rarityColor.copy(alpha = if (isEquipped) 1f else 0.8f),
+                                width = when {
+                                    isEquipped -> 3.dp
+                                    avatar.rarity.lowercase().contains("mítico") || avatar.rarity.lowercase().contains("mitico") -> 2.5.dp
+                                    avatar.rarity.lowercase().contains("legendario") -> 2.dp
+                                    avatar.rarity.lowercase().contains("épico") || avatar.rarity.lowercase().contains("epico") -> 1.8.dp
+                                    avatar.rarity.lowercase().contains("raro") -> 1.5.dp
+                                    else -> 1.dp
+                                },
+                                brush = getRarityBorderBrush(avatar.rarity),
                                 shape = RoundedCornerShape(12.dp)
                             ),
                         shape = RoundedCornerShape(12.dp),
@@ -533,5 +566,18 @@ fun AvatarSelectionBottomSheet(
                 }
             }
         )
+    }
+}
+
+
+fun getRarityBorderBrush(rarity: String): Brush {
+    val rarityLower = rarity.lowercase()
+    val isCommon = rarityLower == "común" || rarityLower == "comun" || rarityLower == "clásico"
+    return when {
+        rarityLower.contains("mítico") || rarityLower.contains("mitico") -> Brush.sweepGradient(listOf(Color(0xFFC4B5FD), Color(0xFF7C3AED), Color(0xFF5B21B6), Color(0xFFC4B5FD)))
+        rarityLower.contains("legendario") -> Brush.sweepGradient(listOf(Color(0xFFFFD700), Color(0xFFB91C1C), Color(0xFF991B1B), Color(0xFFFFD700)))
+        rarityLower.contains("épico") || rarityLower.contains("epico") -> Brush.sweepGradient(listOf(Color(0xFFE9D5FF), Color(0xFF9333EA), Color(0xFFE9D5FF)))
+        rarityLower.contains("raro") -> Brush.linearGradient(listOf(Color(0xFF93C5FD), Color(0xFF2563EB), Color(0xFF93C5FD)))
+        else -> Brush.linearGradient(listOf(HextechCardBorder, HextechCardBorder))
     }
 }

@@ -81,13 +81,40 @@ fun SubscriptionPlansBottomSheet(
 
             // Premium Card (High Fidelity)
             PremiumPlanCard(
-                title = "Coach Premium",
+                title = "Coach Premium (Mensual)",
                 price = "$1.00",
                 period = "/ mes",
                 features = listOf(
                     FeatureItem("Acceso completo al Asistente de Draft", true),
                     FeatureItem("Descarga de recursos offline", true),
-                    FeatureItem("Avatares Exclusivos (Épicos, Legendarios)", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Diseños de Bordes Exclusivos", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
+                ),
+                onSubscribe = {
+                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
+                    scope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Premium Anual Card
+            PremiumPlanCard(
+                title = "Coach Premium (Anual)",
+                price = "$11.00",
+                period = "/ año (Normalmente $12)",
+                features = listOf(
+                    FeatureItem("2 meses gratis (Ahorro del 16%)", true, isHighlight = true, icon = Icons.Default.Star),
+                    FeatureItem("Acceso completo al Asistente de Draft", true),
+                    FeatureItem("Descarga de recursos offline", true),
+                    FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Diseños de Bordes Exclusivos", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
                     FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
@@ -111,7 +138,8 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Acceso básico al Asistente de Draft", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Avatares Comunes Gratuitos", true),
-                    FeatureItem("Avatares Exclusivos (Épicos, Legendarios)", false),
+                    FeatureItem("Colección de Avatares Premium", false),
+                    FeatureItem("Diseños de Bordes Exclusivos", false),
                     FeatureItem("Temas Visuales por Región", false),
                     FeatureItem("Partículas Mágicas", false),
                     FeatureItem("Guardar Draft y Favoritos", false)

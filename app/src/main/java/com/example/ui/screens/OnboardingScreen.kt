@@ -61,7 +61,10 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             premiumFeatures = listOf(
                 "Guardado de Drafts e Historial de Partidas",
                 "Repertorio de Campeones Favoritos",
-                "Personalización de Temas Visuales"
+                "Personalización de Temas Visuales",
+                "Colección de Avatares Exclusiva",
+                "Diseños de Bordes Exclusivos",
+                "Partículas Mágicas (Barra de Navegación)"
             )
         )
     )

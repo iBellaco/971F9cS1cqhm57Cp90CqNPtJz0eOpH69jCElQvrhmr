@@ -368,35 +368,19 @@ fun MainDraftingScreen(
 
                         // User Avatar Profile button
                         val authUser = com.example.util.AuthManager.getAuth()?.currentUser
-                        IconButton(
-                            onClick = onNavigateToLogin,
-                            modifier = Modifier
-                                .padding(end = 4.dp)
-                                .size(38.dp)
-                                .testTag("nav_profile_avatar_button")
-                        ) {
-                            if (authUser != null) {
+                        if (authUser != null) {
+                            IconButton(
+                                onClick = onNavigateToLogin,
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .size(38.dp)
+                                    .testTag("nav_profile_avatar_button")
+                            ) {
                                 UserAvatarView(
                                     avatarId = currentAvatarId,
                                     size = 36.dp,
                                     fallbackInitial = authUser.displayName ?: authUser.email ?: "U"
                                 )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .clip(CircleShape)
-                                        .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = "Usuario",
-                                        tint = HextechGold,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
                             }
                         }
 
