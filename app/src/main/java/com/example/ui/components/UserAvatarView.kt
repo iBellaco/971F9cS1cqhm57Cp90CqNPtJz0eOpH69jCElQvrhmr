@@ -11,6 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.animation.core.*
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -82,11 +90,19 @@ fun UserAvatarView(
             )
             .then(
                 if (actualShowBorder) {
-                    Modifier.border(
-                        width = borderWidth,
-                        brush = runicBorderBrush,
-                        shape = CircleShape
-                    )
+                    if (rarityLower.contains("mítico") || rarityLower.contains("mitico") || rarityLower.contains("legendario")) {
+                        Modifier.premiumBorderPainter(
+                            rarity = rarityLower,
+                            isMythic = rarityLower.contains("mítico") || rarityLower.contains("mitico"),
+                            isLegendary = rarityLower.contains("legendario")
+                        )
+                    } else {
+                        Modifier.border(
+                            width = borderWidth,
+                            brush = runicBorderBrush,
+                            shape = CircleShape
+                        )
+                    }
                 } else Modifier
             ),
         contentAlignment = Alignment.Center
@@ -114,6 +130,48 @@ fun UserAvatarView(
                     .fillMaxSize()
                     .clip(CircleShape)
             )
+        }
+    }
+}
+
+
+fun Modifier.premiumBorderPainter(rarity: String, isMythic: Boolean, isLegendary: Boolean): Modifier {
+    if (!isMythic && !isLegendary) return this
+    
+    return this.drawWithCache {
+        val strokeWidth = if (isMythic) 4.dp.toPx() else 3.dp.toPx()
+        
+        val primaryColor = if (isMythic) Color(0xFFC4B5FD) else Color(0xFFFFD700)
+        val secondaryColor = if (isMythic) Color(0xFF7C3AED) else Color(0xFFB91C1C)
+        val darkColor = if (isMythic) Color(0xFF4C1D95) else Color(0xFF7F1D1D)
+        
+        val brush = Brush.sweepGradient(
+            listOf(primaryColor, secondaryColor, darkColor, secondaryColor, primaryColor)
+        )
+        
+        onDrawWithContent {
+            drawContent()
+            
+            // Extravagant ring on top, inside the bounds
+            drawCircle(
+                brush = brush,
+                radius = size.width / 2 - strokeWidth / 2,
+                center = Offset(size.width / 2, size.height / 2),
+                style = Stroke(
+                    width = strokeWidth,
+                    pathEffect = if (isMythic) PathEffect.dashPathEffect(floatArrayOf(20f, 10f), 0f) else null
+                )
+            )
+            
+            if (isMythic) {
+                // Additional inner ring for mythic
+                drawCircle(
+                    color = Color(0xFFE9D5FF),
+                    radius = size.width / 2 - strokeWidth,
+                    center = Offset(size.width / 2, size.height / 2),
+                    style = Stroke(width = 1.dp.toPx())
+                )
+            }
         }
     }
 }
