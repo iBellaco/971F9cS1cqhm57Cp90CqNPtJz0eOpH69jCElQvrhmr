@@ -83,7 +83,7 @@ fun CreatorSocialMediaBar(
             iconEmoji = "💬",
             brandColor = Color(0xFF25D366),
             secondaryColor = Color(0xFF128C7E),
-            url = "https://api.whatsapp.com/send?text=Hola%20Coach%20Wild%20Rift",
+            url = "https://chat.whatsapp.com/EUwKMDc6XJn8PaGyoAZn3s",
             tag = "btn_social_whatsapp"
         ),
         SocialPlatform(
