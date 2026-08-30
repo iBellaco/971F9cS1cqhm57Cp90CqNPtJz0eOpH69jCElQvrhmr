@@ -7,8 +7,7 @@ const newFilterCode = `    val filterOptions = listOf(
         "Zaun / Piltóver",
         "Demacia / Noxus",
         "Freljord / Shurima",
-        "Runaterra / Islas",
-        "Mascotas / Yordles"
+        "Runaterra / Varios"
     )
 
     val filteredAvatars = remember(selectedFilter) {
@@ -23,17 +22,13 @@ const newFilterCode = `    val filterOptions = listOf(
             "Freljord / Shurima" -> AvatarCatalog.avatars.filter {
                 it.region.contains("Freljord", ignoreCase = true) || it.region.contains("Shurima", ignoreCase = true)
             }
-            "Runaterra / Islas" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true)
-            }
-            "Mascotas / Yordles" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Mascotas", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true) || it.isDefault
+            "Runaterra / Varios" -> AvatarCatalog.avatars.filter {
+                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true)
             }
             else -> AvatarCatalog.avatars
         }
     }`;
 
-// Replace everything from `val filterOptions = listOf(` up to `else -> AvatarCatalog.avatars\n        }\n    }`
 content = content.replace(/val filterOptions = listOf\([\s\S]*?else -> AvatarCatalog\.avatars\s*\}\s*\}/, newFilterCode);
 fs.writeFileSync('app/src/main/java/com/example/ui/components/AvatarSelectionDialog.kt', content);
-console.log("Replaced filter options");
+console.log("Updated filters in AvatarSelectionDialog.");

@@ -7,7 +7,7 @@ object AvatarCatalog {
         id = "default_poro",
         name = "Poro Guardián",
         title = "Espíritu de la Grieta",
-        region = "Mascotas",
+        region = "Freljord",
         rarity = "Clásico",
         imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/588.png",
         borderHex = "#C8AA6E",

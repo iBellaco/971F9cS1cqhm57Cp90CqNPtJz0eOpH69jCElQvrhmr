@@ -55,7 +55,7 @@ fun AdminGiftAvatarDialog(
     var autoEquipForUser by remember { mutableStateOf(true) }
     var isSending by remember { mutableStateOf(false) }
 
-    val regions = listOf("Todos", "Jonia", "Zaun / Piltóver", "Demacia / Noxus", "Freljord / Islas", "Mascotas / Épicos")
+    val regions = listOf("Todos", "Jonia", "Zaun / Piltóver", "Demacia / Noxus", "Freljord / Shurima", "Runaterra / Varios")
 
     val filteredAvatars = remember(searchQuery, selectedRegionFilter) {
         AvatarCatalog.avatars.filter { avatar ->
@@ -68,8 +68,8 @@ fun AdminGiftAvatarDialog(
                 "Jonia" -> avatar.region.equals("Jonia", ignoreCase = true)
                 "Zaun / Piltóver" -> avatar.region.contains("Zaun", ignoreCase = true) || avatar.region.contains("Piltóver", ignoreCase = true)
                 "Demacia / Noxus" -> avatar.region.contains("Demacia", ignoreCase = true) || avatar.region.contains("Noxus", ignoreCase = true)
-                "Freljord / Islas" -> avatar.region.contains("Freljord", ignoreCase = true) || avatar.region.contains("Islas", ignoreCase = true) || avatar.region.contains("Oscuros", ignoreCase = true) || avatar.region.contains("Vacío", ignoreCase = true)
-                "Mascotas / Épicos" -> avatar.region.contains("Grieta", ignoreCase = true) || avatar.region.contains("Bandle", ignoreCase = true) || avatar.region.contains("Arcade", ignoreCase = true) || avatar.isDefault
+                "Freljord / Shurima" -> avatar.region.contains("Freljord", ignoreCase = true) || avatar.region.contains("Shurima", ignoreCase = true)
+                "Runaterra / Varios" -> avatar.region.contains("Runaterra", ignoreCase = true) || avatar.region.contains("Islas", ignoreCase = true) || avatar.region.contains("Targon", ignoreCase = true) || avatar.region.contains("Aguas", ignoreCase = true) || avatar.region.contains("Vacío", ignoreCase = true) || avatar.region.contains("Oscuros", ignoreCase = true) || avatar.region.contains("Bandle", ignoreCase = true) || avatar.isDefault
                 else -> true
             }
 

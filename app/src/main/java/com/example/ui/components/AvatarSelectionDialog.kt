@@ -53,14 +53,13 @@ fun AvatarSelectionBottomSheet(
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
 
-        val filterOptions = listOf(
+            val filterOptions = listOf(
         "Todos",
         "Jonia",
         "Zaun / Piltóver",
         "Demacia / Noxus",
         "Freljord / Shurima",
-        "Runaterra / Islas",
-        "Mascotas / Yordles"
+        "Runaterra / Varios"
     )
 
     val filteredAvatars = remember(selectedFilter) {
@@ -75,11 +74,8 @@ fun AvatarSelectionBottomSheet(
             "Freljord / Shurima" -> AvatarCatalog.avatars.filter {
                 it.region.contains("Freljord", ignoreCase = true) || it.region.contains("Shurima", ignoreCase = true)
             }
-            "Runaterra / Islas" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true)
-            }
-            "Mascotas / Yordles" -> AvatarCatalog.avatars.filter {
-                it.region.contains("Mascotas", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true) || it.isDefault
+            "Runaterra / Varios" -> AvatarCatalog.avatars.filter {
+                it.region.contains("Runaterra", ignoreCase = true) || it.region.contains("Islas", ignoreCase = true) || it.region.contains("Targon", ignoreCase = true) || it.region.contains("Aguas", ignoreCase = true) || it.region.contains("Vacío", ignoreCase = true) || it.region.contains("Oscuros", ignoreCase = true) || it.region.contains("Bandle", ignoreCase = true)
             }
             else -> AvatarCatalog.avatars
         }
