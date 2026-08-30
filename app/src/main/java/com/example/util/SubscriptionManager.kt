@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
+import com.example.data.AvatarCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -121,9 +122,11 @@ object SubscriptionManager {
     }
 
     fun canEquipAvatar(avatarId: String): Boolean {
-        if (avatarId == "default_poro") return true
         if (_isPremium.value || _userRole.value == "admin") return true
-        return _unlockedAvatars.value.contains(avatarId)
+        if (_unlockedAvatars.value.contains(avatarId)) return true
+        val avatar = AvatarCatalog.avatars.find { it.id == avatarId }
+        if (avatar != null && (avatar.isDefault || avatar.rarity.equals("común", true) || avatar.rarity.equals("comun", true))) return true
+        return false
     }
 
     fun changeAvatar(

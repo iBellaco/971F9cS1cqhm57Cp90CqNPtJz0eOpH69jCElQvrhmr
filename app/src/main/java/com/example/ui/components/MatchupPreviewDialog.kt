@@ -387,12 +387,7 @@ fun MatchupPreviewDialog(
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Runas sugeridas: ${myChampion.recommendedRunes}",
-                                color = TextMuted,
-                                fontSize = 10.5.sp
-                            )
+                            
                         }
                     }
 

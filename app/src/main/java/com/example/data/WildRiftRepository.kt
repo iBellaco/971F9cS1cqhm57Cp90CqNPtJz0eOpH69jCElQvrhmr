@@ -366,8 +366,20 @@ object WildRiftRepository {
             }
         }
         
-        synergyText = if (directSynergies.isNotEmpty()) "Buena combinación con: " + directSynergies.joinToString(", ") else "Autosuficiente en rotaciones."
-        counterText = if (directCounters.isNotEmpty()) "Anula a: " + directCounters.joinToString(", ") else if (directWeaknesses.isNotEmpty()) "Juega seguro contra: " + directWeaknesses.joinToString(", ") else "Enfrentamiento parejo."
+        val mainSkill = champ.skills.find { it.slot == "1" }?.name ?: champ.skills.firstOrNull()?.name ?: "habilidades"
+        synergyText = if (directSynergies.isNotEmpty()) {
+            "Sincroniza tus engages y combina $mainSkill junto con " + directSynergies.joinToString(", ") + " para dominar las peleas de equipo."
+        } else {
+            "Campeón independiente. Prioriza tu propio escalado y $mainSkill."
+        }
+        
+        counterText = if (directCounters.isNotEmpty()) {
+            "Usa tu $mainSkill para anular completamente a: " + directCounters.joinToString(", ") + "."
+        } else if (directWeaknesses.isNotEmpty()) {
+            "Cuidado con " + directWeaknesses.joinToString(", ") + ", pueden interrumpir tu $mainSkill fácilmente."
+        } else {
+            "Enfrentamiento estable sin counters directos a la vista."
+        }
         
         return DraftRecommendation(
             champion = champ,
