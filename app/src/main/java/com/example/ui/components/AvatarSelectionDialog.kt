@@ -63,7 +63,7 @@ fun AvatarSelectionBottomSheet(
     val userRole by SubscriptionManager.userRole.collectAsState()
 
     val validRegions = remember {
-        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun")
+        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun", "Variados")
     }
     
     val filterOptions = remember {
