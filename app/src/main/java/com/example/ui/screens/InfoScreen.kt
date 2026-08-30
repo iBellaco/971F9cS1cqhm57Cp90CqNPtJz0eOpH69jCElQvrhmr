@@ -151,8 +151,15 @@ fun InfoScreen(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        val patchLabel = WildRiftRepository.CURRENT_PATCH_VERSION.let { raw ->
+                            if (raw.startsWith("Parche", ignoreCase = true) || raw.startsWith("Patch", ignoreCase = true)) {
+                                tr(raw)
+                            } else {
+                                "${tr("Parche")} $raw"
+                            }
+                        }
                         Text(
-                            text = "v1.3.85 (Build 104) • Patch ${WildRiftRepository.CURRENT_PATCH_VERSION}",
+                            text = "v${com.example.BuildConfig.VERSION_NAME} (Build ${com.example.BuildConfig.VERSION_CODE}) • $patchLabel",
                             color = TextMuted,
                             fontSize = 11.sp
                         )

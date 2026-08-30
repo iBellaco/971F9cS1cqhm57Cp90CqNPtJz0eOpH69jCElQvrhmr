@@ -909,15 +909,33 @@ fun UserManagementCard(
 
     val isOnline = System.currentTimeMillis() - user.lastActive < 900_000
 
-    val roleBorderColor by animateColorAsState(
-        targetValue = when (user.role.lowercase()) {
-            "admin" -> LolNoxusRed
-            "premium" -> LolBorderGold
-            "banned" -> Color.Gray
-            else -> LolHextechCyan.copy(alpha = 0.5f)
-        },
-        animationSpec = tween(300),
-        label = "roleBorderColor"
+    val roleColor = when (user.role.lowercase()) {
+        "admin" -> LolNoxusRed
+        "premium" -> LolBorderGold
+        "banned" -> Color.Gray
+        else -> LolHextechCyan
+    }
+
+    // Dynamic golden runic border animation: continuous shimmer & breathing effect
+    val infiniteTransition = rememberInfiniteTransition(label = "runicBorderShimmer")
+    val shimmerPhase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3600, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerPhase"
+    )
+
+    val cornerGlowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.45f,
+        targetValue = 0.95f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cornerGlow"
     )
 
     if (showNameEdit) {
@@ -978,199 +996,354 @@ fun UserManagementCard(
         )
     }
 
-    Card(
+    // Outer Runic Card Container with Dynamic Golden Runic Border
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                BorderStroke(1.dp, roleBorderColor.copy(alpha = 0.4f)),
-                RoundedCornerShape(10.dp)
-            ),
-        colors = CardDefaults.cardColors(containerColor = LolCardBg),
-        shape = RoundedCornerShape(10.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(LolCardBg)
     ) {
-        Row(
+        // Inner card body with subtle ambient role gradient
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Online indicator pulse
-                    Box(
-                        modifier = Modifier
-                            .size(7.dp)
-                            .clip(CircleShape)
-                            .background(if (isOnline) LolZaunGreen else Color.Gray.copy(alpha = 0.5f))
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            roleColor.copy(alpha = 0.08f),
+                            LolCardBg,
+                            Color(0xFF091428).copy(alpha = 0.95f)
+                        )
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    if (user.name.isNotBlank()) {
-                        Text(
-                            text = user.name,
-                            color = LolGoldLight,
-                            fontSize = 14.5.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.3.sp
-                        )
-                    } else {
-                        Text(
-                            text = user.email.substringBefore("@"),
-                            color = LolGoldLight,
-                            fontSize = 14.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = user.email,
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val roleColor = when (user.role.lowercase()) {
-                        "admin" -> LolNoxusRed
-                        "premium" -> LolBorderGold
-                        "banned" -> Color.Gray
-                        else -> LolHextechCyan
-                    }
-
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Summoner Crest Avatar + User Details
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // LoL Summoner Profile Crest with Golden Runic Ring
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(roleColor.copy(alpha = 0.15f))
-                            .border(0.5.dp, roleColor.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    listOf(LolDeepNavy, Color(0xFF05101E))
+                                )
+                            )
+                            .border(
+                                1.5.dp,
+                                Brush.sweepGradient(
+                                    listOf(
+                                        LolBorderGold,
+                                        LolGoldLight,
+                                        LolBorderGoldDark,
+                                        LolHextechCyan.copy(alpha = 0.6f),
+                                        LolBorderGold
+                                    )
+                                ),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
+                        val initialChar = if (user.name.isNotBlank()) {
+                            user.name.first().uppercaseChar().toString()
+                        } else {
+                            user.email.firstOrNull()?.uppercaseChar()?.toString() ?: "U"
+                        }
                         Text(
-                            text = user.role.uppercase(),
-                            color = roleColor,
-                            fontSize = 9.sp,
+                            text = initialChar,
+                            color = LolGoldLight,
                             fontWeight = FontWeight.ExtraBold,
-                            letterSpacing = 0.5.sp
+                            fontSize = 17.sp,
+                            fontFamily = FontFamily.Serif
+                        )
+
+                        // Online Status Bead
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(9.dp)
+                                .clip(CircleShape)
+                                .background(if (isOnline) LolZaunGreen else Color.DarkGray)
+                                .border(1.dp, Color(0xFF05101E), CircleShape)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                    Text(
-                        text = "ID: ${user.uid.take(8)}...",
-                        color = TextMuted,
-                        fontSize = 9.5.sp,
-                        fontFamily = FontFamily.Monospace
-                    )
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (user.name.isNotBlank()) user.name else user.email.substringBefore("@"),
+                                color = LolGoldLight,
+                                fontSize = 14.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.3.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(1.dp))
+
+                        Text(
+                            text = user.email,
+                            color = TextSecondary,
+                            fontSize = 11.5.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Role Pill with Runic Golden Border
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(roleColor.copy(alpha = 0.15f))
+                                    .border(0.8.dp, roleColor.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = user.role.uppercase(),
+                                    color = roleColor,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    letterSpacing = 0.6.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Text(
+                                text = "UID: ${user.uid.take(8)}...",
+                                color = TextMuted,
+                                fontSize = 9.sp,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
+                    }
+                }
+
+                // Dropdown Menu Button with LoL Icon Styling
+                Box {
+                    IconButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(LolDeepNavy)
+                            .border(1.dp, LolBorderGoldDark.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                    ) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "Opciones",
+                            tint = LolBorderGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .background(LolClientBg)
+                            .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    ) {
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Fingerprint, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Copiar ID Invocador", color = TextPrimary, fontSize = 12.5.sp) },
+                            onClick = {
+                                clipboard.setText(AnnotatedString(user.uid))
+                                Toast.makeText(context, "ID copiado", Toast.LENGTH_SHORT).show()
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Email, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Copiar Correo", color = TextPrimary, fontSize = 12.5.sp) },
+                            onClick = {
+                                clipboard.setText(AnnotatedString(user.email))
+                                Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Badge, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Cambiar Nombre de Invocador", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                            onClick = {
+                                showNameEdit = true
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.LockReset, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Restablecer Contraseña", color = LolHextechCyan, fontSize = 12.5.sp) },
+                            onClick = {
+                                FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
+                                Toast.makeText(context, "Correo de restablecimiento enviado", Toast.LENGTH_SHORT).show()
+                                expanded = false
+                            }
+                        )
+                        HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Person, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Asignar Rol: GRATIS", color = TextPrimary, fontSize = 12.5.sp) },
+                            onClick = {
+                                onRoleChange("free")
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Stars, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Asignar Rol: PREMIUM", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                            onClick = {
+                                onRoleChange("premium")
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.Block, contentDescription = null, tint = LolNoxusRed, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("Suspender Invocador (BAN)", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                            onClick = {
+                                onRoleChange("banned")
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
+        }
 
-            // Dropdown Menu Button with LoL Icon Styling
-            Box {
-                IconButton(
-                    onClick = { expanded = true },
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(LolDeepNavy)
-                        .border(1.dp, LolBorderGoldDark.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                ) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Opciones",
-                        tint = LolBorderGold,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
+        // --- DYNAMIC RUNIC GOLDEN BORDER & CORNER ENGRAVINGS OVERLAY ---
+        Canvas(
+            modifier = Modifier
+                .matchParentSize()
+                .clip(RoundedCornerShape(12.dp))
+        ) {
+            val w = size.width
+            val h = size.height
+            val strokeW = 1.6.dp.toPx()
+            val cornerLen = 14.dp.toPx()
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .background(LolClientBg)
-                        .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                ) {
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Fingerprint, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Copiar ID Invocador", color = TextPrimary, fontSize = 12.5.sp) },
-                        onClick = {
-                            clipboard.setText(AnnotatedString(user.uid))
-                            Toast.makeText(context, "ID copiado", Toast.LENGTH_SHORT).show()
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Copiar Correo", color = TextPrimary, fontSize = 12.5.sp) },
-                        onClick = {
-                            clipboard.setText(AnnotatedString(user.email))
-                            Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Badge, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Cambiar Nombre de Invocador", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                        onClick = {
-                            showNameEdit = true
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.LockReset, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Restablecer Contraseña", color = LolHextechCyan, fontSize = 12.5.sp) },
-                        onClick = {
-                            FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
-                            Toast.makeText(context, "Correo de restablecimiento enviado", Toast.LENGTH_SHORT).show()
-                            expanded = false
-                        }
-                    )
-                    HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Asignar Rol: GRATIS", color = TextPrimary, fontSize = 12.5.sp) },
-                        onClick = {
-                            onRoleChange("free")
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Stars, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Asignar Rol: PREMIUM", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                        onClick = {
-                            onRoleChange("premium")
-                            expanded = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        leadingIcon = {
-                            Icon(Icons.Default.Block, contentDescription = null, tint = LolNoxusRed, modifier = Modifier.size(16.dp))
-                        },
-                        text = { Text("Suspender Invocador (BAN)", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                        onClick = {
-                            onRoleChange("banned")
-                            expanded = false
-                        }
-                    )
-                }
+            // 1. Shifting dynamic golden gradient border stroke
+            val startX = (w + h) * shimmerPhase - h
+            val shimmerBrush = Brush.linearGradient(
+                colors = listOf(
+                    LolBorderGoldDark.copy(alpha = 0.7f),
+                    LolBorderGold,
+                    LolGoldLight.copy(alpha = 0.95f),
+                    LolBorderGold,
+                    LolBorderGoldDark.copy(alpha = 0.7f)
+                ),
+                start = Offset(startX, 0f),
+                end = Offset(startX + w * 0.8f, h)
+            )
+
+            drawRoundRect(
+                brush = shimmerBrush,
+                size = size,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()),
+                style = Stroke(width = strokeW)
+            )
+
+            // 2. League of Legends Runic Corner Accents (Top-Left, Top-Right, Bottom-Left, Bottom-Right)
+            val cornerGold = LolGoldLight.copy(alpha = cornerGlowAlpha)
+            val cornerStroke = 2.dp.toPx()
+
+            // Top-Left Corner Bracket
+            drawLine(
+                color = cornerGold,
+                start = Offset(0f, cornerLen),
+                end = Offset(0f, 0f),
+                strokeWidth = cornerStroke
+            )
+            drawLine(
+                color = cornerGold,
+                start = Offset(0f, 0f),
+                end = Offset(cornerLen, 0f),
+                strokeWidth = cornerStroke
+            )
+
+            // Top-Right Corner Bracket
+            drawLine(
+                color = cornerGold,
+                start = Offset(w - cornerLen, 0f),
+                end = Offset(w, 0f),
+                strokeWidth = cornerStroke
+            )
+            drawLine(
+                color = cornerGold,
+                start = Offset(w, 0f),
+                end = Offset(w, cornerLen),
+                strokeWidth = cornerStroke
+            )
+
+            // Bottom-Left Corner Bracket
+            drawLine(
+                color = cornerGold,
+                start = Offset(0f, h - cornerLen),
+                end = Offset(0f, h),
+                strokeWidth = cornerStroke
+            )
+            drawLine(
+                color = cornerGold,
+                start = Offset(0f, h),
+                end = Offset(cornerLen, h),
+                strokeWidth = cornerStroke
+            )
+
+            // Bottom-Right Corner Bracket
+            drawLine(
+                color = cornerGold,
+                start = Offset(w - cornerLen, h),
+                end = Offset(w, h),
+                strokeWidth = cornerStroke
+            )
+            drawLine(
+                color = cornerGold,
+                start = Offset(w, h),
+                end = Offset(w, h - cornerLen),
+                strokeWidth = cornerStroke
+            )
+
+            // 3. Center Runic Diamond Motif on Top Edge
+            val diamondSize = 3.dp.toPx()
+            val midX = w / 2f
+            val path = Path().apply {
+                moveTo(midX, 0f)
+                lineTo(midX + diamondSize, diamondSize)
+                lineTo(midX, diamondSize * 2)
+                lineTo(midX - diamondSize, diamondSize)
+                close()
             }
+            drawPath(
+                path = path,
+                color = LolBorderGold
+            )
         }
     }
 }

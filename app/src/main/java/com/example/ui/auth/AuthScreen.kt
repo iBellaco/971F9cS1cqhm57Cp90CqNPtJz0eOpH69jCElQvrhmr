@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -38,7 +39,8 @@ import com.example.util.AuthManager
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AuthFlowContainer(
-    viewModel: AuthViewModel = viewModel()
+    viewModel: AuthViewModel = viewModel(),
+    onLoginSuccess: (() -> Unit)? = null
 ) {
     val auth = AuthManager.getAuth()
     val context = LocalContext.current
@@ -62,10 +64,11 @@ fun AuthFlowContainer(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    // Triggered when login/register succeeds to force a recomposition with the new user state
+    // Triggered when login/register succeeds to force a recomposition with the new user state and redirect
     val onAuthSuccess: () -> Unit = {
         currentUser = auth?.currentUser
         SubscriptionManager.init(context)
+        onLoginSuccess?.invoke()
     }
 
     Box(
@@ -159,16 +162,47 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuthHeader(
-                title = "Perfil de Usuario",
+                title = "Perfil de Invocador",
                 subtitle = "Sesión iniciada correctamente"
             )
             
-                        val displayName = savedUserName.takeIf { it.isNotBlank() } ?: user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: "Usuario"
+            // Summoner Crest Avatar
+            val finalUserName = savedUserName.takeIf { it.isNotBlank() }
+                ?: user.displayName?.takeIf { it.isNotBlank() }
+                ?: user.email?.substringBefore("@")
+                ?: "Invocador"
+
+            val initialChar = finalUserName.firstOrNull()?.uppercaseChar()?.toString() ?: "U"
+
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.radialGradient(
+                            listOf(com.example.ui.theme.HextechSurfaceVariant, com.example.ui.theme.HextechDarkBg)
+                        )
+                    )
+                    .border(2.dp, com.example.ui.theme.HextechGold, androidx.compose.foundation.shape.CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initialChar,
+                    color = com.example.ui.theme.HextechGold,
+                    fontSize = 26.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
             Text(
-                text = displayName,
+                text = finalUserName,
                 color = com.example.ui.theme.HextechGold,
                 fontSize = 20.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                letterSpacing = 0.3.sp
             )
             
             var isEmailVisible by remember { mutableStateOf(false) }
@@ -178,15 +212,15 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 Text(
                     text = if (isEmailVisible) (user.email ?: "") else "••••••••@••••.com",
-                    color = com.example.ui.theme.TextMuted,
-                    fontSize = 14.sp
+                    color = com.example.ui.theme.TextSecondary,
+                    fontSize = 13.5.sp
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Filled.Info,
                     contentDescription = null,
                     tint = com.example.ui.theme.TextMuted,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(15.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))

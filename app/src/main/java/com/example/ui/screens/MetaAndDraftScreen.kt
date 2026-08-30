@@ -4186,7 +4186,7 @@ private fun TierSelectionPanel(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (region == "NA") tr("América (NA)") else if (region == "CN") tr("China (CN)") else tr("Global (Web)"),
+                            text = if (region == "NA") tr("América (NA)") else if (region == "CN") tr("China (CN)") else tr("Global"),
                             color = if (isSelected) HextechCyan else TextMuted,
                             fontSize = 10.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium

@@ -153,45 +153,68 @@ fun ThemeCustomizationBottomSheet(
 @Composable
 private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) {
     val currentTheme = AppThemeManager.currentTheme
+    var previewTheme by remember { mutableStateOf(currentTheme) }
+
+    // Keep preview synced if currentTheme changes externally
+    LaunchedEffect(currentTheme) {
+        previewTheme = currentTheme
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 28.dp)
     ) {
+        // 1. Interactive Visual Preview & Color Swatch Grid Card
         item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = tr("Selecciona un tema para transformar la paleta de colores, fondos y acentos de toda la aplicación."),
-                        color = TextSecondary,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp
-                    )
+            RegionVisualPreviewGridCard(
+                inspectedTheme = previewTheme,
+                isApplied = currentTheme == previewTheme,
+                isPremium = isPremium,
+                onApply = {
+                    if (isPremium) {
+                        AppThemeManager.setTheme(previewTheme, context)
+                    } else {
+                        android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
+            )
+        }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = tr("Catálogo de Regiones de Runaterra (${AppTheme.entries.size})"),
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.5.sp
+                )
+                Text(
+                    text = tr("Toca para previsualizar"),
+                    color = TextCyan,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
+        // 2. Region Theme Cards List
         items(AppTheme.entries, key = { it.id }) { theme ->
             val isSelected = currentTheme == theme
+            val isInspected = previewTheme == theme
 
             val animatedBorder by animateColorAsState(
-                targetValue = if (isSelected) theme.primary else theme.cardBorder,
+                targetValue = when {
+                    isSelected -> HextechGold
+                    isInspected -> theme.primary
+                    else -> theme.cardBorder.copy(alpha = 0.7f)
+                },
                 animationSpec = tween(300),
                 label = "themeBorder"
             )
@@ -201,15 +224,11 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        if (isPremium) {
-                            AppThemeManager.setTheme(theme, context)
-                        } else {
-                            android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
-                        }
+                        previewTheme = theme
                     },
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = theme.surface),
-                border = BorderStroke(if (isSelected) 2.dp else 1.dp, animatedBorder)
+                border = BorderStroke(if (isSelected || isInspected) 2.dp else 1.dp, animatedBorder)
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Row(
@@ -217,18 +236,18 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                             // Region tag badge
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(6.dp))
-                                    .background(theme.primary.copy(alpha = 0.15f))
-                                    .border(1.dp, theme.primary.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    .background(theme.primary.copy(alpha = 0.18f))
+                                    .border(1.dp, theme.primary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 2.5.dp)
                             ) {
                                 Text(
                                     text = tr(theme.regionTag),
-                                    color = theme.primary,
+                                    color = theme.primaryLight,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -238,33 +257,43 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
                                 text = tr(theme.titleKey),
                                 color = theme.textPrimary,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp
+                                fontSize = 15.sp
                             )
                         }
 
-                        // Radio check icon
-                        if (isSelected) {
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .background(theme.primary),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Seleccionado",
-                                    tint = if (theme.isDark) Color.Black else Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
+                        // State Badge / Selection Indicator
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(HextechGold.copy(alpha = 0.2f))
+                                        .border(1.dp, HextechGold, RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Text(
+                                        text = tr("ACTIVO"),
+                                        color = HextechGold,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                }
+                            } else if (isInspected) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(theme.primary.copy(alpha = 0.2f))
+                                        .border(1.dp, theme.primary, RoundedCornerShape(6.dp))
+                                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Text(
+                                        text = tr("EN VISTA PREVIA"),
+                                        color = theme.primary,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clip(CircleShape)
-                                    .border(1.5.dp, theme.textMuted.copy(alpha = 0.5f), CircleShape)
-                            )
                         }
                     }
 
@@ -279,20 +308,409 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Color swatches preview bar
+                    // Color swatches preview bar with Primary & Secondary highlighted
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ColorChip(color = theme.background, label = "Fondo", textColor = theme.textMuted)
-                        ColorChip(color = theme.surface, label = "Superficie", textColor = theme.textMuted)
-                        ColorChip(color = theme.primary, label = "Primario", textColor = theme.textMuted)
-                        ColorChip(color = theme.secondary, label = "Acento", textColor = theme.textMuted)
+                        PrimarySecondaryColorChip(
+                            color = theme.primary,
+                            label = "Primario",
+                            isAccent = true
+                        )
+                        PrimarySecondaryColorChip(
+                            color = theme.secondary,
+                            label = "Secundario",
+                            isAccent = true
+                        )
+                        ColorChip(color = theme.primaryGlow, label = "Glow", textColor = theme.textMuted)
+                        ColorChip(color = theme.surface, label = "Base", textColor = theme.textMuted)
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        if (!isSelected) {
+                            TextButton(
+                                onClick = {
+                                    if (isPremium) {
+                                        AppThemeManager.setTheme(theme, context)
+                                    } else {
+                                        android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                                modifier = Modifier.height(28.dp)
+                            ) {
+                                Text(
+                                    text = tr("Aplicar"),
+                                    color = if (isPremium) theme.primary else HextechGold,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RegionVisualPreviewGridCard(
+    inspectedTheme: AppTheme,
+    isApplied: Boolean,
+    isPremium: Boolean,
+    onApply: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = inspectedTheme.surface),
+        border = BorderStroke(
+            1.5.dp,
+            Brush.horizontalGradient(
+                listOf(
+                    inspectedTheme.primary,
+                    inspectedTheme.secondary,
+                    inspectedTheme.primaryGlow
+                )
+            )
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            inspectedTheme.background.copy(alpha = 0.85f),
+                            inspectedTheme.surface.copy(alpha = 0.95f)
+                        )
+                    )
+                )
+                .padding(14.dp)
+        ) {
+            // Header: Lore Title + Tag + Live Status
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    listOf(inspectedTheme.primary, inspectedTheme.primaryDark)
+                                )
+                            )
+                            .border(1.5.dp, inspectedTheme.secondary, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = inspectedTheme.textPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = tr(inspectedTheme.titleKey),
+                                color = inspectedTheme.textPrimary,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 16.sp,
+                                letterSpacing = 0.3.sp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(inspectedTheme.primary.copy(alpha = 0.2f))
+                                    .border(0.8.dp, inspectedTheme.primary.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 1.5.dp)
+                            ) {
+                                Text(
+                                    text = tr(inspectedTheme.regionTag),
+                                    color = inspectedTheme.primaryLight,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        Text(
+                            text = tr("Vista previa en tiempo real de paleta y elementos"),
+                            color = inspectedTheme.textSecondary,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Lore Snippet
+            Text(
+                text = tr(inspectedTheme.descKey),
+                color = inspectedTheme.textSecondary,
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Section: Visual Swatch Grid (Primary & Secondary Focus)
+            Text(
+                text = tr("Muestrario de Colores Oficiales:"),
+                color = inspectedTheme.textPrimary,
+                fontSize = 11.5.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 4-Column Color Swatch Grid with Hex codes
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ColorSwatchGridItem(
+                    modifier = Modifier.weight(1f),
+                    color = inspectedTheme.primary,
+                    glowColor = inspectedTheme.primaryGlow,
+                    title = "Primario",
+                    subtitle = "Acciones / Draft",
+                    textColor = inspectedTheme.textPrimary,
+                    isFeatured = true
+                )
+                ColorSwatchGridItem(
+                    modifier = Modifier.weight(1f),
+                    color = inspectedTheme.secondary,
+                    glowColor = inspectedTheme.secondaryGlow,
+                    title = "Secundario",
+                    subtitle = "Acentos / Oro",
+                    textColor = inspectedTheme.textPrimary,
+                    isFeatured = true
+                )
+                ColorSwatchGridItem(
+                    modifier = Modifier.weight(1f),
+                    color = inspectedTheme.primaryGlow,
+                    glowColor = inspectedTheme.primaryLight,
+                    title = "Resplandor",
+                    subtitle = "Aura Rúnica",
+                    textColor = inspectedTheme.textPrimary,
+                    isFeatured = false
+                )
+                ColorSwatchGridItem(
+                    modifier = Modifier.weight(1f),
+                    color = inspectedTheme.surface,
+                    glowColor = inspectedTheme.cardBorder,
+                    title = "Superficie",
+                    subtitle = "Contenedor",
+                    textColor = inspectedTheme.textPrimary,
+                    isFeatured = false
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Live Mini Mockup UI Preview Card
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(inspectedTheme.background)
+                    .border(1.dp, inspectedTheme.cardBorder, RoundedCornerShape(10.dp))
+                    .padding(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Mini mock icon
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(inspectedTheme.primary.copy(alpha = 0.25f))
+                                .border(1.dp, inspectedTheme.primary, RoundedCornerShape(6.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "WR",
+                                color = inspectedTheme.primary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = "Wild Rift Coach Live UI",
+                                color = inspectedTheme.textPrimary,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(inspectedTheme.secondary)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Sinergia S+ / Tier Challenger",
+                                    color = inspectedTheme.secondary,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+
+                    // Apply Action Button inside Preview
+                    Button(
+                        onClick = onApply,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isApplied) inspectedTheme.surfaceVariant else inspectedTheme.primary
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            if (isApplied) inspectedTheme.secondary else inspectedTheme.primaryGlow
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        if (isApplied) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = inspectedTheme.secondary,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = tr("Aplicado"),
+                                color = inspectedTheme.secondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.FlashOn,
+                                contentDescription = null,
+                                tint = inspectedTheme.background,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = tr("Aplicar"),
+                                color = inspectedTheme.background,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatchGridItem(
+    modifier: Modifier,
+    color: Color,
+    glowColor: Color,
+    title: String,
+    subtitle: String,
+    textColor: Color,
+    isFeatured: Boolean
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(HextechDarkBg.copy(alpha = 0.6f))
+            .border(
+                if (isFeatured) 1.2.dp else 0.5.dp,
+                if (isFeatured) color.copy(alpha = 0.8f) else HextechCardBorder.copy(alpha = 0.5f),
+                RoundedCornerShape(8.dp)
+            )
+            .padding(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Swatch Pill with Glow
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(color, glowColor)
+                    )
+                )
+                .border(0.5.dp, Color.White.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = title,
+            color = textColor,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Text(
+            text = subtitle,
+            color = TextMuted,
+            fontSize = 8.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun PrimarySecondaryColorChip(
+    color: Color,
+    label: String,
+    isAccent: Boolean
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(HextechDarkBg.copy(alpha = 0.7f))
+            .border(1.dp, color.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
+            .padding(horizontal = 6.dp, vertical = 3.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(CircleShape)
+                .background(color)
+                .border(0.8.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = tr(label),
+            color = color,
+            fontWeight = FontWeight.Bold,
+            fontSize = 9.5.sp
+        )
     }
 }
 

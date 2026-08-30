@@ -149,6 +149,7 @@ fun MainDraftingScreen(
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showBugReportDialog by remember { mutableStateOf(false) }
     var showDonationDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     // Sincronizar estado del servicio cuando la app pasa a primer plano
     DisposableEffect(lifecycleOwner) {
@@ -207,7 +208,7 @@ fun MainDraftingScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Wild Rift Coach",
+                                text = "« Wild Rift Coach »",
                                 color = TextPrimary,
                                 fontSize = 17.5.sp,
                                 fontWeight = FontWeight.Black,
@@ -236,11 +237,13 @@ fun MainDraftingScreen(
                         }
                     },
                     navigationIcon = {
-                        Row {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 6.dp)
+                        ) {
                             IconButton(
                                 onClick = { showDonationDialog = true },
                                 modifier = Modifier
-                                    .padding(start = 6.dp)
                                     .clip(CircleShape)
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
@@ -254,6 +257,20 @@ fun MainDraftingScreen(
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            IconButton(
+                                onClick = { showThemeDialog = true },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
+                                    .size(38.dp)
+                                    .testTag("nav_theme_button")
+                            ) {
+                                Text("🎨", fontSize = 18.sp)
+                            }
                         }
                     },
                     actions = {
@@ -262,12 +279,12 @@ fun MainDraftingScreen(
                             TextButton(
                                 onClick = { expandedLang = true },
                                 modifier = Modifier
-                                    .padding(end = 6.dp)
+                                    .padding(end = 4.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                             ) {
-                                Text("", fontSize = 16.sp)
+                                Text("🌐", fontSize = 16.sp)
                             }
                             androidx.compose.material3.DropdownMenu(
                                 expanded = expandedLang,
@@ -277,7 +294,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(" Español", color = TextPrimary, fontWeight = FontWeight.Bold)
+                                            Text("🇪🇸 Español", color = TextPrimary, fontWeight = FontWeight.Bold)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(Activo)", color = HextechCyan, fontSize = 12.sp)
                                         }
@@ -290,7 +307,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(" English", color = TextMuted)
+                                            Text("🇺🇸 English", color = TextMuted)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(En mant.)", color = TextMuted, fontSize = 11.sp)
                                         }
@@ -301,7 +318,7 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(" Português", color = TextMuted)
+                                            Text("🇧🇷 Português", color = TextMuted)
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text("(Em manut.)", color = TextMuted, fontSize = 11.sp)
                                         }
@@ -660,6 +677,13 @@ Spacer(modifier = Modifier.height(10.dp))
         if (showDonationDialog) {
             com.example.ui.components.DonationDialog(
                 onDismiss = { showDonationDialog = false }
+            )
+        }
+
+        if (showThemeDialog) {
+            com.example.ui.components.ThemeCustomizationBottomSheet(
+                isPremium = com.example.util.SubscriptionManager.isPremium.collectAsState().value,
+                onDismiss = { showThemeDialog = false }
             )
         }
     }

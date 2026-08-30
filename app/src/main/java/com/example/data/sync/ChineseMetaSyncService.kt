@@ -65,12 +65,12 @@ object ChineseMetaSyncService {
     private val _syncState = MutableStateFlow<ChineseSyncState>(ChineseSyncState.Idle)
     val syncState: StateFlow<ChineseSyncState> = _syncState.asStateFlow()
 
-    private val _currentRegion = MutableStateFlow("CN")
+    private val _currentRegion = MutableStateFlow("BestBuildWR")
     val currentRegion: StateFlow<String> = _currentRegion.asStateFlow()
 
     fun loadRegion(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        _currentRegion.value = prefs.getString("META_REGION", "CN") ?: "CN"
+        _currentRegion.value = prefs.getString("META_REGION", "BestBuildWR") ?: "BestBuildWR"
     }
 
     

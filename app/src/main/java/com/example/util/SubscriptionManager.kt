@@ -30,10 +30,11 @@ object SubscriptionManager {
 
         if (user == null) {
             _userRole.value = "free"
+            _userName.value = ""
             _isPremium.value = false
+            _isBanned.value = false
             roleListener?.remove()
             roleListener = null
-
             return
         }
 
@@ -45,20 +46,22 @@ object SubscriptionManager {
             if (task.isSuccessful) {
                 val snapshot = task.result
                 if (snapshot == null || !snapshot.exists()) {
+                    val initialName = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""
+                    _userName.value = initialName
                     // Create if it doesn't exist. Use SetOptions.merge() just in case.
                     val userData = hashMapOf(
                         "role" to "free",
                         "email" to (user.email ?: ""),
-                        "name" to (user.displayName ?: ""),
+                        "name" to initialName,
                         "last_active" to System.currentTimeMillis()
                     )
                     userRef.set(userData, SetOptions.merge())
                 } else {
-                    val updateData = hashMapOf<String, Any>("last_active" to System.currentTimeMillis())
-                    if (user.displayName?.isNotBlank() == true) {
-                         // Only if we don't already have a name in the snapshot, or just rely on what is already in DB.
-                         // Actually, we shouldn't overwrite the DB name if the DB already exists, because the admin might have changed it.
+                    val dbName = snapshot.getString("name") ?: ""
+                    if (dbName.isNotBlank()) {
+                        _userName.value = dbName
                     }
+                    val updateData = hashMapOf<String, Any>("last_active" to System.currentTimeMillis())
                     userRef.set(updateData, SetOptions.merge())
                 }
             }
@@ -72,17 +75,20 @@ object SubscriptionManager {
                 }
 
                 if (listenSnapshot != null && listenSnapshot.exists()) {
-                                                            val role = listenSnapshot.getString("role") ?: "free"
+                    val role = listenSnapshot.getString("role") ?: "free"
                     val banned = listenSnapshot.getBoolean("banned") ?: false
+                    val name = listenSnapshot.getString("name") ?: ""
+                    if (name.isNotBlank()) {
+                        _userName.value = name
+                    }
                     _userRole.value = role
                     _isBanned.value = (role == "banned" || banned)
                     val isPrem = role == "premium" || role == "admin"
                     _isPremium.value = isPrem
-                    
-
                 } else {
-                                _userRole.value = "free"
-            _isPremium.value = false
+                    _userName.value = ""
+                    _userRole.value = "free"
+                    _isPremium.value = false
                 }
             }
         }

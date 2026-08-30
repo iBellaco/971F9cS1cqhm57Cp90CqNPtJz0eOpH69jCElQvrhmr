@@ -36,9 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import com.example.util.LocalLanguage
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,9 +50,9 @@ import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
 import com.example.ui.components.AppUpdateDialog
 import com.example.ui.screens.InfoScreen
-import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MainDraftingScreen
 import com.example.ui.screens.OnboardingScreen
+import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MetaScreenMode
 import com.example.ui.screens.MetaAndDraftScreen
 import com.example.ui.theme.HextechDarkBg
@@ -63,10 +66,218 @@ import com.example.util.AppUpdateManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import kotlin.math.PI
+import kotlin.math.sin
+import kotlin.random.Random
 
-import androidx.compose.material3.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.automirrored.filled.*
+private enum class NavBarRuneShape {
+    DIAMOND,
+    CROSS_STAR,
+    ORB,
+    RUNIC_PULSE
+}
+
+private data class NavBarParticle(
+    val relX: Float,
+    val relY: Float,
+    val driftSpeed: Float,
+    val swayFreq: Float,
+    val swayAmp: Float,
+    val size: Float,
+    val shape: NavBarRuneShape,
+    val baseColor: Color,
+    val pulsePhase: Float
+)
+
+@Composable
+fun RunicNavBarParticleAnimation(
+    modifier: Modifier = Modifier,
+    particleCount: Int = 16,
+    accentColor: Color = Color(0xFFC8AA6E)
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "navRunicTransition")
+    val animationProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 12000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "navParticleProgress"
+    )
+
+    val particles = remember(accentColor) {
+        val random = Random(77)
+        val colors = listOf(
+            accentColor,
+            Color(0xFF0AC8B9),
+            Color(0xFF00E5FF),
+            Color(0xFFF0E6D2),
+            Color(0xFF818CF8),
+            Color(0xFF00FF7F)
+        )
+        val shapes = NavBarRuneShape.values()
+        List(particleCount) {
+            NavBarParticle(
+                relX = random.nextFloat(),
+                relY = random.nextFloat(),
+                driftSpeed = 0.25f + random.nextFloat() * 0.45f,
+                swayFreq = 1.0f + random.nextFloat() * 2.0f,
+                swayAmp = 0.02f + random.nextFloat() * 0.04f,
+                size = 2.5f + random.nextFloat() * 5.0f,
+                shape = shapes[random.nextInt(shapes.size)],
+                baseColor = colors[random.nextInt(colors.size)],
+                pulsePhase = random.nextFloat() * (2f * PI.toFloat())
+            )
+        }
+    }
+
+    Canvas(modifier = modifier) {
+        val width = size.width
+        val height = size.height
+        if (width <= 0 || height <= 0) return@Canvas
+
+        // Soft atmospheric ambient glow
+        drawRect(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    accentColor.copy(alpha = 0.08f),
+                    Color(0xFF0AC8B9).copy(alpha = 0.04f),
+                    Color.Transparent
+                ),
+                center = Offset(width * 0.5f, height * 0.5f),
+                radius = width * 0.5f
+            )
+        )
+
+        val computedPoints = particles.map { p ->
+            val rawY = (p.relY - animationProgress * p.driftSpeed) % 1f
+            val currentY = if (rawY < 0f) rawY + 1f else rawY
+            val sway = sin(animationProgress * 2f * PI.toFloat() * p.swayFreq + p.pulsePhase) * p.swayAmp
+            val currentX = (p.relX + sway).coerceIn(0.01f, 0.99f)
+            val px = currentX * width
+            val py = currentY * height
+            val alpha = (sin(animationProgress * 2f * PI.toFloat() * 1.5f + p.pulsePhase) * 0.35f + 0.5f).coerceIn(0.1f, 0.85f)
+            Triple(Offset(px, py), alpha, p)
+        }
+
+        // Draw connective constellation lines
+        for (i in computedPoints.indices) {
+            val (pos1, alpha1, p1) = computedPoints[i]
+            for (j in i + 1 until computedPoints.size) {
+                val (pos2, alpha2, _) = computedPoints[j]
+                val dx = pos1.x - pos2.x
+                val dy = pos1.y - pos2.y
+                val dist = dx * dx + dy * dy
+                val maxDist = (width * 0.18f) * (width * 0.18f)
+                if (dist < maxDist) {
+                    val lineAlpha = (1f - dist / maxDist) * 0.12f * ((alpha1 + alpha2) * 0.5f)
+                    drawLine(
+                        brush = Brush.linearGradient(
+                            listOf(
+                                p1.baseColor.copy(alpha = lineAlpha),
+                                accentColor.copy(alpha = lineAlpha * 0.5f)
+                            )
+                        ),
+                        start = pos1,
+                        end = pos2,
+                        strokeWidth = 0.8f
+                    )
+                }
+            }
+        }
+
+        // Draw runic particle shapes
+        for ((pos, alpha, p) in computedPoints) {
+            val px = pos.x
+            val py = pos.y
+            val baseRadius = p.size
+
+            // Soft glowing halo
+            drawCircle(
+                color = p.baseColor.copy(alpha = alpha * 0.2f),
+                radius = baseRadius * 2.5f,
+                center = pos
+            )
+
+            when (p.shape) {
+                NavBarRuneShape.DIAMOND -> {
+                    val path = Path().apply {
+                        moveTo(px, py - baseRadius)
+                        lineTo(px + baseRadius * 0.75f, py)
+                        lineTo(px, py + baseRadius)
+                        lineTo(px - baseRadius * 0.75f, py)
+                        close()
+                    }
+                    drawPath(path, color = p.baseColor.copy(alpha = alpha))
+                    drawPath(
+                        path,
+                        color = Color(0xFFF0E6D2).copy(alpha = alpha * 0.8f),
+                        style = Stroke(width = 0.8f)
+                    )
+                }
+                NavBarRuneShape.CROSS_STAR -> {
+                    val armLength = baseRadius * 1.3f
+                    val starColor = p.baseColor.copy(alpha = alpha)
+                    drawLine(
+                        color = starColor,
+                        start = Offset(px - armLength, py),
+                        end = Offset(px + armLength, py),
+                        strokeWidth = 1f
+                    )
+                    drawLine(
+                        color = starColor,
+                        start = Offset(px, py - armLength),
+                        end = Offset(px, py + armLength),
+                        strokeWidth = 1f
+                    )
+                    drawCircle(
+                        color = Color.White.copy(alpha = alpha),
+                        radius = baseRadius * 0.3f,
+                        center = pos
+                    )
+                }
+                NavBarRuneShape.ORB -> {
+                    drawCircle(
+                        color = p.baseColor.copy(alpha = alpha * 0.8f),
+                        radius = baseRadius * 0.65f,
+                        center = pos
+                    )
+                    drawCircle(
+                        color = Color.White.copy(alpha = alpha * 0.9f),
+                        radius = baseRadius * 0.25f,
+                        center = pos
+                    )
+                }
+                NavBarRuneShape.RUNIC_PULSE -> {
+                    drawCircle(
+                        color = p.baseColor.copy(alpha = alpha * 0.65f),
+                        radius = baseRadius * 0.85f,
+                        center = pos,
+                        style = Stroke(width = 1f)
+                    )
+                    drawCircle(
+                        color = accentColor.copy(alpha = alpha * 0.85f),
+                        radius = baseRadius * 0.3f,
+                        center = pos
+                    )
+                }
+            }
+        }
+    }
+}
+
 enum class AppScreen {
     ONBOARDING,
     LOGIN,
@@ -172,79 +383,117 @@ fun DashboardScreen(
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         bottomBar = {
-            NavigationBar(
-                containerColor = navBg,
-                contentColor = navSelectedText
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(navBg)
             ) {
-                // 1. Inicio
-                NavigationBarItem(
-                    selected = pagerState.currentPage == 0,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
-                    label = { Text(tr("Inicio")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
-                    )
+                // Ambient Runic Particles Floating across Bottom Navigation Bar in background
+                RunicNavBarParticleAnimation(
+                    modifier = Modifier.matchParentSize(),
+                    particleCount = 16,
+                    accentColor = navAccent
                 )
-                // 2. Selección (Drafting)
-                NavigationBarItem(
-                    selected = pagerState.currentPage == 1,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
-                    icon = { Icon(Icons.Default.Groups, contentDescription = "Selección") },
-                    label = { Text(tr("Selección")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
-                    )
+
+                // Top golden/accent glowing divider line
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    Color.Transparent,
+                                    navAccent.copy(alpha = 0.6f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
                 )
-                // 3. Tier List
-                NavigationBarItem(
-                    selected = pagerState.currentPage == 2,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
-                    icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
-                    label = { Text(tr("Tier List")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
+
+                NavigationBar(
+                    containerColor = Color.Transparent,
+                    contentColor = navSelectedText
+                ) {
+                    // 1. Inicio
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == 0,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+                        label = { Text(tr("Inicio")) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = navSelectedIcon,
+                            selectedTextColor = navSelectedText,
+                            indicatorColor = navIndicator,
+                            unselectedIconColor = navUnselected,
+                            unselectedTextColor = navUnselected
+                        )
                     )
-                )
-                // 4. Catálogo (Objetos, Runas, Hechizos)
-                NavigationBarItem(
-                    selected = pagerState.currentPage == 3,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
-                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Catálogo") },
-                    label = { Text(tr("Catálogo")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
+                    // 2. Selección (Drafting)
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == 1,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
+                        icon = { Icon(Icons.Default.Groups, contentDescription = "Selección") },
+                        label = { Text(tr("Selección")) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = navSelectedIcon,
+                            selectedTextColor = navSelectedText,
+                            indicatorColor = navIndicator,
+                            unselectedIconColor = navUnselected,
+                            unselectedTextColor = navUnselected
+                        )
                     )
-                )
-                // 5. Usuario
-                NavigationBarItem(
-                    selected = pagerState.currentPage == 4,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Usuario") },
-                    label = { Text(tr("Usuario")) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = navSelectedIcon,
-                        selectedTextColor = navSelectedText,
-                        indicatorColor = navIndicator,
-                        unselectedIconColor = navUnselected,
-                        unselectedTextColor = navUnselected
+                    // 3. Tier List
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == 2,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
+                        icon = { Icon(Icons.Default.TrendingUp, contentDescription = "Tier List") },
+                        label = { Text(tr("Tier List")) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = navSelectedIcon,
+                            selectedTextColor = navSelectedText,
+                            indicatorColor = navIndicator,
+                            unselectedIconColor = navUnselected,
+                            unselectedTextColor = navUnselected
+                        )
                     )
+                    // 4. Catálogo (Objetos, Runas, Hechizos)
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == 3,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(3) } },
+                        icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Catálogo") },
+                        label = { Text(tr("Catálogo")) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = navSelectedIcon,
+                            selectedTextColor = navSelectedText,
+                            indicatorColor = navIndicator,
+                            unselectedIconColor = navUnselected,
+                            unselectedTextColor = navUnselected
+                        )
+                    )
+                    // 5. Usuario
+                    NavigationBarItem(
+                        selected = pagerState.currentPage == 4,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
+                        icon = { Icon(Icons.Default.Person, contentDescription = "Usuario") },
+                        label = { Text(tr("Usuario")) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = navSelectedIcon,
+                            selectedTextColor = navSelectedText,
+                            indicatorColor = navIndicator,
+                            unselectedIconColor = navUnselected,
+                            unselectedTextColor = navUnselected
+                        )
+                    )
+                }
+
+                // Ambient Runic Particles Floating across Bottom Navigation Bar
+                RunicNavBarParticleAnimation(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clipToBounds(),
+                    particleCount = 14,
+                    accentColor = navAccent
                 )
             }
         }
@@ -293,7 +542,13 @@ fun DashboardScreen(
                     )
                 }
                 4 -> {
-                    com.example.ui.auth.AuthFlowContainer()
+                    com.example.ui.auth.AuthFlowContainer(
+                        onLoginSuccess = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(0)
+                            }
+                        }
+                    )
                 }
                 else -> {
                     MainDraftingScreen(
