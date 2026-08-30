@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -62,8 +63,8 @@ fun AvatarSelectionBottomSheet(
         "Runaterra / Varios"
     )
 
-    val filteredAvatars = remember(selectedFilter) {
-        when (selectedFilter) {
+    val groupedAvatars = remember(selectedFilter) {
+        val filtered = when (selectedFilter) {
             "Jonia" -> AvatarCatalog.avatars.filter { it.region.equals("Jonia", ignoreCase = true) }
             "Zaun / Piltóver" -> AvatarCatalog.avatars.filter {
                 it.region.contains("Zaun", ignoreCase = true) || it.region.contains("Piltóver", ignoreCase = true)
@@ -79,6 +80,7 @@ fun AvatarSelectionBottomSheet(
             }
             else -> AvatarCatalog.avatars
         }
+        filtered.groupBy { it.region }.toSortedMap()
     }
 
     // Modal Bottom Sheet / Full Screen Dialog
@@ -294,7 +296,17 @@ fun AvatarSelectionBottomSheet(
                     .weight(1f)
                     .padding(bottom = 16.dp)
             ) {
-                items(filteredAvatars, key = { it.id }) { avatar ->
+                groupedAvatars.forEach { (region, avatarsInRegion) ->
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = region.uppercase(),
+                            color = HextechGoldLight,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 4.dp)
+                        )
+                    }
+                    items(avatarsInRegion, key = { it.id }) { avatar ->
                     val isEquipped = currentAvatarId.equals(avatar.id, ignoreCase = true)
                     val isGifted = unlockedAvatars.contains(avatar.id)
                     val canEquip = isPremium || userRole == "admin" || avatar.isDefault || isGifted
@@ -308,10 +320,10 @@ fun AvatarSelectionBottomSheet(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
+                            .clickable(enabled = canEquip || isEquipped) {
                                 if (isEquipped) {
                                     Toast.makeText(context, "Este avatar ya está equipado.", Toast.LENGTH_SHORT).show()
-                                } else if (canEquip) {
+                                } else {
                                     isUpdating = true
                                     SubscriptionManager.changeAvatar(
                                         avatarId = avatar.id,
@@ -324,8 +336,6 @@ fun AvatarSelectionBottomSheet(
                                             Toast.makeText(context, err, Toast.LENGTH_LONG).show()
                                         }
                                     )
-                                } else {
-                                    showPremiumRequiredDialog = avatar
                                 }
                             }
                             .border(
@@ -335,7 +345,7 @@ fun AvatarSelectionBottomSheet(
                             ),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isEquipped) HextechGold.copy(alpha = 0.12f) else HextechSurface
+                            containerColor = if (isEquipped) HextechGold.copy(alpha = 0.12f) else if (!canEquip) HextechSurface.copy(alpha = 0.5f) else HextechSurface
                         )
                     ) {
                         Column(
@@ -372,17 +382,17 @@ fun AvatarSelectionBottomSheet(
                                 } else if (!canEquip) {
                                     Box(
                                         modifier = Modifier
-                                            .size(18.dp)
+                                            .size(24.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF0F172A).copy(alpha = 0.9f))
-                                            .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape),
+                                            .background(Color(0xFF0F172A).copy(alpha = 0.95f))
+                                            .border(1.5.dp, HextechGold, CircleShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             Icons.Default.Lock,
                                             contentDescription = "Bloqueado",
                                             tint = HextechGold,
-                                            modifier = Modifier.size(11.dp)
+                                            modifier = Modifier.size(14.dp)
                                         )
                                     }
                                 } else if (isGifted && !avatar.isDefault) {
@@ -455,6 +465,7 @@ fun AvatarSelectionBottomSheet(
                         }
                     }
                 }
+                } // End of forEach
             }
         }
     }
