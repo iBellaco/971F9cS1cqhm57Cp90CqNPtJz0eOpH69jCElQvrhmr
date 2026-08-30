@@ -1,4 +1,6 @@
-package com.example.ui.components
+import re
+
+new_admin_code = '''package com.example.ui.components
 
 import android.util.Log
 import android.widget.Toast
@@ -984,3 +986,9 @@ fun AdminStatCard(
         }
     }
 }
+'''
+
+with open('app/src/main/java/com/example/ui/components/AdminDashboardDialog.kt', 'w') as f:
+    f.write(new_admin_code)
+
+print("AdminDashboardDialog updated with LoL Universe Theme, search bar, and color animations.")
