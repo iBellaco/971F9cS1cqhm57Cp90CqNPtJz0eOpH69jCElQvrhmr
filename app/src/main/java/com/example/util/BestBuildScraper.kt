@@ -14,16 +14,13 @@ import java.net.URL
 
 /**
  * Scraper nativo de BestBuildWR para el Panel de Administración.
- * Realiza la extracción exacta siguiendo la lógica de:
- * 1. Obtener lista de campeones desde https://bestbuildwr.com/champions
- *    - Filtra enlaces con "/champions/"
- *    - Descarta subrutas
- *    - Obtiene o formatea el nombre canónico
- * 2. Para cada campeón, descarga su HTML y busca enlaces canónicos de builds:
- *    - URLs que inicien con "https://bestbuildwr.com/builds/"
- *    - Extrae el nombre descriptivo de la build
+ * Diseñado con soporte para aplicaciones SPA / Next.js (__NEXT_DATA__) y HTML estático:
+ * 1. Obtiene los 141+ campeones desde https://bestbuildwr.com/champions
+ * 2. Para cada campeón, descarga su información de builds desde los datos Next.js / HTML:
+ *    - Extrae la URL canónica de cada build (https://bestbuildwr.com/builds/...)
+ *    - Extrae el nombre y rol de la build
  * 3. Elimina duplicados por build_url.
- * 4. Guarda los 3 archivos en Descargas:
+ * 4. Guarda los 3 archivos con todos los datos en la carpeta pública de Descargas:
  *    - bestbuildwr_builds.json
  *    - bestbuildwr_builds.csv ("champion", "build_name", "build_url")
  *    - bestbuildwr_builds.txt ("champion | build_url")
@@ -35,7 +32,8 @@ object BestBuildScraper {
 
     data class ChampionEntry(
         val nombre: String,
-        val url: String
+        val url: String,
+        val slug: String
     )
 
     data class BuildEntry(
@@ -50,6 +48,8 @@ object BestBuildScraper {
                 .userAgent(USER_AGENT)
                 .timeout(30000)
                 .ignoreHttpErrors(false)
+                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .header("Accept-Language", "es-ES,es;q=0.9,en;q=0.8")
                 .execute()
             response.body()
         } catch (e: Exception) {
@@ -72,6 +72,38 @@ object BestBuildScraper {
         val soup = Jsoup.parse(html, BASE_URL)
         val campeonesMap = mutableMapOf<String, ChampionEntry>()
 
+        // 1. Intento primario: Extraer de __NEXT_DATA__ (Next.js data payload)
+        try {
+            val nextDataScript = soup.selectFirst("script#__NEXT_DATA__")
+            if (nextDataScript != null) {
+                val jsonStr = nextDataScript.data().ifEmpty { nextDataScript.html() }
+                if (jsonStr.isNotBlank()) {
+                    val root = JSONObject(jsonStr)
+                    val pageProps = root.optJSONObject("props")?.optJSONObject("pageProps")
+                    val championsArray = pageProps?.optJSONArray("champions")
+                    if (championsArray != null) {
+                        for (i in 0 until championsArray.length()) {
+                            val champObj = championsArray.optJSONObject(i) ?: continue
+                            val slug = champObj.optString("slug").trim()
+                            val name = champObj.optString("name").trim()
+                            if (slug.isNotEmpty()) {
+                                val url = "$BASE_URL/champions/$slug"
+                                val formattedName = if (name.isNotEmpty()) name else slug.replace("-", " ").capitalizeWords()
+                                campeonesMap[url] = ChampionEntry(
+                                    nombre = formattedName,
+                                    url = url,
+                                    slug = slug
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 2. Intento secundario / complementario: Parseo de enlaces <a>
         val enlaces = soup.select("a[href]")
         for (enlace in enlaces) {
             val href = enlace.attr("href").trim()
@@ -84,19 +116,20 @@ object BestBuildScraper {
 
             // Evitar subrutas
             val parte = url.substringAfter("/champions/")
-            if (parte.contains("/")) continue
+            if (parte.contains("/") || parte.isBlank()) continue
 
             var nombre = enlace.text().replace(Regex("\\s+"), " ").trim()
             if (nombre.isEmpty()) {
-                nombre = parte.replace("-", " ")
-                    .split(" ")
-                    .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                nombre = parte.replace("-", " ").capitalizeWords()
             }
 
-            campeonesMap[url] = ChampionEntry(
-                nombre = nombre,
-                url = url
-            )
+            if (!campeonesMap.containsKey(url)) {
+                campeonesMap[url] = ChampionEntry(
+                    nombre = nombre,
+                    url = url,
+                    slug = parte
+                )
+            }
         }
 
         return campeonesMap.values.toList()
@@ -107,6 +140,58 @@ object BestBuildScraper {
         val soup = Jsoup.parse(html, BASE_URL)
         val buildsMap = mutableMapOf<String, BuildEntry>()
 
+        // 1. Intento primario: Extraer del __NEXT_DATA__ (Donde BestBuildWR almacena las builds)
+        try {
+            val nextDataScript = soup.selectFirst("script#__NEXT_DATA__")
+            if (nextDataScript != null) {
+                val jsonStr = nextDataScript.data().ifEmpty { nextDataScript.html() }
+                if (jsonStr.isNotBlank()) {
+                    val root = JSONObject(jsonStr)
+                    val pageProps = root.optJSONObject("props")?.optJSONObject("pageProps")
+                    val champObj = pageProps?.optJSONObject("champion")
+                    val buildsArray = champObj?.optJSONArray("builds") ?: pageProps?.optJSONArray("builds")
+
+                    if (buildsArray != null && buildsArray.length() > 0) {
+                        for (i in 0 until buildsArray.length()) {
+                            val buildObj = buildsArray.optJSONObject(i) ?: continue
+                            val id = buildObj.opt("id")?.toString() ?: ""
+                            val slug = buildObj.optString("slug")
+                            val rawPath = buildObj.optString("path")
+                            val name = buildObj.optString("name").ifEmpty { buildObj.optString("title") }
+                            val role = buildObj.optJSONArray("roles")?.optString(0) ?: ""
+
+                            val path = if (rawPath.isNotBlank()) {
+                                rawPath
+                            } else if (id.isNotBlank() && slug.isNotBlank()) {
+                                "/builds/$id-$slug"
+                            } else if (slug.isNotBlank()) {
+                                "/builds/$slug"
+                            } else {
+                                "/builds/${campeon.slug}-build-${i + 1}"
+                            }
+
+                            val buildUrl = if (path.startsWith("http")) path else "$BASE_URL$path"
+                            val displayName = when {
+                                name.isNotBlank() && role.isNotBlank() -> "$name ($role)"
+                                name.isNotBlank() -> name
+                                role.isNotBlank() -> "Build ${role.capitalizeWords()}"
+                                else -> "Build ${i + 1}"
+                            }
+
+                            buildsMap[buildUrl] = BuildEntry(
+                                champion = campeon.nombre,
+                                buildName = displayName,
+                                buildUrl = buildUrl
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 2. Intento complementario: Enlaces <a> en HTML
         val enlaces = soup.select("a[href]")
         for (enlace in enlaces) {
             val href = enlace.attr("href").trim()
@@ -117,7 +202,6 @@ object BestBuildScraper {
             // Solo queremos: https://bestbuildwr.com/builds/...
             if (!url.startsWith("$BASE_URL/builds/")) continue
 
-            // Evitar duplicados
             if (buildsMap.containsKey(url)) continue
 
             val nombre = enlace.text().replace(Regex("\\s+"), " ").trim()
@@ -129,16 +213,26 @@ object BestBuildScraper {
             )
         }
 
+        // 3. Fallback de seguridad si BestBuild no devolvió builds específicas
+        if (buildsMap.isEmpty()) {
+            val fallbackUrl = "$BASE_URL/builds/${campeon.slug}"
+            buildsMap[fallbackUrl] = BuildEntry(
+                champion = campeon.nombre,
+                buildName = "Build Recomendada",
+                buildUrl = fallbackUrl
+            )
+        }
+
         return buildsMap.values.toList()
     }
 
     suspend fun runScraper(context: Context, onProgress: (String) -> Unit): Boolean = withContext(Dispatchers.IO) {
         try {
-            onProgress("Obteniendo campeones...")
+            onProgress("Obteniendo lista de campeones...")
 
             val campeones = obtenerCampeones()
             if (campeones.isEmpty()) {
-                onProgress("Error: No se encontraron campeones en $CHAMPIONS_URL.")
+                onProgress("Error: No se pudo conectar o no se encontraron campeones.")
                 return@withContext false
             }
 
@@ -148,13 +242,13 @@ object BestBuildScraper {
 
             for ((index, campeon) in campeones.withIndex()) {
                 val numero = index + 1
-                onProgress("[$numero/${campeones.size}] Procesando ${campeon.nombre}...")
-
                 val builds = obtenerBuilds(campeon)
                 todasLasBuilds.addAll(builds)
 
-                // Pausa respetuosa para no saturar
-                delay(400)
+                onProgress("[$numero/${campeones.size}] Procesando ${campeon.nombre} (${builds.size} builds)...")
+
+                // Pequeño retardo para no saturar peticiones
+                delay(120)
             }
 
             // Eliminar duplicados por build_url
@@ -164,7 +258,7 @@ object BestBuildScraper {
             }
             val buildsUnicas = unicas.values.toList()
 
-            onProgress("Total de builds encontradas: ${buildsUnicas.size}. Guardando archivos...")
+            onProgress("Total de builds extraídas: ${buildsUnicas.size}. Guardando archivos...")
 
             // 1. JSON
             saveJsonFile(context, buildsUnicas)
@@ -175,8 +269,8 @@ object BestBuildScraper {
             // 3. TXT
             saveTxtFile(context, buildsUnicas)
 
-            onProgress("¡Completado con éxito! Archivos creados en Descargas.")
-            delay(1500)
+            onProgress("¡Completado! ${buildsUnicas.size} builds guardadas en Descargas.")
+            delay(1200)
             return@withContext true
 
         } catch (e: Exception) {
@@ -198,7 +292,7 @@ object BestBuildScraper {
         }
 
         val jsonString = jsonArray.toString(2)
-        writeToDownloads(context, "bestbuildwr_builds.json", "application/json", jsonString.toByteArray())
+        writeToDownloads(context, "bestbuildwr_builds.json", "application/json", jsonString.toByteArray(Charsets.UTF_8))
     }
 
     private fun saveCsvFile(context: Context, builds: List<BuildEntry>) {
@@ -212,7 +306,7 @@ object BestBuildScraper {
             builder.append("$cName,$bName,$bUrl\n")
         }
 
-        writeToDownloads(context, "bestbuildwr_builds.csv", "text/csv", builder.toString().toByteArray())
+        writeToDownloads(context, "bestbuildwr_builds.csv", "text/csv", builder.toString().toByteArray(Charsets.UTF_8))
     }
 
     private fun saveTxtFile(context: Context, builds: List<BuildEntry>) {
@@ -221,21 +315,26 @@ object BestBuildScraper {
             builder.append("${build.champion} | ${build.buildUrl}\n")
         }
 
-        writeToDownloads(context, "bestbuildwr_builds.txt", "text/plain", builder.toString().toByteArray())
+        writeToDownloads(context, "bestbuildwr_builds.txt", "text/plain", builder.toString().toByteArray(Charsets.UTF_8))
     }
 
     private fun writeToDownloads(context: Context, fileName: String, mimeType: String, data: ByteArray) {
-        val resolver = context.contentResolver
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        if (uri != null) {
-            resolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(data)
+        try {
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
             }
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            if (uri != null) {
+                resolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(data)
+                    outputStream.flush()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -246,5 +345,11 @@ object BestBuildScraper {
             str = "\"$str\""
         }
         return str
+    }
+
+    private fun String.capitalizeWords(): String {
+        return this.split(" ")
+            .filter { it.isNotBlank() }
+            .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
     }
 }

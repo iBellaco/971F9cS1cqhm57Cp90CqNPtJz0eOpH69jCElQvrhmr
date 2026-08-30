@@ -569,7 +569,26 @@ def obtener_builds(campeon):
 
     builds = {}
 
-    # Buscar TODOS los enlaces
+    # 1. Extraer de __NEXT_DATA__ (Next.js SPA data)
+    next_data = soup.find("script", id="__NEXT_DATA__")
+    if next_data and next_data.string:
+        try:
+            data = json.loads(next_data.string)
+            c_props = data.get("props", {}).get("pageProps", {}).get("champion", {})
+            builds_list = c_props.get("builds", [])
+            for b in builds_list:
+                b_path = b.get("path") or f"/builds/{b.get('id')}-{b.get('slug')}"
+                b_url = urljoin(BASE_URL, b_path)
+                b_name = b.get("name") or "Build General"
+                builds[b_url] = {
+                    "champion": campeon["nombre"],
+                    "build_url": b_url,
+                    "build_name": b_name
+                }
+        except Exception:
+            pass
+
+    # 2. Buscar enlaces <a> en HTML
     for enlace in soup.find_all(
         "a",
         href=True
@@ -582,12 +601,7 @@ def obtener_builds(campeon):
             href
         )
 
-        # ESTA es la parte importante
-        #
-        # Solo queremos:
-        #
-        # https://bestbuildwr.com/builds/...
-        #
+        # Solo queremos: https://bestbuildwr.com/builds/...
         if not url.startswith(
             BASE_URL + "/builds/"
         ):
@@ -605,7 +619,7 @@ def obtener_builds(campeon):
         builds[url] = {
             "champion": campeon["nombre"],
             "build_url": url,
-            "build_name": nombre
+            "build_name": nombre if nombre else "Build General"
         }
 
     resultado = list(
