@@ -131,6 +131,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Continuo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Eco De Luden",
+          "Tormenta De Liandry",
+          "Botas De Maná [ Nivel 3 ]",
+          "Cetro De Cristal De Rylai",
+          "Sombrero Mortal De Rabadon",
+          "Orbe Infinito",
+          "Orbe Infinito"
+        ],
+        "runes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -262,6 +282,26 @@
     "build2Spells": [
       "Curar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Eco Armónico",
+          "Botas Jónicas De Lucidez [ Nivel 3 ]",
+          "Bastón De Aguas Fluidas",
+          "Bendición De Mikael",
+          "Incensario Ardiente",
+          "Incensario Ardiente"
+        ],
+        "runes": "AERY,AERY,FUENTE DE VIDA,Revestimiento de huesos,REVITALIZAR,TRASCENDENCIA",
+        "spells": [
+          "CURAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -385,6 +425,24 @@
     "build2Spells": [
       "Destello",
       "Fantasmal"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Fuerza Trinitaria",
+          "Corazón De Acero",
+          "Égida Del Fuego Solar",
+          "Malla De Espinas",
+          "Fuerza De La Naturaleza",
+          "El Presagio De Randuin"
+        ],
+        "runes": "Garras del Inmortal (Valor)",
+        "spells": [
+          "Destello",
+          "Fantasmal"
+        ]
+      }
     ]
   },
   {
@@ -523,6 +581,44 @@
     "build2Spells": [
       "APLASTAR",
       "DESTELLO"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Blindadas",
+          "Warmong",
+          "Coraza Dual Purpúrea",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Corazón De Hielo",
+          "Rookern Kaénico",
+          "Malla De Espina"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,HEXTELLO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Tanque (Jungla)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Blindadas",
+          "Warmong",
+          "Coraza Dual Purpúrea",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Corazón De Hielo",
+          "Rookern Kaénico",
+          "Malla De Espina"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,HEXTELLO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -656,6 +752,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [
+          "Perdición Del Liche",
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Bastón Del Vacío",
+          "Velo Del Hada De La Muerte",
+          "Tridente De Oceánida"
+        ],
+        "runes": "Cosecha Oscura,Impacto Repentino,Tirano,Cazador Incesante,Sobrecrecimiento",
+        "spells": [
+          "Aplastar",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -765,7 +881,15 @@
       "Primer Golpe"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "nocturne",
@@ -899,6 +1023,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Filoscuro De Draktharr",
+          "Grebas Codiciosas",
+          "Colmillo De Serpiente",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Firmamento Desgarrado",
+          "Ángel De La Guarda",
+          "Botas Dinámicas"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,TRASCENDENCIA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -1032,6 +1176,44 @@
     "build2Spells": [
       "Destello",
       "Barrera"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Precisión Infalibre",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Malignidad",
+          "Bastón Del Vacío",
+          "Botas De Maná"
+        ],
+        "runes": "COSECHA OSCURA,COSECHA OSCURA,IMPACTO REPENTINO,TIRANO,COLECCIÓN DE GLOBOS OCULARES,SE AVECINA TORMENTA",
+        "spells": [
+          "BARRERA",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Precisión Infalibre",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Malignidad",
+          "Bastón Del Vacío",
+          "Botas De Maná"
+        ],
+        "runes": "COSECHA OSCURA,COSECHA OSCURA,IMPACTO REPENTINO,TIRANO,COLECCIÓN DE GLOBOS OCULARES,SE AVECINA TORMENTA",
+        "spells": [
+          "BARRERA",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -1299,6 +1481,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Botas Blindadas",
+          "Baile De La Muerte",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Rookern Kaénico",
+          "Experimento De Hexarmadura",
+          "Calibrador De Sterak",
+          "Botas De Mercurio"
+        ],
+        "runes": "CONQUISTADOR,CONQUISTADOR,TRIUNFO,DERRIBADO,LEYENDA: LINAJE,CAPA DEL NIMBO",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -1432,6 +1634,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Antorcha De Fuego Negro",
+          "Orbe Infinito",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Sobrecarga Tormentosa",
+          "Bastón Del Vacío",
+          "Morellonomicón"
+        ],
+        "runes": "Conquistador,Banda De Maná,Trascendencia,Se Avecina Tormenta,Revestimiento De Huesos",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -1555,7 +1777,27 @@
       "Soberano Gélido"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Corazón De Acero",
+          "Égida De Fuego Solar",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea",
+          "Túnica Del Mediodía",
+          "Presagio De Randuin"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,PERSEVERANCIA,TRASCENDENCIA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
+    ]
   },
   {
     "id": "pantheon",
@@ -1692,6 +1934,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [
+          "Viento Huracanado",
+          "Colmillo De Serpiente",
+          "Botas Dinámicas",
+          "Hoja Del Rey Arruinado",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Recuerdos De Lord Dominik",
+          "Filo De La Noche",
+          "Recordatorio Letal"
+        ],
+        "runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Brutal",
+        "spells": [
+          "Aplastar",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -1830,6 +2092,44 @@
     "build2Spells": [
       "Destello",
       "Aplastar"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Corazón De Acero",
+          "Égida De Fuego Solar",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Coraza Del Muerto",
+          "Fuerza De La Naturaleza",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,IMPACTO REPENTINO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Botas Blindadas",
+          "Corazón De Acero",
+          "Égida De Fuego Solar",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Coraza Del Muerto",
+          "Fuerza De La Naturaleza",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,IMPACTO REPENTINO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -1963,6 +2263,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Letalidad (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Dinámicas",
+          "Filo Fantasmal De Youmuu",
+          "Filoscuro De Draktharr",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Colmillo De Serpiente",
+          "Filo De La Noche",
+          "Filo De La Noche"
+        ],
+        "runes": "Electrocutar,Electrocutar,INQUEBRANTABLE,FUERZAS RENOVADAS,PERSEVERANCIA,IMPACTO REPENTINO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -2095,6 +2415,44 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Covergencia De Zeke",
+          "Botas Jónicas De Lucidez [ Nivel 3 ]",
+          "Cinturón Cohete Hextech",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina",
+          "Escudo Reliquia"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,TRASCENDENCIA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Covergencia De Zeke",
+          "Botas Jónicas De Lucidez [ Nivel 3 ]",
+          "Cinturón Cohete Hextech",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina",
+          "Escudo Reliquia"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,TRASCENDENCIA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -2215,7 +2573,26 @@
       "Soberano Gélido"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Tanque (Jungla)",
+        "items": [
+          "Coraza Del Muerto",
+          "Botas Blindadas",
+          "Velo Del Amanecer",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Placa De Piedra De Gárgola",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,Revestimiento de huesos,SOBRECRECIMIENTO,LEYENDA: PRESTEZA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      }
+    ]
   },
   {
     "id": "rell",
@@ -2351,6 +2728,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Blindadas",
+          "Covergencia De Zeke",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Velo Del Amanecer",
+          "Virtud Radiante",
+          "Fuerza De La Naturaleza",
+          "Botas De Mercurio"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,FUERZAS RENOVADAS,PERSEVERANCIA,CELERIDAD",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -2484,6 +2881,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Hoja Del Rey Arruinado",
+          "Cuchilla Negra",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Lanza De Shojin",
+          "Baile De La Muerte",
+          "Calibrador De Sterak",
+          "Botas De Mercurio"
+        ],
+        "runes": "Conquistador,Coraje Del Coloso,Revestimiento De Huesos,Sobrecrecimiento,Brutal",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -2595,7 +3012,15 @@
       "Garras del Inmortal"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Críticos (Jungla)",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "riven",
@@ -2704,7 +3129,21 @@
       "Garras del Inmortal"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      },
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "rumble",
@@ -2841,6 +3280,44 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Barón (Top))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Sobrecarga Tormentosa",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Reloj De Arena De Zhonya",
+          "Bastón Del Vacío",
+          "Botas De Mercurio"
+        ],
+        "runes": "COSECHA OSCURA,COSECHA OSCURA,GOLPE BAJO,TIRANO,COLECCIÓN DE GLOBOS OCULARES,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "PRENDER"
+        ]
+      },
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Sobrecarga Tormentosa",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Reloj De Arena De Zhonya",
+          "Bastón Del Vacío",
+          "Botas De Mercurio"
+        ],
+        "runes": "COSECHA OSCURA,COSECHA OSCURA,GOLPE BAJO,TIRANO,COLECCIÓN DE GLOBOS OCULARES,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "PRENDER"
+        ]
+      }
     ]
   },
   {
@@ -2974,6 +3451,26 @@
     "build2Spells": [
       "Fantasmal",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Vara De Las Edades",
+          "Botas De Maná",
+          "Bastón Del Arcángel",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Reloj De Arena De Zhonya",
+          "Bastón Del Vacío",
+          "Bastón Del Vacío"
+        ],
+        "runes": "Irrupción De Fase,Banda De Maná,Concentración Absoluta,Capa Del Nimbo,Sobrecrecimiento",
+        "spells": [
+          "Fantasmal",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -3107,6 +3604,26 @@
     "build2Spells": [
       "Destello",
       "Barrera"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Recaudadora",
+          "Grebas Codiciosas",
+          "Sanguinaria",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Filo Infinito",
+          "Recuerdos De Lord Dominik",
+          "Recordatorio Letal",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Conquistador,Brutal,Golpe De Gracia,Leyenda: Linaje,Impacto Repentino",
+        "spells": [
+          "Destello",
+          "Barrera"
+        ]
+      }
     ]
   },
   {
@@ -3238,6 +3755,26 @@
     "build2Spells": [
       "Destello",
       "Barrera"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Hoz Espectral",
+          "Botas Blindadas",
+          "Colmillo De Serpiente",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Guantelete De Hielo",
+          "Cuchilla Negra",
+          "Mecanoespada Punki",
+          "Botas De Mercurio"
+        ],
+        "runes": "PIES VELOCES,PIES VELOCES,INQUEBRANTABLE,Revestimiento de huesos,PERSEVERANCIA,BRUTAL",
+        "spells": [
+          "DESTELLO",
+          "CURAR"
+        ]
+      }
     ]
   },
   {
@@ -3361,7 +3898,43 @@
       "Aery"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Poder de Habilidad (AP) (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Eco Armónico",
+          "Botas De Maná [ Nivel 3 ]",
+          "Bendición De Mikael",
+          "Cetro De Cristal De Rylai",
+          "Bastón De Aguas Fluidas"
+        ],
+        "runes": "Mejora Glacial,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Cazador Ingenioso",
+        "spells": [
+          "Curar",
+          "Destello"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Eco Armónico",
+          "Botas De Maná [ Nivel 3 ]",
+          "Bendición De Mikael",
+          "Cetro De Cristal De Rylai",
+          "Bastón De Aguas Fluidas"
+        ],
+        "runes": "Mejora Glacial,Fuente De Vida,Revestimiento De Huesos,Revitalizar,Cazador Ingenioso",
+        "spells": [
+          "Curar",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "sett",
@@ -3496,6 +4069,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Corazón De Acero",
+          "Botas Blindadas",
+          "Sangría Del Soberano",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Cuchilla Negra",
+          "Lanza De Shojin",
+          "Calibrador De Sterak",
+          "Botas De Mercurio"
+        ],
+        "runes": "Conquistador,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Último Esfuerzo",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -3631,6 +4224,26 @@
     "build2Spells": [
       "Destello",
       "Teleportar"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Corazón De Acero",
+          "Égida De Fuego Solar",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Desesperanza Eterna",
+          "Desgarrador Divino",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,IMPACTO REPENTINO",
+        "spells": [
+          "DESTELLO",
+          "TELEPORTAR"
+        ]
+      }
     ]
   },
   {
@@ -3764,6 +4377,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas De Berserker",
+          "Hoja Del Rey Arruinado",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Baile De La Muerte",
+          "Coraza Dual Purpúrea",
+          "Lanza De Shojin",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Sobrecrecimiento",
+        "spells": [
+          "Aplastar",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -3897,6 +4530,26 @@
     "build2Spells": [
       "Fantasmal",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Tormenta De Liandry",
+          "Creagrietas",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Cetro De Cristal De Rylai",
+          "Coraza Dual Purpúrea",
+          "Fuerza De La Naturaleza",
+          "Botas De Mercurio"
+        ],
+        "runes": "Irrupción De Fase,Inquebrantable,Fuerzas Renovadas,Perseverancia,Capa Del Nimbo",
+        "spells": [
+          "Fantasmal",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -4032,6 +4685,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Fulgor Vano",
+          "Botas Blindadas",
+          "Desesperanza Eterna",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Hidra Titánica",
+          "Coraza Dual Purpúrea",
+          "Sangría Del Soberano",
+          "Presagio De Randuin"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,CAZADOR INGENIOSO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -4163,6 +4836,62 @@
     "build2Spells": [
       "Extenuación",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Viento Huracanado",
+          "Filoveloz De Navori",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Sanguinaria",
+          "Filo Infinito",
+          "Recordatorio Letal",
+          "Recordatorio Letal"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      },
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [
+          "Grebas De Berserker",
+          "Viento Huracanado",
+          "Filoveloz De Navori",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Sanguinaria",
+          "Filo Infinito",
+          "Recordatorio Letal",
+          "Recordatorio Letal"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [
+          "Grebas De Berserker",
+          "Viento Huracanado",
+          "Filoveloz De Navori",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Sanguinaria",
+          "Filo Infinito",
+          "Recordatorio Letal",
+          "Recordatorio Letal"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -4299,6 +5028,44 @@
     "build2Spells": [
       "APLASTAR",
       "DESTELLO"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Corona Incandescente",
+          "Botas Blindadas",
+          "Fulgor Vano",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Coraza Dual Purpúrea",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,TRASCENDENCIA",
+        "spells": [
+          "TELEPORTAR",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Tanque (Jungla)",
+        "items": [
+          "Corona Incandescente",
+          "Botas Blindadas",
+          "Fulgor Vano",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Coraza Dual Purpúrea",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,TRASCENDENCIA",
+        "spells": [
+          "TELEPORTAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -4432,6 +5199,26 @@
     "build2Spells": [
       "Extenuación",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas Codiciosas",
+          "Manamune",
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Lanza De Shojin",
+          "Ángel De La Guarda",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Pies Veloces,Fervor De Batalla,Derribado,Leyenda: Presteza,Trascendencia",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -4563,6 +5350,26 @@
     "build2Spells": [
       "Curar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas De Maná",
+          "Bastón Del Arcángel",
+          "Botas De Maná [ Nivel 3 ]",
+          "Bendición De Mikael",
+          "Eco Armónico",
+          "Bastón De Aguas Fluidas",
+          "Bastón De Aguas Fluidas"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,Revestimiento de huesos,REVITALIZAR,TRASCENDENCIA",
+        "spells": [
+          "CURAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -4694,6 +5501,26 @@
     "build2Spells": [
       "Curar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Bendición De Mikael",
+          "Botas Jónicas De Lucidez [ Nivel 3 ]",
+          "Eco Armónico",
+          "Incensario Ardiente",
+          "Bastón De Aguas Fluidas",
+          "Bastón De Aguas Fluidas"
+        ],
+        "runes": "AERY,AERY,INQUEBRANTABLE,Revestimiento de huesos,REVITALIZAR,AXIOMA ARCANO",
+        "spells": [
+          "CURAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -4830,6 +5657,26 @@
     "build2Spells": [
       "Fantasmal",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Malignidad",
+          "Orbe Infinito",
+          "Botas De Maná [ Nivel 3 ]",
+          "Reloj De Arena De Zhonya",
+          "Sombrero Mortal De Rabadon",
+          "Creagrietas",
+          "Botas De Mercurio"
+        ],
+        "runes": "Irrupción De Fase,Axioma Arcano,Celeridad,Se Avecina Tormenta,Sobrecrecimiento",
+        "spells": [
+          "Fantasmal",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -4963,6 +5810,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Sobrecarga Tormentosa",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Botas De Maná [ Nivel 3 ]",
+          "Reloj De Arena De Zhonya",
+          "Bastón Del Vacío",
+          "Tridente De Oceánida"
+        ],
+        "runes": "Primer Golpe,Axioma Arcano,Trascendencia,Capa Del Nimbo,Golpe De Gracia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -5074,7 +5941,21 @@
       "Electrocutar"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      },
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "talon",
@@ -5212,6 +6093,44 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Manamune",
+          "Botas Dinámicas",
+          "Filo Fantasmal De Youmuu",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Fuerza De Trinidad",
+          "Colmillo De Serpiente",
+          "Rencor De Serylda",
+          "Colmillo De Serpiente"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,FERVOR DE BATALLA,DERRIBADO,LEYENDA: PRESTEZA,IMPACTO REPENTINO",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Jungla)",
+        "items": [
+          "Manamune",
+          "Botas Dinámicas",
+          "Filo Fantasmal De Youmuu",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Fuerza De Trinidad",
+          "Colmillo De Serpiente",
+          "Rencor De Serylda",
+          "Colmillo De Serpiente"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,FERVOR DE BATALLA,DERRIBADO,LEYENDA: PRESTEZA,IMPACTO REPENTINO",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -5345,6 +6264,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Barón (Top))",
+        "items": [
+          "Botas De Maná",
+          "Tormenta De Liandry",
+          "Diente De Nashor",
+          "Botas De Maná [ Nivel 3 ]",
+          "Perdición Del Liche",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Sombrero Mortal De Rabadon"
+        ],
+        "runes": "Pies Veloces,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Derribado",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -5478,6 +6417,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Trampa Para Yordles",
+          "Botas Blindadas",
+          "Warmong",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Coraza Dual Purpúrea",
+          "Malla De Espina",
+          "Botas De Mercurio"
+        ],
+        "runes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,Revestimiento de huesos,SOBRECRECIMIENTO,HEXTELLO",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -5613,6 +6572,26 @@
     "build2Spells": [
       "Extenuación",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Continuo (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Sanguinaria",
+          "Filoveloz De Navori",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Disparador Magnético",
+          "Recordatorio Letal",
+          "Filo Infinito",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -5746,6 +6725,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Continuo (Barón (Top))",
+        "items": [
+          "Grebas De Berserker",
+          "Hoja Del Rey Arruinado",
+          "Disparador Magnético",
+          "Recordatorio Letal",
+          "Filo Infinito",
+          "Ángel De La Guarda",
+          "Grebas Codiciosas",
+          "Grebas Codiciosas"
+        ],
+        "runes": "Compás Letal,Brutal,Último Esfuerzo,Leyenda: Presteza,Perseverancia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -5877,6 +6876,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Vara De Las Edades",
+          "Botas De Maná",
+          "Perdición Del Liche",
+          "Botas De Maná [ Nivel 3 ]",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Disparador Magnético",
+          "Disparador Magnético"
+        ],
+        "runes": "Primer Golpe,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -5999,7 +7018,26 @@
       "Primer Golpe"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Recaudadora",
+          "Huracán De Runaan",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Recordatorio Letal",
+          "Filo Infinito",
+          "Sanguinaria"
+        ],
+        "runes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,GOLPE DE GRACIA,LEYENDA: PRESTEZA,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "FANTASMAL"
+        ]
+      }
+    ]
   },
   {
     "id": "urgot",
@@ -6132,6 +7170,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Corazón De Acero",
+          "Botas Blindadas",
+          "Cuchilla Negra",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Sangría Del Soberano",
+          "Coraza Dual Purpúrea",
+          "Túnica Del Mediodía",
+          "Botas De Mercurio"
+        ],
+        "runes": "Fortalecimiento,Brutal,Derribado,Leyenda: Tenacidad,Sobrecrecimiento",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -6270,6 +7328,44 @@
     "build2Spells": [
       "Destello",
       "Fantasmal"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Diente De Nashor",
+          "Huracán De Runaan",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Creagrietas",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Tridente De Oceánida"
+        ],
+        "runes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "FANTASMAL"
+        ]
+      },
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Diente De Nashor",
+          "Huracán De Runaan",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Creagrietas",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Tridente De Oceánida"
+        ],
+        "runes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "FANTASMAL"
+        ]
+      }
     ]
   },
   {
@@ -6403,6 +7499,26 @@
     "build2Spells": [
       "Destello",
       "Extenuación"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Verdugo De Krakens",
+          "Hoja De Furia De Guinsoo",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Hoja Del Rey Arruinado",
+          "El Final",
+          "Coraza Dual Purpúrea",
+          "Coraza Dual Purpúrea"
+        ],
+        "runes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
+        "spells": [
+          "DESTELLO",
+          "EXTENUACIÓN"
+        ]
+      }
     ]
   },
   {
@@ -6514,7 +7630,15 @@
       "Electrocutar"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "vel_koz",
@@ -6772,6 +7896,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Botas De Maná [ Nivel 3 ]",
+          "Creagrietas",
+          "Reloj De Arena De Zhonya",
+          "Tridente De Oceánida",
+          "Bastón Del Vacío"
+        ],
+        "runes": "Electrocutar,Impacto Repentino,Tirano,Colección De Globos Oculares,Golpe De Gracia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -6895,6 +8039,40 @@
     "build2Spells": [
       "Destello",
       "Castigo"
+    ],
+    "builds": [
+      {
+        "title": "Build Críticos (Jungla)",
+        "items": [
+          "Fuerza Trinitaria",
+          "Guantelete De Sterak",
+          "La Danza De La Muerte",
+          "Malla De Espinas",
+          "Fuerza De La Naturaleza",
+          "Ángel Custodio"
+        ],
+        "runes": "Conquistador (Precisión)",
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
+      },
+      {
+        "title": "Build Estándar (Central (Mid))",
+        "items": [
+          "Fuerza Trinitaria",
+          "Guantelete De Sterak",
+          "La Danza De La Muerte",
+          "Malla De Espinas",
+          "Fuerza De La Naturaleza",
+          "Ángel Custodio"
+        ],
+        "runes": "Conquistador (Precisión)",
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
+      }
     ]
   },
   {
@@ -7292,6 +8470,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Botas De Maná [ Nivel 3 ]",
+          "Impulso Cósmico",
+          "Creagrietas",
+          "Bastón Del Vacío",
+          "Bastón Del Vacío"
+        ],
+        "runes": "Irrupción De Fase,Fervor De Batalla,Derribado,Leyenda: Tenacidad,Trascendencia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -7431,6 +8629,80 @@
     "build2Spells": [
       "APLASTAR",
       "DESTELLO"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Amanecer Y Anochecer",
+          "Rompecascos",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,FERVOR DE BATALLA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Poder de Habilidad (AP) (Jungla)",
+        "items": [
+          "Botas Blindadas",
+          "Amanecer Y Anochecer",
+          "Rompecascos",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,FERVOR DE BATALLA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Botas Blindadas",
+          "Amanecer Y Anochecer",
+          "Rompecascos",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,FERVOR DE BATALLA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Botas Blindadas",
+          "Amanecer Y Anochecer",
+          "Rompecascos",
+          "Botas Blindadas [ Nivel 3 ]",
+          "Desesperanza Eterna",
+          "Malla De Espina",
+          "Coraza Dual Purpúrea",
+          "Botas De Mercurio"
+        ],
+        "runes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,FERVOR DE BATALLA",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -7564,6 +8836,26 @@
     "build2Spells": [
       "Fantasmal",
       "Aplastar"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Hoja Del Rey Arruinado",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Baile De La Muerte",
+          "Creagrietas",
+          "Ángel De La Guarda",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Fortalecimiento,Brutal,Golpe De Gracia,Leyenda: Presteza,Sobrecrecimiento",
+        "spells": [
+          "Fantasmal",
+          "Aplastar"
+        ]
+      }
     ]
   },
   {
@@ -7700,6 +8992,80 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Tanque (Barón (Top))",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Filo Fantasmal De Youmuu",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Filoscuro De Draktharr",
+          "Filo De La Noche",
+          "Botas Dinámicas"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Estándar (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Filo Fantasmal De Youmuu",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Filoscuro De Draktharr",
+          "Filo De La Noche",
+          "Botas Dinámicas"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Daño y Aguante (Barón (Top))",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Filo Fantasmal De Youmuu",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Filoscuro De Draktharr",
+          "Filo De La Noche",
+          "Botas Dinámicas"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      },
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Filo Fantasmal De Youmuu",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Rencor De Serylda",
+          "Filoscuro De Draktharr",
+          "Filo De La Noche",
+          "Botas Dinámicas"
+        ],
+        "runes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
+        "spells": [
+          "APLASTAR",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -7831,6 +9197,26 @@
     "build2Spells": [
       "Extenuación",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Sanguinaria",
+          "Segador De Esencia",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Filoveloz De Navori",
+          "Recordatorio Letal",
+          "Filo Infinito",
+          "Filo Infinito"
+        ],
+        "runes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: LINAJE,Revestimiento de huesos",
+        "spells": [
+          "EXTENUACIÓN",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -7966,6 +9352,26 @@
     "build2Spells": [
       "Aplastar",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Jungla)",
+        "items": [
+          "Fuerza De Trinidad",
+          "Grebas Codiciosas",
+          "Firmamento Desgarrado",
+          "Grebas Codiciosas [ Nivel 3 ]",
+          "Baile De La Muerte",
+          "Rencor De Serylda",
+          "Ángel De La Guarda",
+          "Botas De Mercurio"
+        ],
+        "runes": "Conquistador,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
+        "spells": [
+          "Aplastar",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -8092,6 +9498,24 @@
     "build2Spells": [
       "Destello",
       "Prender"
+    ],
+    "builds": [
+      {
+        "title": "Build Críticos (Central (Mid))",
+        "items": [
+          "Borde Infinito",
+          "Espada Del Rey Arruinado",
+          "La Danza De La Muerte",
+          "Guantelete De Sterak",
+          "Recordatorio Mortal",
+          "Ángel Custodio"
+        ],
+        "runes": "Compás Letal (Precisión)",
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
+      }
     ]
   },
   {
@@ -8225,6 +9649,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño y Aguante (Central (Mid))",
+        "items": [
+          "Grebas De Berserker",
+          "Hoja Del Rey Arruinado",
+          "Segador De Esencia",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Recordatorio Letal",
+          "Filo Infinito",
+          "Ángel De La Guarda",
+          "Ángel De La Guarda"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -8358,6 +9802,26 @@
     "build2Spells": [
       "Barrera",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Continuo (Dúo (ADC))",
+        "items": [
+          "Grebas De Berserker",
+          "Hoja Del Rey Arruinado",
+          "Huracán De Runaan",
+          "Grebas De Berserker [ Nivel 3 ]",
+          "Hoja De Furia De Guinsoo",
+          "El Final",
+          "Cimitarra Mercurial",
+          "Cimitarra Mercurial"
+        ],
+        "runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+        "spells": [
+          "Barrera",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -8492,6 +9956,26 @@
     "build2Spells": [
       "Curar",
       "Barrera"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Hoz Espectral",
+          "Mandato Imperial",
+          "Incensario Ardiente",
+          "Botas De Maná",
+          "Bendición De Mikael",
+          "Botas De Maná [ Nivel 3 ]",
+          "Bastón De Aguas Fluidas",
+          "Eco Armónico"
+        ],
+        "runes": "AERY,AERY,FUENTE DE VIDA,Revestimiento de huesos,REVITALIZAR,TRASCENDENCIA",
+        "spells": [
+          "CURAR",
+          "BARRERA"
+        ]
+      }
     ]
   },
   {
@@ -8626,6 +10110,44 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas Dinámicas",
+          "Eclipse",
+          "Fuerza De Trinidad",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Filoscuro De Draktharr",
+          "Colmillo De Serpiente",
+          "Firmamento Desgarrado",
+          "Rencor De Serylda"
+        ],
+        "runes": "Electrocutar,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      },
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas Dinámicas",
+          "Eclipse",
+          "Fuerza De Trinidad",
+          "Botas Dinámicas [ Nivel 3 ]",
+          "Filoscuro De Draktharr",
+          "Colmillo De Serpiente",
+          "Firmamento Desgarrado",
+          "Rencor De Serylda"
+        ],
+        "runes": "Electrocutar,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -8735,7 +10257,15 @@
       "Primer Golpe"
     ],
     "build2Runes": "Conquistador",
-    "build2Spells": []
+    "build2Spells": [],
+    "builds": [
+      {
+        "title": "Build Estándar (Dúo (ADC))",
+        "items": [],
+        "runes": "Conquistador",
+        "spells": []
+      }
+    ]
   },
   {
     "id": "ziggs",
@@ -8868,6 +10398,26 @@
     "build2Spells": [
       "Extenuación",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Eco De Luden",
+          "Precisión Infalibre",
+          "Botas De Maná [ Nivel 3 ]",
+          "Orbe Infinito",
+          "Sombrero Mortal De Rabadon",
+          "Bastón Del Vacío",
+          "Bastón Del Vacío"
+        ],
+        "runes": "Cometa Arcano,Banda De Maná,Trascendencia,Se Avecina Tormenta,Derribado",
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -9001,6 +10551,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Estándar (Soporte)",
+        "items": [
+          "Escudo Reliquia",
+          "Botas Jonias",
+          "Redención",
+          "Botas Jónicas De Lucidez [ Nivel 3 ]",
+          "Eco Armónico",
+          "Incensario Ardiente",
+          "Bastón De Aguas Fluidas",
+          "Bastón De Aguas Fluidas"
+        ],
+        "runes": "COMETA ARCANO,COMETA ARCANO,BANDA DE MANÁ,TRASCENDENCIA,SE AVECINA TORMENTA,GUARDIÁN ZOMBI",
+        "spells": [
+          "PRENDER",
+          "DESTELLO"
+        ]
+      }
     ]
   },
   {
@@ -9134,6 +10704,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Explosivo (Central (Mid))",
+        "items": [
+          "Botas De Maná",
+          "Eco De Luden",
+          "Perdición Del Liche",
+          "Botas De Maná [ Nivel 3 ]",
+          "Sombrero Mortal De Rabadon",
+          "Orbe Infinito",
+          "Bastón Del Vacío",
+          "Tridente De Oceánida"
+        ],
+        "runes": "Primer Golpe,Botanista,Trascendencia,Capa Del Nimbo,Impacto Repentino",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   },
   {
@@ -9268,6 +10858,26 @@
     "build2Spells": [
       "Prender",
       "Destello"
+    ],
+    "builds": [
+      {
+        "title": "Build Daño Continuo (Soporte)",
+        "items": [
+          "Hoz Espectral",
+          "Botas De Maná",
+          "Cetro De Cristal De Rylai",
+          "Botas De Maná [ Nivel 3 ]",
+          "Tormenta De Liandry",
+          "Tridente De Oceánida",
+          "Morellonomicón",
+          "Morellonomicón"
+        ],
+        "runes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
     ]
   }
 ]

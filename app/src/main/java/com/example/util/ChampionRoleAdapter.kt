@@ -559,6 +559,26 @@ object ChampionRoleAdapter {
         defaultSpells: List<String>,
         defaultSpellsIcons: List<String>
     ): List<ChampionBuildOption> {
+        if (champ.builds.isNotEmpty()) {
+            return champ.builds.mapIndexed { idx, b ->
+                val resolvedSpells = ensureUniqueSpells(b.spells, role)
+                val resolvedSpellsIcons = resolvedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+                ChampionBuildOption(
+                    optionNumber = idx + 1,
+                    title = "Opción ${idx + 1}: ${b.title}",
+                    subtitle = "",
+                    source = "BestBuildWR",
+                    badge = if (idx == 0) "PRINCIPAL" else "SITUACIONAL",
+                    tacticalReason = "Build adaptativa extraída directamente de los datos del meta actual.",
+                    items = b.items,
+                    bootBase = defaultBootBase,
+                    bootUpgrade = defaultBootUpgrade,
+                    runes = b.runes.split(",").map { it.trim() }.filter { it.isNotBlank() },
+                    spells = resolvedSpells,
+                    spellsIcons = resolvedSpellsIcons
+                )
+            }
+        }
         val resolvedSpells1 = ensureUniqueSpells(defaultSpells, role)
         val resolvedSpellsIcons1 = resolvedSpells1.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
 

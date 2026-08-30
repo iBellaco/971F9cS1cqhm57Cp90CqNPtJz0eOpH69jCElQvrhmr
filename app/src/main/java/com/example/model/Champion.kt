@@ -57,6 +57,14 @@ data class ItemSwap(
 )
 
 @Serializable
+data class ChampionBuild(
+    val title: String = "",
+    val items: List<String> = emptyList(),
+    val runes: String = "",
+    val spells: List<String> = emptyList()
+)
+
+@Serializable
 data class Champion(
     val id: String = "",
     val name: String = "",
@@ -103,6 +111,7 @@ data class Champion(
     val wrMetaUrl: String = "https://wr-meta.com/",
     val wildRiftCoreUrl: String = "https://wildriftcore.com/es/",
     val bestBuildWrUrl: String = "https://bestbuildwr.com/"
+    , val builds: List<ChampionBuild> = emptyList()
 )
 
 @Serializable
