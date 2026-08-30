@@ -46,6 +46,10 @@ fun AuthFlowContainer(
     val context = LocalContext.current
     var currentUser by remember { mutableStateOf(auth?.currentUser) }
     
+    LaunchedEffect(Unit) {
+        currentUser = auth?.currentUser
+    }
+
     LaunchedEffect(currentUser) {
         SubscriptionManager.init(context)
     }
@@ -57,6 +61,7 @@ fun AuthFlowContainer(
             onSignOut = {
                 auth?.signOut()
                 currentUser = null
+                viewModel.resetSuccessState()
             }
         )
         return
@@ -68,6 +73,7 @@ fun AuthFlowContainer(
     val onAuthSuccess: () -> Unit = {
         currentUser = auth?.currentUser
         SubscriptionManager.init(context)
+        viewModel.resetSuccessState()
         onLoginSuccess?.invoke()
     }
 

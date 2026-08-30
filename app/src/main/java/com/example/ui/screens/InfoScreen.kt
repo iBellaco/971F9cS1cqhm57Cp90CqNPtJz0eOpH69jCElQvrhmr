@@ -240,24 +240,7 @@ fun InfoScreen(
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_instagram_banner),
-                    contentDescription = "Instagram Diego Barba Chavez",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
-                        },
-                    contentScale = ContentScale.FillWidth
-                )
+                com.example.ui.components.CreatorSocialMediaBar()
             }
 
             Spacer(modifier = Modifier.height(24.dp))

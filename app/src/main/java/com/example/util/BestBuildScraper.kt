@@ -200,7 +200,7 @@ object BestBuildScraper {
     private fun saveJsonFile(context: Context, jsonString: String) {
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "bestbuildwr_141.json")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.json")
             put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
@@ -214,32 +214,29 @@ object BestBuildScraper {
     
     private fun saveCsvFile(context: Context, data: List<JSONObject>) {
         val builder = java.lang.StringBuilder()
-        builder.append("champion,champion_slug,champion_url,champion_roles,build_name,build_url,build_roles,author\n")
+        builder.append("champion,role,build_name,build_url\n")
         
         for (champ in data) {
             val cName = escapeCsv(champ.getString("name"))
-            val cSlug = escapeCsv(champ.getString("slug"))
-            val cUrl = escapeCsv(champ.getString("url"))
-            val cRoles = escapeCsv(joinJsonArray(champ.getJSONArray("roles")))
-            
             val builds = champ.getJSONArray("builds")
             if (builds.length() == 0) {
-                builder.append("$cName,$cSlug,$cUrl,$cRoles,,,,\n")
+                val cUrl = escapeCsv(champ.getString("url"))
+                builder.append("$cName,Desconocido,,$cUrl\n")
             } else {
                 for (i in 0 until builds.length()) {
                     val build = builds.getJSONObject(i)
                     val bName = escapeCsv(build.getString("name"))
                     val bUrl = escapeCsv(build.getString("url"))
-                    val bRoles = escapeCsv(joinJsonArray(build.getJSONArray("roles")))
-                    val bAuthor = "" // Can be added later if needed
-                    builder.append("$cName,$cSlug,$cUrl,$cRoles,$bName,$bUrl,$bRoles,$bAuthor\n")
+                    val bRoles = joinJsonArray(build.getJSONArray("roles"))
+                    val roleName = if (bRoles.isNotBlank()) escapeCsv(bRoles.split(",")[0].trim()) else "Desconocido"
+                    builder.append("$cName,$roleName,$bName,$bUrl\n")
                 }
             }
         }
         
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "bestbuildwr_141.csv")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.csv")
             put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
@@ -252,22 +249,35 @@ object BestBuildScraper {
     }
     
     private fun saveUrlsFile(context: Context, data: List<JSONObject>) {
-        val urls = mutableSetOf<String>()
+        val builder = java.lang.StringBuilder()
+        
+        var currentChamp: String? = null
         for (champ in data) {
-            urls.add(champ.getString("url"))
+            val cName = champ.getString("name")
+            if (cName != currentChamp) {
+                currentChamp = cName
+                builder.append("\n======================================================================\n")
+                builder.append("$currentChamp\n")
+                builder.append("======================================================================\n")
+            }
             val builds = champ.getJSONArray("builds")
-            for (i in 0 until builds.length()) {
-                val build = builds.getJSONObject(i)
-                urls.add(build.getString("url"))
+            if (builds.length() == 0) {
+                builder.append("Rol: Desconocido\nBuild: Base\nURL: ${champ.getString("url")}\n\n")
+            } else {
+                for (i in 0 until builds.length()) {
+                    val build = builds.getJSONObject(i)
+                    val bRoles = joinJsonArray(build.getJSONArray("roles"))
+                    val roleName = if (bRoles.isNotBlank()) bRoles.split(",")[0].trim() else "Desconocido"
+                    builder.append("Rol: $roleName\n")
+                    builder.append("Build: ${build.getString("name")}\n")
+                    builder.append("URL: ${build.getString("url")}\n\n")
+                }
             }
         }
         
-        val builder = java.lang.StringBuilder()
-        urls.sorted().forEach { builder.append(it).append("\n") }
-        
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "bestbuildwr_urls.txt")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.txt")
             put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }

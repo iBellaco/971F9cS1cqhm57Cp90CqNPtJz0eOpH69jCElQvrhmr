@@ -35,15 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,20 +48,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechCyanLight
-import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldGlow
 import com.example.ui.theme.HextechGoldLight
 import com.example.ui.theme.TextMuted
-import com.example.ui.theme.TextPrimary
 import com.example.util.tr
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Botón Orbe Steampunk Hextech de Alto Nivel Visual inspirado en League of Legends & Wild Rift:
- * - Engranajes mecánicos y tubos de escape de vapor Zaun/Piltover
- * - Manómetros analógicos de presión con agujas en tiempo real
+ * Botón Orbe Hextech de Alto Nivel Visual inspirado en League of Legends & Wild Rift:
+ * - Engranajes mecánicos simétricos de alta precisión
+ * - Anillo de latón pulido y biselado
  * - Cuchillas de obturador iris de latón dorado
  * - Anillo de runas arcanas flotantes en contra-rotación
  * - Núcleo de cristal resonante con tipografía de activación nítida
@@ -102,27 +96,7 @@ fun HextechOrbButton(
         label = "runes_rotation"
     )
 
-    // Oscilación de las agujas de los manómetros
-    val needleAngle1 by infiniteTransition.animateFloat(
-        initialValue = -35f,
-        targetValue = if (isActive) 65f else 15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(if (isActive) 1200 else 2400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "needle_1"
-    )
-    val needleAngle2 by infiniteTransition.animateFloat(
-        initialValue = -15f,
-        targetValue = if (isActive) 75f else 30f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(if (isActive) 900 else 2000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "needle_2"
-    )
-
-    // Pulsación de respiración orgánica de vapor y energía
+    // Pulsación de respiración orgánica de energía
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
         targetValue = if (isActive) 1.05f else 1.025f,
@@ -164,7 +138,7 @@ fun HextechOrbButton(
         contentAlignment = Alignment.Center
     ) {
         // ===================================================================
-        // CANVAS DE ARTE STEAM PUNK HEXTECH
+        // CANVAS DE ARTE HEXTECH SIMÉTRICO Y ELEGANTE
         // ===================================================================
         Canvas(modifier = Modifier.size(size)) {
             val center = Offset(this.size.width / 2f, this.size.height / 2f)
@@ -193,7 +167,7 @@ fun HextechOrbButton(
                 center = center
             )
 
-            // 2. Dientes de Engranaje Perimetrales (Steampunk Gear Cogs)
+            // 2. Dientes de Engranaje Perimetrales (Steampunk Gear Cogs Simétricos)
             val cogCount = 18
             val cogInnerRadius = outerRadius - 2.dp.toPx()
             val cogOuterRadius = outerRadius + 7.dp.toPx()
@@ -242,89 +216,7 @@ fun HextechOrbButton(
                 style = Stroke(width = 3.dp.toPx())
             )
 
-            // 4. Tubo de Escape de Vapor Steampunk (Superior Izquierdo)
-            val pipeAngle = Math.toRadians(215.0)
-            val pipeBase = Offset(
-                center.x + ((outerRadius + 2.dp.toPx()) * cos(pipeAngle)).toFloat(),
-                center.y + ((outerRadius + 2.dp.toPx()) * sin(pipeAngle)).toFloat()
-            )
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(Color(0xFF00FFC2).copy(alpha = glowAlpha * 0.6f), Color.Transparent),
-                    center = pipeBase,
-                    radius = 24.dp.toPx()
-                ),
-                radius = 24.dp.toPx(),
-                center = pipeBase
-            )
-            drawCircle(
-                color = Color(0xFFC8AA6E),
-                radius = 6.dp.toPx(),
-                center = pipeBase
-            )
-            drawCircle(
-                color = Color(0xFF0F1E28),
-                radius = 3.5.dp.toPx(),
-                center = pipeBase
-            )
-
-            // 5. Tres Manómetros Analógicos (Lado Derecho: Top-Right, Mid-Right, Bottom-Right)
-            val gaugeAngles = listOf(325.0, 0.0, 35.0)
-            val needleAngles = listOf(needleAngle1, needleAngle2, needleAngle1 * 0.7f)
-
-            for (idx in gaugeAngles.indices) {
-                val gAngleRad = Math.toRadians(gaugeAngles[idx])
-                val gCenter = Offset(
-                    center.x + ((outerRadius + 6.dp.toPx()) * cos(gAngleRad)).toFloat(),
-                    center.y + ((outerRadius + 6.dp.toPx()) * sin(gAngleRad)).toFloat()
-                )
-                val gRadius = 9.dp.toPx()
-
-                // Fondo manómetro
-                drawCircle(
-                    color = Color(0xFF0D1C28),
-                    radius = gRadius,
-                    center = gCenter
-                )
-                // Anillo de latón
-                drawCircle(
-                    color = HextechGold,
-                    radius = gRadius,
-                    center = gCenter,
-                    style = Stroke(width = 1.8.dp.toPx())
-                )
-                // Arco de presión cyan/rojo
-                drawArc(
-                    color = if (idx == 1) Color(0xFFE53935) else HextechCyan,
-                    startAngle = 140f,
-                    sweepAngle = 180f,
-                    useCenter = false,
-                    topLeft = Offset(gCenter.x - gRadius * 0.7f, gCenter.y - gRadius * 0.7f),
-                    size = Size(gRadius * 1.4f, gRadius * 1.4f),
-                    style = Stroke(width = 1.2.dp.toPx())
-                )
-                // Aguja indicadora
-                val needleRad = Math.toRadians(needleAngles[idx].toDouble())
-                val needleEnd = Offset(
-                    gCenter.x + ((gRadius * 0.65f) * cos(needleRad)).toFloat(),
-                    gCenter.y + ((gRadius * 0.65f) * sin(needleRad)).toFloat()
-                )
-                drawLine(
-                    color = HextechGoldLight,
-                    start = gCenter,
-                    end = needleEnd,
-                    strokeWidth = 1.5.dp.toPx(),
-                    cap = StrokeCap.Round
-                )
-                // Centro pivote
-                drawCircle(
-                    color = Color.White,
-                    radius = 1.5.dp.toPx(),
-                    center = gCenter
-                )
-            }
-
-            // 6. Cuchillas de Obturador Iris (Aperture Blades)
+            // 4. Cuchillas de Obturador Iris (Aperture Blades)
             val bladeCount = 8
             val irisRadius = outerRadius - 14.dp.toPx()
             for (i in 0 until bladeCount) {
@@ -343,7 +235,7 @@ fun HextechOrbButton(
                 )
             }
 
-            // 7. Anillo de Runas Arcanas Flotantes en Orbitación
+            // 5. Anillo de Runas Arcanas Flotantes en Orbitación
             val runesRadius = outerRadius - 20.dp.toPx()
             drawCircle(
                 color = primaryEnergyColor.copy(alpha = 0.35f),
@@ -369,7 +261,7 @@ fun HextechOrbButton(
                 )
             }
 
-            // 8. Borde Biselado Interior del Núcleo Central
+            // 6. Borde Biselado Interior del Núcleo Central
             val coreBorderRadius = outerRadius - 28.dp.toPx()
             drawCircle(
                 brush = Brush.radialGradient(

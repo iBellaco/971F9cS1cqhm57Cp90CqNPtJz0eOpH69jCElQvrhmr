@@ -275,6 +275,11 @@ fun MainDraftingScreen(
                     },
                     actions = {
                         var expandedLang by remember { mutableStateOf(false) }
+                        val activeFlag = when (currentLanguage.lowercase()) {
+                            "en" -> "🇺🇸"
+                            "pt" -> "🇧🇷"
+                            else -> "🇪🇸"
+                        }
                         Box {
                             TextButton(
                                 onClick = { expandedLang = true },
@@ -283,8 +288,9 @@ fun MainDraftingScreen(
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                    .testTag("nav_language_button")
                             ) {
-                                Text("🌐", fontSize = 16.sp)
+                                Text(activeFlag, fontSize = 16.sp)
                             }
                             androidx.compose.material3.DropdownMenu(
                                 expanded = expandedLang,
@@ -294,9 +300,11 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇪🇸 Español", color = TextPrimary, fontWeight = FontWeight.Bold)
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text("(Activo)", color = HextechCyan, fontSize = 12.sp)
+                                            Text("🇪🇸 Español", color = if (currentLanguage == "es") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "es") FontWeight.Bold else FontWeight.Normal)
+                                            if (currentLanguage == "es") {
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text("(Activo)", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     },
                                     onClick = { 
@@ -307,24 +315,32 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇺🇸 English", color = TextMuted)
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text("(En mant.)", color = TextMuted, fontSize = 11.sp)
+                                            Text("🇺🇸 English", color = if (currentLanguage == "en") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "en") FontWeight.Bold else FontWeight.Normal)
+                                            if (currentLanguage == "en") {
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text("(Active)", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     },
-                                    enabled = false,
-                                    onClick = { }
+                                    onClick = { 
+                                        onLanguageChange("en")
+                                        expandedLang = false 
+                                    }
                                 )
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇧🇷 Português", color = TextMuted)
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text("(Em manut.)", color = TextMuted, fontSize = 11.sp)
+                                            Text("🇧🇷 Português", color = if (currentLanguage == "pt") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "pt") FontWeight.Bold else FontWeight.Normal)
+                                            if (currentLanguage == "pt") {
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text("(Ativo)", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     },
-                                    enabled = false,
-                                    onClick = { }
+                                    onClick = { 
+                                        onLanguageChange("pt")
+                                        expandedLang = false 
+                                    }
                                 )
                             }
                         }
@@ -393,6 +409,37 @@ fun MainDraftingScreen(
                 }
 
                 val allOptimizationsGranted = hasOverlayPermission && isIgnoringBatteryOpt
+
+                // Botón "Acerca De" situado en la parte superior
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onNavigateToInfo,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(46.dp)
+                        .testTag("btn_about_top"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.9f),
+                        contentColor = HextechGold
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(19.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Acerca De") + " • " + tr("Guía & Metodología Coach"),
+                        color = HextechGold,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Card de Rendimiento en Segundo Plano (Se oculta automáticamente si todo está activo)
                 if (!allOptimizationsGranted) {
@@ -525,30 +572,12 @@ fun MainDraftingScreen(
                 OfflineResourceDownloadCard()
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Banner Red Social Instagram - Diego Barba Chavez
-                val context = LocalContext.current
-                val instagramUrl = "https://www.instagram.com/Diego.Barba.Chavez"
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_instagram_banner),
-                    contentDescription = "Instagram Diego Barba Chavez",
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .wrapContentHeight()
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(instagramUrl)).apply {
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
-                        }
-                        .testTag("btn_instagram_creator"),
-                    contentScale = ContentScale.FillWidth
+                // Barra de Redes Sociales del Creador (Instagram, Facebook, WhatsApp, Discord)
+                com.example.ui.components.CreatorSocialMediaBar(
+                    modifier = Modifier.fillMaxWidth(0.92f)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-Spacer(modifier = Modifier.height(10.dp))
 
                 // Derechos de autor y créditos de creador
                 Column(
@@ -585,38 +614,7 @@ Spacer(modifier = Modifier.height(10.dp))
                     )
                 }
 
-                                Spacer(modifier = Modifier.height(16.dp))
-                androidx.compose.material3.OutlinedButton(
-                    onClick = onNavigateToInfo,
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .height(44.dp)
-                        .testTag("btn_about_below_download"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                        containerColor = HextechSurface.copy(alpha = 0.85f),
-                        contentColor = HextechGold
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = HextechGold,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tr("Acerca De"),
-                        color = HextechGold,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
 

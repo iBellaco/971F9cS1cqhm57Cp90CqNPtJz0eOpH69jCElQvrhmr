@@ -3104,67 +3104,157 @@ private fun DraftAnalysisTab(
         // Role active pill & First Pick Row
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Role active pill
-            Row(
+            // Role active pill (Hextech styled)
+            Card(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
-                    .clickable { onChangeRole() }
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { 
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onChangeRole() 
+                    }
+                    .testTag("draft_active_role_pill"),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Column {
-                        Text(tr("Mi Línea:"), color = TextMuted, fontSize = 10.5.sp)
-                        Text(com.example.util.tr(activeRole.displayName), color = HextechGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = CircleShape,
+                            color = HextechGold.copy(alpha = 0.15f),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Shield,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = tr("Mi Línea"),
+                                color = TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = com.example.util.tr(activeRole.displayName),
+                                color = HextechGold,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = HextechCyan.copy(alpha = 0.15f),
+                        border = BorderStroke(0.5.dp, HextechCyan.copy(alpha = 0.6f))
+                    ) {
+                        Text(
+                            text = tr("Cambiar"),
+                            color = HextechCyan,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
                     }
                 }
-                Text(tr("Cambiar"), color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
             }
 
-            // First Pick / Blind Pick Mode Switch Pill
-            Row(
+            // First Pick / Blind Pick Mode Switch (Redesigned with Hextech theme)
+            Card(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isFirstPick) HextechGold.copy(alpha = 0.18f) else HextechSurface)
-                    .border(1.dp, if (isFirstPick) HextechGold else HextechCardBorder, RoundedCornerShape(12.dp))
-                    .clickable { onToggleFirstPick() }
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(tr("1er Pick"), color = if (isFirstPick) HextechGold else TextMuted, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                    Text(if (isFirstPick) tr("Blind Pick") else tr("Counter"), color = if (isFirstPick) HextechCyan else TextMuted, fontSize = 10.sp)
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                Switch(
-                    checked = isFirstPick,
-                    onCheckedChange = { onToggleFirstPick() },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = HextechGold,
-                        checkedTrackColor = HextechGold.copy(alpha = 0.35f),
-                        uncheckedThumbColor = TextMuted,
-                        uncheckedTrackColor = HextechSurfaceVariant
-                    ),
-                    modifier = Modifier.size(32.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { 
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onToggleFirstPick() 
+                    }
+                    .testTag("draft_first_pick_toggle"),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isFirstPick) HextechGold.copy(alpha = 0.16f) else HextechSurface
+                ),
+                border = BorderStroke(
+                    1.2.dp,
+                    if (isFirstPick) HextechGold else HextechCardBorder
                 )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = if (isFirstPick) HextechGold.copy(alpha = 0.25f) else HextechSurfaceVariant,
+                        border = BorderStroke(1.dp, if (isFirstPick) HextechGold else HextechCardBorder),
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (isFirstPick) Icons.Default.Star else Icons.Default.FlashOn,
+                                contentDescription = null,
+                                tint = if (isFirstPick) HextechGold else HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = if (isFirstPick) tr("1er Pick") else tr("Counter Pick"),
+                            color = if (isFirstPick) HextechGold else HextechCyan,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                        Text(
+                            text = if (isFirstPick) tr("Blind Pick") else tr("Adaptativo"),
+                            color = if (isFirstPick) HextechGoldLight else TextMuted,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Switch(
+                        checked = isFirstPick,
+                        onCheckedChange = { 
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onToggleFirstPick() 
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = HextechGold,
+                            checkedTrackColor = HextechGold.copy(alpha = 0.4f),
+                            checkedBorderColor = HextechGold,
+                            uncheckedThumbColor = TextMuted,
+                            uncheckedTrackColor = HextechSurfaceVariant,
+                            uncheckedBorderColor = HextechCardBorder
+                        ),
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Actions Row: Guardar Draft & Historial de Partidas
+        // Actions Row: Guardar Draft & Historial de Partidas (Redesigned with Hextech buttons)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
@@ -3178,25 +3268,29 @@ private fun DraftAnalysisTab(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .height(40.dp)
+                    .height(44.dp)
                     .testTag("save_draft_button"),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSavedRecently) Color(0xFF2E7D32).copy(alpha = 0.35f) else HextechGold.copy(alpha = 0.18f),
+                    containerColor = if (isSavedRecently) Color(0xFF2E7D32).copy(alpha = 0.45f) else HextechGold.copy(alpha = 0.16f),
                     contentColor = if (isSavedRecently) Color(0xFF81C784) else HextechGold
                 ),
-                border = BorderStroke(1.dp, if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.6f)),
-                shape = RoundedCornerShape(10.dp)
+                border = BorderStroke(
+                    1.2.dp,
+                    if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.7f)
+                ),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Icon(
                     imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = if (isSavedRecently) tr("Guardado") else tr("Guardar Draft"),
+                    text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar Draft"),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
+                    fontSize = 12.5.sp
                 )
             }
 
@@ -3211,26 +3305,27 @@ private fun DraftAnalysisTab(
                 },
                 modifier = Modifier
                     .weight(1f)
-                    .height(40.dp)
+                    .height(44.dp)
                     .testTag("open_draft_history_button"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = HextechSurface,
                     contentColor = HextechCyan
                 ),
-                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
-                shape = RoundedCornerShape(10.dp)
+                border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f)),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.History,
                     contentDescription = null,
                     tint = HextechCyan,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = tr("Ver Historial"),
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
+                    fontSize = 12.5.sp,
                     color = HextechCyan
                 )
             }
@@ -3433,20 +3528,34 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             Button(
-                onClick = { onPickAllyRole(activeRole) },
+                onClick = { 
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onPickAllyRole(activeRole) 
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.15f), contentColor = HextechGold),
-                border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
-                shape = RoundedCornerShape(10.dp)
+                    .height(50.dp)
+                    .testTag("select_my_pick_button"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HextechGold.copy(alpha = 0.2f),
+                    contentColor = HextechGold
+                ),
+                border = BorderStroke(1.5.dp, HextechGold),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = HextechGold,
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = tr("SELECCIONAR MI PICK PARA") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
+                    fontWeight = FontWeight.Black,
+                    fontSize = 13.sp,
+                    letterSpacing = 0.5.sp
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -3533,10 +3642,58 @@ private fun DraftAnalysisTab(
 
                     Text(
                         text = topPick.tacticalReason,
-                        color = TextPrimary.copy(alpha = 0.9f),
+                        color = TextPrimary.copy(alpha = 0.95f),
                         fontSize = 12.sp,
                         lineHeight = 16.sp
                     )
+
+                    if (topPick.synergyDetails.isNotBlank() || topPick.counterDetails.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(HextechDarkBg.copy(alpha = 0.6f))
+                                .border(0.8.dp, HextechCardBorder.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            if (topPick.synergyDetails.isNotBlank()) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "🤝 " + tr("Sinergia / Combo:"),
+                                        color = HextechCyan,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = topPick.synergyDetails,
+                                        color = TextPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                            if (topPick.counterDetails.isNotBlank()) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "🛡️ " + tr("Ventaja / Counter:"),
+                                        color = HextechGold,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = topPick.counterDetails,
+                                        color = TextPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -3547,7 +3704,7 @@ private fun DraftAnalysisTab(
                     ) {
                         Text(
                             text = tr(" Runas:") + " ${topPick.champion.recommendedRunes}",
-                            color = TextPrimary,
+                            color = TextMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.weight(1f)
@@ -3588,36 +3745,66 @@ private fun DraftAnalysisTab(
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ChampionAvatar(champion = rec.champion, size = 46.dp)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ChampionAvatar(champion = rec.champion, size = 46.dp)
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(rec.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    Text("WR: ${rec.estimatedWinrate}%", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Text(rec.advantageBadge, color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(rec.tacticalReason, color = TextMuted, fontSize = 11.sp, lineHeight = 14.sp)
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            IconButton(
+                                onClick = { onPickRecommendation(rec.champion) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = tr("Elegir como mi Pick"),
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+
+                        if (rec.synergyDetails.isNotBlank() || rec.counterDetails.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(4.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(rec.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("WR: ${rec.estimatedWinrate}%", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                if (rec.synergyDetails.isNotBlank()) {
+                                    Text(
+                                        text = "🤝 " + rec.synergyDetails,
+                                        color = HextechCyan,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                if (rec.counterDetails.isNotBlank()) {
+                                    Text(
+                                        text = "🛡️ " + rec.counterDetails,
+                                        color = HextechGoldLight,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                             }
-                            Text(rec.advantageBadge, color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(rec.tacticalReason, color = TextMuted, fontSize = 11.sp, lineHeight = 14.sp)
-                        }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        IconButton(
-                            onClick = { onPickRecommendation(rec.champion) },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = tr("Elegir como mi Pick"),
-                                tint = HextechCyan,
-                                modifier = Modifier.size(18.dp)
-                            )
                         }
                     }
                 }

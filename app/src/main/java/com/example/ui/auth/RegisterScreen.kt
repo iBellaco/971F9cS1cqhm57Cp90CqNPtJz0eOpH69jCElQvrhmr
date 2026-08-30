@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,8 +30,11 @@ fun RegisterScreen(
     val confirmPassword by viewModel.confirmPassword.collectAsState()
     val passwordStrength by viewModel.passwordStrength.collectAsState()
 
-    if (uiState.isSuccess) {
-        onRegisterSuccess()
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) {
+            viewModel.resetSuccessState()
+            onRegisterSuccess()
+        }
     }
 
     Column(

@@ -71,6 +71,10 @@ class AuthViewModel : ViewModel() {
         clearError()
     }
 
+    fun resetSuccessState() {
+        _uiState.update { it.copy(isSuccess = false, error = null) }
+    }
+
     fun navigateTo(screen: AuthScreenType) {
         _uiState.update { it.copy(authScreen = screen, error = null, isSuccess = false) }
         if (screen == AuthScreenType.LOGIN || screen == AuthScreenType.REGISTER) {

@@ -58,31 +58,31 @@ enum class AppTheme(
         isDark = true
     ),
 
-    // 2. Aguas Estancadas (Bilgewater) - Puerto sin ley: Mares profundos, maderas náuticas, cobre, oro pirata y turquesa
+    // 2. Aguas Estancadas (Bilgewater) - Puerto de Forajidos: Fuego de Cañón Ámbar Pirata y Marea Profunda
     AGUAS_ESTANCADAS(
         id = "AGUAS_ESTANCADAS",
         titleKey = "Aguas Estancadas",
         regionTag = "Puerto de Forajidos",
-        descKey = "Bahía de piratas, cazadores de monstruos marinos, hierro salado, oro de botín y marea oscura.",
-        background = Color(0xFF040E14),
-        surface = Color(0xFF0B1F28),
-        surfaceVariant = Color(0xFF13323E),
-        cardBorder = Color(0xFF1D4D5F),
-        primary = Color(0xFF00B4D8),
-        primaryLight = Color(0xFF48CAE4),
-        primaryDark = Color(0xFF0077B6),
-        primaryGlow = Color(0xFF90E0EF),
-        secondary = Color(0xFFD4A373),
-        secondaryLight = Color(0xFFFAEDCD),
-        secondaryDark = Color(0xFF8C531B),
-        secondaryGlow = Color(0xFFE76F51),
-        textPrimary = Color(0xFFE8F1F5),
-        textSecondary = Color(0xFF8EAFBC),
-        textMuted = Color(0xFF537888),
+        descKey = "Bahía de piratas, cazadores de monstruos marinos, bronce salado, pólvora ámbar y marea profunda.",
+        background = Color(0xFF0F0702),
+        surface = Color(0xFF221107),
+        surfaceVariant = Color(0xFF361C0D),
+        cardBorder = Color(0xFF6E3A19),
+        primary = Color(0xFFFF6F00),
+        primaryLight = Color(0xFFFF9E40),
+        primaryDark = Color(0xFFB34700),
+        primaryGlow = Color(0xFFFF8F00),
+        secondary = Color(0xFF00B4D8),
+        secondaryLight = Color(0xFF48CAE4),
+        secondaryDark = Color(0xFF0077B6),
+        secondaryGlow = Color(0xFF90E0EF),
+        textPrimary = Color(0xFFFFF3E0),
+        textSecondary = Color(0xFFFFB74D),
+        textMuted = Color(0xFF8D6E63),
         isDark = true
     ),
 
-    // 3. Ciudad de Bandle - Reino Yordle místico: Magia feérica, lavanda, destellos dorados y esmeralda brillante
+    // 3. Ciudad de Bandle - Reino Yordle místico: Lavanda feérica y Esmeralda mágica encantada
     CIUDAD_DE_BANDLE(
         id = "CIUDAD_DE_BANDLE",
         titleKey = "Ciudad de Bandle",
@@ -96,41 +96,41 @@ enum class AppTheme(
         primaryLight = Color(0xFFD1B3FF),
         primaryDark = Color(0xFF5E2D91),
         primaryGlow = Color(0xFFE040FB),
-        secondary = Color(0xFFFFD166),
-        secondaryLight = Color(0xFFFFF0B3),
-        secondaryDark = Color(0xFFB38600),
-        secondaryGlow = Color(0xFF06D6A0),
+        secondary = Color(0xFF06D6A0),
+        secondaryLight = Color(0xFF6CF5D2),
+        secondaryDark = Color(0xFF008966),
+        secondaryGlow = Color(0xFF00FFA3),
         textPrimary = Color(0xFFF9F5FF),
         textSecondary = Color(0xFFC3AED6),
         textMuted = Color(0xFF8870A0),
         isDark = true
     ),
 
-    // 4. Demacia - Reino de Honor y Petricita: Petricita marfil, oro regio noble, azul real y estandartes heroicos
+    // 4. Demacia - Reino de Honor y Petricita: Azul Real Justiciero y Oro de las Alas de la Justicia
     DEMACIA(
         id = "DEMACIA",
         titleKey = "Demacia",
         regionTag = "Reino de la Justicia",
-        descKey = "Petricita resplandeciente, honor marfil, azul real inquebrantable y oro de las alas protectoras.",
-        background = Color(0xFF050B14),
-        surface = Color(0xFF0D1C30),
-        surfaceVariant = Color(0xFF152A47),
-        cardBorder = Color(0xFF2C4E7E),
-        primary = Color(0xFF38BDF8),
-        primaryLight = Color(0xFF7DD3FC),
-        primaryDark = Color(0xFF0369A1),
-        primaryGlow = Color(0xFF60A5FA),
-        secondary = Color(0xFFE0C068),
-        secondaryLight = Color(0xFFFBF4D8),
-        secondaryDark = Color(0xFF9E7E24),
-        secondaryGlow = Color(0xFFFFDF73),
-        textPrimary = Color(0xFFF4F7FB),
-        textSecondary = Color(0xFFA1B4CC),
-        textMuted = Color(0xFF68809F),
+        descKey = "Petricita resplandeciente, honor inquebrantable, azul real justiciero y oro protector.",
+        background = Color(0xFF030A17),
+        surface = Color(0xFF081830),
+        surfaceVariant = Color(0xFF0F264A),
+        cardBorder = Color(0xFF1E4B8A),
+        primary = Color(0xFF2563EB),
+        primaryLight = Color(0xFF60A5FA),
+        primaryDark = Color(0xFF1D4ED8),
+        primaryGlow = Color(0xFF3B82F6),
+        secondary = Color(0xFFE2B755),
+        secondaryLight = Color(0xFFFDF0CD),
+        secondaryDark = Color(0xFF997A2E),
+        secondaryGlow = Color(0xFFFFD54F),
+        textPrimary = Color(0xFFF8FAFC),
+        textSecondary = Color(0xFF93C5FD),
+        textMuted = Color(0xFF64748B),
         isDark = true
     ),
 
-    // 5. El Vacío (The Void) - Dimensión corruptora: Púrpura cósmico abisal, violeta sobrenatural, magenta y oscuridad viva
+    // 5. El Vacío (The Void) - Dimensión corruptora: Magenta corruptor y Bioluminiscencia Neón Cian
     EL_VACIO(
         id = "EL_VACIO",
         titleKey = "El Vacío",
@@ -144,17 +144,17 @@ enum class AppTheme(
         primaryLight = Color(0xFFF0ABFC),
         primaryDark = Color(0xFF701A75),
         primaryGlow = Color(0xFFC026D3),
-        secondary = Color(0xFF8B5CF6),
-        secondaryLight = Color(0xFFC4B5FD),
-        secondaryDark = Color(0xFF5B21B6),
-        secondaryGlow = Color(0xFFA855F7),
+        secondary = Color(0xFF06FFA5),
+        secondaryLight = Color(0xFF70FFC9),
+        secondaryDark = Color(0xFF008F59),
+        secondaryGlow = Color(0xFF00FF88),
         textPrimary = Color(0xFFFCE7F3),
         textSecondary = Color(0xFFC084FC),
         textMuted = Color(0xFF7E22CE),
         isDark = true
     ),
 
-    // 6. Freljord - Tierras del Hielo Puro: Hielo oscuro, cian glacial congelado, escarcha milenaria y runas árticas
+    // 6. Freljord - Tierras del Hielo Puro: Cian glacial congelado y Fuego Ancestral de la Forja de Ornn
     FRELJORD(
         id = "FRELJORD",
         titleKey = "Freljord",
@@ -168,17 +168,17 @@ enum class AppTheme(
         primaryLight = Color(0xFF80F2FF),
         primaryDark = Color(0xFF0284C7),
         primaryGlow = Color(0xFF38BDF8),
-        secondary = Color(0xFF93C5FD),
-        secondaryLight = Color(0xFFEFF6FF),
-        secondaryDark = Color(0xFF1E40AF),
-        secondaryGlow = Color(0xFF60A5FA),
+        secondary = Color(0xFFFF5722),
+        secondaryLight = Color(0xFFFF8A65),
+        secondaryDark = Color(0xFFBF360C),
+        secondaryGlow = Color(0xFFFF7043),
         textPrimary = Color(0xFFF0F9FF),
         textSecondary = Color(0xFF93C5FD),
         textMuted = Color(0xFF4B6B94),
         isDark = true
     ),
 
-    // 7. Islas de la Sombra - Niebla Negra y Almas Malditas: Jade espectral, verde fantasma, niebla y piedras de ruina
+    // 7. Islas de la Sombra - Niebla Negra y Almas Malditas: Jade espectral y Púrpura de Niebla Negra
     ISLAS_DE_LA_SOMBRA(
         id = "ISLAS_DE_LA_SOMBRA",
         titleKey = "Islas de la Sombra",
@@ -188,21 +188,21 @@ enum class AppTheme(
         surface = Color(0xFF041818),
         surfaceVariant = Color(0xFF082626),
         cardBorder = Color(0xFF114848),
-        primary = Color(0xFF00FFC2),
+        primary = Color(0xFF00FFB3),
         primaryLight = Color(0xFF66FFE0),
         primaryDark = Color(0xFF005E46),
         primaryGlow = Color(0xFF00E676),
-        secondary = Color(0xFF2DD4BF),
-        secondaryLight = Color(0xFFCCFBF1),
-        secondaryDark = Color(0xFF0F766E),
-        secondaryGlow = Color(0xFF14B8A6),
+        secondary = Color(0xFFA855F7),
+        secondaryLight = Color(0xFFD8B4FE),
+        secondaryDark = Color(0xFF6B21A8),
+        secondaryGlow = Color(0xFFC084FC),
         textPrimary = Color(0xFFE6FFFA),
         textSecondary = Color(0xFF5EEAD4),
         textMuted = Color(0xFF115E59),
         isDark = true
     ),
 
-    // 8. Ixtal - Selva Elemental Ancestral: Verde esmeralda vivo, magia axioma, oro de la jungla y naturaleza primigenia
+    // 8. Ixtal - Selva Elemental Ancestral: Esmeralda axiomática y Turquesa Elemental de Ríos
     IXTAL(
         id = "IXTAL",
         titleKey = "Ixtal",
@@ -212,21 +212,21 @@ enum class AppTheme(
         surface = Color(0xFF071F11),
         surfaceVariant = Color(0xFF0F331D),
         cardBorder = Color(0xFF195732),
-        primary = Color(0xFF10B981),
+        primary = Color(0xFF059669),
         primaryLight = Color(0xFF34D399),
-        primaryDark = Color(0xFF047857),
-        primaryGlow = Color(0xFF059669),
-        secondary = Color(0xFFEAB308),
-        secondaryLight = Color(0xFFFEF08A),
-        secondaryDark = Color(0xFFA16207),
-        secondaryGlow = Color(0xFFF59E0B),
+        primaryDark = Color(0xFF065F46),
+        primaryGlow = Color(0xFF10B981),
+        secondary = Color(0xFF06B6D4),
+        secondaryLight = Color(0xFF67E8F9),
+        secondaryDark = Color(0xFF0E7490),
+        secondaryGlow = Color(0xFF22D3EE),
         textPrimary = Color(0xFFECFDF5),
         textSecondary = Color(0xFFA7F3D0),
         textMuted = Color(0xFF4B8B67),
         isDark = true
     ),
 
-    // 9. Jonia - Las Tierras Primigenias: Flor de loto rosa, follaje espiritual verde suave, armonía y magia viva
+    // 9. Jonia - Las Tierras Primigenias: Rosa Flor de Loto y Verde Jade Espiritual de Armonía
     JONIA(
         id = "JONIA",
         titleKey = "Jonia",
@@ -240,17 +240,17 @@ enum class AppTheme(
         primaryLight = Color(0xFFFBCFE8),
         primaryDark = Color(0xFF9D174D),
         primaryGlow = Color(0xFFEC4899),
-        secondary = Color(0xFF2DD4BF),
-        secondaryLight = Color(0xFF99F6E4),
-        secondaryDark = Color(0xFF0F766E),
-        secondaryGlow = Color(0xFF14B8A6),
+        secondary = Color(0xFF10B981),
+        secondaryLight = Color(0xFF6EE7B7),
+        secondaryDark = Color(0xFF047857),
+        secondaryGlow = Color(0xFF34D399),
         textPrimary = Color(0xFFFDF2F8),
         textSecondary = Color(0xFFF472B6),
         textMuted = Color(0xFF834E79),
         isDark = true
     ),
 
-    // 10. Noxus - Imperio Conquistador: Rojo carmesí de guerra, hierro forjado oscuro, acero y oro bélico
+    // 10. Noxus - Imperio Conquistador: Rojo Carmesí de Sangre y Acero Forjado Oscuro
     NOXUS(
         id = "NOXUS",
         titleKey = "Noxus",
@@ -260,21 +260,21 @@ enum class AppTheme(
         surface = Color(0xFF19060A),
         surfaceVariant = Color(0xFF26090F),
         cardBorder = Color(0xFF4A121A),
-        primary = Color(0xFFFF2A42),
-        primaryLight = Color(0xFFFF6B7D),
-        primaryDark = Color(0xFF6B0E1B),
-        primaryGlow = Color(0xFFFF0022),
-        secondary = Color(0xFFE2B755),
-        secondaryLight = Color(0xFFFCE7B2),
-        secondaryDark = Color(0xFF8A6517),
-        secondaryGlow = Color(0xFFFFC72C),
+        primary = Color(0xFFFF1744),
+        primaryLight = Color(0xFFFF616F),
+        primaryDark = Color(0xFF99001A),
+        primaryGlow = Color(0xFFFF0033),
+        secondary = Color(0xFF94A3B8),
+        secondaryLight = Color(0xFFCBD5E1),
+        secondaryDark = Color(0xFF475569),
+        secondaryGlow = Color(0xFFE2E8F0),
         textPrimary = Color(0xFFFCE7E9),
         textSecondary = Color(0xFFC48B92),
         textMuted = Color(0xFF8A5C63),
         isDark = true
     ),
 
-    // 11. Shurima - El Imperio del Desierto: Oro del Disco Solar, arenas ardientes, ámbar imperial y oasis eterno
+    // 11. Shurima - El Imperio del Desierto: Oro del Disco Solar y Lapislázuli/Turquesa de Oasis Imperial
     SHURIMA(
         id = "SHURIMA",
         titleKey = "Shurima",
@@ -284,21 +284,21 @@ enum class AppTheme(
         surface = Color(0xFF211303),
         surfaceVariant = Color(0xFF351F06),
         cardBorder = Color(0xFF613B0E),
-        primary = Color(0xFFFFB703),
-        primaryLight = Color(0xFFFFD166),
-        primaryDark = Color(0xFFB07D02),
-        primaryGlow = Color(0xFFFB8500),
-        secondary = Color(0xFFFB8500),
-        secondaryLight = Color(0xFFFFB703),
-        secondaryDark = Color(0xFF8C3E00),
-        secondaryGlow = Color(0xFFF43F5E),
+        primary = Color(0xFFFFB300),
+        primaryLight = Color(0xFFFFD54F),
+        primaryDark = Color(0xFFC68400),
+        primaryGlow = Color(0xFFFF8F00),
+        secondary = Color(0xFF0284C7),
+        secondaryLight = Color(0xFF38BDF8),
+        secondaryDark = Color(0xFF0369A1),
+        secondaryGlow = Color(0xFF0EA5E9),
         textPrimary = Color(0xFFFFF7ED),
         textSecondary = Color(0xFFFDBA74),
         textMuted = Color(0xFF8A6538),
         isDark = true
     ),
 
-    // 12. Targon - La Cumbre Celestial: Solari dorado, Lunari plateado místico, violeta cósmico y polvo de estrellas
+    // 12. Targon - La Cumbre Celestial: Violeta Cósmico y Oro Solar Divino de los Solari
     TARGON(
         id = "TARGON",
         titleKey = "Targon",
@@ -308,13 +308,13 @@ enum class AppTheme(
         surface = Color(0xFF120C29),
         surfaceVariant = Color(0xFF1F1545),
         cardBorder = Color(0xFF3B2875),
-        primary = Color(0xFFB388FF),
-        primaryLight = Color(0xFFD1B3FF),
-        primaryDark = Color(0xFF4A148C),
-        primaryGlow = Color(0xFF7C4DFF),
-        secondary = Color(0xFFFFD54F),
-        secondaryLight = Color(0xFFFFF176),
-        secondaryDark = Color(0xFFFF8F00),
+        primary = Color(0xFF7C3AED),
+        primaryLight = Color(0xFFA78BFA),
+        primaryDark = Color(0xFF4C1D95),
+        primaryGlow = Color(0xFF8B5CF6),
+        secondary = Color(0xFFFFD166),
+        secondaryLight = Color(0xFFFFF0B3),
+        secondaryDark = Color(0xFFB38600),
         secondaryGlow = Color(0xFFFFE082),
         textPrimary = Color(0xFFF3E5F5),
         textSecondary = Color(0xFFA594C9),
@@ -322,7 +322,7 @@ enum class AppTheme(
         isDark = true
     ),
 
-    // 13. Zaun - Ciudad Subterránea Quimtech: Verde neón radioactivo, vapores tóxicos, tuberías de cobre y brillo Shimmer
+    // 13. Zaun - Ciudad Subterránea Quimtech: Verde Quimtech Ácido Neón y Púrpura Shimmer Químico
     ZAUN(
         id = "ZAUN",
         titleKey = "Zaun",
@@ -332,14 +332,14 @@ enum class AppTheme(
         surface = Color(0xFF061A0F),
         surfaceVariant = Color(0xFF0B2B19),
         cardBorder = Color(0xFF144D2B),
-        primary = Color(0xFF00FF7F),
-        primaryLight = Color(0xFF66FFB2),
-        primaryDark = Color(0xFF006633),
-        primaryGlow = Color(0xFF39FF14),
-        secondary = Color(0xFF00E5FF),
-        secondaryLight = Color(0xFF80F2FF),
-        secondaryDark = Color(0xFF006680),
-        secondaryGlow = Color(0xFF00FFFF),
+        primary = Color(0xFF39FF14),
+        primaryLight = Color(0xFF70FF57),
+        primaryDark = Color(0xFF1B8A00),
+        primaryGlow = Color(0xFF00FF7F),
+        secondary = Color(0xFFE040FB),
+        secondaryLight = Color(0xFFEA80FC),
+        secondaryDark = Color(0xFFAA00FF),
+        secondaryGlow = Color(0xFFD500F9),
         textPrimary = Color(0xFFE8FDF0),
         textSecondary = Color(0xFF7EBF96),
         textMuted = Color(0xFF4D8A65),
@@ -369,7 +369,7 @@ enum class NavBarColorOption(
         id = "THEME_AUTO",
         titleKey = "Automático (Sincronizado con Tema)",
         descKey = "Se adapta automáticamente a la región activa",
-        colorHex = Color(0xFF818CF8),
+        colorHex = Color(0xFF00E5FF),
         containerColor = Color.Unspecified,
         accentColor = Color.Unspecified,
         isAutomatic = true
@@ -395,10 +395,10 @@ enum class NavBarColorOption(
     BILGEWATER_TEAL(
         id = "BILGEWATER_TEAL",
         titleKey = "Aguas Estancadas",
-        descKey = "Turquesa náutico y marea profunda",
-        colorHex = Color(0xFF00B4D8),
-        containerColor = Color(0xFF0B1F28),
-        accentColor = Color(0xFF00B4D8),
+        descKey = "Fuego pirata ámbar y marea profunda",
+        colorHex = Color(0xFFFF6F00),
+        containerColor = Color(0xFF221107),
+        accentColor = Color(0xFFFF6F00),
         isAutomatic = false
     ),
     BANDLE_LAVENDER(
@@ -413,10 +413,10 @@ enum class NavBarColorOption(
     DEMACIA_ROYAL(
         id = "DEMACIA_ROYAL",
         titleKey = "Demacia Real",
-        descKey = "Azul petricita y nobleza",
-        colorHex = Color(0xFF38BDF8),
-        containerColor = Color(0xFF0D1C30),
-        accentColor = Color(0xFFE0C068),
+        descKey = "Azul justiciero y nobleza demaciana",
+        colorHex = Color(0xFF2563EB),
+        containerColor = Color(0xFF081830),
+        accentColor = Color(0xFF2563EB),
         isAutomatic = false
     ),
     VOID_MAGENTA(
@@ -441,18 +441,18 @@ enum class NavBarColorOption(
         id = "SHADOW_ISLES_JADE",
         titleKey = "Islas de la Sombra",
         descKey = "Jade espectral y niebla negra",
-        colorHex = Color(0xFF00FFC2),
+        colorHex = Color(0xFF00FFB3),
         containerColor = Color(0xFF041818),
-        accentColor = Color(0xFF00FFC2),
+        accentColor = Color(0xFF00FFB3),
         isAutomatic = false
     ),
     IXTAL_EMERALD(
         id = "IXTAL_EMERALD",
         titleKey = "Ixtal Selva",
         descKey = "Esmeralda elemental primigenia",
-        colorHex = Color(0xFF10B981),
+        colorHex = Color(0xFF059669),
         containerColor = Color(0xFF071F11),
-        accentColor = Color(0xFF10B981),
+        accentColor = Color(0xFF059669),
         isAutomatic = false
     ),
     IONIA_BLOSSOM(
@@ -468,36 +468,36 @@ enum class NavBarColorOption(
         id = "NOXUS_CRIMSON",
         titleKey = "Noxus Carmesí",
         descKey = "Rojo sangre y acero bélico",
-        colorHex = Color(0xFFFF2A42),
+        colorHex = Color(0xFFFF1744),
         containerColor = Color(0xFF19060A),
-        accentColor = Color(0xFFFF2A42),
+        accentColor = Color(0xFFFF1744),
         isAutomatic = false
     ),
     SHURIMA_GOLD(
         id = "SHURIMA_GOLD",
         titleKey = "Shurima Solar",
-        descKey = "Oro imperial y fuego del desierto",
-        colorHex = Color(0xFFFFB703),
+        descKey = "Oro imperial del Disco Solar",
+        colorHex = Color(0xFFFFB300),
         containerColor = Color(0xFF211303),
-        accentColor = Color(0xFFFFB703),
+        accentColor = Color(0xFFFFB300),
         isAutomatic = false
     ),
     TARGON_COSMIC(
         id = "TARGON_COSMIC",
         titleKey = "Targon Cósmico",
-        descKey = "Púrpura estelar y oro divino",
-        colorHex = Color(0xFFB388FF),
+        descKey = "Violeta estelar y cumbre celestial",
+        colorHex = Color(0xFF7C3AED),
         containerColor = Color(0xFF120C29),
-        accentColor = Color(0xFFFFD54F),
+        accentColor = Color(0xFF7C3AED),
         isAutomatic = false
     ),
     ZAUN_CHEMTECH(
         id = "ZAUN_CHEMTECH",
         titleKey = "Zaun Quimtech",
-        descKey = "Verde tóxico y cian industrial",
-        colorHex = Color(0xFF00FF7F),
+        descKey = "Verde tóxico ácido de Zaun",
+        colorHex = Color(0xFF39FF14),
         containerColor = Color(0xFF061A0F),
-        accentColor = Color(0xFF00FF7F),
+        accentColor = Color(0xFF39FF14),
         isAutomatic = false
     )
 }

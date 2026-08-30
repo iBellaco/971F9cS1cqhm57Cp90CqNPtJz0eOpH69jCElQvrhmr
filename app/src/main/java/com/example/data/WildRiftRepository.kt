@@ -388,6 +388,9 @@ object WildRiftRepository {
         isFirstPick: Boolean = false,
         lang: String = "es"
     ): DraftAnalysisResult {
+        val serverRegion = com.example.data.sync.ChineseMetaSyncService.currentRegion.value
+        val rankTier = com.example.data.sync.ChineseMetaSyncService.currentTier.value.displayName
+
         var physCount = 0
         var magicCount = 0
         var trueCount = 0
@@ -432,9 +435,9 @@ object WildRiftRepository {
             allyTruePct = (100 - (allyPhysPct + allyMagicPct)).coerceAtLeast(0)
             
             if (allyPhysPct >= 80) {
-                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Físico aliado (AD).")
+                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Físico aliado (AD). El rival acumulará armadura.")
             } else if (allyMagicPct >= 75) {
-                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Mágico aliado (AP).")
+                allyCompositionWarning = com.example.util.trStr(lang, "Exceso de Daño Mágico aliado (AP). El rival acumulará resistencia mágica.")
             }
         }
 
@@ -449,19 +452,25 @@ object WildRiftRepository {
 
         // Known safe blind-picks per role in Wild Rift Meta
         val safeBlindPicks = mapOf(
-            LaneRole.TOP to listOf("sett", "aatrox", "darius", "renekton", "ornn", "camille", "gwen"),
-            LaneRole.JUNGLE to listOf("vi", "lee_sin", "xin_zhao", "viego", "wukong", "kayn", "jarvan_iv"),
-            LaneRole.MID to listOf("ahri", "orianna", "syndra", "yone", "karma", "vex", "jayce"),
-            LaneRole.ADC to listOf("varus", "ezreal", "kaisa", "caitlyn", "xayah", "jinx", "lucian"),
-            LaneRole.SUPPORT to listOf("thresh", "nautilus", "lulu", "nami", "karma", "morgana", "leona", "rakan")
+            LaneRole.TOP to listOf("sett", "aatrox", "darius", "renekton", "ornn", "camille", "gwen", "urgot"),
+            LaneRole.JUNGLE to listOf("vi", "lee_sin", "xin_zhao", "viego", "wukong", "kayn", "jarvan_iv", "volibear"),
+            LaneRole.MID to listOf("ahri", "orianna", "syndra", "yone", "karma", "vex", "jayce", "galio"),
+            LaneRole.ADC to listOf("varus", "ezreal", "kaisa", "caitlyn", "xayah", "jinx", "lucian", "sivir"),
+            LaneRole.SUPPORT to listOf("thresh", "nautilus", "lulu", "nami", "karma", "morgana", "leona", "rakan", "braum")
+        )
+
+        // Server CN Priority Meta staples (High Elo Challenger Pick & Ban)
+        val cnMetaStaples = setOf(
+            "aatrox", "lee_sin", "camille", "yone", "syndra", "ahri", "varus", "ezreal", "vi", "nautilus", "thresh", "karma", "gwen", "jayce", "viego", "renekton", "rakan"
         )
 
         var directMatchupWarning: String? = null
         var directCounterBestPick: String? = null
 
-        val enemyAssassins = enemies.filter { it.id in listOf("zed", "kayn", "talon", "khazix", "akali", "evelynn", "katarina", "fizz") }
+        val enemyAssassins = enemies.filter { it.id in listOf("zed", "kayn", "talon", "khazix", "akali", "evelynn", "katarina", "fizz", "pyke") }
         val enemyTanks = enemies.filter { it.isFrontline }
-        val enemyRangedAdvantage = enemies.filter { it.id in listOf("caitlyn", "lux", "xerath", "varus", "ezreal") }
+        val enemyRangedAdvantage = enemies.filter { it.id in listOf("caitlyn", "lux", "xerath", "varus", "ezreal", "ziggs", "corki") }
+        val enemyDashHeavy = enemies.filter { it.id in listOf("yasuo", "yone", "irelia", "riven", "lee_sin", "akali", "katarina", "fizz") }
         
         if (enemyLaneOpponent != null) {
             val opponent = enemyLaneOpponent
@@ -518,15 +527,26 @@ object WildRiftRepository {
             champ.primaryRole == myRole || champ.secondaryRoles.contains(myRole)
         }.ifEmpty { availableChampions }
 
+        val serverLabel = when (serverRegion) {
+            "CN" -> "China ($rankTier)"
+            "BestBuildWR" -> "Global Meta"
+            else -> "América"
+        }
+
         val recommendations = candidates.map { champ ->
             var score = champ.winrate
 
             // Tier Bonus
             when (champ.tier) {
-                "S+" -> score += 3.0
-                "S" -> score += 2.0
-                "A+" -> score += 1.0
+                "S+" -> score += 3.5
+                "S" -> score += 2.2
+                "A+" -> score += 1.2
                 "A" -> score += 0.5
+            }
+
+            // Server-specific tuning
+            if (serverRegion == "CN" && cnMetaStaples.contains(champ.id)) {
+                score += 2.0 // Boost for CN High Elo staples
             }
 
             var synergyText = ""
@@ -536,12 +556,44 @@ object WildRiftRepository {
             val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, myRole, lang)
             val roleContextAdvice = if (isFlex) {
                 t(lang,
-                    "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Play safe early. Tips: $dynamicAdvice",
-                    "Flex no ${myRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Jogue seguro no início. Dicas: $dynamicAdvice",
-                    "Flex en ${myRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Juega seguro al inicio. Consejos: $dynamicAdvice"
+                    "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Tips: $dynamicAdvice",
+                    "Flex no ${myRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Dicas: $dynamicAdvice",
+                    "Flex en ${myRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Consejos: $dynamicAdvice"
                 )
             } else {
                 dynamicAdvice
+            }
+
+            // Detect Iconic Wombocombos with active allies
+            val allyIds = allies.map { it.id }
+            val comboSynergies = mutableListOf<String>()
+            if (champ.id == "yasuo" && (allyIds.any { it in listOf("malphite", "diana", "nautilus", "alistar", "wukong", "aatrox", "rakan", "vi") })) {
+                val knockupEnabler = allies.firstOrNull { it.id in listOf("malphite", "diana", "nautilus", "alistar", "wukong", "aatrox", "rakan", "vi") }?.name ?: "Iniciador"
+                comboSynergies.add("💥 Combo Aéreo: Levantamiento con $knockupEnabler + R de Yasuo")
+            }
+            if (champ.id in listOf("malphite", "wukong", "jarvan_iv", "diana") && allyIds.contains("orianna")) {
+                comboSynergies.add("💥 Wombocombo R: Llevas la bola de Orianna para Onda de Choque R masiva")
+            }
+            if (champ.id == "orianna" && allyIds.any { it in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }) {
+                val carrier = allies.firstOrNull { it.id in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }?.name ?: "Iniciador"
+                comboSynergies.add("💥 Balón Transportado: Protege a $carrier con E para iniciar con R")
+            }
+            if (champ.id in listOf("miss_fortune", "samira", "katarina") && allyIds.any { it in listOf("amumu", "leona", "nautilus", "malphite", "seraphine") }) {
+                val ccChamp = allies.firstOrNull { it.id in listOf("amumu", "leona", "nautilus", "malphite", "seraphine") }?.name ?: "CC"
+                comboSynergies.add("💥 CC en Cadena: Definitiva en área sobre el control de masas de $ccChamp")
+            }
+            if (champ.id in listOf("jinx", "vayne", "twitch", "zeri", "kogmaw") && allyIds.any { it in listOf("lulu", "yuumi", "milio", "janna", "nami") }) {
+                val enchanter = allies.firstOrNull { it.id in listOf("lulu", "yuumi", "milio", "janna", "nami") }?.name ?: "Support"
+                comboSynergies.add("🛡️ Hipercarry Peel: Máxima supervivencia y esteroides de daño con $enchanter")
+            }
+            if (champ.id == "braum" && allyIds.contains("lucian")) {
+                comboSynergies.add("💥 Pasiva Rápida: Lucian activa tus 4 marcas de aturdimiento en 0.5s")
+            }
+            if (champ.id == "lucian" && allyIds.any { it in listOf("braum", "nami") }) {
+                comboSynergies.add("💥 Sinergia Bot: Activación instantánea de Bendición/Golpe Conmocionante")
+            }
+            if (champ.id == "xayah" && allyIds.contains("rakan") || (champ.id == "rakan" && allyIds.contains("xayah"))) {
+                comboSynergies.add("❤️ Dúo Sagrado: Mayor alcance en Danza de Batalla y retirada conjunta")
             }
 
             if (isFirstPickEffective) {
@@ -549,38 +601,45 @@ object WildRiftRepository {
                 val roleBlindList = safeBlindPicks[myRole] ?: emptyList()
                 val isSafeBlind = roleBlindList.contains(champ.id)
                 if (isSafeBlind) {
-                    score += 4.5
+                    score += 6.5 // High priority bonus for genuine safe blind picks
+                }
+                if (champ.tier == "S+") {
+                    score += 3.0
                 }
 
                 val badge = when {
-                    isSafeBlind && champ.tier == "S+" -> t(lang, " BEST 1ST PICK (Safe Blind Pick)", " MELHOR 1º PICK (Blind Pick Seguro)", " MEJOR PRIMER PICK (Blind Pick Seguro)")
-                    isSafeBlind -> t(lang, " VERSATILE BLIND PICK", " BLIND PICK VERSÁTIL", " BLIND PICK VERSÁTIL")
-                    champ.tier == "S+" -> t(lang, " TIER S+ META", " TIER S+ META", " TIER S+ META")
-                    else -> t(lang, "General Pick in ${myRole.shortName}", "Opção Geral no ${myRole.shortName}", "Opción General en ${myRole.shortName}")
+                    isSafeBlind && champ.tier == "S+" -> t(lang, "👑 1ER PICK PRIORITARIO (Meta $serverLabel)", "👑 1º PICK PRIORITÁRIO (Meta $serverLabel)", "👑 1ER PICK PRIORITARIO (Meta $serverLabel)")
+                    isSafeBlind -> t(lang, "🛡️ BLIND PICK SEGURO (Versátil)", "🛡️ BLIND PICK SEGURO (Versátil)", "🛡️ BLIND PICK SEGURO (Versátil)")
+                    champ.tier == "S+" -> t(lang, "⭐ META S+ ($serverLabel)", "⭐ META S+ ($serverLabel)", "⭐ META S+ ($serverLabel)")
+                    else -> t(lang, "Opción Estable en ${myRole.shortName}", "Opção Estável no ${myRole.shortName}", "Opción Estable en ${myRole.shortName}")
                 }
 
                 val reason = when {
                     isSafeBlind && champ.tier == "S+" ->
                         t(lang,
-                            "#1 Priority First Pick in ${myRole.displayName}: ${champ.name} is an ultra safe S+ tier blind pick. Dominates laning phase, minimal counter vulnerability. " + roleContextAdvice,
-                            "Prioridade #1 de Primeiro Pick no ${myRole.displayName}: ${champ.name} é um blind pick ultra seguro de Tier S+. Domina a fase de rotas, mínima vulnerabilidade a counters. " + roleContextAdvice,
-                            "Prioridad #1 de Primer Pick en ${myRole.displayName}: ${champ.name} es un pick ciego ultra seguro de Tier S+. Domina la fase de líneas, mínima vulnerabilidad a counters. " + roleContextAdvice
+                            "Prioridad #1 de Primer Pick en ${myRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice",
+                            "Prioridade #1 de Primeiro Pick no ${myRole.displayName} [$serverLabel]: ${champ.name} é o pick às cegas mais seguro e autossuficiente. Domina a rota, resiste a emboscadas e não tem counters abusivos. $roleContextAdvice",
+                            "Prioridad #1 de Primer Pick en ${myRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice"
                         )
                     isSafeBlind ->
                         t(lang,
-                            "Excellent blind pick: ${champ.name} cannot be easily countered and guarantees stable presence. " + roleContextAdvice,
-                            "Excelente blind pick: ${champ.name} não pode ser facilmente counterado e garante presença estável. " + roleContextAdvice,
-                            "Excelente selección a ciegas: ${champ.name} no puede ser contrarrestado fácilmente y garantiza presencia estable. " + roleContextAdvice
+                            "Excelente selección a ciegas en ${myRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice",
+                            "Excelente escolha às cegas no ${myRole.displayName}: Grande versatilidade e controle de rotas sem risco de counter pesado. $roleContextAdvice",
+                            "Excelente selección a ciegas en ${myRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice"
                         )
                     else -> roleContextAdvice
                 }
 
-                synergyText = t(lang, "High self-sufficiency and wave control.", "Alta autossuficiência e controle de rotas.", "Alta autosuficiencia, control de oleadas y flexibilidad táctica.")
-                counterText = t(lang, "Low vulnerability to ganks in ${myRole.shortName}.", "Baixa vulnerabilidade a emboscadas no ${myRole.shortName}.", "Baja vulnerabilidad a emboscadas y sin counters abusivos en ${myRole.shortName}.")
+                synergyText = if (comboSynergies.isNotEmpty()) {
+                    comboSynergies.joinToString(" • ")
+                } else {
+                    t(lang, "Autosuficiencia en línea y escalado seguro en $serverLabel.", "Autossuficiência na rota e escalamento seguro em $serverLabel.", "Autosuficiencia en línea, control de oleadas y escalado en $serverLabel.")
+                }
+                counterText = t(lang, "Sin counters directos fatales en el meta de $serverLabel.", "Sem counters diretos fatais no meta de $serverLabel.", "Sin counters directos fatales en el meta de $serverLabel.")
 
                 DraftRecommendation(
                     champion = champ,
-                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(68.5),
+                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(72.0),
                     advantageBadge = badge,
                     tacticalReason = reason,
                     runes = champ.recommendedRunes,
@@ -600,74 +659,87 @@ object WildRiftRepository {
                 }
 
                 // Enemy Counter Scoring
-                score += (directCounters.size * 2.8)
-                score -= (directWeaknesses.size * 2.2)
+                score += (directCounters.size * 3.2)
+                score -= (directWeaknesses.size * 2.5)
 
-                // Ally Synergy Scoring
-                score += (directSynergies.size * 2.2)
+                // Ally Synergy Scoring + Combo Bonus
+                score += (directSynergies.size * 2.4)
+                if (comboSynergies.isNotEmpty()) {
+                    score += (comboSynergies.size * 2.8)
+                }
 
                 // Damage Balance compensation
                 if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
-                    score += 3.5 // Prevents enemy from just building Armor
+                    score += 4.0 // Prevents enemy from just building Armor
                 } else if (isAllyFullAp && champ.damageType == DamageType.PHYSICAL) {
-                    score += 3.5 // Prevents enemy from just building Magic Resist
+                    score += 4.0 // Prevents enemy from just building Magic Resist
                 }
 
                 // Frontline compensation
                 if (frontlineAllies == 0 && champ.isFrontline) {
-                    score += 2.8 // Needed frontline
+                    score += 3.0 // Needed frontline
                 }
 
                 // Anti-tank or anti-assassin bonus
-                if (enemyTanks.size >= 2 && (champ.id == "vayne" || champ.id == "sett" || champ.id == "gwen" || champ.id == "fiora" || champ.id == "varus")) {
+                if (enemyTanks.size >= 2 && (champ.id in listOf("vayne", "sett", "gwen", "fiora", "varus", "lillia"))) {
+                    score += 3.5
+                }
+                if (enemyDashHeavy.size >= 2 && (champ.id in listOf("vex", "poppy", "gragas", "taliyah", "nautilus", "malphite"))) {
                     score += 3.2
                 }
 
                 val badge = when {
-                    directCounters.isNotEmpty() && directSynergies.isNotEmpty() -> t(lang, " #1 BEST OPTION (Synergy + Counter)", " #1 MELHOR OPÇÃO (Sinergia + Counter)", " #1 MEJOR OPCIÓN (Sinergia + Counter)")
-                    directCounters.isNotEmpty() && champ.tier == "S+" -> t(lang, " S+ TIER COUNTER (+${directCounters.size})", " COUNTER TIER S+ (+${directCounters.size})", " COUNTER TIER S+ (+${directCounters.size})")
-                    directCounters.isNotEmpty() -> t(lang, " DIRECT COUNTER (+${directCounters.size} Enemy)", " COUNTER DIRETO (+${directCounters.size} Inimigo)", " COUNTER DIRECTO (+${directCounters.size} Rival)")
-                    directSynergies.isNotEmpty() -> t(lang, " TEAM SYNERGY (+${directSynergies.size})", " SINERGIA DE EQUIPE (+${directSynergies.size})", " SINERGIA CON EQUIPO (+${directSynergies.size})")
-                    champ.tier == "S+" -> t(lang, " S+ TIER (High Priority)", " TIER S+ (Alta Prioridade)", " TIER S+ (Alta Prioridad)")
-                    else -> t(lang, "Balanced Recommendation", "Recomendação Balanceada", "Recomendación Balanceada")
+                    comboSynergies.isNotEmpty() && directCounters.isNotEmpty() -> t(lang, "🔥 COMBO + COUNTER (+${directCounters.size})", "🔥 COMBO + COUNTER (+${directCounters.size})", "🔥 COMBO + COUNTER (+${directCounters.size})")
+                    comboSynergies.isNotEmpty() -> t(lang, "💥 WOMBO-COMBO ALIADO", "💥 WOMBO-COMBO ALIADO", "💥 WOMBO-COMBO ALIADO")
+                    directCounters.isNotEmpty() && directSynergies.isNotEmpty() -> t(lang, "⭐ #1 SINERGIA + COUNTER", "⭐ #1 SINERGIA + COUNTER", "⭐ #1 SINERGIA + COUNTER")
+                    directCounters.isNotEmpty() && champ.tier == "S+" -> t(lang, "⚔️ COUNTER TIER S+ (+${directCounters.size})", "⚔️ COUNTER TIER S+ (+${directCounters.size})", "⚔️ COUNTER TIER S+ (+${directCounters.size})")
+                    directCounters.isNotEmpty() -> t(lang, "🛡️ COUNTER DIRECTO (+${directCounters.size})", "🛡️ COUNTER DIRETO (+${directCounters.size})", "🛡️ COUNTER DIRECTO (+${directCounters.size})")
+                    directSynergies.isNotEmpty() -> t(lang, "🤝 SINERGIA DE EQUIPO (+${directSynergies.size})", "🤝 SINERGIA DE EQUIPE (+${directSynergies.size})", "🤝 SINERGIA CON EQUIPO (+${directSynergies.size})")
+                    champ.tier == "S+" -> t(lang, "👑 PRIORIDAD S+ ($serverLabel)", "👑 PRIORIDADE S+ ($serverLabel)", "👑 PRIORIDAD S+ ($serverLabel)")
+                    else -> t(lang, "Elección Balanceada ($serverLabel)", "Escolha Balanceada ($serverLabel)", "Elección Balanceada ($serverLabel)")
                 }
 
                 val reasonParts = mutableListOf<String>()
+                if (comboSynergies.isNotEmpty()) {
+                    reasonParts.add(comboSynergies.joinToString(" • "))
+                }
                 if (directCounters.isNotEmpty()) {
-                    reasonParts.add(t(lang, "Direct advantage against ${directCounters.joinToString(", ")}.", "Vantagem direta contra ${directCounters.joinToString(", ")}.", "Ventaja directa contra ${directCounters.joinToString(", ")}."))
+                    reasonParts.add(t(lang, "Ventaja táctica directa contra ${directCounters.joinToString(", ")}.", "Vantagem tática direta contra ${directCounters.joinToString(", ")}.", "Ventaja táctica directa contra ${directCounters.joinToString(", ")}."))
                 }
                 if (directSynergies.isNotEmpty()) {
-                    reasonParts.add(t(lang, "Optimal synergy with ${directSynergies.joinToString(", ")}.", "Sinergia ideal com ${directSynergies.joinToString(", ")}.", "Sinergia óptima con ${directSynergies.joinToString(", ")}."))
+                    reasonParts.add(t(lang, "Sinergia comprobada con ${directSynergies.joinToString(", ")}.", "Sinergia comprovada com ${directSynergies.joinToString(", ")}.", "Sinergia comprobada con ${directSynergies.joinToString(", ")}."))
                 }
                 if (isAllyFullAd && champ.damageType == DamageType.MAGIC) {
-                    reasonParts.add(t(lang, "Provides the crucial magic damage your team lacks.", "Fornece o dano mágico crucial que falta à sua equipe.", "Aporta el daño mágico crucial que le falta a tu equipo."))
+                    reasonParts.add(t(lang, "Aporta el daño mágico crucial para que el rival no apile armadura.", "Fornece o dano mágico crucial para que o rival não acumule armadura.", "Aporta el daño mágico crucial para que el rival no apile armadura."))
                 }
                 if (frontlineAllies == 0 && champ.isFrontline) {
-                    reasonParts.add(t(lang, "Covers your squad's lack of initiation and frontline.", "Cobre a falta de iniciação e linha de frente do seu esquadrão.", "Cubre la falta de iniciación y aguante de tu escuadrón."))
+                    reasonParts.add(t(lang, "Garantiza la iniciación y resistencia que tu equipo necesita.", "Garante a iniciação e resistência que sua equipe precisa.", "Garantiza la iniciación y resistencia que tu equipo necesita."))
                 }
                 if (reasonParts.isEmpty()) {
                     reasonParts.add(roleContextAdvice)
                 } else {
-                    reasonParts.add(0, roleContextAdvice) // Put role context first
+                    reasonParts.add(0, roleContextAdvice)
                 }
 
-                synergyText = if (directSynergies.isNotEmpty()) {
-                    t(lang, "Combines with: ${directSynergies.joinToString(", ")}", "Combina com: ${directSynergies.joinToString(", ")}", "Combina con: ${directSynergies.joinToString(", ")}")
+                synergyText = if (comboSynergies.isNotEmpty()) {
+                    comboSynergies.joinToString(" • ")
+                } else if (directSynergies.isNotEmpty()) {
+                    t(lang, "Combina con: ${directSynergies.joinToString(", ")}", "Combina com: ${directSynergies.joinToString(", ")}", "Combina con: ${directSynergies.joinToString(", ")}")
                 } else {
-                    t(lang, "Standard team composition", "Composição de equipe padrão", "Alineación estándar de equipo")
+                    t(lang, "Alineación estándar de equipo", "Composição de equipe padrão", "Alineación estándar de equipo")
                 }
 
                 counterText = if (directCounters.isNotEmpty()) {
-                    t(lang, "Strong against: ${directCounters.joinToString(", ")}", "Forte contra: ${directCounters.joinToString(", ")}", "Fuerte contra: ${directCounters.joinToString(", ")}")
+                    t(lang, "Anula a: ${directCounters.joinToString(", ")}", "Anula: ${directCounters.joinToString(", ")}", "Anula a: ${directCounters.joinToString(", ")}")
                 } else if (directWeaknesses.isNotEmpty()) {
-                    t(lang, "Careful with: ${directWeaknesses.joinToString(", ")}", "Cuidado com: ${directWeaknesses.joinToString(", ")}", "Cuidado con: ${directWeaknesses.joinToString(", ")}")
+                    t(lang, "Cuidado con: ${directWeaknesses.joinToString(", ")}", "Cuidado com: ${directWeaknesses.joinToString(", ")}", "Cuidado con: ${directWeaknesses.joinToString(", ")}")
                 } else {
-                    t(lang, "Neutral matchup", "Confronto neutro", "Enfrentamiento neutral")
+                    t(lang, "Enfrentamiento parejo", "Confronto parelho", "Enfrentamiento parejo")
                 }
 
                 DraftRecommendation(
                     champion = champ,
-                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(70.0),
+                    estimatedWinrate = ((score * 10).toInt() / 10.0).coerceAtMost(73.5),
                     advantageBadge = badge,
                     tacticalReason = reasonParts.joinToString(" "),
                     runes = champ.recommendedRunes,

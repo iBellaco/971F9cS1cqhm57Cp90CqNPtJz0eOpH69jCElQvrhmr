@@ -301,6 +301,7 @@ fun AdminDashboardDialog(
     var users by remember { mutableStateOf<List<UserRecord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showReportsPanel by remember { mutableStateOf(false) }
+    var showTerminalScraperDialog by remember { mutableStateOf(false) }
 
     // Search and filter states
     var searchQuery by remember { mutableStateOf("") }
@@ -336,6 +337,12 @@ fun AdminDashboardDialog(
     if (showReportsPanel) {
         AdminFeedbackBottomSheet(
             onDismiss = { showReportsPanel = false }
+        )
+    }
+
+    if (showTerminalScraperDialog) {
+        AdminTerminalScraperDialog(
+            onDismiss = { showTerminalScraperDialog = false }
         )
     }
 
@@ -534,7 +541,7 @@ fun AdminDashboardDialog(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Action Buttons Row (Reports Box + Refresh)
+                        // Action Buttons Row (Reports Box + Terminal Scraper + Refresh)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -542,7 +549,7 @@ fun AdminDashboardDialog(
                             Button(
                                 onClick = { showReportsPanel = true },
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .weight(1.1f)
                                     .height(42.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = LolCardBg),
                                 border = BorderStroke(
@@ -562,11 +569,42 @@ fun AdminDashboardDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    "Buzón de Reportes",
+                                    "Buzón Reportes",
                                     color = LolGoldLight,
-                                    fontSize = 12.sp,
+                                    fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    letterSpacing = 0.5.sp
+                                    letterSpacing = 0.3.sp
+                                )
+                            }
+
+                            Button(
+                                onClick = { showTerminalScraperDialog = true },
+                                modifier = Modifier
+                                    .weight(1.2f)
+                                    .height(42.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = LolCardBg),
+                                border = BorderStroke(
+                                    1.dp,
+                                    Brush.horizontalGradient(
+                                        listOf(LolBorderGold, LolHextechCyan)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Terminal,
+                                    contentDescription = null,
+                                    tint = LolHextechCyan,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    "Terminal Scraper",
+                                    color = LolHextechCyan,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.3.sp
                                 )
                             }
 

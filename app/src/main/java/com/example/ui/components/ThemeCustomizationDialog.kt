@@ -160,52 +160,54 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
         previewTheme = currentTheme
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 28.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // 1. Interactive Visual Preview & Color Swatch Grid Card
-        item {
-            RegionVisualPreviewGridCard(
-                inspectedTheme = previewTheme,
-                isApplied = currentTheme == previewTheme,
-                isPremium = isPremium,
-                onApply = {
-                    if (isPremium) {
-                        AppThemeManager.setTheme(previewTheme, context)
-                    } else {
-                        android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
-                    }
+        // 1. Tarjeta Fija de Vista Previa Interactiva en Vivo (Siempre visible al scrollear)
+        RegionVisualPreviewGridCard(
+            inspectedTheme = previewTheme,
+            isApplied = currentTheme == previewTheme,
+            isPremium = isPremium,
+            onApply = {
+                if (isPremium) {
+                    AppThemeManager.setTheme(previewTheme, context)
+                } else {
+                    android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
                 }
+            }
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp, vertical = 2.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = tr("Catálogo de Regiones de Runaterra (${AppTheme.entries.size})"),
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp
+            )
+            Text(
+                text = tr("Toca para previsualizar"),
+                color = TextCyan,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium
             )
         }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp, vertical = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = tr("Catálogo de Regiones de Runaterra (${AppTheme.entries.size})"),
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.5.sp
-                )
-                Text(
-                    text = tr("Toca para previsualizar"),
-                    color = TextCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-
-        // 2. Region Theme Cards List
-        items(AppTheme.entries, key = { it.id }) { theme ->
+        // 2. Lista Desplazable de Temas Regionales
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            items(AppTheme.entries, key = { it.id }) { theme ->
             val isSelected = currentTheme == theme
             val isInspected = previewTheme == theme
 
@@ -354,6 +356,7 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
             }
         }
     }
+}
 }
 
 @Composable
