@@ -25,3 +25,4 @@ venv/
 app/build/
 .build-outputs/
 tmp/
+github.keystore

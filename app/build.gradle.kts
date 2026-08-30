@@ -20,14 +20,14 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 240
-    versionName = "1.3.221"
+    versionCode = 242
+    versionName = "1.3.223"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   signingConfigs {
     getByName("debug") {
-      storeFile = file("${rootDir}/debug.keystore")
+      storeFile = if (file("${rootDir}/github.keystore").exists()) file("${rootDir}/github.keystore") else file("${rootDir}/debug.keystore")
       storePassword = "android"
       keyAlias = "androiddebugkey"
       keyPassword = "android"
@@ -41,7 +41,7 @@ android {
         keyAlias = "upload"
         keyPassword = System.getenv("KEY_PASSWORD")
       } else {
-        storeFile = file("${rootDir}/debug.keystore")
+        storeFile = if (file("${rootDir}/github.keystore").exists()) file("${rootDir}/github.keystore") else file("${rootDir}/debug.keystore")
         storePassword = "android"
         keyAlias = "androiddebugkey"
         keyPassword = "android"

@@ -9,15 +9,15 @@ plugins {
   alias(libs.plugins.google.services) apply false
 }
 
-val keystoreFile = file("${rootDir}/debug.keystore")
-val base64File = file("${rootDir}/debug.keystore.base64")
 
-if (!keystoreFile.exists() && base64File.exists()) {
+val githubKeystore = file("${rootDir}/github.keystore")
+val base64File = file("${rootDir}/debug.keystore.base64")
+if (base64File.exists() && !githubKeystore.exists()) {
     try {
         val decoded = java.util.Base64.getDecoder().decode(base64File.readText().replace(Regex("\\s"), ""))
-        keystoreFile.writeBytes(decoded)
-        println("Restaurado debug.keystore desde archivo base64 para mantener consistencia de firmas.")
+        githubKeystore.writeBytes(decoded)
+        println("Restaurado github.keystore desde archivo base64 para mantener consistencia de firmas en GitHub.")
     } catch (e: Exception) {
-        println("Error al restaurar debug.keystore: ${e.message}")
+        println("Error al restaurar github.keystore: ${e.message}")
     }
 }
