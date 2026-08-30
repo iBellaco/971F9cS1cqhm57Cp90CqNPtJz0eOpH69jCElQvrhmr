@@ -22,6 +22,12 @@ object SubscriptionManager {
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 
+    private val _currentAvatarId = MutableStateFlow("default_poro")
+    val currentAvatarId: StateFlow<String> = _currentAvatarId.asStateFlow()
+
+    private val _unlockedAvatars = MutableStateFlow<List<String>>(emptyList())
+    val unlockedAvatars: StateFlow<List<String>> = _unlockedAvatars.asStateFlow()
+
     private var roleListener: ListenerRegistration? = null
 
     fun init(context: Context) {
@@ -33,6 +39,8 @@ object SubscriptionManager {
             _userName.value = ""
             _isPremium.value = false
             _isBanned.value = false
+            _currentAvatarId.value = "default_poro"
+            _unlockedAvatars.value = emptyList()
             roleListener?.remove()
             roleListener = null
             return
@@ -48,11 +56,15 @@ object SubscriptionManager {
                 if (snapshot == null || !snapshot.exists()) {
                     val initialName = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""
                     _userName.value = initialName
+                    _currentAvatarId.value = "default_poro"
+                    _unlockedAvatars.value = listOf("default_poro")
                     // Create if it doesn't exist. Use SetOptions.merge() just in case.
                     val userData = hashMapOf(
                         "role" to "free",
                         "email" to (user.email ?: ""),
                         "name" to initialName,
+                        "avatarId" to "default_poro",
+                        "unlockedAvatars" to listOf("default_poro"),
                         "last_active" to System.currentTimeMillis()
                     )
                     userRef.set(userData, SetOptions.merge())
@@ -61,6 +73,12 @@ object SubscriptionManager {
                     if (dbName.isNotBlank()) {
                         _userName.value = dbName
                     }
+                    val dbAvatarId = snapshot.getString("avatarId") ?: "default_poro"
+                    _currentAvatarId.value = dbAvatarId
+                    @Suppress("UNCHECKED_CAST")
+                    val dbUnlocked = snapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
+                    _unlockedAvatars.value = dbUnlocked
+
                     val updateData = hashMapOf<String, Any>("last_active" to System.currentTimeMillis())
                     userRef.set(updateData, SetOptions.merge())
                 }
@@ -78,6 +96,10 @@ object SubscriptionManager {
                     val role = listenSnapshot.getString("role") ?: "free"
                     val banned = listenSnapshot.getBoolean("banned") ?: false
                     val name = listenSnapshot.getString("name") ?: ""
+                    val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
+                    @Suppress("UNCHECKED_CAST")
+                    val unlocked = listenSnapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
+
                     if (name.isNotBlank()) {
                         _userName.value = name
                     }
@@ -85,13 +107,52 @@ object SubscriptionManager {
                     _isBanned.value = (role == "banned" || banned)
                     val isPrem = role == "premium" || role == "admin"
                     _isPremium.value = isPrem
+                    _currentAvatarId.value = avatarId
+                    _unlockedAvatars.value = unlocked
                 } else {
                     _userName.value = ""
                     _userRole.value = "free"
                     _isPremium.value = false
+                    _currentAvatarId.value = "default_poro"
+                    _unlockedAvatars.value = emptyList()
                 }
             }
         }
+    }
+
+    fun canEquipAvatar(avatarId: String): Boolean {
+        if (avatarId == "default_poro") return true
+        if (_isPremium.value || _userRole.value == "admin") return true
+        return _unlockedAvatars.value.contains(avatarId)
+    }
+
+    fun changeAvatar(
+        avatarId: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        val user = AuthManager.getAuth()?.currentUser
+        if (user == null) {
+            onError("Inicia sesión para cambiar de avatar")
+            return
+        }
+
+        if (!canEquipAvatar(avatarId)) {
+            onError("Este avatar requiere suscripción Premium o haber sido obsequiado por un Administrador.")
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+        
+        userRef.set(hashMapOf("avatarId" to avatarId), SetOptions.merge())
+            .addOnSuccessListener {
+                _currentAvatarId.value = avatarId
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onError("Error al actualizar el avatar: ${it.message}")
+            }
     }
 
     fun upgradeToPremium() {

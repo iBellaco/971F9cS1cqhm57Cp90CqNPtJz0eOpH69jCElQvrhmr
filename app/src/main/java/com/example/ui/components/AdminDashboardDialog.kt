@@ -60,7 +60,9 @@ data class UserRecord(
     val email: String,
     val role: String,
     val lastActive: Long,
-    val name: String = ""
+    val name: String = "",
+    val avatarId: String = "default_poro",
+    val unlockedAvatars: List<String> = emptyList()
 )
 
 // LoL Themed Palette Constants
@@ -317,7 +319,10 @@ fun AdminDashboardDialog(
                     val role = doc.getString("role") ?: "free"
                     val lastActive = doc.getLong("last_active") ?: 0L
                     val name = doc.getString("name") ?: ""
-                    UserRecord(doc.id, email, role, lastActive, name)
+                    val avatarId = doc.getString("avatarId") ?: "default_poro"
+                    @Suppress("UNCHECKED_CAST")
+                    val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
+                    UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked)
                 }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                     .thenByDescending { it.role == "premium" }
                     .thenBy { it.name.ifEmpty { it.email } })
@@ -883,7 +888,8 @@ fun AdminDashboardDialog(
                                                     Log.e("AdminDashboard", "Error updating name", e)
                                                 }
                                             }
-                                        }
+                                        },
+                                        onRefresh = { loadUsers() }
                                     )
                                 }
                             }
@@ -940,10 +946,12 @@ fun UserManagementCard(
     context: android.content.Context,
     clipboard: ClipboardManager,
     onRoleChange: (String) -> Unit,
-    onNameChange: (String) -> Unit
+    onNameChange: (String) -> Unit,
+    onRefresh: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     var showNameEdit by remember { mutableStateOf(false) }
+    var showGiftAvatarDialog by remember { mutableStateOf(false) }
 
     val isOnline = System.currentTimeMillis() - user.lastActive < 900_000
 
@@ -975,6 +983,16 @@ fun UserManagementCard(
         ),
         label = "cornerGlow"
     )
+
+    if (showGiftAvatarDialog) {
+        AdminGiftAvatarDialog(
+            user = user,
+            onDismiss = { showGiftAvatarDialog = false },
+            onAvatarGifted = {
+                onRefresh()
+            }
+        )
+    }
 
     if (showNameEdit) {
         var newName by remember { mutableStateOf(user.name) }
@@ -1066,49 +1084,18 @@ fun UserManagementCard(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    // LoL Summoner Profile Crest with Golden Runic Ring
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.radialGradient(
-                                    listOf(LolDeepNavy, Color(0xFF05101E))
-                                )
-                            )
-                            .border(
-                                1.5.dp,
-                                Brush.sweepGradient(
-                                    listOf(
-                                        LolBorderGold,
-                                        LolGoldLight,
-                                        LolBorderGoldDark,
-                                        LolHextechCyan.copy(alpha = 0.6f),
-                                        LolBorderGold
-                                    )
-                                ),
-                                CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val initialChar = if (user.name.isNotBlank()) {
-                            user.name.first().uppercaseChar().toString()
-                        } else {
-                            user.email.firstOrNull()?.uppercaseChar()?.toString() ?: "U"
-                        }
-                        Text(
-                            text = initialChar,
-                            color = LolGoldLight,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 17.sp,
-                            fontFamily = FontFamily.Serif
+                    // LoL Summoner Profile Crest with User Avatar
+                    Box(contentAlignment = Alignment.BottomEnd) {
+                        UserAvatarView(
+                            avatarId = user.avatarId,
+                            size = 42.dp,
+                            fallbackInitial = if (user.name.isNotBlank()) user.name else user.email
                         )
 
                         // Online Status Bead
                         Box(
                             modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .size(9.dp)
+                                .size(10.dp)
                                 .clip(CircleShape)
                                 .background(if (isOnline) LolZaunGreen else Color.DarkGray)
                                 .border(1.dp, Color(0xFF05101E), CircleShape)
@@ -1226,6 +1213,16 @@ fun UserManagementCard(
                             text = { Text("Cambiar Nombre de Invocador", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
                             onClick = {
                                 showNameEdit = true
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                            },
+                            text = { Text("🎁 Obsequiar Avatar LoL", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                            onClick = {
+                                showGiftAvatarDialog = true
                                 expanded = false
                             }
                         )

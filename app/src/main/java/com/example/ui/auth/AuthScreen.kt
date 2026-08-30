@@ -30,6 +30,11 @@ import com.example.util.SubscriptionManager
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Edit
+import com.example.data.AvatarCatalog
+import com.example.ui.components.UserAvatarView
+import com.example.ui.components.AvatarSelectionBottomSheet
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
@@ -132,9 +137,21 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
     val savedUserName by SubscriptionManager.userName.collectAsState()
+    val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
+    var showAvatarDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
+
+    if (showAvatarDialog) {
+        com.example.ui.components.AvatarSelectionBottomSheet(
+            onDismiss = { showAvatarDialog = false },
+            onOpenPremiumPlans = {
+                showAvatarDialog = false
+                showPlansDialog = true
+            }
+        )
+    }
 
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
@@ -178,27 +195,34 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 ?: user.email?.substringBefore("@")
                 ?: "Invocador"
 
-            val initialChar = finalUserName.firstOrNull()?.uppercaseChar()?.toString() ?: "U"
+            val equippedAvatar = AvatarCatalog.getAvatarById(currentAvatarId)
 
             Box(
                 modifier = Modifier
-                    .size(60.dp)
-                    .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(
-                        androidx.compose.ui.graphics.Brush.radialGradient(
-                            listOf(com.example.ui.theme.HextechSurfaceVariant, com.example.ui.theme.HextechDarkBg)
-                        )
-                    )
-                    .border(2.dp, com.example.ui.theme.HextechGold, androidx.compose.foundation.shape.CircleShape),
-                contentAlignment = Alignment.Center
+                    .clickable { showAvatarDialog = true },
+                contentAlignment = Alignment.BottomEnd
             ) {
-                Text(
-                    text = initialChar,
-                    color = com.example.ui.theme.HextechGold,
-                    fontSize = 26.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
+                UserAvatarView(
+                    avatarId = currentAvatarId,
+                    size = 72.dp,
+                    fallbackInitial = finalUserName
                 )
+                // Edit badge
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(com.example.ui.theme.HextechGold)
+                        .border(1.5.dp, com.example.ui.theme.HextechDarkBg, androidx.compose.foundation.shape.CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Cambiar Avatar",
+                        tint = com.example.ui.theme.HextechDarkBg,
+                        modifier = Modifier.size(13.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -209,6 +233,14 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 fontSize = 20.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 letterSpacing = 0.3.sp
+            )
+
+            // Avatar Title & Region subtitle
+            Text(
+                text = "${equippedAvatar.title} • ${equippedAvatar.region}",
+                color = com.example.ui.theme.HextechCyan,
+                fontSize = 12.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
             )
             
             var isEmailVisible by remember { mutableStateOf(false) }
@@ -284,6 +316,19 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Text("Comparar Planes", color = com.example.ui.theme.HextechCyan, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
             
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = { showAvatarDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechGold),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Face, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cambiar Avatar de LoL", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(

@@ -65,6 +65,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.util.ImagePrefetcher
 import com.example.ui.components.DownloadProgressWidget
+import com.example.ui.components.UserAvatarView
+import com.example.util.SubscriptionManager
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -150,6 +152,7 @@ fun MainDraftingScreen(
     var showBugReportDialog by remember { mutableStateOf(false) }
     var showDonationDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
 
     // Sincronizar estado del servicio cuando la app pasa a primer plano
     DisposableEffect(lifecycleOwner) {
@@ -361,6 +364,40 @@ fun MainDraftingScreen(
                                 tint = HextechGold,
                                 modifier = Modifier.size(20.dp)
                             )
+                        }
+
+                        // User Avatar Profile button
+                        val authUser = com.example.util.AuthManager.getAuth()?.currentUser
+                        IconButton(
+                            onClick = onNavigateToLogin,
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(38.dp)
+                                .testTag("nav_profile_avatar_button")
+                        ) {
+                            if (authUser != null) {
+                                UserAvatarView(
+                                    avatarId = currentAvatarId,
+                                    size = 36.dp,
+                                    fallbackInitial = authUser.displayName ?: authUser.email ?: "U"
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechSurface)
+                                        .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Usuario",
+                                        tint = HextechGold,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
                         }
 
 
