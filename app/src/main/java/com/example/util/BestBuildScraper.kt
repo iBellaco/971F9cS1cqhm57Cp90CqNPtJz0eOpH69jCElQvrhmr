@@ -6,289 +6,239 @@ import android.os.Environment
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import org.json.JSONArray
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.net.URL
-import java.util.Locale
 
+/**
+ * Scraper nativo de BestBuildWR para el Panel de Administración.
+ * Realiza la extracción exacta siguiendo la lógica de:
+ * 1. Obtener lista de campeones desde https://bestbuildwr.com/champions
+ *    - Filtra enlaces con "/champions/"
+ *    - Descarta subrutas
+ *    - Obtiene o formatea el nombre canónico
+ * 2. Para cada campeón, descarga su HTML y busca enlaces canónicos de builds:
+ *    - URLs que inicien con "https://bestbuildwr.com/builds/"
+ *    - Extrae el nombre descriptivo de la build
+ * 3. Elimina duplicados por build_url.
+ * 4. Guarda los 3 archivos en Descargas:
+ *    - bestbuildwr_builds.json
+ *    - bestbuildwr_builds.csv ("champion", "build_name", "build_url")
+ *    - bestbuildwr_builds.txt ("champion | build_url")
+ */
 object BestBuildScraper {
     private const val BASE_URL = "https://bestbuildwr.com"
     private const val CHAMPIONS_URL = "$BASE_URL/champions"
-    
-    private val ROLE_PATTERNS = mapOf(
-        "Top" to listOf("top", "toplane", "top lane"),
-        "Jungle" to listOf("jungle", "jungla", "jungler"),
-        "Mid" to listOf("mid", "middle", "medio", "mid lane"),
-        "ADC" to listOf("adc", "bot", "bot lane", "tirador"),
-        "Support" to listOf("support", "soporte", "sup")
+    private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36"
+
+    data class ChampionEntry(
+        val nombre: String,
+        val url: String
     )
 
-    private fun detectRoles(text: String): List<String> {
-        val lowerText = text.lowercase(Locale.getDefault())
-        val roles = mutableListOf<String>()
-        for ((role, patterns) in ROLE_PATTERNS) {
-            for (pattern in patterns) {
-                val regex = Regex("\\b$pattern\\b")
-                if (regex.containsMatchIn(lowerText)) {
-                    roles.add(role)
-                    break
-                }
-            }
+    data class BuildEntry(
+        val champion: String,
+        val buildName: String,
+        val buildUrl: String
+    )
+
+    private fun descargar(url: String): String? {
+        return try {
+            val response = Jsoup.connect(url)
+                .userAgent(USER_AGENT)
+                .timeout(30000)
+                .ignoreHttpErrors(false)
+                .execute()
+            response.body()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        return roles
     }
 
-    private fun normalizeUrl(url: String): String {
-        val fullUrl = if (url.startsWith("http")) url else "$BASE_URL$url"
+    private fun urlJoin(base: String, href: String): String {
         return try {
-            val parsed = URL(fullUrl)
-            "${parsed.protocol}://${parsed.host}${parsed.path}".removeSuffix("/")
+            val baseUrl = URL(base)
+            URL(baseUrl, href).toString().removeSuffix("/")
         } catch (e: Exception) {
-            fullUrl
+            if (href.startsWith("http")) href else "$base/$href".replace("//", "/")
         }
     }
-    
-    private fun cleanText(text: String?): String {
-        return text?.replace(Regex("\\s+"), " ")?.trim() ?: ""
+
+    private fun obtenerCampeones(): List<ChampionEntry> {
+        val html = descargar(CHAMPIONS_URL) ?: return emptyList()
+        val soup = Jsoup.parse(html, BASE_URL)
+        val campeonesMap = mutableMapOf<String, ChampionEntry>()
+
+        val enlaces = soup.select("a[href]")
+        for (enlace in enlaces) {
+            val href = enlace.attr("href").trim()
+            if (href.isEmpty()) continue
+
+            val url = urlJoin(BASE_URL, href)
+
+            // Solo URLs de campeones
+            if (!url.contains("/champions/")) continue
+
+            // Evitar subrutas
+            val parte = url.substringAfter("/champions/")
+            if (parte.contains("/")) continue
+
+            var nombre = enlace.text().replace(Regex("\\s+"), " ").trim()
+            if (nombre.isEmpty()) {
+                nombre = parte.replace("-", " ")
+                    .split(" ")
+                    .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+            }
+
+            campeonesMap[url] = ChampionEntry(
+                nombre = nombre,
+                url = url
+            )
+        }
+
+        return campeonesMap.values.toList()
+    }
+
+    private fun obtenerBuilds(campeon: ChampionEntry): List<BuildEntry> {
+        val html = descargar(campeon.url) ?: return emptyList()
+        val soup = Jsoup.parse(html, BASE_URL)
+        val buildsMap = mutableMapOf<String, BuildEntry>()
+
+        val enlaces = soup.select("a[href]")
+        for (enlace in enlaces) {
+            val href = enlace.attr("href").trim()
+            if (href.isEmpty()) continue
+
+            val url = urlJoin(BASE_URL, href)
+
+            // Solo queremos: https://bestbuildwr.com/builds/...
+            if (!url.startsWith("$BASE_URL/builds/")) continue
+
+            // Evitar duplicados
+            if (buildsMap.containsKey(url)) continue
+
+            val nombre = enlace.text().replace(Regex("\\s+"), " ").trim()
+
+            buildsMap[url] = BuildEntry(
+                champion = campeon.nombre,
+                buildName = if (nombre.isNotEmpty()) nombre else "Build General",
+                buildUrl = url
+            )
+        }
+
+        return buildsMap.values.toList()
     }
 
     suspend fun runScraper(context: Context, onProgress: (String) -> Unit): Boolean = withContext(Dispatchers.IO) {
         try {
-            onProgress("Iniciando conexión con BestBuildWR...")
-            
-            val doc = Jsoup.connect(CHAMPIONS_URL)
-                .userAgent("Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36")
-                .timeout(25000)
-                .get()
+            onProgress("Obteniendo campeones...")
 
-            val championsMap = mutableMapOf<String, JSONObject>()
-
-            val links = doc.select("a[href]")
-            for (link in links) {
-                val href = link.attr("href").trim()
-                if (href.isEmpty()) continue
-                val fullUrl = normalizeUrl(href)
-                val parsed = try { URL(fullUrl) } catch (e: Exception) { continue }
-                val path = parsed.path.removeSuffix("/")
-                if (!path.startsWith("/champions/")) continue
-
-                val slug = path.removePrefix("/champions/")
-                if (slug.isEmpty() || slug.contains("/")) continue
-                
-                val nameText = cleanText(link.text())
-                val name = if (nameText.isNotBlank()) nameText else slug.replace("-", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                
-                val champObj = JSONObject()
-                champObj.put("name", name)
-                champObj.put("slug", slug)
-                champObj.put("url", "$BASE_URL/champions/$slug")
-                championsMap[slug] = champObj
-            }
-            
-            val championsList = championsMap.values.toList().sortedBy { it.getString("name").lowercase() }
-            if (championsList.isEmpty()) {
-                onProgress("Error: No se encontraron campeones.")
+            val campeones = obtenerCampeones()
+            if (campeones.isEmpty()) {
+                onProgress("Error: No se encontraron campeones en $CHAMPIONS_URL.")
                 return@withContext false
             }
 
-            onProgress("Campeones detectados: ${championsList.size}. Iniciando escaneo profundo...")
-            
-            val semaphore = Semaphore(5)
-            var completed = 0
-            
-            val detailedChampions = championsList.map { champObj ->
-                async {
-                    semaphore.withPermit {
-                        val result = scrapeChampion(champObj.getString("name"), champObj.getString("url"), champObj.getString("slug"))
-                        completed++
-                        withContext(Dispatchers.Main) {
-                            onProgress("Procesado: ${champObj.getString("name")} ($completed/${championsList.size})")
-                        }
-                        result
-                    }
-                }
-            }.awaitAll()
-            
-            onProgress("Guardando archivos en el dispositivo...")
-            
-            val finalJsonArray = JSONArray()
-            detailedChampions.forEach { finalJsonArray.put(it) }
-            
-            saveJsonFile(context, finalJsonArray.toString(2))
-            saveCsvFile(context, detailedChampions)
-            saveUrlsFile(context, detailedChampions)
-            
-            onProgress("¡Completado con éxito! Archivos guardados en Descargas.")
-            delay(2000)
+            onProgress("Campeones encontrados: ${campeones.size}")
+
+            val todasLasBuilds = mutableListOf<BuildEntry>()
+
+            for ((index, campeon) in campeones.withIndex()) {
+                val numero = index + 1
+                onProgress("[$numero/${campeones.size}] Procesando ${campeon.nombre}...")
+
+                val builds = obtenerBuilds(campeon)
+                todasLasBuilds.addAll(builds)
+
+                // Pausa respetuosa para no saturar
+                delay(400)
+            }
+
+            // Eliminar duplicados por build_url
+            val unicas = mutableMapOf<String, BuildEntry>()
+            for (build in todasLasBuilds) {
+                unicas[build.buildUrl] = build
+            }
+            val buildsUnicas = unicas.values.toList()
+
+            onProgress("Total de builds encontradas: ${buildsUnicas.size}. Guardando archivos...")
+
+            // 1. JSON
+            saveJsonFile(context, buildsUnicas)
+
+            // 2. CSV
+            saveCsvFile(context, buildsUnicas)
+
+            // 3. TXT
+            saveTxtFile(context, buildsUnicas)
+
+            onProgress("¡Completado con éxito! Archivos creados en Descargas.")
+            delay(1500)
             return@withContext true
 
         } catch (e: Exception) {
             e.printStackTrace()
-            onProgress("Fallo crítico: ${e.message}")
-            delay(3000)
+            onProgress("Error en ejecución: ${e.message}")
+            delay(2500)
             return@withContext false
         }
     }
-    
-    private fun scrapeChampion(name: String, url: String, slug: String): JSONObject {
-        val result = JSONObject()
-        result.put("name", name)
-        result.put("slug", slug)
-        result.put("url", url)
-        
-        try {
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36")
-                .timeout(25000)
-                .get()
-                
-            val pageText = cleanText(doc.text())
-            val roles = detectRoles(pageText)
-            result.put("roles", JSONArray(roles))
-            
-            val buildsMap = mutableMapOf<String, JSONObject>()
-            val links = doc.select("a[href]")
-            for (link in links) {
-                val href = link.attr("href").trim()
-                if (href.isEmpty()) continue
-                val fullUrl = normalizeUrl(href)
-                if (!fullUrl.contains("/builds/")) continue
-                
-                val buildSlug = URL(fullUrl).path.removePrefix("/builds/")
-                if (buildSlug.isEmpty()) continue
-                
-                var buildName = cleanText(link.text())
-                if (buildName.isEmpty()) {
-                    buildName = cleanText(link.parent()?.text())
-                }
-                if (buildName.isEmpty()) {
-                    buildName = buildSlug.replace("-", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                }
-                
-                val buildRoles = detectRoles(buildName)
-                
-                val buildObj = JSONObject()
-                buildObj.put("name", buildName)
-                buildObj.put("url", fullUrl)
-                buildObj.put("roles", JSONArray(buildRoles))
-                buildsMap[fullUrl] = buildObj
-            }
-            
-            val buildsList = buildsMap.values.toList().sortedBy { it.getString("name").lowercase() }
-            val buildsArray = JSONArray()
-            buildsList.forEach { buildsArray.put(it) }
-            
-            result.put("builds", buildsArray)
-            result.put("build_count", buildsList.size)
-            result.put("error", JSONObject.NULL)
-            
-        } catch (e: Exception) {
-            result.put("roles", JSONArray())
-            result.put("builds", JSONArray())
-            result.put("build_count", 0)
-            result.put("error", e.message)
+
+    private fun saveJsonFile(context: Context, builds: List<BuildEntry>) {
+        val jsonArray = JSONArray()
+        for (build in builds) {
+            val obj = JSONObject()
+            obj.put("champion", build.champion)
+            obj.put("build_name", build.buildName)
+            obj.put("build_url", build.buildUrl)
+            jsonArray.put(obj)
         }
-        return result
+
+        val jsonString = jsonArray.toString(2)
+        writeToDownloads(context, "bestbuildwr_builds.json", "application/json", jsonString.toByteArray())
     }
 
-    private fun saveJsonFile(context: Context, jsonString: String) {
+    private fun saveCsvFile(context: Context, builds: List<BuildEntry>) {
+        val builder = StringBuilder()
+        builder.append("champion,build_name,build_url\n")
+
+        for (build in builds) {
+            val cName = escapeCsv(build.champion)
+            val bName = escapeCsv(build.buildName)
+            val bUrl = escapeCsv(build.buildUrl)
+            builder.append("$cName,$bName,$bUrl\n")
+        }
+
+        writeToDownloads(context, "bestbuildwr_builds.csv", "text/csv", builder.toString().toByteArray())
+    }
+
+    private fun saveTxtFile(context: Context, builds: List<BuildEntry>) {
+        val builder = StringBuilder()
+        for (build in builds) {
+            builder.append("${build.champion} | ${build.buildUrl}\n")
+        }
+
+        writeToDownloads(context, "bestbuildwr_builds.txt", "text/plain", builder.toString().toByteArray())
+    }
+
+    private fun writeToDownloads(context: Context, fileName: String, mimeType: String, data: ByteArray) {
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.json")
-            put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
         if (uri != null) {
             resolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(jsonString.toByteArray())
+                outputStream.write(data)
             }
         }
     }
-    
-    private fun saveCsvFile(context: Context, data: List<JSONObject>) {
-        val builder = java.lang.StringBuilder()
-        builder.append("champion,role,build_name,build_url\n")
-        
-        for (champ in data) {
-            val cName = escapeCsv(champ.getString("name"))
-            val builds = champ.getJSONArray("builds")
-            if (builds.length() == 0) {
-                val cUrl = escapeCsv(champ.getString("url"))
-                builder.append("$cName,Desconocido,,$cUrl\n")
-            } else {
-                for (i in 0 until builds.length()) {
-                    val build = builds.getJSONObject(i)
-                    val bName = escapeCsv(build.getString("name"))
-                    val bUrl = escapeCsv(build.getString("url"))
-                    val bRoles = joinJsonArray(build.getJSONArray("roles"))
-                    val roleName = if (bRoles.isNotBlank()) escapeCsv(bRoles.split(",")[0].trim()) else "Desconocido"
-                    builder.append("$cName,$roleName,$bName,$bUrl\n")
-                }
-            }
-        }
-        
-        val resolver = context.contentResolver
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.csv")
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        if (uri != null) {
-            resolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(builder.toString().toByteArray())
-            }
-        }
-    }
-    
-    private fun saveUrlsFile(context: Context, data: List<JSONObject>) {
-        val builder = java.lang.StringBuilder()
-        
-        var currentChamp: String? = null
-        for (champ in data) {
-            val cName = champ.getString("name")
-            if (cName != currentChamp) {
-                currentChamp = cName
-                builder.append("\n======================================================================\n")
-                builder.append("$currentChamp\n")
-                builder.append("======================================================================\n")
-            }
-            val builds = champ.getJSONArray("builds")
-            if (builds.length() == 0) {
-                builder.append("Rol: Desconocido\nBuild: Base\nURL: ${champ.getString("url")}\n\n")
-            } else {
-                for (i in 0 until builds.length()) {
-                    val build = builds.getJSONObject(i)
-                    val bRoles = joinJsonArray(build.getJSONArray("roles"))
-                    val roleName = if (bRoles.isNotBlank()) bRoles.split(",")[0].trim() else "Desconocido"
-                    builder.append("Rol: $roleName\n")
-                    builder.append("Build: ${build.getString("name")}\n")
-                    builder.append("URL: ${build.getString("url")}\n\n")
-                }
-            }
-        }
-        
-        val resolver = context.contentResolver
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "builds_bestbuildwr.txt")
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        if (uri != null) {
-            resolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(builder.toString().toByteArray())
-            }
-        }
-    }
-    
+
     private fun escapeCsv(value: String): String {
         var str = value
         if (str.contains("\"")) str = str.replace("\"", "\"\"")
@@ -296,13 +246,5 @@ object BestBuildScraper {
             str = "\"$str\""
         }
         return str
-    }
-    
-    private fun joinJsonArray(array: JSONArray): String {
-        val list = mutableListOf<String>()
-        for (i in 0 until array.length()) {
-            list.add(array.getString(i))
-        }
-        return list.joinToString(", ")
     }
 }

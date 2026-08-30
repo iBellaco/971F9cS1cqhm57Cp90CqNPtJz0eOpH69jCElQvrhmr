@@ -118,6 +118,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.example.ui.components.FormattedWildRiftText
 import com.example.ui.components.formatWildRiftDescription
+import com.example.ui.components.SparklineTrendGraph
+import com.example.ui.components.DraftWomboSynergyCard
+import com.example.ui.components.WomboComboSynergyDetector
+import com.example.ui.components.MatchupPreviewDialog
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -1347,21 +1352,31 @@ private fun TierListTab(
                                 }
                             }
 
-                            Column(horizontalAlignment = Alignment.End) {
-                                when (selectedSort) {
-                                    TierSortOption.WIN_RATE -> {
-                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                SparklineTrendGraph(
+                                    winrate = champ.winrate,
+                                    delta = champ.winrateDelta,
+                                    modifier = Modifier.width(46.dp).height(22.dp)
+                                )
+                                Column(horizontalAlignment = Alignment.End) {
+                                    when (selectedSort) {
+                                        TierSortOption.WIN_RATE -> {
+                                            Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
+                                        }
+                                        TierSortOption.PICK_RATE -> {
+                                            Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
+                                        }
+                                        TierSortOption.BAN_RATE -> {
+                                            Text("Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                            Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = TextMuted, fontSize = 10.sp)
+                                        }
+                                        else -> {}
                                     }
-                                    TierSortOption.PICK_RATE -> {
-                                        Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
-                                    }
-                                    TierSortOption.BAN_RATE -> {
-                                        Text("Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text("WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% • Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}%", color = TextMuted, fontSize = 10.sp)
-                                    }
-                                    else -> {}
                                 }
                             }
                         }
@@ -1429,9 +1444,14 @@ private fun TierSectionCard(
                             }
                         }
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            SparklineTrendGraph(
+                                winrate = champ.winrate,
+                                delta = champ.winrateDelta,
+                                modifier = Modifier.width(46.dp).height(22.dp)
+                            )
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -3057,9 +3077,20 @@ private fun DraftAnalysisTab(
     val haptic = LocalHapticFeedback.current
     var isSavedRecently by remember { mutableStateOf(false) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
+    var showMatchupDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
     val victoryToastText = " " + tr("Draft registrado como Victoria")
     val defeatToastText = " " + tr("Draft registrado como Derrota")
+
+    if (showMatchupDialog && myChampion != null) {
+        val opponent = enemyLaneOpponent ?: enemySlots.firstOrNull()?.champion ?: myChampion
+        MatchupPreviewDialog(
+            myChampion = myChampion,
+            enemyOpponent = opponent,
+            activeRole = activeRole,
+            onDismiss = { showMatchupDialog = false }
+        )
+    }
 
     if (showSaveDraftDialog) {
         com.example.ui.components.SaveDraftDialog(
@@ -3382,6 +3413,25 @@ private fun DraftAnalysisTab(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
+        // Sinergias Letales y Wombo-Combos Detectados
+        val allAllyChamps = remember(allySlots, myChampion) {
+            (allySlots.map { it.champion } + listOfNotNull(myChampion)).distinctBy { it.id }
+        }
+        val womboCombos = remember(allAllyChamps) {
+            WomboComboSynergyDetector.detectWombos(allAllyChamps)
+        }
+        if (womboCombos.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                womboCombos.forEach { wombo ->
+                    DraftWomboSynergyCard(
+                        wombo = wombo,
+                        onChampionClick = onSelectChampion
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+        }
+
         // Ally Damage distribution
         if (allySlots.isNotEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -3523,6 +3573,41 @@ private fun DraftAnalysisTab(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
                     )
+
+                    // 1v1 Matchup Preview Trigger Button
+                    if (enemyLaneOpponent != null || enemySlots.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showMatchupDialog = true
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .testTag("open_matchup_preview_button"),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = HextechGold.copy(alpha = 0.2f),
+                                contentColor = HextechGold
+                            ),
+                            border = BorderStroke(1.2.dp, HextechGold),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FlashOn,
+                                contentDescription = null,
+                                modifier = Modifier.size(17.dp),
+                                tint = HextechGold
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = tr("⚔️ Cara a Cara 1v1 (Matchup Preview)"),
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -4335,56 +4420,96 @@ private fun TierSelectionPanel(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+        shape = RoundedCornerShape(14.dp),
+        border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f))
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            // REGION SELECTION
+        Column(modifier = Modifier.padding(12.dp)) {
+            // REGION SELECTION PILLS
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = tr("Región:"),
-                    color = TextPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+                    text = "🌐 " + tr("Servidor / Meta:"),
+                    color = HextechGold,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Black
                 )
-                listOf("NA", "CN", "BestBuildWR").forEach { region ->
-                    val isSelected = currentRegion == region
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(HextechCyan.copy(alpha = 0.15f))
+                        .border(0.6.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "Δ 24h Meta Sync",
+                        color = HextechCyan,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                val regionItems = listOf(
+                    Triple("CN", "🇨🇳 CN High-Elo", "API Tencent"),
+                    Triple("BestBuildWR", "🌐 Global / BestBuild", "Scraper Live"),
+                    Triple("NA", "🌎 América (NA)", "Local Cache")
+                )
+                regionItems.forEach { (regionId, label, sub) ->
+                    val isSelected = currentRegion == regionId
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .heightIn(min = 28.dp)
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(
-                                if (isSelected) HextechCyan.copy(alpha = 0.2f) else HextechSurfaceVariant.copy(alpha = 0.3f)
+                                if (isSelected) Brush.verticalGradient(
+                                    listOf(HextechGold.copy(alpha = 0.35f), HextechGold.copy(alpha = 0.15f))
+                                ) else Brush.verticalGradient(
+                                    listOf(HextechSurfaceVariant.copy(alpha = 0.4f), HextechSurfaceVariant.copy(alpha = 0.4f))
+                                )
                             )
                             .border(
-                                width = if (isSelected) 1.dp else 0.5.dp,
-                                color = if (isSelected) HextechCyan else HextechCardBorder,
-                                shape = RoundedCornerShape(6.dp)
+                                width = if (isSelected) 1.5.dp else 0.8.dp,
+                                color = if (isSelected) HextechGold else HextechCardBorder,
+                                shape = RoundedCornerShape(8.dp)
                             )
                             .clickable {
-                                ChineseMetaSyncService.setRegion(context, region, coroutineScope)
+                                ChineseMetaSyncService.setRegion(context, regionId, coroutineScope)
                             }
-                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                            .padding(horizontal = 4.dp, vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = if (region == "NA") tr("América (NA)") else if (region == "CN") tr("China (CN)") else tr("Global"),
-                            color = if (isSelected) HextechCyan else TextMuted,
-                            fontSize = 10.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = tr(label),
+                                color = if (isSelected) HextechGold else TextMuted,
+                                fontSize = 9.5.sp,
+                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = sub,
+                                color = if (isSelected) HextechCyan else TextMuted,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
-            // TIER SELECTION (Only enable/show clearly if CN or just keep it)
+            // METALLIC TIER RANK BADGES (Challenger, Master, Diamond, Emerald)
             AnimatedVisibility(visible = currentRegion == "CN") {
                 Column {
                     Row(
@@ -4393,40 +4518,52 @@ private fun TierSelectionPanel(
                     ) {
                         TencentRankTier.entries.forEach { tier ->
                             val isSelected = currentTier == tier
+                            val (rankIcon, rankColor) = when (tier) {
+                                TencentRankTier.CHALLENGER -> "👑" to Color(0xFFFFD700)
+                                TencentRankTier.MASTER_PLUS -> "💎" to Color(0xFF00E5FF)
+                                TencentRankTier.DIAMOND_PLUS -> "🛡️" to Color(0xFF3B82F6)
+                                TencentRankTier.ALL_RANKS -> "🌐" to Color(0xFF10B981)
+                            }
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .heightIn(min = 34.dp)
-                                    .clip(RoundedCornerShape(6.dp))
+                                    .clip(RoundedCornerShape(8.dp))
                                     .background(
-                                        if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurfaceVariant.copy(alpha = 0.4f)
+                                        if (isSelected) Brush.verticalGradient(
+                                            listOf(rankColor.copy(alpha = 0.35f), HextechSurfaceVariant)
+                                        ) else Brush.verticalGradient(
+                                            listOf(HextechSurfaceVariant.copy(alpha = 0.3f), HextechSurfaceVariant.copy(alpha = 0.3f))
+                                        )
                                     )
                                     .border(
-                                        width = if (isSelected) 1.dp else 0.5.dp,
-                                        color = if (isSelected) HextechCyan else HextechCardBorder,
-                                        shape = RoundedCornerShape(6.dp)
+                                        width = if (isSelected) 1.5.dp else 0.6.dp,
+                                        color = if (isSelected) rankColor else HextechCardBorder,
+                                        shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable {
                                         coroutineScope.launch {
                                             ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
                                         }
                                     }
-                                    .padding(horizontal = 2.dp, vertical = 4.dp),
+                                    .padding(horizontal = 3.dp, vertical = 5.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = tr(tier.shortName),
-                                    color = if (isSelected) HextechCyan else TextMuted,
-                                    fontSize = 8.5.sp,
-                                    lineHeight = 10.5.sp,
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    maxLines = 2
-                                )
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(text = rankIcon, fontSize = 11.sp)
+                                    Text(
+                                        text = tr(tier.shortName),
+                                        color = if (isSelected) rankColor else TextMuted,
+                                        fontSize = 8.5.sp,
+                                        lineHeight = 10.5.sp,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                 }
             }
 
@@ -4439,12 +4576,12 @@ private fun TierSelectionPanel(
                 Text(
                     text = if (currentRegion == "NA") {
                         val formatter = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
-                        " ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
+                        "⚡ ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
                     } else when (val s = syncState) {
-                        is ChineseSyncState.Syncing -> tr("Sincronizando...")
-                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR") " ${tr("Sincronizado")} ${s.timestamp}" else " ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
-                        is ChineseSyncState.Error -> "️ ${tr("Caché:")} ${lastSyncInfo.second}"
-                        ChineseSyncState.Idle -> " ${lastSyncInfo.second}"
+                        is ChineseSyncState.Syncing -> "⏳ " + tr("Sincronizando...")
+                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR") "⚡ ${tr("Sincronizado")} ${s.timestamp}" else "⚡ ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                        is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
+                        ChineseSyncState.Idle -> "⚡ ${lastSyncInfo.second}"
                     },
                     color = if (currentRegion == "NA") Color(0xFF4CAF50) else when (syncState) {
                         is ChineseSyncState.Syncing -> HextechCyan

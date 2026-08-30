@@ -78,8 +78,8 @@ fun AdminTerminalScraperDialog(
         addLog(" ⚔️ TERMINAL ADMINISTRADOR - BESTBUILDWR SCRAPER & CRAWLER", LogType.GOLD)
         addLog("======================================================================", LogType.CYAN)
         addLog("Target: https://bestbuildwr.com/champions", LogType.INFO)
-        addLog("Headers: User-Agent Mobile Android 14 • Accept-Language es-ES,es", LogType.INFO)
-        addLog("Salidas: builds_bestbuildwr.csv • builds_bestbuildwr.json • builds_bestbuildwr.txt", LogType.INFO)
+        addLog("Headers: User-Agent Mobile Android 13 • Chrome/130.0.0.0", LogType.INFO)
+        addLog("Salidas: bestbuildwr_builds.json • bestbuildwr_builds.csv • bestbuildwr_builds.txt", LogType.INFO)
         addLog("Presiona 'Ejecutar Scraper y Descargar' para iniciar la extracción en vivo.", LogType.WARNING)
     }
 
@@ -96,12 +96,12 @@ fun AdminTerminalScraperDialog(
         scope.launch {
             val result = BestBuildScraper.runScraper(context) { progressMsg ->
                 currentStepText = progressMsg
-                if (progressMsg.startsWith("Procesado:")) {
+                if (progressMsg.startsWith("[") && progressMsg.contains("Procesando")) {
                     totalChampsProcessed++
                     addLog("  [OK] $progressMsg", LogType.SUCCESS)
                 } else if (progressMsg.startsWith("Error") || progressMsg.startsWith("Fallo")) {
                     addLog("  [ERROR] $progressMsg", LogType.ERROR)
-                } else if (progressMsg.contains("Guardando") || progressMsg.contains("Completado")) {
+                } else if (progressMsg.contains("Guardando") || progressMsg.contains("Completado") || progressMsg.contains("Total")) {
                     addLog("  [FILE] $progressMsg", LogType.GOLD)
                 } else {
                     addLog("  [*] $progressMsg", LogType.INFO)
@@ -116,13 +116,13 @@ fun AdminTerminalScraperDialog(
                 addLog("\n======================================================================", LogType.CYAN)
                 addLog(" 🎉 PROCESO COMPLETADO SATISFACTORIAMENTE", LogType.SUCCESS)
                 addLog(" Archivos guardados en: /Almacenamiento interno/Download/", LogType.GOLD)
-                addLog(" 1. bestbuildwr_141.csv (Estructura de hojas de cálculo con roles)", LogType.INFO)
-                addLog(" 2. bestbuildwr_141.json (Dataset completo con links canónicos y builds)", LogType.INFO)
-                addLog(" 3. bestbuildwr_urls.txt (Lista plana de URLs para auditoría)", LogType.INFO)
+                addLog(" 1. bestbuildwr_builds.json (Dataset completo JSON)", LogType.INFO)
+                addLog(" 2. bestbuildwr_builds.csv (CSV con champion, build_name, build_url)", LogType.INFO)
+                addLog(" 3. bestbuildwr_builds.txt (Formato champion | build_url)", LogType.INFO)
                 addLog("======================================================================", LogType.CYAN)
                 Toast.makeText(context, "✅ Builds descargadas en la carpeta Descargas", Toast.LENGTH_LONG).show()
             } else {
-                addLog("\n❌ Error durante la ejecución del Crawler. Revisa tu conexión de red.", LogType.ERROR)
+                addLog("\n❌ Error durante la ejecución del Scraper. Revisa tu conexión de red.", LogType.ERROR)
             }
         }
     }
@@ -402,7 +402,7 @@ fun AdminTerminalScraperDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Destino: Downloads/bestbuildwr_141.csv/.json/.txt",
+                        text = "Destino: Downloads/bestbuildwr_builds.json/.csv/.txt",
                         color = TextMuted,
                         fontSize = 10.sp
                     )
@@ -442,31 +442,326 @@ private fun RawPythonCodeViewerDialog(
     val context = LocalContext.current
 
     val pythonCode = """
-#!/usr/bin/env python3
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
-import csv
+from urllib.parse import urljoin
 import json
-import re
+import csv
 import time
-import random
 
 BASE_URL = "https://bestbuildwr.com"
-CHAMPIONS_URL = f"{BASE_URL}/champions"
+CHAMPIONS_URL = "https://bestbuildwr.com/champions"
 
 HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (Linux; Android 10; K) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Mozilla/5.0 (Linux; Android 13; Mobile) "
+        "AppleWebKit/537.36 "
+        "(KHTML, like Gecko) "
         "Chrome/130.0.0.0 Mobile Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-    "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
-    "Referer": BASE_URL + "/",
+    )
 }
 
-# Ejecución nativa integrada en la app mediante BestBuildScraper.kt
+session = requests.Session()
+session.headers.update(HEADERS)
+
+
+def descargar(url):
+
+    try:
+        respuesta = session.get(
+            url,
+            timeout=30
+        )
+
+        respuesta.raise_for_status()
+
+        return respuesta.text
+
+    except Exception as e:
+
+        print(f"[ERROR] {url}")
+        print(e)
+
+        return None
+
+
+def obtener_campeones():
+
+    print("Obteniendo campeones...")
+
+    html = descargar(CHAMPIONS_URL)
+
+    if not html:
+        return []
+
+    soup = BeautifulSoup(
+        html,
+        "html.parser"
+    )
+
+    campeones = {}
+
+    for enlace in soup.find_all(
+        "a",
+        href=True
+    ):
+
+        href = enlace["href"]
+
+        url = urljoin(
+            BASE_URL,
+            href
+        )
+
+        # Solo URLs de campeones
+        if "/champions/" not in url:
+            continue
+
+        # Evitar subrutas
+        parte = url.split("/champions/")[-1]
+
+        if "/" in parte:
+            continue
+
+        nombre = enlace.get_text(
+            " ",
+            strip=True
+        )
+
+        if not nombre:
+            nombre = parte.replace(
+                "-",
+                " "
+            ).title()
+
+        campeones[url] = {
+            "nombre": nombre,
+            "url": url
+        }
+
+    return list(
+        campeones.values()
+    )
+
+
+def obtener_builds(campeon):
+
+    print()
+    print("=" * 60)
+    print(
+        f"CAMPEÓN: {campeon['nombre']}"
+    )
+    print(
+        campeon["url"]
+    )
+
+    html = descargar(
+        campeon["url"]
+    )
+
+    if not html:
+        return []
+
+    soup = BeautifulSoup(
+        html,
+        "html.parser"
+    )
+
+    builds = {}
+
+    # Buscar TODOS los enlaces
+    for enlace in soup.find_all(
+        "a",
+        href=True
+    ):
+
+        href = enlace["href"]
+
+        url = urljoin(
+            BASE_URL,
+            href
+        )
+
+        # ESTA es la parte importante
+        #
+        # Solo queremos:
+        #
+        # https://bestbuildwr.com/builds/...
+        #
+        if not url.startswith(
+            BASE_URL + "/builds/"
+        ):
+            continue
+
+        # Evitar duplicados
+        if url in builds:
+            continue
+
+        nombre = enlace.get_text(
+            " ",
+            strip=True
+        )
+
+        builds[url] = {
+            "champion": campeon["nombre"],
+            "build_url": url,
+            "build_name": nombre
+        }
+
+    resultado = list(
+        builds.values()
+    )
+
+    print(
+        f"Builds encontradas: "
+        f"{len(resultado)}"
+    )
+
+    for build in resultado:
+
+        print(
+            build["build_url"]
+        )
+
+    return resultado
+
+
+def main():
+
+    print()
+    print("=" * 60)
+    print("BESTBUILDWR SCRAPER")
+    print("=" * 60)
+    print()
+
+    campeones = obtener_campeones()
+
+    print(
+        f"\nCampeones encontrados: "
+        f"{len(campeones)}"
+    )
+
+    todas_las_builds = []
+
+    for numero, campeon in enumerate(
+        campeones,
+        start=1
+    ):
+
+        print(
+            f"\n[{numero}/{len(campeones)}]"
+        )
+
+        builds = obtener_builds(
+            campeon
+        )
+
+        todas_las_builds.extend(
+            builds
+        )
+
+        # Pausa para no realizar
+        # demasiadas peticiones seguidas
+        time.sleep(1)
+
+    # Eliminar duplicados
+    unicas = {}
+
+    for build in todas_las_builds:
+
+        unicas[
+            build["build_url"]
+        ] = build
+
+    todas_las_builds = list(
+        unicas.values()
+    )
+
+    print()
+    print("=" * 60)
+    print("RESULTADO")
+    print("=" * 60)
+
+    print(
+        f"Total de builds: "
+        f"{len(todas_las_builds)}"
+    )
+
+    # ------------------------------------------------
+    # JSON
+    # ------------------------------------------------
+
+    with open(
+        "bestbuildwr_builds.json",
+        "w",
+        encoding="utf-8"
+    ) as archivo:
+
+        json.dump(
+            todas_las_builds,
+            archivo,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    # ------------------------------------------------
+    # CSV
+    # ------------------------------------------------
+
+    with open(
+        "bestbuildwr_builds.csv",
+        "w",
+        encoding="utf-8-sig",
+        newline=""
+    ) as archivo:
+
+        escritor = csv.DictWriter(
+            archivo,
+            fieldnames=[
+                "champion",
+                "build_name",
+                "build_url"
+            ]
+        )
+
+        escritor.writeheader()
+
+        escritor.writerows(
+            todas_las_builds
+        )
+
+    # ------------------------------------------------
+    # TXT
+    # ------------------------------------------------
+
+    with open(
+        "bestbuildwr_builds.txt",
+        "w",
+        encoding="utf-8"
+    ) as archivo:
+
+        for build in todas_las_builds:
+
+            archivo.write(
+                f"{build['champion']} | "
+                f"{build['build_url']}\n"
+            )
+
+    print()
+    print("Archivos creados:")
+    print(
+        "  bestbuildwr_builds.json"
+    )
+    print(
+        "  bestbuildwr_builds.csv"
+    )
+    print(
+        "  bestbuildwr_builds.txt"
+    )
+
+
+if __name__ == "__main__":
+    main()
 """.trimIndent()
 
     Dialog(

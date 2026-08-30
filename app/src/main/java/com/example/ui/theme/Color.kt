@@ -9,10 +9,10 @@ import androidx.compose.runtime.setValue
 val isLightAppTheme: Boolean
     get() = !AppThemeManager.currentTheme.isDark
 
-val HextechDarkBg: Color get() = AppThemeManager.currentTheme.background
-val HextechSurface: Color get() = AppThemeManager.currentTheme.surface.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
-val HextechSurfaceVariant: Color get() = AppThemeManager.currentTheme.surfaceVariant.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
-val HextechCardBorder: Color get() = AppThemeManager.currentTheme.cardBorder
+val HextechDarkBg: Color get() = if (AppThemeManager.isOledMode) Color(0xFF000000) else AppThemeManager.currentTheme.background
+val HextechSurface: Color get() = if (AppThemeManager.isOledMode) Color(0xFF05080E) else AppThemeManager.currentTheme.surface.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
+val HextechSurfaceVariant: Color get() = if (AppThemeManager.isOledMode) Color(0xFF0C121C) else AppThemeManager.currentTheme.surfaceVariant.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
+val HextechCardBorder: Color get() = if (AppThemeManager.isOledMode) AppThemeManager.currentTheme.cardBorder.copy(alpha = 0.9f) else AppThemeManager.currentTheme.cardBorder
 
 val HextechGold: Color get() = AppThemeManager.currentTheme.secondary
 val HextechGoldLight: Color get() = AppThemeManager.currentTheme.secondaryLight

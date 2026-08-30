@@ -505,6 +505,7 @@ enum class NavBarColorOption(
 object AppThemeManager {
     private const val PREFS_KEY_THEME = "selected_app_theme_id"
     private const val PREFS_KEY_NAV_BAR = "selected_app_navbar_id"
+    private const val PREFS_KEY_OLED_MODE = "selected_app_oled_mode"
 
     var currentTheme by mutableStateOf(AppTheme.PILTOVER)
         private set
@@ -512,13 +513,26 @@ object AppThemeManager {
     var currentNavBarOption by mutableStateOf(NavBarColorOption.THEME_AUTO)
         private set
 
+    var isOledMode by mutableStateOf(false)
+        private set
+
     fun init(context: Context) {
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val savedThemeId = prefs.getString(PREFS_KEY_THEME, AppTheme.PILTOVER.id) ?: AppTheme.PILTOVER.id
         val savedNavId = prefs.getString(PREFS_KEY_NAV_BAR, NavBarColorOption.THEME_AUTO.id) ?: NavBarColorOption.THEME_AUTO.id
+        val savedOled = prefs.getBoolean(PREFS_KEY_OLED_MODE, false)
 
         currentTheme = AppTheme.fromId(savedThemeId)
         currentNavBarOption = NavBarColorOption.entries.find { it.id == savedNavId } ?: NavBarColorOption.THEME_AUTO
+        isOledMode = savedOled
+    }
+
+    fun setOledMode(enabled: Boolean, context: Context? = null) {
+        isOledMode = enabled
+        context?.let {
+            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean(PREFS_KEY_OLED_MODE, enabled).apply()
+        }
     }
 
     fun setTheme(theme: AppTheme, context: Context? = null) {

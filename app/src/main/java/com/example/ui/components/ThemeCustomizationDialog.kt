@@ -153,6 +153,7 @@ fun ThemeCustomizationBottomSheet(
 @Composable
 private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) {
     val currentTheme = AppThemeManager.currentTheme
+    val isOledMode = AppThemeManager.isOledMode
     var previewTheme by remember { mutableStateOf(currentTheme) }
 
     // Keep preview synced if currentTheme changes externally
@@ -164,6 +165,82 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // OLED Ultra-Black Switch Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = if (isOledMode) Color(0xFF000000) else HextechSurface),
+            border = BorderStroke(1.2.dp, if (isOledMode) HextechGold else HextechCardBorder)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Surface(
+                        shape = CircleShape,
+                        color = if (isOledMode) HextechGold.copy(alpha = 0.2f) else HextechSurfaceVariant,
+                        border = BorderStroke(1.dp, if (isOledMode) HextechGold else HextechCardBorder),
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (isOledMode) Icons.Default.DarkMode else Icons.Default.Brightness4,
+                                contentDescription = null,
+                                tint = if (isOledMode) HextechGold else HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = tr("Modo OLED Ultra-Black"),
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(0xFF1B5E20))
+                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = tr("0% Batería / #000000"),
+                                    color = Color(0xFF81C784),
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        Text(
+                            text = tr("Contraste puro para pantallas AMOLED/OLED"),
+                            color = TextSecondary,
+                            fontSize = 10.5.sp
+                        )
+                    }
+                }
+                Switch(
+                    checked = isOledMode,
+                    onCheckedChange = { enabled ->
+                        AppThemeManager.setOledMode(enabled, context)
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = HextechGold,
+                        checkedTrackColor = HextechGold.copy(alpha = 0.4f),
+                        checkedBorderColor = HextechGold
+                    ),
+                    modifier = Modifier.size(34.dp)
+                )
+            }
+        }
+
         // 1. Tarjeta Fija de Vista Previa Interactiva en Vivo (Siempre visible al scrollear)
         RegionVisualPreviewGridCard(
             inspectedTheme = previewTheme,
@@ -178,6 +255,96 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
             }
         )
 
+        // Carrusel Horizontal de Regiones Estilo Póster
+        Text(
+            text = tr("Explorador Visual de Regiones"),
+            color = HextechGold,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(horizontal = 2.dp)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 2.dp)
+        ) {
+            items(AppTheme.entries, key = { "carousel_${it.id}" }) { theme ->
+                val isSelected = currentTheme == theme
+                val isInspected = previewTheme == theme
+                Card(
+                    modifier = Modifier
+                        .width(130.dp)
+                        .height(82.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable { previewTheme = theme },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = theme.surface),
+                    border = BorderStroke(
+                        if (isSelected) 2.dp else if (isInspected) 1.5.dp else 0.8.dp,
+                        if (isSelected) HextechGold else if (isInspected) theme.primary else theme.cardBorder
+                    )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        theme.primary.copy(alpha = 0.25f),
+                                        theme.surface
+                                    )
+                                )
+                            )
+                            .padding(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(theme.primary)
+                                )
+                                if (isSelected) {
+                                    Text(
+                                        text = "ACTIVO",
+                                        color = HextechGold,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
+                            Column {
+                                Text(
+                                    text = tr(theme.titleKey),
+                                    color = theme.textPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = tr(theme.regionTag),
+                                    color = theme.primaryLight,
+                                    fontSize = 9.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -186,7 +353,7 @@ private fun ThemesListTab(context: android.content.Context, isPremium: Boolean) 
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = tr("Catálogo de Regiones de Runaterra (${AppTheme.entries.size})"),
+                text = tr("Catálogo Completo (${AppTheme.entries.size})"),
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp
