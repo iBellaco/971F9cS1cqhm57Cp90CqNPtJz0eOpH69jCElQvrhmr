@@ -1,2 +1,0 @@
-sed -i 's/val allRunes = WildRiftRepository.runes/val allRunes = com.example.data.WildRiftSpellsAndRunes.runes/g' app/src/main/java/com/example/data/supabase/WildRiftSupabaseRepository.kt
-sed -i 's/val runeDtos = allRunes.map { WrRuneDto.fromModel(it) }/\try { postgrest.from(TABLE_RUNES).delete { filter { neq("id", "invalid_placeholder") } } } catch(e: Exception) { }\n            val runeDtos = allRunes.map { WrRuneDto.fromModel(it) }/g' app/src/main/java/com/example/data/supabase/WildRiftSupabaseRepository.kt

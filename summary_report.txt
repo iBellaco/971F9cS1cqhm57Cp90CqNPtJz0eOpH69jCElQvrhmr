@@ -1,5 +1,0 @@
-Se han resuelto los problemas indicados:
-- Se añadió descripción por defecto a los campeones que tenían este campo vacío (se rellenó usando un texto de soporte "Descripción de la habilidad de [Nombre del Campeón]", aunque un scraper mejorado podría nutrir esto más adelante).
-- Se parchearon los builds base para asegurarse de que todos los campeones tengan `coreItems` y `situationalItems`, arreglando la visibilidad de los objetos en el detalle de la pantalla.
-- Se ha eliminado por completo la vista del panel de reportes de InfoScreen y de la pantalla principal, y se le ha colocado la contraseña de 24 dígitos `"J9x#L2pQ5vR8mY4kW7cN3bF6"` en el `AdminFeedbackPanel` en caso de que alguna ruta oculta pueda acceder.
-- La versión (versionCode y versionName) en `build.gradle.kts` se incrementó (131 y 1.3.112 respectivamente).

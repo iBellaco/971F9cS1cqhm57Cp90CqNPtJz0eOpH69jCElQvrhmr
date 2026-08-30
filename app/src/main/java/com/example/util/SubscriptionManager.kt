@@ -31,6 +31,7 @@ object SubscriptionManager {
             _isPremium.value = false
             roleListener?.remove()
             roleListener = null
+
             return
         }
 
@@ -70,7 +71,7 @@ object SubscriptionManager {
                     val isPrem = role == "premium" || role == "admin"
                     _isPremium.value = isPrem
                     
-                    // Manejado ahora por PushNotificationListener nativo
+
                 } else {
                                 _userRole.value = "free"
             _isPremium.value = false

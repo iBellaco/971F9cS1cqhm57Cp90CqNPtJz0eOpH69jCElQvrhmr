@@ -1,1 +1,0 @@
-sed -i '/fun getChampionById/i \    fun getChampionByName(name: String): Champion? {\n        return allChampions.find { it.name.equals(name, ignoreCase = true) }\n    }\n' app/src/main/java/com/example/data/WildRiftRepository.kt

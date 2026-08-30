@@ -1,2 +1,0 @@
-sed -i '1d' app/src/main/java/com/example/ui/components/AdminDashboardDialog.kt
-sed -i '1i package com.example.ui.components\nimport androidx.compose.ui.text.AnnotatedString\nimport com.google.firebase.auth.FirebaseAuth\nimport android.widget.Toast\nimport android.util.Log\nimport androidx.compose.foundation.background\nimport androidx.compose.foundation.border\nimport androidx.compose.foundation.layout.*\n' app/src/main/java/com/example/ui/components/AdminDashboardDialog.kt

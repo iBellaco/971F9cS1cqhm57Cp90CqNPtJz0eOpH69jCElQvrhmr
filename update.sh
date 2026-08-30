@@ -1,7 +1,0 @@
-sed -i 's/onClick = { \/\* TODO: Implement Google Sign-In \*\/ }/onClick = { Toast.makeText(context, "Suscripción In-App y Google SignIn requieren SHA-1 del servidor", Toast.LENGTH_SHORT).show() }/g' app/src/main/java/com/example/ui/auth/LoginScreen.kt
-sed -i 's/import androidx.compose.ui.unit.dp/import androidx.compose.ui.unit.dp\nimport androidx.compose.ui.platform.LocalContext\nimport android.widget.Toast/g' app/src/main/java/com/example/ui/auth/LoginScreen.kt
-sed -i 's/val password by viewModel.password.collectAsState()/val password by viewModel.password.collectAsState()\n    val context = LocalContext.current/g' app/src/main/java/com/example/ui/auth/LoginScreen.kt
-sed -i 's/SubscriptionManager.upgradeToPremium()/Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()/g' app/src/main/java/com/example/ui/components/SubscriptionPlansBottomSheet.kt
-sed -i 's/val scope = rememberCoroutineScope()/val scope = rememberCoroutineScope()\n    val context = androidx.compose.ui.platform.LocalContext.current/g' app/src/main/java/com/example/ui/components/SubscriptionPlansBottomSheet.kt
-sed -i 's/import android.widget.Toast//g' app/src/main/java/com/example/ui/components/SubscriptionPlansBottomSheet.kt
-sed -i 's/import com.example.util.SubscriptionManager/import android.widget.Toast\nimport com.example.util.SubscriptionManager/g' app/src/main/java/com/example/ui/components/SubscriptionPlansBottomSheet.kt
