@@ -302,14 +302,7 @@ object WildRiftSpellsAndRunes {
             description = "Mapa aplicable: Wild Rift\n\nInflige 600 de daño verdadero a los monstruos, monstruos épicos o súbditos enemigos. Al utilizar Aplastar contra monstruos, recuperas 127 de vida (70 + 10%). Aplastar se convierte en Aplastamiento desalentador tras usarlo 3 veces.",
             category = "Combate & Daño"
         ),
-        SummonerSpellItem(
-            id = "teleport",
-            name = "Teleportar",
-            cooldown = "150s",
-            iconUrl = "https://i.postimg.cc/gJdSFvPs/1611110740-teleport-enchant.png",
-            description = "Mapa aplicable: Grieta\n\nTras canalizar durante 3,5 s, te teleportas a una estructura, campeón o guardián aliado (excepto en las áreas al alcance de los inhibidores enemigos).\nSolo puedes teleportarte a estructuras durante 6 min al comienzo de la partida.",
-            category = "Movilidad & Utilidad"
-        ),
+
         SummonerSpellItem(
             id = "clarity",
             name = "Claridad",

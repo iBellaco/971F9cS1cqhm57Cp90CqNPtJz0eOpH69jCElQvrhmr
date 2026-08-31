@@ -91,7 +91,7 @@ fun MatchupPreviewDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = tr("Matchup Preview 1v1"),
+                                text = tr("Análisis de Enfrentamiento"),
                                 color = HextechGold,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 17.sp
@@ -351,22 +351,14 @@ fun MatchupPreviewDialog(
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    // 3. Itemización Reactiva
+                    // 3. Sinergias y Macro Wild Rift
                     Text(
-                        text = "📦 " + tr("Adaptación de Objetos Recomendada"),
+                        text = "🤝 " + tr("Sinergias y Macro (Wild Rift)"),
                         color = HextechCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-
-                    val recommendedCounterItem = when (enemyOpponent.damageType) {
-                        com.example.model.DamageType.PHYSICAL -> "Punteras de Acero (Plated Steelcaps) / Cota de Espinas"
-                        com.example.model.DamageType.MAGIC -> "Botas de Mercurio / Fuerza de la Naturaleza"
-                        com.example.model.DamageType.TRUE_HYBRID -> "Zhonya / Protección Adaptativa"
-                    }
-
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
@@ -375,19 +367,18 @@ fun MatchupPreviewDialog(
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
                             Text(
-                                text = "🛡️ Objeto Defensivo / Situacional Clave:",
+                                text = "Condición de Victoria Móvil:",
                                 color = HextechCyan,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.5.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = recommendedCounterItem,
+                                text = tr("Aprovecha que las rotaciones en Wild Rift son rápidas. Prioriza rotar al Dragón antes del minuto 5. Si %s rota primero, castiga su torre por placas.").format(enemyOpponent.name),
                                 color = TextPrimary,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
+                                lineHeight = 14.5.sp
                             )
-                            
                         }
                     }
 
@@ -418,11 +409,11 @@ fun MatchupPreviewDialog(
                                 )
                                 Text(
                                     text = if (isMyCounter) 
-                                        "Tienes la ventaja teórica. No te sobreconfíes con ganks del jungla rival y asegura la prioridad de oleadas para apoyar al Dragón/Heraldo."
+                                        "Tienes la ventaja de campeón. Mantén el control de la oleada y usa los arbustos laterales para rotar rápido y emboscar (roam) a otras líneas."
                                     else if (isEnemyCounter)
-                                        "Juega con paciencia y minimiza pérdidas de oro. El verdadero impacto de ${myChampion.name} llegará en las peleas 5v5 agrupadas."
+                                        "Mantén la calma y no cedas oro. En Wild Rift el juego tardío llega rápido; agrupa con tu equipo tan pronto caiga la primera torre."
                                     else
-                                        "Matchup equilibrado de pura habilidad. Controla la visión del río y castiga cuando el rival use habilidades en los súbditos.",
+                                        "Duelo equilibrado. Mantén visión en el río con Lente Revelador antes de los objetivos y castiga cuando use habilidades en la oleada.",
                                     color = TextPrimary,
                                     fontSize = 11.sp,
                                     lineHeight = 14.5.sp

@@ -121,27 +121,27 @@ object CoachingGenerator {
         
         val mid = if (isEs) {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isFrontline) "**Juego Medio/Tardío:** En peleas grupales, ${champion.name} funciona como la principal línea frontal (frontline). Absorbe daño y busca usar $ultSkill en momentos críticos por objetivos." else "**Juego Medio/Tardío:** Durante el juego medio, aplica presión dividida (split-push) si tienes ventaja, o únete al equipo usando $ultSkill de forma inteligente para eliminar carries rivales."
-                LaneRole.JUNGLE -> "**Juego Medio/Tardío:** El control de Dragones y Barón es vital. En peleas de equipo por objetivos, busca posicionarte para iniciar peleas u obtener picks clave desatando $ultSkill."
-                LaneRole.MID -> "**Juego Medio/Tardío:** Como fuente principal de daño ${champion.damageType.displayName}, debes posicionarte cautelosamente en las peleas de equipo y esperar el momento óptimo para desatar $ultSkill."
-                LaneRole.ADC -> "**Juego Medio/Tardío:** Tu supervivencia es la máxima condición de victoria. Posiciónate en la retaguardia, esquiva el CC y usa $ultSkill cuando sea seguro para derretir la composición enemiga."
-                LaneRole.SUPPORT -> "**Juego Medio/Tardío:** Tu control de visión alrededor del Barón y Dragón Ancestral gana partidas. Guarda $ultSkill para desarmar la iniciación enemiga o habilitar a tus carries."
+                LaneRole.TOP -> if (champion.isFrontline) "**Juego Medio/Tardío (Macro Wild Rift):** En peleas grupales, ${champion.name} funciona como la principal línea frontal (frontline). Absorbe daño y busca usar $ultSkill en momentos críticos por objetivos." else "**Juego Medio/Tardío (Macro Wild Rift):** Empuja tu línea para aplicar presión dividida, pero recuerda que el mapa es corto: agrupa rápidamente a pie para los objetivos (Heraldo/Barón) y flanquea con tu $ultSkill a los objetivos vulnerables."
+                LaneRole.JUNGLE -> "**Juego Medio/Tardío (Macro Wild Rift):** El mapa es pequeño y las rotaciones son rápidas. Prioriza asegurar el Dragón o Heraldo temprano, y usa tu $ultSkill para conseguir emboscadas clave que permitan a tu equipo tirar torres e invadir la jungla."
+                LaneRole.MID -> "**Juego Medio/Tardío (Macro Wild Rift):** En este juego de ritmo acelerado, una emboscada tardía es fatal. Muévete siempre con tu equipo por el río o la jungla y usa tu $ultSkill de forma explosiva en espacios cerrados (pasillos de jungla) para borrar a los rivales."
+                LaneRole.ADC -> "**Juego Medio/Tardío (Macro Wild Rift):** Agrupa con tu soporte lo antes posible. Los asedios a torres de inhibidor en Wild Rift son rápidos. Posiciónate seguro detrás de tu línea frontal y castiga con $ultSkill sin arriesgar tu vida."
+                LaneRole.SUPPORT -> "**Juego Medio/Tardío (Macro Wild Rift):** Deniega la visión enemiga con Lente Revelador en el río antes de los objetivos neutrales (Dragones, Barón). Usa el corto enfriamiento de las botas encantadas y tu $ultSkill para salvar a tu ADC o enganchar al acarreador rival."
             }
         } else if (isPt) {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isFrontline) "**Meio/Fim de Jogo:** Nas lutas de equipe, ${champion.name} funciona como a principal linha de frente. Absorva o dano e busque usar $ultSkill em momentos críticos." else "**Meio/Fim de Jogo:** Durante o meio de jogo, aplique pressão dividida (split-push) se tiver vantagem, ou junte-se à equipe usando $ultSkill para eliminar os carries rivais."
-                LaneRole.JUNGLE -> "**Meio/Fim de Jogo:** O controle de Dragões e Barão é vital. Nas lutas de equipe, busque se posicionar para iniciar lutas ou obter abates chave com $ultSkill."
-                LaneRole.MID -> "**Meio/Fim de Jogo:** Como fonte principal de dano ${champion.damageType.displayName}, você deve se posicionar com cautela nas lutas e esperar o momento ideal para usar $ultSkill."
-                LaneRole.ADC -> "**Meio/Fim de Jogo:** Sua sobrevivência é a condição de vitória. Posicione-se na retaguarda, evite CC e use $ultSkill quando for seguro para derreter a equipe inimiga."
-                LaneRole.SUPPORT -> "**Meio/Fim de Jogo:** Seu controle de visão ao redor do Barão e Dragão Ancião vence partidas. Guarde $ultSkill para desarmar a iniciação inimiga ou habilitar seus carries."
+                LaneRole.TOP -> if (champion.isFrontline) "**Meio/Fim de Jogo (Macro Wild Rift):** Nas lutas de equipe, ${champion.name} funciona como a principal linha de frente. Absorva o dano e busque usar $ultSkill em momentos críticos." else "**Meio/Fim de Jogo (Macro Wild Rift):** Empurre sua rota para pressão dividida, mas lembre-se que o mapa é curto. Agrupe rapidamente para os objetivos e flanqueie com $ultSkill."
+                LaneRole.JUNGLE -> "**Meio/Fim de Jogo (Macro Wild Rift):** O mapa é pequeno e as rotações são rápidas. Priorize garantir o Dragão ou Arauto cedo, e use seu $ultSkill para conseguir emboscadas decisivas."
+                LaneRole.MID -> "**Meio/Fim de Jogo (Macro Wild Rift):** Neste jogo de ritmo acelerado, uma emboscada no late game é fatal. Mova-se com sua equipe e use $ultSkill de forma explosiva em espaços fechados da selva."
+                LaneRole.ADC -> "**Meio/Fim de Jogo (Macro Wild Rift):** Agrupe-se com seu suporte. Os cercos às torres de inibidor em Wild Rift são muito rápidos; posicione-se atrás da linha de frente e cause dano com $ultSkill."
+                LaneRole.SUPPORT -> "**Meio/Fim de Jogo (Macro Wild Rift):** Negue a visão inimiga com a Lente Detectora no rio. Use o baixo tempo de recarga das botas encantadas e seu $ultSkill para virar lutas a seu favor."
             }
         } else {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isFrontline) "**Mid/Late Game:** In teamfights, ${champion.name} acts as the primary frontline. Absorb damage and look for crucial $ultSkill opportunities around objectives." else "**Mid/Late Game:** Apply split-push pressure if ahead, or group with the team using $ultSkill smartly to eliminate enemy carries."
-                LaneRole.JUNGLE -> "**Mid/Late Game:** Controlling Dragons and Baron is vital. In teamfights, look to position for engages or key picks by unleashing $ultSkill."
-                LaneRole.MID -> "**Mid/Late Game:** As the primary ${champion.damageType.displayName} damage source, position carefully in teamfights and wait for the optimal moment to unleash $ultSkill."
-                LaneRole.ADC -> "**Mid/Late Game:** Your survival is the ultimate win condition. Position in the backline, dodge CC, and use $ultSkill when safe to melt the enemy composition."
-                LaneRole.SUPPORT -> "**Mid/Late Game:** Vision control around Baron and Elder Dragon wins games. Save $ultSkill to disengage enemy dives or empower your carries."
+                LaneRole.TOP -> if (champion.isFrontline) "**Mid/Late Game (Wild Rift Macro):** In teamfights, ${champion.name} acts as the primary frontline. Absorb damage and look for crucial $ultSkill opportunities around objectives." else "**Mid/Late Game (Wild Rift Macro):** You can split-push, but remember the map is small so enemies will collapse fast. Shove the wave and quickly group on foot for Baron or Elder, flanking with $ultSkill."
+                LaneRole.JUNGLE -> "**Mid/Late Game (Wild Rift Macro):** The map is small and rotations are extremely fast. Secure early objectives (Dragon/Herald) and use $ultSkill for key ganks to snowball and break tier-1 turrets."
+                LaneRole.MID -> "**Mid/Late Game (Wild Rift Macro):** In WR's fast-paced matches, getting caught out late is game-over. Move with your team, flank around the tight jungle paths, and unleash $ultSkill to burst isolated targets."
+                LaneRole.ADC -> "**Mid/Late Game (Wild Rift Macro):** Group with your support immediately after laning phase. Inhibitor turret sieges are very fast; stay safely behind your frontline and spam your damage and $ultSkill."
+                LaneRole.SUPPORT -> "**Mid/Late Game (Wild Rift Macro):** Clear river vision with Sweeping Lens before Dragons/Baron spawn. Use your active boot enchantments and $ultSkill to instantly turn fights around in the smaller skirmish spaces."
             }
         }
         

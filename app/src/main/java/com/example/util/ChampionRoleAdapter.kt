@@ -354,7 +354,7 @@ object ChampionRoleAdapter {
             LaneRole.JUNGLE -> listOf("Castigo", "Destello")
             LaneRole.SUPPORT -> listOf("Destello", "Ignición")
             LaneRole.ADC -> listOf("Destello", "Barrera")
-            LaneRole.TOP -> listOf("Destello", "Teleportación")
+            LaneRole.TOP -> listOf("Destello", "Ignición")
             LaneRole.MID -> listOf("Destello", "Ignición")
         }
         val spellsIcons = recommendedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
@@ -534,7 +534,7 @@ object ChampionRoleAdapter {
             LaneRole.JUNGLE -> if (unique.contains("Castigo")) "Destello" else "Castigo"
             LaneRole.SUPPORT -> if (unique.contains("Destello")) "Ignición" else "Destello"
             LaneRole.ADC -> if (unique.contains("Destello")) "Barrera" else "Destello"
-            LaneRole.TOP -> if (unique.contains("Destello")) "Teleportación" else "Destello"
+            LaneRole.TOP -> if (unique.contains("Destello")) "Ignición" else "Destello"
             LaneRole.MID -> if (unique.contains("Destello")) "Ignición" else "Destello"
         }
 

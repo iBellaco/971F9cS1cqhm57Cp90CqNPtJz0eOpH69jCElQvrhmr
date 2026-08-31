@@ -2968,7 +2968,7 @@ private fun SpellsTab() {
                             "exhaust" -> "Vital para neutralizar a hipercarries o asesinos rivales en peleas grupales reduciendo su daño y movilidad drásticamente."
                             "barrier" -> "Excelente para tiradores o magos de ráfaga para resistir emboscadas o burst sorpresa en línea."
                             "ghost" -> "Ideal para campeones con movilidad continua como Darius, Olaf, Singed o Gwen para evitar que los enemigos escapen."
-                            "teleport" -> "Potente para campeones de carril de Barón para mantener presión dividida y unirse inmediatamente a peleas de objetivos."
+                            "heal" -> "Ideal para el Tirador (ADC) en la línea de Dragón para sobrevivir al burst y salvar al soporte en 2vs2."
                             else -> "Uso situacional según la composición y mapa."
                         }),
                         color = TextMuted,
