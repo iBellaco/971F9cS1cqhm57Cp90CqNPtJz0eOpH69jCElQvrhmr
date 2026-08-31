@@ -75,11 +75,11 @@ fun AdminTerminalScraperDialog(
 
     LaunchedEffect(Unit) {
         addLog("======================================================================", LogType.CYAN)
-        addLog(" ⚔️ TERMINAL ADMINISTRADOR - BESTBUILDWR SCRAPER & CRAWLER", LogType.GOLD)
+        addLog(" ⚔️ TERMINAL ADMINISTRADOR - META PRO CRAWLER & SCRAPER", LogType.GOLD)
         addLog("======================================================================", LogType.CYAN)
-        addLog("Target: https://bestbuildwr.com/champions", LogType.INFO)
+        addLog("Target: Meta Pro Global Endpoints & Repositories", LogType.INFO)
         addLog("Headers: User-Agent Mobile Android 13 • Chrome/130.0.0.0", LogType.INFO)
-        addLog("Salidas: bestbuildwr_builds.json • bestbuildwr_builds.csv • bestbuildwr_builds.txt", LogType.INFO)
+        addLog("Salidas: meta_pro_builds.json • meta_pro_builds.csv • meta_pro_builds.txt", LogType.INFO)
         addLog("Presiona 'Ejecutar Scraper y Descargar' para iniciar la extracción en vivo.", LogType.WARNING)
     }
 
@@ -91,7 +91,7 @@ fun AdminTerminalScraperDialog(
         totalChampsProcessed = 0
 
         addLog("\n>>> INICIANDO PROCESO DE EXTRACCIÓN...", LogType.GOLD)
-        addLog("[1] Conectando con https://bestbuildwr.com/champions...", LogType.INFO)
+        addLog("[1] Conectando con los repositorios del Meta Global Pro...", LogType.INFO)
 
         scope.launch {
             val result = BestBuildScraper.runScraper(context) { progressMsg ->
@@ -116,9 +116,9 @@ fun AdminTerminalScraperDialog(
                 addLog("\n======================================================================", LogType.CYAN)
                 addLog(" 🎉 PROCESO COMPLETADO SATISFACTORIAMENTE", LogType.SUCCESS)
                 addLog(" Archivos guardados en: /Almacenamiento interno/Download/", LogType.GOLD)
-                addLog(" 1. bestbuildwr_builds.json (Dataset completo JSON)", LogType.INFO)
-                addLog(" 2. bestbuildwr_builds.csv (CSV con champion, build_name, build_url)", LogType.INFO)
-                addLog(" 3. bestbuildwr_builds.txt (Formato champion | build_url)", LogType.INFO)
+                addLog(" 1. meta_pro_builds.json (Dataset completo JSON)", LogType.INFO)
+                addLog(" 2. meta_pro_builds.csv (CSV con champion, build_name, build_url)", LogType.INFO)
+                addLog(" 3. meta_pro_builds.txt (Formato champion | build_url)", LogType.INFO)
                 addLog("======================================================================", LogType.CYAN)
                 Toast.makeText(context, "✅ Builds descargadas en la carpeta Descargas", Toast.LENGTH_LONG).show()
             } else {
@@ -195,7 +195,7 @@ fun AdminTerminalScraperDialog(
                                 }
                             }
                             Text(
-                                text = "bestbuildwr_scraper.py • Extractor & Exportador",
+                                text = "meta_crawler.py • Extractor & Exportador",
                                 color = TextMuted,
                                 fontSize = 11.sp
                             )
@@ -402,7 +402,7 @@ fun AdminTerminalScraperDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Destino: Downloads/bestbuildwr_builds.json/.csv/.txt",
+                        text = "Destino: Downloads/meta_pro_builds.json/.csv/.txt",
                         color = TextMuted,
                         fontSize = 10.sp
                     )
@@ -801,7 +801,7 @@ if __name__ == "__main__":
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "🐍 Script Python (BestBuildWR Scraper)",
+                        text = "🐍 Script Python (Meta Pro Crawler)",
                         color = HextechCyan,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold

@@ -103,7 +103,7 @@ class WildRiftApp : Application(), ImageLoaderFactory {
                 val region = ChineseMetaSyncService.currentRegion.value
                 if (region == "CN") {
                     ChineseMetaSyncService.syncChineseMeta(this@WildRiftApp, forceRefresh = true)
-                } else if (region == "BestBuildWR") {
+                } else if (region == "Global" || region == "BestBuildWR") {
                     com.example.data.sync.BestBuildWrScraper.syncGlobalTierList(this@WildRiftApp)
                 }
             } catch (e: Exception) {

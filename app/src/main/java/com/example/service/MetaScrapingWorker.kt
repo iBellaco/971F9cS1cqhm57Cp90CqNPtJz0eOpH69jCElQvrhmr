@@ -127,7 +127,7 @@ class MetaScrapingWorker(
             val region = ChineseMetaSyncService.currentRegion.value
             if (region == "CN") {
                 ChineseMetaSyncService.syncChineseMeta(applicationContext, TencentRankTier.DIAMOND_PLUS, forceRefresh = true)
-            } else if (region == "BestBuildWR") {
+            } else if (region == "Global" || region == "BestBuildWR") {
                 com.example.data.sync.BestBuildWrScraper.syncGlobalTierList(applicationContext)
             }
             

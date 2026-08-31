@@ -320,21 +320,6 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇺🇸 English", color = if (currentLanguage == "en") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "en") FontWeight.Bold else FontWeight.Normal)
-                                            if (currentLanguage == "en") {
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Text("(Active)", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                            }
-                                        }
-                                    },
-                                    onClick = { 
-                                        onLanguageChange("en")
-                                        expandedLang = false 
-                                    }
-                                )
-                                androidx.compose.material3.DropdownMenuItem(
-                                    text = { 
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text("🇧🇷 Português", color = if (currentLanguage == "pt") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "pt") FontWeight.Bold else FontWeight.Normal)
                                             if (currentLanguage == "pt") {
                                                 Spacer(modifier = Modifier.width(6.dp))
@@ -573,18 +558,19 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón Orbe Hextech 3D Central de Activación Inmediata (Desactivado temporalmente según solicitud)
+                // Botón Orbe Hextech 3D Central de Activación Inmediata
                 HextechOrbButton(
                     isActive = isAssistantActive,
                     onToggle = toggleAssistant,
-                    enabled = false
+                    enabled = true
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = tr("Botón temporalmente desactivado"),
-                    color = TextMuted,
+                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante")
+                           else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
+                    color = if (isAssistantActive) HextechCyan else TextMuted,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center

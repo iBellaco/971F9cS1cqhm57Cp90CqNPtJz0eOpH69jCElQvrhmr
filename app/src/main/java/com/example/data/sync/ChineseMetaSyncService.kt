@@ -65,24 +65,26 @@ object ChineseMetaSyncService {
     private val _syncState = MutableStateFlow<ChineseSyncState>(ChineseSyncState.Idle)
     val syncState: StateFlow<ChineseSyncState> = _syncState.asStateFlow()
 
-    private val _currentRegion = MutableStateFlow("BestBuildWR")
+    private val _currentRegion = MutableStateFlow("Global")
     val currentRegion: StateFlow<String> = _currentRegion.asStateFlow()
 
     fun loadRegion(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        _currentRegion.value = prefs.getString("META_REGION", "BestBuildWR") ?: "BestBuildWR"
+        val loaded = prefs.getString("META_REGION", "Global") ?: "Global"
+        _currentRegion.value = if (loaded == "BestBuildWR") "Global" else loaded
     }
 
     
     fun setRegion(context: Context, region: String, coroutineScope: kotlinx.coroutines.CoroutineScope) {
-        _currentRegion.value = region
+        val normalizedRegion = if (region == "BestBuildWR") "Global" else region
+        _currentRegion.value = normalizedRegion
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString("META_REGION", region).apply()
+        prefs.edit().putString("META_REGION", normalizedRegion).apply()
         
-        if (region == "NA") {
+        if (normalizedRegion == "NA") {
             WildRiftRepository.initChampions(context, forceReload = true)
             _syncState.value = ChineseSyncState.Idle
-        } else if (region == "BestBuildWR") {
+        } else if (normalizedRegion == "Global" || normalizedRegion == "BestBuildWR") {
             coroutineScope.launch {
                 WildRiftRepository.initChampions(context, forceReload = true)
                 _syncState.value = ChineseSyncState.Syncing
@@ -92,11 +94,11 @@ object ChineseMetaSyncService {
                         TencentRankTier.DIAMOND_PLUS,
                         WildRiftRepository.champions.size,
                         "Reciente",
-                        "BestBuildWR",
+                        "Global Meta",
                         false
                     )
                 } else {
-                    _syncState.value = ChineseSyncState.Error("Fallo al obtener BestBuildWR")
+                    _syncState.value = ChineseSyncState.Error("Fallo al sincronizar Meta Global")
                 }
             }
         } else {

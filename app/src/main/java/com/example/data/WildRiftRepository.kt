@@ -56,10 +56,10 @@ object WildRiftRepository {
             focusArea = "Runas y Novedades en Español"
         ),
         MetaDataSource(
-            id = "bestbuildwr",
-            name = "BestBuildWR",
+            id = "meta_global",
+            name = "Meta Pro Global",
             description = "Builds Óptimas e Ítems Situacionales",
-            url = "https://bestbuildwr.com/",
+            url = "https://wildriftfire.com/",
             focusArea = "Armado de Objetos Profundo"
         ),
         MetaDataSource(
@@ -541,7 +541,7 @@ object WildRiftRepository {
 
         val serverLabel = when (serverRegion) {
             "CN" -> "China ($rankTier)"
-            "BestBuildWR" -> "Global Meta"
+            "Global", "BestBuildWR", "GLOBAL" -> "Global Meta"
             else -> "América"
         }
 

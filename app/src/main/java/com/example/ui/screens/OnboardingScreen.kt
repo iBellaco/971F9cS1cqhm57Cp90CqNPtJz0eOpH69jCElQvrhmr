@@ -70,15 +70,15 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             )
         ),
         OnboardingPage(
-            title = tr("Macro y Tiempos de Wild Rift"),
-            subtitle = tr("Estrategia 100% Móvil"),
-            description = tr("Domina los picos de nivel 1-2, Nivel 5 (Definitiva), objetivos épicos (Dragón/Heraldo 5:00 min, Barón 12:00 min) e itemización situacional."),
-            icon = Icons.Default.Timer,
-            accentColor = Color(0xFF64B5F6),
+            title = tr("Ventajas & Suscripción Premium"),
+            subtitle = tr("Acceso Total de Élite"),
+            description = tr("Desbloquea el Asistente Flotante ilimitado en partida, escáner OCR continuo, builds adaptativas al parche actual y análisis Challenger para subir de rango sin límites."),
+            icon = Icons.Default.WorkspacePremium,
+            accentColor = Color(0xFFFFB300),
             highlights = listOf(
-                tr("Ventanas de poder nivel 1-2 y nivel 5"),
-                tr("Temporizadores de Dragón, Heraldo y Barón"),
-                tr("Asesor de objetos situacionales")
+                tr("Overlay flotante y OCR en partida sin límites"),
+                tr("Builds Pro adaptativas y Tier List en vivo"),
+                tr("Coaching táctico y Win Condition en tiempo real")
             )
         ),
         OnboardingPage(

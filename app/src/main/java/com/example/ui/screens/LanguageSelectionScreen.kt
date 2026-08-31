@@ -48,14 +48,13 @@ import com.example.util.tr
 fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
     var selectedLang by remember { mutableStateOf("es") }
 
-    val screenTitle = "Elige tu idioma"
-    val screenSubtitle = "Selecciona el idioma del asistente táctico (Español activo)"
-    val buttonText = "Continuar en Español"
+    val screenTitle = if (selectedLang == "pt") "Escolha seu idioma" else "Elige tu idioma"
+    val screenSubtitle = if (selectedLang == "pt") "Selecione o idioma do assistente tático" else "Selecciona el idioma del asistente táctico"
+    val buttonText = if (selectedLang == "pt") "Continuar em Português" else "Continuar en Español"
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -93,29 +92,20 @@ fun LanguageSelectionScreen(onLanguageSelected: (String) -> Unit) {
         )
 
         LanguageOption(
-            title = "English",
-            subtitle = "English (Temporalmente desactivado por mantenimiento)",
-            flagEmoji = "🇺🇸",
-            isSelected = false,
-            isEnabled = false,
-            onClick = { }
-        )
-
-        LanguageOption(
             title = "Português",
-            subtitle = "Português (Desativado temporariamente para manutenção)",
+            subtitle = "Português (Brasil / Portugal) • 100% Ativo",
             flagEmoji = "🇧🇷",
-            isSelected = false,
-            isEnabled = false,
-            onClick = { }
+            isSelected = selectedLang == "pt",
+            isEnabled = true,
+            onClick = { selectedLang = "pt" }
         )
 
         Spacer(modifier = Modifier.height(36.dp))
 
         Button(
             onClick = {
-                AppLogger.d("LANG", "Selected Language: es")
-                onLanguageSelected("es")
+                AppLogger.d("LANG", "Selected Language: $selectedLang")
+                onLanguageSelected(selectedLang)
             },
             modifier = Modifier
                 .fillMaxWidth()

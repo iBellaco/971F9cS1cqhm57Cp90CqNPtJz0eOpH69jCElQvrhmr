@@ -524,8 +524,8 @@ fun ChampionDetailSheet(
                     com.example.util.ChampionBuildOption(
                         optionNumber = 1,
                         title = "Opción 1: Meta Core Estándar",
-                        subtitle = "WildRiftFire • BestBuildWR",
-                        source = "WildRiftFire / BestBuildWR",
+                        subtitle = "Meta Pro • Global",
+                        source = "Meta Pro / Global",
                         badge = "ESTÁNDAR",
                         tacticalReason = "Build estándar de referencia oficial con mayor tasa de victoria equilibrada en el meta actual de Wild Rift.",
                         items = if (roleProfile.build8Items.isNotEmpty()) roleProfile.build8Items else (roleProfile.coreItems + roleProfile.situationalItems).take(8),
