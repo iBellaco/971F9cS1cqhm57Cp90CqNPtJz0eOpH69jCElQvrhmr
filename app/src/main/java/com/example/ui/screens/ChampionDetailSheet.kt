@@ -754,81 +754,84 @@ fun ChampionDetailSheet(
                                 }
                             }
                         }
+                    }
 
-                        if (activeOption.situationalItems.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(0.5.dp)
-                                    .background(HextechCardBorder.copy(alpha = 0.5f))
+                    if (activeOption.situationalItems.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(0.5.dp)
+                                .background(HextechCardBorder.copy(alpha = 0.5f))
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = tr("Objetos Situacionales:"),
+                                color = HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = tr("Objetos Situacionales:"),
-                                    color = HextechGold,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = tr("Adaptación al Rival"),
-                                    color = HextechCyan,
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                activeOption.situationalItems.forEach { sitItemName ->
-                                    val dbSitItem = com.example.data.WildRiftRepository.items.find {
-                                        it.name.equals(sitItemName, ignoreCase = true) ||
-                                        sitItemName.contains(it.name, ignoreCase = true) ||
-                                        it.name.contains(sitItemName, ignoreCase = true)
-                                    }
-                                    val sitIcon = dbSitItem?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(sitItemName)
-                                    Box(
-                                        modifier = Modifier
-                                            .size(38.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(HextechSurfaceVariant)
-                                            .border(1.dp, HextechGoldLight.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
-                                            .clickable {
-                                                if (dbSitItem != null) {
-                                                    itemForDetail = dbSitItem
-                                                } else {
-                                                    itemForDetail = com.example.model.WildRiftItem(
-                                                        id = sitItemName.lowercase().replace(" ", "_"),
-                                                        name = sitItemName,
-                                                        nameEn = sitItemName,
-                                                        category = "Objeto Situacional",
-                                                        goldCost = 3000,
-                                                        stats = "Objeto adaptativo para el meta actual.",
-                                                        statsEn = "Adaptive meta situational item.",
-                                                        passive = "Recomendado como reemplazo táctico según la composición rival.",
-                                                        passiveEn = "Recommended tactical swap depending on enemy composition.",
-                                                        coachTip = "Elige este objeto situacionalmente para contrarrestar curaciones, escudos o daño excesivo.",
-                                                        coachTipEn = "Pick this situational item to counter healing, shields or burst.",
-                                                        iconUrl = sitIcon
-                                                    )
-                                                }
+                            Text(
+                                text = tr("Adaptación al Rival"),
+                                color = HextechCyan,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            activeOption.situationalItems.forEach { sitItemName ->
+                                val dbSitItem = com.example.data.WildRiftRepository.items.find {
+                                    it.name.equals(sitItemName, ignoreCase = true) ||
+                                    sitItemName.contains(it.name, ignoreCase = true) ||
+                                    it.name.contains(sitItemName, ignoreCase = true)
+                                }
+                                val sitIcon = dbSitItem?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(sitItemName)
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechSurfaceVariant)
+                                        .border(1.dp, HextechGoldLight.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            if (dbSitItem != null) {
+                                                itemForDetail = dbSitItem
+                                            } else {
+                                                itemForDetail = com.example.model.WildRiftItem(
+                                                    id = sitItemName.lowercase().replace(" ", "_"),
+                                                    name = sitItemName,
+                                                    nameEn = sitItemName,
+                                                    category = "Objeto Situacional",
+                                                    goldCost = 3000,
+                                                    stats = "Objeto adaptativo para el meta actual.",
+                                                    statsEn = "Adaptive meta situational item.",
+                                                    passive = "Recomendado como reemplazo táctico según la composición rival.",
+                                                    passiveEn = "Recommended tactical swap depending on enemy composition.",
+                                                    coachTip = "Elige este objeto situacionalmente para contrarrestar curaciones, escudos o daño excesivo.",
+                                                    coachTipEn = "Pick this situational item to counter healing, shields or burst.",
+                                                    iconUrl = sitIcon
+                                                )
                                             }
-                                    ) {
-                                        AppAssetImage(
-                                            url = sitIcon,
-                                            contentDescription = tr(sitItemName),
-                                            fallbackText = tr(sitItemName),
-                                            modifier = Modifier.fillMaxSize(),
-                                            shape = RoundedCornerShape(8.dp)
-                                        )
-                                    }
+                                        }
+                                ) {
+                                    AppAssetImage(
+                                        url = sitIcon,
+                                        contentDescription = tr(sitItemName),
+                                        fallbackText = tr(sitItemName),
+                                        modifier = Modifier.fillMaxSize(),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
                                 }
                             }
                         }

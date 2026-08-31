@@ -298,9 +298,9 @@
           "Eco de Luden",
           "Orbe infinito",
           "Gorro de muerte del miércoles",
-          "Corona de la Reina Ahogada",
           "Perdición del exánime",
-          "Bastón vacío"
+          "Bastón vacío",
+          "Impulso Cósmico"
         ],
         "bootBase": "Botas de maná",
         "bootUpgrade": "Botas del lanzahechizos",
@@ -329,7 +329,7 @@
           "Malignance",
           "Impulso Cósmico",
           "Gorro de muerte del miércoles",
-          "Corona de la Reina Ahogada",
+          "Orbe infinito",
           "Bastón vacío",
           "Velo de alma en pena"
         ],
@@ -437,9 +437,9 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "akali_mid_dano_explosivo",
+        "id": "akali_top_dano_explosivo",
         "title": "Daño explosivo",
-        "role": "mid",
+        "role": "top",
         "coreItems": [
           "Orbe infinito",
           "Hacedor de grietas",
@@ -459,9 +459,9 @@
           "Orbe infinito",
           "Hacedor de grietas",
           "Gorro de muerte del miércoles",
-          "Corona de la Reina Ahogada",
           "Perdición del exánime",
-          "Bastón vacío"
+          "Bastón vacío",
+          "Velo de alma en pena"
         ],
         "bootBase": "Botas de mercurio",
         "bootUpgrade": "Trituradoras encadenadas",
@@ -732,14 +732,39 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "alistar_support_soporte",
-        "title": "Soporte",
-        "role": "support",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "SUP - Soporte",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Placa de piedra de gárgola"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Placa de piedra de gárgola",
+          "Plato del hombre muerto",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "Fuerza de la naturaleza"
+        ],
+        "primaryRune": "Irrupción de fase",
+        "secondaryRunes": [
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Hextello"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -841,24 +866,132 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "ambessa_top_dano_explosivo",
-        "title": "Daño Explosivo",
-        "role": "top",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "TOP - Daño y Aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Eclipse",
+          "Fuerza trinitaria",
+          "bebedor de sangre"
+        ],
+        "items": [
+          "Eclipse",
+          "Fuerza trinitaria",
+          "bebedor de sangre",
+          "La danza de la muerte",
+          "Guantelete de Sterak"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Cuchilla negra"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       },
       {
-        "id": "ambessa_top_dano_y_aguante",
-        "title": "Daño y Aguante",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño Explosivo",
+        "lane": "TOP",
+        "coreItems": [
+          "Eclipse",
+          "Lanza de Shojin",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Eclipse",
+          "Lanza de Shojin",
+          "El rencor de Serylda",
+          "La danza de la muerte",
+          "Ángel custodio"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Demoler",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      },
+      {
+        "title": "TOP - Curaciones",
+        "lane": "TOP",
+        "coreItems": [
+          "Eclipse",
+          "Lanza de Shojin",
+          "La danza de la muerte"
+        ],
+        "items": [
+          "Eclipse",
+          "Lanza de Shojin",
+          "La danza de la muerte",
+          "Guantelete de Sterak",
+          "Ángel custodio"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Guardia gemela de amaranto"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      },
+      {
+        "title": "JG - Daño y Aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "La danza de la muerte",
+          "bebedor de sangre"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "La danza de la muerte",
+          "bebedor de sangre",
+          "El rencor de Serylda",
+          "Lanza de Shojin"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -958,7 +1091,72 @@
     ],
     "build2Runes": "Electrocutar,Impacto Repentino,Tirano,Colección De Globos Oculares,Se Avecina Tormenta",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "JG - Estándar",
+        "lane": "JG",
+        "coreItems": [
+          "Corona abrasadora",
+          "Resplandor hueco",
+          "malla de espinas"
+        ],
+        "items": [
+          "Corona abrasadora",
+          "Resplandor hueco",
+          "malla de espinas",
+          "Guardia gemela de amaranto",
+          "Desesperanza infinita"
+        ],
+        "bootBase": "Botas de mercurio",
+        "bootUpgrade": "Trituradoras encadenadas",
+        "situationalBoots": [
+          "Botas blindadas"
+        ],
+        "situationalItems": [],
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
+      },
+      {
+        "title": "JG - AP",
+        "lane": "JG",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "Hacedor de grietas",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Colección de globos oculares",
+          "Se avecina tormenta"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "annie",
@@ -1056,7 +1254,39 @@
     ],
     "build2Runes": "Electrocutar,Hextello,Trascendencia,Capa Del Nimbo,Revestimiento De Huesos",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Cinturón de cohetes hextech"
+        ],
+        "items": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Cinturón de cohetes hextech",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Hextello",
+          "Trascendencia",
+          "Capa del nimbo",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "ashe",
@@ -1156,24 +1386,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "ashe_adc_ataques_basicos",
-        "title": "Ataques básicos",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Críticos",
+        "lane": "ADC",
+        "coreItems": [
+          "Matakrakens",
+          "fuerza de vendaval",
+          "Espada del Rey Arruinado"
+        ],
+        "items": [
+          "Matakrakens",
+          "fuerza de vendaval",
+          "Espada del Rey Arruinado",
+          "El huracán de Runaan",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Extenuación"
+        ]
       },
       {
-        "id": "ashe_adc_criticos",
-        "title": "Críticos",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Ataques básicos",
+        "lane": "ADC",
+        "coreItems": [
+          "fuerza de vendaval",
+          "Hoja de furia de Guinsoo",
+          "Matakrakens"
+        ],
+        "items": [
+          "fuerza de vendaval",
+          "Hoja de furia de Guinsoo",
+          "Matakrakens",
+          "El huracán de Runaan",
+          "Espada del Rey Arruinado"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
       }
     ]
   },
@@ -1271,7 +1543,39 @@
     ],
     "build2Runes": "Cometa Arcano,Axioma Arcano,Concentración Absoluta,Se Avecina Tormenta,Revestimiento De Huesos",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "MID - Daño continuo",
+        "lane": "MID",
+        "coreItems": [
+          "Cetro de cristal de Rylai",
+          "Oleada de tormenta",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Cetro de cristal de Rylai",
+          "Oleada de tormenta",
+          "Gorro de muerte del miércoles",
+          "Hacedor de grietas",
+          "El tormento de Liandry"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Axioma arcano",
+          "Concentración absoluta",
+          "Se avecina tormenta",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "aurora",
@@ -1371,14 +1675,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "aurora_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "El reloj de arena de Zhonya"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Velo de alma en pena"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Concentración absoluta"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -1476,7 +1803,39 @@
     ],
     "build2Runes": "Conquistador",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "SUP - Utilidad + Daño",
+        "lane": "SUP",
+        "coreItems": [
+          "Hoz espectral",
+          "Mandato imperial",
+          "Plato del hombre muerto"
+        ],
+        "items": [
+          "Hoz espectral",
+          "Mandato imperial",
+          "Plato del hombre muerto",
+          "El reloj de arena de Zhonya",
+          "El tormento de Liandry"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Guardián zombi"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "blitzcrank",
@@ -1574,14 +1933,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "blitzcrank_support_oro_extra",
-        "title": "Oro extra",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Oro extra",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Cinturón de cohetes hextech"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Cinturón de cohetes hextech",
+          "La convergencia de Zeke",
+          "Armadura de Warmog"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Hextello"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -1684,24 +2066,68 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "brand_support_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "support",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Quemadura en Área",
+        "lane": "MID",
+        "coreItems": [
+          "El tormento de Liandry",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "El tormento de Liandry",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Tridente de oceánida"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Golpe bajo",
+          "Tirano",
+          "Colección de globos oculares",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "brand_mid_quemadura_en_area",
-        "title": "Quemadura en Área",
-        "role": "mid",
-        "coreItems": [],
+        "title": "SUP - Daño explosivo",
+        "lane": "SUP",
+        "coreItems": [
+          "Hoz espectral",
+          "El tormento de Liandry",
+          "Cetro de cristal de Rylai"
+        ],
+        "items": [
+          "Hoz espectral",
+          "El tormento de Liandry",
+          "Cetro de cristal de Rylai",
+          "Malignance",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Golpe bajo",
+          "Tirano",
+          "Colección de globos oculares",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -1801,14 +2227,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "braum_support_tanque_de_vida",
-        "title": "Tanque de vida",
-        "role": "support",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "SUP - Tanque de vida",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Voto de caballero",
+          "Armadura de Warmog"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Voto de caballero",
+          "Armadura de Warmog",
+          "Fuerza de la naturaleza",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Corazón congelado"
+        ],
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Curación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -1908,24 +2357,68 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "caitlyn_adc_letalidad",
-        "title": "Letalidad",
-        "role": "adc",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "ADC - Letalidad",
+        "lane": "ADC",
+        "coreItems": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Borde infinito"
+        ],
+        "items": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Borde infinito",
+          "Recordatorio mortal",
+          "El huracán de Runaan"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
+        "situationalItems": [
+          "sanguinario"
+        ],
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Fantasma",
+          "Destello"
+        ]
       },
       {
-        "id": "caitlyn_adc_ataques_basicos",
-        "title": "Ataques Básicos",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Ataques Básicos",
+        "lane": "ADC",
+        "coreItems": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Recordatorio mortal"
+        ],
+        "items": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Recordatorio mortal",
+          "El huracán de Runaan",
+          "Espada del Rey Arruinado"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Golpe de gracia",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
       }
     ]
   },
@@ -2027,24 +2520,70 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "camille_top_dano_con_aguante",
-        "title": "Daño con aguante",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño con aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Cielo desgarrado",
+          "Rompecascos"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Cielo desgarrado",
+          "Rompecascos",
+          "Guantelete de Sterak",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Demoler",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "camille_jungle_dano_y_aguante",
-        "title": "Daño y aguante",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño y aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Eclipse",
+          "La danza de la muerte"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Eclipse",
+          "La danza de la muerte",
+          "Guardia gemela de amaranto",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -2146,14 +2685,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "cho_gath_top_tanque",
-        "title": "Tanque",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Tanque",
+        "lane": "TOP",
+        "coreItems": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "Desesperanza infinita"
+        ],
+        "items": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "Desesperanza infinita",
+          "malla de espinas",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Triunfo"
+        ],
+        "spells": [
+          "Teleportación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -2255,14 +2817,68 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "corki_adc_sin_criticos",
-        "title": "Sin Críticos",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Sin Críticos",
+        "lane": "ADC",
+        "coreItems": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "Recordatorio mortal"
+        ],
+        "items": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "Recordatorio mortal",
+          "Blaster magnético",
+          "Ángel custodio"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Se avecina tormenta"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      },
+      {
+        "title": "ADC - Estándar",
+        "lane": "ADC",
+        "coreItems": [
+          "Saqueador de esencia",
+          "sanguinario",
+          "Borde infinito"
+        ],
+        "items": [
+          "Saqueador de esencia",
+          "sanguinario",
+          "Borde infinito",
+          "Recordatorio mortal",
+          "Blaster magnético"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Ángel custodio"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Se avecina tormenta"
+        ],
+        "spells": [
+          "Destello",
+          "Extenuación"
+        ]
       }
     ]
   },
@@ -2360,7 +2976,77 @@
     ],
     "build2Runes": "Conquistador,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Capa Del Nimbo",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "JG - Velocidad de movimiento",
+        "lane": "JG",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak",
+          "Plato del hombre muerto",
+          "Fuerza de la naturaleza"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Axioma arcano",
+          "Celeridad",
+          "Capa del nimbo",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
+      },
+      {
+        "title": "TOP - Estándar",
+        "lane": "TOP",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "rompe zancadas",
+          "Guantelete de Sterak"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "rompe zancadas",
+          "Guantelete de Sterak",
+          "Guardia gemela de amaranto",
+          "Plato del hombre muerto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "Torreón de Kaenic",
+          "Cuchilla negra"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Capa del nimbo"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
+      }
+    ]
   },
   {
     "id": "diana",
@@ -2460,34 +3146,100 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "diana_jungle_china",
-        "title": "China",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - China",
+        "lane": "JG",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime",
+          "Bastón vacío",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Colección de globos oculares",
+          "Leyenda: Linaje"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       },
       {
-        "id": "diana_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Derribado"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "diana_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Hacedor de grietas",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón",
+          "Tridente de oceánida"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -2587,7 +3339,74 @@
     ],
     "build2Runes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,ÚLTIMO ESFUERZO",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "TOP - Tanque",
+        "lane": "TOP",
+        "coreItems": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "malla de espinas"
+        ],
+        "items": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "malla de espinas",
+          "Desesperanza infinita",
+          "Manto de la Duodécima Hora"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [],
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Último esfuerzo"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
+      },
+      {
+        "title": "TOP - Tanque de VIDA",
+        "lane": "TOP",
+        "coreItems": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "malla de espinas"
+        ],
+        "items": [
+          "corazón de acero",
+          "Égida del fuego solar",
+          "malla de espinas",
+          "Guardia gemela de amaranto",
+          "Armadura de Warmog"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [],
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Último esfuerzo"
+        ],
+        "spells": [
+          "Teleportación",
+          "Fantasma"
+        ]
+      }
+    ]
   },
   {
     "id": "draven",
@@ -2685,14 +3504,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "draven_adc_letalidad",
-        "title": "Letalidad",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Críticos",
+        "lane": "ADC",
+        "coreItems": [
+          "sanguinario",
+          "Saqueador de esencia",
+          "fuerza de vendaval"
+        ],
+        "items": [
+          "sanguinario",
+          "Saqueador de esencia",
+          "fuerza de vendaval",
+          "Recordatorio mortal",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Golpe de gracia",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
+      },
+      {
+        "title": "ADC - Letalidad",
+        "lane": "ADC",
+        "coreItems": [
+          "fuerza de vendaval",
+          "El coleccionista",
+          "sanguinario"
+        ],
+        "items": [
+          "fuerza de vendaval",
+          "El coleccionista",
+          "sanguinario",
+          "Recordatorio mortal",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Último esfuerzo",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -2794,24 +3665,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "ekko_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Cazador incesante",
+          "Axioma arcano"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
       },
       {
-        "id": "ekko_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Perdición del exánime",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Bastón vacío",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Colección de globos oculares",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -2911,14 +3824,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "evelynn_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Derribado"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3020,24 +3956,70 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "ezreal_adc_tanque_anti_ad",
-        "title": "Tanque anti AD",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Tanque anti AD",
+        "lane": "ADC",
+        "coreItems": [
+          "Manamune",
+          "Guantelete nacido del hielo",
+          "Espada del Rey Arruinado"
+        ],
+        "items": [
+          "Manamune",
+          "Guantelete nacido del hielo",
+          "Espada del Rey Arruinado",
+          "El rencor de Serylda",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Grebas codiciosas"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       },
       {
-        "id": "ezreal_adc_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Daño explosivo",
+        "lane": "ADC",
+        "coreItems": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "El rencor de Serylda",
+          "Espada del Rey Arruinado",
+          "Lanza de Shojin"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [
+          "Botas jonias de la lucidez"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3139,14 +4121,38 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "fiddlesticks_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Malignance",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Malignance",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Velo de alma en pena",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón",
+          "El tormento de Liandry"
+        ],
+        "primaryRune": "Primer golpe",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3246,14 +4252,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "fiora_top_dano_y_aguante",
-        "title": "Daño y Aguante",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño y Aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Eclipse",
+          "La danza de la muerte"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Eclipse",
+          "La danza de la muerte",
+          "Lanza de Shojin",
+          "Guantelete de Sterak"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Demoler",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       }
     ]
   },
@@ -3353,24 +4382,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "fizz_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "fizz_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Derribado"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
       }
     ]
   },
@@ -3472,34 +4543,138 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "galio_support_tanque",
-        "title": "Tanque",
-        "role": "support",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Cinturón de cohetes hextech",
+          "Oleada de tormenta",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Cinturón de cohetes hextech",
+          "Oleada de tormenta",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "Perdición del exánime"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Colección de globos oculares",
+          "Se avecina tormenta"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "galio_mid_offtank",
-        "title": "Offtank",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "SUP - Tanque",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Armadura de Warmog"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "Armadura de Warmog",
+          "Virtud radiante",
+          "Corazón congelado"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "Guantelete nacido del hielo",
+          "malla de espinas",
+          "Fuerza de la naturaleza"
+        ],
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Hextello"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "galio_mid_dano_y_resistencia",
-        "title": "Daño y Resistencia",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Offtank",
+        "lane": "MID",
+        "coreItems": [
+          "Vara de las edades",
+          "Gorro de muerte del miércoles",
+          "Cinturón de cohetes hextech"
+        ],
+        "items": [
+          "Vara de las edades",
+          "Gorro de muerte del miércoles",
+          "Cinturón de cohetes hextech",
+          "Tridente de oceánida",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón"
+        ],
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      },
+      {
+        "title": "MID - Daño y Resistencia",
+        "lane": "MID",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Perdición del exánime",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Tridente de oceánida"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Tirano",
+          "Colección de globos oculares",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3599,14 +4774,70 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "garen_top_tanque",
-        "title": "Tanque",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño y aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Cuchilla negra",
+          "Plato del hombre muerto",
+          "Lanza de Shojin"
+        ],
+        "items": [
+          "Cuchilla negra",
+          "Plato del hombre muerto",
+          "Lanza de Shojin",
+          "Fuerza de la naturaleza",
+          "malla de espinas"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Fervor de batalla"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      },
+      {
+        "title": "TOP - Tanque",
+        "lane": "TOP",
+        "coreItems": [
+          "corazón de acero",
+          "malla de espinas",
+          "Fuerza de la naturaleza"
+        ],
+        "items": [
+          "corazón de acero",
+          "malla de espinas",
+          "Fuerza de la naturaleza",
+          "Égida del fuego solar",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [],
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Demoler",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Capa del nimbo"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3706,34 +4937,111 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "gnar_top_solitario_split_push",
-        "title": "Solitario (Split push)",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Solitario (Split push)",
+        "lane": "TOP",
+        "coreItems": [
+          "Espada del Rey Arruinado",
+          "Fuerza trinitaria",
+          "Cuchilla negra"
+        ],
+        "items": [
+          "Espada del Rey Arruinado",
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Leyenda: Tenacidad"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "gnar_jungle_dano_con_aguante",
-        "title": "Daño con aguante",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Daño con aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak",
+          "La danza de la muerte",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "El presagio de Randuin",
+          "malla de espinas",
+          "Torreón de Kaenic"
+        ],
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Triunfo",
+          "Golpe de gracia",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
       },
       {
-        "id": "gnar_top_dano_con_aguante",
-        "title": "Daño con aguante",
-        "role": "top",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "TOP - Daño con aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Cuchilla negra",
+          "Guantelete de Sterak",
+          "La danza de la muerte",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "El presagio de Randuin",
+          "malla de espinas",
+          "Torreón de Kaenic"
+        ],
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Sobrecrecimiento",
+          "Leyenda: Tenacidad"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -3836,14 +5144,72 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "gragas_jungle_dano_explosivo",
-        "title": "Daño Explosivo",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Daño Explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Perdición del exánime",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [
+          "Botas blindadas"
+        ],
+        "situationalItems": [
+          "Morellonomicón"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
+      },
+      {
+        "title": "TOP - Vida y Daño Explosivo",
+        "lane": "TOP",
+        "coreItems": [
+          "Vara de las edades",
+          "Impulso Cósmico",
+          "Cinturón de cohetes hextech"
+        ],
+        "items": [
+          "Vara de las edades",
+          "Impulso Cósmico",
+          "Cinturón de cohetes hextech",
+          "Resplandor hueco",
+          "Corazón congelado"
+        ],
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Lucidez carmesí",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Máscara abisal"
+        ],
+        "primaryRune": "Irrupción de fase",
+        "secondaryRunes": [
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Destello",
+          "Teleportación"
+        ]
       }
     ]
   },
@@ -3945,14 +5311,39 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "graves_jungle_criticos",
-        "title": "Críticos",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Críticos",
+        "lane": "JG",
+        "coreItems": [
+          "El coleccionista",
+          "sanguinario",
+          "Recordatorio mortal"
+        ],
+        "items": [
+          "El coleccionista",
+          "sanguinario",
+          "Recordatorio mortal",
+          "Saqueador de esencia",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [
+          "Botas blindadas"
+        ],
+        "situationalItems": [
+          "Colmillo de serpiente"
+        ],
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4054,24 +5445,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "gwen_top_dano_continuo",
-        "title": "Daño continuo",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - daño continuo",
+        "lane": "TOP",
+        "coreItems": [
+          "Anochecer y amanecer",
+          "Hacedor de grietas",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Anochecer y amanecer",
+          "Hacedor de grietas",
+          "Gorro de muerte del miércoles",
+          "Diente de Nashor",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Último esfuerzo",
+          "Leyenda: Linaje",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       },
       {
-        "id": "gwen_jungle_dano_continuo",
-        "title": "Daño continuo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño continuo",
+        "lane": "JG",
+        "coreItems": [
+          "Anochecer y amanecer",
+          "Diente de Nashor",
+          "Hacedor de grietas"
+        ],
+        "items": [
+          "Anochecer y amanecer",
+          "Diente de Nashor",
+          "Hacedor de grietas",
+          "Gorro de muerte del miércoles",
+          "Orbe infinito"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
       }
     ]
   },
@@ -4171,14 +5604,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "hecarim_jungle_dano_con_aguante",
-        "title": "Daño con aguante",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño con aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Manamune",
+          "Fuerza trinitaria",
+          "El rencor de Serylda",
+          "Cimitarra mercurial",
+          "Lanza de Shojin"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Irrupción de fase",
+        "secondaryRunes": [
+          "Axioma arcano",
+          "Trascendencia",
+          "Capa del nimbo",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Fantasma"
+        ]
       }
     ]
   },
@@ -4281,24 +5735,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "heimerdinger_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "El tormento de Liandry",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Primer golpe",
+        "secondaryRunes": [
+          "Botanista",
+          "Trascendencia",
+          "Semillero ixtalí",
+          "Fervor de batalla"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "heimerdinger_mid_dano_constante",
-        "title": "Daño constante",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño constante",
+        "lane": "MID",
+        "coreItems": [
+          "Cetro de cristal de Rylai",
+          "El tormento de Liandry",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Cetro de cristal de Rylai",
+          "El tormento de Liandry",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Axioma arcano",
+          "Trascendencia",
+          "Se avecina tormenta",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4400,14 +5896,38 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "irelia_mid_dano_sostenido",
-        "title": "Daño Sostenido",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño Sostenido",
+        "lane": "MID",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Espada del Rey Arruinado",
+          "La danza de la muerte"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Espada del Rey Arruinado",
+          "La danza de la muerte",
+          "Guardia gemela de amaranto",
+          "Guantelete de Sterak"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Al filo de la cordura",
+          "Terminus"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Último esfuerzo",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4507,14 +6027,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "janna_support_estandar",
-        "title": "Estandar",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Estandar",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Eco armónico",
+          "Incensario Ardiente"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Eco armónico",
+          "Incensario Ardiente",
+          "Bastón de aguas fluidas",
+          "La bendición de Michael"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [
+          "Botas jonias de la lucidez"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Revitalizar",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Curación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4616,14 +6159,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "jarvan_iv_jungle_dano_y_aguante",
-        "title": "Daño y Aguante",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño y Aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Cielo desgarrado",
+          "Guardia gemela de amaranto"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Cielo desgarrado",
+          "Guardia gemela de amaranto",
+          "La danza de la muerte",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4725,24 +6291,70 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "jax_top_ap_tanque",
-        "title": "AP TANQUE",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - AP-TANQUE",
+        "lane": "TOP",
+        "coreItems": [
+          "Fuerza trinitaria",
+          "Hacedor de grietas",
+          "Bastón vacío"
+        ],
+        "items": [
+          "Fuerza trinitaria",
+          "Hacedor de grietas",
+          "Bastón vacío",
+          "Guardia gemela de amaranto",
+          "Espada del Rey Arruinado"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       },
       {
-        "id": "jax_top_dano_y_aguante",
-        "title": "Daño y Aguante",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño y Aguante",
+        "lane": "TOP",
+        "coreItems": [
+          "Divino Divino",
+          "Espada del Rey Arruinado",
+          "Guardia gemela de amaranto"
+        ],
+        "items": [
+          "Divino Divino",
+          "Espada del Rey Arruinado",
+          "Guardia gemela de amaranto",
+          "Lanza de Shojin",
+          "Guantelete de Sterak"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4844,24 +6456,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "jayce_mid_letalidad",
-        "title": "Letalidad",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Letalidad",
+        "lane": "MID",
+        "coreItems": [
+          "Manamune",
+          "El cuchillo fantasma de Youmuu",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Manamune",
+          "El cuchillo fantasma de Youmuu",
+          "El rencor de Serylda",
+          "Filo de la noche",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Demoler",
+          "Revestimiento de huesos",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "jayce_top_split_push",
-        "title": "Split Push",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Split Push",
+        "lane": "TOP",
+        "coreItems": [
+          "Eclipse",
+          "El rencor de Serylda",
+          "Manamune"
+        ],
+        "items": [
+          "Eclipse",
+          "El rencor de Serylda",
+          "Manamune",
+          "Lanza de Shojin",
+          "Rompecascos"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Demoler",
+          "Revestimiento de huesos",
+          "Perseverancia",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -4961,14 +6615,40 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "jhin_adc_criticos",
-        "title": "Críticos",
-        "role": "adc",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "ADC - Críticos",
+        "lane": "ADC",
+        "coreItems": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Saludos de Dominik"
+        ],
+        "items": [
+          "El coleccionista",
+          "Blaster magnético",
+          "Saludos de Dominik",
+          "Borde infinito",
+          "sanguinario"
+        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [
+          "Grebas codiciosas"
+        ],
+        "situationalItems": [
+          "fuerza de vendaval",
+          "Recordatorio mortal"
+        ],
+        "primaryRune": "Cosecha oscura",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Fantasma",
+          "Destello"
+        ]
       }
     ]
   },
@@ -5068,24 +6748,70 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "jinx_adc_metralleta",
-        "title": "Metralleta",
-        "role": "adc",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "ADC - Metralleta",
+        "lane": "ADC",
+        "coreItems": [
+          "El coleccionista",
+          "El huracán de Runaan",
+          "Blaster magnético"
+        ],
+        "items": [
+          "El coleccionista",
+          "El huracán de Runaan",
+          "Blaster magnético",
+          "Recordatorio mortal",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Ángel custodio"
+        ],
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Fantasma",
+          "Destello"
+        ]
       },
       {
-        "id": "jinx_adc_estandar",
-        "title": "Estándar",
-        "role": "adc",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "ADC - Estándar",
+        "lane": "ADC",
+        "coreItems": [
+          "sanguinario",
+          "Blaster magnético",
+          "El huracán de Runaan"
+        ],
+        "items": [
+          "sanguinario",
+          "Blaster magnético",
+          "El huracán de Runaan",
+          "Saludos de Dominik",
+          "Bailarina fantasma"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Recordatorio mortal"
+        ],
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
       }
     ]
   },
@@ -5185,14 +6911,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "k_sante_top_tanque",
-        "title": "Tanque",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Tanque",
+        "lane": "TOP",
+        "coreItems": [
+          "Guantelete nacido del hielo",
+          "malla de espinas",
+          "Guardia gemela de amaranto"
+        ],
+        "items": [
+          "Guantelete nacido del hielo",
+          "malla de espinas",
+          "Guardia gemela de amaranto",
+          "Desesperanza infinita",
+          "Corazón congelado"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Orbe anulador",
+          "Sobrecrecimiento",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       }
     ]
   },
@@ -5292,14 +7041,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kai_sa_adc_velocidad_de_ataque",
-        "title": "Velocidad de ataque",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Velocidad de ataque",
+        "lane": "ADC",
+        "coreItems": [
+          "Matakrakens",
+          "Hoja de furia de Guinsoo",
+          "El huracán de Runaan"
+        ],
+        "items": [
+          "Matakrakens",
+          "Hoja de furia de Guinsoo",
+          "El huracán de Runaan",
+          "Terminus",
+          "Espada del Rey Arruinado"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -5399,14 +7169,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kalista_adc_dano_continuo",
-        "title": "Daño continuo",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Daño continuo",
+        "lane": "ADC",
+        "coreItems": [
+          "Matakrakens",
+          "Hoja de furia de Guinsoo",
+          "El huracán de Runaan"
+        ],
+        "items": [
+          "Matakrakens",
+          "Hoja de furia de Guinsoo",
+          "El huracán de Runaan",
+          "Espada del Rey Arruinado",
+          "Terminus"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Extenuación"
+        ]
       }
     ]
   },
@@ -5508,24 +7299,68 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "karma_support_vida_maxima",
-        "title": "Vida Maxima",
-        "role": "support",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "SUP - Vida Maxima",
+        "lane": "SUP",
+        "coreItems": [
+          "Hoz espectral",
+          "Redención",
+          "La convergencia de Zeke"
+        ],
+        "items": [
+          "Hoz espectral",
+          "Redención",
+          "La convergencia de Zeke",
+          "Voto de caballero",
+          "Virtud radiante"
+        ],
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Lucidez carmesí",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Corazón congelado"
+        ],
+        "primaryRune": "Aery",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Revitalizar",
+          "Cazador ingenioso"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "karma_support_bufeos",
-        "title": "Bufeos",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - bufeos",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Eco armónico",
+          "La bendición de Michael"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Eco armónico",
+          "La bendición de Michael",
+          "Incensario Ardiente",
+          "Bastón de aguas fluidas"
+        ],
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Lucidez carmesí",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Revitalizar",
+          "Cazador ingenioso"
+        ],
+        "spells": [
+          "Curación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -5625,14 +7460,39 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kassadin_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Báculo del arcángel",
+          "Malignance",
+          "Antorcha de fuego negro"
+        ],
+        "items": [
+          "Báculo del arcángel",
+          "Malignance",
+          "Antorcha de fuego negro",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Oleada de tormenta",
+          "Velo de alma en pena",
+          "El reloj de arena de Zhonya"
+        ],
+        "primaryRune": "Primer golpe",
+        "secondaryRunes": [
+          "Axioma arcano",
+          "Trascendencia",
+          "Se avecina tormenta",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -5732,14 +7592,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "katarina_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Hacedor de grietas"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Hacedor de grietas",
+          "Velo de alma en pena",
+          "Tridente de oceánida"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Cosecha oscura",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -5841,14 +7722,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kayle_top_dano_continuo",
-        "title": "Daño continuo",
-        "role": "top",
-        "coreItems": [],
+        "title": "TOP - Daño continuo",
+        "lane": "TOP",
+        "coreItems": [
+          "Diente de Nashor",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime"
+        ],
+        "items": [
+          "Diente de Nashor",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime",
+          "Velo de alma en pena",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Pies veloces",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       }
     ]
   },
@@ -5948,24 +7850,68 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kayn_jungle_rojo_dano_con_aguante",
-        "title": "Rojo Daño con aguante",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Rojo-Daño con aguante",
+        "lane": "JG",
+        "coreItems": [
+          "Eclipse",
+          "Cuchilla negra",
+          "La danza de la muerte"
+        ],
+        "items": [
+          "Eclipse",
+          "Cuchilla negra",
+          "La danza de la muerte",
+          "Lanza de Shojin",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [
+          "Botas dinámicas"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       },
       {
-        "id": "kayn_jungle_azul_dano_explosivo",
-        "title": "Azul Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Azul-Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "El cuchillo fantasma de Youmuu",
+          "Eclipse",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "El cuchillo fantasma de Youmuu",
+          "Eclipse",
+          "El rencor de Serylda",
+          "Colmillo de serpiente",
+          "Filo de la noche"
+        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Primer golpe",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Cazador incesante",
+          "Concentración absoluta"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -6065,7 +8011,39 @@
     ],
     "build2Runes": "Electrocutar,Brutal,Derribado,Leyenda: Linaje,Revestimiento De Huesos",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "MID - Daño en Área",
+        "lane": "MID",
+        "coreItems": [
+          "Cinturón de cohetes hextech",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Cinturón de cohetes hextech",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Tridente de oceánida",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "kha_zix",
@@ -6161,7 +8139,44 @@
     ],
     "build2Runes": "Electrocutar (Dominación)",
     "build2Spells": [],
-    "builds": []
+    "builds": [
+      {
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "El cuchillo fantasma de Youmuu",
+          "Hoja del Ocaso de Draktharr",
+          "Filo de la noche"
+        ],
+        "items": [
+          "El cuchillo fantasma de Youmuu",
+          "Hoja del Ocaso de Draktharr",
+          "Filo de la noche",
+          "El rencor de Serylda",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [
+          "Grebas codiciosas"
+        ],
+        "situationalItems": [
+          "Recordatorio mortal",
+          "Colmillo de serpiente"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
+      }
+    ]
   },
   {
     "id": "kindred",
@@ -6261,14 +8276,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kindred_jungle_dano_continuo",
-        "title": "Daño continuo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño continuo",
+        "lane": "JG",
+        "coreItems": [
+          "Saqueador de esencia",
+          "sanguinario",
+          "Blaster magnético"
+        ],
+        "items": [
+          "Saqueador de esencia",
+          "sanguinario",
+          "Blaster magnético",
+          "Recordatorio mortal",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Fortalecimiento",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -6370,14 +8406,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "kog_maw_adc_ataques_basicos",
-        "title": "Ataques Básicos",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Ataques Básicos",
+        "lane": "ADC",
+        "coreItems": [
+          "Hoja de furia de Guinsoo",
+          "Hojas rápidas de Navori",
+          "El huracán de Runaan"
+        ],
+        "items": [
+          "Hoja de furia de Guinsoo",
+          "Hojas rápidas de Navori",
+          "El huracán de Runaan",
+          "Espada del Rey Arruinado",
+          "Terminus"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Destello",
+          "Fantasma"
+        ]
       }
     ]
   },
@@ -6477,14 +8534,38 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lee_sin_jungle_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "JG - Daño explosivo",
+        "lane": "JG",
+        "coreItems": [
+          "Eclipse",
+          "Fuerza trinitaria",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Eclipse",
+          "Fuerza trinitaria",
+          "El rencor de Serylda",
+          "La danza de la muerte",
+          "Ángel custodio"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Recordatorio mortal",
+          "Colmillo de serpiente"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Triunfo",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -6584,14 +8665,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "leona_support_estandar",
-        "title": "Estándar",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Estándar",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "malla de espinas",
+          "Placa de piedra de gárgola"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "malla de espinas",
+          "Placa de piedra de gárgola",
+          "Armadura de Warmog",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -6693,24 +8797,66 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lillia_jungle_aguante_y_dano_sostenido",
-        "title": "Aguante y daño sostenido",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Vida y Daño Mágico",
+        "lane": "JG",
+        "coreItems": [
+          "Vara de las edades",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Vara de las edades",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "El tormento de Liandry",
+          "Hacedor de grietas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Irrupción de fase",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       },
       {
-        "id": "lillia_jungle_vida_y_dano_magico",
-        "title": "Vida y Daño Mágico",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Aguante y daño sostenido",
+        "lane": "JG",
+        "coreItems": [
+          "El tormento de Liandry",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "El tormento de Liandry",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Hacedor de grietas",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Irrupción de fase",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Revestimiento de huesos",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Destello",
+          "Castigo"
+        ]
       }
     ]
   },
@@ -6810,24 +8956,73 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lissandra_mid_definitiva_op",
-        "title": "Definitiva OP",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Definitiva OP",
+        "lane": "MID",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Malignance",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Morellonomicón",
+          "Tridente de oceánida"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Golpe bajo",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "lissandra_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Hacedor de grietas",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Vara de las edades",
+          "Morellonomicón",
+          "Tridente de oceánida"
+        ],
+        "primaryRune": "Electrocutar",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Asalto encadenado",
+          "Colección de globos oculares",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       }
     ]
   },
@@ -6929,14 +9124,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lucian_adc_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Daño explosivo",
+        "lane": "ADC",
+        "coreItems": [
+          "Saqueador de esencia",
+          "Blaster magnético",
+          "Borde infinito"
+        ],
+        "items": [
+          "Saqueador de esencia",
+          "Blaster magnético",
+          "Borde infinito",
+          "sanguinario",
+          "Recordatorio mortal"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Fortalecimiento",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Impacto repentino"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7036,14 +9252,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lulu_support_otorgando_buffos",
-        "title": "Otorgando BUFFOS",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Otorgando BUFFOS",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Incensario Ardiente",
+          "Eco armónico"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Incensario Ardiente",
+          "Eco armónico",
+          "La bendición de Michael",
+          "Bastón de aguas fluidas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Aery",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Revitalizar",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Curación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7145,34 +9382,103 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "lux_mid_definitiva_explosiva",
-        "title": "Definitiva Explosiva",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Definitiva Explosiva",
+        "lane": "MID",
+        "coreItems": [
+          "Antorcha de fuego negro",
+          "Enfoque del horizonte",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Antorcha de fuego negro",
+          "Enfoque del horizonte",
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "Malignance"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Tridente de oceánida",
+          "Morellonomicón"
+        ],
+        "primaryRune": "Primer golpe",
+        "secondaryRunes": [
+          "Banda de maná",
+          "Concentración absoluta",
+          "Piroláser",
+          "Derribado"
+        ],
+        "spells": [
+          "Destello",
+          "Barrera"
+        ]
       },
       {
-        "id": "lux_support_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Daño explosivo",
+        "lane": "SUP",
+        "coreItems": [
+          "Hoz espectral",
+          "Orbe infinito",
+          "Malignance"
+        ],
+        "items": [
+          "Hoz espectral",
+          "Orbe infinito",
+          "Malignance",
+          "Enfoque del horizonte",
+          "Tridente de oceánida"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Banda de maná",
+          "Trascendencia",
+          "Piroláser",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       },
       {
-        "id": "lux_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya"
+        ],
+        "items": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "El reloj de arena de Zhonya",
+          "Gorro de muerte del miércoles",
+          "Enfoque del horizonte"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Tridente de oceánida",
+          "Impulso Cósmico"
+        ],
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Golpe bajo",
+          "Tirano",
+          "Colección de globos oculares",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7275,14 +9581,40 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "malphite_top_tanque",
-        "title": "Tanque",
-        "role": "top",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "TOP - Tanque",
+        "lane": "TOP",
+        "coreItems": [
+          "Guantelete nacido del hielo",
+          "malla de espinas",
+          "Guardia gemela de amaranto"
+        ],
+        "items": [
+          "Guantelete nacido del hielo",
+          "malla de espinas",
+          "Guardia gemela de amaranto",
+          "La convergencia de Zeke",
+          "Corazón congelado"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "El presagio de Randuin",
+          "Torreón de Kaenic"
+        ],
+        "primaryRune": "Garras del inmortal",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Se avecina tormenta"
+        ],
+        "spells": [
+          "Destello",
+          "Teleportación"
+        ]
       }
     ]
   },
@@ -7385,14 +9717,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "maokai_support_tanque",
-        "title": "Tanque",
-        "role": "support",
-        "coreItems": [],
+        "title": "SUP - Tanque",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "La convergencia de Zeke"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Trampa para yordles",
+          "La convergencia de Zeke",
+          "malla de espinas",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Mejora glacial",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Perseverancia",
+          "Revestimiento de huesos",
+          "Hextello"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7492,14 +9847,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "maestro_yi_jungle_dano_continuo",
-        "title": "Daño continuo",
-        "role": "jungle",
-        "coreItems": [],
+        "title": "JG - Daño continuo",
+        "lane": "JG",
+        "coreItems": [
+          "Espada del Rey Arruinado",
+          "Hoja de furia de Guinsoo",
+          "Terminus"
+        ],
+        "items": [
+          "Espada del Rey Arruinado",
+          "Hoja de furia de Guinsoo",
+          "Terminus",
+          "La danza de la muerte",
+          "Cimitarra mercurial"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [
+          "Botas blindadas"
+        ],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Compás letal",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7601,14 +9979,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "mel_mid_dano_explosivo",
-        "title": "Daño explosivo",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "MID - Daño explosivo",
+        "lane": "MID",
+        "coreItems": [
+          "Antorcha de fuego negro",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "items": [
+          "Antorcha de fuego negro",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya",
+          "Bastón vacío"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Velo de alma en pena"
+        ],
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Banda de maná",
+          "Concentración absoluta",
+          "Se avecina tormenta",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7708,14 +10109,37 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "milio_support_soporte",
-        "title": "Soporte",
-        "role": "support",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "SUP - Soporte",
+        "lane": "SUP",
+        "coreItems": [
+          "Escudo de reliquia",
+          "Incensario Ardiente",
+          "La bendición de Michael"
+        ],
+        "items": [
+          "Escudo de reliquia",
+          "Incensario Ardiente",
+          "La bendición de Michael",
+          "Eco armónico",
+          "Bastón de aguas fluidas"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [
+          "Redención"
+        ],
+        "primaryRune": "Aery",
+        "secondaryRunes": [
+          "Fuente de vida",
+          "Revestimiento de huesos",
+          "Revitalizar",
+          "Cazador ingenioso"
+        ],
+        "spells": [
+          "Curación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7817,14 +10241,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "miss_fortune_adc_letalidad",
-        "title": "Letalidad",
-        "role": "adc",
-        "coreItems": [],
+        "title": "ADC - Letalidad",
+        "lane": "ADC",
+        "coreItems": [
+          "Hoja del Ocaso de Draktharr",
+          "El coleccionista",
+          "Recordatorio mortal"
+        ],
+        "items": [
+          "Hoja del Ocaso de Draktharr",
+          "El coleccionista",
+          "Recordatorio mortal",
+          "sanguinario",
+          "Borde infinito"
+        ],
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Brutal",
+          "Derribado",
+          "Leyenda: Presteza",
+          "Revestimiento de huesos"
+        ],
+        "spells": [
+          "Extenuación",
+          "Destello"
+        ]
       }
     ]
   },
@@ -7926,14 +10371,40 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "mordekaiser_top_tanque_ap",
-        "title": "Tanque AP",
-        "role": "top",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "title": "TOP - Tanque AP",
+        "lane": "TOP",
+        "coreItems": [
+          "Hacedor de grietas",
+          "Desesperanza infinita",
+          "Cetro de cristal de Rylai"
+        ],
+        "items": [
+          "Hacedor de grietas",
+          "Desesperanza infinita",
+          "Cetro de cristal de Rylai",
+          "Placa de piedra de gárgola",
+          "Guardia gemela de amaranto"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "El tormento de Liandry",
+          "malla de espinas"
+        ],
+        "primaryRune": "Conquistador",
+        "secondaryRunes": [
+          "Inquebrantable",
+          "Fuerzas renovadas",
+          "Sobrecrecimiento",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   },
@@ -8036,14 +10507,35 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "morgana_mid_dano_continuo",
-        "title": "Daño continuo",
-        "role": "mid",
-        "coreItems": [],
+        "title": "MID - Daño continuo",
+        "lane": "MID",
+        "coreItems": [
+          "Eco de Luden",
+          "El tormento de Liandry",
+          "Cetro de cristal de Rylai"
+        ],
+        "items": [
+          "Eco de Luden",
+          "El tormento de Liandry",
+          "Cetro de cristal de Rylai",
+          "Gorro de muerte del miércoles",
+          "Orbe infinito"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
         "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "primaryRune": "Cometa arcano",
+        "secondaryRunes": [
+          "Fervor de batalla",
+          "Derribado",
+          "Leyenda: Linaje",
+          "Trascendencia"
+        ],
+        "spells": [
+          "Prender",
+          "Destello"
+        ]
       }
     ]
   }

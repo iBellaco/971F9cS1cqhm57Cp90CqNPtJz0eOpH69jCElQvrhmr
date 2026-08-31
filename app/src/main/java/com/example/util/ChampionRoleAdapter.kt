@@ -709,8 +709,8 @@ private fun generateSituationalSwaps(
         }
 
         if (role == LaneRole.SUPPORT && !isTank) {
-            val alt1 = getSafeAlt("Redención", "Relicario de los Solari de Hierro", "Promesa del protector")
-            val alt2 = getSafeAlt("Incensario ardiente", "Bendición de Mikael", "Mandato imperial")
+            val alt1 = getSafeAlt("Redención", "Relicario de los Solari de Hierro", "Mandato imperial")
+            val alt2 = getSafeAlt("Incensario Ardiente", "La bendición de Michael", "Mandato imperial")
 
             swaps.add(
                 ItemSwap(
@@ -730,13 +730,13 @@ private fun generateSituationalSwaps(
                     altItem = alt2,
                     altItemIcon = WildRiftItemsData.getItemIconByName(alt2),
                     reasonTitle = "OBJETO 8 (SITUACIONAL 2)  PURIFICACIÓN & DESBLOQUEO DE CC",
-                    reasonDesc = "Si el rival tiene aturdimientos o inmovilizaciones decisivas sobre tu tirador carry, equipa Bendición de Mikael.",
+                    reasonDesc = "Si el rival tiene aturdimientos o inmovilizaciones decisivas sobre tu tirador carry, equipa La bendición de Michael.",
                     againstWho = "Ashe, Twisted Fate, Leona, Nautilus, Morgana, Sejuani"
                 )
             )
         } else if (damageType == DamageType.MAGIC && role != LaneRole.SUPPORT) {
-            val alt1 = getSafeAlt("Morellonomicón", "Reloj de arena de Zhonya", "Orbe infinito")
-            val alt2 = getSafeAlt("Reloj de arena de Zhonya", "Velo de alma en pena", "Corona de la Reina Fragmentada")
+            val alt1 = getSafeAlt("Morellonomicón", "El reloj de arena de Zhonya", "Orbe infinito")
+            val alt2 = getSafeAlt("El reloj de arena de Zhonya", "Velo de alma en pena", "Impulso Cósmico")
 
             swaps.add(
                 ItemSwap(
@@ -761,8 +761,8 @@ private fun generateSituationalSwaps(
                 )
             )
         } else if (isTank) {
-            val alt1 = getSafeAlt("Malla de espinas", "Presagio de Randuin", "Corazón de hielo")
-            val alt2 = getSafeAlt("Fuerza de la naturaleza", "Corona abrasadora", "Apariencia espiritual")
+            val alt1 = getSafeAlt("malla de espinas", "El presagio de Randuin", "Corazón congelado")
+            val alt2 = getSafeAlt("Fuerza de la naturaleza", "Corona abrasadora", "Resplandor hueco")
 
             swaps.add(
                 ItemSwap(

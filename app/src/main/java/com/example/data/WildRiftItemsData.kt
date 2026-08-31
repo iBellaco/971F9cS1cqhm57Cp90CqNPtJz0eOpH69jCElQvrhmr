@@ -944,7 +944,7 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561458_bloodletters-curse.webp"
         ),
         WildRiftItem(
-            id = "banshee_s_veil",
+            id = "banshees_veil",
             name = "Velo de alma en pena",
             nameEn = "Banshee's Veil",
             category = "Objetos de Daño Mágico",
@@ -956,20 +956,6 @@ object WildRiftItemsData {
             coachTip = "Este objeto proporciona una fuerte protección contra el daño mágico y al mismo tiempo otorga un escudo contra hechizos que bloquea la siguiente habilidad hostil. Es especialmente efectivo contra campeones que dependen de lanzar un solo hechizo clave para iniciar su combo o derribarte. Una excelente opción para magos y luchadores AP que necesitan mantener una posición segura y negar el potencial de ataque o selección del enemigo.",
             coachTipEn = "This item provides strong protection against magic damage while granting a spell shield that blocks the next hostile ability. It is especially effective against champions who rely on landing a single key spell to start their combo or burst you down. A great choice for mages and AP fighters who need to maintain safe positioning and deny enemy engage or pick potential.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192846_3102_11zon.webp"
-        ),
-        WildRiftItem(
-            id = "crown_of_the_shattered_queen",
-            name = "Corona de la Reina Ahogada",
-            nameEn = "Crown of the Shattered Queen",
-            category = "Objetos de Daño Mágico",
-            goldCost = 3000,
-            stats = "+70 Poder de Habilidad • +200 Salud Máxima • +20 Celeridad de Habilidad • +7% Velocidad de Movimiento",
-            statsEn = "+70 Ability Power • +200 Max Health • +20 Ability Haste • +7% Move Speed",
-            passive = "Salvaguarda: Otorga Salvaguarda, que reduce el daño recibido de campeones en un 70% durante 1.5 s. (40 s de enfriamiento).\nPoise: Otorga 20 de Poder de Habilidad mientras Salvaguarda está activa.",
-            passiveEn = "Safeguard: Grants Safeguard, reducing incoming champion damage by 70% for 1.5s. (40s Cooldown)\nPoise: Grants 20 Ability Power while Safeguard is active.",
-            coachTip = "Objeto defensivo supremo para magos y asesinos AP. El escudo de Salvaguarda absorbe el 70% del daño inicial para permitirte reaccionar o asestar tu combo antes de ser eliminado.",
-            coachTipEn = "Premier defensive anti-burst AP item. Safeguard shield mitigates 70% incoming damage to ensure combo execution.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388701_crown-of-the-shattered-queen.webp"
         ),
         WildRiftItem(
             id = "hextech_roketbelt",
