@@ -1205,7 +1205,7 @@
     "slot": "P",
     "slotName": "Pasiva",
     "name": "Sombra demoníaca",
-    "description": "Cuando no está en combate, Evelynn entra en modo Sombra demoníaca. Sombra demoníaca cura a Evelynn cuando está baja de vida y le otorga camuflaje tras alcanzar el nivel 6.",
+    "description": "Cuando no está en combate, Evelynn entra en modo Sombra demoníaca. Sombra demoníaca cura a Evelynn cuando está baja de vida y le otorga camuflaje tras alcanzar el nivel 5.",
     "iconUrl": "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/passive/Evelynn_Passive.png",
     "cooldown": ""
   },

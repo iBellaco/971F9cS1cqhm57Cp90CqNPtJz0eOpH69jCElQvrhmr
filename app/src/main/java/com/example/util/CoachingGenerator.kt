@@ -43,7 +43,7 @@ object CoachingGenerator {
                 if (isEs) {
                     if (targetChamp != null) {
                         if (!isMeRanged && isTargetRanged) {
-                            "$target te castigará constantemente por tu falta de rango. Sacrifica algunos súbditos si es necesario, usa $mySkill solo para asegurar oro seguro y espera a tu jungla."
+                            "$target te castigará constantemente por tu falta de rango. Sacrifica algunos súbditos si es necesario, usa $mySkill solo para asegurar oro seguro y espera la rotación de tu jungla o el Fruto de Miel (1:15 min)."
                         } else if (targetDamage.equals("Mágico", true)) {
                             "El daño mágico explosivo de $target es letal para ${champion.name}. Considera botas de resistencia, evita los intercambios largos y guarda $mySkill para protegerte o escapar."
                         } else {
@@ -95,27 +95,27 @@ object CoachingGenerator {
         
         val base = if (isEs) {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isRanged) "**Fase de Líneas:** En la ${roleStr}, ${champion.name} debe abusar de su rango usando $qSkill para desgastar a los oponentes cuerpo a cuerpo y controlar la oleada." else "**Fase de Líneas:** En la ${roleStr}, ${champion.name} debe jugar alrededor de los enfriamientos de $qSkill, buscando intercambios cortos y asegurando la visión del río."
-                LaneRole.JUNGLE -> "**Fase de Limpieza:** En la ${roleStr}, ${champion.name} debe priorizar el farmeo eficiente y buscar emboscadas (ganks) clave apoyándose en $qSkill para asegurar ventajas tempranas."
-                LaneRole.MID -> "**Fase de Líneas:** En la ${roleStr}, la prioridad de ${champion.name} es conseguir el empuje (prio) usando $qSkill para poder rotar a los objetivos del río o emboscar junto al junglero."
-                LaneRole.ADC -> "**Fase de Líneas:** En la ${roleStr}, ${champion.name} depende de un posicionamiento seguro. Utiliza $qSkill para asegurar súbditos y castigar los errores de posicionamiento del dúo rival."
-                LaneRole.SUPPORT -> "**Fase de Líneas:** Como ${roleStr}, ${champion.name} dicta el ritmo de los intercambios. Usa $qSkill para presionar a los rivales, ganar prioridad de nivel 2 y proteger a tu tirador."
+                LaneRole.TOP -> if (champion.isRanged) "**Fase Temprana (Línea de Wild Rift):** En la ${roleStr}, ${champion.name} debe abusar de su rango usando $qSkill para desgastar a los oponentes cuerpo a cuerpo y controlar la oleada." else "**Fase Temprana (Línea de Wild Rift):** En la ${roleStr}, ${champion.name} debe jugar alrededor de los enfriamientos de $qSkill, buscando intercambios cortos y controlando el Escurridizo del río (1:15 min) y la Flor del Adivino."
+                LaneRole.JUNGLE -> "**Ruta de Jungla y Control de Río:** En la ${roleStr}, ${champion.name} debe priorizar el farmeo eficiente y buscar emboscadas (ganks) clave apoyándose en $qSkill para asegurar ventajas tempranas."
+                LaneRole.MID -> "**Fase Temprana (Línea de Wild Rift):** En la ${roleStr}, la prioridad de ${champion.name} es conseguir el empuje (prio) usando $qSkill para poder rotar a los objetivos del río o emboscar junto al junglero."
+                LaneRole.ADC -> "**Fase Temprana (Línea de Wild Rift):** En la ${roleStr}, ${champion.name} depende de un posicionamiento seguro. Utiliza $qSkill para asegurar súbditos y castigar los errores de posicionamiento del dúo rival."
+                LaneRole.SUPPORT -> "**Fase Temprana (Línea de Wild Rift):** Como ${roleStr}, ${champion.name} dicta el ritmo de los intercambios. Usa $qSkill para presionar a los rivales, ganar prioridad de nivel 2 y proteger a tu tirador."
             }
         } else if (isPt) {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isRanged) "**Fase de Rotas:** Na ${roleStr}, ${champion.name} deve abusar do seu alcance usando $qSkill para desgastar oponentes corpo a corpo e controlar a onda." else "**Fase de Rotas:** Na ${roleStr}, ${champion.name} deve jogar em torno dos tempos de recarga de $qSkill, buscando trocas curtas e garantindo a visão do rio."
+                LaneRole.TOP -> if (champion.isRanged) "**Fase Inicial (Rotas de Wild Rift):** Na ${roleStr}, ${champion.name} deve abusar do seu alcance usando $qSkill para desgastar oponentes corpo a corpo e controlar a onda." else "**Fase Inicial (Rotas de Wild Rift):** Na ${roleStr}, ${champion.name} deve jogar em torno dos tempos de recarga de $qSkill, buscando trocas curtas e garantindo a visão do rio."
                 LaneRole.JUNGLE -> "**Fase de Limpeza:** Na ${roleStr}, ${champion.name} deve priorizar o farm eficiente e buscar emboscadas (ganks) apoiando-se em $qSkill para garantir vantagens iniciais."
-                LaneRole.MID -> "**Fase de Rotas:** Na ${roleStr}, a prioridade de ${champion.name} é conseguir o empurre (prio) usando $qSkill para poder rotacionar para os objetivos do rio ou ajudar o caçador."
-                LaneRole.ADC -> "**Fase de Rotas:** Na ${roleStr}, ${champion.name} depende de um posicionamento seguro. Use $qSkill para garantir tropas e punir erros de posicionamento da dupla rival."
-                LaneRole.SUPPORT -> "**Fase de Rotas:** Como ${roleStr}, ${champion.name} dita o ritmo das trocas. Use $qSkill para pressionar os rivais, ganhar prioridade de nível 2 e proteger seu atirador."
+                LaneRole.MID -> "**Fase Inicial (Rotas de Wild Rift):** Na ${roleStr}, a prioridade de ${champion.name} é conseguir o empurre (prio) usando $qSkill para poder rotacionar para os objetivos do rio ou ajudar o caçador."
+                LaneRole.ADC -> "**Fase Inicial (Rotas de Wild Rift):** Na ${roleStr}, ${champion.name} depende de um posicionamento seguro. Use $qSkill para garantir tropas e punir erros de posicionamento da dupla rival."
+                LaneRole.SUPPORT -> "**Fase Inicial (Rotas de Wild Rift):** Como ${roleStr}, ${champion.name} dita o ritmo das trocas. Use $qSkill para pressionar os rivais, ganhar prioridade de nível 2 e proteger seu atirador."
             }
         } else {
             when (activeRole) {
-                LaneRole.TOP -> if (champion.isRanged) "**Laning Phase:** In the ${roleStr}, ${champion.name} should abuse their range using $qSkill to poke melee opponents and control the wave." else "**Laning Phase:** In the ${roleStr}, ${champion.name} should play around $qSkill cooldowns, looking for short trades and securing river vision."
-                LaneRole.JUNGLE -> "**Clearing Phase:** In the ${roleStr}, ${champion.name} should prioritize efficient farming and look for key ganks relying on $qSkill to secure early leads."
-                LaneRole.MID -> "**Laning Phase:** In the ${roleStr}, ${champion.name}'s priority is getting push (prio) using $qSkill to roam to river objectives or gank with the jungler."
-                LaneRole.ADC -> "**Laning Phase:** In the ${roleStr}, ${champion.name} relies on safe positioning. Use $qSkill to secure minions and punish positioning mistakes from the enemy duo."
-                LaneRole.SUPPORT -> "**Laning Phase:** As a ${roleStr}, ${champion.name} dictates the pace of trades. Use $qSkill to pressure opponents, gain level 2 priority, and peel for your marksman."
+                LaneRole.TOP -> if (champion.isRanged) "**Wild Rift Early Laning Phase:** In the ${roleStr}, ${champion.name} should abuse their range using $qSkill to poke melee opponents and control the wave." else "**Wild Rift Early Laning Phase:** In the ${roleStr}, ${champion.name} should play around $qSkill cooldowns, looking for short trades and securing river vision."
+                LaneRole.JUNGLE -> "**Jungle Path & River Control:** In the ${roleStr}, ${champion.name} should prioritize efficient farming and look for key ganks relying on $qSkill to secure early leads."
+                LaneRole.MID -> "**Wild Rift Early Laning Phase:** In the ${roleStr}, ${champion.name}'s priority is getting push (prio) using $qSkill to roam to river objectives or gank with the jungler."
+                LaneRole.ADC -> "**Wild Rift Early Laning Phase:** In the ${roleStr}, ${champion.name} relies on safe positioning. Use $qSkill to secure minions and punish positioning mistakes from the enemy duo."
+                LaneRole.SUPPORT -> "**Wild Rift Early Laning Phase:** As a ${roleStr}, ${champion.name} dictates the pace of trades. Use $qSkill to pressure opponents, gain level 2 priority, and peel for your marksman."
             }
         }
         

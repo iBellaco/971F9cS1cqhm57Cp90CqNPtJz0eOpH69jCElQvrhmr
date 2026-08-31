@@ -488,9 +488,9 @@ object WildRiftRepository {
             val opponent = enemyLaneOpponent
             if (myRole == LaneRole.TOP && opponent.isRanged) {
                 val topAlert = when (lang) {
-                    "en" -> "Top Lane Alert! Facing a ranged/ADC opponent (${opponent.name}). Prioritize sustain (Second Wind), wave control, and wait for your jungler."
+                    "en" -> "Baron Lane Alert! Facing a ranged/ADC opponent (${opponent.name}). Prioritize sustain (Second Wind), wave control, and wait for your jungler."
                     "pt" -> "Alerta no Top! Enfrentando oponente com alcance/ADC (${opponent.name}). Priorize sustentação (Ventos Revigorantes), controle de onda e espere o caçador."
-                    else -> "¡Alerta en Top! Enfrentas a un rival con rango/ADC (${opponent.name}). Prioriza sustain (Segundo Aire), control de oleada y espera al jungla."
+                    else -> "¡Alerta en Línea de Barón! Enfrentas a un rival con rango/ADC (${opponent.name}). Prioriza sustain (Segundo Aire), control de oleada y espera al jungla."
                 }
                 directMatchupWarning = topAlert
                 directCounterBestPick = "Malphite, Irelia, Pantheon, Wukong"
@@ -588,7 +588,7 @@ object WildRiftRepository {
             }
             if (champ.id == "orianna" && allyIds.any { it in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }) {
                 val carrier = allies.firstOrNull { it.id in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }?.name ?: "Iniciador"
-                comboSynergies.add("💥 Balón Transportado: Protege a $carrier con E para iniciar con R")
+                comboSynergies.add("💥 Balón Transportado: Protege a $carrier con Habilidad 3 para iniciar con Definitiva")
             }
             if (champ.id in listOf("miss_fortune", "samira", "katarina") && allyIds.any { it in listOf("amumu", "leona", "nautilus", "malphite", "seraphine") }) {
                 val ccChamp = allies.firstOrNull { it.id in listOf("amumu", "leona", "nautilus", "malphite", "seraphine") }?.name ?: "CC"

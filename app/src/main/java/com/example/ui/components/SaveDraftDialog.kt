@@ -40,6 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.*
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -246,9 +248,15 @@ fun SaveDraftDialog(
                 ) {
                     // Option 1: Victoria
                     val isVictorySelected = selectedResult == "VICTORY"
+                    val victoryScale by animateFloatAsState(
+                        targetValue = if (isVictorySelected) 1.04f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "victory_scale"
+                    )
                     Card(
                         modifier = Modifier
                             .weight(1f)
+                            .scale(victoryScale)
                             .clip(RoundedCornerShape(10.dp))
                             .border(
                                 width = if (isVictorySelected) 1.5.dp else 1.dp,
@@ -267,7 +275,7 @@ fun SaveDraftDialog(
                                 .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "", fontSize = 20.sp)
+                            Text(text = "👑", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Victoria"),
@@ -301,7 +309,7 @@ fun SaveDraftDialog(
                                 .padding(vertical = 12.dp, horizontal = 8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "", fontSize = 20.sp)
+                            Text(text = "💔", fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Derrota"),

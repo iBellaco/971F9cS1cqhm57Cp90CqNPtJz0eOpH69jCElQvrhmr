@@ -242,7 +242,7 @@ object WildRiftChampionRunesMeta {
         "veigar" to ChampionRunePair(
             opt1Title = "Primer Golpe (Acumulación Q + Oro)",
             option1 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná"),
-            opt2Title = "Electrocutar (Jaula + W+Q+R)",
+            opt2Title = "Electrocutar (Jaula + H2+H1+R)",
             option2 = listOf("Electrocutar", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Trascendencia")
         ),
         "twisted_fate" to ChampionRunePair(
@@ -540,7 +540,7 @@ object WildRiftChampionRunesMeta {
         "diana" to ChampionRunePair(
             opt1Title = "Conquistador (Luna Creciente AP)",
             option1 = listOf("Conquistador", "Triunfo", "Leyenda: Linaje", "Último Esfuerzo", "Revestimiento de Huesos"),
-            opt2Title = "Electrocutar (One-Shot Q+E+R)",
+            opt2Title = "Electrocutar (One-Shot H1+H3+R)",
             option2 = listOf("Electrocutar", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná")
         ),
         "fiddlesticks" to ChampionRunePair(

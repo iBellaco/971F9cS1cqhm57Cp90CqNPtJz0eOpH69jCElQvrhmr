@@ -146,7 +146,7 @@ object WomboComboSynergyDetector {
                     type = "ENCHANTER",
                     champ1 = nami,
                     champ2 = lucian,
-                    description = "La E (Bendición de la Marea) de Nami se activa con los dobles disparos pasivos de Lucian aplicando electrocutar al instante.",
+                    description = "La Habilidad 3 (Bendición de la Marea) de Nami se activa con los dobles disparos pasivos de Lucian aplicando electrocutar al instante.",
                     executionTip = "Nami aplica E sobre Lucian justo cuando este usa E (Persecución Implacable) hacia adelante."
                 )
             )
