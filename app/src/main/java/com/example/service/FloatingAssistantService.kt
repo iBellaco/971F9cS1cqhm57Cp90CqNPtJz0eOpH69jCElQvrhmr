@@ -11,10 +11,10 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
 import android.view.WindowManager
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -22,56 +22,72 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import com.example.model.Champion
-import com.example.model.LaneRole
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.components.AppAssetImage
+import androidx.compose.ui.window.Dialog
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -85,19 +101,15 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.MainActivity
-import com.example.service.screen.ScreenCaptureManager
-import com.example.service.screen.DraftVisionScanner
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.example.R
 import com.example.data.WildRiftRepository
+import com.example.data.WildRiftSpellsAndRunes
+import com.example.model.Champion
+import com.example.model.LaneRole
+import com.example.service.screen.DraftVisionScanner
+import com.example.service.screen.ScreenCaptureManager
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
-import com.example.ui.components.CooldownTrackerPanel
-import com.example.ui.components.DamagePenetrationCalculator
-import com.example.util.tr
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -111,8 +123,13 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TierSPlusColor
-import kotlin.math.abs
-
+import com.example.util.AppLogger
+import com.example.util.LocalLanguage
+import com.example.util.tr
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -158,7 +175,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     startForeground(NOTIFICATION_ID, notification)
                 }
             } catch (e: Exception) {
-                com.example.util.AppLogger.w("FloatingService", "Fallback foreground service start: ${e.message}")
+                AppLogger.w("FloatingService", "Fallback foreground service start: ${e.message}")
                 try {
                     startForeground(NOTIFICATION_ID, notification)
                 } catch (_: Exception) {}
@@ -166,7 +183,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
             createFloatingOverlay()
         } catch (e: Exception) {
-            com.example.util.AppLogger.e("FloatingService", "Error starting floating service", e)
+            AppLogger.e("FloatingService", "Error starting floating service", e)
         }
     }
 
@@ -181,7 +198,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 ScreenCaptureManager.pendingMediaProjectionData!!
             )
             if (success == true) {
-                com.example.util.AppLogger.d("FloatingService", "ScreenCaptureManager initialized from pending intent.")
+                AppLogger.d("FloatingService", "ScreenCaptureManager initialized from pending intent.")
             }
             ScreenCaptureManager.pendingMediaProjectionData = null
         }
@@ -251,9 +268,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
-        val marginPx = (10 * density).toInt()
-        val cardWidthPx = (320 * density).toInt()
-        val cardHeightPx = (460 * density).toInt()
+        val marginPx = (8 * density).toInt()
+        val cardWidthPx = (330 * density).toInt()
+        val cardHeightPx = (520 * density).toInt()
         val bubbleSizePx = (56 * density).toInt()
 
         var isOverlayExpanded = false
@@ -284,10 +301,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
             setContent {
                 val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
-                // Use a mutable state and update it by observing SharedPreferences
                 var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
 
-                androidx.compose.runtime.DisposableEffect(sharedPrefs) {
+                DisposableEffect(sharedPrefs) {
                     val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
                         if (key == "selected_language") {
                             selectedLanguage = prefs.getString(key, "es") ?: "es"
@@ -299,21 +315,30 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     }
                 }
 
-                androidx.compose.runtime.CompositionLocalProvider(com.example.util.LocalLanguage provides selectedLanguage) {
+                androidx.compose.runtime.CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
                     MyApplicationTheme {
                         FloatingOverlayContent(
                             screenCaptureManager = screenCaptureManager,
                             onClose = { stopSelf() },
-                            onDragDelta = { dx, dy ->
+                            onDragDelta = { dx, dy, isDragging, isEnded ->
                                 val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
                                 val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
                                 val maxX = (screenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
                                 val maxY = (screenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
+                                
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
-                                try {
-                                    windowManager?.updateViewLayout(this@apply, params)
-                                } catch (_: Exception) {}
+
+                                // Zona de peligro / desactivación: cuando se encuentra en el fondo de la pantalla (últimos 130dp)
+                                val isInDangerZone = params.y >= (screenHeight - currentHeight - (40 * density).toInt())
+
+                                if (isEnded && isInDangerZone) {
+                                    stopSelf()
+                                } else {
+                                    try {
+                                        windowManager?.updateViewLayout(this@apply, params)
+                                    } catch (_: Exception) {}
+                                }
                             },
                             onExpandedChange = { expanded ->
                                 isOverlayExpanded = expanded
@@ -361,19 +386,29 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 private fun FloatingOverlayContent(
     screenCaptureManager: ScreenCaptureManager?,
     onClose: () -> Unit,
-    onDragDelta: (Int, Int) -> Unit,
+    onDragDelta: (dx: Int, dy: Int, isDragging: Boolean, isEnded: Boolean) -> Unit,
     onExpandedChange: (Boolean) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedTab by remember { mutableStateOf(0) } // 0: Draft, 1: Objetivos, 2: Objetos, 3: Runas
     var activeRole by remember { mutableStateOf(LaneRole.MID) }
     var isFirstPick by remember { mutableStateOf(false) }
-    var lockedChampion by remember { mutableStateOf<Champion?>(null) }
 
-    val allies = remember { androidx.compose.runtime.mutableStateListOf<Champion>() }
-    val enemies = remember { androidx.compose.runtime.mutableStateListOf<Champion>() }
+    val allies = remember { mutableStateListOf<Champion>() }
+    val enemies = remember { mutableStateListOf<Champion>() }
 
-    val analysis = remember(activeRole, isFirstPick, allies, enemies) {
+    var isScanning by remember { mutableStateOf(false) }
+    var autoScanEnabled by remember { mutableStateOf(true) }
+    var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
+
+    var isDraggingBubble by remember { mutableStateOf(false) }
+    var dragAccumulatedY by remember { mutableFloatStateOf(0f) }
+    var isNearCloseThreshold by remember { mutableStateOf(false) }
+
+    var selectedChampionDetail by remember { mutableStateOf<Champion?>(null) }
+    var showChampionPickerForSlot by remember { mutableStateOf<Pair<Boolean, Int>?>(null) } // Pair(isAlly, slotIndex)
+
+    val analysis = remember(activeRole, isFirstPick, allies.toList(), enemies.toList()) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allies,
@@ -382,334 +417,423 @@ private fun FloatingOverlayContent(
         )
     }
 
-    val topPick = analysis.recommendations.firstOrNull()
+    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo
+    LaunchedEffect(autoScanEnabled) {
+        if (!autoScanEnabled) return@LaunchedEffect
+        while (true) {
+            delay(2500)
+            if (screenCaptureManager != null && screenCaptureManager.isReady() && !isScanning) {
+                try {
+                    val bitmap = screenCaptureManager.captureCurrentFrame()
+                    if (bitmap != null) {
+                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                        if (result.isSuccessful) {
+                            var newAlliesAdded = 0
+                            var newEnemiesAdded = 0
+                            
+                            result.allies.forEach { champ ->
+                                if (allies.none { it.id == champ.id } && allies.size < 5) {
+                                    allies.add(champ)
+                                    newAlliesAdded++
+                                }
+                            }
+                            result.enemies.forEach { champ ->
+                                if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                                    enemies.add(champ)
+                                    newEnemiesAdded++
+                                }
+                            }
+                            if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
+                                scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
+                                delay(3000)
+                                scanNoticeMessage = null
+                            }
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
+    fun triggerManualScan() {
+        isScanning = true
+        scanNoticeMessage = "Escaneando selección en directo..."
+        coroutineScope.launch(Dispatchers.IO) {
+            val bitmap = screenCaptureManager?.captureCurrentFrame()
+            if (bitmap != null) {
+                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                withContext(Dispatchers.Main) {
+                    if (result.isSuccessful) {
+                        result.allies.forEach { champ ->
+                            if (allies.none { it.id == champ.id } && allies.size < 5) {
+                                allies.add(champ)
+                            }
+                        }
+                        result.enemies.forEach { champ ->
+                            if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                                enemies.add(champ)
+                            }
+                        }
+                        scanNoticeMessage = "✅ Escaneo exitoso (${result.allies.size + result.enemies.size} detectados)"
+                    } else {
+                        scanNoticeMessage = "ℹ️ No se detectaron nombres legibles. Asegúrate de estar en Selección de Campeones."
+                    }
+                    isScanning = false
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    scanNoticeMessage = "⚠️ No hay frame de captura disponible"
+                    isScanning = false
+                }
+            }
+            delay(3500)
+            scanNoticeMessage = null
+        }
+    }
 
     Box(modifier = Modifier.padding(2.dp)) {
-        // Notification Manager
-        androidx.compose.runtime.LaunchedEffect(Unit) {
-            while (true) {
-                val now = System.currentTimeMillis()
-                val expiredKeys = com.example.ui.components.CooldownTrackerStateHolder.activeTimers.filter { it.value < now }.keys.toList()
-                expiredKeys.forEach { key ->
-                    com.example.ui.components.CooldownTrackerStateHolder.activeTimers.remove(key)
-                    val parts = key.split("_")
-                    if (parts.size == 2) {
-                        val roleName = parts[0]
-                        val spellId = parts[1]
-                        val spell = com.example.ui.components.DEFAULT_TRACKED_SPELLS.find { it.id == spellId }
-                        if (spell != null) {
-                            val roleLabel = LaneRole.valueOf(roleName).shortName
-                            val notif = com.example.ui.components.CDNotification(
-                                id = java.util.UUID.randomUUID().toString(),
-                                message = "${spell.name} de $roleLabel disponible",
-                                iconUrl = spell.iconUrl,
-                                fallbackIcon = spell.iconFallback,
-                                color = spell.accentColor
-                            )
-                            com.example.ui.components.CooldownTrackerStateHolder.notifications.add(notif)
-                            launch {
-                                kotlinx.coroutines.delay(5000)
-                                com.example.ui.components.CooldownTrackerStateHolder.notifications.remove(notif)
-                            }
-                        }
-                    }
-                }
-                kotlinx.coroutines.delay(500)
-            }
-        }
-
-        Column(
-            horizontalAlignment = Alignment.Start
-        ) {
-            var dragDownY by remember { mutableFloatStateOf(0f) }
-        var isScanning by remember { mutableStateOf(false) }
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Floating Bubble Button (Arastrable y clicable)
-            Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            HextechCyan,
-                            Color(0xFF005A82),
-                            HextechDarkBg
-                        )
+        Column(horizontalAlignment = Alignment.Start) {
+            if (!isExpanded) {
+                // Minimized Floating Bubble
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    val bubbleBorderColor by animateColorAsState(
+                        targetValue = if (isNearCloseThreshold) DangerRed else (if (isScanning) HextechCyan else HextechGold),
+                        animationSpec = tween(200)
                     )
-                )
-                .border(2.dp, if (isScanning) HextechCyan else HextechGold, CircleShape)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            dragDownY += dragAmount.y
-                            // Si desliza hacia abajo más de 100px, cerramos la burbuja flotante
-                            if (dragDownY > 100f && !isExpanded) {
-                                onClose()
-                            } else {
-                                onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                            }
-                        },
-                        onDragEnd = { dragDownY = 0f },
-                        onDragCancel = { dragDownY = 0f }
-                    )
-                }
-                .clickable {
-                    if (!isExpanded) {
-                        isScanning = true
-                        selectedTab = 0
-                        
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val bitmap = screenCaptureManager?.captureCurrentFrame()
-                            if (bitmap != null) {
-                                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
-                                withContext(Dispatchers.Main) {
-                                    allies.clear()
-                                    allies.addAll(result.allies)
-                                    enemies.clear()
-                                    enemies.addAll(result.enemies)
-                                    isScanning = false
-                                    isExpanded = true
-                                    onExpandedChange(true)
-                                }
-                            } else {
-                                withContext(Dispatchers.Main) {
-                                    isScanning = false
-                                    isExpanded = true
-                                    onExpandedChange(true)
-                                }
-                            }
-                        }
-                    } else {
-                        isExpanded = false
-                        onExpandedChange(false)
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            if (isScanning) {
-                androidx.compose.material3.CircularProgressIndicator(
-                    modifier = Modifier.size(36.dp),
-                    color = HextechCyan,
-                    strokeWidth = 3.dp
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Videocam,
-                    contentDescription = "Asistente Flotante Wild Rift",
-                    tint = Color.White,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
 
-            if (!isScanning) {
-                // Pulse badge indicator
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .align(Alignment.TopEnd)
-                        .clip(CircleShape)
-                        .background(HextechGold)
-                )
-            }
-        }
-
-            if (!isExpanded && !isScanning) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Box(
-                    modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.65f), RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = tr("↓ Desliza para cerrar"),
-                        color = Color.White,
-                        fontSize = 9.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Expanded Panel
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = scaleIn() + fadeIn(),
-            exit = scaleOut() + fadeOut()
-        ) {
-            var dragDownY by remember { mutableFloatStateOf(0f) }
-            val isClosingSoon = dragDownY > 10f
-            val currentBorderColor = if (isClosingSoon) Color.Red else HextechGold
-
-            Card(
-                modifier = Modifier
-                    .widthIn(min = 280.dp, max = 320.dp)
-                    .heightIn(max = 480.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
-                border = androidx.compose.foundation.BorderStroke(if (isClosingSoon) 2.dp else 1.5.dp, currentBorderColor)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    // Barra / Indicador para deslizar hacia abajo y cerrar
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .size(54.dp)
+                            .scale(if (isNearCloseThreshold) 0.9f else 1.0f)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.radialGradient(
+                                    colors = if (isNearCloseThreshold) listOf(DangerRed, Color(0xFF5A0000), HextechDarkBg)
+                                    else listOf(HextechCyan, Color(0xFF005A82), HextechDarkBg)
+                                )
+                            )
+                            .border(2.5.dp, bubbleBorderColor, CircleShape)
                             .pointerInput(Unit) {
                                 detectDragGestures(
+                                    onDragStart = {
+                                        isDraggingBubble = true
+                                        dragAccumulatedY = 0f
+                                        isNearCloseThreshold = false
+                                    },
                                     onDrag = { change, dragAmount ->
                                         change.consume()
-                                        dragDownY += dragAmount.y
-                                        if (dragDownY > 30f) {
-                                            isExpanded = false
-                                            onExpandedChange(false)
-                                            dragDownY = 0f
-                                        } else {
-                                            onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                                        }
+                                        dragAccumulatedY += dragAmount.y
+                                        // Detecta si se arrastra hacia el borde inferior para activar alerta visual
+                                        isNearCloseThreshold = dragAccumulatedY > 180f
+                                        onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                     },
                                     onDragEnd = {
-                                        if (dragDownY > 20f) {
-                                            isExpanded = false
-                                            onExpandedChange(false)
-                                        }
-                                        dragDownY = 0f
+                                        isDraggingBubble = false
+                                        onDragDelta(0, 0, false, isNearCloseThreshold)
+                                        dragAccumulatedY = 0f
+                                        isNearCloseThreshold = false
                                     },
                                     onDragCancel = {
-                                        dragDownY = 0f
+                                        isDraggingBubble = false
+                                        dragAccumulatedY = 0f
+                                        isNearCloseThreshold = false
                                     }
                                 )
                             }
-                            .padding(bottom = 2.dp),
+                            .clickable {
+                                isExpanded = true
+                                onExpandedChange(true)
+                                if (allies.isEmpty() && enemies.isEmpty()) {
+                                    triggerManualScan()
+                                }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Box(
-                                modifier = Modifier
-                                    .width(40.dp)
-                                    .height(3.dp)
-                                    .clip(CircleShape)
-                                    .background(if (isClosingSoon) Color.Red else HextechGold.copy(alpha = 0.7f))
+                        if (isScanning) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(36.dp),
+                                color = HextechCyan,
+                                strokeWidth = 3.dp
                             )
-                            if (isClosingSoon) {
-                                Text(
-                                    text = tr("Cerrando..."),
-                                    color = Color.Red,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(top = 2.dp)
-                                )
-                            }
+                        } else {
+                            Icon(
+                                imageVector = if (isNearCloseThreshold) Icons.Default.Close else Icons.Default.Shield,
+                                contentDescription = "Wild Rift Drafting Coach",
+                                tint = if (isNearCloseThreshold) DangerRed else Color.White,
+                                modifier = Modifier.size(26.dp)
+                            )
                         }
-                    }
 
-                    // Header con botón de arrastre y minimizar
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .pointerInput(Unit) {
-                                detectDragGestures(
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        dragDownY += dragAmount.y
-                                        if (dragDownY > 40f) {
-                                            isExpanded = false
-                                            onExpandedChange(false)
-                                            dragDownY = 0f
-                                        } else {
-                                            onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt())
-                                        }
-                                    },
-                                    onDragEnd = {
-                                        if (dragDownY > 35f) {
-                                            isExpanded = false
-                                            onExpandedChange(false)
-                                        }
-                                        dragDownY = 0f
-                                    },
-                                    onDragCancel = {
-                                        dragDownY = 0f
-                                    }
-                                )
-                            },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Wild Rift HUD Inteligente", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
-                        }
-                        IconButton(
-                            onClick = {
-                                isExpanded = false
-                                onExpandedChange(false)
-                            },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Minimizar", tint = TextMuted, modifier = Modifier.size(16.dp))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Tab Selector in Mini HUD (sin recortes)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(HextechSurface)
-                            .padding(2.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        val tabs = listOf(tr("Draft"), tr("CDs"), tr("Daño"), tr("Obj"), tr("Build"), tr("Runas"), tr("Hechizos"))
-                        tabs.forEachIndexed { index, label ->
-                            val isTabSelected = selectedTab == index
+                        if (!isScanning && !isNearCloseThreshold) {
+                            // Pulsing green auto-scan indicator
                             Box(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(if (isTabSelected) HextechCyan else Color.Transparent)
-                                    .clickable { selectedTab = index }
-                                    .padding(vertical = 4.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = label,
-                                    color = if (isTabSelected) HextechDarkBg else TextMuted,
-                                    fontSize = 9.5.sp,
-                                    fontWeight = if (isTabSelected) FontWeight.Bold else FontWeight.Medium,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                                    .size(10.dp)
+                                    .align(Alignment.TopEnd)
+                                    .clip(CircleShape)
+                                    .background(if (autoScanEnabled) Color(0xFF00FF7F) else HextechGold)
+                            )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    // Alerta o Indicador de deslizamiento
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (isNearCloseThreshold) {
+                        Box(
+                            modifier = Modifier
+                                .background(DangerRed.copy(alpha = 0.95f), RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.White, RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "🔥 " + tr("SOLTAR PARA CERRAR"),
+                                color = Color.White,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    } else if (isDraggingBubble) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = tr("↓ Al fondo para desactivar"),
+                                color = TextMuted,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+            }
 
-                    // Tab Content
+            // Expanded Drafting Hub
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut()
+            ) {
+                var isDraggingPanel by remember { mutableStateOf(false) }
+                var panelDragY by remember { mutableFloatStateOf(0f) }
+                var isPanelNearClose by remember { mutableStateOf(false) }
+
+                Card(
+                    modifier = Modifier
+                        .widthIn(min = 300.dp, max = 340.dp)
+                        .heightIn(max = 530.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
+                    border = androidx.compose.foundation.BorderStroke(
+                        if (isPanelNearClose) 2.5.dp else 1.5.dp,
+                        if (isPanelNearClose) DangerRed else HextechGold
+                    )
+                ) {
                     Column(
                         modifier = Modifier
-                            .weight(1f, fill = false)
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
+                            .padding(8.dp)
                     ) {
-                        when (selectedTab) {
-                        0 -> {
-                            // DRAFT TAB
-                            // Selector de Líneas
+                        // Header con barra de arrastre y controles
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            isDraggingPanel = true
+                                            panelDragY = 0f
+                                            isPanelNearClose = false
+                                        },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            panelDragY += dragAmount.y
+                                            isPanelNearClose = panelDragY > 160f
+                                            onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
+                                        },
+                                        onDragEnd = {
+                                            isDraggingPanel = false
+                                            onDragDelta(0, 0, false, isPanelNearClose)
+                                            panelDragY = 0f
+                                            isPanelNearClose = false
+                                        },
+                                        onDragCancel = {
+                                            isDraggingPanel = false
+                                            panelDragY = 0f
+                                            isPanelNearClose = false
+                                        }
+                                    )
+                                }
+                                .padding(bottom = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Column {
+                                    Text("DRAFTING COACH", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 12.5.sp)
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(if (autoScanEnabled) Color(0xFF00FF7F) else HextechGold)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = if (autoScanEnabled) tr("Auto-Scan Activo") else tr("Escaneo Manual"),
+                                            color = if (autoScanEnabled) Color(0xFF00FF7F) else TextMuted,
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Botón Escaneo Manual
+                                IconButton(
+                                    onClick = { triggerManualScan() },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    if (isScanning) {
+                                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechCyan, strokeWidth = 2.dp)
+                                    } else {
+                                        Icon(Icons.Default.FlashOn, contentDescription = "Escanear", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+
+                                // Botón Limpiar Draft
+                                IconButton(
+                                    onClick = {
+                                        allies.clear()
+                                        enemies.clear()
+                                        selectedChampionDetail = null
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(Icons.Default.DeleteSweep, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(18.dp))
+                                }
+
+                                // Botón Minimizar
+                                IconButton(
+                                    onClick = {
+                                        isExpanded = false
+                                        onExpandedChange(false)
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Minimizar", tint = TextPrimary, modifier = Modifier.size(20.dp))
+                                }
+                            }
+                        }
+
+                        // Banner de estado de escaneo si existe
+                        if (scanNoticeMessage != null) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = scanNoticeMessage ?: "",
+                                    color = HextechCyan,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                        }
+
+                        // Contenido Scrollable del Drafting
+                        Column(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                // Columna Aliados (Azul)
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechSurface)
+                                        .border(1.dp, AllyBlue.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                        .padding(6.dp)
+                                ) {
+                                    Text("🔵 " + tr("Aliados") + " (${allies.size}/5)", color = AllyBlue, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    for (i in 0 until 5) {
+                                        val champ = allies.getOrNull(i)
+                                        DraftSlotItem(
+                                            slotIndex = i + 1,
+                                            champion = champ,
+                                            isAlly = true,
+                                            onSlotClick = {
+                                                if (champ != null) {
+                                                    selectedChampionDetail = champ
+                                                } else {
+                                                    showChampionPickerForSlot = Pair(true, i)
+                                                }
+                                            },
+                                            onRemoveClick = {
+                                                if (champ != null) allies.remove(champ)
+                                            }
+                                        )
+                                        if (i < 4) Spacer(modifier = Modifier.height(3.dp))
+                                    }
+                                }
+
+                                // Columna Enemigos (Rojo)
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechSurface)
+                                        .border(1.dp, DangerRed.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                        .padding(6.dp)
+                                ) {
+                                    Text("🔴 " + tr("Enemigos") + " (${enemies.size}/5)", color = DangerRed, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    for (i in 0 until 5) {
+                                        val champ = enemies.getOrNull(i)
+                                        DraftSlotItem(
+                                            slotIndex = i + 1,
+                                            champion = champ,
+                                            isAlly = false,
+                                            onSlotClick = {
+                                                if (champ != null) {
+                                                    selectedChampionDetail = champ
+                                                } else {
+                                                    showChampionPickerForSlot = Pair(false, i)
+                                                }
+                                            },
+                                            onRemoveClick = {
+                                                if (champ != null) enemies.remove(champ)
+                                            }
+                                        )
+                                        if (i < 4) Spacer(modifier = Modifier.height(3.dp))
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // 2. SELECTOR DE MI ROL / LÍNEA & BLIND PICK
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
                             ) {
                                 LaneRole.entries.forEach { role ->
                                     val isSelected = activeRole == role
@@ -720,13 +844,13 @@ private fun FloatingOverlayContent(
                                             .background(if (isSelected) HextechCyan else HextechSurface)
                                             .border(1.dp, if (isSelected) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
                                             .clickable { activeRole = role }
-                                            .padding(vertical = 3.dp),
+                                            .padding(vertical = 4.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = tr(role.shortName),
                                             fontSize = 9.5.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
                                             color = if (isSelected) HextechDarkBg else TextPrimary
                                         )
                                     }
@@ -741,362 +865,335 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isFirstPick) " " + tr("1ª Elección Segura") else " " + tr("MEJOR OPCIÓN") + " (${tr(activeRole.shortName)})",
+                                    text = "⚔️ " + tr("RECOMENDACIÓN:") + " ${tr(activeRole.displayName)}",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
+
                                 Text(
-                                    text = if (isFirstPick) tr("Blind Pick") else tr("Counter Pick"),
-                                    color = HextechCyan,
-                                    fontSize = 10.sp,
+                                    text = if (isFirstPick) "⭐ " + tr("1ª Elección (Blind)") else "🎯 " + tr("Counter Pick"),
+                                    color = if (isFirstPick) HextechGold else HextechCyan,
+                                    fontSize = 9.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(HextechSurface)
+                                        .border(0.5.dp, if (isFirstPick) HextechGold else HextechCyan, RoundedCornerShape(4.dp))
                                         .clickable { isFirstPick = !isFirstPick }
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
                             }
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
+                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 analysis.recommendations.take(3).forEach { pick ->
-                                    Row(
+                                    Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(HextechSurface)
-                                            .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp))
-                                            .clickable {
-                                                lockedChampion = pick.champion
-                                                selectedTab = 2
-                                            }
-                                            .padding(8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable { selectedChampionDetail = pick.champion },
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                                     ) {
-                                        ChampionAvatar(champion = pick.champion, size = 40.dp)
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Text(pick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Box(
-                                                    modifier = Modifier
-                                                        .clip(RoundedCornerShape(3.dp))
-                                                        .background(TierSPlusColor)
-                                                        .padding(horizontal = 4.dp, vertical = 1.dp)
-                                                ) {
-                                                    Text(pick.champion.tier, color = Color.Black, fontSize = 8.5.sp, fontWeight = FontWeight.Black)
-                                                }
-                                            }
-                                            Text("WR: ${pick.estimatedWinrate}% • ${pick.advantageBadge}", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                            Text(pick.tacticalReason, color = TextMuted, fontSize = 9.sp, maxLines = 2)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        1 -> {
-                            // CD TRACKER TAB
-                            CooldownTrackerPanel(isCompactOverlay = true)
-                        }
-
-                        2 -> {
-                            // DAMAGE & PENETRATION MATH TAB
-                            DamagePenetrationCalculator(isCompactOverlay = true)
-                        }
-
-                        3 -> {
-                            // OBJETIVOS TAB (SIN IMÁGENES, DISEÑO LIMPIO HEXTECH)
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                WildRiftRepository.mapObjectives.forEach { obj ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(HextechSurface)
-                                            .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
-                                            .padding(horizontal = 8.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(tr(obj.name), color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(tr(obj.buffDescription), color = TextMuted, fontSize = 9.5.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        }
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(HextechCyan.copy(alpha = 0.15f))
-                                                .border(0.5.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        Row(
+                                            modifier = Modifier.padding(6.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(tr(obj.spawnTime), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                            ChampionAvatar(champion = pick.champion, size = 38.dp)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(pick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(3.dp))
+                                                            .background(TierSPlusColor)
+                                                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                                                    ) {
+                                                        Text(pick.champion.tier, color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                                                    }
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Text("WR: ${pick.estimatedWinrate}%", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                                Text(pick.advantageBadge, color = HextechCyan, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+                                                Text(pick.tacticalReason, color = TextMuted, fontSize = 8.5.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        4 -> {
-                            // BUILD TAB (SOLO OBJETOS CORE Y SITUACIONALES)
-                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
-                            val itemsToShow = currentChamp.coreItems + currentChamp.situationalItems
-                            val champItems = itemsToShow.mapNotNull { itemName -> 
-                                WildRiftRepository.items.find { it.name == itemName } 
-                            }.takeIf { it.isNotEmpty() } ?: WildRiftRepository.items.take(4)
-
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(tr("Build de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
-                                }
-
-                                champItems.forEach { item ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(HextechSurface)
-                                            .padding(6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        val lang = com.example.util.LocalLanguage.current
-                                        val localizedName = item.getLocalizedName(lang)
-                                        val localizedPassive = item.getLocalizedPassive(lang)
-
-                                        AppAssetImage(
-                                            url = item.iconUrl,
-                                            contentDescription = localizedName,
-                                            fallbackText = localizedName,
-                                            modifier = Modifier.size(30.dp),
-                                            borderColor = HextechGold,
-                                            shape = RoundedCornerShape(6.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(localizedName, color = HextechGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(localizedPassive, color = TextMuted, fontSize = 9.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        }
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("${item.goldCost}g", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                }
-                            }
-                        }
-
-                        5 -> {
-                            // RUNAS TAB (EXCLUSIVO RUNAS)
-                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(tr("Runas de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
-                                }
-
+                            // 4. DETALLE RÁPIDO DE CAMPEÓN SI ESTÁ SELECCIONADO
+                            if (selectedChampionDetail != null) {
+                                val champ = selectedChampionDetail!!
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(8.dp),
-                                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                                ) {
-                                    Column(modifier = Modifier.padding(8.dp)) {
-                                        Text(
-                                            text = tr(currentChamp.recommendedRunes),
-                                            color = HextechGoldLight,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        if (currentChamp.runeTreeDetails.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Text(
-                                                text = tr(currentChamp.runeTreeDetails),
-                                                color = TextPrimary.copy(alpha = 0.85f),
-                                                fontSize = 9.5.sp,
-                                                lineHeight = 13.sp
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        6 -> {
-                            // HECHIZOS TAB (EXCLUSIVO HECHIZOS & MAXEO)
-                            val currentChamp = lockedChampion ?: topPick?.champion ?: WildRiftRepository.champions.first()
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(tr("Hechizos de") + " ${currentChamp.name}:", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(tr("Cambiar"), color = HextechCyan, fontSize = 10.sp, modifier = Modifier.clickable { selectedTab = 0 })
-                                }
-
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                                    colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan)
                                 ) {
                                     Column(modifier = Modifier.padding(8.dp)) {
                                         Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "${tr("Hechizos")}:",
-                                                color = HextechGoldLight,
-                                                fontSize = 11.5.sp,
-                                                fontWeight = FontWeight.Bold
+                                                text = "🛡️ ${champ.name} • ${tr("Runas y Core")}",
+                                                color = HextechGold,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp
                                             )
-                                            currentChamp.recommendedSpells.forEach { rawSpell ->
-                                                val spellIcon = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(rawSpell)
-                                                AppAssetImage(
-                                                    url = spellIcon,
-                                                    contentDescription = tr(rawSpell),
-                                                    fallbackText = rawSpell,
-                                                    modifier = Modifier.size(18.dp),
-                                                    borderColor = HextechGold,
-                                                    shape = RoundedCornerShape(4.dp)
-                                                )
-                                                Text(
-                                                    text = tr(rawSpell),
-                                                    color = Color.White,
-                                                    fontSize = 11.sp,
-                                                    fontWeight = FontWeight.SemiBold
-                                                )
-                                            }
+                                            Text(
+                                                text = "✕ " + tr("Cerrar"),
+                                                color = DangerRed,
+                                                fontSize = 9.5.sp,
+                                                modifier = Modifier.clickable { selectedChampionDetail = null }
+                                            )
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "${tr("Habilidades")}: ${currentChamp.skillOrder}",
+                                            text = "${tr("Runa Clave")}: ${champ.recommendedRunes}",
                                             color = HextechCyan,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Medium
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (champ.runeTreeDetails.isNotBlank()) {
+                                            Text(
+                                                text = champ.runeTreeDetails,
+                                                color = TextPrimary,
+                                                fontSize = 8.5.sp,
+                                                lineHeight = 11.sp
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(3.dp))
+                                        Text(
+                                            text = "${tr("Objetos Core")}: " + champ.coreItems.take(4).joinToString(", "),
+                                            color = HextechGoldLight,
+                                            fontSize = 9.sp,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }
                             }
                         }
-                    }
-                    }
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
+                        // Footer / Desactivar alerta
+                        if (isPanelNearClose) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(DangerRed)
+                                    .padding(vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "🔥 " + tr("SOLTAR AQUÍ PARA CERRAR ASISTENTE"),
+                                    color = Color.White,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "✕ " + tr("Detener Asistente"),
+                                    color = DangerRed,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .clickable { onClose() }
+                                        .padding(4.dp)
+                                )
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = tr("Auto-Scan"),
+                                        color = TextMuted,
+                                        fontSize = 9.5.sp,
+                                        modifier = Modifier.padding(end = 4.dp)
+                                    )
+                                    Switch(
+                                        checked = autoScanEnabled,
+                                        onCheckedChange = { autoScanEnabled = it },
+                                        modifier = Modifier.scale(0.7f),
+                                        colors = SwitchDefaults.colors(
+                                            checkedThumbColor = HextechDarkBg,
+                                            checkedTrackColor = Color(0xFF00FF7F)
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Modal de selección rápida de campeón si el usuario toca un slot manual
+    if (showChampionPickerForSlot != null) {
+        val (isAllySlot, _) = showChampionPickerForSlot!!
+        var searchChampQuery by remember { mutableStateOf("") }
+        val filteredList = remember(searchChampQuery) {
+            WildRiftRepository.champions.filter {
+                searchChampQuery.isBlank() || it.name.contains(searchChampQuery, ignoreCase = true)
+            }
+        }
+
+        Dialog(onDismissRequest = { showChampionPickerForSlot = null }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, if (isAllySlot) AllyBlue else DangerRed)
+            ) {
+                Column(modifier = Modifier.padding(10.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = tr("Detener Asistente"),
-                            color = DangerRed,
-                            fontSize = 11.sp,
+                            text = if (isAllySlot) "🔵 " + tr("Elegir Aliado") else "🔴 " + tr("Elegir Enemigo"),
+                            color = if (isAllySlot) AllyBlue else DangerRed,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .clickable { onClose() }
-                                .padding(4.dp)
+                            fontSize = 13.sp
                         )
-
-                        Text(
-                            text = tr("Minimizar HUD"),
-                            color = HextechCyan,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .clickable { isExpanded = false }
-                                .padding(4.dp)
-                        )
+                        IconButton(onClick = { showChampionPickerForSlot = null }, modifier = Modifier.size(24.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                        }
                     }
-                    // End Scrollable Column
-                }
-            }
-        }
-    } // End of Column (Main layout)
 
-    // Notificaciones sobrepuestas (siempre visibles, incluso si esta minimizado)
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .padding(start = 64.dp, top = 8.dp) // Empuja a la derecha de la burbuja (52dp)
-    ) {
-        com.example.ui.components.CooldownTrackerStateHolder.notifications.forEach { notif ->
-            androidx.compose.animation.AnimatedVisibility(
-                visible = true,
-                enter = androidx.compose.animation.slideInHorizontally { it } + androidx.compose.animation.fadeIn(),
-                exit = androidx.compose.animation.slideOutHorizontally { it } + androidx.compose.animation.fadeOut()
-            ) {
-                Card(
-                    shape = RoundedCornerShape(8.dp),
-                    colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.95f)),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, notif.color),
-                    modifier = Modifier.widthIn(max = 240.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    OutlinedTextField(
+                        value = searchChampQuery,
+                        onValueChange = { searchChampQuery = it },
+                        placeholder = { Text(tr("Buscar campeón..."), fontSize = 11.sp) },
+                        modifier = Modifier.fillMaxWidth().height(46.dp),
+                        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder
+                        ),
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(notif.color.copy(alpha = 0.2f))
-                                .border(1.dp, notif.color, RoundedCornerShape(4.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (notif.iconUrl.isNotEmpty()) {
-                                coil.compose.AsyncImage(
-                                    model = notif.iconUrl,
-                                    contentDescription = null,
-                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            } else {
-                                Text(
-                                    text = notif.fallbackIcon,
-                                    color = notif.color,
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 8.sp
-                                )
+                        items(filteredList) { champ ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechSurface)
+                                    .clickable {
+                                        if (isAllySlot) {
+                                            if (allies.none { it.id == champ.id } && allies.size < 5) {
+                                                allies.add(champ)
+                                            }
+                                        } else {
+                                            if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                                                enemies.add(champ)
+                                            }
+                                        }
+                                        showChampionPickerForSlot = null
+                                    }
+                                    .padding(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ChampionAvatar(champion = champ, size = 30.dp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(champ.tier, color = HextechGold, fontWeight = FontWeight.Black, fontSize = 10.sp)
                             }
                         }
-                        Spacer(modifier = Modifier.width(6.dp))
-                        val parts = notif.message.split(" de ")
-                        val textStr = if (parts.size == 2) {
-                            tr(parts[0]) + " de " + parts[1]
-                        } else {
-                            notif.message
-                        }
-                        Text(
-                            text = textStr,
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                        )
                     }
                 }
             }
         }
     }
-} // End of Box
- // End of FloatingOverlayContent
+}
+
+@Composable
+private fun DraftSlotItem(
+    slotIndex: Int,
+    champion: Champion?,
+    isAlly: Boolean,
+    onSlotClick: () -> Unit,
+    onRemoveClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp))
+            .background(HextechDarkBg)
+            .border(0.5.dp, if (isAlly) AllyBlue.copy(alpha = 0.4f) else DangerRed.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+            .clickable { onSlotClick() }
+            .padding(horizontal = 4.dp, vertical = 3.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        if (champion != null) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                ChampionAvatar(champion = champion, size = 22.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = champion.name,
+                    color = TextPrimary,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Eliminar",
+                tint = TextMuted,
+                modifier = Modifier
+                    .size(14.dp)
+                    .clickable { onRemoveClick() }
+            )
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(HextechSurface),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Añadir", tint = TextMuted, modifier = Modifier.size(12.dp))
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${tr("Slot")} $slotIndex",
+                    color = TextMuted,
+                    fontSize = 9.sp
+                )
+            }
+        }
+    }
+}
