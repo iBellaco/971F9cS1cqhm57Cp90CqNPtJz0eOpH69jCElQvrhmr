@@ -58,7 +58,9 @@ data class ItemSwap(
 
 @Serializable
 data class ChampionBuild(
+    val id: String = "",
     val title: String = "",
+    val role: String = "",
     val items: List<String> = emptyList(),
     val runes: String = "",
     val spells: List<String> = emptyList()

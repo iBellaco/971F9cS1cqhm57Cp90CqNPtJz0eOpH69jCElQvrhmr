@@ -31,15 +31,45 @@
       "Diana"
     ],
     "tacticalAdvice": "Conecta los filos de tu Habilidad 1 (H1) en el Línea de Barón para castigar campeones inmóviles. Usa tu Habilidad 3 (H3) para reposicionar la espada durante la animación.",
-    "recommendedRunes": "Pies Veloces,Triunfo,Derribado,Leyenda: Presteza,Sobrecrecimiento",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Sobrecrecimiento",
-    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
-    "recommendedSpells": [],
-    "spellsIcons": [],
-    "coreItems": [],
-    "coreItemsIcons": [],
-    "situationalItems": [],
-    "situationalItemsIcons": [],
+    "recommendedRunes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
+    "runeTreeDetails": "Dominación / Valor: Conquistador • Coraje del Coloso • Fuerzas Renovadas • Perseverancia • Impacto Repentino",
+    "primaryRuneIconUrl": "https://images.ctfassets.net/ekkp7rrkr2gn/6ZqBIEsBgpDsZrvw2jbrvz/0673ee14b9321dba3b2878ee9e277a81/conqueror_hanu.png",
+    "recommendedSpells": [
+      "Destello",
+      "Prender"
+    ],
+    "spellsIcons": [
+      "https://images.ctfassets.net/ekkp7rrkr2gn/73wkaLCgLyxb9lZSThTLYi/62613bf9f3ce7cebdf09f4579091a5bf/Flash_wr_bb.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/2B4tU4wzPElRBcpsMxAGaJ/99f76352de2d6faac1620f5d1352644b/ignite_png_hanu_bbwr.jpg"
+    ],
+    "coreItems": [
+      "Eclipse",
+      "Cielo desgarrado",
+      "Grebas codiciosas",
+      "La danza de la muerte",
+      "El rencor de Serylda",
+      "Fuerza trinitaria"
+    ],
+    "coreItemsIcons": [
+      "https://images.ctfassets.net/ekkp7rrkr2gn/7EsROl8ZKAh0Se2feQm1TM/737819c31452577aeb8503ff1dc76551/eclipse_hanu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/2isP5n49plk3ACrBuBh67/7d726ffd1a76c33051f60d1140620e89/projector_hanu_bbwr.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/5yWLkSZLhRI1gtL2Wrt8Q2/e1e451d5e3551f25b015e148c29e38bd/gluttonous-greaves.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/6CHP0qLzfi5lH22wYj2Wdx/d123891349e3949c3a582d7d7944020a/baile_hanu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/2KsExoqfytdwp2azBsz6Hy/8cef78e6a6f53dae40cfc87c99c9a6eb/seryldahanu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/2kaU6XhfD6Ec8S5JcUApXc/880cd4b75959e28b155f29d498471b7b/trrini_hanu.png"
+    ],
+    "situationalItems": [
+      "Colmillo de serpiente",
+      "Fauces de Malmortius",
+      "El cuchillo fantasma de Youmuu",
+      "Ángel custodio"
+    ],
+    "situationalItemsIcons": [
+      "https://images.ctfassets.net/ekkp7rrkr2gn/6cpCbbyR0eMeikzJvUW0ot/e66bc31cc77810044993d9fe28d09780/comillo_ahnu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/3c3woOT1VwFrGwr74b58hr/07344908ed945c4a2637a383cfb359c1/m_hanu.PNG",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/3P3IHApzASADqxR5qI3GYC/3a73dcb4a9ea8472af4f55ed4bc05721/youmu_hanu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/6Or0UaYYsqAQqEalzvST14/bb176d4587589ea9a46395ec14396abb/angel_hanu.png"
+    ],
     "skillOrder": "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
     "skills": [
       {
@@ -93,28 +123,49 @@
     "primaryRunes": [
       "Conquistador"
     ],
-    "build2Runes": "Conquistador,Coraje Del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
-    "build2Spells": [],
+    "build2Runes": "Pies Veloces,Triunfo,Derribado,Leyenda: Presteza,Sobrecrecimiento",
+    "build2Spells": [
+      "Castigo",
+      "Destello"
+    ],
     "builds": [
       {
         "id": "aatrox_top_dano_y_aguante",
         "title": "Daño y aguante",
         "role": "top",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "items": [
+          "Eclipse",
+          "Cielo desgarrado",
+          "Grebas codiciosas",
+          "La danza de la muerte",
+          "El rencor de Serylda",
+          "Fuerza trinitaria"
+        ],
+        "runes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
+        "spells": [
+          "Destello",
+          "Prender"
+        ]
       },
       {
         "id": "aatrox_jungle_estandar",
         "title": "Estándar",
         "role": "jungle",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "items": [
+          "Fuerza trinitaria",
+          "Grebas codiciosas",
+          "La danza de la muerte",
+          "El rencor de Serylda",
+          "Colmillo de serpiente",
+          "Fauces de Malmortius",
+          "El cuchillo fantasma de Youmuu",
+          "Ángel custodio"
+        ],
+        "runes": "Pies Veloces,Triunfo,Derribado,Leyenda: Presteza,Sobrecrecimiento",
+        "spells": [
+          "Castigo",
+          "Destello"
+        ]
       }
     ]
   },
