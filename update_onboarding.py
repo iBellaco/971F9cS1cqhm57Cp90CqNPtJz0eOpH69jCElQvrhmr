@@ -1,4 +1,4 @@
-package com.example.ui.screens
+code = '''package com.example.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
@@ -375,3 +375,9 @@ fun OnboardingPageContent(page: OnboardingPage) {
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+'''
+
+with open('app/src/main/java/com/example/ui/screens/OnboardingScreen.kt', 'w', encoding='utf-8') as f:
+    f.write(code)
+
+print("OnboardingScreen.kt updated successfully")
