@@ -45,18 +45,18 @@
     "coreItems": [
       "Eclipse",
       "Cielo desgarrado",
-      "Grebas codiciosas",
       "La danza de la muerte",
       "El rencor de Serylda",
-      "Fuerza trinitaria"
+      "Fuerza trinitaria",
+      "Ángel custodio"
     ],
     "coreItemsIcons": [
       "https://images.ctfassets.net/ekkp7rrkr2gn/7EsROl8ZKAh0Se2feQm1TM/737819c31452577aeb8503ff1dc76551/eclipse_hanu.png",
       "https://images.ctfassets.net/ekkp7rrkr2gn/2isP5n49plk3ACrBuBh67/7d726ffd1a76c33051f60d1140620e89/projector_hanu_bbwr.png",
-      "https://images.ctfassets.net/ekkp7rrkr2gn/5yWLkSZLhRI1gtL2Wrt8Q2/e1e451d5e3551f25b015e148c29e38bd/gluttonous-greaves.png",
       "https://images.ctfassets.net/ekkp7rrkr2gn/6CHP0qLzfi5lH22wYj2Wdx/d123891349e3949c3a582d7d7944020a/baile_hanu.png",
       "https://images.ctfassets.net/ekkp7rrkr2gn/2KsExoqfytdwp2azBsz6Hy/8cef78e6a6f53dae40cfc87c99c9a6eb/seryldahanu.png",
-      "https://images.ctfassets.net/ekkp7rrkr2gn/2kaU6XhfD6Ec8S5JcUApXc/880cd4b75959e28b155f29d498471b7b/trrini_hanu.png"
+      "https://images.ctfassets.net/ekkp7rrkr2gn/2kaU6XhfD6Ec8S5JcUApXc/880cd4b75959e28b155f29d498471b7b/trrini_hanu.png",
+      "https://images.ctfassets.net/ekkp7rrkr2gn/6Or0UaYYsqAQqEalzvST14/bb176d4587589ea9a46395ec14396abb/angel_hanu.png"
     ],
     "situationalItems": [
       "Colmillo de serpiente",
@@ -136,15 +136,20 @@
         "items": [
           "Eclipse",
           "Cielo desgarrado",
-          "Grebas codiciosas",
           "La danza de la muerte",
           "El rencor de Serylda",
-          "Fuerza trinitaria"
+          "Fuerza trinitaria",
+          "Ángel custodio"
         ],
         "runes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
         "spells": [
           "Destello",
           "Prender"
+        ],
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Avance blindado",
+        "situationalBoots": [
+          "Grebas codiciosas"
         ]
       },
       {
@@ -153,7 +158,6 @@
         "role": "jungle",
         "items": [
           "Fuerza trinitaria",
-          "Grebas codiciosas",
           "La danza de la muerte",
           "El rencor de Serylda",
           "Colmillo de serpiente",
@@ -165,6 +169,12 @@
         "spells": [
           "Castigo",
           "Destello"
+        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [
+          "Grebas codiciosas",
+          "Botas blindadas"
         ]
       }
     ]
@@ -265,24 +275,73 @@
     "build2Spells": [],
     "builds": [
       {
-        "id": "ahri_mid_definitiva",
-        "title": "Definitiva",
-        "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
-      },
-      {
         "id": "ahri_mid_dano_explosivo",
         "title": "Daño explosivo",
         "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "coreItems": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "situationalItems": [
+          "Perdición del exánime",
+          "Bastón vacío",
+          "Impulso Cósmico"
+        ],
+        "runes": "Electrocutar,Impacto Repentino,Colección de Globos Oculares,Cazador Ingenioso,Trascendencia",
+        "spells": [
+          "Destello",
+          "Prender"
+        ],
+        "items": [
+          "Eco de Luden",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime",
+          "Bastón vacío",
+          "Impulso Cósmico"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [
+          "Botas jonias de la lucidez",
+          "Botas de mercurio",
+          "Botas blindadas"
+        ]
+      },
+      {
+        "id": "ahri_mid_definitiva",
+        "title": "Definitiva",
+        "role": "mid",
+        "coreItems": [
+          "Malignance",
+          "Impulso Cósmico",
+          "Gorro de muerte del miércoles"
+        ],
+        "situationalItems": [
+          "Orbe infinito",
+          "Bastón vacío",
+          "Velo de alma en pena"
+        ],
+        "runes": "Cometa Arcano,Piroláser,Trascendencia,Banda de Maná,Revestimiento de Huesos",
+        "spells": [
+          "Destello",
+          "Prender"
+        ],
+        "items": [
+          "Malignance",
+          "Impulso Cósmico",
+          "Gorro de muerte del miércoles",
+          "Orbe infinito",
+          "Bastón vacío",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Lucidez carmesí",
+        "situationalBoots": [
+          "Botas de maná",
+          "Botas de mercurio"
+        ]
       }
     ]
   },
@@ -387,21 +446,69 @@
         "id": "akali_mid_dano_explosivo",
         "title": "Daño explosivo",
         "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "coreItems": [
+          "Orbe infinito",
+          "Hacedor de grietas",
+          "Gorro de muerte del miércoles"
+        ],
+        "situationalItems": [
+          "Perdición del exánime",
+          "Bastón vacío",
+          "Velo de alma en pena"
+        ],
+        "runes": "Electrocutar,Impacto Repentino,Colección de Globos Oculares,Cazador Ingenioso,Revestimiento de Huesos",
+        "spells": [
+          "Destello",
+          "Prender"
+        ],
+        "items": [
+          "Orbe infinito",
+          "Hacedor de grietas",
+          "Gorro de muerte del miércoles",
+          "Perdición del exánime",
+          "Bastón vacío",
+          "Velo de alma en pena"
+        ],
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [
+          "Botas de mercurio",
+          "Botas blindadas"
+        ]
       },
       {
-        "id": "akali_mid_dano_explosivo",
-        "title": "Daño explosivo",
+        "id": "akali_mid_dano_sostenido",
+        "title": "Daño sostenido",
         "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "coreItems": [
+          "Hacedor de grietas",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles"
+        ],
+        "situationalItems": [
+          "El tormento de Liandry",
+          "Bastón vacío",
+          "Corona abrasadora"
+        ],
+        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Tenacidad,Fuerzas Renovadas",
+        "spells": [
+          "Destello",
+          "Prender"
+        ],
+        "items": [
+          "Hacedor de grietas",
+          "Orbe infinito",
+          "Gorro de muerte del miércoles",
+          "El tormento de Liandry",
+          "Bastón vacío",
+          "Corona abrasadora"
+        ],
+        "bootBase": "Botas de mercurio",
+        "bootUpgrade": "Trituradoras encadenadas",
+        "situationalBoots": [
+          "Botas de maná",
+          "Botas blindadas"
+        ]
       }
     ]
   },
@@ -507,11 +614,37 @@
         "id": "akshan_mid_dano_explosivo",
         "title": "Daño explosivo",
         "role": "mid",
-        "coreItems": [],
-        "situationalItems": [],
-        "runes": "Conquistador",
-        "spells": [],
-        "items": []
+        "coreItems": [
+          "El coleccionista",
+          "Borde infinito",
+          "Recordatorio mortal"
+        ],
+        "situationalItems": [
+          "Espada del Rey Arruinado",
+          "Blaster magnético",
+          "Ángel custodio"
+        ],
+        "runes": "Fortalecimiento,Brutal,Golpe de Gracia,Leyenda: Presteza,Revestimiento de Huesos",
+        "spells": [
+          "Destello",
+          "Prender"
+        ],
+        "items": [
+          "El coleccionista",
+          "Borde infinito",
+          "Recordatorio mortal",
+          "Espada del Rey Arruinado",
+          "Blaster magnético",
+          "Ángel custodio"
+        ],
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [
+          "Grebas codiciosas",
+          "Botas dinámicas",
+          "Botas blindadas",
+          "Botas de mercurio"
+        ]
       }
     ]
   },

@@ -233,6 +233,12 @@ object WildRiftChampionRunesMeta {
             opt2Title = "Electrocutar (Burst Rápido)",
             option2 = listOf("Electrocutar", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Triunfo")
         ),
+        "akshan" to ChampionRunePair(
+            opt1Title = "Fortalecimiento & Gancho Letal (Meta)",
+            option1 = listOf("Fortalecimiento", "Brutal", "Golpe de Gracia", "Leyenda: Presteza", "Revestimiento de Huesos"),
+            opt2Title = "Pies Veloces (Movilidad & Kiting)",
+            option2 = listOf("Pies Veloces", "Brutal", "Leyenda: Linaje", "Golpe de Gracia", "Fuerzas Renovadas")
+        ),
         "vex" to ChampionRunePair(
             opt1Title = "Electrocutar & Pesimismo (Meta)",
             option1 = listOf("Electrocutar", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná"),

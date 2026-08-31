@@ -18,6 +18,7 @@ data class ChampionBuildOption(
     val items: List<String>,
     val bootBase: String,
     val bootUpgrade: String,
+    val situationalBoots: List<String> = emptyList(),
     val runes: List<String>,
     val spells: List<String>,
     val spellsIcons: List<String>
@@ -137,6 +138,24 @@ object ChampionRoleAdapter {
             clean.contains("codiciosa") || clean.contains("inmortal") -> "Botas inmortales"
             else -> "Lucidez carmesí"
         }
+    }
+
+    fun getSituationalBoots(
+        primaryBoot: String,
+        damageType: DamageType,
+        isTank: Boolean,
+        isRanged: Boolean,
+        role: LaneRole
+    ): List<String> {
+        val pool = when {
+            role == LaneRole.SUPPORT -> if (isTank) listOf("Botas de mercurio", "Botas jonias de la lucidez", "Botas blindadas") else listOf("Botas blindadas", "Botas de mercurio", "Botas jonias de la lucidez")
+            role == LaneRole.ADC -> listOf("Grebas codiciosas", "Botas blindadas", "Botas de mercurio", "Grebas de berserker")
+            role == LaneRole.JUNGLE && damageType == DamageType.PHYSICAL -> listOf("Grebas codiciosas", "Botas blindadas", "Botas de mercurio", "Botas dinámicas")
+            damageType == DamageType.PHYSICAL -> listOf("Grebas codiciosas", "Botas blindadas", "Botas de mercurio", "Botas dinámicas")
+            damageType == DamageType.MAGIC -> listOf("Botas de maná", "Botas jonias de la lucidez", "Botas de mercurio", "Botas blindadas")
+            else -> listOf("Botas de mercurio", "Botas blindadas", "Grebas codiciosas")
+        }
+        return pool.filter { !it.equals(primaryBoot, ignoreCase = true) }.distinct()
     }
 
     fun generate8ItemBuild(
@@ -587,6 +606,11 @@ object ChampionRoleAdapter {
                     else -> b.role.ifBlank { "Meta" }
                 }
 
+                val cleanItems = (if (b.items.isNotEmpty()) b.items else defaultBuild8).filter { !isBootItem(it) }
+                val bBootBase = if (b.bootBase.isNotBlank()) b.bootBase else if (bRole == "Top") "Botas blindadas" else if (bRole == "Jungla" && champ.damageType == DamageType.PHYSICAL) "Botas dinámicas" else defaultBootBase
+                val bBootUpgrade = if (b.bootUpgrade.isNotBlank()) b.bootUpgrade else getTier3BootUpgrade(bBootBase)
+                val bSituationalBoots = if (b.situationalBoots.isNotEmpty()) b.situationalBoots else getSituationalBoots(bBootBase, champ.damageType, champ.isFrontline, champ.isRanged, role)
+
                 ChampionBuildOption(
                     optionNumber = idx + 1,
                     title = "Opción ${idx + 1}: ${b.title}",
@@ -594,9 +618,10 @@ object ChampionRoleAdapter {
                     source = "BestBuildWR",
                     badge = if (idx == 0) "META CORE" else "SITUACIONAL",
                     tacticalReason = "Build optimizada para $bRole (${b.title}) extraída directamente de los datos del meta actual.",
-                    items = if (b.items.isNotEmpty()) b.items else defaultBuild8,
-                    bootBase = defaultBootBase,
-                    bootUpgrade = defaultBootUpgrade,
+                    items = cleanItems,
+                    bootBase = bBootBase,
+                    bootUpgrade = bBootUpgrade,
+                    situationalBoots = bSituationalBoots,
                     runes = resolvedRunes,
                     spells = resolvedSpells,
                     spellsIcons = resolvedSpellsIcons
@@ -605,6 +630,7 @@ object ChampionRoleAdapter {
         }
         val resolvedSpells1 = ensureUniqueSpells(defaultSpells, role)
         val resolvedSpellsIcons1 = resolvedSpells1.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
+        val defaultSituationalBoots = getSituationalBoots(defaultBootBase, champ.damageType, champ.isFrontline, champ.isRanged, role)
 
         val opt1 = ChampionBuildOption(
             optionNumber = 1,
@@ -613,9 +639,10 @@ object ChampionRoleAdapter {
             source = "BestBuildWR",
             badge = "ESTÁNDAR",
             tacticalReason = "Build principal extraída directamente del meta actual y los mejores jugadores.",
-            items = champ.coreItems,
+            items = champ.coreItems.filter { !isBootItem(it) },
             bootBase = defaultBootBase,
             bootUpgrade = defaultBootUpgrade,
+            situationalBoots = defaultSituationalBoots,
             runes = champ.recommendedRunes.split(",").map { it.trim() }.filter { it.isNotBlank() },
             spells = resolvedSpells1,
             spellsIcons = resolvedSpellsIcons1
@@ -631,9 +658,10 @@ object ChampionRoleAdapter {
             source = "BestBuildWR / Coach",
             badge = "ADAPTATIVA",
             tacticalReason = "Build secundaria y situacional para adaptarte a diferentes composiciones enemigas o ventajas en la fase de líneas.",
-            items = champ.situationalItems.ifEmpty { champ.coreItems.reversed() },
+            items = (champ.situationalItems.ifEmpty { champ.coreItems.reversed() }).filter { !isBootItem(it) },
             bootBase = defaultBootBase,
             bootUpgrade = defaultBootUpgrade,
+            situationalBoots = defaultSituationalBoots,
             runes = (if (champ.build2Runes.isNotBlank()) champ.build2Runes else champ.recommendedRunes).split(",").map { it.trim() }.filter { it.isNotBlank() },
             spells = resolvedSpells2,
             spellsIcons = resolvedSpellsIcons2

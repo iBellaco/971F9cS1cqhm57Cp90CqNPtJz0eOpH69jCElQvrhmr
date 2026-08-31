@@ -4,6 +4,7 @@ import com.example.utils.parseHtmlColorToAnnotatedString
 import com.example.data.WildRiftItemsData
 import com.example.model.WildRiftItem
 import com.example.ui.theme.HextechGoldLight
+import com.example.ui.theme.TextSecondary
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -709,8 +710,7 @@ fun ChampionDetailSheet(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        activeOption.items.forEachIndexed { idx, rawName ->
-                            val isSituational = idx >= 6
+                        activeOption.items.forEach { rawName ->
                             val dbItem = WildRiftItemsData.getItemByName(rawName)
                                 ?: com.example.data.WildRiftRepository.items.find {
                                     it.name.equals(rawName, ignoreCase = true) || it.nameEn.equals(rawName, ignoreCase = true)
@@ -718,7 +718,7 @@ fun ChampionDetailSheet(
                             val iconUrl = dbItem?.iconUrl ?: WildRiftItemsData.getItemIconByName(rawName)
                             val itemName = dbItem?.name?.let { tr(it) } ?: tr(rawName)
                             val isResolved = iconUrl.isNotBlank() && iconUrl.startsWith("http")
-                            val finalBorderColor = if (!isResolved) com.example.ui.theme.DangerRed else if (isSituational) HextechCyan.copy(alpha = 0.8f) else HextechGold
+                            val finalBorderColor = if (!isResolved) com.example.ui.theme.DangerRed else HextechGold
 
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -752,22 +752,6 @@ fun ChampionDetailSheet(
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isSituational) HextechCyan.copy(alpha = 0.25f) else HextechGold.copy(alpha = 0.25f))
-                                        .border(1.dp, if (isSituational) HextechCyan else HextechGold, CircleShape)
-                                ) {
-                                    Text(
-                                        text = "${idx + 1}",
-                                        color = if (isSituational) HextechCyan else HextechGold,
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
                             }
                         }
                     }
@@ -779,6 +763,10 @@ fun ChampionDetailSheet(
             // ==========================================
             // BOTAS Y MEJORAS + HECHIZOS (DOS COLUMNAS)
             // ==========================================
+            var selectedBootBaseOverride by remember(activeOption) { mutableStateOf<String?>(null) }
+            val currentBootBase = selectedBootBaseOverride ?: activeOption.bootBase.ifBlank { "Botas blindadas" }
+            val currentBootUpgrade = ChampionRoleAdapter.getTier3BootUpgrade(currentBootBase)
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -803,14 +791,11 @@ fun ChampionDetailSheet(
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            val bootBaseName = activeOption.bootBase.ifBlank { "Botas blindadas" }
-                            val bootUpgradeName = activeOption.bootUpgrade.ifBlank { "Avance blindado" }
+                            val dbBoot1 = com.example.data.WildRiftRepository.items.find { it.name.equals(currentBootBase, ignoreCase = true) || currentBootBase.contains(it.name, ignoreCase = true) }
+                            val dbBoot2 = com.example.data.WildRiftRepository.items.find { it.name.equals(currentBootUpgrade, ignoreCase = true) || currentBootUpgrade.contains(it.name, ignoreCase = true) }
                             
-                            val dbBoot1 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootBaseName, ignoreCase = true) || bootBaseName.contains(it.name, ignoreCase = true) }
-                            val dbBoot2 = com.example.data.WildRiftRepository.items.find { it.name.equals(bootUpgradeName, ignoreCase = true) || bootUpgradeName.contains(it.name, ignoreCase = true) }
-                            
-                            val boot1Icon = dbBoot1?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(bootBaseName)
-                            val boot2Icon = dbBoot2?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(bootUpgradeName)
+                            val boot1Icon = dbBoot1?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(currentBootBase)
+                            val boot2Icon = dbBoot2?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(currentBootUpgrade)
 
                             Box(
                                 modifier = Modifier
@@ -822,8 +807,8 @@ fun ChampionDetailSheet(
                             ) {
                                 AppAssetImage(
                                     url = boot1Icon,
-                                    contentDescription = tr(bootBaseName),
-                                    fallbackText = tr(bootBaseName),
+                                    contentDescription = tr(currentBootBase),
+                                    fallbackText = tr(currentBootBase),
                                     modifier = Modifier.fillMaxSize(),
                                     shape = RoundedCornerShape(8.dp)
                                 )
@@ -848,11 +833,64 @@ fun ChampionDetailSheet(
                             ) {
                                 AppAssetImage(
                                     url = boot2Icon,
-                                    contentDescription = tr(bootUpgradeName),
-                                    fallbackText = tr(bootUpgradeName),
+                                    contentDescription = tr(currentBootUpgrade),
+                                    fallbackText = tr(currentBootUpgrade),
                                     modifier = Modifier.fillMaxSize(),
                                     shape = RoundedCornerShape(8.dp)
                                 )
+                            }
+                        }
+
+                        val allBootCandidates = (listOf(activeOption.bootBase) + activeOption.situationalBoots).filter { it.isNotBlank() }.distinct()
+                        if (allBootCandidates.size > 1) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(0.5.dp)
+                                    .background(HextechCardBorder.copy(alpha = 0.5f))
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = tr("Opciones Situacionales:"),
+                                color = TextSecondary,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                allBootCandidates.forEach { sitBootName ->
+                                    val isSelected = currentBootBase.equals(sitBootName, ignoreCase = true)
+                                    val dbSitBoot = com.example.data.WildRiftRepository.items.find { it.name.equals(sitBootName, ignoreCase = true) || sitBootName.contains(it.name, ignoreCase = true) }
+                                    val sitIcon = dbSitBoot?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(sitBootName)
+
+                                    Box(
+                                        modifier = Modifier
+                                            .size(28.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(if (isSelected) HextechCyan.copy(alpha = 0.3f) else HextechSurfaceVariant)
+                                            .border(
+                                                width = if (isSelected) 1.5.dp else 0.8.dp,
+                                                color = if (isSelected) HextechCyan else HextechCardBorder,
+                                                shape = RoundedCornerShape(6.dp)
+                                            )
+                                            .clickable {
+                                                selectedBootBaseOverride = sitBootName
+                                            }
+                                    ) {
+                                        AppAssetImage(
+                                            url = sitIcon,
+                                            contentDescription = tr(sitBootName),
+                                            fallbackText = tr(sitBootName),
+                                            modifier = Modifier.fillMaxSize(),
+                                            shape = RoundedCornerShape(6.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
