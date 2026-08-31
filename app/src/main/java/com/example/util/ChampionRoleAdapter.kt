@@ -564,26 +564,25 @@ object ChampionRoleAdapter {
                 it.role.isBlank() || 
                 it.role.equals(role.name, ignoreCase = true) || 
                 it.role.equals(role.shortName, ignoreCase = true) ||
-                (role == LaneRole.TOP && it.role.equals("top", ignoreCase = true)) ||
-                (role == LaneRole.JUNGLE && it.role.equals("jungle", ignoreCase = true)) ||
-                (role == LaneRole.MID && it.role.equals("mid", ignoreCase = true)) ||
-                (role == LaneRole.ADC && (it.role.equals("adc", ignoreCase = true) || it.role.equals("duo", ignoreCase = true))) ||
+                (role == LaneRole.TOP && (it.role.equals("top", ignoreCase = true) || it.role.equals("baron", ignoreCase = true))) ||
+                (role == LaneRole.JUNGLE && (it.role.equals("jungle", ignoreCase = true) || it.role.equals("jg", ignoreCase = true))) ||
+                (role == LaneRole.MID && (it.role.equals("mid", ignoreCase = true) || it.role.equals("middle", ignoreCase = true))) ||
+                (role == LaneRole.ADC && (it.role.equals("adc", ignoreCase = true) || it.role.equals("duo", ignoreCase = true) || it.role.equals("bot", ignoreCase = true))) ||
                 (role == LaneRole.SUPPORT && (it.role.equals("support", ignoreCase = true) || it.role.equals("supp", ignoreCase = true)))
             }
-            val others = champ.builds.filter { !matching.contains(it) }
-            val orderedBuilds = (matching + others).ifEmpty { champ.builds }
+            val targetBuilds = if (matching.isNotEmpty()) matching else champ.builds
 
-            return orderedBuilds.mapIndexed { idx, b ->
+            return targetBuilds.mapIndexed { idx, b ->
                 val resolvedSpells = ensureUniqueSpells(if (b.spells.isNotEmpty()) b.spells else defaultSpells, role)
                 val resolvedSpellsIcons = resolvedSpells.map { WildRiftSpellsAndRunes.getSpellIconByName(it) }
                 val parsedRunes = b.runes.split(",").map { it.trim() }.filter { it.isNotBlank() }
                 val resolvedRunes = if (parsedRunes.isNotEmpty()) parsedRunes else opt1Runes
 
                 val bRole = when (b.role.lowercase().trim()) {
-                    "top" -> "Top"
-                    "jungle" -> "Jungla"
-                    "mid" -> "Mid"
-                    "adc", "duo" -> "Dúo"
+                    "top", "baron" -> "Top"
+                    "jungle", "jg" -> "Jungla"
+                    "mid", "middle" -> "Mid"
+                    "adc", "duo", "bot" -> "Dúo"
                     "support", "supp" -> "Soporte"
                     else -> b.role.ifBlank { "Meta" }
                 }

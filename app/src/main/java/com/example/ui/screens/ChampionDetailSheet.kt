@@ -275,7 +275,10 @@ fun ChampionDetailSheet(
                                         color = if (isSelected) HextechGold else HextechCardBorder,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { selectedRole = role }
+                                    .clickable { 
+                                        selectedRole = role 
+                                        selectedBuildOptionIndex = 0
+                                    }
                                     .padding(vertical = 6.dp, horizontal = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -514,26 +517,6 @@ fun ChampionDetailSheet(
             // ==========================================
             // BUILDS TÁCTICAS (4 OPCIONES SEGÚN META Y CRITERIO COACH)
             // ==========================================
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "${tr("Builds tácticas")} • ${selectedRole.shortName}",
-                    color = HextechGold,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "4 Opciones Adaptadas",
-                    color = HextechCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-
             val buildOptionsList = roleProfile.buildOptions.ifEmpty {
                 // Fallback default options
                 listOf(
@@ -556,6 +539,26 @@ fun ChampionDetailSheet(
 
             val activeOption = buildOptionsList.getOrNull(selectedBuildOptionIndex.coerceIn(0, buildOptionsList.size - 1))
                 ?: buildOptionsList.first()
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${tr("Builds tácticas")} • ${selectedRole.shortName}",
+                    color = HextechGold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = if (buildOptionsList.size == 1) "1 ${tr("Opción Adaptada")}" else "${buildOptionsList.size} ${tr("Opciones Adaptadas")}",
+                    color = HextechCyan,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
 
             // 4-Option Selector Tabs
             Row(
@@ -690,9 +693,9 @@ fun ChampionDetailSheet(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 8 Items List
+                    // Items List
                     Text(
-                        text = "8 Objetos (1-6 Core • 7-8 Situacionales)",
+                        text = tr("Objetos de la Build"),
                         color = HextechCyan,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold
@@ -998,118 +1001,6 @@ fun ChampionDetailSheet(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-                    if (roleProfile.itemSwaps.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Text(tr("CAMBIOS SITUACIONALES"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Black)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        
-                        roleProfile.itemSwaps.forEach { swap ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 12.dp)
-                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF07121A)),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(14.dp)) {
-                                    Text(tr(swap.reasonTitle), color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Black)
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        // Primer Objeto (Situacional Base 7 u 8)
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .clickable {
-                                                    val db = WildRiftItemsData.getItemByName(swap.coreItem)
-                                                    if (db != null) {
-                                                        itemForDetail = db
-                                                    } else {
-                                                        selectedSituationalItem = swap.coreItem
-                                                    }
-                                                }
-                                                .padding(4.dp)
-                                        ) {
-                                            AppAssetImage(
-                                                url = swap.coreItemIcon,
-                                                contentDescription = tr(swap.coreItem),
-                                                fallbackText = tr(swap.coreItem),
-                                                modifier = Modifier.size(44.dp),
-                                                borderColor = HextechGold,
-                                                shape = RoundedCornerShape(8.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = "${tr("Base")}\n${tr(swap.coreItem)}",
-                                                color = HextechGoldLight,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                textAlign = TextAlign.Center,
-                                                lineHeight = 12.sp
-                                            )
-                                        }
-                                        
-                                        // Arrow
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(horizontal = 6.dp)
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(HextechCyan.copy(alpha = 0.2f))
-                                                .border(1.dp, HextechCyan, RoundedCornerShape(6.dp))
-                                                .padding(6.dp)
-                                        ) {
-                                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Swap", tint = HextechGold, modifier = Modifier.size(16.dp))
-                                        }
-                                        
-                                        // Segundo Objeto (Alternativa Situacional)
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .clickable {
-                                                    val db = WildRiftItemsData.getItemByName(swap.altItem)
-                                                    if (db != null) {
-                                                        itemForDetail = db
-                                                    } else {
-                                                        selectedSituationalItem = swap.altItem
-                                                    }
-                                                }
-                                                .padding(4.dp)
-                                        ) {
-                                            AppAssetImage(
-                                                url = swap.altItemIcon,
-                                                contentDescription = tr(swap.altItem),
-                                                fallbackText = tr(swap.altItem),
-                                                modifier = Modifier.size(44.dp),
-                                                borderColor = HextechCyan,
-                                                shape = RoundedCornerShape(8.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = "${tr("Reemplazo")}\n${tr(swap.altItem)}",
-                                                color = HextechCyan,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.SemiBold,
-                                                textAlign = TextAlign.Center,
-                                                lineHeight = 12.sp
-                                            )
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Text(tr(swap.reasonDesc), color = TextPrimary, fontSize = 12.sp, lineHeight = 16.sp)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(tr("Bueno contra:") + " " + tr(swap.againstWho), color = TextPrimary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
-                        }
-                    }
 
             Spacer(modifier = Modifier.height(16.dp))
 
