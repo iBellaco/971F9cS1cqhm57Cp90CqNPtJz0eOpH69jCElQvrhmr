@@ -22,6 +22,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -72,6 +73,7 @@ fun AvatarSelectionBottomSheet(
     }
     var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "Todas") }
     
+    var selectedCategory by remember { mutableStateOf("Avatares") }
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }
     var isUpdating by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -213,6 +215,7 @@ fun AvatarSelectionBottomSheet(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            if (selectedCategory == "Avatares") {
             // Search Bar
             OutlinedTextField(
                 value = searchQuery,
@@ -495,8 +498,8 @@ fun AvatarSelectionBottomSheet(
                     }
                 }
                 } // End of forEach
-            }
-                } else {
+            } // End of LazyVerticalGrid
+        } else {
                     // MARCOS (BORDERS) SECTION
                     val borders = listOf("NONE", "MASTER", "GRANDMASTER", "CHALLENGER")
                     Spacer(modifier = Modifier.height(16.dp))
@@ -617,6 +620,8 @@ fun AvatarSelectionBottomSheet(
                         }
                     }
                 }
+        } // End of Column
+    } // End of ModalBottomSheet
 
     // Modal when user tries to equip a locked avatar
     if (showPremiumRequiredDialog != null) {
