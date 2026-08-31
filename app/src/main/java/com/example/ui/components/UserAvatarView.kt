@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.clipPath
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -37,6 +40,8 @@ import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun UserAvatarView(
@@ -45,7 +50,8 @@ fun UserAvatarView(
     size: Dp = 56.dp,
     fallbackInitial: String = "U",
     showBorder: Boolean = true,
-    customBorderColor: Color? = null
+    customBorderColor: Color? = null,
+    rankBorder: String = "NONE"
 ) {
     val avatar: AvatarItem = AvatarCatalog.getAvatarById(avatarId ?: "default_poro")
     val parsedBorderColor = customBorderColor ?: try {
@@ -53,10 +59,9 @@ fun UserAvatarView(
     } catch (e: Exception) {
         HextechGold
     }
-
-        val rarityLower = avatar.rarity.lowercase()
+    
+    val rarityLower = avatar.rarity.lowercase()
     val isCommon = rarityLower == "común" || rarityLower == "comun" || rarityLower == "clásico"
-
     val borderWidth = when {
         rarityLower.contains("mítico") || rarityLower.contains("mitico") -> if (size > 60.dp) 3.5.dp else 2.5.dp
         rarityLower.contains("legendario") -> if (size > 60.dp) 3.dp else 2.dp
@@ -64,7 +69,7 @@ fun UserAvatarView(
         rarityLower.contains("raro") -> if (size > 60.dp) 2.dp else 1.5.dp
         else -> 1.dp
     }
-
+    
     val runicBorderBrush = when {
         rarityLower.contains("mítico") || rarityLower.contains("mitico") -> Brush.sweepGradient(listOf(Color(0xFFC4B5FD), Color(0xFF7C3AED), Color(0xFF5B21B6), Color(0xFFC4B5FD)))
         rarityLower.contains("legendario") -> Brush.sweepGradient(listOf(Color(0xFFFFD700), Color(0xFFB91C1C), Color(0xFF991B1B), Color(0xFFFFD700)))
@@ -72,8 +77,28 @@ fun UserAvatarView(
         rarityLower.contains("raro") -> Brush.linearGradient(listOf(Color(0xFF93C5FD), Color(0xFF2563EB), Color(0xFF93C5FD)))
         else -> Brush.linearGradient(listOf(parsedBorderColor, parsedBorderColor))
     }
-
+    
     val actualShowBorder = showBorder && !isCommon
+
+    val infiniteTransition = rememberInfiniteTransition(label = "ChallengerGlow")
+    val glowPulse by infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "GlowPulse"
+    )
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Rotation"
+    )
 
     Box(
         modifier = modifier
@@ -89,7 +114,13 @@ fun UserAvatarView(
                 )
             )
             .then(
-                if (actualShowBorder) {
+                if (rankBorder != "NONE") {
+                    Modifier.rankedBorderPainter(
+                        rank = rankBorder,
+                        glowPulse = glowPulse,
+                        rotation = rotation
+                    )
+                } else if (actualShowBorder) {
                     if (rarityLower.contains("mítico") || rarityLower.contains("mitico") || rarityLower.contains("legendario")) {
                         Modifier.premiumBorderPainter(
                             rarity = rarityLower,
@@ -107,7 +138,6 @@ fun UserAvatarView(
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Fallback Initial text while loading or if offline
         Text(
             text = fallbackInitial.take(1).uppercase(),
             color = HextechGoldLight,
@@ -115,7 +145,6 @@ fun UserAvatarView(
             fontSize = (size.value * 0.38f).sp,
             fontFamily = FontFamily.Serif
         )
-
         if (avatar.imageUrl.isNotBlank()) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -134,6 +163,91 @@ fun UserAvatarView(
     }
 }
 
+fun Modifier.rankedBorderPainter(rank: String, glowPulse: Float, rotation: Float): Modifier = this.drawWithCache {
+    onDrawWithContent {
+        drawContent()
+        val cx = size.width / 2
+        val cy = size.height / 2
+        val r = size.width / 2
+        
+        when (rank.uppercase()) {
+            "MASTER" -> {
+                // Purple/Pink sleek frame
+                drawCircle(
+                    brush = Brush.sweepGradient(listOf(Color(0xFFFF00FF), Color(0xFF8A2BE2), Color(0xFF4B0082), Color(0xFFFF00FF))),
+                    radius = r - 2.dp.toPx(),
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 4.dp.toPx())
+                )
+                drawCircle(
+                    color = Color(0xFFFF00FF).copy(alpha = 0.5f),
+                    radius = r,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 1.dp.toPx())
+                )
+            }
+            "GRANDMASTER" -> {
+                // Red/Gold aggressive frame
+                drawCircle(
+                    brush = Brush.sweepGradient(listOf(Color(0xFFFF4500), Color(0xFFDC143C), Color(0xFFFFD700), Color(0xFFFF4500))),
+                    radius = r - 2.5.dp.toPx(),
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 5.dp.toPx())
+                )
+                // Small inner accent
+                drawCircle(
+                    color = Color(0xFFFFD700),
+                    radius = r - 5.dp.toPx(),
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f)))
+                )
+            }
+            "CHALLENGER" -> {
+                // Bright glowing Gold and Cyan frame with spinning aura and pulsing gem
+                rotate(rotation) {
+                    drawCircle(
+                        brush = Brush.sweepGradient(listOf(Color(0xFF00FFFF), Color(0xFFFFD700), Color(0xFF00BFFF), Color(0xFFFFD700), Color(0xFF00FFFF))),
+                        radius = r - 3.dp.toPx(),
+                        center = Offset(cx, cy),
+                        style = Stroke(width = 6.dp.toPx())
+                    )
+                }
+                // Pulsing glow inner ring
+                drawCircle(
+                    color = Color(0xFFFFD700).copy(alpha = 0.3f + (0.4f * glowPulse)),
+                    radius = r,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 8.dp.toPx())
+                )
+                // Challenger Bottom Gem (Hexagon)
+                val gemPath = Path().apply {
+                    val gemR = 8.dp.toPx()
+                    val gemY = size.height - 2.dp.toPx()
+                    moveTo(cx, gemY - gemR)
+                    lineTo(cx + gemR * 0.866f, gemY - gemR/2)
+                    lineTo(cx + gemR * 0.866f, gemY + gemR/2)
+                    lineTo(cx, gemY + gemR)
+                    lineTo(cx - gemR * 0.866f, gemY + gemR/2)
+                    lineTo(cx - gemR * 0.866f, gemY - gemR/2)
+                    close()
+                }
+                drawPath(
+                    path = gemPath,
+                    brush = Brush.radialGradient(
+                        colors = listOf(Color(0xFF00FFFF), Color(0xFF008080)),
+                        center = Offset(cx, size.height - 2.dp.toPx()),
+                        radius = 8.dp.toPx()
+                    )
+                )
+                drawPath(
+                    path = gemPath,
+                    color = Color(0xFFFFD700),
+                    style = Stroke(width = 1.5.dp.toPx())
+                )
+            }
+        }
+    }
+}
 
 fun Modifier.premiumBorderPainter(rarity: String, isMythic: Boolean, isLegendary: Boolean): Modifier {
     if (!isMythic && !isLegendary) return this
@@ -152,7 +266,6 @@ fun Modifier.premiumBorderPainter(rarity: String, isMythic: Boolean, isLegendary
         onDrawWithContent {
             drawContent()
             
-            // Extravagant ring on top, inside the bounds
             drawCircle(
                 brush = brush,
                 radius = size.width / 2 - strokeWidth / 2,
@@ -164,7 +277,6 @@ fun Modifier.premiumBorderPainter(rarity: String, isMythic: Boolean, isLegendary
             )
             
             if (isMythic) {
-                // Additional inner ring for mythic
                 drawCircle(
                     color = Color(0xFFE9D5FF),
                     radius = size.width / 2 - strokeWidth,

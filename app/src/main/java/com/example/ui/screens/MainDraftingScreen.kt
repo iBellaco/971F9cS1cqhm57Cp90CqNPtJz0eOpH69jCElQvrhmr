@@ -114,7 +114,7 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.TextMuted
-import androidx.compose.foundation.BorderStroke
+import BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Warning
@@ -153,6 +153,7 @@ fun MainDraftingScreen(
     var showDonationDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
+    val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
 
     // Sincronizar estado del servicio cuando la app pasa a primer plano
     DisposableEffect(lifecycleOwner) {
@@ -378,6 +379,7 @@ fun MainDraftingScreen(
                             ) {
                                 UserAvatarView(
                                     avatarId = currentAvatarId,
+                                    rankBorder = currentRankBorder,
                                     size = 36.dp,
                                     fallbackInitial = authUser.displayName ?: authUser.email ?: "U"
                                 )
@@ -443,7 +445,7 @@ fun MainDraftingScreen(
                         containerColor = HextechSurface.copy(alpha = 0.9f),
                         contentColor = HextechGold
                     ),
-                    border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
+                    border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,

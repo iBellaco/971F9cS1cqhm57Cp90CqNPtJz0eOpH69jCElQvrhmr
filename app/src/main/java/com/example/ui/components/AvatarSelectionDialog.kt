@@ -59,6 +59,7 @@ fun AvatarSelectionBottomSheet(
     val context = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
+    val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
     val unlockedAvatars by SubscriptionManager.unlockedAvatars.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
 
@@ -167,6 +168,7 @@ fun AvatarSelectionBottomSheet(
                 ) {
                     UserAvatarView(
                         avatarId = currentAvatarId,
+                                    rankBorder = currentRankBorder,
                         size = 54.dp
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -494,8 +496,127 @@ fun AvatarSelectionBottomSheet(
                 }
                 } // End of forEach
             }
-        }
-    }
+                } else {
+                    // MARCOS (BORDERS) SECTION
+                    val borders = listOf("NONE", "MASTER", "GRANDMASTER", "CHALLENGER")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    if (!isPremium && userRole != "admin") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(HextechGold.copy(alpha = 0.1f))
+                                .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = Icons.Filled.Diamond,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Desbloquea Marcos Dinámicos",
+                                    color = HextechGold,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Sube de nivel tu perfil con los impresionantes marcos animados de Retador, Gran Maestro y Maestro. Exclusivo para usuarios Premium.",
+                                    color = TextSecondary,
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = onOpenPremiumPlans,
+                                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = Color.Black)
+                                ) {
+                                    Text("Ver Planes Premium", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
+                        columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(2),
+                        contentPadding = PaddingValues(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        items(borders.size) { index ->
+                            val border = borders[index]
+                            val isSelected = currentRankBorder == border
+                            val isAvailable = isPremium || userRole == "admin" || border == "NONE"
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(0.85f)
+                                    .clickable(enabled = isAvailable) {
+                                        SubscriptionManager.changeRankBorder(
+                                            borderId = border,
+                                            onSuccess = {
+                                                android.widget.Toast.makeText(context, "Marco actualizado", android.widget.Toast.LENGTH_SHORT).show()
+                                            },
+                                            onError = { err ->
+                                                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_LONG).show()
+                                            }
+                                        )
+                                    },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) HextechGold.copy(alpha = 0.1f) else HextechDarkBg
+                                ),
+                                border = BorderStroke(
+                                    width = if (isSelected) 2.dp else 1.dp,
+                                    color = if (isSelected) HextechGold else HextechCardBorder
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(12.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier.size(80.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        UserAvatarView(
+                                            avatarId = currentAvatarId,
+                                    size = 64.dp,
+                                            rankBorder = border,
+                                            showBorder = false
+                                        )
+                                        if (!isAvailable) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .background(Color.Black.copy(alpha = 0.6f), CircleShape),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(Icons.Filled.Lock, contentDescription = null, tint = Color.White)
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = if (border == "NONE") "Sin Marco" else border,
+                                        color = if (isSelected) HextechGold else TextPrimary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
 
     // Modal when user tries to equip a locked avatar
     if (showPremiumRequiredDialog != null) {

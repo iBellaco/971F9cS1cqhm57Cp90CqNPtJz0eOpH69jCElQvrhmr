@@ -92,7 +92,7 @@ fun AuthFlowContainer(
                 .padding(vertical = 8.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            border = BorderStroke(1.dp, HextechCardBorder)
         ) {
             Column(
                 modifier = Modifier
@@ -138,6 +138,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     val userRole by SubscriptionManager.userRole.collectAsState()
     val savedUserName by SubscriptionManager.userName.collectAsState()
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
+    val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
     var showAvatarDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
@@ -178,7 +179,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
@@ -204,6 +205,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 UserAvatarView(
                     avatarId = currentAvatarId,
+                                    rankBorder = currentRankBorder,
                     size = 72.dp,
                     fallbackInitial = finalUserName
                 )
@@ -268,7 +270,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 colors = CardDefaults.cardColors(
                     containerColor = if (isPremium) com.example.ui.theme.HextechGold.copy(alpha = 0.1f) else androidx.compose.ui.graphics.Color.Transparent
                 ),
-                border = androidx.compose.foundation.BorderStroke(
+                border = BorderStroke(
                     1.dp, 
                     if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.TextMuted
                 ),
@@ -363,7 +365,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.3f))
+                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.3f))
             ) {
                 Text("Cerrar Sesión", color = DangerRed)
             }

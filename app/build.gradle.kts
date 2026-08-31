@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 244
-    versionName = "1.3.225"
+    versionCode = 245
+    versionName = "1.3.226"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -31,6 +31,8 @@ android {
       storePassword = "android"
       keyAlias = "androiddebugkey"
       keyPassword = "android"
+      
+      
     }
     create("release") {
       val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
@@ -45,6 +47,8 @@ android {
         storePassword = "android"
         keyAlias = "androiddebugkey"
         keyPassword = "android"
+      
+      
       }
     }
   }

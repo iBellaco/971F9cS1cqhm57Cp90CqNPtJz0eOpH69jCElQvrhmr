@@ -26,6 +26,9 @@ object SubscriptionManager {
     private val _currentAvatarId = MutableStateFlow("default_poro")
     val currentAvatarId: StateFlow<String> = _currentAvatarId.asStateFlow()
 
+    private val _currentRankBorder = MutableStateFlow("NONE")
+    val currentRankBorder: StateFlow<String> = _currentRankBorder.asStateFlow()
+
     private val _unlockedAvatars = MutableStateFlow<List<String>>(emptyList())
     val unlockedAvatars: StateFlow<List<String>> = _unlockedAvatars.asStateFlow()
 
@@ -75,6 +78,8 @@ object SubscriptionManager {
                         _userName.value = dbName
                     }
                     val dbAvatarId = snapshot.getString("avatarId") ?: "default_poro"
+                    val dbRankBorder = snapshot.getString("rankBorder") ?: "NONE"
+                    _currentRankBorder.value = dbRankBorder
                     _currentAvatarId.value = dbAvatarId
                     @Suppress("UNCHECKED_CAST")
                     val dbUnlocked = snapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
@@ -98,6 +103,7 @@ object SubscriptionManager {
                     val banned = listenSnapshot.getBoolean("banned") ?: false
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
+                    val rankBorder = listenSnapshot.getString("rankBorder") ?: "NONE"
                     @Suppress("UNCHECKED_CAST")
                     val unlocked = listenSnapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
 
@@ -109,6 +115,7 @@ object SubscriptionManager {
                     val isPrem = role == "premium" || role == "admin"
                     _isPremium.value = isPrem
                     _currentAvatarId.value = avatarId
+                    
                     _unlockedAvatars.value = unlocked
                 } else {
                     _userName.value = ""
@@ -151,11 +158,29 @@ object SubscriptionManager {
         userRef.set(hashMapOf("avatarId" to avatarId), SetOptions.merge())
             .addOnSuccessListener {
                 _currentAvatarId.value = avatarId
+                    
                 onSuccess()
             }
             .addOnFailureListener {
                 onError("Error al actualizar el avatar: ${it.message}")
             }
+    }
+
+    fun changeRankBorder(borderId: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        val user = AuthManager.getAuth()?.currentUser
+        if (user == null) {
+            onError("Inicia sesión para cambiar de marco")
+            return
+        }
+        if (!_isPremium.value && _userRole.value != "admin" && borderId != "NONE") {
+            onError("Esta característica es exclusiva para usuarios Premium.")
+            return
+        }
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+        userRef.set(hashMapOf("rankBorder" to borderId), SetOptions.merge())
+            .addOnSuccessListener { _currentRankBorder.value = borderId; onSuccess() }
+            .addOnFailureListener { onError("Error al actualizar el marco: ${it.message}") }
     }
 
     fun upgradeToPremium() {
