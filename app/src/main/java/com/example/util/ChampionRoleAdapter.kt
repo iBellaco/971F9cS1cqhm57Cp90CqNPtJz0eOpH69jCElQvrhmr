@@ -19,6 +19,7 @@ data class ChampionBuildOption(
     val bootBase: String,
     val bootUpgrade: String,
     val situationalBoots: List<String> = emptyList(),
+    val situationalItems: List<String> = emptyList(),
     val runes: List<String>,
     val spells: List<String>,
     val spellsIcons: List<String>
@@ -609,7 +610,7 @@ object ChampionRoleAdapter {
                 val cleanItems = (if (b.items.isNotEmpty()) b.items else defaultBuild8).filter { !isBootItem(it) }
                 val bBootBase = if (b.bootBase.isNotBlank()) b.bootBase else if (bRole == "Top") "Botas blindadas" else if (bRole == "Jungla" && champ.damageType == DamageType.PHYSICAL) "Botas dinámicas" else defaultBootBase
                 val bBootUpgrade = if (b.bootUpgrade.isNotBlank()) b.bootUpgrade else getTier3BootUpgrade(bBootBase)
-                val bSituationalBoots = if (b.situationalBoots.isNotEmpty()) b.situationalBoots else getSituationalBoots(bBootBase, champ.damageType, champ.isFrontline, champ.isRanged, role)
+                val bSituationalBoots = if (b.bootBase.isNotBlank()) b.situationalBoots else if (b.situationalBoots.isNotEmpty()) b.situationalBoots else getSituationalBoots(bBootBase, champ.damageType, champ.isFrontline, champ.isRanged, role)
 
                 ChampionBuildOption(
                     optionNumber = idx + 1,
@@ -622,6 +623,7 @@ object ChampionRoleAdapter {
                     bootBase = bBootBase,
                     bootUpgrade = bBootUpgrade,
                     situationalBoots = bSituationalBoots,
+                    situationalItems = b.situationalItems,
                     runes = resolvedRunes,
                     spells = resolvedSpells,
                     spellsIcons = resolvedSpellsIcons

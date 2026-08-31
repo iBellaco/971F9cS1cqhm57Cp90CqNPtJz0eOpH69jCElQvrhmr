@@ -958,6 +958,20 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192846_3102_11zon.webp"
         ),
         WildRiftItem(
+            id = "crown_of_the_shattered_queen",
+            name = "Corona de la Reina Ahogada",
+            nameEn = "Crown of the Shattered Queen",
+            category = "Objetos de Daño Mágico",
+            goldCost = 3000,
+            stats = "+70 Poder de Habilidad • +200 Salud Máxima • +20 Celeridad de Habilidad • +7% Velocidad de Movimiento",
+            statsEn = "+70 Ability Power • +200 Max Health • +20 Ability Haste • +7% Move Speed",
+            passive = "Salvaguarda: Otorga Salvaguarda, que reduce el daño recibido de campeones en un 70% durante 1.5 s. (40 s de enfriamiento).\nPoise: Otorga 20 de Poder de Habilidad mientras Salvaguarda está activa.",
+            passiveEn = "Safeguard: Grants Safeguard, reducing incoming champion damage by 70% for 1.5s. (40s Cooldown)\nPoise: Grants 20 Ability Power while Safeguard is active.",
+            coachTip = "Objeto defensivo supremo para magos y asesinos AP. El escudo de Salvaguarda absorbe el 70% del daño inicial para permitirte reaccionar o asestar tu combo antes de ser eliminado.",
+            coachTipEn = "Premier defensive anti-burst AP item. Safeguard shield mitigates 70% incoming damage to ensure combo execution.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388701_crown-of-the-shattered-queen.webp"
+        ),
+        WildRiftItem(
             id = "hextech_roketbelt",
             name = "Cinturón de cohetes hextech",
             nameEn = "Hextech Roketbelt",

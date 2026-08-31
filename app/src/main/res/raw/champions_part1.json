@@ -284,9 +284,10 @@
           "Gorro de muerte del miércoles"
         ],
         "situationalItems": [
-          "Perdición del exánime",
-          "Bastón vacío",
-          "Impulso Cósmico"
+          "Tridente de oceánida",
+          "Morellonomicón",
+          "Impulso Cósmico",
+          "Velo de alma en pena"
         ],
         "runes": "Electrocutar,Impacto Repentino,Colección de Globos Oculares,Cazador Ingenioso,Trascendencia",
         "spells": [
@@ -297,17 +298,13 @@
           "Eco de Luden",
           "Orbe infinito",
           "Gorro de muerte del miércoles",
+          "Corona de la Reina Ahogada",
           "Perdición del exánime",
-          "Bastón vacío",
-          "Impulso Cósmico"
+          "Bastón vacío"
         ],
         "bootBase": "Botas de maná",
         "bootUpgrade": "Botas del lanzahechizos",
-        "situationalBoots": [
-          "Botas jonias de la lucidez",
-          "Botas de mercurio",
-          "Botas blindadas"
-        ]
+        "situationalBoots": []
       },
       {
         "id": "ahri_mid_definitiva",
@@ -319,9 +316,9 @@
           "Gorro de muerte del miércoles"
         ],
         "situationalItems": [
-          "Orbe infinito",
-          "Bastón vacío",
-          "Velo de alma en pena"
+          "Tridente de oceánida",
+          "Morellonomicón",
+          "Perdición del exánime"
         ],
         "runes": "Cometa Arcano,Piroláser,Trascendencia,Banda de Maná,Revestimiento de Huesos",
         "spells": [
@@ -332,16 +329,13 @@
           "Malignance",
           "Impulso Cósmico",
           "Gorro de muerte del miércoles",
-          "Orbe infinito",
+          "Corona de la Reina Ahogada",
           "Bastón vacío",
           "Velo de alma en pena"
         ],
         "bootBase": "Botas jonias de la lucidez",
         "bootUpgrade": "Lucidez carmesí",
-        "situationalBoots": [
-          "Botas de maná",
-          "Botas de mercurio"
-        ]
+        "situationalBoots": []
       }
     ]
   },
@@ -452,27 +446,26 @@
           "Gorro de muerte del miércoles"
         ],
         "situationalItems": [
-          "Perdición del exánime",
-          "Bastón vacío",
+          "Tridente de oceánida",
+          "Morellonomicón",
           "Velo de alma en pena"
         ],
-        "runes": "Electrocutar,Impacto Repentino,Colección de Globos Oculares,Cazador Ingenioso,Revestimiento de Huesos",
+        "runes": "Pies veloces,Triunfo,Golpe de Gracia,Leyenda: Tenacidad,Impacto Repentino",
         "spells": [
-          "Destello",
-          "Prender"
+          "Prender",
+          "Destello"
         ],
         "items": [
           "Orbe infinito",
           "Hacedor de grietas",
           "Gorro de muerte del miércoles",
+          "Corona de la Reina Ahogada",
           "Perdición del exánime",
-          "Bastón vacío",
-          "Velo de alma en pena"
+          "Bastón vacío"
         ],
-        "bootBase": "Botas de maná",
-        "bootUpgrade": "Botas del lanzahechizos",
+        "bootBase": "Botas de mercurio",
+        "bootUpgrade": "Trituradoras encadenadas",
         "situationalBoots": [
-          "Botas de mercurio",
           "Botas blindadas"
         ]
       },
@@ -486,9 +479,9 @@
           "Gorro de muerte del miércoles"
         ],
         "situationalItems": [
-          "El tormento de Liandry",
-          "Bastón vacío",
-          "Corona abrasadora"
+          "Tridente de oceánida",
+          "Morellonomicón",
+          "Velo de alma en pena"
         ],
         "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Tenacidad,Fuerzas Renovadas",
         "spells": [
@@ -506,7 +499,6 @@
         "bootBase": "Botas de mercurio",
         "bootUpgrade": "Trituradoras encadenadas",
         "situationalBoots": [
-          "Botas de maná",
           "Botas blindadas"
         ]
       }
@@ -620,8 +612,9 @@
           "Recordatorio mortal"
         ],
         "situationalItems": [
-          "Espada del Rey Arruinado",
-          "Blaster magnético",
+          "Colmillo de serpiente",
+          "Fauces de Malmortius",
+          "Filo de la noche",
           "Ángel custodio"
         ],
         "runes": "Fortalecimiento,Brutal,Golpe de Gracia,Leyenda: Presteza,Revestimiento de Huesos",
@@ -639,12 +632,7 @@
         ],
         "bootBase": "Grebas de berserker",
         "bootUpgrade": "Grebas de metal",
-        "situationalBoots": [
-          "Grebas codiciosas",
-          "Botas dinámicas",
-          "Botas blindadas",
-          "Botas de mercurio"
-        ]
+        "situationalBoots": []
       }
     ]
   },

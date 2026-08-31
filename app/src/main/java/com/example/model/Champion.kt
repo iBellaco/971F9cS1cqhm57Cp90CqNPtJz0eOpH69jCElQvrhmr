@@ -62,6 +62,8 @@ data class ChampionBuild(
     val title: String = "",
     val role: String = "",
     val items: List<String> = emptyList(),
+    val coreItems: List<String> = emptyList(),
+    val situationalItems: List<String> = emptyList(),
     val runes: String = "",
     val spells: List<String> = emptyList(),
     val bootBase: String = "",
