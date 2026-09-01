@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // DEVSECOPS: STRICT ROLE-BASED ACCESS CONTROL (RBAC)
+    // Only Cloud Functions (Admin SDK) can write to 'role' and 'premiumUntil'.
+    // Clients can read their own data.
+    
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // The following write rule PREVENTS privilege escalation (BOLA/Broken Access Control).
+      // Clients can update basic profile data, but CANNOT elevate their own roles.
+      allow write: if request.auth != null 
+                   && request.auth.uid == userId
+                   && !request.resource.data.keys().hasAny(['role', 'premiumUntil']);
+                   
+      match /subscription_history/{historyId} {
+        // Only Cloud Functions should write history upon successful payment via Stripe/Google Play.
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Denied from client.
+      }
+    }
+    
+    // Admins can read/write everything
+    match /{document=**} {
+      allow read, write: if request.auth != null 
+                         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+  }
+}

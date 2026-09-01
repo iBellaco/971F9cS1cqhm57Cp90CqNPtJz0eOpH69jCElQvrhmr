@@ -313,7 +313,16 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-                AppThemeManager.init(this)
+        
+        // OWASP MASVS: Anti-Tampering & Screen Protection (DevSecOps)
+        com.example.util.AppSecurityManager.enableScreenProtection(this)
+        
+        if (com.example.util.AppSecurityManager.isDeviceRooted() || com.example.util.AppSecurityManager.isDebuggerAttached()) {
+            android.util.Log.w("AppSecurity", "WARNING: Device may be rooted or debugger is attached. Applying degraded functionality mode or just warning.")
+            // Real apps might exit here: finishAffinity()
+        }
+        
+        AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
         askNotificationPermission()
 

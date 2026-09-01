@@ -520,7 +520,7 @@ object AppThemeManager {
         private set
 
     fun init(context: Context) {
-        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, "app_prefs_enc")
         val savedThemeId = prefs.getString(PREFS_KEY_THEME, AppTheme.PILTOVER.id) ?: AppTheme.PILTOVER.id
         val savedNavId = prefs.getString(PREFS_KEY_NAV_BAR, NavBarColorOption.THEME_AUTO.id) ?: NavBarColorOption.THEME_AUTO.id
         val savedOled = prefs.getBoolean(PREFS_KEY_OLED_MODE, false)
@@ -535,7 +535,7 @@ object AppThemeManager {
     fun setOledMode(enabled: Boolean, context: Context? = null) {
         isOledMode = enabled
         context?.let {
-            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(it, "app_prefs_enc")
             prefs.edit().putBoolean(PREFS_KEY_OLED_MODE, enabled).apply()
         }
     }
@@ -543,7 +543,7 @@ object AppThemeManager {
     fun setParticlesEnabled(enabled: Boolean, context: Context? = null) {
         isParticlesEnabled = enabled
         context?.let {
-            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(it, "app_prefs_enc")
             prefs.edit().putBoolean("particles_enabled", enabled).apply()
         }
     }
@@ -551,7 +551,7 @@ object AppThemeManager {
     fun setTheme(theme: AppTheme, context: Context? = null) {
         currentTheme = theme
         context?.let {
-            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(it, "app_prefs_enc")
             prefs.edit().putString(PREFS_KEY_THEME, theme.id).apply()
         }
     }
@@ -559,7 +559,7 @@ object AppThemeManager {
     fun setNavBarOption(option: NavBarColorOption, context: Context? = null) {
         currentNavBarOption = option
         context?.let {
-            val prefs = it.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(it, "app_prefs_enc")
             prefs.edit().putString(PREFS_KEY_NAV_BAR, option.id).apply()
         }
     }

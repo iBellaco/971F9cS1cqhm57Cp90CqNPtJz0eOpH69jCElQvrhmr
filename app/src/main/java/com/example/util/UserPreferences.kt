@@ -11,7 +11,7 @@ object UserPreferences {
     private const val KEY_ACTIVE_DRAFT_ROLE = "saved_active_draft_role"
 
     fun getMainRole(context: Context): LaneRole {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         val raw = prefs.getString(KEY_MAIN_ROLE, LaneRole.MID.name) ?: LaneRole.MID.name
         return try {
             LaneRole.valueOf(raw)
@@ -21,12 +21,12 @@ object UserPreferences {
     }
 
     fun setMainRole(context: Context, role: LaneRole) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         prefs.edit().putString(KEY_MAIN_ROLE, role.name).apply()
     }
 
     fun getSecondRole(context: Context): LaneRole {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         val raw = prefs.getString(KEY_SECOND_ROLE, LaneRole.ADC.name) ?: LaneRole.ADC.name
         return try {
             LaneRole.valueOf(raw)
@@ -36,12 +36,12 @@ object UserPreferences {
     }
 
     fun setSecondRole(context: Context, role: LaneRole) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         prefs.edit().putString(KEY_SECOND_ROLE, role.name).apply()
     }
 
     fun getAutofillRole(context: Context): LaneRole {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         val raw = prefs.getString(KEY_AUTOFILL_ROLE, LaneRole.SUPPORT.name) ?: LaneRole.SUPPORT.name
         return try {
             LaneRole.valueOf(raw)
@@ -51,12 +51,12 @@ object UserPreferences {
     }
 
     fun setAutofillRole(context: Context, role: LaneRole) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         prefs.edit().putString(KEY_AUTOFILL_ROLE, role.name).apply()
     }
 
     fun getActiveDraftRole(context: Context): LaneRole {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         val raw = prefs.getString(KEY_ACTIVE_DRAFT_ROLE, null)
         return if (raw != null) {
             try {
@@ -70,7 +70,7 @@ object UserPreferences {
     }
 
     fun setActiveDraftRole(context: Context, role: LaneRole) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = com.example.util.AppSecurityManager.getEncryptedSharedPreferences(context, PREFS_NAME + "_enc")
         prefs.edit().putString(KEY_ACTIVE_DRAFT_ROLE, role.name).apply()
     }
 }

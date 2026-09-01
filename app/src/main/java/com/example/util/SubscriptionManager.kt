@@ -244,6 +244,18 @@ object SubscriptionManager {
             "premiumUntil" to newUntil
         )
 
+        /* 
+         * 🔴 DEVSECOPS CRITICAL WARNING: BROKEN ACCESS CONTROL (OWASP API1:2023)
+         * Escribir `role` y `premiumUntil` directamente desde el cliente hacia Firestore es un riesgo 
+         * crítico. Un atacante puede interceptar y modificar esta petición o recompilar el APK 
+         * para inyectar su propio `updateMap` y escalar privilegios (Privilege Escalation).
+         * 
+         * MITIGACIÓN (Ver firestore.rules):
+         * 1. La escritura debe bloquearse para estos campos en Firebase Security Rules.
+         * 2. Este bloque debe ser reemplazado por una llamada a una Cloud Function HTTPS Invocable:
+         *    `FirebaseFunctions.getInstance().getHttpsCallable("processPayment").call(...)`
+         *    La función validará el comprobante de Google Play/Stripe y actualizará el documento.
+         */
         userRef.set(updateMap, SetOptions.merge())
             .addOnSuccessListener {
                 CoroutineScope(Dispatchers.IO).launch {

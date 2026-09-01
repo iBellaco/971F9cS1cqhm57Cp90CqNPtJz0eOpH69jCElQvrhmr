@@ -821,6 +821,7 @@ fun MetaAndDraftScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChampionsCatalogTab(
+    isOverlay: Boolean = false,
     onSelectChampion: (Champion) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -880,7 +881,7 @@ fun ChampionsCatalogTab(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
-        TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
+        if (!isOverlay) { TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope) }
 
 
         // Search Bar
@@ -1139,7 +1140,7 @@ fun ChampionsCatalogTab(
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ChampionAvatar(champion = champion, size = 58.dp)
+                        ChampionAvatar(champion = champion, size = if (isOverlay) 42.dp else 58.dp)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Row(
@@ -1176,11 +1177,11 @@ fun ChampionsCatalogTab(
                                     Text(
                                         text = champion.name,
                                         color = TextPrimary,
-                                        fontSize = 16.sp,
+                                        fontSize = if (isOverlay) 13.sp else 16.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
-                                Row(
+                                if (!isOverlay) { Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
@@ -1201,7 +1202,7 @@ fun ChampionsCatalogTab(
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                }
+                                } }
                             }
                             Spacer(modifier = Modifier.height(2.dp))
                             val roleFilter = selectedRoleFilter
@@ -1311,6 +1312,7 @@ enum class TierSortOption(val displayName: String, val shortLabel: String) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TierListTab(
+    isOverlay: Boolean = false,
     onSelectChampion: (Champion) -> Unit,
     isPremium: Boolean = false,
     horizontalPadding: androidx.compose.ui.unit.Dp = 16.dp
@@ -1356,7 +1358,7 @@ fun TierListTab(
     ) {
         item {
             Spacer(modifier = Modifier.height(4.dp))
-            TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
+            if (!isOverlay) { TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope) }
         }
 
         item {
@@ -1458,6 +1460,7 @@ fun TierListTab(
             if (tierSPlus.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
                         tierColor = TierSPlusColor,
                         champions = tierSPlus,
@@ -1470,6 +1473,7 @@ fun TierListTab(
             if (tierS.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER S (Meta Muy Fuerte / Alta Prioridad)",
                         tierColor = TierSColor,
                         champions = tierS,
@@ -1482,6 +1486,7 @@ fun TierListTab(
             if (tierA.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER A (Opciones Sólidas y Balanceadas)",
                         tierColor = TierAColor,
                         champions = tierA,
@@ -1494,6 +1499,7 @@ fun TierListTab(
             if (tierB.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER B (Opciones Viables)",
                         tierColor = com.example.ui.theme.TierBColor,
                         champions = tierB,
@@ -1506,6 +1512,7 @@ fun TierListTab(
             if (tierC.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER C (Situacionales)",
                         tierColor = com.example.ui.theme.TierCColor,
                         champions = tierC,
@@ -1518,6 +1525,7 @@ fun TierListTab(
             if (tierD.isNotEmpty()) {
                 item {
                     TierSectionCard(
+                        isOverlay = isOverlay,
                         tierName = "TIER D / OTROS",
                         tierColor = com.example.ui.theme.TierDColor,
                         champions = tierD,
@@ -1608,11 +1616,11 @@ fun TierListTab(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                SparklineTrendGraph(
+                                if (!isOverlay) { SparklineTrendGraph(
                                     winrate = champ.winrate,
                                     delta = champ.winrateDelta,
                                     modifier = Modifier.width(46.dp).height(22.dp)
-                                )
+                                ) }
                                 Column(horizontalAlignment = Alignment.End) {
                                     when (selectedSort) {
                                         TierSortOption.WIN_RATE -> {
@@ -1644,6 +1652,7 @@ fun TierListTab(
 
 @Composable
 fun TierSectionCard(
+    isOverlay: Boolean = false,
     tierName: String,
     tierColor: Color,
     champions: List<Champion>,
@@ -1698,11 +1707,11 @@ fun TierSectionCard(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            SparklineTrendGraph(
+                            if (!isOverlay) { SparklineTrendGraph(
                                 winrate = champ.winrate,
                                 delta = champ.winrateDelta,
                                 modifier = Modifier.width(46.dp).height(22.dp)
-                            )
+                            ) }
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -3306,6 +3315,7 @@ private fun MapObjectivesTab() {
 // ====================================================================
 @Composable
 fun DraftAnalysisTab(
+    isOverlay: Boolean = false,
     myChampion: Champion?,
     activeRole: LaneRole,
     allySlots: List<DraftSlot>,
@@ -3700,6 +3710,7 @@ fun DraftAnalysisTab(
 
         // Panel de Selección Oficial de Posiciones - Equipo Aliado
         DraftTeamPositionCard(
+            isOverlay = isOverlay,
             title = "Equipo Aliado",
             isEnemy = false,
             slots = allySlots,
@@ -3713,6 +3724,7 @@ fun DraftAnalysisTab(
 
         // Panel de Selección de Equipo Rival
         com.example.ui.components.DraftTeamPositionCard(
+            isOverlay = isOverlay,
             title = "Equipo Rival",
             isEnemy = true,
             slots = enemySlots,

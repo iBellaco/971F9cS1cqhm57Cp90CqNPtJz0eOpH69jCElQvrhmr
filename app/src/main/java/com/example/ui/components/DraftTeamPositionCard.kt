@@ -62,6 +62,7 @@ import com.example.util.tr
  */
 @Composable
 fun DraftTeamPositionCard(
+    isOverlay: Boolean = false,
     title: String,
     isEnemy: Boolean,
     slots: List<DraftSlot>,
@@ -195,7 +196,7 @@ fun DraftTeamPositionCard(
                             .clickable {
                                 onPickChampionForRole(role)
                             }
-                            .padding(vertical = 8.dp, horizontal = 2.dp)
+                            .padding(vertical = if (isOverlay) 4.dp else 8.dp, horizontal = if (isOverlay) 1.dp else 2.dp)
                             .testTag("${if (isEnemy) "enemy" else "ally"}_pos_${role.name.lowercase()}"),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -226,7 +227,7 @@ fun DraftTeamPositionCard(
                         // CASILLA DE SELECCIÓN DE CAMPEÓN (Sustituye la casilla 1 y 2)
                         Box(
                             modifier = Modifier
-                                .size(44.dp)
+                                .size(if (isOverlay) 34.dp else 44.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
                                     when {
@@ -295,7 +296,7 @@ fun DraftTeamPositionCard(
                                         Text(
                                             text = tr("TÚ"),
                                             color = HextechCyan,
-                                            fontSize = 7.5.sp,
+                                            fontSize = if (isOverlay) 5.sp else 7.5.sp,
                                             fontWeight = FontWeight.Black
                                         )
                                     }
@@ -309,7 +310,7 @@ fun DraftTeamPositionCard(
                             Text(
                                 text = champ.name,
                                 color = if (isMyRole) HextechCyan else TextPrimary,
-                                fontSize = 8.sp,
+                                fontSize = if (isOverlay) 6.sp else 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -320,7 +321,7 @@ fun DraftTeamPositionCard(
                             Text(
                                 text = "-",
                                 color = TextMuted,
-                                fontSize = 8.sp,
+                                fontSize = if (isOverlay) 6.sp else 8.sp,
                                 textAlign = TextAlign.Center
                             )
                         }

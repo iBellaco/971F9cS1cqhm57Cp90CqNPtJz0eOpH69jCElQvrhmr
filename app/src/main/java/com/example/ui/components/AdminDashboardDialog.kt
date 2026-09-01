@@ -1,4 +1,5 @@
 package com.example.ui.components
+import androidx.compose.runtime.mutableLongStateOf
 
 import android.util.Log
 import android.widget.Toast
@@ -918,6 +919,8 @@ fun UserManagementCard(
     var showNameEdit by remember { mutableStateOf(false) }
     var showGiftAvatarDialog by remember { mutableStateOf(false) }
     var showSubscriptionTimeDialog by remember { mutableStateOf(false) }
+    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while(true) { kotlinx.coroutines.delay(1000L); currentTime = System.currentTimeMillis() } }
 
     val isOnline = System.currentTimeMillis() - user.lastActive < 900_000
     val isExpired = user.role.equals("premium", ignoreCase = true) && user.premiumUntil != null && user.premiumUntil > 0L && user.premiumUntil <= System.currentTimeMillis()
@@ -1127,6 +1130,7 @@ fun UserManagementCard(
 
                             // Subscription Duration Pill (Clickable to manage)
                             if (user.role.equals("premium", ignoreCase = true)) {
+                                val dummyTime = currentTime
                                 val durationText = SubscriptionManager.formatDuration(user.premiumUntil)
                                 Box(
                                     modifier = Modifier

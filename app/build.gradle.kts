@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 313
-    versionName = "1.3.298"
+    versionCode = 1003
+    versionName = "1.0.3"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -95,6 +95,7 @@ secrets {
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
 dependencies {
+  implementation(libs.androidx.security.crypto)
   implementation("org.jsoup:jsoup:1.17.2")
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.auth)

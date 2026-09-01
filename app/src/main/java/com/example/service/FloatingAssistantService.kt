@@ -1013,6 +1013,7 @@ private fun FloatingOverlayContent(
                                     }
 
                                     com.example.ui.screens.DraftAnalysisTab(
+                                        isOverlay = true,
                                         myChampion = selectedChampionDetail,
                                         activeRole = activeRole,
                                         allySlots = mappedAllySlots,
@@ -1046,6 +1047,7 @@ private fun FloatingOverlayContent(
                                 }
                                 OverlayHubTab.TIER_LIST -> {
                                     com.example.ui.screens.TierListTab(
+                                        isOverlay = true,
                                         onSelectChampion = { 
                                             selectedChampionDetail = it 
                                         },
@@ -1054,6 +1056,7 @@ private fun FloatingOverlayContent(
                                 }
                                 OverlayHubTab.CATALOG -> {
                                     com.example.ui.screens.ChampionsCatalogTab(
+                                        isOverlay = true,
                                         onSelectChampion = { 
                                             selectedChampionDetail = it
                                             overlayHubTab = OverlayHubTab.TIER_LIST
