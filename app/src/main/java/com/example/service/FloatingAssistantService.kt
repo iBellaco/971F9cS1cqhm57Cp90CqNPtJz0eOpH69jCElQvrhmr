@@ -1,5 +1,11 @@
 package com.example.service
 
+import androidx.compose.material.icons.Icons
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.platform.LocalContext
+import com.example.data.repository.DraftHistoryRepository
+
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -44,7 +50,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
@@ -141,6 +146,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+
+    enum class OverlayMode { DRAFT, TIER_LIST }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -450,6 +457,11 @@ private fun FloatingOverlayContent(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember { mutableStateOf(false) }
+    var overlayMode by remember { mutableStateOf(OverlayMode.DRAFT) }
+    var showSaveDraftDialog by remember { mutableStateOf(false) }
+    var isSavedRecently by remember { mutableStateOf(false) }
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var activeRole by remember { mutableStateOf(LaneRole.MID) }
     var isFirstPick by remember { mutableStateOf(false) }
     var isCompactBubble by remember { mutableStateOf(false) }
@@ -854,12 +866,36 @@ private fun FloatingOverlayContent(
                         }
 
                         // Contenido Scrollable del Drafting
-                        Column(
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                        ) {
+                        Box(modifier = Modifier.weight(1f, fill = false).fillMaxWidth()) {
+                            if (overlayMode == OverlayMode.TIER_LIST) {
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Button(
+                                            onClick = { overlayMode = OverlayMode.DRAFT },
+                                            modifier = Modifier.height(30.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                        ) {
+                                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(14.dp), tint = HextechGold)
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Volver a Draft", color = HextechGold, fontSize = 10.sp)
+                                        }
+                                    }
+                                    com.example.ui.screens.TierListTab(
+                                        onSelectChampion = { },
+                                        isPremium = isPremium
+                                    )
+                                }
+                            } else {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(rememberScrollState())
+                                ) {
+                                    // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
                             // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -1087,19 +1123,46 @@ private fun FloatingOverlayContent(
                             }
 
                             // Botón de Tier List
-                            Button(
-                                onClick = {
-                                    val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
-                                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                        putExtra("OPEN_TIER_LIST", true)
-                                    }
-                                    context.startActivity(intent)
-                                },
-                                modifier = Modifier.fillMaxWidth().height(28.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("Ver Tier List Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                Button(
+                                    onClick = { 
+                                        if (isPremium) showSaveDraftDialog = true 
+                                        else android.widget.Toast.makeText(context, "Requiere Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier.weight(1f).height(28.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = if (isSavedRecently) androidx.compose.ui.graphics.Color(0xFF81C784) else HextechGold.copy(alpha=0.15f)),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, if(isSavedRecently) androidx.compose.ui.graphics.Color(0xFF81C784) else HextechGold),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(if (isSavedRecently) "¡Guardado!" else "Guardar Draft", color = if(isSavedRecently) androidx.compose.ui.graphics.Color.White else HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        if (!isPremium) {
+                                            Spacer(modifier = Modifier.width(3.dp))
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(3.dp))
+                                                    .background(HextechGold)
+                                                    .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                            ) {
+                                                Text("PRO", color = HextechDarkBg, fontSize = 7.sp, fontWeight = FontWeight.Black)
+                                            }
+                                        }
+                                    }
+                                }
+                                Button(
+                                    onClick = { overlayMode = OverlayMode.TIER_LIST },
+                                    modifier = Modifier.weight(1f).height(28.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                ) {
+                                    Text("Tier List Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
 
                             // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
@@ -1235,6 +1298,8 @@ private fun FloatingOverlayContent(
                                         }
                                     }
                                 }
+                            }
+                        }
                             }
                         }
 

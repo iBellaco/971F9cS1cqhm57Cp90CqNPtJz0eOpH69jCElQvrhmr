@@ -285,8 +285,7 @@ enum class AppScreen {
     LANGUAGE_SELECTION,
     MAIN,
     INFO,
-    META,
-    TUTORIAL
+    META
 }
 
 class MainActivity : ComponentActivity() {    private val requestPermissionLauncher = registerForActivityResult(
@@ -342,7 +341,6 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
 @Composable
 fun DashboardScreen(
     onNavigateToInfo: () -> Unit,
-    onNavigateToTutorial: () -> Unit,
     onNavigateToLogin: () -> Unit,
     mainRole: LaneRole,
     onMainRoleChange: (LaneRole) -> Unit,
@@ -367,6 +365,7 @@ fun DashboardScreen(
     
     var showExitDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
     if (showExitDialog) {
         com.example.ui.components.ExitConfirmationDialog(
@@ -402,7 +401,7 @@ fun DashboardScreen(
                     .background(navBg)
             ) {
                 // Ambient Runic Particles Floating across Bottom Navigation Bar in background
-                if (AppThemeManager.isParticlesEnabled) {
+                if (AppThemeManager.isParticlesEnabled && isPremium) {
                     RunicNavBarParticleAnimation(
                         modifier = Modifier.matchParentSize(),
                         particleCount = 16,
@@ -503,7 +502,7 @@ fun DashboardScreen(
                 }
 
                 // Ambient Runic Particles Floating across Bottom Navigation Bar
-                if (AppThemeManager.isParticlesEnabled) {
+                if (AppThemeManager.isParticlesEnabled && isPremium) {
                     RunicNavBarParticleAnimation(
                         modifier = Modifier
                             .matchParentSize()
@@ -525,7 +524,6 @@ fun DashboardScreen(
                 0 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToTutorial = onNavigateToTutorial,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -572,7 +570,6 @@ fun DashboardScreen(
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
-                        onNavigateToTutorial = onNavigateToTutorial,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -711,7 +708,6 @@ fun DraftingApp() {
                 DashboardScreen(
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
                     onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
-                    onNavigateToTutorial = { currentScreen = AppScreen.TUTORIAL },
                     mainRole = mainRole,
                     onMainRoleChange = { mainRole = it },
                     secondRole = secondRole,
@@ -726,13 +722,11 @@ fun DraftingApp() {
                 )
             }
             AppScreen.META -> {}
-            AppScreen.TUTORIAL -> { TutorialScreen(onFinish = { currentScreen = AppScreen.MAIN }) }
             AppScreen.INFO -> {
                 InfoScreen(
                     onNavigateBack = { currentScreen = AppScreen.MAIN }
                 )
             }
-            else -> {}
         }
     }
 }

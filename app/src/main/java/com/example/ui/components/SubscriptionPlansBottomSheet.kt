@@ -88,7 +88,6 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Acceso completo al Asistente de Draft", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Diseños de Bordes Exclusivos", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
                     FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
@@ -110,11 +109,10 @@ fun SubscriptionPlansBottomSheet(
                 price = "$11.00",
                 period = "/ año (Normalmente $12)",
                 features = listOf(
-                    FeatureItem("2 meses gratis (Ahorro del 16%)", true, isHighlight = true, icon = Icons.Default.Star),
+                    FeatureItem("1 mes gratis (Ahorro del 8%)", true, isHighlight = true, icon = Icons.Default.Star),
                     FeatureItem("Acceso completo al Asistente de Draft", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Diseños de Bordes Exclusivos", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
                     FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
@@ -139,7 +137,6 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Avatares Comunes Gratuitos", true),
                     FeatureItem("Colección de Avatares Premium", false),
-                    FeatureItem("Diseños de Bordes Exclusivos", false),
                     FeatureItem("Temas Visuales por Región", false),
                     FeatureItem("Partículas Mágicas", false),
                     FeatureItem("Guardar Draft y Favoritos", false)

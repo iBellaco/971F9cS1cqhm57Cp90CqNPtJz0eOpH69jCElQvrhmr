@@ -134,7 +134,7 @@ import android.content.Context
 @Composable
 fun MainDraftingScreen(
     onNavigateToInfo: () -> Unit,
-    onNavigateToTutorial: () -> Unit,
+
     onNavigateToMeta: () -> Unit,
     onNavigateToLogin: () -> Unit,
     mainRole: LaneRole,
@@ -450,33 +450,7 @@ fun MainDraftingScreen(
                         )
                     }
                     
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = onNavigateToTutorial,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp)
-                            .testTag("btn_tutorial_top"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                            containerColor = HextechSurface.copy(alpha = 0.9f),
-                            contentColor = HextechCyan
-                        ),
-                        border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            tint = HextechCyan,
-                            modifier = Modifier.size(17.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = tr("Tutorial"),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            letterSpacing = 0.5.sp
-                        )
-                    }
+
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))

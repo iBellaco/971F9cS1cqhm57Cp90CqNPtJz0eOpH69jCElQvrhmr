@@ -485,9 +485,9 @@ fun MetaAndDraftScreen(
                         label = "tier_tab_animation"
                     ) { targetIndex ->
                         when (targetIndex) {
-                            0 -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
+                            0 -> TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
                             1 -> ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
-                            else -> TierListTab(onSelectChampion = { selectedDetailChampion = it })
+                            else -> TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
                         }
                     }
                 }
@@ -831,8 +831,12 @@ private fun ChampionsCatalogTab(
                 FilterChip(
                     selected = showOnlyFavorites,
                     onClick = {
-                        showOnlyFavorites = !showOnlyFavorites
-                        if (showOnlyFavorites) selectedRoleFilter = null
+                        if (isPremium) {
+                            showOnlyFavorites = !showOnlyFavorites
+                            if (showOnlyFavorites) selectedRoleFilter = null
+                        } else {
+                            android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                        }
                     },
                     label = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -844,6 +848,22 @@ private fun ChampionsCatalogTab(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.5.sp
                             )
+                            if (!isPremium) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(if (showOnlyFavorites) HextechDarkBg else HextechGold)
+                                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                ) {
+                                    Text(
+                                        text = "PRO",
+                                        color = if (showOnlyFavorites) HextechGold else HextechDarkBg,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
                         }
                     },
                     colors = FilterChipDefaults.filterChipColors(
@@ -1140,8 +1160,9 @@ enum class TierSortOption(val displayName: String, val shortLabel: String) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun TierListTab(
-    onSelectChampion: (Champion) -> Unit
+fun TierListTab(
+    onSelectChampion: (Champion) -> Unit,
+    isPremium: Boolean = false
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -1149,12 +1170,15 @@ private fun TierListTab(
     val currentTier by ChineseMetaSyncService.currentTier.collectAsStateWithLifecycle()
     val currentRegion by ChineseMetaSyncService.currentRegion.collectAsStateWithLifecycle()
 
+    val favorites by FavoriteChampionsManager.favoritesFlow.collectAsStateWithLifecycle()
+    var showFavoritesOnly by remember { mutableStateOf(false) }
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
     var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
 
-    val rawChampionsToDisplay = remember(selectedLane, syncState, WildRiftRepository.champions.toList()) {
-        if (selectedLane == null) WildRiftRepository.champions
+    val rawChampionsToDisplay = remember(selectedLane, showFavoritesOnly, favorites, syncState, WildRiftRepository.champions.toList()) {
+        val champs = if (selectedLane == null) WildRiftRepository.champions
         else WildRiftRepository.getChampionsByRole(selectedLane!!)
+        if (showFavoritesOnly) champs.filter { it.id in favorites } else champs
     }
 
     val championsToDisplay = remember(rawChampionsToDisplay, selectedSort) {
@@ -1169,6 +1193,9 @@ private fun TierListTab(
     val tierSPlus = championsToDisplay.filter { it.tier == "S+" }
     val tierS = championsToDisplay.filter { it.tier == "S" }
     val tierA = championsToDisplay.filter { it.tier == "A+" || it.tier == "A" }
+    val tierB = championsToDisplay.filter { it.tier == "B" || it.tier == "B+" }
+    val tierC = championsToDisplay.filter { it.tier == "C" || it.tier == "C+" }
+    val tierD = championsToDisplay.filter { it.tier != "S+" && it.tier != "S" && it.tier != "A+" && it.tier != "A" && it.tier != "B" && it.tier != "B+" && it.tier != "C" && it.tier != "C+" }
 
     Column(
         modifier = Modifier
@@ -1186,6 +1213,43 @@ private fun TierListTab(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            FilterChip(
+                selected = showFavoritesOnly,
+                onClick = { 
+                    if (isPremium) {
+                        showFavoritesOnly = !showFavoritesOnly 
+                    } else {
+                        Toast.makeText(context, "Requiere Premium", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                label = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(tr("Favoritos"), fontSize = 11.5.sp)
+                        if (!isPremium) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(HextechGold)
+                                    .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            ) {
+                                Text("PRO", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
+                            }
+                        }
+                    }
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = HextechCyan,
+                    selectedLabelColor = HextechDarkBg
+                ),
+                leadingIcon = {
+                    if (showFavoritesOnly) {
+                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                    } else {
+                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = if (isPremium) TextPrimary else TextMuted)
+                    }
+                }
+            )
             FilterChip(
                 selected = selectedLane == null,
                 onClick = { selectedLane = null },
@@ -1274,6 +1338,42 @@ private fun TierListTab(
                             tierName = "TIER A (Opciones Sólidas y Balanceadas)",
                             tierColor = TierAColor,
                             champions = tierA,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+                
+                // Tier B
+                if (tierB.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER B (Opciones Viables)",
+                            tierColor = com.example.ui.theme.TierBColor,
+                            champions = tierB,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+
+                // Tier C
+                if (tierC.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER C (Situacionales)",
+                            tierColor = com.example.ui.theme.TierCColor,
+                            champions = tierC,
+                            onSelectChampion = onSelectChampion
+                        )
+                    }
+                }
+
+                // Tier D
+                if (tierD.isNotEmpty()) {
+                    item {
+                        TierSectionCard(
+                            tierName = "TIER D / OTROS",
+                            tierColor = com.example.ui.theme.TierDColor,
+                            champions = tierD,
                             onSelectChampion = onSelectChampion
                         )
                     }
@@ -1402,7 +1502,7 @@ private fun TierListTab(
 }
 
 @Composable
-private fun TierSectionCard(
+fun TierSectionCard(
     tierName: String,
     tierColor: Color,
     champions: List<Champion>,
@@ -3321,19 +3421,40 @@ private fun DraftAnalysisTab(
                     if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.7f)
                 ),
                 shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
             ) {
-                Icon(
-                    imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar Draft"),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.5.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
+                        contentDescription = null,
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar Draft"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.5.sp
+                    )
+                    if (!isPremium) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
+                                .padding(horizontal = 3.5.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = "PRO",
+                                color = HextechDarkBg,
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                }
             }
 
             Button(
@@ -3355,21 +3476,42 @@ private fun DraftAnalysisTab(
                 ),
                 border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f)),
                 shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.History,
-                    contentDescription = null,
-                    tint = HextechCyan,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = tr("Ver Historial"),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.5.sp,
-                    color = HextechCyan
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = tr("Ver Historial"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.5.sp,
+                        color = HextechCyan
+                    )
+                    if (!isPremium) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
+                                .padding(horizontal = 3.5.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = "PRO",
+                                color = HextechDarkBg,
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -4421,7 +4563,7 @@ private fun SpellGridCard(
 
 
 @Composable
-private fun TierSelectionPanel(
+fun TierSelectionPanel(
     currentTier: TencentRankTier,
     syncState: ChineseSyncState,
     currentRegion: String,

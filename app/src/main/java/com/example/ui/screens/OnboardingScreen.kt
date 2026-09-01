@@ -91,8 +91,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 tr("Historial de drafts y estadísticas de Win Rate personal"),
                 tr("Sistema para añadir campeones a tu lista de favoritos"),
                 tr("Cambio de temas visuales exclusivos (Noxus, Jonia, Vacío)"),
-                tr("Selección y desbloqueo de Avatares de Runaterra"),
-                tr("Análisis táctico y Coaching Challenger avanzado")
+                tr("Selección y desbloqueo de Avatares de Runaterra")
             )
         )
     )

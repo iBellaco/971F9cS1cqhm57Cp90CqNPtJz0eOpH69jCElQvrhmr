@@ -212,6 +212,22 @@ fun ThemeCustomizationBottomSheet(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
+                                if (!isPremium) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
+                                            .padding(horizontal = 5.dp, vertical = 1.5.dp)
+                                    ) {
+                                        Text(
+                                            text = "PREMIUM",
+                                            color = HextechDarkBg,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
                             }
                             Text(
                                 text = tr("Efecto de partículas en la barra de navegación"),
@@ -223,7 +239,11 @@ fun ThemeCustomizationBottomSheet(
                     Switch(
                         checked = isParticlesEnabled,
                         onCheckedChange = { enabled ->
-                            AppThemeManager.setParticlesEnabled(enabled, context)
+                            if (enabled && !isPremium) {
+                                android.widget.Toast.makeText(context, "Las partículas mágicas requieren suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                            } else {
+                                AppThemeManager.setParticlesEnabled(enabled, context)
+                            }
                         },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = HextechGold,

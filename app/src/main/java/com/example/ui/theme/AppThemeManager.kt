@@ -516,7 +516,7 @@ object AppThemeManager {
     var isOledMode by mutableStateOf(false)
         private set
 
-    var isParticlesEnabled by mutableStateOf(true)
+    var isParticlesEnabled by mutableStateOf(false)
         private set
 
     fun init(context: Context) {
@@ -524,7 +524,7 @@ object AppThemeManager {
         val savedThemeId = prefs.getString(PREFS_KEY_THEME, AppTheme.PILTOVER.id) ?: AppTheme.PILTOVER.id
         val savedNavId = prefs.getString(PREFS_KEY_NAV_BAR, NavBarColorOption.THEME_AUTO.id) ?: NavBarColorOption.THEME_AUTO.id
         val savedOled = prefs.getBoolean(PREFS_KEY_OLED_MODE, false)
-        val savedParticles = prefs.getBoolean("particles_enabled", true)
+        val savedParticles = prefs.getBoolean("particles_enabled", false)
 
         currentTheme = AppTheme.fromId(savedThemeId)
         currentNavBarOption = NavBarColorOption.entries.find { it.id == savedNavId } ?: NavBarColorOption.THEME_AUTO

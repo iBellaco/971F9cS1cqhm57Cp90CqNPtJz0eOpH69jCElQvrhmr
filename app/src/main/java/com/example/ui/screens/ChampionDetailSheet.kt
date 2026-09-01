@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
+import com.example.ui.theme.HextechDarkBg
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -189,22 +191,35 @@ fun ChampionDetailSheet(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
-                    IconButton(
-                        onClick = { 
-                            if (isPremium) {
-                                FavoriteChampionsManager.toggleFavorite(context, champion.id) 
-                            } else {
-                                android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                    Box(contentAlignment = Alignment.TopEnd) {
+                        IconButton(
+                            onClick = { 
+                                if (isPremium) {
+                                    FavoriteChampionsManager.toggleFavorite(context, champion.id) 
+                                } else {
+                                    android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.testTag("detail_fav_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = if (isFavorite) tr("Quitar de Favoritos") else tr("Marcar como Favorito"),
+                                tint = if (isFavorite) HextechGold else TextMuted.copy(alpha = 0.4f),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                        if (!isPremium) {
+                            Box(
+                                modifier = Modifier
+                                    .offset(x = (-2).dp, y = 4.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(HextechGold)
+                                    .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            ) {
+                                Text("PRO", color = HextechDarkBg, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
                             }
-                        },
-                        modifier = Modifier.testTag("detail_fav_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = if (isFavorite) tr("Quitar de Favoritos") else tr("Marcar como Favorito"),
-                            tint = if (isFavorite) HextechGold else TextMuted.copy(alpha = 0.4f),
-                            modifier = Modifier.size(24.dp)
-                        )
+                        }
                     }
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted)
