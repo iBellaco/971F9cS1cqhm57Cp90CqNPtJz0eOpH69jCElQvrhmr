@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.PlayArrow
@@ -119,6 +120,7 @@ fun DraftHistoryScreen(
     val draftsFlow = remember(context) { DraftHistoryRepository.getAllDrafts(context) }
     val draftsList by draftsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
 
+    var currentHistoryTab by remember { mutableStateOf("DRAFTS") } // "DRAFTS" or "TIER_LIST"
     var searchQuery by remember { mutableStateOf("") }
     var selectedResultFilter by remember { mutableStateOf<String?>(null) } // null = ALL, "VICTORY", "DEFEAT"
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
@@ -206,203 +208,282 @@ fun DraftHistoryScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Stats Summary Card
-            if (draftsList.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = tr("Rendimiento en Partidas"),
-                                color = HextechGold,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text(" $victoriesCount " + tr("Vic."), color = Color(0xFF81C784), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                                Text(" $defeatsCount " + tr("Derr."), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-
-                        if (totalFinished > 0) {
-                            Surface(
-                                color = if (winRate >= 50) Color(0xFF81C784).copy(alpha = 0.15f) else DangerRed.copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, if (winRate >= 50) Color(0xFF81C784) else DangerRed)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "$winRate%",
-                                        color = if (winRate >= 50) Color(0xFF81C784) else DangerRed,
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Black
-                                    )
-                                    Text(
-                                        text = tr("Winrate"),
-                                        color = TextMuted,
-                                        fontSize = 9.5.sp
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Search Box
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("history_search_input"),
-                    placeholder = { Text(tr("Buscar por campeón, rival o nota..."), color = TextMuted, fontSize = 12.5.sp) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
-                            }
-                        }
-                    },
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = HextechCyan,
-                        unfocusedBorderColor = HextechCardBorder,
-                        focusedContainerColor = HextechSurface,
-                        unfocusedContainerColor = HextechSurface
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Result Filters
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    FilterChip(
-                        selected = selectedResultFilter == null,
-                        onClick = { selectedResultFilter = null },
-                        label = { Text(tr("Todos") + " ($totalCount)", fontSize = 11.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = HextechCyan,
-                            selectedLabelColor = HextechDarkBg
-                        )
-                    )
-                    FilterChip(
-                        selected = selectedResultFilter == "VICTORY",
-                        onClick = { selectedResultFilter = if (selectedResultFilter == "VICTORY") null else "VICTORY" },
-                        label = { Text(" " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF81C784),
-                            selectedLabelColor = Color.Black
-                        )
-                    )
-                    FilterChip(
-                        selected = selectedResultFilter == "DEFEAT",
-                        onClick = { selectedResultFilter = if (selectedResultFilter == "DEFEAT") null else "DEFEAT" },
-                        label = { Text(" " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = DangerRed,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            if (filteredDrafts.isEmpty()) {
+            // Main History / Tier List Tab Bar Switcher
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                    .padding(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
+                        .weight(1f)
+                        .clip(RoundedCornerShape(9.dp))
+                        .background(if (currentHistoryTab == "DRAFTS") HextechGold else Color.Transparent)
+                        .clickable { currentHistoryTab = "DRAFTS" }
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = HextechSurface,
-                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
-                            modifier = Modifier.size(100.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Description,
-                                    contentDescription = null,
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = if (draftsList.isEmpty()) tr("Tu historial está limpio.") else tr("No se encontraron partidas con ese filtro"),
-                            color = TextPrimary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = null,
+                            tint = if (currentHistoryTab == "DRAFTS") HextechDarkBg else HextechGold,
+                            modifier = Modifier.size(16.dp)
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = if (draftsList.isEmpty())
-                                tr("Ve al Asistente de Draft, crea tu primera composición y guárdala para analizarla después.")
-                            else
-                                tr("Intenta cambiar el término de búsqueda o restablecer los filtros de resultado y rol."),
-                            color = TextMuted,
-                            fontSize = 12.5.sp,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 17.sp
+                            text = tr("Partidas Guardadas"),
+                            color = if (currentHistoryTab == "DRAFTS") HextechDarkBg else TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
                         )
                     }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(9.dp))
+                        .background(if (currentHistoryTab == "TIER_LIST") HextechGold else Color.Transparent)
+                        .clickable { currentHistoryTab = "TIER_LIST" }
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(filteredDrafts, key = { it.id }) { draft ->
-                        SavedDraftCard(
-                            draft = draft,
-                            onClick = { selectedDraftForDetail = draft },
-                            onLoad = {
-                                val allies = DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson)
-                                val enemies = DraftHistoryRepository.parseDraftSlots(draft.enemyPicksJson)
-                                val role = try { LaneRole.valueOf(draft.userRole) } catch (_: Exception) { LaneRole.MID }
-                                onLoadDraft(allies, enemies, role, draft.isFirstPick)
-                            },
-                            onUpdateResult = { newResult ->
-                                coroutineScope.launch {
-                                    DraftHistoryRepository.updateMatchResult(context, draft.id, newResult)
-                                }
-                            },
-                            onDelete = { draftToDelete = draft }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Leaderboard,
+                            contentDescription = null,
+                            tint = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else HextechGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Mi Tier List Personal"),
+                            color = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
                         )
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(30.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            if (currentHistoryTab == "TIER_LIST") {
+                PersonalTierListView(
+                    draftsList = draftsList,
+                    onSelectDraftForDetail = { selectedDraftForDetail = it }
+                )
+            } else {
+                // Vista de Partidas Guardadas
+                // Stats Summary Card
+                if (draftsList.isNotEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = tr("Rendimiento en Partidas"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Text(" $victoriesCount " + tr("Vic."), color = Color(0xFF81C784), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(" $defeatsCount " + tr("Derr."), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            if (totalFinished > 0) {
+                                Surface(
+                                    color = if (winRate >= 50) Color(0xFF81C784).copy(alpha = 0.15f) else DangerRed.copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, if (winRate >= 50) Color(0xFF81C784) else DangerRed)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "$winRate%",
+                                            color = if (winRate >= 50) Color(0xFF81C784) else DangerRed,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                        Text(
+                                            text = tr("Winrate"),
+                                            color = TextMuted,
+                                            fontSize = 9.5.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Search Box
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("history_search_input"),
+                        placeholder = { Text(tr("Buscar por campeón, rival o nota..."), color = TextMuted, fontSize = 12.5.sp) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedContainerColor = HextechSurface,
+                            unfocusedContainerColor = HextechSurface
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Result Filters
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FilterChip(
+                            selected = selectedResultFilter == null,
+                            onClick = { selectedResultFilter = null },
+                            label = { Text(tr("Todos") + " ($totalCount)", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechCyan,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                        FilterChip(
+                            selected = selectedResultFilter == "VICTORY",
+                            onClick = { selectedResultFilter = if (selectedResultFilter == "VICTORY") null else "VICTORY" },
+                            label = { Text(" " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF81C784),
+                                selectedLabelColor = Color.Black
+                            )
+                        )
+                        FilterChip(
+                            selected = selectedResultFilter == "DEFEAT",
+                            onClick = { selectedResultFilter = if (selectedResultFilter == "DEFEAT") null else "DEFEAT" },
+                            label = { Text(" " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = DangerRed,
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                if (filteredDrafts.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = HextechSurface,
+                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                                modifier = Modifier.size(100.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Description,
+                                        contentDescription = null,
+                                        tint = HextechGold,
+                                        modifier = Modifier.size(48.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = if (draftsList.isEmpty()) tr("Tu historial está limpio.") else tr("No se encontraron partidas con ese filtro"),
+                                color = TextPrimary,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = if (draftsList.isEmpty())
+                                    tr("Ve al Asistente de Draft, crea tu primera composición y guárdala para analizarla después.")
+                                else
+                                    tr("Intenta cambiar el término de búsqueda o restablecer los filtros de resultado y rol."),
+                                color = TextMuted,
+                                fontSize = 12.5.sp,
+                                textAlign = TextAlign.Center,
+                                lineHeight = 17.sp
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filteredDrafts, key = { it.id }) { draft ->
+                            SavedDraftCard(
+                                draft = draft,
+                                onClick = { selectedDraftForDetail = draft },
+                                onLoad = {
+                                    val allies = DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson)
+                                    val enemies = DraftHistoryRepository.parseDraftSlots(draft.enemyPicksJson)
+                                    val role = try { LaneRole.valueOf(draft.userRole) } catch (_: Exception) { LaneRole.MID }
+                                    onLoadDraft(allies, enemies, role, draft.isFirstPick)
+                                },
+                                onUpdateResult = { newResult ->
+                                    coroutineScope.launch {
+                                        DraftHistoryRepository.updateMatchResult(context, draft.id, newResult)
+                                    }
+                                },
+                                onDelete = { draftToDelete = draft }
+                            )
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(30.dp))
+                        }
                     }
                 }
             }
