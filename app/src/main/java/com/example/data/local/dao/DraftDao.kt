@@ -14,6 +14,9 @@ interface DraftDao {
     @Query("SELECT * FROM saved_drafts ORDER BY timestamp DESC")
     fun getAllDrafts(): Flow<List<SavedDraftEntity>>
 
+    @Query("SELECT * FROM saved_drafts WHERE accountProfileId = :profileId ORDER BY timestamp DESC")
+    fun getDraftsByProfile(profileId: String): Flow<List<SavedDraftEntity>>
+
     @Query("SELECT * FROM saved_drafts WHERE id = :id")
     suspend fun getDraftById(id: Long): SavedDraftEntity?
 
@@ -29,8 +32,14 @@ interface DraftDao {
     @Query("UPDATE saved_drafts SET notes = :notes WHERE id = :id")
     suspend fun updateNotes(id: Long, notes: String)
 
+    @Query("UPDATE saved_drafts SET accountProfileId = :profileId, accountProfileName = :profileName WHERE id = :id")
+    suspend fun updateAccountProfile(id: Long, profileId: String, profileName: String)
+
     @Query("DELETE FROM saved_drafts WHERE id = :id")
     suspend fun deleteDraftById(id: Long)
+
+    @Query("DELETE FROM saved_drafts WHERE accountProfileId = :profileId")
+    suspend fun clearDraftsByProfile(profileId: String)
 
     @Query("DELETE FROM saved_drafts")
     suspend fun clearAllDrafts()

@@ -35,5 +35,7 @@ data class SavedDraftEntity(
     val enemyDamageTrue: Int = 0,
     val winConditionNotes: String = "",
     val directMatchupWarning: String = "",
-    val notes: String = ""
+    val notes: String = "",
+    val accountProfileId: String = "default",
+    val accountProfileName: String = "Cuenta Principal"
 )

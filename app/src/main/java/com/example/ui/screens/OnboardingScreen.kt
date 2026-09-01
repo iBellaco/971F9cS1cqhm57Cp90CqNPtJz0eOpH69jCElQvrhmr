@@ -90,8 +90,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             highlights = listOf(
                 tr("Historial de drafts y estadísticas de Win Rate personal"),
                 tr("Sistema para añadir campeones a tu lista de favoritos"),
-                tr("Cambio de temas visuales exclusivos (Noxus, Jonia, Vacío)"),
-                tr("Selección y desbloqueo de Avatares de Runaterra")
+                tr("Cambios de Temas Premium (Piltover & Zaun, Noxus, Jonia, Vacío, Islas de la Sombra, Demacia, Shurima, Freljord, Targon, Ixtal, Bandle)"),
+                tr("Cambios de Avatares Premium")
             )
         )
     )

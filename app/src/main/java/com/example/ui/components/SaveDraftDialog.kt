@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -27,6 +28,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -44,6 +47,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -53,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.data.AccountProfileManager
 import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.ui.theme.DangerRed
@@ -75,8 +80,14 @@ fun SaveDraftDialog(
     userRole: LaneRole,
     estimatedWinrate: Double,
     onDismiss: () -> Unit,
-    onSave: (result: String, notes: String) -> Unit
+    onSave: (result: String, notes: String, profileId: String, profileName: String) -> Unit
 ) {
+    val context = LocalContext.current
+    val activeProfile = remember { AccountProfileManager.getActiveProfile(context) }
+    val allProfiles = remember { AccountProfileManager.allProfiles.value }
+    var selectedProfile by remember { mutableStateOf(activeProfile) }
+    var profileDropdownExpanded by remember { mutableStateOf(false) }
+
     var selectedResult by remember { mutableStateOf("VICTORY") } // "VICTORY", "DEFEAT"
     var notes by remember { mutableStateOf("") }
 
@@ -150,6 +161,96 @@ fun SaveDraftDialog(
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
+
+                // Account Profile Selector
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HextechSurface)
+                            .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                            .clickable { profileDropdownExpanded = true }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = tr("Perfil / Cuenta:"),
+                                    color = TextMuted,
+                                    fontSize = 10.sp
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = selectedProfile.name,
+                                        color = HextechGold,
+                                        fontSize = 12.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    if (selectedProfile.tag.isNotBlank()) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = "#${selectedProfile.tag}",
+                                            color = HextechCyan,
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = tr("Cambiar ▼"),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = profileDropdownExpanded,
+                        onDismissRequest = { profileDropdownExpanded = false },
+                        modifier = Modifier.background(HextechSurface)
+                    ) {
+                        allProfiles.forEach { profile ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = profile.name,
+                                            color = if (profile.id == selectedProfile.id) HextechGold else TextPrimary,
+                                            fontWeight = if (profile.id == selectedProfile.id) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 13.sp
+                                        )
+                                        if (profile.tag.isNotBlank()) {
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                text = "#${profile.tag}",
+                                                color = HextechCyan,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    selectedProfile = profile
+                                    profileDropdownExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // Matchup Summary Card
                 Card(
@@ -368,7 +469,7 @@ fun SaveDraftDialog(
 
                     Button(
                         onClick = {
-                            onSave(selectedResult, notes)
+                            onSave(selectedResult, notes, selectedProfile.id, selectedProfile.name)
                         },
                         modifier = Modifier
                             .weight(1.2f)
@@ -400,3 +501,4 @@ fun SaveDraftDialog(
         }
     }
 }
+

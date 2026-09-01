@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,23 +30,30 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsKabaddi
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -86,7 +96,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.AccountProfile
+import com.example.data.AccountProfileManager
 import com.example.data.WildRiftRepository
+import com.example.data.backup.BackupRestoreManager
 import com.example.data.local.entity.SavedDraftEntity
 import com.example.data.repository.DraftHistoryRepository
 import com.example.model.DraftSlot
@@ -103,7 +116,9 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
+import com.example.util.LocalLanguage
 import com.example.util.tr
+import com.example.util.trStr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -117,8 +132,18 @@ fun DraftHistoryScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        AccountProfileManager.init(context)
+    }
     val draftsFlow = remember(context) { DraftHistoryRepository.getAllDrafts(context) }
     val draftsList by draftsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    val profiles by AccountProfileManager.allProfiles.collectAsStateWithLifecycle()
+    val activeProfileId by AccountProfileManager.activeProfileId.collectAsStateWithLifecycle()
+    var selectedProfileIdFilter by remember { mutableStateOf<String?>("ALL") } // "ALL" or profile.id
+
+    var showCreateProfileDialog by remember { mutableStateOf(false) }
+    var profileToEdit by remember { mutableStateOf<AccountProfile?>(null) }
 
     var currentHistoryTab by remember { mutableStateOf("DRAFTS") } // "DRAFTS" or "TIER_LIST"
     var searchQuery by remember { mutableStateOf("") }
@@ -128,13 +153,77 @@ fun DraftHistoryScreen(
     var draftToDelete by remember { mutableStateOf<SavedDraftEntity?>(null) }
     var showClearAllConfirm by remember { mutableStateOf(false) }
 
-    val filteredDrafts = remember(draftsList, searchQuery, selectedResultFilter, selectedRoleFilter) {
-        draftsList.filter { draft ->
+    val currentLang = LocalLanguage.current
+    val effectiveLang = if (currentLang == "auto") "es" else currentLang
+
+    // Backup & Restore state
+    var showBackupRestoreDialog by remember { mutableStateOf(false) }
+    var showImportConfirmDialog by remember { mutableStateOf(false) }
+    var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    var importMergeMode by remember { mutableStateOf(true) }
+    var isProcessingBackup by remember { mutableStateOf(false) }
+
+    // File Save Launcher (Export JSON)
+    val exportFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                isProcessingBackup = true
+                try {
+                    val jsonContent = BackupRestoreManager.generateBackupJson(context)
+                    val success = BackupRestoreManager.writeTextToUri(context, uri, jsonContent)
+                    if (success) {
+                        Toast.makeText(context, trStr(effectiveLang, "Copia de seguridad exportada con éxito"), Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, trStr(effectiveLang, "Error al guardar el archivo"), Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    isProcessingBackup = false
+                }
+            }
+        }
+    }
+
+    // File Open Launcher (Import JSON)
+    val importFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            coroutineScope.launch {
+                isProcessingBackup = true
+                try {
+                    val fileText = BackupRestoreManager.readTextFromUri(context, uri)
+                    pendingImportJson = fileText
+                    showImportConfirmDialog = true
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error al leer archivo: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    isProcessingBackup = false
+                }
+            }
+        }
+    }
+
+    // Drafts scoped to selected account profile
+    val currentScopeDrafts = remember(draftsList, selectedProfileIdFilter) {
+        if (selectedProfileIdFilter == null || selectedProfileIdFilter == "ALL") {
+            draftsList
+        } else {
+            draftsList.filter { it.accountProfileId == selectedProfileIdFilter }
+        }
+    }
+
+    val filteredDrafts = remember(currentScopeDrafts, searchQuery, selectedResultFilter, selectedRoleFilter) {
+        currentScopeDrafts.filter { draft ->
             val matchesQuery = searchQuery.isBlank() ||
                     draft.title.contains(searchQuery, ignoreCase = true) ||
                     draft.myChampionName.contains(searchQuery, ignoreCase = true) ||
                     draft.enemyLaneOpponentName.contains(searchQuery, ignoreCase = true) ||
-                    draft.notes.contains(searchQuery, ignoreCase = true)
+                    draft.notes.contains(searchQuery, ignoreCase = true) ||
+                    draft.accountProfileName.contains(searchQuery, ignoreCase = true)
 
             val matchesResult = selectedResultFilter == null || draft.matchResult.equals(selectedResultFilter, ignoreCase = true)
 
@@ -144,11 +233,13 @@ fun DraftHistoryScreen(
         }
     }
 
-    val totalCount = draftsList.size
-    val victoriesCount = draftsList.count { it.matchResult.equals("VICTORY", ignoreCase = true) }
-    val defeatsCount = draftsList.count { it.matchResult.equals("DEFEAT", ignoreCase = true) }
+    val totalCount = currentScopeDrafts.size
+    val victoriesCount = currentScopeDrafts.count { it.matchResult.equals("VICTORY", ignoreCase = true) }
+    val defeatsCount = currentScopeDrafts.count { it.matchResult.equals("DEFEAT", ignoreCase = true) }
     val totalFinished = victoriesCount + defeatsCount
     val winRate = if (totalFinished > 0) (victoriesCount.toDouble() / totalFinished * 100).toInt() else 0
+
+    val activeSelectedProfile = profiles.find { it.id == selectedProfileIdFilter }
 
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -184,6 +275,18 @@ fun DraftHistoryScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { showBackupRestoreDialog = true },
+                        modifier = Modifier.testTag("history_backup_restore_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SwapHoriz,
+                            contentDescription = tr("Copia de Seguridad / Restaurar"),
+                            tint = HextechCyan,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+
                     if (draftsList.isNotEmpty()) {
                         IconButton(
                             onClick = { showClearAllConfirm = true },
@@ -208,7 +311,122 @@ fun DraftHistoryScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Account Profiles Selector Bar
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f))
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = tr("Cuentas / Perfiles"),
+                                color = HextechGold,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TextButton(
+                                onClick = { showBackupRestoreDialog = true },
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                            ) {
+                                Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(tr("JSON Backup"), color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            TextButton(
+                                onClick = { showCreateProfileDialog = true },
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(tr("Nueva Cuenta"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Horizontal list of profile chips
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val isAllSelected = selectedProfileIdFilter == "ALL" || selectedProfileIdFilter == null
+                        FilterChip(
+                            selected = isAllSelected,
+                            onClick = { selectedProfileIdFilter = "ALL" },
+                            label = {
+                                Text(tr("🌐 Todas (${draftsList.size})"), fontSize = 10.5.sp)
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechCyan,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+
+                        profiles.forEach { prof ->
+                            val isSelected = selectedProfileIdFilter == prof.id
+                            val countForProf = draftsList.count { it.accountProfileId == prof.id }
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    selectedProfileIdFilter = prof.id
+                                    AccountProfileManager.setActiveProfile(context, prof.id)
+                                },
+                                label = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("👤 ${prof.name}", fontSize = 10.5.sp)
+                                        if (prof.tag.isNotBlank()) {
+                                            Text(" #${prof.tag}", fontSize = 9.sp, color = if (isSelected) HextechDarkBg else HextechCyan)
+                                        }
+                                        Text(" ($countForProf)", fontSize = 9.5.sp)
+                                    }
+                                },
+                                trailingIcon = {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = tr("Editar"),
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .clickable { profileToEdit = prof },
+                                            tint = HextechDarkBg
+                                        )
+                                    }
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = HextechGold,
+                                    selectedLabelColor = HextechDarkBg
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Main History / Tier List Tab Bar Switcher
             Row(
@@ -270,10 +488,12 @@ fun DraftHistoryScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = tr("Mi Tier List Personal"),
+                            text = if (activeSelectedProfile != null) "${tr("Tier List")} (${activeSelectedProfile.name})" else tr("Mi Tier List Personal"),
                             color = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else TextPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -283,7 +503,7 @@ fun DraftHistoryScreen(
 
             if (currentHistoryTab == "TIER_LIST") {
                 PersonalTierListView(
-                    draftsList = draftsList,
+                    draftsList = currentScopeDrafts,
                     onSelectDraftForDetail = { selectedDraftForDetail = it }
                 )
             } else {
@@ -494,6 +714,7 @@ fun DraftHistoryScreen(
     if (selectedDraftForDetail != null) {
         DraftDetailBottomSheet(
             draft = selectedDraftForDetail!!,
+            profiles = profiles,
             onDismiss = { selectedDraftForDetail = null },
             onLoad = {
                 val draft = selectedDraftForDetail!!
@@ -508,7 +729,186 @@ fun DraftHistoryScreen(
                     DraftHistoryRepository.updateNotes(context, selectedDraftForDetail!!.id, newNotes)
                     selectedDraftForDetail = selectedDraftForDetail?.copy(notes = newNotes)
                 }
+            },
+            onAssignProfile = { newProfileId, newProfileName ->
+                coroutineScope.launch {
+                    DraftHistoryRepository.updateAccountProfile(context, selectedDraftForDetail!!.id, newProfileId, newProfileName)
+                    selectedDraftForDetail = selectedDraftForDetail?.copy(accountProfileId = newProfileId, accountProfileName = newProfileName)
+                }
             }
+        )
+    }
+
+    // Create Profile Dialog
+    if (showCreateProfileDialog) {
+        var newNick by remember { mutableStateOf("") }
+        var newTag by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = { showCreateProfileDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.AccountCircle, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tr("Nueva Cuenta / Invocador"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = tr("Crea un perfil para registrar historiales y Tier Lists de forma 100% independiente (ej: Smurf, Dúo, etc)."),
+                        color = TextMuted,
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = newNick,
+                        onValueChange = { newNick = it },
+                        label = { Text(tr("Nick de la Cuenta"), fontSize = 12.sp) },
+                        placeholder = { Text("Ej: FakerWR, SmurfSoloQ", fontSize = 11.5.sp, color = TextMuted) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newTag,
+                        onValueChange = { newTag = it },
+                        label = { Text(tr("Tag / Rango Opcional"), fontSize = 12.sp) },
+                        placeholder = { Text("Ej: Challenger, LAN, Smurf", fontSize = 11.5.sp, color = TextMuted) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newNick.isNotBlank()) {
+                            val created = AccountProfileManager.createProfile(context, newNick.trim(), newTag.trim())
+                            selectedProfileIdFilter = created.id
+                            showCreateProfileDialog = false
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Crear Perfil"), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateProfileDialog = false }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
+    // Edit Profile Dialog
+    if (profileToEdit != null) {
+        val prof = profileToEdit!!
+        var editNick by remember { mutableStateOf(prof.name) }
+        var editTag by remember { mutableStateOf(prof.tag) }
+
+        AlertDialog(
+            onDismissRequest = { profileToEdit = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Edit, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tr("Editar Perfil de Cuenta"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = editNick,
+                        onValueChange = { editNick = it },
+                        label = { Text(tr("Nick de la Cuenta"), fontSize = 12.sp) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = editTag,
+                        onValueChange = { editTag = it },
+                        label = { Text(tr("Tag / Rango Opcional"), fontSize = 12.sp) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechCyan,
+                            unfocusedBorderColor = HextechCardBorder,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+
+                    if (profiles.size > 1 && prof.id != "default") {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        OutlinedButton(
+                            onClick = {
+                                AccountProfileManager.deleteProfile(context, prof.id)
+                                if (selectedProfileIdFilter == prof.id) {
+                                    selectedProfileIdFilter = "ALL"
+                                }
+                                profileToEdit = null
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                            border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(tr("Eliminar este Perfil"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (editNick.isNotBlank()) {
+                            AccountProfileManager.updateProfile(context, prof.id, editNick.trim(), editTag.trim())
+                            profileToEdit = null
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Guardar"), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { profileToEdit = null }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
         )
     }
 
@@ -563,6 +963,215 @@ fun DraftHistoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearAllConfirm = false }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
+    // Backup & Restore Dialog (Export/Import JSON)
+    if (showBackupRestoreDialog) {
+        AlertDialog(
+            onDismissRequest = { showBackupRestoreDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tr("Copia de Seguridad y Restaurar"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = tr("Exporta o importa tus perfiles de cuenta personalizados y todo el historial de drafts que construye tu Tier List Personal en formato JSON."),
+                        color = TextSecondary,
+                        fontSize = 12.5.sp,
+                        lineHeight = 17.sp
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.AccountCircle, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("${profiles.size} " + tr("Perfiles registrados"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Leaderboard, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("${draftsList.size} " + tr("Partidas e historial para Tier List"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Action 1: Export JSON
+                    Button(
+                        onClick = {
+                            val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
+                            exportFileLauncher.launch("WildRift_TierList_Backup_$timestamp.json")
+                            showBackupRestoreDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Exportar JSON (Copia de Seguridad)"), fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Action 2: Import JSON
+                    OutlinedButton(
+                        onClick = {
+                            importFileLauncher.launch(arrayOf("application/json", "text/*"))
+                            showBackupRestoreDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                        border = BorderStroke(1.dp, HextechCyan),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.FileUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Importar JSON desde Archivo"), fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showBackupRestoreDialog = false }) {
+                    Text(tr("Cerrar"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
+    // Import Confirmation Dialog
+    if (showImportConfirmDialog && pendingImportJson != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showImportConfirmDialog = false
+                pendingImportJson = null
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.FileUpload, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(tr("Restaurar Configuración"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = tr("¿Cómo deseas aplicar la copia de seguridad importada a este dispositivo?"),
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Mode selection: Merge vs Replace
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant)
+                            .clickable { importMergeMode = true }
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (importMergeMode) HextechCyan else Color.Transparent,
+                            border = BorderStroke(1.dp, HextechCyan),
+                            modifier = Modifier.size(16.dp)
+                        ) {}
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(tr("Combinar datos (Recomendado)"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text(tr("Mantiene tus perfiles actuales y agrega los nuevos sin duplicados."), color = TextMuted, fontSize = 10.5.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant)
+                            .clickable { importMergeMode = false }
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (!importMergeMode) DangerRed else Color.Transparent,
+                            border = BorderStroke(1.dp, DangerRed),
+                            modifier = Modifier.size(16.dp)
+                        ) {}
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(tr("Reemplazar todo (Limpiar actual)"), color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text(tr("Sustituye por completo los perfiles y drafts por los del archivo."), color = TextMuted, fontSize = 10.5.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val jsonToRestore = pendingImportJson
+                        showImportConfirmDialog = false
+                        pendingImportJson = null
+                        if (jsonToRestore != null) {
+                            coroutineScope.launch {
+                                isProcessingBackup = true
+                                val result = BackupRestoreManager.restoreFromJson(
+                                    context = context,
+                                    rawJson = jsonToRestore,
+                                    merge = importMergeMode
+                                )
+                                isProcessingBackup = false
+                                if (result.success) {
+                                    Toast.makeText(
+                                        context,
+                                        "Restaurados ${result.profilesImported} perfiles y ${result.draftsImported} partidas.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (importMergeMode) HextechCyan else DangerRed,
+                        contentColor = if (importMergeMode) HextechDarkBg else Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(if (importMergeMode) tr("Combinar e Importar") else tr("Reemplazar Todo"), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showImportConfirmDialog = false
+                    pendingImportJson = null
+                }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
             },
@@ -637,6 +1246,22 @@ private fun SavedDraftCard(
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    if (draft.accountProfileName.isNotBlank()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Surface(
+                            color = HextechCyan.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(4.dp),
+                            border = BorderStroke(0.5.dp, HextechCyan.copy(alpha = 0.5f))
+                        ) {
+                            Text(
+                                text = "👤 ${draft.accountProfileName}",
+                                color = HextechCyan,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "•  $formattedDate",
@@ -822,9 +1447,11 @@ private fun SavedDraftCard(
 @Composable
 private fun DraftDetailBottomSheet(
     draft: SavedDraftEntity,
+    profiles: List<AccountProfile>,
     onDismiss: () -> Unit,
     onLoad: () -> Unit,
-    onSaveNotes: (String) -> Unit
+    onSaveNotes: (String) -> Unit,
+    onAssignProfile: (String, String) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val allies = remember(draft.allyPicksJson) { DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson) }
@@ -878,6 +1505,73 @@ private fun DraftDetailBottomSheet(
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(tr("Cargar en Selección"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Account Profile Pill & Switcher
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                var accountMenuExpanded by remember { mutableStateOf(false) }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.AccountCircle, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(tr("Cuenta Asignada:"), color = TextMuted, fontSize = 11.5.sp)
+                }
+
+                Box {
+                    Surface(
+                        color = HextechGold.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(6.dp),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                        modifier = Modifier.clickable { accountMenuExpanded = true }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (draft.accountProfileName.isNotBlank()) draft.accountProfileName else tr("Principal"),
+                                color = HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(Icons.Default.SwapHoriz, contentDescription = tr("Cambiar cuenta"), tint = HextechGold, modifier = Modifier.size(13.dp))
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = accountMenuExpanded,
+                        onDismissRequest = { accountMenuExpanded = false },
+                        modifier = Modifier.background(HextechSurface)
+                    ) {
+                        profiles.forEach { prof ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(prof.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        if (prof.tag.isNotBlank()) {
+                                            Text("#${prof.tag}", color = HextechCyan, fontSize = 10.sp)
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    accountMenuExpanded = false
+                                    onAssignProfile(prof.id, prof.name)
+                                }
+                            )
+                        }
+                    }
                 }
             }
 

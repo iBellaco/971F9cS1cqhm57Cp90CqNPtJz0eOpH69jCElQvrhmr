@@ -303,7 +303,7 @@ fun MatchupPreviewDialog(
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Macro y Objetivos Móviles: Al minuto 5:00 asegura la primera rotación (Dragón elemental o Heraldo). En minuto 7:30 caen las placas de torre y a los 12:00 el Barón/Ancestral.",
+                                    text = "Macro y Objetivos Móviles: Al minuto 5:00 asegura la primera rotación (Dragón o Heraldo). En minuto 7:30 caen las placas de torre y a los 12:00 el Barón/Ancestral.",
                                     color = TextPrimary,
                                     fontSize = 11.sp,
                                     lineHeight = 14.5.sp

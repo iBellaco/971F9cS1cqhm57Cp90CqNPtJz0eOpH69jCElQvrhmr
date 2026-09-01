@@ -9,7 +9,7 @@ import com.example.data.local.entity.SavedDraftEntity
 
 @Database(
     entities = [SavedDraftEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -1,6 +1,7 @@
 package com.example.data.repository
 
 import android.content.Context
+import com.example.data.AccountProfileManager
 import com.example.data.WildRiftRepository
 import com.example.data.local.AppDatabase
 import com.example.data.local.entity.SavedDraftEntity
@@ -25,6 +26,14 @@ object DraftHistoryRepository {
         return AppDatabase.getDatabase(context).draftDao().getAllDrafts()
     }
 
+    fun getDraftsByProfile(context: Context, profileId: String): Flow<List<SavedDraftEntity>> {
+        return if (profileId == "ALL" || profileId.isBlank()) {
+            AppDatabase.getDatabase(context).draftDao().getAllDrafts()
+        } else {
+            AppDatabase.getDatabase(context).draftDao().getDraftsByProfile(profileId)
+        }
+    }
+
     suspend fun getDraftById(context: Context, id: Long): SavedDraftEntity? {
         return AppDatabase.getDatabase(context).draftDao().getDraftById(id)
     }
@@ -38,8 +47,14 @@ object DraftHistoryRepository {
         analysis: DraftAnalysisResult,
         title: String? = null,
         notes: String = "",
-        matchResult: String = "VICTORY"
+        matchResult: String = "VICTORY",
+        accountProfileId: String? = null,
+        accountProfileName: String? = null
     ): Long {
+        val activeProfile = AccountProfileManager.getActiveProfile(context)
+        val profileId = accountProfileId ?: activeProfile.id
+        val profileName = accountProfileName ?: activeProfile.name
+
         val allyDataList = allies.map {
             SavedDraftSlotData(
                 championId = it.champion.id,
@@ -103,7 +118,9 @@ object DraftHistoryRepository {
             enemyDamageTrue = analysis.trueDamagePercent,
             winConditionNotes = analysis.directMatchupWarning ?: analysis.allyCompositionWarning ?: "",
             directMatchupWarning = analysis.directMatchupWarning ?: "",
-            notes = notes
+            notes = notes,
+            accountProfileId = profileId,
+            accountProfileName = profileName
         )
 
         return AppDatabase.getDatabase(context).draftDao().insertDraft(entity)
@@ -117,8 +134,16 @@ object DraftHistoryRepository {
         AppDatabase.getDatabase(context).draftDao().updateNotes(id, notes)
     }
 
+    suspend fun updateAccountProfile(context: Context, id: Long, profileId: String, profileName: String) {
+        AppDatabase.getDatabase(context).draftDao().updateAccountProfile(id, profileId, profileName)
+    }
+
     suspend fun deleteDraft(context: Context, id: Long) {
         AppDatabase.getDatabase(context).draftDao().deleteDraftById(id)
+    }
+
+    suspend fun clearDraftsByProfile(context: Context, profileId: String) {
+        AppDatabase.getDatabase(context).draftDao().clearDraftsByProfile(profileId)
     }
 
     suspend fun clearAllDrafts(context: Context) {

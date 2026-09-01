@@ -3209,7 +3209,7 @@ private fun DraftAnalysisTab(
             userRole = activeRole,
             estimatedWinrate = analysis.bestOverallPick?.estimatedWinrate ?: 50.0,
             onDismiss = { showSaveDraftDialog = false },
-            onSave = { result, notes ->
+            onSave = { result, notes, profileId, profileName ->
                 coroutineScope.launch {
                     DraftHistoryRepository.saveDraft(
                         context = tabContext,
@@ -3219,7 +3219,9 @@ private fun DraftAnalysisTab(
                         enemies = enemySlots.map { it.champion },
                         analysis = analysis,
                         notes = notes,
-                        matchResult = result
+                        matchResult = result,
+                        accountProfileId = profileId,
+                        accountProfileName = profileName
                     )
                     isSavedRecently = true
                     showSaveDraftDialog = false
