@@ -54,6 +54,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.UnfoldMore
+import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -270,7 +274,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         val marginPx = (8 * density).toInt()
         val cardWidthPx = (330 * density).toInt()
         val cardHeightPx = (520 * density).toInt()
-        val bubbleSizePx = (46 * density).toInt()
+        var bubbleSizePx = (46 * density).toInt()
 
         var isOverlayExpanded = false
 
@@ -372,6 +376,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 try {
                                     windowManager?.updateViewLayout(this@apply, params)
                                 } catch (_: Exception) {}
+                            },
+                            onCompactModeChange = { isCompact ->
+                                bubbleSizePx = ((if (isCompact) 36f else 46f) * density).toInt()
                             }
                         )
                     }
@@ -411,12 +418,14 @@ private fun FloatingOverlayContent(
     screenCaptureManager: ScreenCaptureManager?,
     onClose: () -> Unit,
     onDragDelta: (dx: Int, dy: Int, isDragging: Boolean, isEnded: Boolean) -> Unit,
-    onExpandedChange: (Boolean) -> Unit
+    onExpandedChange: (Boolean) -> Unit,
+    onCompactModeChange: (Boolean) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember { mutableStateOf(false) }
     var activeRole by remember { mutableStateOf(LaneRole.MID) }
     var isFirstPick by remember { mutableStateOf(false) }
+    var isCompactBubble by remember { mutableStateOf(false) }
 
     val allies = remember { mutableStateListOf<Champion>() }
     val enemies = remember { mutableStateListOf<Champion>() }
@@ -431,12 +440,29 @@ private fun FloatingOverlayContent(
 
     var selectedChampionDetail by remember { mutableStateOf<Champion?>(null) }
     var showChampionPickerForSlot by remember { mutableStateOf<Pair<Boolean, Int>?>(null) } // Pair(isAlly, slotIndex)
+    var isLoadingScreenMode by remember { mutableStateOf(false) }
 
-    val analysis = remember(activeRole, isFirstPick, allies.toList(), enemies.toList()) {
+    val explicitEnemyOpponent = remember(activeRole, enemies.toList(), isLoadingScreenMode) {
+        if (isLoadingScreenMode) {
+            val roleIndex = when (activeRole) {
+                LaneRole.TOP -> 0
+                LaneRole.JUNGLE -> 1
+                LaneRole.MID -> 2
+                LaneRole.ADC -> 3
+                LaneRole.SUPPORT -> 4
+            }
+            enemies.getOrNull(roleIndex)
+        } else {
+            enemies.find { it.primaryRole == activeRole }
+        }
+    }
+
+    val analysis = remember(activeRole, isFirstPick, allies.toList(), enemies.toList(), explicitEnemyOpponent) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allies,
             enemies = enemies,
+            enemyLaneOpponent = explicitEnemyOpponent,
             isFirstPick = isFirstPick
         )
     }
@@ -536,7 +562,7 @@ private fun FloatingOverlayContent(
 
                     Box(
                         modifier = Modifier
-                            .size(46.dp)
+                            .size(if (isCompactBubble) 36.dp else 46.dp)
                             .scale(if (isNearCloseThreshold) 0.9f else 1.0f)
                             .clip(CircleShape)
                             .background(
@@ -584,7 +610,7 @@ private fun FloatingOverlayContent(
                     ) {
                         if (isScanning) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(36.dp),
+                                modifier = Modifier.size(if (isCompactBubble) 28.dp else 36.dp),
                                 color = HextechCyan,
                                 strokeWidth = 3.dp
                             )
@@ -593,7 +619,7 @@ private fun FloatingOverlayContent(
                                 imageVector = if (isNearCloseThreshold) Icons.Default.Close else Icons.Default.Shield,
                                 contentDescription = "Wild Rift Drafting Coach",
                                 tint = if (isNearCloseThreshold) DangerRed else Color.White,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(if (isCompactBubble) 16.dp else 22.dp)
                             )
                         }
 
@@ -751,6 +777,22 @@ private fun FloatingOverlayContent(
                                     Icon(Icons.Default.DeleteSweep, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(18.dp))
                                 }
 
+                                // Botón Tamaño de Burbuja (Compact/Expanded)
+                                IconButton(
+                                    onClick = {
+                                        isCompactBubble = !isCompactBubble
+                                        onCompactModeChange(isCompactBubble)
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isCompactBubble) Icons.Default.UnfoldMore else Icons.Default.UnfoldLess,
+                                        contentDescription = "Cambiar tamaño de burbuja",
+                                        tint = TextMuted,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+
                                 // Botón Minimizar
                                 IconButton(
                                     onClick = {
@@ -837,14 +879,46 @@ private fun FloatingOverlayContent(
                                         .border(1.dp, DangerRed.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                                         .padding(6.dp)
                                 ) {
-                                    Text("🔴 " + tr("Enemigos") + " (${enemies.size}/5)", color = DangerRed, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("🔴 " + tr("Enemigos") + " (${enemies.size}/5)", color = DangerRed, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        Icon(
+                                            imageVector = if (isLoadingScreenMode) Icons.Default.CheckCircle else Icons.Default.Info,
+                                            contentDescription = "Pantalla de Carga",
+                                            tint = if (isLoadingScreenMode) Color(0xFF00FF7F) else TextMuted,
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clickable { isLoadingScreenMode = !isLoadingScreenMode }
+                                        )
+                                    }
+                                    
+                                    if (isLoadingScreenMode) {
+                                        Text(tr("Modo Carga (Orden exacto)"), color = Color(0xFF00FF7F), fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                    } else {
+                                        Text(tr("*Línea estimada (oculta en juego)"), color = DangerRed.copy(alpha = 0.7f), fontSize = 7.sp, fontWeight = FontWeight.Medium)
+                                    }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     for (i in 0 until 5) {
                                         val champ = enemies.getOrNull(i)
+                                        val explicitRole = if (isLoadingScreenMode) {
+                                            when(i) {
+                                                0 -> LaneRole.TOP.shortName
+                                                1 -> LaneRole.JUNGLE.shortName
+                                                2 -> LaneRole.MID.shortName
+                                                3 -> LaneRole.ADC.shortName
+                                                4 -> LaneRole.SUPPORT.shortName
+                                                else -> null
+                                            }
+                                        } else null
+                                        
                                         DraftSlotItem(
                                             slotIndex = i + 1,
                                             champion = champ,
                                             isAlly = false,
+                                            explicitRoleName = explicitRole,
                                             onSlotClick = {
                                                 if (champ != null) {
                                                     selectedChampionDetail = champ
@@ -1207,6 +1281,7 @@ private fun DraftSlotItem(
     slotIndex: Int,
     champion: Champion?,
     isAlly: Boolean,
+    explicitRoleName: String? = null,
     onSlotClick: () -> Unit,
     onRemoveClick: () -> Unit
 ) {
@@ -1225,14 +1300,24 @@ private fun DraftSlotItem(
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                 ChampionAvatar(champion = champion, size = 22.dp)
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = champion.name,
-                    color = TextPrimary,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Column {
+                    Text(
+                        text = champion.name,
+                        color = TextPrimary,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (!isAlly) {
+                        Text(
+                            text = explicitRoleName ?: "? ${champion.primaryRole.shortName}",
+                            color = if (explicitRoleName != null) Color(0xFF00FF7F) else DangerRed.copy(alpha = 0.8f),
+                            fontSize = 7.5.sp,
+                            fontWeight = if (explicitRoleName != null) FontWeight.Bold else FontWeight.Medium
+                        )
+                    }
+                }
             }
             Icon(
                 imageVector = Icons.Default.Close,
@@ -1255,9 +1340,10 @@ private fun DraftSlotItem(
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "${tr("Slot")} $slotIndex",
-                    color = TextMuted,
-                    fontSize = 9.sp
+                    text = if (explicitRoleName != null) explicitRoleName else (if (isAlly) "${tr("Slot")} $slotIndex" else "${tr("Pick")} $slotIndex"),
+                    color = if (explicitRoleName != null) Color(0xFF00FF7F).copy(alpha = 0.7f) else TextMuted,
+                    fontSize = 9.sp,
+                    fontWeight = if (explicitRoleName != null) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }
