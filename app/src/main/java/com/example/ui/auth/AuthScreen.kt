@@ -79,10 +79,21 @@ fun AuthFlowContainer(
 
     // Triggered when login/register succeeds to force a recomposition with the new user state and redirect
     val onAuthSuccess: () -> Unit = {
-        currentUser = auth?.currentUser
-        SubscriptionManager.init(context)
-        viewModel.resetSuccessState()
-        onLoginSuccess?.invoke()
+        com.example.util.DeviceAndSessionManager.registerDeviceAndSession(
+            context = context,
+            onSuccess = {
+                currentUser = auth?.currentUser
+                com.example.util.SubscriptionManager.init(context)
+                viewModel.resetSuccessState()
+                onLoginSuccess?.invoke()
+            },
+            onError = { errorMessage ->
+                auth?.signOut()
+                currentUser = null
+                android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
+                viewModel.resetSuccessState()
+            }
+        )
     }
 
     Box(

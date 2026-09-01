@@ -40,6 +40,22 @@ object SubscriptionManager {
 
     private var roleListener: ListenerRegistration? = null
 
+    init {
+        com.example.util.AuthManager.getAuth()?.addAuthStateListener {
+            val user = it.currentUser
+            if (user == null) {
+                _userRole.value = "free"
+                _userName.value = ""
+                _isPremium.value = false
+                _isBanned.value = false
+                _currentAvatarId.value = "default_poro"
+                _unlockedAvatars.value = emptyList()
+                roleListener?.remove()
+                roleListener = null
+            }
+        }
+    }
+
     fun init(context: Context) {
         val auth = AuthManager.getAuth()
         val user = auth?.currentUser
@@ -106,6 +122,8 @@ object SubscriptionManager {
 
                 if (listenSnapshot != null && listenSnapshot.exists()) {
                     val role = listenSnapshot.getString("role") ?: "free"
+                    val sessionToken = listenSnapshot.getString("sessionToken")
+                    com.example.util.DeviceAndSessionManager.handleSessionChanged(sessionToken, context)
                     val banned = listenSnapshot.getBoolean("banned") ?: false
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"

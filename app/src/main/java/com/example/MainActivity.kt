@@ -324,6 +324,12 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         
         AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
+        if (com.example.util.AuthManager.getAuth()?.currentUser != null) {
+            com.example.util.DeviceAndSessionManager.registerDeviceAndSession(this, onError = { msg -> 
+                android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
+                com.example.util.AuthManager.getAuth()?.signOut()
+            })
+        }
         askNotificationPermission()
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)

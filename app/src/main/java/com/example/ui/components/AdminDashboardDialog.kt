@@ -1,5 +1,6 @@
 package com.example.ui.components
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.DisposableEffect
 
 import android.util.Log
 import android.widget.Toast
@@ -311,35 +312,37 @@ fun AdminDashboardDialog(
     var searchQuery by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf("ALL") }
 
-    fun loadUsers() {
+    DisposableEffect(Unit) {
         isLoading = true
-        scope.launch {
-            try {
-                val snapshot = FirebaseFirestore.getInstance().collection("users").get().await()
-                val list = snapshot.documents.mapNotNull { doc ->
-                    val email = doc.getString("email") ?: "Sin email"
-                    val role = doc.getString("role") ?: "free"
-                    val lastActive = doc.getLong("last_active") ?: 0L
-                    val name = doc.getString("name") ?: ""
-                    val avatarId = doc.getString("avatarId") ?: "default_poro"
-                    val premiumUntil = doc.getLong("premiumUntil")
-                    @Suppress("UNCHECKED_CAST")
-                    val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
-                    UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil)
-                }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
-                    .thenByDescending { it.role == "premium" }
-                    .thenBy { it.name.ifEmpty { it.email } })
-                users = list
-            } catch (e: Exception) {
-                Log.e("AdminDashboard", "Error loading users", e)
-            } finally {
-                isLoading = false
+        val listener = FirebaseFirestore.getInstance().collection("users")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("AdminDashboard", "Error loading users", error)
+                    isLoading = false
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val list = snapshot.documents.mapNotNull { doc ->
+                        val email = doc.getString("email") ?: "Sin email"
+                        val role = doc.getString("role") ?: "free"
+                        val lastActive = doc.getLong("last_active") ?: 0L
+                        val name = doc.getString("name") ?: ""
+                        val avatarId = doc.getString("avatarId") ?: "default_poro"
+                        val premiumUntil = doc.getLong("premiumUntil")
+                        @Suppress("UNCHECKED_CAST")
+                        val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
+                        UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil)
+                    }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
+                        .thenByDescending { it.role == "premium" }
+                        .thenBy { it.name.ifEmpty { it.email } })
+                    users = list
+                    isLoading = false
+                }
             }
+        
+        onDispose {
+            listener.remove()
         }
-    }
-
-    LaunchedEffect(Unit) {
-        loadUsers()
     }
 
     if (showReportsPanel) {
@@ -580,7 +583,7 @@ fun AdminDashboardDialog(
                             }
 
                             IconButton(
-                                onClick = { loadUsers() },
+                                onClick = { /* Auto-updating */ },
                                 modifier = Modifier
                                     .size(42.dp)
                                     .clip(RoundedCornerShape(8.dp))
@@ -836,7 +839,6 @@ fun AdminDashboardDialog(
                                                         .document(user.uid)
                                                         .update("role", newRole)
                                                         .await()
-                                                    loadUsers()
                                                 } catch (e: Exception) {
                                                     Log.e("AdminDashboard", "Error updating role", e)
                                                 }
@@ -849,13 +851,12 @@ fun AdminDashboardDialog(
                                                         .document(user.uid)
                                                         .update("name", newName)
                                                         .await()
-                                                    loadUsers()
                                                 } catch (e: Exception) {
                                                     Log.e("AdminDashboard", "Error updating name", e)
                                                 }
                                             }
                                         },
-                                        onRefresh = { loadUsers() }
+                                        onRefresh = { }
                                     )
                                 }
                             }
@@ -1259,6 +1260,24 @@ fun UserManagementCard(
                                 text = { Text("🎁 Obsequiar Avatar LoL", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
                                 onClick = {
                                     showGiftAvatarDialog = true
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Delete, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Resetear Dispositivos (Desvincular Hardware)", color = LolHextechCyan, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    FirebaseFirestore.getInstance().collection("users")
+                                        .document(user.uid)
+                                        .update("registeredDevices", emptyList<String>())
+                                        .addOnSuccessListener {
+                                            Toast.makeText(context, "Dispositivos liberados con éxito", Toast.LENGTH_SHORT).show()
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(context, "Error al liberar dispositivos", Toast.LENGTH_SHORT).show()
+                                        }
                                     expanded = false
                                 }
                             )
