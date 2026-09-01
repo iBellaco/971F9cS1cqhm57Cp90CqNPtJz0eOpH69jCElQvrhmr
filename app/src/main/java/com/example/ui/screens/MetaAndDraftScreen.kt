@@ -3416,7 +3416,7 @@ private fun DraftAnalysisTab(
         }
 
         // Sinergias Letales y Wombo-Combos Detectados
-        val allAllyChamps = remember(allySlots, myChampion) {
+        val allAllyChamps = remember(allySlots.toList(), myChampion) {
             (allySlots.map { it.champion } + listOfNotNull(myChampion)).distinctBy { it.id }
         }
         val womboCombos = remember(allAllyChamps) {

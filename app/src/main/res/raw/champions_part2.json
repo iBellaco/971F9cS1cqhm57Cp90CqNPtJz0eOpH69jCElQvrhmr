@@ -28,7 +28,7 @@
       "Jinx",
       "Miss Fortune"
     ],
-    "tacticalAdvice": "Aplica Bendición de la Marea (E) sobre Lucian o tu tirador para ralentizar al rival y facilitar el acierto de la Prisión de Agua (Q).",
+    "tacticalAdvice": "Aplica Bendición de la Marea (H3) sobre Lucian o tu tirador para ralentizar al rival y facilitar el acierto de la Prisión de Agua (H1).",
     "recommendedRunes": "AERY,AERY,FUENTE DE VIDA,Revestimiento de huesos,REVITALIZAR,TRASCENDENCIA",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -156,7 +156,7 @@
       "Lulu",
       "Seraphine"
     ],
-    "tacticalAdvice": "Farmea pacientemente con Golpe Absorbente (Q) para llegar a 300+ cargas antes del minuto 12 y destruir torretas en split-push.",
+    "tacticalAdvice": "Farmea pacientemente con Golpe Absorbente (H1) para llegar a 300+ cargas antes del minuto 12 y destruir torretas en split-push.",
     "recommendedRunes": "Garras del Inmortal (Valor)",
     "runeTreeDetails": "Valor: Segundo Aire • Sobrecrecimiento • Inquebrantable • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -291,7 +291,7 @@
       "Kai'Sa",
       "Yasuo"
     ],
-    "tacticalAdvice": "Usa tu Línea de Dragado (Q) contra el terreno para escapar rápidamente o inicia con Carga de las Profundidades (H4) imparable.",
+    "tacticalAdvice": "Usa tu Línea de Dragado (H1) contra el terreno para escapar rápidamente o inicia con Carga de las Profundidades (H4) imparable.",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,HEXTELLO",
     "runeTreeDetails": "Inspiración: Destello Hextech • Entrega de Galletas • Perspicacia Cósmica • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
@@ -456,7 +456,7 @@
       "Pantheon",
       "Leona"
     ],
-    "tacticalAdvice": "Acierta tu Jabalina (Q) a distancia para activar Cacería y transformarte en puma con Golpe Rematador potenciado.",
+    "tacticalAdvice": "Acierta tu Jabalina (H1) a distancia para activar Cacería y transformarte en puma con Golpe Rematador potenciado.",
     "recommendedRunes": "Cosecha Oscura,Impacto Repentino,Tirano,Cazador Incesante,Sobrecrecimiento",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Cazador Voraz • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -586,7 +586,7 @@
       "Sona",
       "Yuumi"
     ],
-    "tacticalAdvice": "Usa Velo de Alegría (W) para esquivar todos los ataques básicos y compartir inmunidad con tu soporte en el intercambio.",
+    "tacticalAdvice": "Usa Velo de Alegría (H2) para esquivar todos los ataques básicos y compartir inmunidad con tu soporte en el intercambio.",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -1007,7 +1007,7 @@
       "Miss Fortune",
       "Orianna"
     ],
-    "tacticalAdvice": "Haz bolas de nieve gigantes (W) desde el río para emboscar a gran velocidad y asegura dragones con Voracidad (Q) + Castigo.",
+    "tacticalAdvice": "Haz bolas de nieve gigantes (H2) desde el río para emboscar a gran velocidad y asegura dragones con Voracidad (H1) + Castigo.",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,LEYENDA: TENACIDAD",
     "runeTreeDetails": "Brujería: Capa del Nimbo • Celeridad • Caminar sobre Agua • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
@@ -1267,7 +1267,7 @@
       "Jarvan IV",
       "Diana"
     ],
-    "tacticalAdvice": "Coloca la esfera sobre tu iniciador con Proteger (E) y desata Onda de Choque (H4) cuando entre al medio de los enemigos.",
+    "tacticalAdvice": "Coloca la esfera sobre tu iniciador con Proteger (H3) y desata Onda de Choque (H4) cuando entre al medio de los enemigos.",
     "recommendedRunes": "Conquistador,Banda De Maná,Trascendencia,Se Avecina Tormenta,Revestimiento De Huesos",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
@@ -1533,7 +1533,7 @@
       "Kai'Sa",
       "Taliyah"
     ],
-    "tacticalAdvice": "Carga tu Salto con Escudo (W) con 5 cargas de pasiva para aturdir y aplicar tres golpes instantáneos. Rota con Gran Descarga Celestial (H4).",
+    "tacticalAdvice": "Carga tu Salto con Escudo (H2) con 5 cargas de pasiva para aturdir y aplicar tres golpes instantáneos. Rota con Gran Descarga Celestial (H4).",
     "recommendedRunes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Brutal",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
@@ -1669,7 +1669,7 @@
       "Anivia",
       "Gnar"
     ],
-    "tacticalAdvice": "Activa Presencia Inquebrantable (W) para bloquear todos los saltos y deslizamientos de los asesinos rivales.",
+    "tacticalAdvice": "Activa Presencia Inquebrantable (H2) para bloquear todos los saltos y deslizamientos de los asesinos rivales.",
     "recommendedRunes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,IMPACTO REPENTINO",
     "runeTreeDetails": "Valor: Golpe de Escudo • Revestimiento de Hueso • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -1964,7 +1964,7 @@
       "Samira",
       "Yasuo"
     ],
-    "tacticalAdvice": "Entra con La Gran Entrada (W) + Presteza (H4) para encantar a los 5 enemigos y regresa a salvo con Danza de Batalla (E) a tu tirador.",
+    "tacticalAdvice": "Entra con La Gran Entrada (H2) + Presteza (H4) para encantar a los 5 enemigos y regresa a salvo con Danza de Batalla (H3) a tu tirador.",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,CORAJE DEL COLOSO,FUERZAS RENOVADAS,PERSEVERANCIA,TRASCENDENCIA",
     "runeTreeDetails": "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
@@ -2125,7 +2125,7 @@
       "Samira",
       "Kassadin"
     ],
-    "tacticalAdvice": "Activa Posición Defensiva (W) antes de provocar al tirador enemigo con tu H3 para que se destruya a sí mismo con el daño devuelto.",
+    "tacticalAdvice": "Activa Posición Defensiva (H2) antes de provocar al tirador enemigo con tu H3 para que se destruya a sí mismo con el daño devuelto.",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,Revestimiento de huesos,SOBRECRECIMIENTO,LEYENDA: PRESTEZA",
     "runeTreeDetails": "Valor: Fuente de Vida • Condicionamiento • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/aftershock/aftershock.png",
@@ -2255,7 +2255,7 @@
       "Miss Fortune",
       "Yasuo"
     ],
-    "tacticalAdvice": "Destruye los escudos enemigos con Rompemauras (Q) y atrae a todo el equipo contrario con Tormenta Magnética (H4).",
+    "tacticalAdvice": "Destruye los escudos enemigos con Rompemauras (H1) y atrae a todo el equipo contrario con Tormenta Magnética (H4).",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,FUERZAS RENOVADAS,PERSEVERANCIA,CELERIDAD",
     "runeTreeDetails": "Inspiración: Destello Hextech • Entrega de Galletas • Perspicacia Cósmica • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
@@ -2385,7 +2385,7 @@
       "Elise",
       "Taliyah"
     ],
-    "tacticalAdvice": "Entra con 50+ de furia para romper escudos y aturdir durante 1.5s con Depredador Implacable (W) potenciado.",
+    "tacticalAdvice": "Entra con 50+ de furia para romper escudos y aturdir durante 1.5s con Depredador Implacable (H2) potenciado.",
     "recommendedRunes": "Conquistador,Coraje Del Coloso,Revestimiento De Huesos,Sobrecrecimiento,Brutal",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -2517,7 +2517,7 @@
       "Yuumi",
       "Shen"
     ],
-    "tacticalAdvice": "Salta desde la maleza con 4 acumulaciones de Ferocidad para disparar Fiereza (Q) potenciada y borrar al tirador en milisegundos.",
+    "tacticalAdvice": "Salta desde la maleza con 4 acumulaciones de Ferocidad para disparar Fiereza (H1) potenciada y borrar al tirador en milisegundos.",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Cazador Voraz • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -2647,7 +2647,7 @@
       "Orianna",
       "Malphite"
     ],
-    "tacticalAdvice": "Cancela las animaciones de Alas Rotas (Q) con ataques básicos (Fast Q combo) para duplicar tu velocidad de daño.",
+    "tacticalAdvice": "Cancela las animaciones de Alas Rotas (H1) con ataques básicos (Fast H1 combo) para duplicar tu velocidad de daño.",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -2980,7 +2980,7 @@
       "Amumu",
       "Nautilus"
     ],
-    "tacticalAdvice": "Descarga la rotación E+H2+H1 para atrapar instantáneamente y activar la velocidad de movimiento de Fase Veloz.",
+    "tacticalAdvice": "Descarga la rotación H3+H2+H1 para atrapar instantáneamente y activar la velocidad de movimiento de Fase Veloz.",
     "recommendedRunes": "Irrupción De Fase,Banda De Maná,Concentración Absoluta,Capa Del Nimbo,Sobrecrecimiento",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Tormenta Creciente • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
@@ -3538,7 +3538,7 @@
       "Orianna",
       "Yuumi"
     ],
-    "tacticalAdvice": "Guarda Rompecaras (W) para cuando tu barra de Agallas esté al máximo y desata el puñetazo de daño verdadero central.",
+    "tacticalAdvice": "Guarda Rompecaras (H2) para cuando tu barra de Agallas esté al máximo y desata el puñetazo de daño verdadero central.",
     "recommendedRunes": "Conquistador,Inquebrantable,Fuerzas Renovadas,Sobrecrecimiento,Último Esfuerzo",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -3670,7 +3670,7 @@
       "Twitch",
       "Kha'Zix"
     ],
-    "tacticalAdvice": "Usa Refugio Espiritual (W) para anular los ataques básicos enemigos y salva a tu aliado con Mantener la Postura (H4) a través del mapa.",
+    "tacticalAdvice": "Usa Refugio Espiritual (H2) para anular los ataques básicos enemigos y salva a tu aliado con Mantener la Postura (H4) a través del mapa.",
     "recommendedRunes": "Garras del inmortal,Garras del inmortal,INQUEBRANTABLE,FUERZAS RENOVADAS,SOBRECRECIMIENTO,IMPACTO REPENTINO",
     "runeTreeDetails": "Valor: Fuente de Vida • Revestimiento de Hueso • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -3930,7 +3930,7 @@
       "Lulu",
       "Zilean"
     ],
-    "tacticalAdvice": "Haz proxy farming tras las torres enemigas para atraer al jungla y corre dejando tu Rastro de Veneno (Q) activo.",
+    "tacticalAdvice": "Haz proxy farming tras las torres enemigas para atraer al jungla y corre dejando tu Rastro de Veneno (H1) activo.",
     "recommendedRunes": "Irrupción De Fase,Inquebrantable,Fuerzas Renovadas,Perseverancia,Capa Del Nimbo",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -4060,7 +4060,7 @@
       "Yasuo",
       "Diana"
     ],
-    "tacticalAdvice": "Carga Impacto Descendente (Q) desde la maleza para no ser visto y embiste torretas enemigas con Imparable (H4).",
+    "tacticalAdvice": "Carga Impacto Descendente (H1) desde la maleza para no ser visto y embiste torretas enemigas con Imparable (H4).",
     "recommendedRunes": "Garras del inmortal,Garras del inmortal,DEMOLER,FUERZAS RENOVADAS,SOBRECRECIMIENTO,CAZADOR INGENIOSO",
     "runeTreeDetails": "Valor: Demolición • Condicionamiento • Sobrecrecimiento • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
@@ -4193,7 +4193,7 @@
       "Lulu",
       "Karma"
     ],
-    "tacticalAdvice": "Usa Escudo de Hechizos (E) para bloquear ganchos y habilidades definitivas y activa A la Caza (H4) para iniciar asedios con tu equipo.",
+    "tacticalAdvice": "Usa Escudo de Hechizos (H3) para bloquear ganchos y habilidades definitivas y activa A la Caza (H4) para iniciar asedios con tu equipo.",
     "recommendedRunes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -4488,7 +4488,7 @@
       "Thresh",
       "Nami"
     ],
-    "tacticalAdvice": "Acumula 225 cargas de Dracomanía para desbloquear daño verdadero en área y ejecución en su Aliento de Fuego (Q).",
+    "tacticalAdvice": "Acumula 225 cargas de Dracomanía para desbloquear daño verdadero en área y ejecución en su Aliento de Fuego (H1).",
     "recommendedRunes": "Pies Veloces,Fervor De Batalla,Derribado,Leyenda: Presteza,Trascendencia",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -4744,7 +4744,7 @@
       "Vayne",
       "Tristana"
     ],
-    "tacticalAdvice": "Acierta Invocación Estelar (Q) para regenerar vida antes de curar a tu aliado con tu H2 a coste cero de vida. Cura globalmente con Plegaria (H4).",
+    "tacticalAdvice": "Acierta Invocación Estelar (H1) para regenerar vida antes de curar a tu aliado con tu H2 a coste cero de vida. Cura globalmente con Plegaria (H4).",
     "recommendedRunes": "AERY,AERY,INQUEBRANTABLE,Revestimiento de huesos,REVITALIZAR,AXIOMA ARCANO",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -5005,7 +5005,7 @@
       "Vi",
       "Lee Sin"
     ],
-    "tacticalAdvice": "Acumula esferas oscuras con tu Habilidad 1 (H1) en el suelo antes de dispersar a los enemigos con Dispersar a los Débiles (E) y desatar Poder Desatado (H4).",
+    "tacticalAdvice": "Acumula esferas oscuras con tu Habilidad 1 (H1) en el suelo antes de dispersar a los enemigos con Dispersar a los Débiles (H3) y desatar Poder Desatado (H4).",
     "recommendedRunes": "Primer Golpe,Axioma Arcano,Trascendencia,Capa Del Nimbo,Golpe De Gracia",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Cazador Voraz • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -5138,7 +5138,7 @@
       "Renekton",
       "Nautilus"
     ],
-    "tacticalAdvice": "Coloca Tierra Deshilachada (E) para castigar cualquier salto enemigo y corta el mapa con Muro de la Tejedora (H4).",
+    "tacticalAdvice": "Coloca Tierra Deshilachada (H3) para castigar cualquier salto enemigo y corta el mapa con Muro de la Tejedora (H4).",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -5299,7 +5299,7 @@
       "Amumu",
       "Jarvan IV"
     ],
-    "tacticalAdvice": "Salta los muros del mapa con Sendero del Asesino (E) para emboscar desde ángulos ciegos y activar tu pasiva de sangrado.",
+    "tacticalAdvice": "Salta los muros del mapa con Sendero del Asesino (H3) para emboscar desde ángulos ciegos y activar tu pasiva de sangrado.",
     "recommendedRunes": "PRIMER GOLPE,PRIMER GOLPE,FERVOR DE BATALLA,DERRIBADO,LEYENDA: PRESTEZA,IMPACTO REPENTINO",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Ingenio Cazador • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -5466,7 +5466,7 @@
       "Singed",
       "Lillia"
     ],
-    "tacticalAdvice": "Ciega con Dardo Cegador (Q) a los atacantes automáticos y siembra hongos en las entradas de dragones y barones.",
+    "tacticalAdvice": "Ciega con Dardo Cegador (H1) a los atacantes automáticos y siembra hongos en las entradas de dragones y barones.",
     "recommendedRunes": "Pies Veloces,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Derribado",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
@@ -5594,7 +5594,7 @@
       "Jinx",
       "Draven"
     ],
-    "tacticalAdvice": "Lanza tu Linterna (W) para rescatar a un aliado en peligro o acercar a tu jungla para una emboscada sorpresa.",
+    "tacticalAdvice": "Lanza tu Linterna (H2) para rescatar a un aliado en peligro o acercar a tu jungla para una emboscada sorpresa.",
     "recommendedRunes": "MEJORA GLACIAL,MEJORA GLACIAL,INQUEBRANTABLE,Revestimiento de huesos,SOBRECRECIMIENTO,HEXTELLO",
     "runeTreeDetails": "Inspiración: Destello Hextech • Entrega de Galletas • Perspicacia Cósmica • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/glacialaugment/glacialaugment.png",
@@ -5726,7 +5726,7 @@
       "Nautilus",
       "Lulu"
     ],
-    "tacticalAdvice": "Carga la Carga Explosiva (E) con 4 disparos para reiniciar tu Salto Cohete (W) y encadenar derribos.",
+    "tacticalAdvice": "Carga la Carga Explosiva (H3) con 4 disparos para reiniciar tu Salto Cohete (H2) y encadenar derribos.",
     "recommendedRunes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -5989,7 +5989,7 @@
       "Shen",
       "Camille"
     ],
-    "tacticalAdvice": "Selecciona la Carta Dorada de Escoge una Carta (W) antes de teletransportarte con Destino (H4) para un aturdimiento ineludible.",
+    "tacticalAdvice": "Selecciona la Carta Dorada de Escoge una Carta (H2) antes de teletransportarte con Destino (H4) para un aturdimiento ineludible.",
     "recommendedRunes": "Primer Golpe,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
     "runeTreeDetails": "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -6119,7 +6119,7 @@
       "Lulu",
       "Shen"
     ],
-    "tacticalAdvice": "Entra en sigilo con Emboscada (Q) y abre fuego con Vacíalo Todo (H4) desde la retaguardia para atravesar a todo el equipo rival.",
+    "tacticalAdvice": "Entra en sigilo con Emboscada (H1) y abre fuego con Vacíalo Todo (H4) desde la retaguardia para atravesar a todo el equipo rival.",
     "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,GOLPE DE GRACIA,LEYENDA: PRESTEZA,Revestimiento de huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -6247,7 +6247,7 @@
       "Orianna",
       "Malphite"
     ],
-    "tacticalAdvice": "Gira alrededor del objetivo para disparar todas las escopetas de tus piernas con Purga (W) y ejecuta con Miedo de Ultratumba (H4).",
+    "tacticalAdvice": "Gira alrededor del objetivo para disparar todas las escopetas de tus piernas con Purga (H2) y ejecuta con Miedo de Ultratumba (H4).",
     "recommendedRunes": "Fortalecimiento,Brutal,Derribado,Leyenda: Tenacidad,Sobrecrecimiento",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
@@ -6379,7 +6379,7 @@
       "Leona",
       "Braum"
     ],
-    "tacticalAdvice": "Detona las 3 marcas de Infección (W) disparando una Flecha Penetrante (Q) totalmente cargada para un daño letal a distancia.",
+    "tacticalAdvice": "Detona las 3 marcas de Infección (H2) disparando una Flecha Penetrante (H1) totalmente cargada para un daño letal a distancia.",
     "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
@@ -6545,7 +6545,7 @@
       "Milio",
       "Janna"
     ],
-    "tacticalAdvice": "Usa Voltereta (Q) durante Hora Final (H4) para volverte invisible durante 1s y estampar enemigos contra la pared con Condena (E).",
+    "tacticalAdvice": "Usa Voltereta (H1) durante Hora Final (H4) para volverte invisible durante 1s y estampar enemigos contra la pared con Condena (H3).",
     "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -6675,7 +6675,7 @@
       "Amumu",
       "Diana"
     ],
-    "tacticalAdvice": "Atrapa a los rivales con Horizonte de Sucesos (E) y destruye a su mago/tirador con Explosión Primordial (H4).",
+    "tacticalAdvice": "Atrapa a los rivales con Horizonte de Sucesos (H3) y destruye a su mago/tirador con Explosión Primordial (H4).",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -6807,7 +6807,7 @@
       "Jarvan IV",
       "Diana"
     ],
-    "tacticalAdvice": "Calcula el ángulo de 90 grados de Fisión de Plasma (Q) para desgastar desde fuera de la pantalla antes de desintegrar con tu Habilidad Definitiva (H4).",
+    "tacticalAdvice": "Calcula el ángulo de 90 grados de Fisión de Plasma (H1) para desgastar desde fuera de la pantalla antes de desintegrar con tu Habilidad Definitiva (H4).",
     "recommendedRunes": "Cometa Arcano (Brujería)",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
@@ -7065,7 +7065,7 @@
       "Ahri",
       "Orianna"
     ],
-    "tacticalAdvice": "Fija al tirador o mago enemigo con Asalto y Lesiones (H4) imparable y encadena Rompemuros (Q) para derretir su armadura.",
+    "tacticalAdvice": "Fija al tirador o mago enemigo con Asalto y Lesiones (H4) imparable y encadena Rompemuros (H1) para derretir su armadura.",
     "recommendedRunes": "Conquistador (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Impacto Repentino",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -7360,7 +7360,7 @@
       "Amumu",
       "Diana"
     ],
-    "tacticalAdvice": "Aumenta tu Rayo de la Muerte (E) para limpiar oleadas de un solo tiro y corta canalizaciones con Tormenta del Caos (H4).",
+    "tacticalAdvice": "Aumenta tu Rayo de la Muerte (H3) para limpiar oleadas de un solo tiro y corta canalizaciones con Tormenta del Caos (H4).",
     "recommendedRunes": "PIES VELOCES,PIES VELOCES,ATAQUE POTENCIADO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,TRASCENDENCIA",
     "runeTreeDetails": "Inspiración: Calzado Mágico • Entrega de Galletas • Perspicacia Cósmica • Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/inspiration/firststrike/firststrike.png",
@@ -7490,7 +7490,7 @@
       "Diana",
       "Jarvan IV"
     ],
-    "tacticalAdvice": "Carga tu Transfusión (Q) para desatar el mordisco potenciado y usa Charco de Sangre (W) para esquivar definitivas enemigas.",
+    "tacticalAdvice": "Carga tu Transfusión (H1) para desatar el mordisco potenciado y usa Charco de Sangre (H2) para esquivar definitivas enemigas.",
     "recommendedRunes": "Irrupción De Fase,Fervor De Batalla,Derribado,Leyenda: Tenacidad,Trascendencia",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Tormenta Creciente • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/phaserush/phaserush.png",
@@ -7854,7 +7854,7 @@
       "Lulu",
       "Seraphine"
     ],
-    "tacticalAdvice": "Sigue el rastro de Cacería de Sangre (W) para emboscar enemigos bajos de vida y suprime con Opresión Infinita (H4).",
+    "tacticalAdvice": "Sigue el rastro de Cacería de Sangre (H2) para emboscar enemigos bajos de vida y suprime con Opresión Infinita (H4).",
     "recommendedRunes": "Fortalecimiento,Brutal,Golpe De Gracia,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -7984,7 +7984,7 @@
       "Orianna",
       "Diana"
     ],
-    "tacticalAdvice": "Lanza tu clon con Guerrero Pícaro (W) antes de activar Ciclón (H4) para levantar al equipo enemigo dos veces seguidas.",
+    "tacticalAdvice": "Lanza tu clon con Guerrero Pícaro (H2) antes de activar Ciclón (H4) para levantar al equipo enemigo dos veces seguidas.",
     "recommendedRunes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
@@ -8213,7 +8213,7 @@
       "Nautilus",
       "Leona"
     ],
-    "tacticalAdvice": "Esquiva habilidades mortales saltando con Tormenta de Plumas (H4) y atrae todas las plumas con Invocadora de Cuchillas (E) para inmovilizar.",
+    "tacticalAdvice": "Esquiva habilidades mortales saltando con Tormenta de Plumas (H4) y atrae todas las plumas con Invocadora de Cuchillas (H3) para inmovilizar.",
     "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: LINAJE,Revestimiento de huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -8476,7 +8476,7 @@
       "Diana",
       "Alistar"
     ],
-    "tacticalAdvice": "Bloquea proyectiles clave con Muro de Viento (W) y espera a que tus aliados levanten a los rivales para conectar Último Aliento (H4).",
+    "tacticalAdvice": "Bloquea proyectiles clave con Muro de Viento (H2) y espera a que tus aliados levanten a los rivales para conectar Último Aliento (H4).",
     "recommendedRunes": "Compás Letal (Precisión)",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -8608,7 +8608,7 @@
       "Diana",
       "Orianna"
     ],
-    "tacticalAdvice": "Sal en Alma Desatada (E) para comerciar daño seguro y regresa a tu cuerpo limpiando ralentizaciones tras ejecutar Destino Sellado (H4).",
+    "tacticalAdvice": "Sal en Alma Desatada (H3) para comerciar daño seguro y regresa a tu cuerpo limpiando ralentizaciones tras ejecutar Destino Sellado (H4).",
     "recommendedRunes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -8866,7 +8866,7 @@
       "Twitch",
       "Zeri"
     ],
-    "tacticalAdvice": "Sáltate botas y Destello; acompaña a tu carry con ¡Tú y Yo! (W) y cura continuamente con ¡Presteza Gatuna! (E).",
+    "tacticalAdvice": "Sáltate botas y Destello; acompaña a tu carry con ¡Tú y Yo! (H2) y cura continuamente con ¡Presteza Gatuna! (H3).",
     "recommendedRunes": "AERY,AERY,FUENTE DE VIDA,Revestimiento de huesos,REVITALIZAR,TRASCENDENCIA",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -8999,7 +8999,7 @@
       "Jarvan IV",
       "Vi"
     ],
-    "tacticalAdvice": "Coloca tu Sombra Viviente (W) de forma lateral para conectar una doble Shuriken (Q) y asegura la eliminación con Marca de la Muerte (H4).",
+    "tacticalAdvice": "Coloca tu Sombra Viviente (H2) de forma lateral para conectar una doble Shuriken (H1) y asegura la eliminación con Marca de la Muerte (H4).",
     "recommendedRunes": "Electrocutar,Fervor De Batalla,Derribado,Leyenda: Linaje,Impacto Repentino",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Ingenio Cazador • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -9163,7 +9163,7 @@
       "Lulu",
       "Janna"
     ],
-    "tacticalAdvice": "Deslízate sobre los muros con Sobrecarga (E) y desata Choque Eléctrico (H4) para ganar velocidad de movimiento infinita mientras disparas.",
+    "tacticalAdvice": "Deslízate sobre los muros con Sobrecarga (H3) y desata Choque Eléctrico (H4) para ganar velocidad de movimiento infinita mientras disparas.",
     "recommendedRunes": "Conquistador",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
@@ -9296,7 +9296,7 @@
       "Amumu",
       "Diana"
     ],
-    "tacticalAdvice": "Ejecuta torretas bajas de vida instantáneamente con Carga Concentrada (W) y bombardea peleas lejanas con Megabomba Infernal (H4).",
+    "tacticalAdvice": "Ejecuta torretas bajas de vida instantáneamente con Carga Concentrada (H2) y bombardea peleas lejanas con Megabomba Infernal (H4).",
     "recommendedRunes": "Cometa Arcano,Banda De Maná,Trascendencia,Se Avecina Tormenta,Derribado",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
@@ -9426,7 +9426,7 @@
       "Hecarim",
       "Master Yi"
     ],
-    "tacticalAdvice": "Acelera a tus luchadores aliados con Distorsión Temporal (E) y resucita al carry con Cambio Temporal (H4).",
+    "tacticalAdvice": "Acelera a tus luchadores aliados con Distorsión Temporal (H3) y resucita al carry con Cambio Temporal (H4).",
     "recommendedRunes": "COMETA ARCANO,COMETA ARCANO,BANDA DE MANÁ,TRASCENDENCIA,SE AVECINA TORMENTA,GUARDIÁN ZOMBI",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Fuente de Vida",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/summonaery/summonaery.png",
@@ -9554,7 +9554,7 @@
       "Amumu",
       "Diana"
     ],
-    "tacticalAdvice": "Lanza Burbuja Dormilona (E) a través de muros para multiplicar su alcance y conecta una Estrella Fugaz (Q) a máxima distancia.",
+    "tacticalAdvice": "Lanza Burbuja Dormilona (H3) a través de muros para multiplicar su alcance y conecta una Estrella Fugaz (H1) a máxima distancia.",
     "recommendedRunes": "Primer Golpe,Botanista,Trascendencia,Capa Del Nimbo,Impacto Repentino",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Cazador Voraz • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
@@ -9687,7 +9687,7 @@
       "Jhin",
       "Ashe"
     ],
-    "tacticalAdvice": "Siembra semillas con tu H2 antes de lanzar Q o E para hacer brotar plantas escupidoras y enfurécelas con Tuercespinas (H4).",
+    "tacticalAdvice": "Siembra semillas con tu H2 antes de lanzar H1 o H3 para hacer brotar plantas escupidoras y enfurécelas con Tuercespinas (H4).",
     "recommendedRunes": "Cometa Arcano,Fervor De Batalla,Derribado,Leyenda: Linaje,Trascendencia",
     "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",

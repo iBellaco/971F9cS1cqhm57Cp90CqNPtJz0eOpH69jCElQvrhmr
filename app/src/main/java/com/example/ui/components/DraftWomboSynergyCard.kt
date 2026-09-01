@@ -66,7 +66,7 @@ object WomboComboSynergyDetector {
                     type = "KNOCKUP",
                     champ1 = knockupper,
                     champ2 = yasuo,
-                    description = "Iniciación de ${knockupper.name} con Derribo Aéreo masivo activa instantáneamente el R (Último Aliento) de Yasuo.",
+                    description = "Iniciación de ${knockupper.name} con Derribo Aéreo masivo activa instantáneamente la Definitiva (Último Aliento) de Yasuo.",
                     executionTip = "Esperar a que ${knockupper.name} impacte a 2 o más enemigos antes de activar la Definitiva de Yasuo para máximo daño en cadena."
                 )
             )
@@ -82,8 +82,8 @@ object WomboComboSynergyDetector {
                     type = "SHOCKWAVE",
                     champ1 = ballCarrier,
                     champ2 = orianna,
-                    description = "El balón de Orianna colocado sobre ${ballCarrier.name} permite un R (Onda de Choque) perfecto tras el salto.",
-                    executionTip = "Colocar E (Proteger) sobre ${ballCarrier.name} justo antes del dive y presionar R en el punto de impacto."
+                    description = "El balón de Orianna colocado sobre ${ballCarrier.name} permite una Definitiva (Onda de Choque) perfecta tras el salto.",
+                    executionTip = "Colocar H3 (Proteger) sobre ${ballCarrier.name} justo antes del dive y presionar la Definitiva en el punto de impacto."
                 )
             )
         }
@@ -147,7 +147,7 @@ object WomboComboSynergyDetector {
                     champ1 = nami,
                     champ2 = lucian,
                     description = "La Habilidad 3 (Bendición de la Marea) de Nami se activa con los dobles disparos pasivos de Lucian aplicando electrocutar al instante.",
-                    executionTip = "Nami aplica E sobre Lucian justo cuando este usa E (Persecución Implacable) hacia adelante."
+                    executionTip = "Nami aplica H3 sobre Lucian justo cuando este usa H3 (Persecución Implacable) hacia adelante."
                 )
             )
         }
