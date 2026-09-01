@@ -70,27 +70,28 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             )
         ),
         OnboardingPage(
-            title = tr("Ventajas & Suscripción Premium"),
-            subtitle = tr("Acceso Total de Élite"),
-            description = tr("Desbloquea el Asistente Flotante ilimitado en partida, escáner OCR continuo, builds adaptativas al parche actual y análisis Challenger para subir de rango sin límites."),
-            icon = Icons.Default.WorkspacePremium,
-            accentColor = Color(0xFFFFB300),
-            highlights = listOf(
-                tr("Overlay flotante y OCR en partida sin límites"),
-                tr("Builds Pro adaptativas y Tier List en vivo"),
-                tr("Coaching táctico y Win Condition en tiempo real")
-            )
-        ),
-        OnboardingPage(
             title = tr("Tier List e Historial"),
             subtitle = tr("Meta Global y Estadísticas"),
-            description = tr("Consulta la Tier List oficial actualizada al último parche, registra tus partidas con historial detallado y desbloquea avatares de Runaterra."),
+            description = tr("Consulta la Tier List oficial actualizada al último parche, registra tus partidas con historial detallado y analiza tus estadísticas competitivas."),
             icon = Icons.Default.Leaderboard,
             accentColor = TierSPlusColor,
             highlights = listOf(
                 tr("Tier List global y de servidores asiáticos"),
                 tr("Historial de drafts y Win Rate personal"),
-                tr("Catálogo de avatares por regiones")
+                tr("Análisis de enfrentamientos directos")
+            )
+        ),
+        OnboardingPage(
+            title = tr("Ventajas & Suscripción Premium"),
+            subtitle = tr("Acceso Total de Élite & Personalización"),
+            description = tr("Desbloquea todas las ventajas exclusivas: personalización completa con cambio de Temas Hextech/OLED, selección de Avatares exclusivos de Runaterra, asistente flotante ilimitado y análisis Challenger."),
+            icon = Icons.Default.WorkspacePremium,
+            accentColor = Color(0xFFFFB300),
+            highlights = listOf(
+                tr("Cambio de temas visuales exclusivos (Hextech, Noxus, Jonia, Vacío y OLED puro)"),
+                tr("Selección y desbloqueo de Avatares de campeones y regiones"),
+                tr("Overlay flotante y auto-escáner OCR ilimitado en partidas"),
+                tr("Builds Pro dinámicas y Coaching Challenger en tiempo real")
             )
         )
     )

@@ -581,10 +581,10 @@ object WildRiftRepository {
             val comboSynergies = mutableListOf<String>()
             if (champ.id == "yasuo" && (allyIds.any { it in listOf("malphite", "diana", "nautilus", "alistar", "wukong", "aatrox", "rakan", "vi") })) {
                 val knockupEnabler = allies.firstOrNull { it.id in listOf("malphite", "diana", "nautilus", "alistar", "wukong", "aatrox", "rakan", "vi") }?.name ?: "Iniciador"
-                comboSynergies.add("💥 Combo Aéreo: Levantamiento con $knockupEnabler + R de Yasuo")
+                comboSynergies.add("💥 Combo Aéreo: Levantamiento con $knockupEnabler + Definitiva de Yasuo")
             }
             if (champ.id in listOf("malphite", "wukong", "jarvan_iv", "diana") && allyIds.contains("orianna")) {
-                comboSynergies.add("💥 Wombocombo R: Llevas la bola de Orianna para Onda de Choque R masiva")
+                comboSynergies.add("💥 Wombocombo Definitiva: Llevas la bola de Orianna para Onda de Choque masiva")
             }
             if (champ.id == "orianna" && allyIds.any { it in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }) {
                 val carrier = allies.firstOrNull { it.id in listOf("malphite", "jarvan_iv", "wukong", "vi", "hecarim") }?.name ?: "Iniciador"

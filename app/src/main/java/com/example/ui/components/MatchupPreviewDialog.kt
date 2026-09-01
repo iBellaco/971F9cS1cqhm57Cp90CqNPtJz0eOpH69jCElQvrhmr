@@ -279,7 +279,7 @@ fun MatchupPreviewDialog(
                                         .border(0.8.dp, HextechGold, RoundedCornerShape(4.dp))
                                         .padding(horizontal = 5.dp, vertical = 2.dp)
                                 ) {
-                                    Text("Nv. 5 (R)", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                                    Text("Nv. 5 (Definitiva)", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(

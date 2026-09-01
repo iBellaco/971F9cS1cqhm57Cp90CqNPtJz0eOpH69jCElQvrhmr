@@ -93,7 +93,7 @@ fun CreatorSocialMediaBar(
             iconEmoji = "🎮",
             brandColor = Color(0xFF5865F2),
             secondaryColor = Color(0xFF3842B8),
-            url = "https://discord.gg/",
+            url = "https://discord.gg/waYPnaMCB",
             tag = "btn_social_discord"
         )
     )

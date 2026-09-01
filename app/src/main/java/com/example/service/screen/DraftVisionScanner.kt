@@ -21,6 +21,7 @@ data class DetectedChampionSlot(
 data class DraftScanResult(
     val allies: List<Champion>,
     val enemies: List<Champion>,
+    val detectedRole: com.example.model.LaneRole? = null,
     val detectedRawWords: List<String>,
     val isSuccessful: Boolean,
     val statusMessage: String
@@ -101,10 +102,28 @@ object DraftVisionScanner {
 
             val allChamps = WildRiftRepository.champions
 
+            var detectedRole: com.example.model.LaneRole? = null
+
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val lineText = line.text.trim()
                     detectedWords.add(lineText)
+                    val lower = lineText.lowercase(Locale.ROOT)
+
+                    // Detección de rol por palabras clave en pantalla
+                    if (detectedRole == null) {
+                        if (lower.contains("baron") || lower.contains("solo") || lower.contains("top")) {
+                            detectedRole = com.example.model.LaneRole.TOP
+                        } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
+                            detectedRole = com.example.model.LaneRole.JUNGLE
+                        } else if (lower.contains("mid") || lower.contains("central") || lower.contains("medio")) {
+                            detectedRole = com.example.model.LaneRole.MID
+                        } else if (lower.contains("duo") || lower.contains("dragon") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
+                            detectedRole = com.example.model.LaneRole.ADC
+                        } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("sup")) {
+                            detectedRole = com.example.model.LaneRole.SUPPORT
+                        }
+                    }
 
                     // Intentar coincidir con el catálogo de campeones
                     val matchedChamp = matchChampion(lineText, allChamps)
@@ -139,11 +158,12 @@ object DraftVisionScanner {
                 "No se detectaron nombres legibles en pantalla. Asegúrate de estar en Selección de Campeones."
             }
 
-            AppLogger.d(TAG, "Resultado de escaneo: ${foundAllies.map { it.name }} vs ${foundEnemies.map { it.name }}")
+            AppLogger.d(TAG, "Resultado de escaneo: ${foundAllies.map { it.name }} vs ${foundEnemies.map { it.name }} (Rol: $detectedRole)")
 
             DraftScanResult(
                 allies = foundAllies,
                 enemies = foundEnemies,
+                detectedRole = detectedRole,
                 detectedRawWords = detectedWords,
                 isSuccessful = totalDetected > 0,
                 statusMessage = status

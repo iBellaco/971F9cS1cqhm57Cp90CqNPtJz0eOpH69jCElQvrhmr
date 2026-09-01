@@ -87,7 +87,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -443,8 +442,13 @@ private fun FloatingOverlayContent(
                                     newEnemiesAdded++
                                 }
                             }
-                            if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
+                            if (result.detectedRole != null && activeRole != result.detectedRole) {
+                                activeRole = result.detectedRole
+                                scanNoticeMessage = "⚡ Auto-Scan: Rol detectado (${result.detectedRole.shortName}) + ${newAlliesAdded + newEnemiesAdded} picks"
+                            } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
+                            }
+                            if (scanNoticeMessage != null) {
                                 delay(3000)
                                 scanNoticeMessage = null
                             }
@@ -474,7 +478,11 @@ private fun FloatingOverlayContent(
                                 enemies.add(champ)
                             }
                         }
-                        scanNoticeMessage = "✅ Escaneo exitoso (${result.allies.size + result.enemies.size} detectados)"
+                        if (result.detectedRole != null) {
+                            activeRole = result.detectedRole
+                        }
+                        scanNoticeMessage = "✅ Escaneo exitoso (${result.allies.size + result.enemies.size} picks" +
+                                (if (result.detectedRole != null) ", rol ${result.detectedRole.shortName})" else ")")
                     } else {
                         scanNoticeMessage = "ℹ️ No se detectaron nombres legibles. Asegúrate de estar en Selección de Campeones."
                     }
@@ -889,7 +897,7 @@ private fun FloatingOverlayContent(
 
                             // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
                             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                analysis.recommendations.take(3).forEach { pick ->
+                                analysis.recommendations.forEach { pick ->
                                     Card(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -980,6 +988,32 @@ private fun FloatingOverlayContent(
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        // Synergies and Counters
+                                        if (champ.synergies.isNotEmpty()) {
+                                            Text(
+                                                text = "🤝 Sinergias: " + champ.synergies.joinToString(", "),
+                                                color = HextechCyan,
+                                                fontSize = 9.sp,
+                                                lineHeight = 11.sp
+                                            )
+                                        }
+                                        if (champ.counteredBy.isNotEmpty()) {
+                                            Text(
+                                                text = "⚠️ Counters: " + champ.counteredBy.joinToString(", "),
+                                                color = DangerRed,
+                                                fontSize = 9.sp,
+                                                lineHeight = 11.sp
+                                            )
+                                        }
+                                        if (champ.advantageAgainst.isNotEmpty()) {
+                                            Text(
+                                                text = "⚔️ Fuerte contra: " + champ.advantageAgainst.joinToString(", "),
+                                                color = AllyBlue,
+                                                fontSize = 9.sp,
+                                                lineHeight = 11.sp
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -1056,11 +1090,18 @@ private fun FloatingOverlayContent(
             }
         }
 
-        Dialog(onDismissRequest = { showChampionPickerForSlot = null }) {
+        Box(
+            modifier = Modifier
+                .widthIn(min = 300.dp, max = 340.dp)
+                .heightIn(min = 400.dp, max = 530.dp)
+                .padding(4.dp)
+                .pointerInput(Unit) { },
+            contentAlignment = Alignment.Center
+        ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp),
+                    .height(440.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, if (isAllySlot) AllyBlue else DangerRed)
