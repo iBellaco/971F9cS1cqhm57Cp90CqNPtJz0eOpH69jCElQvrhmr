@@ -23,6 +23,9 @@ object SubscriptionManager {
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 
+    private val _premiumUntil = MutableStateFlow<Long?>(null)
+    val premiumUntil: StateFlow<Long?> = _premiumUntil.asStateFlow()
+
     private val _currentAvatarId = MutableStateFlow("default_poro")
     val currentAvatarId: StateFlow<String> = _currentAvatarId.asStateFlow()
 
@@ -104,6 +107,7 @@ object SubscriptionManager {
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
                     val rankBorder = listenSnapshot.getString("rankBorder") ?: "NONE"
+                    val until = listenSnapshot.getLong("premiumUntil")
                     @Suppress("UNCHECKED_CAST")
                     val unlocked = listenSnapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
 
@@ -112,7 +116,15 @@ object SubscriptionManager {
                     }
                     _userRole.value = role
                     _isBanned.value = (role == "banned" || banned)
-                    val isPrem = role == "premium" || role == "admin"
+                    _premiumUntil.value = until
+                    
+                    val isPrem = when {
+                        role == "admin" -> true
+                        role == "premium" -> {
+                            until == null || until == 0L || until > System.currentTimeMillis()
+                        }
+                        else -> false
+                    }
                     _isPremium.value = isPrem
                     _currentAvatarId.value = avatarId
                     
@@ -121,6 +133,7 @@ object SubscriptionManager {
                     _userName.value = ""
                     _userRole.value = "free"
                     _isPremium.value = false
+                    _premiumUntil.value = null
                     _currentAvatarId.value = "default_poro"
                     _unlockedAvatars.value = emptyList()
                 }
@@ -183,17 +196,61 @@ object SubscriptionManager {
             .addOnFailureListener { onError("Error al actualizar el marco: ${it.message}") }
     }
 
-    fun upgradeToPremium() {
+    fun upgradeToPremium(durationMillis: Long? = null) {
         val user = AuthManager.getAuth()?.currentUser ?: return
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
         
-        userRef.set(hashMapOf("role" to "premium"), SetOptions.merge())
+        val updateMap = hashMapOf<String, Any>(
+            "role" to "premium"
+        )
+        if (durationMillis != null && durationMillis > 0) {
+            val expireTime = System.currentTimeMillis() + durationMillis
+            updateMap["premiumUntil"] = expireTime
+        } else {
+            updateMap["premiumUntil"] = 0L // Permanente / Vitalicio
+        }
+        
+        userRef.set(updateMap, SetOptions.merge())
             .addOnSuccessListener {
-                Log.d("SubscriptionManager", "Successfully upgraded to premium")
+                Log.d("SubscriptionManager", "Successfully upgraded to premium with duration: $durationMillis")
             }
             .addOnFailureListener {
                 Log.e("SubscriptionManager", "Failed to upgrade", it)
             }
+    }
+
+    fun formatDuration(until: Long?): String {
+        if (until == null || until == 0L) return "Vitalicio / Permanente"
+        val diff = until - System.currentTimeMillis()
+        if (diff <= 0) return "Expirado"
+
+        val days = diff / (1000 * 60 * 60 * 24)
+        val hours = (diff / (1000 * 60 * 60)) % 24
+        val minutes = (diff / (1000 * 60)) % 60
+
+        return when {
+            days > 0 -> "$days d $hours h restantes"
+            hours > 0 -> "$hours h $minutes min restantes"
+            else -> "$minutes min restantes"
+        }
+    }
+
+    fun isExpiringSoon(): Boolean {
+        if (_userRole.value == "admin") return false
+        if (!_isPremium.value) return false
+        val until = _premiumUntil.value ?: return false
+        if (until == 0L) return false
+        val diff = until - System.currentTimeMillis()
+        // Consider expiring soon if less than 3 days (72 hours) and still positive
+        return diff in 1..(3L * 24 * 60 * 60 * 1000L)
+    }
+
+    fun getRemainingPremiumTimeFormatted(): String {
+        if (_userRole.value == "admin") return "Acceso Administrador (Vitalicio)"
+        if (!_isPremium.value) return "Sin suscripción activa"
+        val until = _premiumUntil.value ?: return "Activo (Permanente)"
+        if (until == 0L) return "Activo (Permanente)"
+        return formatDuration(until)
     }
 }

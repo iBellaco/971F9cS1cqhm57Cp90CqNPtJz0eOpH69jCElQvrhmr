@@ -606,9 +606,9 @@ fun DraftingApp() {
     }
     
     val coroutineScope = rememberCoroutineScope()
-    var mainRole by remember { mutableStateOf(LaneRole.TOP) }
-    var secondRole by remember { mutableStateOf(LaneRole.MID) }
-    var autofillRole by remember { mutableStateOf(LaneRole.SUPPORT) }
+    var mainRole by remember { mutableStateOf(com.example.util.UserPreferences.getMainRole(context)) }
+    var secondRole by remember { mutableStateOf(com.example.util.UserPreferences.getSecondRole(context)) }
+    var autofillRole by remember { mutableStateOf(com.example.util.UserPreferences.getAutofillRole(context)) }
     val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
     val isBanned by com.example.util.SubscriptionManager.isBanned.collectAsStateWithLifecycle()
 
@@ -709,11 +709,20 @@ fun DraftingApp() {
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
                     onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
                     mainRole = mainRole,
-                    onMainRoleChange = { mainRole = it },
+                    onMainRoleChange = { 
+                        mainRole = it
+                        com.example.util.UserPreferences.setMainRole(context, it)
+                    },
                     secondRole = secondRole,
-                    onSecondRoleChange = { secondRole = it },
+                    onSecondRoleChange = { 
+                        secondRole = it
+                        com.example.util.UserPreferences.setSecondRole(context, it)
+                    },
                     autofillRole = autofillRole,
-                    onAutofillRoleChange = { autofillRole = it },
+                    onAutofillRoleChange = { 
+                        autofillRole = it
+                        com.example.util.UserPreferences.setAutofillRole(context, it)
+                    },
                     currentLanguage = selectedLanguage,
                     onLanguageChange = { newLang ->
                         sharedPrefs.edit().putString("selected_language", newLang).apply()

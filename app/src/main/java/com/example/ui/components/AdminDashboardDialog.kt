@@ -48,6 +48,7 @@ import com.example.util.SubscriptionManager
 import com.example.util.tr
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlin.math.PI
@@ -62,7 +63,8 @@ data class UserRecord(
     val lastActive: Long,
     val name: String = "",
     val avatarId: String = "default_poro",
-    val unlockedAvatars: List<String> = emptyList()
+    val unlockedAvatars: List<String> = emptyList(),
+    val premiumUntil: Long? = null
 )
 
 // LoL Themed Palette Constants
@@ -320,9 +322,10 @@ fun AdminDashboardDialog(
                     val lastActive = doc.getLong("last_active") ?: 0L
                     val name = doc.getString("name") ?: ""
                     val avatarId = doc.getString("avatarId") ?: "default_poro"
+                    val premiumUntil = doc.getLong("premiumUntil")
                     @Suppress("UNCHECKED_CAST")
                     val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
-                    UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked)
+                    UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil)
                 }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                     .thenByDescending { it.role == "premium" }
                     .thenBy { it.name.ifEmpty { it.email } })
@@ -952,14 +955,24 @@ fun UserManagementCard(
     var expanded by remember { mutableStateOf(false) }
     var showNameEdit by remember { mutableStateOf(false) }
     var showGiftAvatarDialog by remember { mutableStateOf(false) }
+    var showSubscriptionTimeDialog by remember { mutableStateOf(false) }
 
     val isOnline = System.currentTimeMillis() - user.lastActive < 900_000
+    val isExpired = user.role.equals("premium", ignoreCase = true) && user.premiumUntil != null && user.premiumUntil > 0L && user.premiumUntil <= System.currentTimeMillis()
 
     val roleColor = when (user.role.lowercase()) {
         "admin" -> LolNoxusRed
-        "premium" -> LolBorderGold
+        "premium" -> if (isExpired) LolNoxusRed else LolBorderGold
         "banned" -> Color.Gray
         else -> LolHextechCyan
+    }
+
+    if (showSubscriptionTimeDialog) {
+        AdminManageSubscriptionDialog(
+            user = user,
+            onDismiss = { showSubscriptionTimeDialog = false },
+            onSubscriptionUpdated = { onRefresh() }
+        )
     }
 
     // Dynamic golden runic border animation: continuous shimmer & breathing effect
@@ -1129,7 +1142,10 @@ fun UserManagementCard(
 
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
                             // Role Pill with Runic Golden Border
                             Box(
                                 modifier = Modifier
@@ -1147,7 +1163,34 @@ fun UserManagementCard(
                                 )
                             }
 
-                            Spacer(modifier = Modifier.width(6.dp))
+                            // Subscription Duration Pill (Clickable to manage)
+                            if (user.role.equals("premium", ignoreCase = true)) {
+                                val durationText = SubscriptionManager.formatDuration(user.premiumUntil)
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (isExpired) LolNoxusRed.copy(alpha = 0.18f) else LolBorderGold.copy(alpha = 0.15f))
+                                        .border(0.8.dp, if (isExpired) LolNoxusRed else LolBorderGold.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                                        .clickable { showSubscriptionTimeDialog = true }
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = if (isExpired) Icons.Default.Warning else Icons.Default.HourglassBottom,
+                                            contentDescription = null,
+                                            tint = if (isExpired) LolNoxusRed else LolBorderGold,
+                                            modifier = Modifier.size(10.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = if (isExpired) "EXPIRADO" else durationText,
+                                            color = if (isExpired) LolNoxusRed else LolGoldLight,
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
 
                             Text(
                                 text = "UID: ${user.uid.take(8)}...",
@@ -1159,115 +1202,143 @@ fun UserManagementCard(
                     }
                 }
 
-                // Dropdown Menu Button with LoL Icon Styling
-                Box {
+                // Quick Subscription Timer Button + Dropdown Menu
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     IconButton(
-                        onClick = { expanded = true },
+                        onClick = { showSubscriptionTimeDialog = true },
                         modifier = Modifier
                             .size(34.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(LolDeepNavy)
-                            .border(1.dp, LolBorderGoldDark.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                            .background(LolBorderGold.copy(alpha = 0.15f))
+                            .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
                     ) {
                         Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "Opciones",
+                            Icons.Default.HourglassTop,
+                            contentDescription = "Gestionar Tiempo",
                             tint = LolBorderGold,
                             modifier = Modifier.size(16.dp)
                         )
                     }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        modifier = Modifier
-                            .background(LolClientBg)
-                            .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                    ) {
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Fingerprint, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Copiar ID Invocador", color = TextPrimary, fontSize = 12.5.sp) },
-                            onClick = {
-                                clipboard.setText(AnnotatedString(user.uid))
-                                Toast.makeText(context, "ID copiado", Toast.LENGTH_SHORT).show()
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Email, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Copiar Correo", color = TextPrimary, fontSize = 12.5.sp) },
-                            onClick = {
-                                clipboard.setText(AnnotatedString(user.email))
-                                Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Badge, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Cambiar Nombre de Invocador", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                showNameEdit = true
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("🎁 Obsequiar Avatar LoL", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                showGiftAvatarDialog = true
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.LockReset, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Restablecer Contraseña", color = LolHextechCyan, fontSize = 12.5.sp) },
-                            onClick = {
-                                FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
-                                Toast.makeText(context, "Correo de restablecimiento enviado", Toast.LENGTH_SHORT).show()
-                                expanded = false
-                            }
-                        )
-                        HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Asignar Rol: GRATIS", color = TextPrimary, fontSize = 12.5.sp) },
-                            onClick = {
-                                onRoleChange("free")
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Stars, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Asignar Rol: PREMIUM", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                onRoleChange("premium")
-                                expanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            leadingIcon = {
-                                Icon(Icons.Default.Block, contentDescription = null, tint = LolNoxusRed, modifier = Modifier.size(16.dp))
-                            },
-                            text = { Text("Suspender Invocador (BAN)", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                onRoleChange("banned")
-                                expanded = false
-                            }
-                        )
+                    Box {
+                        IconButton(
+                            onClick = { expanded = true },
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(LolDeepNavy)
+                                .border(1.dp, LolBorderGoldDark.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        ) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = "Opciones",
+                                tint = LolBorderGold,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier
+                                .background(LolClientBg)
+                                .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                        ) {
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.HourglassTop, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("⏱️ Gestionar Tiempo Suscripción", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    showSubscriptionTimeDialog = true
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Fingerprint, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Copiar ID Invocador", color = TextPrimary, fontSize = 12.5.sp) },
+                                onClick = {
+                                    clipboard.setText(AnnotatedString(user.uid))
+                                    Toast.makeText(context, "ID copiado", Toast.LENGTH_SHORT).show()
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Copiar Correo", color = TextPrimary, fontSize = 12.5.sp) },
+                                onClick = {
+                                    clipboard.setText(AnnotatedString(user.email))
+                                    Toast.makeText(context, "Correo copiado", Toast.LENGTH_SHORT).show()
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Badge, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Cambiar Nombre de Invocador", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    showNameEdit = true
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("🎁 Obsequiar Avatar LoL", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    showGiftAvatarDialog = true
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.LockReset, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Restablecer Contraseña", color = LolHextechCyan, fontSize = 12.5.sp) },
+                                onClick = {
+                                    FirebaseAuth.getInstance().sendPasswordResetEmail(user.email)
+                                    Toast.makeText(context, "Correo de restablecimiento enviado", Toast.LENGTH_SHORT).show()
+                                    expanded = false
+                                }
+                            )
+                            HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = TextMuted, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Asignar Rol: GRATIS", color = TextPrimary, fontSize = 12.5.sp) },
+                                onClick = {
+                                    onRoleChange("free")
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Stars, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Asignar Rol: PREMIUM (Vitalicio)", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    onRoleChange("premium")
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.Block, contentDescription = null, tint = LolNoxusRed, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("Suspender Invocador (BAN)", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    onRoleChange("banned")
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -1448,4 +1519,263 @@ fun AdminStatCard(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminManageSubscriptionDialog(
+    user: UserRecord,
+    onDismiss: () -> Unit,
+    onSubscriptionUpdated: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var isSubmitting by remember { mutableStateOf(false) }
+    var customAmount by remember { mutableStateOf("") }
+    var customUnit by remember { mutableStateOf("Días") }
+
+    val isExpired = user.role.equals("premium", ignoreCase = true) && user.premiumUntil != null && user.premiumUntil > 0L && user.premiumUntil <= System.currentTimeMillis()
+    val currentDurationFormatted = when {
+        user.role.equals("admin", ignoreCase = true) -> "👑 Administrador (Vitalicio)"
+        !user.role.equals("premium", ignoreCase = true) -> "Sin Suscripción Activa (Gratis)"
+        isExpired -> "⚠️ Suscripción Expirada"
+        else -> "⏳ ${SubscriptionManager.formatDuration(user.premiumUntil)}"
+    }
+
+    fun applySubscription(durationMillis: Long?, label: String) {
+        isSubmitting = true
+        scope.launch {
+            try {
+                val db = FirebaseFirestore.getInstance()
+                val updateMap = hashMapOf<String, Any>(
+                    "role" to if (durationMillis == -1L) "free" else "premium"
+                )
+                if (durationMillis == -1L) {
+                    updateMap["premiumUntil"] = 0L
+                } else if (durationMillis != null && durationMillis > 0) {
+                    val baseTime = if (user.premiumUntil != null && user.premiumUntil > System.currentTimeMillis()) {
+                        user.premiumUntil
+                    } else {
+                        System.currentTimeMillis()
+                    }
+                    updateMap["premiumUntil"] = baseTime + durationMillis
+                } else {
+                    updateMap["premiumUntil"] = 0L // Vitalicio / Permanente
+                }
+
+                db.collection("users").document(user.uid)
+                    .set(updateMap, SetOptions.merge())
+                    .await()
+
+                Toast.makeText(context, "Suscripción actualizada ($label) para ${user.name.ifEmpty { user.email }}", Toast.LENGTH_SHORT).show()
+                onSubscriptionUpdated()
+                onDismiss()
+            } catch (e: Exception) {
+                Log.e("AdminDashboard", "Error updating subscription duration", e)
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                isSubmitting = false
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.HourglassTop,
+                    contentDescription = null,
+                    tint = LolBorderGold,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Gestionar Suscripción",
+                    color = LolBorderGold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // User info summary banner
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = LolDeepNavy,
+                    border = BorderStroke(1.dp, LolBorderGoldDark.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        UserAvatarView(
+                            avatarId = user.avatarId,
+                            size = 38.dp,
+                            fallbackInitial = user.name.ifEmpty { user.email }
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = user.name.ifEmpty { user.email.substringBefore("@") },
+                                color = LolGoldLight,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                            Text(
+                                text = currentDurationFormatted,
+                                color = if (isExpired) LolNoxusRed else LolHextechCyan,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = "ACCIONES RÁPIDAS (1-TOQUE)",
+                    color = LolHextechCyan,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                val presets = listOf(
+                    Triple("⚡ +1 Hora", 1 * 3600 * 1000L, LolHextechCyan),
+                    Triple("⚡ +6 Horas", 6 * 3600 * 1000L, LolHextechCyan),
+                    Triple("📅 +24 Horas (1 Día)", 24 * 3600 * 1000L, LolHextechCyan),
+                    Triple("🗓️ +7 Días (1 Sem)", 7L * 24 * 3600 * 1000L, LolBorderGold),
+                    Triple("📆 +30 Días (1 Mes)", 30L * 24 * 3600 * 1000L, LolBorderGold),
+                    Triple("🌟 +1 Año (365 Días)", 365L * 24 * 3600 * 1000L, LolGoldLight),
+                    Triple("👑 Vitalicio / Permanente", 0L, LolBorderGold),
+                    Triple("❌ Revocar (Gratis)", -1L, LolNoxusRed)
+                )
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    for (chunk in presets.chunked(2)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            for ((label, duration, color) in chunk) {
+                                Button(
+                                    onClick = { applySubscription(duration, label) },
+                                    enabled = !isSubmitting,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(38.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = color.copy(alpha = 0.15f)),
+                                    border = BorderStroke(1.dp, color.copy(alpha = 0.8f)),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                ) {
+                                    Text(
+                                        text = label,
+                                        color = color,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = "DURACIÓN PERSONALIZADA",
+                    color = LolHextechCyan,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = customAmount,
+                        onValueChange = { customAmount = it.filter { char -> char.isDigit() } },
+                        placeholder = { Text("Ej: 15", fontSize = 12.sp, color = TextMuted) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = LolBorderGold,
+                            unfocusedBorderColor = LolBorderGoldDark,
+                            focusedTextColor = LolGoldLight,
+                            unfocusedTextColor = TextPrimary
+                        )
+                    )
+
+                    // Unit selector
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(LolDeepNavy)
+                            .border(1.dp, LolBorderGoldDark.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                    ) {
+                        listOf("Horas", "Días").forEach { unit ->
+                            val isSel = customUnit == unit
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isSel) LolBorderGold else Color.Transparent)
+                                    .clickable { customUnit = unit }
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = unit,
+                                    color = if (isSel) LolDeepNavy else TextSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            val count = customAmount.toLongOrNull() ?: 0L
+                            if (count > 0) {
+                                val millis = if (customUnit == "Horas") {
+                                    count * 3600 * 1000L
+                                } else {
+                                    count * 24 * 3600 * 1000L
+                                }
+                                applySubscription(millis, "+$count $customUnit")
+                            }
+                        },
+                        enabled = !isSubmitting && (customAmount.toLongOrNull() ?: 0L) > 0,
+                        colors = ButtonDefaults.buttonColors(containerColor = LolBorderGold),
+                        modifier = Modifier.height(44.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text("Aplicar", color = LolDeepNavy, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cerrar", color = TextMuted)
+            }
+        },
+        containerColor = LolCardBg,
+        shape = RoundedCornerShape(14.dp)
+    )
 }

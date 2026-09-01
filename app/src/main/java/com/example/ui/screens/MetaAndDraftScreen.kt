@@ -188,10 +188,11 @@ fun MetaAndDraftScreen(
     initialChampionId: String? = null,
     onNavigateBack: () -> Unit
 ) {
+    val screenContext = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var activeRole by remember { mutableStateOf(userMainRole) }
+    var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(screenContext)) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
     val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
@@ -392,7 +393,12 @@ fun MetaAndDraftScreen(
                             }
                         },
                         onSelectChampion = { selectedDetailChampion = it },
-                        onOpenHistory = { showDraftHistoryScreen = true }
+                        onOpenHistory = { showDraftHistoryScreen = true },
+                        onClearAll = {
+                            allySlots.clear()
+                            enemySlots.clear()
+                            android.widget.Toast.makeText(screenContext, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
+                        }
                     )
                 }
                 MetaScreenMode.TIER_LIST -> {
@@ -658,6 +664,7 @@ fun MetaAndDraftScreen(
             currentRole = activeRole,
             onRoleSelected = {
                 activeRole = it
+                com.example.util.UserPreferences.setActiveDraftRole(screenContext, it)
                 showRoleChangeDialog = false
             },
             onDismiss = { showRoleChangeDialog = false }
@@ -3171,7 +3178,8 @@ private fun DraftAnalysisTab(
     onRemoveEnemyRole: (LaneRole) -> Unit,
     onPickRecommendation: (Champion) -> Unit,
     onSelectChampion: (Champion) -> Unit,
-    onOpenHistory: () -> Unit
+    onOpenHistory: () -> Unit,
+    onClearAll: () -> Unit
 ) {
     val tabContext = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -3384,10 +3392,10 @@ private fun DraftAnalysisTab(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Actions Row: Guardar Draft & Historial de Partidas (Redesigned with Hextech buttons)
+        // Actions Row: Guardar Draft, Historial de Partidas & Vaciar Todo
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
@@ -3400,7 +3408,7 @@ private fun DraftAnalysisTab(
                     }
                 },
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1.1f)
                     .height(44.dp)
                     .testTag("save_draft_button"),
                 colors = ButtonDefaults.buttonColors(
@@ -3412,7 +3420,7 @@ private fun DraftAnalysisTab(
                     if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.7f)
                 ),
                 shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -3421,30 +3429,67 @@ private fun DraftAnalysisTab(
                     Icon(
                         imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
                         contentDescription = null,
-                        modifier = Modifier.size(17.dp)
+                        modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar Draft"),
+                        text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar"),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.5.sp
+                        fontSize = 11.sp
                     )
                     if (!isPremium) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
-                                .padding(horizontal = 3.5.dp, vertical = 1.dp)
+                                .padding(horizontal = 3.dp, vertical = 1.dp)
                         ) {
                             Text(
                                 text = "PRO",
                                 color = HextechDarkBg,
-                                fontSize = 7.5.sp,
+                                fontSize = 7.sp,
                                 fontWeight = FontWeight.Black
                             )
                         }
                     }
+                }
+            }
+
+            Button(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onClearAll()
+                },
+                modifier = Modifier
+                    .weight(0.9f)
+                    .height(44.dp)
+                    .testTag("clear_draft_button"),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DangerRedSurface,
+                    contentColor = DangerRed
+                ),
+                border = BorderStroke(1.2.dp, DangerRed.copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        tint = DangerRed,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = tr("Vaciar"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = DangerRed
+                    )
                 }
             }
 
@@ -3458,7 +3503,7 @@ private fun DraftAnalysisTab(
                     }
                 },
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1.1f)
                     .height(44.dp)
                     .testTag("open_draft_history_button"),
                 colors = ButtonDefaults.buttonColors(
@@ -3467,7 +3512,7 @@ private fun DraftAnalysisTab(
                 ),
                 border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f)),
                 shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -3477,27 +3522,27 @@ private fun DraftAnalysisTab(
                         imageVector = Icons.Default.History,
                         contentDescription = null,
                         tint = HextechCyan,
-                        modifier = Modifier.size(17.dp)
+                        modifier = Modifier.size(16.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = tr("Ver Historial"),
+                        text = tr("Historial"),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.5.sp,
+                        fontSize = 11.sp,
                         color = HextechCyan
                     )
                     if (!isPremium) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
-                                .padding(horizontal = 3.5.dp, vertical = 1.dp)
+                                .padding(horizontal = 3.dp, vertical = 1.dp)
                         ) {
                             Text(
                                 text = "PRO",
                                 color = HextechDarkBg,
-                                fontSize = 7.5.sp,
+                                fontSize = 7.sp,
                                 fontWeight = FontWeight.Black
                             )
                         }

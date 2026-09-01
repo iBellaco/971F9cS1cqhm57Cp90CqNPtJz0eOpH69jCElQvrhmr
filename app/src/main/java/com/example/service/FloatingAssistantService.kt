@@ -484,7 +484,7 @@ private fun FloatingOverlayContent(
     var isSavedRecently by remember { mutableStateOf(false) }
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var activeRole by remember { mutableStateOf(LaneRole.MID) }
+    var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(context)) }
     var isFirstPick by remember { mutableStateOf(false) }
     var isCompactBubble by remember { mutableStateOf(false) }
 
@@ -1006,7 +1006,10 @@ private fun FloatingOverlayContent(
                                 OverlayHubTab.DRAFT -> {
                                     FloatingDraftCoachView(
                                         activeRole = activeRole,
-                                        onActiveRoleChange = { activeRole = it },
+                                        onActiveRoleChange = { role ->
+                                            activeRole = role
+                                            com.example.util.UserPreferences.setActiveDraftRole(context, role)
+                                        },
                                         isFirstPick = isFirstPick,
                                         onFirstPickToggle = { isFirstPick = !isFirstPick },
                                         isLoadingScreenMode = isLoadingScreenMode,
@@ -1030,6 +1033,11 @@ private fun FloatingOverlayContent(
                                             }
                                         },
                                         isSavedRecently = isSavedRecently,
+                                        onClearAll = {
+                                            allies.clear()
+                                            enemies.clear()
+                                            android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
                                         onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
                                     )
                                 }
@@ -1424,6 +1432,7 @@ private fun FloatingDraftCoachView(
     onOpenChampionPicker: (isAlly: Boolean, index: Int) -> Unit,
     onSaveDraftClick: () -> Unit,
     isSavedRecently: Boolean,
+    onClearAll: () -> Unit,
     onGoToTierList: () -> Unit
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
@@ -1626,14 +1635,14 @@ private fun FloatingDraftCoachView(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Botones de acción rápida: Guardar Partida y Ver Tier List
+        // Botones de acción rápida: Guardar Partida, Vaciar Todo y Ver Tier List
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Button(
                 onClick = onSaveDraftClick,
-                modifier = Modifier.weight(1f).height(28.dp),
+                modifier = Modifier.weight(1.1f).height(28.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSavedRecently) Color(0xFF00FF7F).copy(alpha = 0.2f) else HextechGold.copy(alpha = 0.15f)
                 ),
@@ -1645,23 +1654,38 @@ private fun FloatingDraftCoachView(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = if (isSavedRecently) "✓ " + tr("¡Guardado!") else "💾 " + tr("Guardar Partida"),
+                        text = if (isSavedRecently) "✓ " + tr("Guardado") else "💾 " + tr("Guardar"),
                         color = if (isSavedRecently) Color(0xFF00FF7F) else HextechGold,
-                        fontSize = 9.5.sp,
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
                     )
                     if (!isPremium) {
-                        Spacer(modifier = Modifier.width(3.dp))
+                        Spacer(modifier = Modifier.width(2.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(3.dp))
                                 .background(HextechGold)
-                                .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                         ) {
-                            Text("PRO", color = HextechDarkBg, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
+                            Text("PRO", color = HextechDarkBg, fontSize = 6.sp, fontWeight = FontWeight.Black)
                         }
                     }
                 }
+            }
+
+            Button(
+                onClick = onClearAll,
+                modifier = Modifier.weight(0.9f).height(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.15f)),
+                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.7f)),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+            ) {
+                Text(
+                    text = "🧹 " + tr("Vaciar"),
+                    color = DangerRed,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Button(
@@ -1671,9 +1695,9 @@ private fun FloatingDraftCoachView(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
             ) {
                 Text(
-                    text = "🏆 " + tr("Ver Tier List"),
+                    text = "🏆 " + tr("Tier List"),
                     color = HextechDarkBg,
-                    fontSize = 9.5.sp,
+                    fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

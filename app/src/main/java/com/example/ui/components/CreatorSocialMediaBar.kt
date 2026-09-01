@@ -67,16 +67,6 @@ fun CreatorSocialMediaBar(
             tag = "btn_social_instagram"
         ),
         SocialPlatform(
-            id = "facebook",
-            name = "Facebook",
-            handle = "Diego Barba",
-            iconEmoji = "👥",
-            brandColor = Color(0xFF1877F2),
-            secondaryColor = Color(0xFF0056C6),
-            url = "https://www.facebook.com/Diego.Barba.Chavez",
-            tag = "btn_social_facebook"
-        ),
-        SocialPlatform(
             id = "whatsapp",
             name = "WhatsApp",
             handle = "Coach Direct",

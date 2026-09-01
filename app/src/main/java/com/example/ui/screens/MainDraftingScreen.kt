@@ -443,7 +443,7 @@ fun MainDraftingScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = tr("Info"),
+                            text = tr("Información"),
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
                             letterSpacing = 0.5.sp

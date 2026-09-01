@@ -72,25 +72,23 @@ fun SubscriptionPlansBottomSheet(
             )
             
             Text(
-                text = "Elige el plan que mejor se adapte a tu estilo de juego y personaliza tu experiencia al máximo.",
+                text = "Elige el plan que mejor se adapte a tu estilo de juego: pases temporales por horas/días o suscripción continua.",
                 color = TextSecondary,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Premium Card (High Fidelity)
+            // Pase Flash (1 Hora)
             PremiumPlanCard(
-                title = "Coach Premium (Mensual)",
-                price = "$1.00",
-                period = "/ mes",
+                title = "Pase Flash (1 Hora)",
+                price = "$0.25",
+                period = "/ 1 hora",
                 features = listOf(
-                    FeatureItem("Acceso completo al Asistente de Draft", true),
-                    FeatureItem("Descarga de recursos offline", true),
-                    FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
+                    FeatureItem("Acceso total al Asistente de Draft en vivo", true),
+                    FeatureItem("Ideal para sesión rápida de Ranked o Torneo", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Desbloqueo temporal de todos los avatares", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Guardar Draft y Favoritos durante la sesión", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
                     Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
@@ -101,7 +99,53 @@ fun SubscriptionPlansBottomSheet(
                 }
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Pase Diario (24 Horas)
+            PremiumPlanCard(
+                title = "Pase Diario (24 Horas)",
+                price = "$0.50",
+                period = "/ 24 horas",
+                features = listOf(
+                    FeatureItem("Acceso total continuo por 24 horas", true),
+                    FeatureItem("Ideal para fines de semana de escalada competitiva", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Todos los temas y avatares desbloqueados", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Guardar drafts ilimitados en el historial", true, isHighlight = true, icon = Icons.Default.Star)
+                ),
+                onSubscribe = {
+                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
+                    scope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Premium Card (Mensual)
+            PremiumPlanCard(
+                title = "Coach Premium (Mensual)",
+                price = "$1.00",
+                period = "/ mes",
+                features = listOf(
+                    FeatureItem("Acceso completo al Asistente de Draft 30 días", true),
+                    FeatureItem("Descarga de recursos offline permanente", true),
+                    FeatureItem("Colección de Avatares Exclusiva completa", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
+                    FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Guardar Draft y Favoritos en la nube", true, isHighlight = true, icon = Icons.Default.Star)
+                ),
+                onSubscribe = {
+                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
+                    scope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Premium Anual Card
             PremiumPlanCard(
@@ -110,12 +154,12 @@ fun SubscriptionPlansBottomSheet(
                 period = "/ año (Normalmente $12)",
                 features = listOf(
                     FeatureItem("1 mes gratis (Ahorro del 8%)", true, isHighlight = true, icon = Icons.Default.Star),
-                    FeatureItem("Acceso completo al Asistente de Draft", true),
+                    FeatureItem("Acceso completo al Asistente de Draft por 365 días", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardar Draft y Favoritos", true, isHighlight = true, icon = Icons.Default.Star)
+                    FeatureItem("Guardar Draft y Favoritos ilimitado", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
                     Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()

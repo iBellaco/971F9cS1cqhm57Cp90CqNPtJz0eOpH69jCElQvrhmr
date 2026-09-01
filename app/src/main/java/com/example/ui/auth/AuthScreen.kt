@@ -3,6 +3,8 @@ package com.example.ui.auth
 import androidx.compose.animation.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -137,6 +139,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     val context = LocalContext.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
+    val premiumUntil by SubscriptionManager.premiumUntil.collectAsState()
     val savedUserName by SubscriptionManager.userName.collectAsState()
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
     val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
@@ -144,6 +147,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
+
+    val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
+        SubscriptionManager.isExpiringSoon()
+    }
+    val remainingFormatted = remember(premiumUntil, isPremium, userRole) {
+        SubscriptionManager.getRemainingPremiumTimeFormatted()
+    }
 
     if (showAvatarDialog) {
         com.example.ui.components.AvatarSelectionBottomSheet(
@@ -266,60 +276,152 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Premium Status Card
+            // Premium Status Card & Expiration Indicator
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = if (isPremium) com.example.ui.theme.HextechGold.copy(alpha = 0.1f) else androidx.compose.ui.graphics.Color.Transparent
+                    containerColor = when {
+                        userRole == "admin" -> com.example.ui.theme.HextechGold.copy(alpha = 0.12f)
+                        isExpiringSoon -> com.example.ui.theme.DangerRed.copy(alpha = 0.12f)
+                        isPremium -> com.example.ui.theme.HextechGold.copy(alpha = 0.1f)
+                        else -> com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)
+                    }
                 ),
                 border = BorderStroke(
-                    1.dp, 
-                    if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.TextMuted
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = if (isPremium) "Suscripción Activa" else "Plan Gratuito",
-                            color = if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.TextPrimary,
-                            fontSize = 16.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                        )
-                        Text(
-                            text = if (isPremium) "Acceso total desbloqueado" else "Limitado a funciones básicas",
-                            color = com.example.ui.theme.TextSecondary,
-                            fontSize = 12.sp
-                        )
+                    1.2.dp,
+                    when {
+                        userRole == "admin" -> com.example.ui.theme.HextechGold
+                        isExpiringSoon -> com.example.ui.theme.DangerRed
+                        isPremium -> com.example.ui.theme.HextechGold
+                        else -> com.example.ui.theme.TextMuted.copy(alpha = 0.5f)
                     }
-                    
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (userRole == "admin") com.example.ui.theme.DangerRed else if (isPremium) com.example.ui.theme.HextechGold else com.example.ui.theme.HextechSurface)
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
-                        contentAlignment = Alignment.Center
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = userRole.uppercase(),
-                            color = if (userRole == "free") com.example.ui.theme.TextPrimary else com.example.ui.theme.HextechDarkBg,
-                            fontSize = 12.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (isExpiringSoon) {
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = com.example.ui.theme.DangerRed,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                }
+                                Text(
+                                    text = when {
+                                        userRole == "admin" -> "👑 Administrador"
+                                        isExpiringSoon -> "⚠️ Suscripción por Vencer"
+                                        isPremium -> "🌟 Suscripción Activa"
+                                        else -> "Plan Gratuito"
+                                    },
+                                    color = when {
+                                        isExpiringSoon -> com.example.ui.theme.DangerRed
+                                        isPremium -> com.example.ui.theme.HextechGold
+                                        else -> com.example.ui.theme.TextPrimary
+                                    },
+                                    fontSize = 15.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = when {
+                                    userRole == "admin" -> "Acceso vitalicio ilimitado a todas las funciones"
+                                    isPremium -> "⏳ $remainingFormatted"
+                                    else -> "Funciones básicas limitadas"
+                                },
+                                color = if (isExpiringSoon) com.example.ui.theme.DangerRed.copy(alpha = 0.9f) else com.example.ui.theme.TextSecondary,
+                                fontSize = 12.sp,
+                                fontWeight = if (isExpiringSoon) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal
+                            )
+                        }
+                        
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    when {
+                                        userRole == "admin" -> com.example.ui.theme.DangerRed
+                                        isExpiringSoon -> com.example.ui.theme.DangerRed
+                                        isPremium -> com.example.ui.theme.HextechGold
+                                        else -> com.example.ui.theme.HextechSurface
+                                    }
+                                )
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (isExpiringSoon) "EXPIRA PRONTO" else userRole.uppercase(),
+                                color = if (userRole == "free") com.example.ui.theme.TextPrimary else com.example.ui.theme.HextechDarkBg,
+                                fontSize = 10.5.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
+                            )
+                        }
+                    }
+
+                    // Expiring soon alert banner & CTA
+                    if (isExpiringSoon) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(com.example.ui.theme.DangerRed.copy(alpha = 0.15f))
+                                .border(1.dp, com.example.ui.theme.DangerRed.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .padding(10.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    text = "⚡ ¡Tu pase está a punto de finalizar! Quedan $remainingFormatted. Renueva ahora para no perder tus avatares, temas y asistente de drafting.",
+                                    color = com.example.ui.theme.DangerRed,
+                                    fontSize = 11.5.sp,
+                                    lineHeight = 16.sp
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = { showPlansDialog = true },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = com.example.ui.theme.DangerRed,
+                                        contentColor = androidx.compose.ui.graphics.Color.White
+                                    ),
+                                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(15.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Renovar / Extender Suscripción",
+                                        fontSize = 11.5.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             TextButton(onClick = { showPlansDialog = true }) {
-                Text("Comparar Planes", color = com.example.ui.theme.HextechCyan, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text(
+                    text = if (isPremium) "Ver / Cambiar Plan de Suscripción" else "Comparar Planes Premium",
+                    color = com.example.ui.theme.HextechCyan,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 13.sp
+                )
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Button(
                 onClick = { showAvatarDialog = true },
