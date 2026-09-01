@@ -1529,6 +1529,17 @@ fun AdminManageSubscriptionDialog(
                     .set(updateMap, SetOptions.merge())
                     .await()
 
+                if (durationMillis != -1L) {
+                    val durationToLog = if (durationMillis != null && durationMillis > 0) durationMillis else 0L
+                    com.example.util.SubscriptionHistoryManager.addRecordForUser(
+                        uid = user.uid,
+                        durationMillis = durationToLog,
+                        planName = "Asignación Manual: $label",
+                        status = "Completado (Admin)",
+                        amount = "$0.00"
+                    )
+                }
+
                 Toast.makeText(context, "Suscripción actualizada ($label) para ${user.name.ifEmpty { user.email }}", Toast.LENGTH_SHORT).show()
                 onSubscriptionUpdated()
                 onDismiss()

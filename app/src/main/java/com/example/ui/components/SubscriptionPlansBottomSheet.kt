@@ -94,11 +94,21 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Guardar Draft y Favoritos en la nube", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
-                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
-                    scope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
+                    com.example.util.SubscriptionManager.purchaseSubscription(
+                        durationMillis = 30L * 24L * 60L * 60L * 1000L, // 30 days
+                        planName = "Coach Premium (Mensual)",
+                        price = "$1.00",
+                        onSuccess = {
+                            Toast.makeText(context, "Suscripción adquirida exitosamente.", Toast.LENGTH_LONG).show()
+                            scope.launch {
+                                sheetState.hide()
+                                onDismiss()
+                            }
+                        },
+                        onError = { err ->
+                            Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 }
             )
 
@@ -120,11 +130,21 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Guardar Draft y Favoritos ilimitado", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
-                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
-                    scope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
+                    com.example.util.SubscriptionManager.purchaseSubscription(
+                        durationMillis = 365L * 24L * 60L * 60L * 1000L, // 365 days
+                        planName = "Coach Premium (Anual)",
+                        price = "$11.00",
+                        onSuccess = {
+                            Toast.makeText(context, "Suscripción adquirida exitosamente.", Toast.LENGTH_LONG).show()
+                            scope.launch {
+                                sheetState.hide()
+                                onDismiss()
+                            }
+                        },
+                        onError = { err ->
+                            Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
+                        }
+                    )
                 }
             )
 

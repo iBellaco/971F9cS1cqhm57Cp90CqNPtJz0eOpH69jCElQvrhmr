@@ -10,6 +10,9 @@ import com.example.data.AvatarCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 object SubscriptionManager {
     private val _userRole = MutableStateFlow("free")
@@ -217,6 +220,45 @@ object SubscriptionManager {
             }
             .addOnFailureListener {
                 Log.e("SubscriptionManager", "Failed to upgrade", it)
+            }
+    }
+
+    fun purchaseSubscription(durationMillis: Long, planName: String, price: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val user = AuthManager.getAuth()?.currentUser
+        if (user == null) {
+            onError("Debes iniciar sesión.")
+            return
+        }
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+        
+        val baseTime = if (_premiumUntil.value != null && _premiumUntil.value!! > System.currentTimeMillis()) {
+            _premiumUntil.value!!
+        } else {
+            System.currentTimeMillis()
+        }
+        val newUntil = baseTime + durationMillis
+
+        val updateMap = hashMapOf<String, Any>(
+            "role" to "premium",
+            "premiumUntil" to newUntil
+        )
+
+        userRef.set(updateMap, SetOptions.merge())
+            .addOnSuccessListener {
+                CoroutineScope(Dispatchers.IO).launch {
+                    SubscriptionHistoryManager.addRecordForUser(
+                        uid = user.uid,
+                        durationMillis = durationMillis,
+                        planName = planName,
+                        status = "Completado",
+                        amount = price
+                    )
+                }
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onError(it.message ?: "Error desconocido")
             }
     }
 

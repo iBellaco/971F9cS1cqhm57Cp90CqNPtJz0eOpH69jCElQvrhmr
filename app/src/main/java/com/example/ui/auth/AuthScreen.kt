@@ -146,6 +146,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showAvatarDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
+    var showHistoryDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
 
     val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
@@ -426,6 +427,19 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 )
             }
             
+            TextButton(onClick = { showHistoryDialog = true }) {
+                Text(
+                    text = "Historial de Suscripciones",
+                    color = com.example.ui.theme.TextSecondary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    fontSize = 12.sp
+                )
+            }
+            
+            if (showHistoryDialog) {
+                com.example.ui.components.SubscriptionHistoryDialog(onDismiss = { showHistoryDialog = false })
+            }
+
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
