@@ -5,6 +5,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.platform.LocalContext
 import com.example.data.repository.DraftHistoryRepository
+import com.example.util.ChampionRoleAdapter
+import kotlinx.coroutines.launch
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -27,6 +29,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +48,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -52,24 +58,33 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.UnfoldLess
+import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.UnfoldMore
-import androidx.compose.material.icons.filled.UnfoldLess
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
@@ -112,19 +127,21 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.MainActivity
 import com.example.R
+import com.example.data.WildRiftItemsData
 import com.example.data.WildRiftRepository
 import com.example.data.WildRiftSpellsAndRunes
+import com.example.data.local.entity.SavedDraftEntity
 import com.example.model.Champion
+import com.example.model.DraftSlot
 import com.example.model.LaneRole
-import com.example.ui.components.WomboComboSynergyDetector
-import com.example.ui.components.WomboCombo
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.ui.platform.LocalContext
 import com.example.service.screen.DraftVisionScanner
 import com.example.service.screen.ScreenCaptureManager
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
+import com.example.ui.components.FormattedWildRiftText
+import com.example.ui.components.SaveDraftDialog
+import com.example.ui.components.WomboCombo
+import com.example.ui.components.WomboComboSynergyDetector
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -137,17 +154,22 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TierSPlusColor
 import com.example.util.AppLogger
 import com.example.util.LocalLanguage
+import com.example.util.SubscriptionManager
 import com.example.util.tr
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
-    enum class OverlayMode { DRAFT, TIER_LIST }
+enum class OverlayHubTab { DRAFT, TIER_LIST, HISTORY }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -457,7 +479,7 @@ private fun FloatingOverlayContent(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isExpanded by remember { mutableStateOf(false) }
-    var overlayMode by remember { mutableStateOf(OverlayMode.DRAFT) }
+    var overlayHubTab by remember { mutableStateOf(OverlayHubTab.DRAFT) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     var isSavedRecently by remember { mutableStateOf(false) }
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
@@ -845,6 +867,119 @@ private fun FloatingOverlayContent(
                             }
                         }
 
+                        // Sub-Header con Pestañas de Navegación del Hub
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            // Pestaña 1: Draft Coach
+                            val isDraftActive = overlayHubTab == OverlayHubTab.DRAFT
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isDraftActive) HextechCyan.copy(alpha = 0.2f) else HextechSurface)
+                                    .border(
+                                        1.dp,
+                                        if (isDraftActive) HextechCyan else HextechCardBorder.copy(alpha = 0.5f),
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable { overlayHubTab = OverlayHubTab.DRAFT }
+                                    .padding(vertical = 5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Shield,
+                                        contentDescription = null,
+                                        tint = if (isDraftActive) HextechCyan else TextMuted,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Text(
+                                        text = "Draft",
+                                        color = if (isDraftActive) HextechCyan else TextMuted,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = if (isDraftActive) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+
+                            // Pestaña 2: Tier & Builds
+                            val isTierActive = overlayHubTab == OverlayHubTab.TIER_LIST
+                            Box(
+                                modifier = Modifier
+                                    .weight(1.2f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isTierActive) HextechGold.copy(alpha = 0.2f) else HextechSurface)
+                                    .border(
+                                        1.dp,
+                                        if (isTierActive) HextechGold else HextechCardBorder.copy(alpha = 0.5f),
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable { overlayHubTab = OverlayHubTab.TIER_LIST }
+                                    .padding(vertical = 5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.EmojiEvents,
+                                        contentDescription = null,
+                                        tint = if (isTierActive) HextechGold else TextMuted,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Text(
+                                        text = "Tier & Builds",
+                                        color = if (isTierActive) HextechGold else TextMuted,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = if (isTierActive) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+
+                            // Pestaña 3: Historial Conectado
+                            val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
+                            Box(
+                                modifier = Modifier
+                                    .weight(1.1f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isHistoryActive) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface)
+                                    .border(
+                                        1.dp,
+                                        if (isHistoryActive) Color(0xFF00FF7F) else HextechCardBorder.copy(alpha = 0.5f),
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable { overlayHubTab = OverlayHubTab.HISTORY }
+                                    .padding(vertical = 5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.History,
+                                        contentDescription = null,
+                                        tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Text(
+                                        text = "Historial",
+                                        color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+
                         // Banner de estado de escaneo si existe
                         if (scanNoticeMessage != null) {
                             Box(
@@ -862,505 +997,58 @@ private fun FloatingOverlayContent(
                                     fontWeight = FontWeight.Medium
                                 )
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
 
-                        // Contenido Scrollable del Drafting
+                        // Contenido Principal del Hub según la Pestaña Activa
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                            if (overlayMode == OverlayMode.TIER_LIST) {
-                                Column(modifier = Modifier.fillMaxSize()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
-                                        horizontalArrangement = Arrangement.Start
-                                    ) {
-                                        Button(
-                                            onClick = { 
-                                                overlayMode = OverlayMode.DRAFT 
-                                                selectedChampionDetail = null
-                                            },
-                                            modifier = Modifier.height(28.dp),
-                                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 0.dp)
-                                        ) {
-                                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(14.dp), tint = HextechGold)
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Volver a Draft", color = HextechGold, fontSize = 10.sp)
-                                        }
-                                    }
-                                    
-                                    if (selectedChampionDetail != null) {
-                                        val champ = selectedChampionDetail!!
-                                        Card(
-                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                                            shape = RoundedCornerShape(8.dp),
-                                            colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan)
-                                        ) {
-                                            Column(modifier = Modifier.padding(6.dp)) {
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Text(
-                                                        text = "🛡️ ${champ.name} • ${champ.tier} • WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%",
-                                                        color = HextechGold,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = 11.sp
-                                                    )
-                                                    Text(
-                                                        text = "✕ " + tr("Cerrar"),
-                                                        color = DangerRed,
-                                                        fontSize = 9.5.sp,
-                                                        modifier = Modifier.clickable { selectedChampionDetail = null }
-                                                    )
-                                                }
-                                                Spacer(modifier = Modifier.height(3.dp))
-                                                Text(
-                                                    text = "${tr("Objetos Core")}: " + champ.coreItems.take(4).joinToString(", "),
-                                                    color = HextechGoldLight,
-                                                    fontSize = 9.sp,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Button(
-                                                    onClick = {
-                                                        val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
-                                                            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                                            putExtra("OPEN_CHAMPION_DETAIL", champ.id)
-                                                        }
-                                                        context.startActivity(intent)
-                                                    },
-                                                    modifier = Modifier.fillMaxWidth().height(24.dp),
-                                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                                                ) {
-                                                    Text("Ver Build Completa", color = HextechDarkBg, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    com.example.ui.screens.TierListTab(
-                                        onSelectChampion = { champ ->
-                                            selectedChampionDetail = champ
+                            when (overlayHubTab) {
+                                OverlayHubTab.DRAFT -> {
+                                    FloatingDraftCoachView(
+                                        activeRole = activeRole,
+                                        onActiveRoleChange = { activeRole = it },
+                                        isFirstPick = isFirstPick,
+                                        onFirstPickToggle = { isFirstPick = !isFirstPick },
+                                        isLoadingScreenMode = isLoadingScreenMode,
+                                        onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
+                                        allies = allies,
+                                        enemies = enemies,
+                                        analysis = analysis,
+                                        selectedChampionDetail = selectedChampionDetail,
+                                        onSelectChampion = { 
+                                            selectedChampionDetail = it
+                                            overlayHubTab = OverlayHubTab.TIER_LIST
                                         },
-                                        isPremium = isPremium,
-                                        horizontalPadding = 4.dp
+                                        onOpenChampionPicker = { isAlly, index ->
+                                            showChampionPickerForSlot = Pair(isAlly, index)
+                                        },
+                                        onSaveDraftClick = {
+                                            if (isPremium) {
+                                                showSaveDraftDialog = true
+                                            } else {
+                                                android.widget.Toast.makeText(context, "Requiere Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        },
+                                        isSavedRecently = isSavedRecently,
+                                        onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
                                     )
                                 }
-                            } else {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .verticalScroll(rememberScrollState())
-                                ) {
-                                    // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
-                            // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                // Columna Aliados (Azul)
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurface)
-                                        .border(1.dp, AllyBlue.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                        .padding(6.dp)
-                                ) {
-                                    Text("🔵 " + tr("Aliados") + " (${allies.size}/5)", color = AllyBlue, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    for (i in 0 until 5) {
-                                        val champ = allies.getOrNull(i)
-                                        DraftSlotItem(
-                                            slotIndex = i + 1,
-                                            champion = champ,
-                                            isAlly = true,
-                                            onSlotClick = {
-                                                if (champ != null) {
-                                                    selectedChampionDetail = champ
-                                                } else {
-                                                    showChampionPickerForSlot = Pair(true, i)
-                                                }
-                                            },
-                                            onRemoveClick = {
-                                                if (champ != null) allies.remove(champ)
-                                            }
-                                        )
-                                        if (i < 4) Spacer(modifier = Modifier.height(3.dp))
-                                    }
+                                OverlayHubTab.TIER_LIST -> {
+                                    FloatingTierAndBuildsView(
+                                        selectedChampion = selectedChampionDetail,
+                                        onSelectChampion = { selectedChampionDetail = it },
+                                        activeRoleFilter = activeRole,
+                                        onRoleFilterChange = { activeRole = it }
+                                    )
                                 }
-
-                                // Columna Enemigos (Rojo)
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurface)
-                                        .border(1.dp, DangerRed.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                        .padding(6.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text("🔴 " + tr("Enemigos") + " (${enemies.size}/5)", color = DangerRed, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                                        Icon(
-                                            imageVector = if (isLoadingScreenMode) Icons.Default.CheckCircle else Icons.Default.Info,
-                                            contentDescription = "Pantalla de Carga",
-                                            tint = if (isLoadingScreenMode) Color(0xFF00FF7F) else TextMuted,
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .clickable { isLoadingScreenMode = !isLoadingScreenMode }
-                                        )
-                                    }
-                                    
-                                    if (isLoadingScreenMode) {
-                                        Text(tr("Modo Carga (Orden exacto)"), color = Color(0xFF00FF7F), fontSize = 7.sp, fontWeight = FontWeight.Bold)
-                                    } else {
-                                        Text(tr("(Oculto en Draft)"), color = TextMuted, fontSize = 7.sp, fontWeight = FontWeight.Medium)
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    for (i in 0 until 5) {
-                                        val champ = enemies.getOrNull(i)
-                                        val explicitRole = if (isLoadingScreenMode) {
-                                            when(i) {
-                                                0 -> LaneRole.TOP.shortName
-                                                1 -> LaneRole.JUNGLE.shortName
-                                                2 -> LaneRole.MID.shortName
-                                                3 -> LaneRole.ADC.shortName
-                                                4 -> LaneRole.SUPPORT.shortName
-                                                else -> null
-                                            }
-                                        } else null
-                                        
-                                        DraftSlotItem(
-                                            slotIndex = i + 1,
-                                            champion = champ,
-                                            isAlly = false,
-                                            explicitRoleName = explicitRole,
-                                            onSlotClick = {
-                                                if (champ != null) {
-                                                    selectedChampionDetail = champ
-                                                } else {
-                                                    showChampionPickerForSlot = Pair(false, i)
-                                                }
-                                            },
-                                            onRemoveClick = {
-                                                if (champ != null) enemies.remove(champ)
-                                            }
-                                        )
-                                        if (i < 4) Spacer(modifier = Modifier.height(3.dp))
-                                    }
+                                OverlayHubTab.HISTORY -> {
+                                    FloatingHistoryView(
+                                        onSelectChampionDetail = { champ ->
+                                            selectedChampionDetail = champ
+                                            overlayHubTab = OverlayHubTab.TIER_LIST
+                                        }
+                                    )
                                 }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // 2. SELECTOR DE MI ROL / LÍNEA & BLIND PICK
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(3.dp)
-                            ) {
-                                LaneRole.entries.forEach { role ->
-                                    val isSelected = activeRole == role
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(if (isSelected) HextechCyan else HextechSurface)
-                                            .border(1.dp, if (isSelected) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
-                                            .clickable { activeRole = role }
-                                            .padding(vertical = 4.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = tr(role.shortName),
-                                            fontSize = 9.5.sp,
-                                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
-                                            color = if (isSelected) HextechDarkBg else TextPrimary
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "⚔️ " + tr("RECOMENDACIÓN:") + " ${tr(activeRole.displayName)}",
-                                    color = HextechGold,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Text(
-                                    text = if (isFirstPick) "⭐ " + tr("1ª Elección (Blind)") else "🎯 " + tr("Counter Pick"),
-                                    color = if (isFirstPick) HextechGold else HextechCyan,
-                                    fontSize = 9.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(HextechSurface)
-                                        .border(0.5.dp, if (isFirstPick) HextechGold else HextechCyan, RoundedCornerShape(4.dp))
-                                        .clickable { isFirstPick = !isFirstPick }
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            // Sinergias (Wombos)
-                            val context = LocalContext.current
-                            val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.toList()) }
-                            val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.toList()) }
-
-                            if (allyWombos.isNotEmpty() || enemyWombos.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    allyWombos.forEach { wombo ->
-                                        Card(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha=0.6f)),
-                                            border = androidx.compose.foundation.BorderStroke(0.5.dp, AllyBlue)
-                                        ) {
-                                            Text(text = "🔵 ${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 9.sp, modifier = Modifier.padding(4.dp))
-                                        }
-                                    }
-                                    enemyWombos.forEach { wombo ->
-                                        Card(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha=0.6f)),
-                                            border = androidx.compose.foundation.BorderStroke(0.5.dp, DangerRed)
-                                        ) {
-                                            Text(text = "🔴 ${wombo.title}: ${wombo.description}", color = DangerRed, fontSize = 9.sp, modifier = Modifier.padding(4.dp))
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            Spacer(modifier = Modifier.height(6.dp))
-                            
-                            Spacer(modifier = Modifier.height(6.dp))
-                            
-                            Text(
-                                text = "🏆 " + tr("Tier List Meta (S+) para ${tr(activeRole.shortName)}"),
-                                color = HextechGold,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            val topTierChamps = remember(activeRole) {
-                                WildRiftRepository.champions.filter { 
-                                    it.primaryRole == activeRole && it.tier == "S+" 
-                                }.take(3)
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                topTierChamps.forEach { champ ->
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(1f)
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(HextechSurface)
-                                            .clickable { selectedChampionDetail = champ }
-                                            .padding(4.dp)
-                                    ) {
-                                        ChampionAvatar(champion = champ, size = 32.dp)
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(champ.name, color = TextPrimary, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    }
-                                }
-                            }
-
-                            // Botón de Tier List
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Button(
-                                    onClick = { 
-                                        if (isPremium) showSaveDraftDialog = true 
-                                        else android.widget.Toast.makeText(context, "Requiere Premium", android.widget.Toast.LENGTH_SHORT).show()
-                                    },
-                                    modifier = Modifier.weight(1f).height(28.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = if (isSavedRecently) androidx.compose.ui.graphics.Color(0xFF81C784) else HextechGold.copy(alpha=0.15f)),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, if(isSavedRecently) androidx.compose.ui.graphics.Color(0xFF81C784) else HextechGold),
-                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(if (isSavedRecently) "¡Guardado!" else "Guardar Draft", color = if(isSavedRecently) androidx.compose.ui.graphics.Color.White else HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                        if (!isPremium) {
-                                            Spacer(modifier = Modifier.width(3.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(3.dp))
-                                                    .background(HextechGold)
-                                                    .padding(horizontal = 3.dp, vertical = 0.5.dp)
-                                            ) {
-                                                Text("PRO", color = HextechDarkBg, fontSize = 7.sp, fontWeight = FontWeight.Black)
-                                            }
-                                        }
-                                    }
-                                }
-                                Button(
-                                    onClick = { overlayMode = OverlayMode.TIER_LIST },
-                                    modifier = Modifier.weight(1f).height(28.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                                ) {
-                                    Text("Tier List Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-
-                            // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
-                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                analysis.recommendations.forEach { pick ->
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .clickable { selectedChampionDetail = pick.champion },
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(6.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            ChampionAvatar(champion = pick.champion, size = 38.dp)
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Text(pick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(3.dp))
-                                                            .background(TierSPlusColor)
-                                                            .padding(horizontal = 4.dp, vertical = 1.dp)
-                                                    ) {
-                                                        Text(pick.champion.tier, color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Black)
-                                                    }
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Text("WR: ${pick.estimatedWinrate}%", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                                                }
-                                                Text(pick.advantageBadge, color = HextechCyan, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
-                                                Text(pick.tacticalReason, color = TextMuted, fontSize = 8.5.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-
-
-                            // 5. DETALLE RÁPIDO DE CAMPEÓN SI ESTÁ SELECCIONADO
-                            if (selectedChampionDetail != null) {
-                                val champ = selectedChampionDetail!!
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan)
-                                ) {
-                                    Column(modifier = Modifier.padding(8.dp)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "🛡️ ${champ.name} • ${tr("Build Core")}",
-                                                color = HextechGold,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 11.sp
-                                            )
-                                            Text(
-                                                text = "✕ " + tr("Cerrar"),
-                                                color = DangerRed,
-                                                fontSize = 9.5.sp,
-                                                modifier = Modifier.clickable { selectedChampionDetail = null }
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(4.dp))
-
-                                        Text(
-                                            text = "${tr("Objetos Core")}: " + champ.coreItems.take(4).joinToString(", "),
-                                            color = HextechGoldLight,
-                                            fontSize = 9.sp,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        // Synergies and Counters
-                                        if (champ.synergies.isNotEmpty()) {
-                                            Text(
-                                                text = "🤝 Sinergias: " + champ.synergies.joinToString(", "),
-                                                color = AllyBlue,
-                                                fontSize = 8.5.sp,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Button(
-                                            onClick = {
-                                                val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
-                                                    flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                                                    putExtra("OPEN_CHAMPION_DETAIL", champ.id)
-                                                }
-                                                context.startActivity(intent)
-                                            },
-                                            modifier = Modifier.fillMaxWidth().height(26.dp),
-                                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                                        ) {
-                                            Text("Ver Build Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                        if (champ.synergies.isNotEmpty() && false) { // disable old block
-                                            Text(
-                                                text = "🤝 Sinergias: " + champ.synergies.joinToString(", "),
-                                                color = HextechCyan,
-                                                fontSize = 9.sp,
-                                                lineHeight = 11.sp
-                                            )
-                                        }
-                                        if (champ.counteredBy.isNotEmpty()) {
-                                            Text(
-                                                text = "⚠️ Counters: " + champ.counteredBy.joinToString(", "),
-                                                color = DangerRed,
-                                                fontSize = 9.sp,
-                                                lineHeight = 11.sp
-                                            )
-                                        }
-                                        if (champ.advantageAgainst.isNotEmpty()) {
-                                            Text(
-                                                text = "⚔️ Fuerte contra: " + champ.advantageAgainst.take(3).joinToString(", "),
-                                                color = AllyBlue,
-                                                fontSize = 9.sp,
-                                                lineHeight = 11.sp
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
                             }
                         }
 
@@ -1423,6 +1111,23 @@ private fun FloatingOverlayContent(
                 }
             }
         }
+    }
+
+    // Modal para Guardar Partida en Base de Datos Room
+    if (showSaveDraftDialog) {
+        FloatingSaveMatchDialog(
+            activeRole = activeRole,
+            isFirstPick = isFirstPick,
+            allies = allies.toList(),
+            enemies = enemies.toList(),
+            analysis = analysis,
+            onDismiss = { showSaveDraftDialog = false },
+            onSaved = {
+                isSavedRecently = true
+                showSaveDraftDialog = false
+                overlayHubTab = OverlayHubTab.HISTORY
+            }
+        )
     }
 
     // Modal de selección rápida de campeón si el usuario toca un slot manual
@@ -1515,6 +1220,1132 @@ private fun FloatingOverlayContent(
                                 Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(champ.tier, color = HextechGold, fontWeight = FontWeight.Black, fontSize = 10.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingSaveMatchDialog(
+    activeRole: LaneRole,
+    isFirstPick: Boolean,
+    allies: List<Champion>,
+    enemies: List<Champion>,
+    analysis: com.example.model.DraftAnalysisResult,
+    onDismiss: () -> Unit,
+    onSaved: () -> Unit
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var selectedResult by remember { mutableStateOf("VICTORY") }
+    var notesText by remember { mutableStateOf("") }
+    var isSaving by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .padding(10.dp)
+            .pointerInput(Unit) { },
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+            border = BorderStroke(1.5.dp, HextechGold)
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "💾 " + tr("Guardar en Historial"),
+                        color = HextechGold,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = tr("Resultado de la Partida:"),
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val isVic = selectedResult == "VICTORY"
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isVic) Color(0xFF00FF7F).copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.5.dp, if (isVic) Color(0xFF00FF7F) else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { selectedResult = "VICTORY" }
+                            .padding(vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "👑 " + tr("Victoria"),
+                            color = if (isVic) Color(0xFF00FF7F) else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.5.sp
+                        )
+                    }
+
+                    val isDef = selectedResult == "DEFEAT"
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isDef) DangerRed.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.5.dp, if (isDef) DangerRed else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { selectedResult = "DEFEAT" }
+                            .padding(vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "💔 " + tr("Derrota"),
+                            color = if (isDef) DangerRed else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.5.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = tr("Notas tácticas / Matchup:"),
+                    color = TextPrimary,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = notesText,
+                    onValueChange = { notesText = it },
+                    placeholder = { Text(tr("Ej: Matchup ganado en nivel 3, itemizar cortacuras..."), fontSize = 10.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 10.5.sp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = HextechCyan,
+                        unfocusedBorderColor = HextechCardBorder
+                    ),
+                    maxLines = 2
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Button(
+                    onClick = {
+                        if (!isSaving) {
+                            isSaving = true
+                            coroutineScope.launch {
+                                val allySlots = allies.mapIndexed { index, champ ->
+                                    val role = when (index) {
+                                        0 -> LaneRole.TOP
+                                        1 -> LaneRole.JUNGLE
+                                        2 -> LaneRole.MID
+                                        3 -> LaneRole.ADC
+                                        else -> LaneRole.SUPPORT
+                                    }
+                                    DraftSlot(champ, role)
+                                }
+                                DraftHistoryRepository.saveDraft(
+                                    context = context,
+                                    myRole = activeRole,
+                                    isFirstPick = isFirstPick,
+                                    allies = allySlots,
+                                    enemies = enemies,
+                                    analysis = analysis,
+                                    notes = notesText,
+                                    matchResult = selectedResult
+                                )
+                                android.widget.Toast.makeText(context, "¡Partida guardada!", android.widget.Toast.LENGTH_SHORT).show()
+                                isSaving = false
+                                onSaved()
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(34.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    enabled = !isSaving
+                ) {
+                    if (isSaving) {
+                        CircularProgressIndicator(modifier = Modifier.size(14.dp), color = HextechDarkBg, strokeWidth = 2.dp)
+                    } else {
+                        Text(
+                            text = "Guardar y Ver Historial",
+                            color = HextechDarkBg,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.5.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingDraftCoachView(
+    activeRole: LaneRole,
+    onActiveRoleChange: (LaneRole) -> Unit,
+    isFirstPick: Boolean,
+    onFirstPickToggle: () -> Unit,
+    isLoadingScreenMode: Boolean,
+    onLoadingScreenModeToggle: () -> Unit,
+    allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion>,
+    enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion>,
+    analysis: com.example.model.DraftAnalysisResult,
+    selectedChampionDetail: Champion?,
+    onSelectChampion: (Champion?) -> Unit,
+    onOpenChampionPicker: (isAlly: Boolean, index: Int) -> Unit,
+    onSaveDraftClick: () -> Unit,
+    isSavedRecently: Boolean,
+    onGoToTierList: () -> Unit
+) {
+    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Columna Aliados (Azul)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, AllyBlue.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(5.dp)
+            ) {
+                Text(
+                    text = "🔵 " + tr("Aliados") + " (${allies.size}/5)",
+                    color = AllyBlue,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(3.dp))
+                for (i in 0 until 5) {
+                    val champ = allies.getOrNull(i)
+                    DraftSlotItem(
+                        slotIndex = i + 1,
+                        champion = champ,
+                        isAlly = true,
+                        onSlotClick = {
+                            if (champ != null) onSelectChampion(champ)
+                            else onOpenChampionPicker(true, i)
+                        },
+                        onRemoveClick = {
+                            if (champ != null) allies.remove(champ)
+                        }
+                    )
+                    if (i < 4) Spacer(modifier = Modifier.height(3.dp))
+                }
+            }
+
+            // Columna Enemigos (Rojo)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, DangerRed.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                    .padding(5.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "🔴 " + tr("Enemigos") + " (${enemies.size}/5)",
+                        color = DangerRed,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Icon(
+                        imageVector = if (isLoadingScreenMode) Icons.Default.CheckCircle else Icons.Default.Info,
+                        contentDescription = "Pantalla de Carga",
+                        tint = if (isLoadingScreenMode) Color(0xFF00FF7F) else TextMuted,
+                        modifier = Modifier
+                            .size(15.dp)
+                            .clickable { onLoadingScreenModeToggle() }
+                    )
+                }
+
+                if (isLoadingScreenMode) {
+                    Text(tr("Modo Carga (Orden exacto)"), color = Color(0xFF00FF7F), fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                } else {
+                    Text(tr("(Oculto en Draft)"), color = TextMuted, fontSize = 7.sp, fontWeight = FontWeight.Medium)
+                }
+                Spacer(modifier = Modifier.height(3.dp))
+                for (i in 0 until 5) {
+                    val champ = enemies.getOrNull(i)
+                    val explicitRole = if (isLoadingScreenMode) {
+                        when (i) {
+                            0 -> LaneRole.TOP.shortName
+                            1 -> LaneRole.JUNGLE.shortName
+                            2 -> LaneRole.MID.shortName
+                            3 -> LaneRole.ADC.shortName
+                            4 -> LaneRole.SUPPORT.shortName
+                            else -> null
+                        }
+                    } else null
+
+                    DraftSlotItem(
+                        slotIndex = i + 1,
+                        champion = champ,
+                        isAlly = false,
+                        explicitRoleName = explicitRole,
+                        onSlotClick = {
+                            if (champ != null) onSelectChampion(champ)
+                            else onOpenChampionPicker(false, i)
+                        },
+                        onRemoveClick = {
+                            if (champ != null) enemies.remove(champ)
+                        }
+                    )
+                    if (i < 4) Spacer(modifier = Modifier.height(3.dp))
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // 2. SELECTOR DE MI ROL / LÍNEA
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            LaneRole.entries.forEach { role ->
+                val isSelected = activeRole == role
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(if (isSelected) HextechCyan else HextechSurface)
+                        .border(1.dp, if (isSelected) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
+                        .clickable { onActiveRoleChange(role) }
+                        .padding(vertical = 3.5.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = tr(role.shortName),
+                        fontSize = 9.sp,
+                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
+                        color = if (isSelected) HextechDarkBg else TextPrimary
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "⚔️ " + tr("RECOMENDACIÓN:") + " ${tr(activeRole.displayName)}",
+                color = HextechGold,
+                fontSize = 10.5.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = if (isFirstPick) "⭐ " + tr("1ª Elección") else "🎯 " + tr("Counter Pick"),
+                color = if (isFirstPick) HextechGold else HextechCyan,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(HextechSurface)
+                    .border(0.5.dp, if (isFirstPick) HextechGold else HextechCyan, RoundedCornerShape(4.dp))
+                    .clickable { onFirstPickToggle() }
+                    .padding(horizontal = 5.dp, vertical = 2.dp)
+            )
+        }
+
+        // Sinergias (Wombos)
+        val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.toList()) }
+        val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.toList()) }
+
+        if (allyWombos.isNotEmpty() || enemyWombos.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                allyWombos.forEach { wombo ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.6f)),
+                        border = BorderStroke(0.5.dp, AllyBlue)
+                    ) {
+                        Text(text = "🔵 ${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
+                    }
+                }
+                enemyWombos.forEach { wombo ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.6f)),
+                        border = BorderStroke(0.5.dp, DangerRed)
+                    ) {
+                        Text(text = "🔴 ${wombo.title}: ${wombo.description}", color = DangerRed, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Botones de acción rápida: Guardar Partida y Ver Tier List
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Button(
+                onClick = onSaveDraftClick,
+                modifier = Modifier.weight(1f).height(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSavedRecently) Color(0xFF00FF7F).copy(alpha = 0.2f) else HextechGold.copy(alpha = 0.15f)
+                ),
+                border = BorderStroke(1.dp, if (isSavedRecently) Color(0xFF00FF7F) else HextechGold),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = if (isSavedRecently) "✓ " + tr("¡Guardado!") else "💾 " + tr("Guardar Partida"),
+                        color = if (isSavedRecently) Color(0xFF00FF7F) else HextechGold,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (!isPremium) {
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(HextechGold)
+                                .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                        ) {
+                            Text("PRO", color = HextechDarkBg, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
+                        }
+                    }
+                }
+            }
+
+            Button(
+                onClick = onGoToTierList,
+                modifier = Modifier.weight(1f).height(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+            ) {
+                Text(
+                    text = "🏆 " + tr("Ver Tier List"),
+                    color = HextechDarkBg,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            analysis.recommendations.take(4).forEach { pick ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onSelectChampion(pick.champion) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ChampionAvatar(champion = pick.champion, size = 34.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(pick.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(TierSPlusColor)
+                                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                                ) {
+                                    Text(pick.champion.tier, color = Color.Black, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("WR: ${pick.estimatedWinrate}%", color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Text(pick.advantageBadge, color = HextechCyan, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(pick.tacticalReason, color = TextMuted, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingTierAndBuildsView(
+    selectedChampion: Champion?,
+    onSelectChampion: (Champion?) -> Unit,
+    activeRoleFilter: LaneRole,
+    onRoleFilterChange: (LaneRole) -> Unit
+) {
+    val context = LocalContext.current
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf<LaneRole?>(activeRoleFilter) }
+
+    if (selectedChampion != null) {
+        val champ = selectedChampion
+        val roleProfile = remember(champ.id, activeRoleFilter) {
+            ChampionRoleAdapter.getProfile(champ, activeRoleFilter)
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Barra de controles de Build
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { onSelectChampion(null) },
+                    modifier = Modifier.height(26.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(12.dp), tint = HextechGold)
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Volver", color = HextechGold, fontSize = 9.5.sp)
+                }
+
+                Button(
+                    onClick = {
+                        val intent = Intent(context, com.example.MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            putExtra("OPEN_CHAMPION_DETAIL", champ.id)
+                        }
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.height(26.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                ) {
+                    Text("Abrir en App", color = HextechDarkBg, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Tarjeta de Campeón y Estadísticas Principales
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = BorderStroke(1.dp, HextechGold)
+            ) {
+                Row(
+                    modifier = Modifier.padding(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ChampionAvatar(champion = champ, size = 42.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Black, fontSize = 13.sp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(TierSPlusColor)
+                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                            ) {
+                                Text(champ.tier, color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("WR: ${String.format(Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                            Text("• ${tr(champ.primaryRole.displayName)}", color = HextechCyan, fontSize = 9.5.sp)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 🎒 OBJETOS (CORE Y SITUACIONALES)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                border = BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    Text("🎒 " + tr("Objetos Core"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    val coreItems = if (roleProfile.coreItems.isNotEmpty()) roleProfile.coreItems else champ.coreItems
+                    Text(
+                        text = coreItems.joinToString(" ➔ "),
+                        color = HextechGoldLight,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    if (roleProfile.situationalItems.isNotEmpty() || champ.situationalItems.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text("🔄 " + tr("Situacionales Clave"), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        val sitItems = if (roleProfile.situationalItems.isNotEmpty()) roleProfile.situationalItems else champ.situationalItems
+                        Text(
+                            text = sitItems.joinToString(", "),
+                            color = TextMuted,
+                            fontSize = 8.5.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // ⚡ RUNAS Y HECHIZOS
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                border = BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    Text("⚡ " + tr("Runas Óptimas"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = roleProfile.recommendedRunes.ifBlank { champ.recommendedRunes },
+                        color = TextPrimary,
+                        fontSize = 9.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text("🔥 " + tr("Hechizos de Invocador"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = if (roleProfile.recommendedSpells.isNotEmpty()) roleProfile.recommendedSpells.joinToString(" + ") else champ.recommendedSpells.joinToString(" + "),
+                        color = TextPrimary,
+                        fontSize = 9.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 📜 ORDEN DE HABILIDADES (TERMINOLOGÍA WILD RIFT)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                border = BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    Text("📜 " + tr("Orden de Habilidades"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "Priorizar Definitiva (H4) > Habilidad 1 (H1) > Habilidad 3 (H3) > Habilidad 2 (H2)",
+                        color = Color(0xFF00FF7F),
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 🛡️ COUNTERS Y SINERGIAS
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                border = BorderStroke(1.dp, HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    val adv = if (roleProfile.advantageAgainst.isNotEmpty()) roleProfile.advantageAgainst else champ.advantageAgainst
+                    if (adv.isNotEmpty()) {
+                        Text("⚔️ " + tr("Fuerte contra") + ": " + adv.take(4).joinToString(", "), color = AllyBlue, fontSize = 8.5.sp)
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+                    val count = if (roleProfile.counteredBy.isNotEmpty()) roleProfile.counteredBy else champ.counteredBy
+                    if (count.isNotEmpty()) {
+                        Text("⚠️ " + tr("Débil contra (Counters)") + ": " + count.take(4).joinToString(", "), color = DangerRed, fontSize = 8.5.sp)
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+                    val syn = if (roleProfile.synergies.isNotEmpty()) roleProfile.synergies else champ.synergies
+                    if (syn.isNotEmpty()) {
+                        Text("🤝 " + tr("Sinergias aliadas") + ": " + syn.take(4).joinToString(", "), color = HextechCyan, fontSize = 8.5.sp)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // 💡 CONSEJO DEL COACH
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                border = BorderStroke(1.dp, HextechGold)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    Text("💡 " + tr("Consejo Challenger"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = roleProfile.tacticalAdvice.ifBlank { champ.tacticalAdvice },
+                        color = TextMuted,
+                        fontSize = 8.5.sp
+                    )
+                }
+            }
+        }
+    } else {
+        // Vista de lista / búsqueda de campeones
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Buscador
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(tr("Buscar campeón o rol..."), fontSize = 10.5.sp) },
+                modifier = Modifier.fillMaxWidth().height(42.dp),
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechCyan,
+                    unfocusedBorderColor = HextechCardBorder
+                ),
+                singleLine = true,
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Limpiar",
+                            tint = TextMuted,
+                            modifier = Modifier.size(16.dp).clickable { searchQuery = "" }
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Filtros de Rol
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                val isAllSelected = selectedRole == null
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(if (isAllSelected) HextechGold else HextechSurface)
+                        .clickable { selectedRole = null }
+                        .padding(vertical = 3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Todos",
+                        fontSize = 8.sp,
+                        fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isAllSelected) HextechDarkBg else TextPrimary
+                    )
+                }
+
+                LaneRole.entries.forEach { role ->
+                    val isSelected = selectedRole == role
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(if (isSelected) HextechCyan else HextechSurface)
+                            .clickable {
+                                selectedRole = if (isSelected) null else role
+                                onRoleFilterChange(role)
+                            }
+                            .padding(vertical = 3.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = tr(role.shortName),
+                            fontSize = 8.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) HextechDarkBg else TextPrimary
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            val filteredChampions = remember(searchQuery, selectedRole) {
+                WildRiftRepository.champions.filter { champ ->
+                    val matchesRole = selectedRole == null || champ.primaryRole == selectedRole || champ.secondaryRoles.contains(selectedRole)
+                    val matchesSearch = searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true) || champ.title.contains(searchQuery, ignoreCase = true)
+                    matchesRole && matchesSearch
+                }.sortedWith(compareBy<Champion> {
+                    when (it.tier) {
+                        "S+" -> 0
+                        "S" -> 1
+                        "A" -> 2
+                        "B" -> 3
+                        else -> 4
+                    }
+                }.thenByDescending { it.winrate })
+            }
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                items(filteredChampions) { champ ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(HextechSurface)
+                            .clickable { onSelectChampion(champ) }
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ChampionAvatar(champion = champ, size = 28.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                            Text(tr(champ.primaryRole.displayName), color = TextMuted, fontSize = 7.5.sp)
+                        }
+                        Text("WR: ${String.format(Locale.US, "%.1f", champ.winrate)}%", color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(
+                                    when (champ.tier) {
+                                        "S+" -> TierSPlusColor
+                                        "S" -> HextechGold
+                                        "A" -> HextechCyan
+                                        else -> HextechCardBorder
+                                    }
+                                )
+                                .padding(horizontal = 4.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = champ.tier,
+                                color = if (champ.tier == "S+" || champ.tier == "S" || champ.tier == "A") Color.Black else Color.White,
+                                fontSize = 7.5.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FloatingHistoryView(
+    onSelectChampionDetail: (Champion) -> Unit
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val savedDrafts by DraftHistoryRepository.getAllDrafts(context).collectAsStateWithLifecycle(initialValue = emptyList())
+
+    var filterResult by remember { mutableStateOf("ALL") } // "ALL", "VICTORY", "DEFEAT"
+
+    val totalMatches = savedDrafts.size
+    val totalWins = remember(savedDrafts) { savedDrafts.count { it.matchResult == "VICTORY" } }
+    val totalLosses = totalMatches - totalWins
+    val winrate = if (totalMatches > 0) (totalWins.toDouble() / totalMatches) * 100 else 0.0
+
+    val filteredDrafts = remember(savedDrafts, filterResult) {
+        when (filterResult) {
+            "VICTORY" -> savedDrafts.filter { it.matchResult == "VICTORY" }
+            "DEFEAT" -> savedDrafts.filter { it.matchResult == "DEFEAT" }
+            else -> savedDrafts
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Resumen Estadístico Conectado
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "📊 " + tr("Mi Historial de Partidas"),
+                        color = HextechGold,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "$totalMatches ${tr("Partidas")} • $totalWins V - $totalLosses D",
+                        color = TextMuted,
+                        fontSize = 8.5.sp
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(if (winrate >= 50.0) Color(0xFF00FF7F).copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                        .border(1.dp, if (winrate >= 50.0) Color(0xFF00FF7F) else DangerRed, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "WR: ${String.format(Locale.US, "%.1f", winrate)}%",
+                        color = if (winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Filtros de Historial (Todas / Victorias / Derrotas)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            listOf("ALL" to "Todas", "VICTORY" to "Victorias", "DEFEAT" to "Derrotas").forEach { (key, label) ->
+                val isSelected = filterResult == key
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(
+                            if (isSelected) {
+                                when (key) {
+                                    "VICTORY" -> Color(0xFF00FF7F).copy(alpha = 0.3f)
+                                    "DEFEAT" -> DangerRed.copy(alpha = 0.3f)
+                                    else -> HextechGold.copy(alpha = 0.3f)
+                                }
+                            } else HextechSurface
+                        )
+                        .border(
+                            1.dp,
+                            if (isSelected) {
+                                when (key) {
+                                    "VICTORY" -> Color(0xFF00FF7F)
+                                    "DEFEAT" -> DangerRed
+                                    else -> HextechGold
+                                }
+                            } else HextechCardBorder.copy(alpha = 0.5f),
+                            RoundedCornerShape(4.dp)
+                        )
+                        .clickable { filterResult = key }
+                        .padding(vertical = 3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 8.5.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (isSelected) TextPrimary else TextMuted
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        if (filteredDrafts.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.History, contentDescription = null, tint = TextMuted, modifier = Modifier.size(28.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = tr("Sin partidas registradas"),
+                        color = TextMuted,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = tr("Guarda tus drafts para calcular tus estadísticas"),
+                        color = TextMuted.copy(alpha = 0.7f),
+                        fontSize = 8.5.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(filteredDrafts, key = { it.id }) { draft ->
+                    val isVictory = draft.matchResult == "VICTORY"
+                    val dateFormatted = remember(draft.timestamp) {
+                        try {
+                            SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(draft.timestamp))
+                        } catch (_: Exception) {
+                            ""
+                        }
+                    }
+                    val myChamp = remember(draft.myChampionId) {
+                        WildRiftRepository.getChampionById(draft.myChampionId)
+                    }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, if (isVictory) Color(0xFF00FF7F).copy(alpha = 0.5f) else DangerRed.copy(alpha = 0.5f))
+                    ) {
+                        Column(modifier = Modifier.padding(6.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    if (myChamp != null) {
+                                        ChampionAvatar(
+                                            champion = myChamp,
+                                            size = 24.dp,
+                                            modifier = Modifier.clickable { onSelectChampionDetail(myChamp) }
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Text(
+                                        text = draft.title,
+                                        color = TextPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
+                                Text(
+                                    text = if (isVictory) "👑 " + tr("Victoria") else "💔 " + tr("Derrota"),
+                                    color = if (isVictory) Color(0xFF00FF7F) else DangerRed,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+
+                            if (draft.notes.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "📝 " + draft.notes,
+                                    color = HextechGoldLight,
+                                    fontSize = 8.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(3.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = dateFormatted,
+                                    color = TextMuted,
+                                    fontSize = 7.5.sp
+                                )
+
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    // Alternar Victoria / Derrota
+                                    Text(
+                                        text = if (isVictory) tr("Cambiar a Derrota") else tr("Cambiar a Victoria"),
+                                        color = HextechCyan,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.clickable {
+                                            coroutineScope.launch {
+                                                DraftHistoryRepository.updateMatchResult(
+                                                    context = context,
+                                                    id = draft.id,
+                                                    result = if (isVictory) "DEFEAT" else "VICTORY"
+                                                )
+                                            }
+                                        }
+                                    )
+
+                                    // Eliminar
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Eliminar",
+                                        tint = DangerRed.copy(alpha = 0.7f),
+                                        modifier = Modifier
+                                            .size(14.dp)
+                                            .clickable {
+                                                coroutineScope.launch {
+                                                    DraftHistoryRepository.deleteDraft(context, draft.id)
+                                                }
+                                            }
+                                    )
+                                }
                             }
                         }
                     }

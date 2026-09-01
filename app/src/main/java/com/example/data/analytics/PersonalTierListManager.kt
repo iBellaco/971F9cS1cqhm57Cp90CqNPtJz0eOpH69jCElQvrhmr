@@ -97,25 +97,15 @@ object PersonalTierListManager {
     /**
      * Calcula la Tier List Personal y las estadísticas detalladas del jugador
      * basadas en su historial de drafts y partidas guardadas.
+     * Si un campeón no tiene partidas registradas, se ubica en el Tier C con 0% Win Rate.
+     * A medida que se registran victorias y derrotas, los campeones se reordenan
+     * dinámicamente por Win Rate y volumen de juego.
      */
     fun calculatePersonalTierList(
         drafts: List<SavedDraftEntity>,
         roleFilter: LaneRole? = null,
         lang: String = "es"
     ): PersonalTierListResult {
-        if (drafts.isEmpty()) {
-            return PersonalTierListResult(
-                overview = PersonalOverviewStats(0, 0, 0, 0, 0.0, null, null, 0.0, null, null),
-                tierSPlus = emptyList(),
-                tierS = emptyList(),
-                tierA = emptyList(),
-                tierB = emptyList(),
-                tierC = emptyList(),
-                allRankedChampions = emptyList(),
-                roleDistribution = emptyList()
-            )
-        }
-
         // Filtramos drafts si hay rol activo
         val activeDrafts = if (roleFilter != null) {
             drafts.filter { draft ->
@@ -124,24 +114,38 @@ object PersonalTierListManager {
             }
         } else drafts
 
-        // Mapa de datos por campeón: Nombre del campeón -> Lista de partidas
+        // Mapa de datos por campeón: Nombre del campeón (en minúsculas/normalizado) -> Lista de partidas
         val champDraftsMap = mutableMapOf<String, MutableList<SavedDraftEntity>>()
 
         for (draft in activeDrafts) {
             val champName = extractPlayerChampionName(draft)
             if (champName.isNotBlank()) {
-                champDraftsMap.getOrPut(champName) { mutableListOf() }.add(draft)
+                champDraftsMap.getOrPut(champName.lowercase()) { mutableListOf() }.add(draft)
             }
         }
 
-        val championStatsList = mutableListOf<PersonalChampionStats>()
-
-        for ((champName, matches) in champDraftsMap) {
-            val champObj = WildRiftRepository.champions.find {
-                it.name.equals(champName, ignoreCase = true) || it.id.equals(champName, ignoreCase = true)
+        // Obtener el catálogo base de campeones según el filtro de rol
+        val baseChampions = if (roleFilter != null) {
+            WildRiftRepository.champions.filter { champ ->
+                champ.primaryRole == roleFilter || champ.secondaryRoles.contains(roleFilter) ||
+                        champDraftsMap.containsKey(champ.name.lowercase()) ||
+                        champDraftsMap.containsKey(champ.id.lowercase())
             }
-            val champId = champObj?.id ?: matches.firstOrNull()?.myChampionId?.ifBlank { champName } ?: champName
-            val avatarUrl = champObj?.avatarUrl ?: matches.firstNotNullOfOrNull { extractChampionAvatar(it, champName) } ?: ""
+        } else {
+            WildRiftRepository.champions
+        }
+
+        val championStatsList = mutableListOf<PersonalChampionStats>()
+        val processedKeys = mutableSetOf<String>()
+
+        // 1. Procesar todos los campeones del catálogo de Wild Rift
+        for (champ in baseChampions) {
+            processedKeys.add(champ.name.lowercase())
+            processedKeys.add(champ.id.lowercase())
+
+            val matches = champDraftsMap[champ.name.lowercase()]
+                ?: champDraftsMap[champ.id.lowercase()]
+                ?: emptyList()
 
             var wins = 0
             var losses = 0
@@ -162,7 +166,7 @@ object PersonalTierListManager {
 
                 sumEstimatedWr += match.estimatedWinrate
 
-                val role = try { LaneRole.valueOf(match.userRole) } catch (_: Exception) { champObj?.primaryRole ?: LaneRole.MID }
+                val role = try { LaneRole.valueOf(match.userRole) } catch (_: Exception) { champ.primaryRole }
                 val currentRoleStats = roleCountMap.getOrDefault(role, Pair(0, 0))
                 roleCountMap[role] = Pair(
                     currentRoleStats.first + (if (isWin) 1 else 0),
@@ -180,7 +184,7 @@ object PersonalTierListManager {
                 }
 
                 // Aliados en partida
-                val allies = extractAllies(match, champName)
+                val allies = extractAllies(match, champ.name)
                 for (ally in allies) {
                     val currentA = allyMap.getOrDefault(ally, Pair(0, 0))
                     allyMap[ally] = Pair(
@@ -191,13 +195,15 @@ object PersonalTierListManager {
             }
 
             val totalDecided = wins + losses
-            val winRate = if (totalDecided > 0) (wins.toDouble() / totalDecided * 100.0) else 50.0
-            val avgEstimated = if (matches.isNotEmpty()) sumEstimatedWr / matches.size else 50.0
+            val winRate = if (totalDecided > 0) (wins.toDouble() / totalDecided * 100.0) else 0.0
+            val avgEstimated = if (matches.isNotEmpty()) sumEstimatedWr / matches.size else champ.winrate
 
-            // Rol principal determinado por más partidas jugadas con el campeón
-            val primaryRole = roleCountMap.maxByOrNull { it.value.first + it.value.second }?.key
-                ?: champObj?.primaryRole
-                ?: LaneRole.MID
+            // Rol principal
+            val primaryRole = if (roleCountMap.isNotEmpty()) {
+                roleCountMap.maxByOrNull { it.value.first + it.value.second }?.key ?: champ.primaryRole
+            } else {
+                roleFilter ?: champ.primaryRole
+            }
 
             // Desglose por roles
             val roleBreakdown = roleCountMap.map { (role, counts) ->
@@ -206,7 +212,7 @@ object PersonalTierListManager {
                 RolePerformanceRecord(role, counts.first, counts.second, totalR, wrR)
             }.sortedByDescending { it.total }
 
-            // Matchups procesados
+            // Matchups
             val matchupList = matchupMap.map { (oppName, counts) ->
                 val totalM = counts.first + counts.second
                 val wrM = if (totalM > 0) (counts.first.toDouble() / totalM * 100.0) else 0.0
@@ -214,7 +220,7 @@ object PersonalTierListManager {
                 MatchupRecord(oppName, oppObj?.avatarUrl ?: "", counts.first, counts.second, totalM, wrM)
             }.sortedWith(compareByDescending<MatchupRecord> { it.total }.thenBy { it.winRate })
 
-            // Sinergias procesadas
+            // Aliados
             val allyList = allyMap.map { (allyName, counts) ->
                 val totalA = counts.first + counts.second
                 val wrA = if (totalA > 0) (counts.first.toDouble() / totalA * 100.0) else 0.0
@@ -230,27 +236,26 @@ object PersonalTierListManager {
                 )
             }.sortedWith(compareByDescending<AllySynergyRecord> { it.total }.thenByDescending { it.winRate })
 
-            // Asignación de Tier
-            // Score ponderado que premia volumen de partidas ganadas y winrate alto
-            val volumeBonus = Math.min(15.0, totalDecided * 2.5)
-            val tierScore = winRate + volumeBonus
+            // Asignación de Tier por Win Rate real
+            val volumeBonus = Math.min(15.0, totalDecided * 2.0)
+            val tierScore = if (totalDecided > 0) (winRate + volumeBonus) else 0.0
 
             val tierGrade = when {
-                totalDecided == 0 -> TierGrade.B
+                totalDecided == 0 -> TierGrade.C // Sin partidas decididas se ubica en el escalón más bajo con 0% WR
                 winRate >= 75.0 && wins >= 1 -> TierGrade.S_PLUS
-                winRate >= 60.0 -> TierGrade.S
+                winRate >= 60.0 && wins >= 1 -> TierGrade.S
                 winRate >= 50.0 -> TierGrade.A
                 winRate >= 35.0 -> TierGrade.B
                 else -> TierGrade.C
             }
 
-            val coachVerdict = generateCoachVerdict(champName, winRate, totalDecided, primaryRole, lang)
+            val coachVerdict = generateCoachVerdict(champ.name, winRate, totalDecided, primaryRole, lang)
 
             championStatsList.add(
                 PersonalChampionStats(
-                    championId = champId,
-                    championName = champName,
-                    avatarUrl = avatarUrl,
+                    championId = champ.id,
+                    championName = champ.name,
+                    avatarUrl = champ.avatarUrl,
                     primaryRole = primaryRole,
                     totalGames = matches.size,
                     wins = wins,
@@ -269,11 +274,75 @@ object PersonalTierListManager {
             )
         }
 
-        // Ordenamos todos los campeones por Score
+        // 2. Procesar cualquier campeón extra presente en drafts que no estuviera en el catálogo
+        for ((champKey, matches) in champDraftsMap) {
+            if (!processedKeys.contains(champKey)) {
+                val firstMatch = matches.first()
+                val champName = firstMatch.myChampionName.ifBlank { champKey.replaceFirstChar { it.uppercase() } }
+                val champObj = WildRiftRepository.champions.find { it.name.equals(champName, ignoreCase = true) }
+                val avatarUrl = champObj?.avatarUrl ?: matches.firstNotNullOfOrNull { extractChampionAvatar(it, champName) } ?: ""
+
+                var wins = 0
+                var losses = 0
+                var pending = 0
+                var sumEstimatedWr = 0.0
+
+                for (match in matches) {
+                    val isWin = match.matchResult.equals("VICTORY", ignoreCase = true)
+                    val isLoss = match.matchResult.equals("DEFEAT", ignoreCase = true)
+                    if (isWin) wins++ else if (isLoss) losses++ else pending++
+                    sumEstimatedWr += match.estimatedWinrate
+                }
+
+                val totalDecided = wins + losses
+                val winRate = if (totalDecided > 0) (wins.toDouble() / totalDecided * 100.0) else 0.0
+                val primaryRole = try { LaneRole.valueOf(firstMatch.userRole) } catch (_: Exception) { LaneRole.MID }
+                val volumeBonus = Math.min(15.0, totalDecided * 2.0)
+                val tierScore = if (totalDecided > 0) (winRate + volumeBonus) else 0.0
+
+                val tierGrade = when {
+                    totalDecided == 0 -> TierGrade.C
+                    winRate >= 75.0 && wins >= 1 -> TierGrade.S_PLUS
+                    winRate >= 60.0 && wins >= 1 -> TierGrade.S
+                    winRate >= 50.0 -> TierGrade.A
+                    winRate >= 35.0 -> TierGrade.B
+                    else -> TierGrade.C
+                }
+
+                val coachVerdict = generateCoachVerdict(champName, winRate, totalDecided, primaryRole, lang)
+
+                championStatsList.add(
+                    PersonalChampionStats(
+                        championId = firstMatch.myChampionId.ifBlank { champKey },
+                        championName = champName,
+                        avatarUrl = avatarUrl,
+                        primaryRole = primaryRole,
+                        totalGames = matches.size,
+                        wins = wins,
+                        losses = losses,
+                        pending = pending,
+                        winRate = winRate,
+                        tier = tierGrade,
+                        tierScore = tierScore,
+                        avgEstimatedWr = if (matches.isNotEmpty()) sumEstimatedWr / matches.size else 50.0,
+                        roleBreakdown = emptyList(),
+                        matchups = emptyList(),
+                        allies = emptyList(),
+                        draftMatches = matches.sortedByDescending { it.timestamp },
+                        coachVerdict = coachVerdict
+                    )
+                )
+            }
+        }
+
+        // Ordenamos todos los campeones:
+        // Primero por Score/Winrate (los que tienen partidas ganadas y alto winrate), luego por partidas jugadas, y los de 0% ordenados alfabéticamente
         val allRanked = championStatsList.sortedWith(
             compareByDescending<PersonalChampionStats> { it.tierScore }
+                .thenByDescending { it.winRate }
                 .thenByDescending { it.wins }
                 .thenByDescending { it.totalGames }
+                .thenBy { it.championName }
         )
 
         // Agrupación por Tiers
@@ -290,7 +359,8 @@ object PersonalTierListManager {
         val totalPending = totalGames - (totalWins + totalLosses)
         val overallWr = if (totalWins + totalLosses > 0) (totalWins.toDouble() / (totalWins + totalLosses) * 100.0) else 0.0
 
-        val signatureChamp = allRanked.firstOrNull { it.totalGames >= 1 && it.winRate >= 50.0 } ?: allRanked.firstOrNull()
+        val signatureChamp = allRanked.firstOrNull { it.totalGames >= 1 && (it.wins + it.losses > 0) && it.winRate >= 50.0 }
+            ?: allRanked.firstOrNull { it.totalGames >= 1 }
 
         // Mejor rol
         val allRoleMatches = activeDrafts.groupBy {
@@ -304,7 +374,7 @@ object PersonalTierListManager {
             RolePerformanceRecord(role, w, l, tot, wr)
         }.sortedByDescending { it.total }
 
-        val bestRoleRecord = rolePerformances.maxByOrNull { it.winRate * 0.7 + (it.total * 3.0) }
+        val bestRoleRecord = rolePerformances.filter { it.total > 0 }.maxByOrNull { it.winRate * 0.7 + (it.total * 3.0) }
 
         // Nemesis y Mejor Sinergia global
         val allMatchups = championStatsList.flatMap { it.matchups }

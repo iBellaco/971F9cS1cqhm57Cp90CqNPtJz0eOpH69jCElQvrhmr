@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsKabaddi
 import androidx.compose.material.icons.filled.Star
@@ -44,7 +45,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -96,6 +100,7 @@ fun PersonalTierListView(
     val currentLang = LocalLanguage.current
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedChampionStats by remember { mutableStateOf<PersonalChampionStats?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
     var viewMode by remember { mutableStateOf("TIERS") } // "TIERS" or "TABLE"
 
     val tierData: PersonalTierListResult = remember(draftsList, selectedRoleFilter, currentLang) {
@@ -104,6 +109,31 @@ fun PersonalTierListView(
             roleFilter = selectedRoleFilter,
             lang = currentLang
         )
+    }
+
+    val sPlusFiltered = remember(tierData.tierSPlus, searchQuery) {
+        if (searchQuery.isBlank()) tierData.tierSPlus
+        else tierData.tierSPlus.filter { it.championName.contains(searchQuery, ignoreCase = true) }
+    }
+    val sFiltered = remember(tierData.tierS, searchQuery) {
+        if (searchQuery.isBlank()) tierData.tierS
+        else tierData.tierS.filter { it.championName.contains(searchQuery, ignoreCase = true) }
+    }
+    val aFiltered = remember(tierData.tierA, searchQuery) {
+        if (searchQuery.isBlank()) tierData.tierA
+        else tierData.tierA.filter { it.championName.contains(searchQuery, ignoreCase = true) }
+    }
+    val bFiltered = remember(tierData.tierB, searchQuery) {
+        if (searchQuery.isBlank()) tierData.tierB
+        else tierData.tierB.filter { it.championName.contains(searchQuery, ignoreCase = true) }
+    }
+    val cFiltered = remember(tierData.tierC, searchQuery) {
+        if (searchQuery.isBlank()) tierData.tierC
+        else tierData.tierC.filter { it.championName.contains(searchQuery, ignoreCase = true) }
+    }
+    val allRankedFiltered = remember(tierData.allRankedChampions, searchQuery) {
+        if (searchQuery.isBlank()) tierData.allRankedChampions
+        else tierData.allRankedChampions.filter { it.championName.contains(searchQuery, ignoreCase = true) }
     }
 
     Column(
@@ -140,6 +170,34 @@ fun PersonalTierListView(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Buscador de Campeones
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("tier_list_search_input"),
+            placeholder = { Text(tr("Buscar campeón en Tier List..."), color = TextMuted, fontSize = 12.sp) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+            },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = HextechCyan,
+                unfocusedBorderColor = HextechCardBorder,
+                focusedContainerColor = HextechSurface,
+                unfocusedContainerColor = HextechSurface
+            ),
+            shape = RoundedCornerShape(12.dp)
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -256,11 +314,11 @@ fun PersonalTierListView(
 
                 if (viewMode == "TIERS") {
                     // TIER S+
-                    if (tierData.tierSPlus.isNotEmpty()) {
+                    if (sPlusFiltered.isNotEmpty()) {
                         item {
                             TierRowVisual(
                                 grade = TierGrade.S_PLUS,
-                                champions = tierData.tierSPlus,
+                                champions = sPlusFiltered,
                                 badgeColor = Color(0xFFFFD700),
                                 headerGradient = Brush.horizontalGradient(
                                     listOf(Color(0xFF6A4E00), HextechDarkBg)
@@ -271,11 +329,11 @@ fun PersonalTierListView(
                     }
 
                     // TIER S
-                    if (tierData.tierS.isNotEmpty()) {
+                    if (sFiltered.isNotEmpty()) {
                         item {
                             TierRowVisual(
                                 grade = TierGrade.S,
-                                champions = tierData.tierS,
+                                champions = sFiltered,
                                 badgeColor = Color(0xFFE5A93B),
                                 headerGradient = Brush.horizontalGradient(
                                     listOf(Color(0xFF4A3800), HextechDarkBg)
@@ -286,11 +344,11 @@ fun PersonalTierListView(
                     }
 
                     // TIER A
-                    if (tierData.tierA.isNotEmpty()) {
+                    if (aFiltered.isNotEmpty()) {
                         item {
                             TierRowVisual(
                                 grade = TierGrade.A,
-                                champions = tierData.tierA,
+                                champions = aFiltered,
                                 badgeColor = HextechCyan,
                                 headerGradient = Brush.horizontalGradient(
                                     listOf(Color(0xFF0D47A1), HextechDarkBg)
@@ -301,11 +359,11 @@ fun PersonalTierListView(
                     }
 
                     // TIER B
-                    if (tierData.tierB.isNotEmpty()) {
+                    if (bFiltered.isNotEmpty()) {
                         item {
                             TierRowVisual(
                                 grade = TierGrade.B,
-                                champions = tierData.tierB,
+                                champions = bFiltered,
                                 badgeColor = Color(0xFFBA68C8),
                                 headerGradient = Brush.horizontalGradient(
                                     listOf(Color(0xFF38154D), HextechDarkBg)
@@ -315,12 +373,12 @@ fun PersonalTierListView(
                         }
                     }
 
-                    // TIER C
-                    if (tierData.tierC.isNotEmpty()) {
+                    // TIER C (Incluye campeones con bajo WR y campeones con 0 partidas al 0% WR)
+                    if (cFiltered.isNotEmpty()) {
                         item {
                             TierRowVisual(
                                 grade = TierGrade.C,
-                                champions = tierData.tierC,
+                                champions = cFiltered,
                                 badgeColor = DangerRed,
                                 headerGradient = Brush.horizontalGradient(
                                     listOf(Color(0xFF4A1010), HextechDarkBg)
@@ -331,7 +389,7 @@ fun PersonalTierListView(
                     }
                 } else {
                     // Vista Analítica Detallada (Lista completa de tarjetas de campeón)
-                    items(tierData.allRankedChampions, key = { it.championId + it.primaryRole.name }) { stats ->
+                    items(allRankedFiltered, key = { it.championId + it.primaryRole.name }) { stats ->
                         PersonalChampionDetailedCard(
                             stats = stats,
                             onClick = { selectedChampionStats = stats }
@@ -469,6 +527,31 @@ private fun PersonalOverviewCard(overview: com.example.data.analytics.PersonalOv
                             color = HextechGold,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            if (overview.totalGames == 0) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = HextechDarkBg,
+                    border = BorderStroke(0.8.dp, HextechGold.copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Todos los campeones inician en Tier C (0% WR). A medida que registres victorias o derrotas en tus partidas, ascenderán dinámicamente según su win rate."),
+                            color = TextSecondary,
+                            fontSize = 10.5.sp,
+                            lineHeight = 14.5.sp
                         )
                     }
                 }
@@ -621,13 +704,22 @@ private fun ChampionTierPill(
             )
 
             // Winrate Badge
-            val wrColor = if (stats.winRate >= 50.0) Color(0xFF81C784) else DangerRed
-            Text(
-                text = "${stats.winRate.toInt()}% (${stats.wins}W-${stats.losses}L)",
-                color = wrColor,
-                fontSize = 9.5.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            if (stats.totalGames == 0) {
+                Text(
+                    text = "0% (0 " + tr("part.") + ")",
+                    color = TextMuted,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            } else {
+                val wrColor = if (stats.winRate >= 50.0) Color(0xFF81C784) else DangerRed
+                Text(
+                    text = "${stats.winRate.toInt()}% (${stats.wins}V-${stats.losses}D)",
+                    color = wrColor,
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }
