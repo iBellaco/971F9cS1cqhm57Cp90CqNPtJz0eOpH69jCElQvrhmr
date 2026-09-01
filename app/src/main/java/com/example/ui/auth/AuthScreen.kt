@@ -151,8 +151,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
         SubscriptionManager.isExpiringSoon()
     }
-    val remainingFormatted = remember(premiumUntil, isPremium, userRole) {
-        SubscriptionManager.getRemainingPremiumTimeFormatted()
+    var remainingFormatted by remember { mutableStateOf(SubscriptionManager.getRemainingPremiumTimeFormatted()) }
+
+    LaunchedEffect(premiumUntil, isPremium, userRole) {
+        while (true) {
+            remainingFormatted = SubscriptionManager.getRemainingPremiumTimeFormatted()
+            kotlinx.coroutines.delay(1000)
+        }
     }
 
     if (showAvatarDialog) {

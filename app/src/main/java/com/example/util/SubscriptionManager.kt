@@ -225,15 +225,24 @@ object SubscriptionManager {
         val diff = until - System.currentTimeMillis()
         if (diff <= 0) return "Expirado"
 
-        val days = diff / (1000 * 60 * 60 * 24)
-        val hours = (diff / (1000 * 60 * 60)) % 24
-        val minutes = (diff / (1000 * 60)) % 60
+        val secondsTotal = diff / 1000
+        val seconds = secondsTotal % 60
+        val minutesTotal = secondsTotal / 60
+        val minutes = minutesTotal % 60
+        val hoursTotal = minutesTotal / 60
+        val hours = hoursTotal % 24
+        val daysTotal = hoursTotal / 24
+        val days = daysTotal % 365
+        val years = daysTotal / 365
 
-        return when {
-            days > 0 -> "$days d $hours h restantes"
-            hours > 0 -> "$hours h $minutes min restantes"
-            else -> "$minutes min restantes"
-        }
+        val parts = mutableListOf<String>()
+        if (years > 0) parts.add("$years año" + if (years > 1L) "s" else "")
+        if (days > 0) parts.add("$days día" + if (days > 1L) "s" else "")
+        if (hours > 0) parts.add("$hours hora" + if (hours > 1L) "s" else "")
+        if (minutes > 0) parts.add("$minutes minuto" + if (minutes > 1L) "s" else "")
+        if (seconds > 0) parts.add("$seconds segundo" + if (seconds > 1L) "s" else "")
+
+        return parts.joinToString(", ") + " restantes"
     }
 
     fun isExpiringSoon(): Boolean {

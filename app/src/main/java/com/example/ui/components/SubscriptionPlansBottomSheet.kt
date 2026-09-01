@@ -79,55 +79,12 @@ fun SubscriptionPlansBottomSheet(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Pase Flash (1 Hora)
-            PremiumPlanCard(
-                title = "Pase Flash (1 Hora)",
-                price = "$0.25",
-                period = "/ 1 hora",
-                features = listOf(
-                    FeatureItem("Acceso total al Asistente de Draft en vivo", true),
-                    FeatureItem("Ideal para sesión rápida de Ranked o Torneo", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Desbloqueo temporal de todos los avatares", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Guardar Draft y Favoritos durante la sesión", true, isHighlight = true, icon = Icons.Default.Star)
-                ),
-                onSubscribe = {
-                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
-                    scope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Pase Diario (24 Horas)
-            PremiumPlanCard(
-                title = "Pase Diario (24 Horas)",
-                price = "$0.50",
-                period = "/ 24 horas",
-                features = listOf(
-                    FeatureItem("Acceso total continuo por 24 horas", true),
-                    FeatureItem("Ideal para fines de semana de escalada competitiva", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Todos los temas y avatares desbloqueados", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Guardar drafts ilimitados en el historial", true, isHighlight = true, icon = Icons.Default.Star)
-                ),
-                onSubscribe = {
-                    Toast.makeText(context, "Compras in-app temporalmente deshabilitadas por seguridad.", Toast.LENGTH_LONG).show()
-                    scope.launch {
-                        sheetState.hide()
-                        onDismiss()
-                    }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Premium Card (Mensual)
             PremiumPlanCard(
                 title = "Coach Premium (Mensual)",
                 price = "$1.00",
                 period = "/ mes",
+                isPopular = false,
                 features = listOf(
                     FeatureItem("Acceso completo al Asistente de Draft 30 días", true),
                     FeatureItem("Descarga de recursos offline permanente", true),
@@ -152,6 +109,7 @@ fun SubscriptionPlansBottomSheet(
                 title = "Coach Premium (Anual)",
                 price = "$11.00",
                 period = "/ año (Normalmente $12)",
+                isPopular = true,
                 features = listOf(
                     FeatureItem("1 mes gratis (Ahorro del 8%)", true, isHighlight = true, icon = Icons.Default.Star),
                     FeatureItem("Acceso completo al Asistente de Draft por 365 días", true),
@@ -204,6 +162,7 @@ private fun PremiumPlanCard(
     title: String,
     price: String,
     period: String,
+    isPopular: Boolean = false,
     features: List<FeatureItem>,
     onSubscribe: () -> Unit
 ) {
@@ -320,19 +279,21 @@ private fun PremiumPlanCard(
         }
         
         // Floating Badge
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .background(gradientBrush, RoundedCornerShape(50))
-                .padding(horizontal = 16.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = "MÁS POPULAR",
-                color = HextechDarkBg,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 1.sp
-            )
+        if (isPopular) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .background(gradientBrush, RoundedCornerShape(50))
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = "MÁS POPULAR",
+                    color = HextechDarkBg,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp
+                )
+            }
         }
     }
 }

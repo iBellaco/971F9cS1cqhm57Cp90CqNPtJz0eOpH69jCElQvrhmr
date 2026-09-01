@@ -166,6 +166,7 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextCyan
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TierAColor
 import com.example.ui.theme.TierSColor
 import com.example.ui.theme.TierSPlusColor
@@ -186,6 +187,7 @@ fun MetaAndDraftScreen(
     mode: MetaScreenMode = MetaScreenMode.CATALOG,
     userMainRole: LaneRole,
     initialChampionId: String? = null,
+    isOverlay: Boolean = false,
     onNavigateBack: () -> Unit
 ) {
     val screenContext = LocalContext.current
@@ -296,6 +298,147 @@ fun MetaAndDraftScreen(
         MetaScreenMode.DRAFTING -> tr("Selección de Campeones")
         MetaScreenMode.TIER_LIST -> tr("Tier List & Campeones")
         MetaScreenMode.CATALOG -> tr("Catálogo")
+    }
+
+    if (isOverlay) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp)
+        ) {
+            when (mode) {
+                MetaScreenMode.DRAFTING -> {
+                    DraftAnalysisTab(
+                        myChampion = myChampion,
+                        activeRole = activeRole,
+                        allySlots = allySlots,
+                        enemySlots = enemySlots,
+                        analysis = analysis,
+                        isFirstPick = isFirstPick,
+                        enemyLaneOpponent = enemyLaneOpponent,
+                        onToggleFirstPick = { isFirstPick = !isFirstPick },
+                        onChangeRole = { showRoleChangeDialog = true },
+                        onPickAllyRole = { role ->
+                            suggestedPickingRole = role
+                            pickingForTeam = "ALLY"
+                        },
+                        onPickEnemyRole = { role ->
+                            suggestedPickingRole = role
+                            pickingForTeam = "ENEMY"
+                        },
+                        onRemoveAllyRole = { role ->
+                            val idx = allySlots.indexOfFirst { it.assignedRole == role }
+                            if (idx >= 0) allySlots.removeAt(idx)
+                        },
+                        onRemoveEnemyRole = { role ->
+                            val idx = enemySlots.indexOfFirst { it.assignedRole == role }
+                            if (idx >= 0) enemySlots.removeAt(idx)
+                        },
+                        onPickRecommendation = { champ ->
+                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                            if (existingIndex >= 0) {
+                                allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                            } else {
+                                if (allySlots.size >= 5) {
+                                    allySlots.removeAt(allySlots.size - 1)
+                                }
+                                allySlots.add(0, DraftSlot(champ, activeRole))
+                            }
+                        },
+                        onSelectChampion = { selectedDetailChampion = it },
+                        onOpenHistory = { showDraftHistoryScreen = true },
+                        onClearAll = {
+                            allySlots.clear()
+                            enemySlots.clear()
+                            android.widget.Toast.makeText(screenContext, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+                MetaScreenMode.TIER_LIST -> {
+                    val totalChamps = WildRiftRepository.champions.size
+
+                    val tierTabs = listOf(
+                        MetaNavTabItem(tr("Tier List")),
+                        MetaNavTabItem(tr("Campeones"), totalChamps)
+                    )
+
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        containerColor = HextechSurface,
+                        contentColor = HextechCyan,
+                        edgePadding = 12.dp,
+                        indicator = { tabPositions ->
+                            if (selectedTabIndex in tabPositions.indices) {
+                                TabRowDefaults.SecondaryIndicator(
+                                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                    color = HextechCyan,
+                                    height = 3.dp
+                                )
+                            }
+                        }
+                    ) {
+                        tierTabs.forEachIndexed { index, tabItem ->
+                            val isSelected = selectedTabIndex == index
+                            Tab(
+                                selected = isSelected,
+                                onClick = { selectedTabIndex = index },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                        modifier = Modifier
+                                            .background(
+                                                if (isSelected) HextechCyan.copy(alpha = 0.15f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .border(
+                                                if (isSelected) 1.dp else 0.dp,
+                                                if (isSelected) HextechCyan.copy(alpha = 0.6f) else Color.Transparent,
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = tabItem.title,
+                                            color = if (isSelected) HextechCyan else TextMuted,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 12.5.sp
+                                        )
+                                        if (tabItem.count != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(
+                                                        if (isSelected) HextechCyan else HextechSurfaceVariant,
+                                                        RoundedCornerShape(10.dp)
+                                                    )
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = tabItem.count.toString(),
+                                                    color = if (isSelected) HextechDarkBg else TextSecondary,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    if (selectedTabIndex == 0) {
+                        TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
+                    } else {
+                        ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                    }
+                }
+                MetaScreenMode.CATALOG -> {
+                    ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                }
+            }
+        }
+        return
     }
 
     Scaffold(
@@ -677,7 +820,7 @@ fun MetaAndDraftScreen(
 // ====================================================================
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ChampionsCatalogTab(
+fun ChampionsCatalogTab(
     onSelectChampion: (Champion) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -3162,7 +3305,7 @@ private fun MapObjectivesTab() {
 // TAB 0: ANÁLISIS DE DRAFTING & COUNTERS
 // ====================================================================
 @Composable
-private fun DraftAnalysisTab(
+fun DraftAnalysisTab(
     myChampion: Champion?,
     activeRole: LaneRole,
     allySlots: List<DraftSlot>,

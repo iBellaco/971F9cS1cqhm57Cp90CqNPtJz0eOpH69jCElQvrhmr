@@ -169,7 +169,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-enum class OverlayHubTab { DRAFT, TIER_LIST, HISTORY }
+enum class OverlayHubTab { DRAFT, TIER_LIST, CATALOG }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -902,7 +902,7 @@ private fun FloatingOverlayContent(
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = "Draft",
+                                        text = "Drafting",
                                         color = if (isDraftActive) HextechCyan else TextMuted,
                                         fontSize = 10.5.sp,
                                         fontWeight = if (isDraftActive) FontWeight.Bold else FontWeight.Medium
@@ -937,7 +937,7 @@ private fun FloatingOverlayContent(
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = "Tier & Builds",
+                                        text = "Tier List",
                                         color = if (isTierActive) HextechGold else TextMuted,
                                         fontSize = 10.5.sp,
                                         fontWeight = if (isTierActive) FontWeight.Bold else FontWeight.Medium
@@ -945,8 +945,8 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Pestaña 3: Historial Conectado
-                            val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
+                            // Pestaña 3: Campeones
+                            val isHistoryActive = overlayHubTab == OverlayHubTab.CATALOG
                             Box(
                                 modifier = Modifier
                                     .weight(1.1f)
@@ -957,7 +957,7 @@ private fun FloatingOverlayContent(
                                         if (isHistoryActive) Color(0xFF00FF7F) else HextechCardBorder.copy(alpha = 0.5f),
                                         RoundedCornerShape(6.dp)
                                     )
-                                    .clickable { overlayHubTab = OverlayHubTab.HISTORY }
+                                    .clickable { overlayHubTab = OverlayHubTab.CATALOG }
                                     .padding(vertical = 5.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -966,13 +966,13 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Icon(
-                                        Icons.Default.History,
+                                        Icons.Default.Star,
                                         contentDescription = null,
                                         tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = "Historial",
+                                        text = "Campeones",
                                         color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
                                         fontSize = 10.5.sp,
                                         fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
@@ -1005,55 +1005,57 @@ private fun FloatingOverlayContent(
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             when (overlayHubTab) {
                                 OverlayHubTab.DRAFT -> {
-                                    FloatingDraftCoachView(
+                                    val mappedAllySlots = allies.mapIndexed { index, champ -> 
+                                        com.example.model.DraftSlot(champ, com.example.model.LaneRole.values().getOrElse(index % 5) { com.example.model.LaneRole.TOP }) 
+                                    }
+                                    val mappedEnemySlots = enemies.mapIndexed { index, champ -> 
+                                        com.example.model.DraftSlot(champ, com.example.model.LaneRole.values().getOrElse(index % 5) { com.example.model.LaneRole.TOP }) 
+                                    }
+
+                                    com.example.ui.screens.DraftAnalysisTab(
+                                        myChampion = selectedChampionDetail,
                                         activeRole = activeRole,
-                                        onActiveRoleChange = { role ->
-                                            activeRole = role
-                                            com.example.util.UserPreferences.setActiveDraftRole(context, role)
-                                        },
-                                        isFirstPick = isFirstPick,
-                                        onFirstPickToggle = { isFirstPick = !isFirstPick },
-                                        isLoadingScreenMode = isLoadingScreenMode,
-                                        onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
-                                        allies = allies,
-                                        enemies = enemies,
+                                        allySlots = mappedAllySlots,
+                                        enemySlots = mappedEnemySlots,
                                         analysis = analysis,
-                                        selectedChampionDetail = selectedChampionDetail,
-                                        onSelectChampion = { 
-                                            selectedChampionDetail = it
-                                            overlayHubTab = OverlayHubTab.TIER_LIST
+                                        isFirstPick = isFirstPick,
+                                        enemyLaneOpponent = null,
+                                        onToggleFirstPick = { isFirstPick = !isFirstPick },
+                                        onChangeRole = { },
+                                        onPickAllyRole = { },
+                                        onPickEnemyRole = { },
+                                        onRemoveAllyRole = { role -> 
+                                            val idx = mappedAllySlots.indexOfFirst { it.assignedRole == role }
+                                            if (idx in allies.indices) allies.removeAt(idx)
                                         },
-                                        onOpenChampionPicker = { isAlly, index ->
-                                            showChampionPickerForSlot = Pair(isAlly, index)
+                                        onRemoveEnemyRole = { role -> 
+                                            val idx = mappedEnemySlots.indexOfFirst { it.assignedRole == role }
+                                            if (idx in enemies.indices) enemies.removeAt(idx)
                                         },
-                                        onSaveDraftClick = {
-                                            if (isPremium) {
-                                                showSaveDraftDialog = true
-                                            } else {
-                                                android.widget.Toast.makeText(context, "Requiere Premium", android.widget.Toast.LENGTH_SHORT).show()
-                                            }
+                                        onPickRecommendation = { champ -> 
+                                            if (allies.size < 5) allies.add(champ)
                                         },
-                                        isSavedRecently = isSavedRecently,
+                                        onSelectChampion = { selectedChampionDetail = it },
+                                        onOpenHistory = { },
                                         onClearAll = {
                                             allies.clear()
                                             enemies.clear()
                                             android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
+                                        }
                                     )
                                 }
                                 OverlayHubTab.TIER_LIST -> {
-                                    FloatingTierAndBuildsView(
-                                        selectedChampion = selectedChampionDetail,
-                                        onSelectChampion = { selectedChampionDetail = it },
-                                        activeRoleFilter = activeRole,
-                                        onRoleFilterChange = { activeRole = it }
+                                    com.example.ui.screens.TierListTab(
+                                        onSelectChampion = { 
+                                            selectedChampionDetail = it 
+                                        },
+                                        isPremium = isPremium
                                     )
                                 }
-                                OverlayHubTab.HISTORY -> {
-                                    FloatingHistoryView(
-                                        onSelectChampionDetail = { champ ->
-                                            selectedChampionDetail = champ
+                                OverlayHubTab.CATALOG -> {
+                                    com.example.ui.screens.ChampionsCatalogTab(
+                                        onSelectChampion = { 
+                                            selectedChampionDetail = it
                                             overlayHubTab = OverlayHubTab.TIER_LIST
                                         }
                                     )
@@ -1146,7 +1148,7 @@ private fun FloatingOverlayContent(
             onSaved = {
                 isSavedRecently = true
                 showSaveDraftDialog = false
-                overlayHubTab = OverlayHubTab.HISTORY
+                overlayHubTab = OverlayHubTab.CATALOG
             }
         )
     }
