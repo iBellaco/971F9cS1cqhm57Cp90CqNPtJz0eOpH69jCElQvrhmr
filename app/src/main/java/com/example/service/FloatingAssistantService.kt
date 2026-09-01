@@ -866,27 +866,88 @@ private fun FloatingOverlayContent(
                         }
 
                         // Contenido Scrollable del Drafting
-                        Box(modifier = Modifier.weight(1f, fill = false).fillMaxWidth()) {
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             if (overlayMode == OverlayMode.TIER_LIST) {
                                 Column(modifier = Modifier.fillMaxSize()) {
                                     Row(
-                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         Button(
-                                            onClick = { overlayMode = OverlayMode.DRAFT },
-                                            modifier = Modifier.height(30.dp),
+                                            onClick = { 
+                                                overlayMode = OverlayMode.DRAFT 
+                                                selectedChampionDetail = null
+                                            },
+                                            modifier = Modifier.height(28.dp),
                                             colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 0.dp)
                                         ) {
                                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(14.dp), tint = HextechGold)
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text("Volver a Draft", color = HextechGold, fontSize = 10.sp)
                                         }
                                     }
+                                    
+                                    if (selectedChampionDetail != null) {
+                                        val champ = selectedChampionDetail!!
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan)
+                                        ) {
+                                            Column(modifier = Modifier.padding(6.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "🛡️ ${champ.name} • ${champ.tier} • WR: ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%",
+                                                        color = HextechGold,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 11.sp
+                                                    )
+                                                    Text(
+                                                        text = "✕ " + tr("Cerrar"),
+                                                        color = DangerRed,
+                                                        fontSize = 9.5.sp,
+                                                        modifier = Modifier.clickable { selectedChampionDetail = null }
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(3.dp))
+                                                Text(
+                                                    text = "${tr("Objetos Core")}: " + champ.coreItems.take(4).joinToString(", "),
+                                                    color = HextechGoldLight,
+                                                    fontSize = 9.sp,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Button(
+                                                    onClick = {
+                                                        val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
+                                                            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                                            putExtra("OPEN_CHAMPION_DETAIL", champ.id)
+                                                        }
+                                                        context.startActivity(intent)
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth().height(24.dp),
+                                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                                ) {
+                                                    Text("Ver Build Completa", color = HextechDarkBg, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     com.example.ui.screens.TierListTab(
-                                        onSelectChampion = { },
-                                        isPremium = isPremium
+                                        onSelectChampion = { champ ->
+                                            selectedChampionDetail = champ
+                                        },
+                                        isPremium = isPremium,
+                                        horizontalPadding = 4.dp
                                     )
                                 }
                             } else {

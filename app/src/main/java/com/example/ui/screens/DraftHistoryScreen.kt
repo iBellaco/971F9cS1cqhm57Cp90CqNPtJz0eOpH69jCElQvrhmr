@@ -836,7 +836,7 @@ private fun DraftDetailBottomSheet(
                             }
                         }
                         Text(
-                            text = "${slot.champion.winrate}% WR",
+                            text = "${String.format(java.util.Locale.US, "%.2f", slot.champion.winrate)}% WR",
                             color = HextechGold,
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
@@ -881,7 +881,7 @@ private fun DraftDetailBottomSheet(
                             }
                         }
                         Text(
-                            text = "${slot.champion.winrate}% WR",
+                            text = "${String.format(java.util.Locale.US, "%.2f", slot.champion.winrate)}% WR",
                             color = HextechGold,
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold

@@ -22,13 +22,15 @@ fun SparklineTrendGraph(
         .width(52.dp)
         .height(22.dp)
 ) {
-    val isPositive = delta >= 0
+    val roundedWinrate = Math.round(winrate * 100.0) / 100.0
+    val roundedDelta = Math.round(delta * 100.0) / 100.0
+    val isPositive = roundedDelta >= 0
     val trendColor = if (isPositive) Color(0xFF00FF7F) else Color(0xFFFF453A)
     val glowColor = if (isPositive) Color(0xFF00E5FF) else Color(0xFFFF6B6B)
 
-    // Calculamos 5 puntos representativos de la tendencia en el meta
-    val base = winrate.toFloat()
-    val d = delta.toFloat().coerceIn(-4f, 4f)
+    // Calculamos 5 puntos representativos de la tendencia en el meta (precisión de 2 decimales)
+    val base = roundedWinrate.toFloat()
+    val d = roundedDelta.toFloat().coerceIn(-4f, 4f)
     val points = listOf(
         base - d * 1.4f,
         base - d * 0.8f,

@@ -1162,7 +1162,8 @@ enum class TierSortOption(val displayName: String, val shortLabel: String) {
 @Composable
 fun TierListTab(
     onSelectChampion: (Champion) -> Unit,
-    isPremium: Boolean = false
+    isPremium: Boolean = false,
+    horizontalPadding: androidx.compose.ui.unit.Dp = 16.dp
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -1197,199 +1198,190 @@ fun TierListTab(
     val tierC = championsToDisplay.filter { it.tier == "C" || it.tier == "C+" }
     val tierD = championsToDisplay.filter { it.tier != "S+" && it.tier != "S" && it.tier != "A+" && it.tier != "A" && it.tier != "B" && it.tier != "B+" && it.tier != "C" && it.tier != "C+" }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = horizontalPadding),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Spacer(modifier = Modifier.height(10.dp))
+        item {
+            Spacer(modifier = Modifier.height(4.dp))
+            TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
+        }
 
-        TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Role Filter
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            FilterChip(
-                selected = showFavoritesOnly,
-                onClick = { 
-                    if (isPremium) {
-                        showFavoritesOnly = !showFavoritesOnly 
-                    } else {
-                        Toast.makeText(context, "Requiere Premium", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                label = { 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(tr("Favoritos"), fontSize = 11.5.sp)
-                        if (!isPremium) {
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(HextechGold)
-                                    .padding(horizontal = 3.dp, vertical = 0.5.dp)
-                            ) {
-                                Text("PRO", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
+        item {
+            // Role Filter
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                FilterChip(
+                    selected = showFavoritesOnly,
+                    onClick = { 
+                        if (isPremium) {
+                            showFavoritesOnly = !showFavoritesOnly 
+                        } else {
+                            Toast.makeText(context, "Requiere Premium", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    label = { 
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(tr("Favoritos"), fontSize = 11.5.sp)
+                            if (!isPremium) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(HextechGold)
+                                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                ) {
+                                    Text("PRO", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
+                                }
                             }
                         }
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    ),
+                    leadingIcon = {
+                        if (showFavoritesOnly) {
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                        } else {
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = if (isPremium) TextPrimary else TextMuted)
+                        }
                     }
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg
-                ),
-                leadingIcon = {
-                    if (showFavoritesOnly) {
-                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
-                    } else {
-                        Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = if (isPremium) TextPrimary else TextMuted)
-                    }
-                }
-            )
-            FilterChip(
-                selected = selectedLane == null,
-                onClick = { selectedLane = null },
-                label = { Text(tr("Todas las Líneas"), fontSize = 11.5.sp) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechCyan,
-                    selectedLabelColor = HextechDarkBg
                 )
-            )
-            LaneRole.entries.forEach { role ->
                 FilterChip(
-                    selected = selectedLane == role,
-                    onClick = { selectedLane = if (selectedLane == role) null else role },
-                    label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
+                    selected = selectedLane == null,
+                    onClick = { selectedLane = null },
+                    label = { Text(tr("Todas las Líneas"), fontSize = 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Sorting Selector (Por Tier, Win Rate, Pick Rate, Ban Rate)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(
-                text = tr("Ordenar:"),
-                color = TextPrimary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold
-            )
-            TierSortOption.entries.forEach { sortOpt ->
-                val isSelected = selectedSort == sortOpt
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { selectedSort = sortOpt },
-                    label = { Text(tr(sortOpt.shortLabel), fontSize = 10.5.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechGold,
-                        selectedLabelColor = HextechDarkBg
+                LaneRole.entries.forEach { role ->
+                    FilterChip(
+                        selected = selectedLane == role,
+                        onClick = { selectedLane = if (selectedLane == role) null else role },
+                        label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
                     )
-                )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        item {
+            // Sorting Selector (Por Tier, Win Rate, Pick Rate, Ban Rate)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(
+                    text = tr("Ordenar:"),
+                    color = TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                TierSortOption.entries.forEach { sortOpt ->
+                    val isSelected = selectedSort == sortOpt
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedSort = sortOpt },
+                        label = { Text(tr(sortOpt.shortLabel), fontSize = 10.5.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechGold,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
+            }
+        }
 
         if (selectedSort == TierSortOption.BY_TIER) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                // Tier S+
-                if (tierSPlus.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
-                            tierColor = TierSPlusColor,
-                            champions = tierSPlus,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-
-                // Tier S
-                if (tierS.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER S (Meta Muy Fuerte / Alta Prioridad)",
-                            tierColor = TierSColor,
-                            champions = tierS,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-
-                // Tier A
-                if (tierA.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER A (Opciones Sólidas y Balanceadas)",
-                            tierColor = TierAColor,
-                            champions = tierA,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-                
-                // Tier B
-                if (tierB.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER B (Opciones Viables)",
-                            tierColor = com.example.ui.theme.TierBColor,
-                            champions = tierB,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-
-                // Tier C
-                if (tierC.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER C (Situacionales)",
-                            tierColor = com.example.ui.theme.TierCColor,
-                            champions = tierC,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-
-                // Tier D
-                if (tierD.isNotEmpty()) {
-                    item {
-                        TierSectionCard(
-                            tierName = "TIER D / OTROS",
-                            tierColor = com.example.ui.theme.TierDColor,
-                            champions = tierD,
-                            onSelectChampion = onSelectChampion
-                        )
-                    }
-                }
-
+            // Tier S+
+            if (tierSPlus.isNotEmpty()) {
                 item {
-                    Spacer(modifier = Modifier.height(30.dp))
+                    TierSectionCard(
+                        tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
+                        tierColor = TierSPlusColor,
+                        champions = tierSPlus,
+                        onSelectChampion = onSelectChampion
+                    )
                 }
+            }
+
+            // Tier S
+            if (tierS.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER S (Meta Muy Fuerte / Alta Prioridad)",
+                        tierColor = TierSColor,
+                        champions = tierS,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            // Tier A
+            if (tierA.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER A (Opciones Sólidas y Balanceadas)",
+                        tierColor = TierAColor,
+                        champions = tierA,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+            
+            // Tier B
+            if (tierB.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER B (Opciones Viables)",
+                        tierColor = com.example.ui.theme.TierBColor,
+                        champions = tierB,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            // Tier C
+            if (tierC.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER C (Situacionales)",
+                        tierColor = com.example.ui.theme.TierCColor,
+                        champions = tierC,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            // Tier D
+            if (tierD.isNotEmpty()) {
+                item {
+                    TierSectionCard(
+                        tierName = "TIER D / OTROS",
+                        tierColor = com.example.ui.theme.TierDColor,
+                        champions = tierD,
+                        onSelectChampion = onSelectChampion
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
             }
         } else {
             // Sorted Ranked List by Win Rate, Pick Rate, or Ban Rate
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
+            item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1496,7 +1488,6 @@ fun TierListTab(
                 item {
                     Spacer(modifier = Modifier.height(30.dp))
                 }
-            }
         }
     }
 }

@@ -75,6 +75,7 @@ import com.example.util.LocalLanguage
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
 import com.example.ui.components.FormattedWildRiftText
+import com.example.ui.components.SparklineTrendGraph
 import com.example.ui.theme.AllyBlue
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -361,12 +362,22 @@ fun ChampionDetailSheet(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Text(
-                            text = tr("Tendencia en Vivo"),
-                            color = HextechCyan,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            SparklineTrendGraph(
+                                winrate = roleProfile.winrate,
+                                delta = roleProfile.winrateDelta,
+                                modifier = Modifier.width(48.dp).height(20.dp)
+                            )
+                            Text(
+                                text = tr("Tendencia en Vivo"),
+                                color = HextechCyan,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -380,7 +391,8 @@ fun ChampionDetailSheet(
                             Text(tr("Tasa de Victoria"), color = TextMuted, fontSize = 11.sp)
                             Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.winrate)}%", color = HextechGold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val winDelta = roleProfile.winrateDelta
-                            val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                            val formattedWinDelta = String.format(java.util.Locale.US, "%.2f", winDelta)
+                            val winDeltaText = if (winDelta >= 0) "+${formattedWinDelta}%" else "${formattedWinDelta}%"
                             val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
                             Text(
                                 text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
@@ -395,7 +407,8 @@ fun ChampionDetailSheet(
                             Text(tr("Tasa de Selección"), color = TextMuted, fontSize = 11.sp)
                             Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.pickRate)}%", color = HextechCyan, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val pickDelta = roleProfile.pickRateDelta
-                            val pickDeltaText = if (pickDelta >= 0) "+${pickDelta}%" else "${pickDelta}%"
+                            val formattedPickDelta = String.format(java.util.Locale.US, "%.2f", pickDelta)
+                            val pickDeltaText = if (pickDelta >= 0) "+${formattedPickDelta}%" else "${formattedPickDelta}%"
                             val pickDeltaColor = if (pickDelta >= 0) Color(0xFF29B6F6) else Color(0xFFFFA726)
                             Text(
                                 text = if (pickDelta >= 0) "▲ $pickDeltaText" else "▼ $pickDeltaText",
@@ -410,7 +423,8 @@ fun ChampionDetailSheet(
                             Text(tr("Tasa de Bloqueo"), color = TextMuted, fontSize = 11.sp)
                             Text("${String.format(java.util.Locale.US, "%.2f", roleProfile.banRate)}%", color = DangerRed, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                             val banDelta = roleProfile.banRateDelta
-                            val banDeltaText = if (banDelta >= 0) "+${banDelta}%" else "${banDelta}%"
+                            val formattedBanDelta = String.format(java.util.Locale.US, "%.2f", banDelta)
+                            val banDeltaText = if (banDelta >= 0) "+${formattedBanDelta}%" else "${formattedBanDelta}%"
                             val banDeltaColor = if (banDelta >= 0) DangerRed else Color(0xFF4CAF50)
                             Text(
                                 text = if (banDelta >= 0) "▲ $banDeltaText" else "▼ $banDeltaText",

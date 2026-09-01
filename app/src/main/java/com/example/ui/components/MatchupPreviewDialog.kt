@@ -149,7 +149,7 @@ fun MatchupPreviewDialog(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
-                                        text = "WR: ${String.format(java.util.Locale.US, "%.1f", myChampion.winrate)}%",
+                                        text = "WR: ${String.format(java.util.Locale.US, "%.2f", myChampion.winrate)}%",
                                         color = HextechGold,
                                         fontSize = 10.sp
                                     )
@@ -218,7 +218,7 @@ fun MatchupPreviewDialog(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
-                                        text = "WR: ${String.format(java.util.Locale.US, "%.1f", enemyOpponent.winrate)}%",
+                                        text = "WR: ${String.format(java.util.Locale.US, "%.2f", enemyOpponent.winrate)}%",
                                         color = DangerRed.copy(alpha = 0.8f),
                                         fontSize = 10.sp
                                     )
