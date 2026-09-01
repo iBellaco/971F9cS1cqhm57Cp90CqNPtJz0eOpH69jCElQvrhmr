@@ -320,18 +320,21 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                             screenCaptureManager = screenCaptureManager,
                             onClose = { stopSelf() },
                             onDragDelta = { dx, dy, isDragging, isEnded ->
+                                val currentMetrics = resources.displayMetrics
+                                val currentScreenWidth = currentMetrics.widthPixels
+                                val currentScreenHeight = currentMetrics.heightPixels
                                 val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
                                 val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
-                                val maxX = (screenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
-                                val maxY = (screenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
+                                val maxX = (currentScreenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
+                                val maxY = (currentScreenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
                                 
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
 
                                 // Zona de peligro / desactivación: cuando se encuentra en el fondo de la pantalla (últimos 130dp)
-                                val isInDangerZone = params.y >= (screenHeight - currentHeight - (40 * density).toInt())
+                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (40 * density).toInt())
 
-                                if (isEnded && isInDangerZone) {
+                                if (!isDragging && (isEnded || isInDangerZone)) {
                                     stopSelf()
                                 } else {
                                     try {
@@ -340,13 +343,16 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 }
                             },
                             onExpandedChange = { expanded ->
+                                val currentMetrics = resources.displayMetrics
+                                val currentScreenWidth = currentMetrics.widthPixels
+                                val currentScreenHeight = currentMetrics.heightPixels
                                 isOverlayExpanded = expanded
                                 if (expanded) {
-                                    if (params.x + cardWidthPx > screenWidth - marginPx) {
-                                        params.x = (screenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
+                                    if (params.x + cardWidthPx > currentScreenWidth - marginPx) {
+                                        params.x = (currentScreenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
                                     }
-                                    if (params.y + cardHeightPx > screenHeight - marginPx) {
-                                        params.y = (screenHeight - cardHeightPx - marginPx).coerceAtLeast(marginPx)
+                                    if (params.y + cardHeightPx > currentScreenHeight - marginPx) {
+                                        params.y = (currentScreenHeight - cardHeightPx - marginPx).coerceAtLeast(marginPx)
                                     }
                                 }
                                 try {
@@ -371,6 +377,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 floatingComposeView = null
             }
         } catch (_: Exception) {}
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        screenCaptureManager?.refreshProjection()
     }
 
     companion object {

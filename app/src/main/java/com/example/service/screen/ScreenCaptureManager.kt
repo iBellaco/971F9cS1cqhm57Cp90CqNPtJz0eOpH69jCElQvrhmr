@@ -74,9 +74,9 @@ class ScreenCaptureManager(private val context: Context) {
 
             updateScreenDimensions()
 
-            // Usamos una resolución escalada (downscaled) para análisis OCR/Visión ultrarrápido y bajo consumo de RAM
-            val captureWidth = (screenWidth / 2).coerceAtLeast(480)
-            val captureHeight = (screenHeight / 2).coerceAtLeast(800)
+            // Usamos resolución original para mayor precisión del OCR en ML Kit (los textos de campeones son pequeños)
+            val captureWidth = screenWidth.coerceAtLeast(480)
+            val captureHeight = screenHeight.coerceAtLeast(800)
 
             imageReader = ImageReader.newInstance(
                 captureWidth,
@@ -101,6 +101,44 @@ class ScreenCaptureManager(private val context: Context) {
         } catch (e: Exception) {
             AppLogger.e(TAG, "Fallo al inicializar captura de pantalla", e)
             return false
+        }
+    }
+
+    /**
+     * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución.
+     */
+    @SuppressLint("WrongConstant")
+    fun refreshProjection() {
+        if (mediaProjection == null) return
+        try {
+            updateScreenDimensions()
+            
+            val captureWidth = screenWidth.coerceAtLeast(480)
+            val captureHeight = screenHeight.coerceAtLeast(800)
+            
+            virtualDisplay?.release()
+            imageReader?.close()
+            
+            imageReader = ImageReader.newInstance(
+                captureWidth,
+                captureHeight,
+                PixelFormat.RGBA_8888,
+                2
+            )
+
+            virtualDisplay = mediaProjection?.createVirtualDisplay(
+                VIRTUAL_DISPLAY_NAME,
+                captureWidth,
+                captureHeight,
+                screenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                imageReader?.surface,
+                null,
+                handler
+            )
+            AppLogger.d(TAG, "VirtualDisplay refrescado a ($captureWidth x $captureHeight) por cambio de configuración.")
+        } catch (e: Exception) {
+            AppLogger.e(TAG, "Error al refrescar proyección de pantalla", e)
         }
     }
 
