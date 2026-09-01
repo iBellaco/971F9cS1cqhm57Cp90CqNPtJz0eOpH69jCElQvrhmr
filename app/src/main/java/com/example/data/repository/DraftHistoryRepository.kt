@@ -123,7 +123,28 @@ object DraftHistoryRepository {
             accountProfileName = profileName
         )
 
-        return AppDatabase.getDatabase(context).draftDao().insertDraft(entity)
+        val draftDao = AppDatabase.getDatabase(context).draftDao()
+        val existingDraft = draftDao.findExistingDraft(
+            profileId = profileId,
+            userRole = myRole.name,
+            allyPicksJson = entity.allyPicksJson,
+            enemyPicksJson = entity.enemyPicksJson
+        )
+
+        return if (existingDraft != null) {
+            val updated = existingDraft.copy(
+                title = entity.title,
+                notes = if (notes.isNotBlank()) notes else existingDraft.notes,
+                matchResult = matchResult,
+                estimatedWinrate = estimatedWr,
+                timestamp = System.currentTimeMillis(),
+                accountProfileName = profileName
+            )
+            draftDao.updateDraft(updated)
+            existingDraft.id
+        } else {
+            draftDao.insertDraft(entity)
+        }
     }
 
     suspend fun updateMatchResult(context: Context, id: Long, result: String) {

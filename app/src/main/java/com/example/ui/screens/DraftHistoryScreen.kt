@@ -868,8 +868,30 @@ fun DraftHistoryScreen(
 
                     if (profiles.size > 1 && prof.id != "default") {
                         Spacer(modifier = Modifier.height(14.dp))
+                        
                         OutlinedButton(
                             onClick = {
+                                coroutineScope.launch {
+                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
+                                }
+                                profileToEdit = null
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(tr("Vaciar Historial del Perfil"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
+                                }
                                 AccountProfileManager.deleteProfile(context, prof.id)
                                 if (selectedProfileIdFilter == prof.id) {
                                     selectedProfileIdFilter = "ALL"
@@ -883,7 +905,25 @@ fun DraftHistoryScreen(
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(tr("Eliminar este Perfil"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text(tr("Eliminar Perfil e Historial"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    } else if (prof.id == "default") {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        OutlinedButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
+                                }
+                                profileToEdit = null
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                            border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(tr("Vaciar Historial del Perfil"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                     }
                 }
@@ -944,21 +984,41 @@ fun DraftHistoryScreen(
 
     // Confirm Clear All Dialog
     if (showClearAllConfirm) {
+        val isAllSelected = selectedProfileIdFilter == "ALL" || selectedProfileIdFilter == null
+        val profName = profiles.find { it.id == selectedProfileIdFilter }?.name ?: "esta cuenta"
+
         AlertDialog(
             onDismissRequest = { showClearAllConfirm = false },
-            title = { Text(tr("Borrar todo el historial"), color = DangerRed, fontWeight = FontWeight.Bold) },
-            text = { Text(tr("¿Estás seguro de vaciar todas las partidas y composiciones guardadas?"), color = TextSecondary, fontSize = 13.sp) },
+            title = { 
+                Text(
+                    if (isAllSelected) tr("Borrar todo el historial") else tr("Vaciar historial del perfil"), 
+                    color = DangerRed, 
+                    fontWeight = FontWeight.Bold
+                ) 
+            },
+            text = { 
+                Text(
+                    if (isAllSelected) tr("¿Estás seguro de vaciar todas las partidas y composiciones guardadas de todas tus cuentas?")
+                    else tr("¿Estás seguro de vaciar todas las partidas guardadas de la cuenta '$profName'?"), 
+                    color = TextSecondary, 
+                    fontSize = 13.sp
+                ) 
+            },
             confirmButton = {
                 Button(
                     onClick = {
                         showClearAllConfirm = false
                         coroutineScope.launch {
-                            DraftHistoryRepository.clearAllDrafts(context)
+                            if (isAllSelected) {
+                                DraftHistoryRepository.clearAllDrafts(context)
+                            } else {
+                                DraftHistoryRepository.clearDraftsByProfile(context, selectedProfileIdFilter!!)
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
                 ) {
-                    Text(tr("Borrar Todo"), color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(if (isAllSelected) tr("Borrar Todo") else tr("Vaciar Historial"), color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {

@@ -90,8 +90,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             highlights = listOf(
                 tr("Historial de drafts y estadísticas de Win Rate personal"),
                 tr("Sistema para añadir campeones a tu lista de favoritos"),
-                tr("Cambios de Temas Premium (Piltover & Zaun, Noxus, Jonia, Vacío, Islas de la Sombra, Demacia, Shurima, Freljord, Targon, Ixtal, Bandle)"),
-                tr("Cambios de Avatares Premium")
+                tr("Temas Premium"),
+                tr("Avatares Premium")
             )
         )
     )

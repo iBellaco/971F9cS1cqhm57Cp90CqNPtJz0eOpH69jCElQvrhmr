@@ -483,6 +483,7 @@ private fun FloatingOverlayContent(
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     var isSavedRecently by remember { mutableStateOf(false) }
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(context)) }
     var isFirstPick by remember { mutableStateOf(false) }
@@ -492,7 +493,7 @@ private fun FloatingOverlayContent(
     val enemies = remember { mutableStateListOf<Champion>() }
 
     var isScanning by remember { mutableStateOf(false) }
-    var autoScanEnabled by remember { mutableStateOf(true) }
+    var autoScanEnabled by remember { mutableStateOf(false) }
     var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
 
     var isDraggingBubble by remember { mutableStateOf(false) }
@@ -1103,9 +1104,21 @@ private fun FloatingOverlayContent(
                                         fontSize = 9.5.sp,
                                         modifier = Modifier.padding(end = 4.dp)
                                     )
+                                    val maintenanceMsg = tr("El auto-escáner está fuera de servicio por mantenimiento.")
                                     Switch(
                                         checked = autoScanEnabled,
-                                        onCheckedChange = { autoScanEnabled = it },
+                                        onCheckedChange = { isChecked -> 
+                                            if (isChecked) {
+                                                if (userRole == "admin") {
+                                                    autoScanEnabled = true
+                                                } else {
+                                                    android.widget.Toast.makeText(context, maintenanceMsg, android.widget.Toast.LENGTH_LONG).show()
+                                                    autoScanEnabled = false
+                                                }
+                                            } else {
+                                                autoScanEnabled = false
+                                            }
+                                        },
                                         modifier = Modifier.scale(0.7f),
                                         colors = SwitchDefaults.colors(
                                             checkedThumbColor = HextechDarkBg,
@@ -1253,21 +1266,39 @@ private fun FloatingSaveMatchDialog(
     var notesText by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        com.example.data.AccountProfileManager.init(context)
+    }
+
+    val profiles by com.example.data.AccountProfileManager.allProfiles.collectAsStateWithLifecycle(initialValue = emptyList<com.example.data.AccountProfile>())
+    val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsStateWithLifecycle(initialValue = "default")
+    var selectedProfileId by remember(activeProfileId) { mutableStateOf(activeProfileId) }
+
+    val myChampion = allies.getOrNull(activeRole.ordinal) ?: allies.firstOrNull()
+    val enemyOpponent = enemies.getOrNull(activeRole.ordinal) ?: enemies.firstOrNull()
+    val winrateDisplay = (analysis.bestOverallPick?.estimatedWinrate ?: analysis.recommendations.firstOrNull()?.estimatedWinrate ?: 50.0).toInt()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
+            .background(Color.Black.copy(alpha = 0.82f))
             .padding(10.dp)
             .pointerInput(Unit) { },
         contentAlignment = Alignment.Center
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 480.dp),
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
             border = BorderStroke(1.5.dp, HextechGold)
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(12.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -1284,19 +1315,97 @@ private fun FloatingSaveMatchDialog(
                     }
                 }
 
+                // Matchup summary badge
+                if (myChampion != null || enemyOpponent != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurface)
+                            .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "${myChampion?.name ?: "Mi Pick"} (${activeRole.shortName})",
+                                color = AllyBlue,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp
+                            )
+                            if (enemyOpponent != null) {
+                                Text(" vs ", color = TextMuted, fontSize = 10.sp)
+                                Text(
+                                    text = enemyOpponent.name,
+                                    color = DangerRed,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                        Text(
+                            text = "WR: $winrateDisplay%",
+                            color = HextechGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.5.sp
+                        )
+                    }
+                }
+
+                // Perfil de Cuenta
+                if (profiles.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "👤 " + tr("Perfil / Cuenta:"),
+                        color = TextPrimary,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        profiles.take(3).forEach { profile ->
+                            val isSelected = selectedProfileId == profile.id
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                                    .border(1.dp, if (isSelected) HextechCyan else HextechCardBorder, RoundedCornerShape(6.dp))
+                                    .clickable { selectedProfileId = profile.id }
+                                    .padding(vertical = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = profile.name,
+                                    color = if (isSelected) HextechCyan else TextPrimary,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = tr("Resultado de la Partida:"),
                     color = TextPrimary,
-                    fontSize = 11.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     val isVic = selectedResult == "VICTORY"
                     Box(
@@ -1306,14 +1415,14 @@ private fun FloatingSaveMatchDialog(
                             .background(if (isVic) Color(0xFF00FF7F).copy(alpha = 0.25f) else HextechSurface)
                             .border(1.5.dp, if (isVic) Color(0xFF00FF7F) else HextechCardBorder, RoundedCornerShape(8.dp))
                             .clickable { selectedResult = "VICTORY" }
-                            .padding(vertical = 6.dp),
+                            .padding(vertical = 5.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "👑 " + tr("Victoria"),
                             color = if (isVic) Color(0xFF00FF7F) else TextMuted,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.5.sp
+                            fontSize = 10.5.sp
                         )
                     }
 
@@ -1325,14 +1434,33 @@ private fun FloatingSaveMatchDialog(
                             .background(if (isDef) DangerRed.copy(alpha = 0.25f) else HextechSurface)
                             .border(1.5.dp, if (isDef) DangerRed else HextechCardBorder, RoundedCornerShape(8.dp))
                             .clickable { selectedResult = "DEFEAT" }
-                            .padding(vertical = 6.dp),
+                            .padding(vertical = 5.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "💔 " + tr("Derrota"),
                             color = if (isDef) DangerRed else TextMuted,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.5.sp
+                            fontSize = 10.5.sp
+                        )
+                    }
+
+                    val isProg = selectedResult == "IN_PROGRESS"
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isProg) HextechGold.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.5.dp, if (isProg) HextechGold else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { selectedResult = "IN_PROGRESS" }
+                            .padding(vertical = 5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⏳ " + tr("En Curso"),
+                            color = if (isProg) HextechGold else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.5.sp
                         )
                     }
                 }
@@ -1342,18 +1470,18 @@ private fun FloatingSaveMatchDialog(
                 Text(
                     text = tr("Notas tácticas / Matchup:"),
                     color = TextPrimary,
-                    fontSize = 10.5.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Medium
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 OutlinedTextField(
                     value = notesText,
                     onValueChange = { notesText = it },
-                    placeholder = { Text(tr("Ej: Matchup ganado en nivel 3, itemizar cortacuras..."), fontSize = 10.sp) },
+                    placeholder = { Text(tr("Ej: Matchup ganado en nivel 3, priorizar cortar curaciones..."), fontSize = 9.5.sp) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
-                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 10.5.sp),
+                        .height(58.dp),
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 10.sp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = HextechCyan,
                         unfocusedBorderColor = HextechCardBorder
@@ -1361,7 +1489,7 @@ private fun FloatingSaveMatchDialog(
                     maxLines = 2
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = {
@@ -1378,6 +1506,8 @@ private fun FloatingSaveMatchDialog(
                                     }
                                     DraftSlot(champ, role)
                                 }
+                                val chosenProfile = profiles.find { it.id == selectedProfileId }
+                                    ?: com.example.data.AccountProfileManager.getActiveProfile(context)
                                 DraftHistoryRepository.saveDraft(
                                     context = context,
                                     myRole = activeRole,
@@ -1386,9 +1516,11 @@ private fun FloatingSaveMatchDialog(
                                     enemies = enemies,
                                     analysis = analysis,
                                     notes = notesText,
-                                    matchResult = selectedResult
+                                    matchResult = selectedResult,
+                                    accountProfileId = chosenProfile.id,
+                                    accountProfileName = chosenProfile.name
                                 )
-                                android.widget.Toast.makeText(context, "¡Partida guardada!", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, "¡Partida guardada en el historial!", android.widget.Toast.LENGTH_SHORT).show()
                                 isSaving = false
                                 onSaved()
                             }
@@ -1404,10 +1536,10 @@ private fun FloatingSaveMatchDialog(
                         CircularProgressIndicator(modifier = Modifier.size(14.dp), color = HextechDarkBg, strokeWidth = 2.dp)
                     } else {
                         Text(
-                            text = "Guardar y Ver Historial",
+                            text = "Guardar y Actualizar Historial",
                             color = HextechDarkBg,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.5.sp
+                            fontSize = 11.sp
                         )
                     }
                 }
@@ -1629,6 +1761,70 @@ private fun FloatingDraftCoachView(
                     ) {
                         Text(text = "🔴 ${wombo.title}: ${wombo.description}", color = DangerRed, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
                     }
+                }
+            }
+        }
+
+        // Distribución de Daño del Draft (Aliados vs Enemigos)
+        if (allies.isNotEmpty() || enemies.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechSurface)
+                    .border(0.5.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "🔵 Daño Aliado: AD ${analysis.allyPhysicalDamagePercent}% | AP ${analysis.allyMagicDamagePercent}%",
+                        color = AllyBlue,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "🔴 Daño Enemigo: AD ${analysis.physicalDamagePercent}% | AP ${analysis.magicDamagePercent}%",
+                        color = DangerRed,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                val winrateDisplay = (analysis.bestOverallPick?.estimatedWinrate ?: analysis.recommendations.firstOrNull()?.estimatedWinrate ?: 50.0).toInt()
+                Text(
+                    text = "WR Estimado: ${winrateDisplay}%",
+                    color = HextechGold,
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        // Alerta táctica del Coach / Win condition
+        if (!analysis.directMatchupWarning.isNullOrBlank() || !analysis.allyCompositionWarning.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            val warningText = analysis.directMatchupWarning ?: analysis.allyCompositionWarning ?: ""
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = HextechGold.copy(alpha = 0.12f)),
+                border = BorderStroke(0.8.dp, HextechGold.copy(alpha = 0.7f)),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("⚠️", fontSize = 10.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = warningText,
+                        color = HextechGold,
+                        fontSize = 8.5.sp,
+                        fontWeight = FontWeight.Medium,
+                        lineHeight = 10.sp
+                    )
                 }
             }
         }

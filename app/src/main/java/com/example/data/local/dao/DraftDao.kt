@@ -20,6 +20,9 @@ interface DraftDao {
     @Query("SELECT * FROM saved_drafts WHERE id = :id")
     suspend fun getDraftById(id: Long): SavedDraftEntity?
 
+    @Query("SELECT * FROM saved_drafts WHERE accountProfileId = :profileId AND userRole = :userRole AND allyPicksJson = :allyPicksJson AND enemyPicksJson = :enemyPicksJson ORDER BY timestamp DESC LIMIT 1")
+    suspend fun findExistingDraft(profileId: String, userRole: String, allyPicksJson: String, enemyPicksJson: String): SavedDraftEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDraft(draft: SavedDraftEntity): Long
 

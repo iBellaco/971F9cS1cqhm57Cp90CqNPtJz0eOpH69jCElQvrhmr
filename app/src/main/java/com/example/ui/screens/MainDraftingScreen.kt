@@ -321,15 +321,13 @@ fun MainDraftingScreen(
                                 androidx.compose.material3.DropdownMenuItem(
                                     text = { 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("🇧🇷 Português", color = if (currentLanguage == "pt") HextechGold else TextPrimary, fontWeight = if (currentLanguage == "pt") FontWeight.Bold else FontWeight.Normal)
-                                            if (currentLanguage == "pt") {
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Text("(Ativo)", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                            }
+                                            Text("🇧🇷 Português", color = TextMuted, fontWeight = FontWeight.Normal)
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("(Em Manutenção)", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         }
                                     },
                                     onClick = { 
-                                        onLanguageChange("pt")
+                                        android.widget.Toast.makeText(context, "Idioma Português em manutenção / Idioma Português em breve", android.widget.Toast.LENGTH_SHORT).show()
                                         expandedLang = false 
                                     }
                                 )
@@ -710,6 +708,8 @@ fun OfflineResourceDownloadCard() {
     val progress by OfflineResourceManager.progress.collectAsState()
     val downloaded by OfflineResourceManager.downloadedCount.collectAsState()
     val total by OfflineResourceManager.totalCount.collectAsState()
+    val downloadedMB by OfflineResourceManager.downloadedMB.collectAsState()
+    val totalMB by OfflineResourceManager.totalMB.collectAsState()
 
     val isAlreadyCompleted = remember(context, downloadState) {
         OfflineResourceManager.isCompleted(context) || downloadState == DownloadState.COMPLETED
@@ -758,7 +758,7 @@ fun OfflineResourceDownloadCard() {
                         )
                         if (downloadState == DownloadState.DOWNLOADING || downloadState == DownloadState.PAUSED) {
                             Text(
-                                text = "${(progress * 100).toInt()}% ($downloaded / $total)",
+                                text = "${(progress * 100).toInt()}% • ${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB",
                                 color = if (downloadState == DownloadState.PAUSED) HextechGold else HextechCyan,
                                 fontSize = 10.5.sp
                             )
@@ -818,7 +818,7 @@ fun OfflineResourceDownloadCard() {
                 Spacer(modifier = Modifier.height(10.dp))
                 
                 Text(
-                    text = tr("Imágenes (campeones, habilidades, objetos, runas y hechizos) para usar sin conexión y carga más rápida."),
+                    text = tr("Imágenes (campeones, habilidades, objetos, runas, avatares y hechizos) para usar sin conexión y carga ultrarrápida."),
                     color = TextSecondary,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
@@ -833,7 +833,8 @@ fun OfflineResourceDownloadCard() {
                             colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(tr("Descargar Recursos"), fontWeight = FontWeight.Bold)
+                            val sizeText = if (totalMB > 0f) " (~${String.format(java.util.Locale.US, "%.1f", totalMB)} MB)" else ""
+                            Text(tr("Descargar Recursos") + sizeText, fontWeight = FontWeight.Bold)
                         }
                     }
                     DownloadState.DOWNLOADING -> {
@@ -849,7 +850,19 @@ fun OfflineResourceDownloadCard() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("$downloaded / $total (${(progress * 100).toInt()}%)", color = TextPrimary, fontSize = 12.sp)
+                            Column {
+                                Text(
+                                    text = "$downloaded / $total recursos (${(progress * 100).toInt()}%)",
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB",
+                                    color = HextechCyan,
+                                    fontSize = 11.sp
+                                )
+                            }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
                                     onClick = { OfflineResourceManager.pauseDownload() },
@@ -874,10 +887,22 @@ fun OfflineResourceDownloadCard() {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(tr("Pausado") + " - $downloaded / $total", color = HextechGold, fontSize = 12.sp)
+                            Column {
+                                Text(
+                                    text = tr("Pausado") + " • $downloaded / $total",
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB (${(progress * 100).toInt()}%)",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
-                                    onClick = { OfflineResourceManager.cancelDownload() },
+                                    onClick = { OfflineResourceManager.cancelDownload(context) },
                                     colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
                                     border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
                                     contentPadding = PaddingValues(horizontal = 12.dp)

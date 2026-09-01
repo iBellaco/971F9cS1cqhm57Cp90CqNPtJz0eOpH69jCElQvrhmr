@@ -208,7 +208,6 @@ fun AdminFeedbackBottomSheet(
     var isPurging by remember { mutableStateOf(false) }
     var previewImageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var itemForDetail by remember { mutableStateOf<WildRiftItem?>(null) }
-    var showTerminalScraperDialog by remember { mutableStateOf(false) }
 
     fun refreshStatusMap(list: List<FeedbackReport>) {
         statusMap.clear()
@@ -412,17 +411,6 @@ fun AdminFeedbackBottomSheet(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        IconButton(
-                            onClick = { showTerminalScraperDialog = true },
-                            modifier = Modifier.size(34.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Terminal,
-                                contentDescription = tr("Terminal Scraper"),
-                                tint = HextechGold,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
                         IconButton(
                             onClick = { loadReports() },
                             modifier = Modifier.size(34.dp)
@@ -1113,12 +1101,6 @@ fun AdminFeedbackBottomSheet(
         AdminItemDetailDialog(
             item = item,
             onDismiss = { itemForDetail = null }
-        )
-    }
-
-    if (showTerminalScraperDialog) {
-        AdminTerminalScraperDialog(
-            onDismiss = { showTerminalScraperDialog = false }
         )
     }
 }

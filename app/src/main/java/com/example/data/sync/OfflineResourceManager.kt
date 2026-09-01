@@ -4,9 +4,11 @@ import android.content.Context
 import coil.imageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.example.data.AvatarCatalog
 import com.example.data.WildRiftItemsData
 import com.example.data.WildRiftRepository
 import com.example.data.WildRiftSpellsAndRunes
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 enum class DownloadState {
     IDLE, DOWNLOADING, PAUSED, COMPLETED, ERROR
@@ -24,6 +27,8 @@ enum class DownloadState {
 object OfflineResourceManager {
     private const val PREFS_NAME = "wr_offline_resources_prefs"
     private const val KEY_COMPLETED = "resources_download_completed_v1"
+    private const val KEY_INDEX = "resources_download_index"
+    private const val ESTIMATED_BYTES_PER_RESOURCE = 46080L // ~45 KB promedio por recurso visual
 
     private val _downloadState = MutableStateFlow(DownloadState.IDLE)
     val downloadState: StateFlow<DownloadState> = _downloadState.asStateFlow()
@@ -37,8 +42,15 @@ object OfflineResourceManager {
     private val _totalCount = MutableStateFlow(0)
     val totalCount: StateFlow<Int> = _totalCount.asStateFlow()
 
+    private val _downloadedMB = MutableStateFlow(0.0f)
+    val downloadedMB: StateFlow<Float> = _downloadedMB.asStateFlow()
+
+    private val _totalMB = MutableStateFlow(0.0f)
+    val totalMB: StateFlow<Float> = _totalMB.asStateFlow()
+
     private var currentJob: Job? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Volatile
     private var isPaused = false
 
     private val urlsToDownload = mutableListOf<String>()
@@ -54,83 +66,124 @@ object OfflineResourceManager {
         _downloadState.value = DownloadState.COMPLETED
     }
 
-    fun initUrls() {
-        if (urlsToDownload.isNotEmpty()) return
+    fun initUrls(context: Context? = null) {
         val urls = mutableSetOf<String>()
         
-        // Champions avatars and skills
+        // 1. Champions avatars & ability icons
         WildRiftRepository.champions.forEach { champ ->
-            if (champ.avatarUrl.isNotEmpty()) urls.add(champ.avatarUrl)
+            if (champ.avatarUrl.isNotBlank()) urls.add(champ.avatarUrl.trim())
             champ.skills.forEach { skill ->
-                if (skill.iconUrl.isNotEmpty()) urls.add(skill.iconUrl)
+                if (skill.iconUrl.isNotBlank()) urls.add(skill.iconUrl.trim())
             }
         }
         
-        // Items
+        // 2. Items icons
         WildRiftItemsData.list.forEach { item ->
-            if (item.iconUrl.isNotEmpty()) urls.add(item.iconUrl)
+            if (item.iconUrl.isNotBlank()) urls.add(item.iconUrl.trim())
         }
         
-        // Spells and Runes
+        // 3. Spells & Runes
         WildRiftSpellsAndRunes.summonerSpells.forEach { spell ->
-            if (spell.iconUrl.isNotEmpty()) urls.add(spell.iconUrl)
+            if (spell.iconUrl.isNotBlank()) urls.add(spell.iconUrl.trim())
         }
         WildRiftSpellsAndRunes.runes.forEach { rune ->
-            if (rune.iconUrl.isNotEmpty()) urls.add(rune.iconUrl)
+            if (rune.iconUrl.isNotBlank()) urls.add(rune.iconUrl.trim())
+        }
+
+        // 4. Avatars del catálogo
+        AvatarCatalog.avatars.forEach { avatar ->
+            if (avatar.imageUrl.isNotBlank()) urls.add(avatar.imageUrl.trim())
         }
         
         urlsToDownload.clear()
-        urlsToDownload.addAll(urls.filter { it.isNotBlank() })
+        urlsToDownload.addAll(urls.filter { it.isNotBlank() && (it.startsWith("http://") || it.startsWith("https://")) })
         _totalCount.value = urlsToDownload.size
+        _totalMB.value = (urlsToDownload.size * ESTIMATED_BYTES_PER_RESOURCE) / (1024f * 1024f)
+
+        context?.let { ctx ->
+            if (_downloadedCount.value == 0) {
+                val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                val savedIdx = prefs.getInt(KEY_INDEX, 0)
+                if (savedIdx in 1..urlsToDownload.size) {
+                    _downloadedCount.value = savedIdx
+                    _progress.value = savedIdx.toFloat() / urlsToDownload.size.toFloat()
+                    _downloadedMB.value = (savedIdx * ESTIMATED_BYTES_PER_RESOURCE) / (1024f * 1024f)
+                }
+            }
+        }
     }
 
     fun startDownload(context: Context) {
         if (_downloadState.value == DownloadState.DOWNLOADING) return
         
-        initUrls()
+        initUrls(context)
         
-        // If it was paused, we don't reset count.
-        // If it was completed or idle or error, we reset.
-        if (_downloadState.value != DownloadState.PAUSED) {
+        // Si no estaba pausado ni teníamos progreso previo, reseteamos
+        if (_downloadState.value != DownloadState.PAUSED && _downloadState.value != DownloadState.IDLE) {
             _downloadedCount.value = 0
             _progress.value = 0f
+            _downloadedMB.value = 0f
         }
         
         _downloadState.value = DownloadState.DOWNLOADING
         isPaused = false
 
         val imageLoader = context.imageLoader
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         
+        currentJob?.cancel()
         currentJob = scope.launch {
             try {
                 var currentIdx = _downloadedCount.value
-                while (currentIdx < urlsToDownload.size) {
+                val totalSize = urlsToDownload.size
+                if (totalSize == 0) {
+                    markCompleted(context)
+                    _downloadState.value = DownloadState.COMPLETED
+                    return@launch
+                }
+
+                while (currentIdx < totalSize) {
                     if (isPaused) {
                         _downloadState.value = DownloadState.PAUSED
+                        prefs.edit().putInt(KEY_INDEX, currentIdx).apply()
                         return@launch
                     }
                     
                     val url = urlsToDownload[currentIdx]
-                    val request = ImageRequest.Builder(context)
-                        .data(url)
-                        .memoryCachePolicy(CachePolicy.DISABLED)
-                        .diskCachePolicy(CachePolicy.ENABLED)
-                        .build()
-                    
-                    imageLoader.execute(request)
+                    try {
+                        val request = ImageRequest.Builder(context)
+                            .data(url)
+                            .memoryCachePolicy(CachePolicy.DISABLED)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .build()
+                        
+                        imageLoader.execute(request)
+                    } catch (e: Exception) {
+                        if (e is CancellationException) throw e
+                        // Ignore individual image download failure to continue with others
+                    }
                     
                     currentIdx++
                     _downloadedCount.value = currentIdx
-                    _progress.value = currentIdx.toFloat() / urlsToDownload.size.toFloat()
+                    _progress.value = currentIdx.toFloat() / totalSize.toFloat()
+                    _downloadedMB.value = (currentIdx * ESTIMATED_BYTES_PER_RESOURCE) / (1024f * 1024f)
+
+                    if (currentIdx % 10 == 0) {
+                        prefs.edit().putInt(KEY_INDEX, currentIdx).apply()
+                    }
                     
-                    // Small delay to prevent blocking network completely and allow cancellation checking
-                    delay(25)
+                    delay(20)
                 }
                 
+                prefs.edit().putInt(KEY_INDEX, totalSize).apply()
                 markCompleted(context)
                 _downloadState.value = DownloadState.COMPLETED
             } catch (e: Exception) {
-                _downloadState.value = DownloadState.ERROR
+                if (e is CancellationException || isPaused) {
+                    _downloadState.value = DownloadState.PAUSED
+                } else {
+                    _downloadState.value = DownloadState.ERROR
+                }
             }
         }
     }
@@ -138,8 +191,8 @@ object OfflineResourceManager {
     fun pauseDownload() {
         if (_downloadState.value == DownloadState.DOWNLOADING) {
             isPaused = true
-            currentJob?.cancel()
             _downloadState.value = DownloadState.PAUSED
+            currentJob?.cancel()
         }
     }
 
@@ -149,11 +202,16 @@ object OfflineResourceManager {
         }
     }
 
-    fun cancelDownload() {
+    fun cancelDownload(context: Context? = null) {
         isPaused = true
         currentJob?.cancel()
         _downloadState.value = DownloadState.IDLE
         _downloadedCount.value = 0
         _progress.value = 0f
+        _downloadedMB.value = 0f
+        context?.let { ctx ->
+            val prefs = ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putInt(KEY_INDEX, 0).apply()
+        }
     }
 }
