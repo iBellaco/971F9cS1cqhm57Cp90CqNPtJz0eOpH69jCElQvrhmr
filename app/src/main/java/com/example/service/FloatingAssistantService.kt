@@ -270,7 +270,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         val marginPx = (8 * density).toInt()
         val cardWidthPx = (330 * density).toInt()
         val cardHeightPx = (520 * density).toInt()
-        val bubbleSizePx = (56 * density).toInt()
+        val bubbleSizePx = (46 * density).toInt()
 
         var isOverlayExpanded = false
 
@@ -331,11 +331,25 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
 
-                                // Zona de peligro / desactivación: cuando se encuentra en el fondo de la pantalla (últimos 130dp)
-                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (40 * density).toInt())
+                                // Zona de peligro / desactivación reducida para evitar cierres accidentales
+                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (16 * density).toInt())
 
-                                if (!isDragging && (isEnded || isInDangerZone)) {
-                                    stopSelf()
+                                if (!isDragging) {
+                                    if (isEnded || isInDangerZone) {
+                                        stopSelf()
+                                    } else {
+                                        // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral
+                                        if (!isOverlayExpanded) {
+                                            if (params.x < currentScreenWidth / 2) {
+                                                params.x = marginPx
+                                            } else {
+                                                params.x = maxX
+                                            }
+                                        }
+                                        try {
+                                            windowManager?.updateViewLayout(this@apply, params)
+                                        } catch (_: Exception) {}
+                                    }
                                 } else {
                                     try {
                                         windowManager?.updateViewLayout(this@apply, params)
@@ -522,7 +536,7 @@ private fun FloatingOverlayContent(
 
                     Box(
                         modifier = Modifier
-                            .size(54.dp)
+                            .size(46.dp)
                             .scale(if (isNearCloseThreshold) 0.9f else 1.0f)
                             .clip(CircleShape)
                             .background(
@@ -543,7 +557,7 @@ private fun FloatingOverlayContent(
                                         change.consume()
                                         dragAccumulatedY += dragAmount.y
                                         // Detecta si se arrastra hacia el borde inferior para activar alerta visual
-                                        isNearCloseThreshold = dragAccumulatedY > 180f
+                                        isNearCloseThreshold = dragAccumulatedY > 350f
                                         onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                     },
                                     onDragEnd = {
@@ -579,7 +593,7 @@ private fun FloatingOverlayContent(
                                 imageVector = if (isNearCloseThreshold) Icons.Default.Close else Icons.Default.Shield,
                                 contentDescription = "Wild Rift Drafting Coach",
                                 tint = if (isNearCloseThreshold) DangerRed else Color.White,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         }
 
@@ -669,7 +683,7 @@ private fun FloatingOverlayContent(
                                         onDrag = { change, dragAmount ->
                                             change.consume()
                                             panelDragY += dragAmount.y
-                                            isPanelNearClose = panelDragY > 160f
+                                            isPanelNearClose = panelDragY > 350f
                                             onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                         },
                                         onDragEnd = {
