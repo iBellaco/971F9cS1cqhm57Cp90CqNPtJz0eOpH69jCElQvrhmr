@@ -55,6 +55,7 @@ import com.example.ui.screens.OnboardingScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MetaScreenMode
 import com.example.ui.screens.MetaAndDraftScreen
+import com.example.ui.screens.TutorialScreen
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.MyApplicationTheme
 import com.example.ui.theme.HextechCyan
@@ -284,7 +285,8 @@ enum class AppScreen {
     LANGUAGE_SELECTION,
     MAIN,
     INFO,
-    META
+    META,
+    TUTORIAL
 }
 
 class MainActivity : ComponentActivity() {    private val requestPermissionLauncher = registerForActivityResult(
@@ -340,6 +342,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
 @Composable
 fun DashboardScreen(
     onNavigateToInfo: () -> Unit,
+    onNavigateToTutorial: () -> Unit,
     onNavigateToLogin: () -> Unit,
     mainRole: LaneRole,
     onMainRoleChange: (LaneRole) -> Unit,
@@ -350,9 +353,19 @@ fun DashboardScreen(
     currentLanguage: String,
     onLanguageChange: (String) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { 5 })
-    var showExitDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val activity = context as? android.app.Activity
+    val targetChampId = activity?.intent?.getStringExtra("OPEN_CHAMPION_DETAIL")
+    val initialPage = if (activity?.intent?.getBooleanExtra("OPEN_TIER_LIST", false) == true || targetChampId != null) 2 else 0
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 5 })
+    
+    // Clear intent so we don't reopen tier list on rotation
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        activity?.intent?.removeExtra("OPEN_TIER_LIST")
+        activity?.intent?.removeExtra("OPEN_CHAMPION_DETAIL")
+    }
+    
+    var showExitDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     if (showExitDialog) {
@@ -512,6 +525,7 @@ fun DashboardScreen(
                 0 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToTutorial = onNavigateToTutorial,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -535,6 +549,7 @@ fun DashboardScreen(
                     MetaAndDraftScreen(
                         mode = MetaScreenMode.TIER_LIST,
                         userMainRole = mainRole,
+                        initialChampionId = targetChampId,
                         onNavigateBack = { coroutineScope.launch { pagerState.animateScrollToPage(0) } }
                     )
                 }
@@ -557,6 +572,7 @@ fun DashboardScreen(
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToTutorial = onNavigateToTutorial,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -695,6 +711,7 @@ fun DraftingApp() {
                 DashboardScreen(
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
                     onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
+                    onNavigateToTutorial = { currentScreen = AppScreen.TUTORIAL },
                     mainRole = mainRole,
                     onMainRoleChange = { mainRole = it },
                     secondRole = secondRole,
@@ -709,11 +726,13 @@ fun DraftingApp() {
                 )
             }
             AppScreen.META -> {}
+            AppScreen.TUTORIAL -> { TutorialScreen(onFinish = { currentScreen = AppScreen.MAIN }) }
             AppScreen.INFO -> {
                 InfoScreen(
                     onNavigateBack = { currentScreen = AppScreen.MAIN }
                 )
             }
+            else -> {}
         }
     }
 }

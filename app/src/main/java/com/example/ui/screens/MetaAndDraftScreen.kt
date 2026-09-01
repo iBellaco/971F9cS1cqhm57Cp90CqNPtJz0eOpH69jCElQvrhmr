@@ -185,6 +185,7 @@ private data class MetaNavTabItem(val title: String, val count: Int? = null)
 fun MetaAndDraftScreen(
     mode: MetaScreenMode = MetaScreenMode.CATALOG,
     userMainRole: LaneRole,
+    initialChampionId: String? = null,
     onNavigateBack: () -> Unit
 ) {
     val isPremium by SubscriptionManager.isPremium.collectAsState()
@@ -224,15 +225,17 @@ fun MetaAndDraftScreen(
     }
 
     val enemySlots = remember(WildRiftRepository.champions.toList()) {
-        mutableStateListOf<Champion>().apply {
-            addAll(generateRoleBasedDraft(usedDraftChampIds).map { it.champion })
+        mutableStateListOf<DraftSlot>().apply {
+            addAll(generateRoleBasedDraft(usedDraftChampIds))
         }
     }
 
     // Modal Champion Picker & Detail State
     var pickingForTeam by remember { mutableStateOf<String?>(null) } // "ALLY", "ENEMY", "MYSELF"
     var suggestedPickingRole by remember { mutableStateOf<LaneRole?>(null) }
-    var selectedDetailChampion by remember { mutableStateOf<Champion?>(null) }
+    var selectedDetailChampion by remember { mutableStateOf<Champion?>(
+        initialChampionId?.let { id -> WildRiftRepository.getChampionById(id) }
+    ) }
     var isFirstPick by remember { mutableStateOf(false) }
     var showDraftHistoryScreen by remember { mutableStateOf(false) }
 
@@ -243,7 +246,7 @@ fun MetaAndDraftScreen(
                 allySlots.clear()
                 allySlots.addAll(allies)
                 enemySlots.clear()
-                enemySlots.addAll(enemies.map { it.champion })
+                enemySlots.addAll(enemies)
                 activeRole = role
                 isFirstPick = firstPick
                 showDraftHistoryScreen = false
@@ -254,13 +257,13 @@ fun MetaAndDraftScreen(
 
     // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
     val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
-    val enemyLaneOpponent = enemySlots.find { it.primaryRole == activeRole } ?: enemySlots.find { it.secondaryRoles.contains(activeRole) }
+    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion
 
     val analysis = remember(activeRole, isFirstPick, allySlots.toList(), enemySlots.toList(), lang) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allySlots.map { it.champion },
-            enemies = enemySlots,
+            enemies = enemySlots.map { it.champion },
             enemyLaneOpponent = enemyLaneOpponent,
             isFirstPick = isFirstPick,
             lang = lang
@@ -365,16 +368,17 @@ fun MetaAndDraftScreen(
                             suggestedPickingRole = role
                             pickingForTeam = "ALLY"
                         },
-                        onPickEnemy = {
-                            suggestedPickingRole = null
+                        onPickEnemyRole = { role ->
+                            suggestedPickingRole = role
                             pickingForTeam = "ENEMY"
                         },
                         onRemoveAllyRole = { role ->
                             val idx = allySlots.indexOfFirst { it.assignedRole == role }
                             if (idx >= 0) allySlots.removeAt(idx)
                         },
-                        onRemoveEnemy = { champ ->
-                            enemySlots.remove(champ)
+                        onRemoveEnemyRole = { role ->
+                            val idx = enemySlots.indexOfFirst { it.assignedRole == role }
+                            if (idx >= 0) enemySlots.removeAt(idx)
                         },
                         onPickRecommendation = { champ ->
                             val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
@@ -604,7 +608,7 @@ fun MetaAndDraftScreen(
         DraftChampionPickerSheet(
             team = pickingForTeam!!,
             suggestedRole = suggestedPickingRole,
-            alreadySelected = allySlots.map { it.champion.id } + enemySlots.map { it.id },
+            alreadySelected = allySlots.map { it.champion.id } + enemySlots.map { it.champion.id },
             onChampionPicked = { champ, chosenRole ->
                 val targetRole = suggestedPickingRole ?: chosenRole
                 when (pickingForTeam) {
@@ -628,8 +632,17 @@ fun MetaAndDraftScreen(
                     }
                     "ENEMY" -> {
                         if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
-                        if (!enemySlots.any { it.id == champ.id }) {
-                            enemySlots.add(champ)
+                        if (!enemySlots.any { it.champion.id == champ.id }) {
+                            val roleToAssign = suggestedPickingRole ?: LaneRole.TOP
+                            val existingIndex = enemySlots.indexOfFirst { it.assignedRole == roleToAssign }
+                            if (existingIndex >= 0) {
+                                enemySlots[existingIndex] = DraftSlot(champ, roleToAssign)
+                            } else {
+                                if (enemySlots.size >= 5) {
+                                    enemySlots.removeAt(enemySlots.size - 1)
+                                }
+                                enemySlots.add(DraftSlot(champ, roleToAssign))
+                            }
                         }
                     }
                 }
@@ -3055,16 +3068,16 @@ private fun DraftAnalysisTab(
     myChampion: Champion?,
     activeRole: LaneRole,
     allySlots: List<DraftSlot>,
-    enemySlots: List<Champion>,
+    enemySlots: List<DraftSlot>,
     analysis: DraftAnalysisResult,
     isFirstPick: Boolean,
     enemyLaneOpponent: Champion?,
     onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
     onPickAllyRole: (LaneRole) -> Unit,
-    onPickEnemy: () -> Unit,
+    onPickEnemyRole: (LaneRole) -> Unit,
     onRemoveAllyRole: (LaneRole) -> Unit,
-    onRemoveEnemy: (Champion) -> Unit,
+    onRemoveEnemyRole: (LaneRole) -> Unit,
     onPickRecommendation: (Champion) -> Unit,
     onSelectChampion: (Champion) -> Unit,
     onOpenHistory: () -> Unit
@@ -3081,7 +3094,7 @@ private fun DraftAnalysisTab(
     val defeatToastText = " " + tr("Draft registrado como Derrota")
 
     if (showMatchupDialog && myChampion != null) {
-        val opponent = enemyLaneOpponent ?: enemySlots.firstOrNull() ?: myChampion
+        val opponent = enemyLaneOpponent ?: enemySlots.firstOrNull()?.champion ?: myChampion
         MatchupPreviewDialog(
             myChampion = myChampion,
             enemyOpponent = opponent,
@@ -3104,7 +3117,7 @@ private fun DraftAnalysisTab(
                         myRole = activeRole,
                         isFirstPick = isFirstPick,
                         allies = allySlots,
-                        enemies = enemySlots,
+                        enemies = enemySlots.map { it.champion },
                         analysis = analysis,
                         notes = notes,
                         matchResult = result
@@ -3376,10 +3389,13 @@ private fun DraftAnalysisTab(
         Spacer(modifier = Modifier.height(14.dp))
 
         // Panel de Selección de Equipo Rival
-        com.example.ui.components.DraftEnemyTeamCard(
-            enemies = enemySlots,
-            onPickEnemy = onPickEnemy,
-            onRemoveEnemy = onRemoveEnemy,
+        com.example.ui.components.DraftTeamPositionCard(
+            title = "Equipo Rival",
+            isEnemy = true,
+            slots = enemySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = onPickEnemyRole,
+            onRemoveChampionForRole = onRemoveEnemyRole,
             onChampionClick = onSelectChampion
         )
 
@@ -3489,7 +3505,7 @@ private fun DraftAnalysisTab(
                 champ = myChamp,
                 myRole = activeRole,
                 allies = allySlots.map { it.champion },
-                enemies = enemySlots,
+                enemies = enemySlots.map { it.champion },
                 enemyLaneOpponent = enemyLaneOpponent,
                 lang = "es"
             )

@@ -509,13 +509,13 @@ private fun FloatingOverlayContent(
                             var newEnemiesAdded = 0
                             
                             result.allies.forEach { champ ->
-                                if (allies.none { it.id == champ.id } && allies.size < 5) {
+                                if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
                                     allies.add(champ)
                                     newAlliesAdded++
                                 }
                             }
                             result.enemies.forEach { champ ->
-                                if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                                if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
                                     enemies.add(champ)
                                     newEnemiesAdded++
                                 }
@@ -547,12 +547,12 @@ private fun FloatingOverlayContent(
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         result.allies.forEach { champ ->
-                            if (allies.none { it.id == champ.id } && allies.size < 5) {
+                            if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
                                 allies.add(champ)
                             }
                         }
                         result.enemies.forEach { champ ->
-                            if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                            if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
                                 enemies.add(champ)
                             }
                         }
@@ -1188,6 +1188,30 @@ private fun FloatingOverlayContent(
                                         if (champ.synergies.isNotEmpty()) {
                                             Text(
                                                 text = "🤝 Sinergias: " + champ.synergies.joinToString(", "),
+                                                color = AllyBlue,
+                                                fontSize = 8.5.sp,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Button(
+                                            onClick = {
+                                                val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
+                                                    flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                                    putExtra("OPEN_CHAMPION_DETAIL", champ.id)
+                                                }
+                                                context.startActivity(intent)
+                                            },
+                                            modifier = Modifier.fillMaxWidth().height(26.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                                        ) {
+                                            Text("Ver Build Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        if (champ.synergies.isNotEmpty() && false) { // disable old block
+                                            Text(
+                                                text = "🤝 Sinergias: " + champ.synergies.joinToString(", "),
                                                 color = HextechCyan,
                                                 fontSize = 9.sp,
                                                 lineHeight = 11.sp
@@ -1347,11 +1371,11 @@ private fun FloatingOverlayContent(
                                     .background(HextechSurface)
                                     .clickable {
                                         if (isAllySlot) {
-                                            if (allies.none { it.id == champ.id } && allies.size < 5) {
+                                            if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
                                                 allies.add(champ)
                                             }
                                         } else {
-                                            if (enemies.none { it.id == champ.id } && enemies.size < 5) {
+                                            if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
                                                 enemies.add(champ)
                                             }
                                         }
