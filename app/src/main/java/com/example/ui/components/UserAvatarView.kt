@@ -121,11 +121,10 @@ fun UserAvatarView(
                         rotation = rotation
                     )
                 } else if (actualShowBorder) {
-                    if (rarityLower.contains("mítico") || rarityLower.contains("mitico") || rarityLower.contains("legendario")) {
+                    val isCommon = rarityLower == "común" || rarityLower == "comun" || rarityLower == "clásico"
+                    if (!isCommon) {
                         Modifier.premiumBorderPainter(
-                            rarity = rarityLower,
-                            isMythic = rarityLower.contains("mítico") || rarityLower.contains("mitico"),
-                            isLegendary = rarityLower.contains("legendario")
+                            rarity = rarityLower
                         )
                     } else {
                         Modifier.border(
@@ -249,15 +248,39 @@ fun Modifier.rankedBorderPainter(rank: String, glowPulse: Float, rotation: Float
     }
 }
 
-fun Modifier.premiumBorderPainter(rarity: String, isMythic: Boolean, isLegendary: Boolean): Modifier {
-    if (!isMythic && !isLegendary) return this
+fun Modifier.premiumBorderPainter(rarity: String): Modifier {
+    val rarityLower = rarity.lowercase()
+    val isMythic = rarityLower.contains("mítico") || rarityLower.contains("mitico")
+    val isLegendary = rarityLower.contains("legendario")
+    val isEpic = rarityLower.contains("épico") || rarityLower.contains("epico")
+    val isRare = rarityLower.contains("raro")
     
     return this.drawWithCache {
-        val strokeWidth = if (isMythic) 4.dp.toPx() else 3.dp.toPx()
+        val strokeWidth = when {
+            isMythic -> 4.dp.toPx()
+            isLegendary -> 3.5.dp.toPx()
+            isEpic -> 3.dp.toPx()
+            else -> 2.5.dp.toPx() // Raro
+        }
         
-        val primaryColor = if (isMythic) Color(0xFFC4B5FD) else Color(0xFFFFD700)
-        val secondaryColor = if (isMythic) Color(0xFF7C3AED) else Color(0xFFB91C1C)
-        val darkColor = if (isMythic) Color(0xFF4C1D95) else Color(0xFF7F1D1D)
+        val primaryColor = when {
+            isMythic -> Color(0xFFC4B5FD)
+            isLegendary -> Color(0xFFFFD700)
+            isEpic -> Color(0xFFE9D5FF)
+            else -> Color(0xFF93C5FD) // Raro
+        }
+        val secondaryColor = when {
+            isMythic -> Color(0xFF7C3AED)
+            isLegendary -> Color(0xFFB91C1C)
+            isEpic -> Color(0xFF9333EA)
+            else -> Color(0xFF2563EB) // Raro
+        }
+        val darkColor = when {
+            isMythic -> Color(0xFF4C1D95)
+            isLegendary -> Color(0xFF7F1D1D)
+            isEpic -> Color(0xFF6B21A8)
+            else -> Color(0xFF1E3A8A) // Raro
+        }
         
         val brush = Brush.sweepGradient(
             listOf(primaryColor, secondaryColor, darkColor, secondaryColor, primaryColor)

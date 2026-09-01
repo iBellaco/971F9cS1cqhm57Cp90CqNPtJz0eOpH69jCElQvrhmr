@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -65,11 +67,14 @@ fun AvatarSelectionBottomSheet(
     val userRole by SubscriptionManager.userRole.collectAsState()
 
     val validRegions = remember {
-        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun", "Variados")
+        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun", "Variado")
     }
     
-    val filterOptions = remember {
-        listOf("Todas") + AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
+    val prefs = remember { context.getSharedPreferences("avatar_prefs", android.content.Context.MODE_PRIVATE) }
+    var favoriteAvatars by remember { mutableStateOf(prefs.getStringSet("favorites", emptySet())?.toSet() ?: emptySet()) }
+
+    val filterOptions = remember(favoriteAvatars) {
+        listOf("Todas", "Favoritos") + AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
     }
     var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "Todas") }
     
@@ -78,12 +83,16 @@ fun AvatarSelectionBottomSheet(
     var isUpdating by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    val groupedAvatars = remember(selectedFilter, searchQuery) {
+    val groupedAvatars = remember(selectedFilter, searchQuery, favoriteAvatars) {
         AvatarCatalog.avatars.filter {
-            val matchesRegion = selectedFilter == "Todas" || it.region.equals(selectedFilter, ignoreCase = true)
+            val matchesRegion = if (selectedFilter == "Favoritos") {
+                favoriteAvatars.contains(it.id)
+            } else {
+                selectedFilter == "Todas" || it.region.equals(selectedFilter, ignoreCase = true)
+            }
             val matchesSearch = searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true)
             matchesRegion && matchesSearch
-        }.groupBy { it.region }.toSortedMap()
+        }.groupBy { if (selectedFilter == "Favoritos") "Favoritos" else it.region }.toSortedMap()
     }
 
     // Modal Bottom Sheet / Full Screen Dialog
@@ -380,73 +389,58 @@ fun AvatarSelectionBottomSheet(
                             containerColor = if (isEquipped) rarityColor.copy(alpha = 0.15f) else if (!canEquip) HextechSurface.copy(alpha = 0.5f) else HextechSurface
                         )
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.BottomEnd
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                UserAvatarView(
-                                    avatarId = avatar.id,
-                                    size = 54.dp,
-                                    customBorderColor = rarityColor
-                                )
-
-                                if (isEquipped) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(18.dp)
-                                            .clip(CircleShape)
-                                            .background(HextechGold)
-                                            .border(1.5.dp, HextechDarkBg, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Check,
-                                            contentDescription = "Equipado",
-                                            tint = HextechDarkBg,
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                    }
-                                } else if (!canEquip) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFF0F172A).copy(alpha = 0.95f))
-                                            .border(1.5.dp, HextechGold, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Lock,
-                                            contentDescription = "Bloqueado",
-                                            tint = HextechGold,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
-                                } else if (isGifted && !avatar.isDefault) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(18.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFF10B981))
-                                            .border(1.5.dp, HextechDarkBg, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Star,
-                                            contentDescription = "Obsequiado",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(11.dp)
-                                        )
+                                Box(
+                                    contentAlignment = Alignment.BottomEnd
+                                ) {
+                                    UserAvatarView(
+                                        avatarId = avatar.id,
+                                        size = 54.dp,
+                                        customBorderColor = rarityColor
+                                    )
+    
+                                    if (isEquipped) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(18.dp)
+                                                .clip(CircleShape)
+                                                .background(HextechGold)
+                                                .border(1.5.dp, HextechDarkBg, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = "Equipado",
+                                                tint = HextechDarkBg,
+                                                modifier = Modifier.size(12.dp)
+                                            )
+                                        }
+                                    } else if (!canEquip) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFF0F172A).copy(alpha = 0.95f))
+                                                .border(1.5.dp, HextechGold, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Lock,
+                                                contentDescription = "Bloqueado",
+                                                tint = HextechGold,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                        }
                                     }
                                 }
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
+    
+                                Spacer(modifier = Modifier.height(6.dp))
 
                             Text(
                                 text = avatar.name,
@@ -495,9 +489,35 @@ fun AvatarSelectionBottomSheet(
                                 )
                             }
                         }
+                        
+                        // Botón de Favorito
+                        IconButton(
+                            onClick = {
+                                val newFavorites = favoriteAvatars.toMutableSet()
+                                if (newFavorites.contains(avatar.id)) {
+                                    newFavorites.remove(avatar.id)
+                                } else {
+                                    newFavorites.add(avatar.id)
+                                }
+                                favoriteAvatars = newFavorites
+                                prefs.edit().putStringSet("favorites", newFavorites).apply()
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .size(28.dp)
+                        ) {
+                            val isFav = favoriteAvatars.contains(avatar.id)
+                            Icon(
+                                imageVector = if (isFav) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (isFav) Color(0xFFE11D48) else TextMuted.copy(alpha = 0.5f),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
-                } // End of forEach
+                } // End of items
+            } // End of forEach
             } // End of LazyVerticalGrid
         } else {
                     // MARCOS (BORDERS) SECTION

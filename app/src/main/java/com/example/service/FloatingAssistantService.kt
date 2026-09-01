@@ -12,6 +12,8 @@ import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
 import android.view.WindowManager
+import android.animation.ValueAnimator
+import android.view.animation.DecelerateInterpolator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -342,17 +344,32 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                     if (isEnded || isInDangerZone) {
                                         stopSelf()
                                     } else {
-                                        // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral
+                                        // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral con animación fluida
                                         if (!isOverlayExpanded) {
-                                            if (params.x < currentScreenWidth / 2) {
-                                                params.x = marginPx
-                                            } else {
-                                                params.x = maxX
+                                            val targetX = if (params.x < currentScreenWidth / 2) marginPx else maxX
+                                            val targetY = params.y
+
+                                            val animator = ValueAnimator.ofFloat(0f, 1f)
+                                            animator.duration = 250 // ms
+                                            animator.interpolator = DecelerateInterpolator()
+                                            
+                                            val startX = params.x
+                                            val startY = params.y
+                                            
+                                            animator.addUpdateListener { animation ->
+                                                val fraction = animation.animatedFraction
+                                                params.x = (startX + (targetX - startX) * fraction).toInt()
+                                                params.y = (startY + (targetY - startY) * fraction).toInt()
+                                                try {
+                                                    windowManager?.updateViewLayout(this@apply, params)
+                                                } catch (_: Exception) {}
                                             }
+                                            animator.start()
+                                        } else {
+                                            try {
+                                                windowManager?.updateViewLayout(this@apply, params)
+                                            } catch (_: Exception) {}
                                         }
-                                        try {
-                                            windowManager?.updateViewLayout(this@apply, params)
-                                        } catch (_: Exception) {}
                                     }
                                 } else {
                                     try {

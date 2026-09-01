@@ -70,28 +70,29 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             )
         ),
         OnboardingPage(
-            title = tr("Tier List e Historial"),
-            subtitle = tr("Meta Global y Estadísticas"),
-            description = tr("Consulta la Tier List oficial actualizada al último parche, registra tus partidas con historial detallado y analiza tus estadísticas competitivas."),
+            title = tr("Tier List Oficial"),
+            subtitle = tr("Meta Global y Counters"),
+            description = tr("Consulta la Tier List oficial actualizada al último parche y descubre los mejores picks para asegurar tu ventaja en cada partida."),
             icon = Icons.Default.Leaderboard,
             accentColor = TierSPlusColor,
             highlights = listOf(
                 tr("Tier List global y de servidores asiáticos"),
-                tr("Historial de drafts y Win Rate personal"),
+                tr("Identificación de mejores picks del meta"),
                 tr("Análisis de enfrentamientos directos")
             )
         ),
         OnboardingPage(
             title = tr("Ventajas & Suscripción Premium"),
             subtitle = tr("Acceso Total de Élite & Personalización"),
-            description = tr("Desbloquea todas las ventajas exclusivas: personalización completa con cambio de Temas Hextech/OLED, selección de Avatares exclusivos de Runaterra, asistente flotante ilimitado y análisis Challenger."),
+            description = tr("Desbloquea todas las ventajas exclusivas: historial estadístico detallado, sistema de campeones favoritos, y personalización avanzada con Temas y Avatares de Runaterra."),
             icon = Icons.Default.WorkspacePremium,
             accentColor = Color(0xFFFFB300),
             highlights = listOf(
-                tr("Cambio de temas visuales exclusivos (Hextech, Noxus, Jonia, Vacío y OLED puro)"),
-                tr("Selección y desbloqueo de Avatares de campeones y regiones"),
-                tr("Overlay flotante y auto-escáner OCR ilimitado en partidas"),
-                tr("Builds Pro dinámicas y Coaching Challenger en tiempo real")
+                tr("Historial de drafts y estadísticas de Win Rate personal"),
+                tr("Sistema para añadir campeones a tu lista de favoritos"),
+                tr("Cambio de temas visuales exclusivos (Noxus, Jonia, Vacío)"),
+                tr("Selección y desbloqueo de Avatares de Runaterra"),
+                tr("Análisis táctico y Coaching Challenger avanzado")
             )
         )
     )
