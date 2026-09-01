@@ -155,7 +155,7 @@ object DraftVisionScanner {
             val status = if (totalDetected > 0) {
                 "Escaneo exitoso: $totalDetected campeones identificados en pantalla"
             } else {
-                "No se detectaron nombres legibles en pantalla. Asegúrate de estar en Selección de Campeones."
+                "OCR no encontró nombres de campeones (Leyó: ${detectedWords.take(4).joinToString()}). ¡Recuerda que WR no muestra los nombres en los lados!"
             }
 
             AppLogger.d(TAG, "Resultado de escaneo: ${foundAllies.map { it.name }} vs ${foundEnemies.map { it.name }} (Rol: $detectedRole)")

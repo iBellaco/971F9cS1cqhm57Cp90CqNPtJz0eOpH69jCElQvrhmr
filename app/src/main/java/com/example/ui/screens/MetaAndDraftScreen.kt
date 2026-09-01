@@ -1006,7 +1006,8 @@ private fun ChampionsCatalogTab(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     val winDelta = champion.winrateDelta
-                                    val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                                    val formattedDelta = String.format(java.util.Locale.US, "%.2f", winDelta)
+                                    val winDeltaText = if (winDelta >= 0) "+${formattedDelta}%" else "${formattedDelta}%"
                                     val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
                                     Text(
                                         text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
@@ -1014,7 +1015,7 @@ private fun ChampionsCatalogTab(
                                         fontSize = 10.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    val formattedWr = if (champion.winrate % 1.0 == 0.0) "${champion.winrate.toInt()}" else String.format(java.util.Locale.US, "%.2f", champion.winrate).trimEnd('0').trimEnd('.')
+                                    val formattedWr = String.format(java.util.Locale.US, "%.2f", champion.winrate)
                                     Text(
                                         text = "WR: $formattedWr%",
                                         color = HextechGold,
@@ -1458,7 +1459,8 @@ private fun TierSectionCard(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     val winDelta = champ.winrateDelta
-                                    val winDeltaText = if (winDelta >= 0) "+${winDelta}%" else "${winDelta}%"
+                                    val formattedDelta = String.format(java.util.Locale.US, "%.2f", winDelta)
+                                    val winDeltaText = if (winDelta >= 0) "+${formattedDelta}%" else "${formattedDelta}%"
                                     val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
                                     Text(
                                         text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",

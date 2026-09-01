@@ -200,10 +200,14 @@ object WildRiftRepository {
         try {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
             val parsed1 = context.resources.openRawResource(com.example.R.raw.champions_part1).bufferedReader().use { reader ->
-                format.decodeFromString<List<Champion>>(reader.readText())
+                format.decodeFromString<List<Champion>>(reader.readText()).map {
+                    if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                }
             }
             val parsed2 = context.resources.openRawResource(com.example.R.raw.champions_part2).bufferedReader().use { reader ->
-                format.decodeFromString<List<Champion>>(reader.readText())
+                format.decodeFromString<List<Champion>>(reader.readText()).map {
+                    if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                }
             }
             champions.clear()
             champions.addAll(parsed1)

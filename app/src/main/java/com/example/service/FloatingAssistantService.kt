@@ -495,7 +495,7 @@ private fun FloatingOverlayContent(
                         scanNoticeMessage = "✅ Escaneo exitoso (${result.allies.size + result.enemies.size} picks" +
                                 (if (result.detectedRole != null) ", rol ${result.detectedRole.shortName})" else ")")
                     } else {
-                        scanNoticeMessage = "ℹ️ No se detectaron nombres legibles. Asegúrate de estar en Selección de Campeones."
+                        scanNoticeMessage = "ℹ️ ${result.statusMessage}"
                     }
                     isScanning = false
                 }
