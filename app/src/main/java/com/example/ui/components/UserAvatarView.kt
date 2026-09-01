@@ -78,7 +78,7 @@ fun UserAvatarView(
         else -> Brush.linearGradient(listOf(parsedBorderColor, parsedBorderColor))
     }
     
-    val actualShowBorder = showBorder && !isCommon
+    val actualShowBorder = showBorder
 
     val infiniteTransition = rememberInfiniteTransition(label = "ChallengerGlow")
     val glowPulse by infiniteTransition.animateFloat(
@@ -295,18 +295,26 @@ fun Modifier.premiumBorderPainter(rarity: String): Modifier {
                 center = Offset(size.width / 2, size.height / 2),
                 style = Stroke(
                     width = strokeWidth,
-                    pathEffect = if (isMythic) PathEffect.dashPathEffect(floatArrayOf(20f, 10f), 0f) else null
+                    pathEffect = when {
+                        isMythic -> PathEffect.dashPathEffect(floatArrayOf(20f, 10f), 0f)
+                        isLegendary -> PathEffect.dashPathEffect(floatArrayOf(24f, 12f), 0f)
+                        isEpic -> PathEffect.dashPathEffect(floatArrayOf(15f, 8f), 0f)
+                        else -> PathEffect.dashPathEffect(floatArrayOf(12f, 6f), 0f)
+                    }
                 )
             )
             
-            if (isMythic) {
-                drawCircle(
-                    color = Color(0xFFE9D5FF),
-                    radius = size.width / 2 - strokeWidth,
-                    center = Offset(size.width / 2, size.height / 2),
-                    style = Stroke(width = 1.dp.toPx())
-                )
-            }
+            drawCircle(
+                color = when {
+                    isMythic -> Color(0xFFE9D5FF)
+                    isLegendary -> Color(0xFFFEF08A)
+                    isEpic -> Color(0xFFD8B4FE)
+                    else -> Color(0xFFBFDBFE)
+                },
+                radius = size.width / 2 - strokeWidth,
+                center = Offset(size.width / 2, size.height / 2),
+                style = Stroke(width = 1.dp.toPx())
+            )
         }
     }
 }

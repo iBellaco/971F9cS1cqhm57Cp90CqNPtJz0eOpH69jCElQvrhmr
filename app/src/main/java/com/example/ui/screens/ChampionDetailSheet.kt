@@ -1140,7 +1140,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val advantageList = roleProfile.advantageAgainst.take(5)
+                        val advantageList = roleProfile.advantageAgainst.take(3)
                         advantageList.forEach { target ->
                             Row(
                                 modifier = Modifier
@@ -1168,7 +1168,7 @@ fun ChampionDetailSheet(
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(tr("Débil Contra:"), color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
-                        val counteredList = roleProfile.counteredBy.take(5)
+                        val counteredList = roleProfile.counteredBy.take(3)
                         counteredList.forEach { counter ->
                             Row(
                                 modifier = Modifier
@@ -1199,7 +1199,7 @@ fun ChampionDetailSheet(
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(tr("Mejores Sinergias:"), color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
-                    val synergyList = roleProfile.synergies.take(5)
+                    val synergyList = roleProfile.synergies.take(3)
 
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),

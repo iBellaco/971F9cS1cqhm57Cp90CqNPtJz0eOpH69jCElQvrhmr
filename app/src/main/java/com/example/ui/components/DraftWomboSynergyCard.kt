@@ -163,7 +163,8 @@ object WomboComboSynergyDetector {
 fun DraftWomboSynergyCard(
     wombo: WomboCombo,
     onChampionClick: (Champion) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEnemy: Boolean = false
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "neonPulse")
     val borderAlpha by infiniteTransition.animateFloat(

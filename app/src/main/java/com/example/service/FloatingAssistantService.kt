@@ -111,6 +111,11 @@ import com.example.data.WildRiftRepository
 import com.example.data.WildRiftSpellsAndRunes
 import com.example.model.Champion
 import com.example.model.LaneRole
+import com.example.ui.components.WomboComboSynergyDetector
+import com.example.ui.components.WomboCombo
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.platform.LocalContext
 import com.example.service.screen.DraftVisionScanner
 import com.example.service.screen.ScreenCaptureManager
 import com.example.ui.components.AppAssetImage
@@ -382,6 +387,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 val currentScreenWidth = currentMetrics.widthPixels
                                 val currentScreenHeight = currentMetrics.heightPixels
                                 isOverlayExpanded = expanded
+                                if (expanded) {
+                                    params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+                                } else {
+                                    params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                                }
                                 if (expanded) {
                                     if (params.x + cardWidthPx > currentScreenWidth - marginPx) {
                                         params.x = (currentScreenWidth - cardWidthPx - marginPx).coerceAtLeast(marginPx)
@@ -915,7 +925,7 @@ private fun FloatingOverlayContent(
                                     if (isLoadingScreenMode) {
                                         Text(tr("Modo Carga (Orden exacto)"), color = Color(0xFF00FF7F), fontSize = 7.sp, fontWeight = FontWeight.Bold)
                                     } else {
-                                        Text(tr("*Línea estimada (oculta en juego)"), color = DangerRed.copy(alpha = 0.7f), fontSize = 7.sp, fontWeight = FontWeight.Medium)
+                                        Text(tr("(Oculto en Draft)"), color = TextMuted, fontSize = 7.sp, fontWeight = FontWeight.Medium)
                                     }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     for (i in 0 until 5) {
@@ -1011,6 +1021,87 @@ private fun FloatingOverlayContent(
 
                             Spacer(modifier = Modifier.height(6.dp))
 
+                            // Sinergias (Wombos)
+                            val context = LocalContext.current
+                            val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.toList()) }
+                            val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.toList()) }
+
+                            if (allyWombos.isNotEmpty() || enemyWombos.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    allyWombos.forEach { wombo ->
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha=0.6f)),
+                                            border = androidx.compose.foundation.BorderStroke(0.5.dp, AllyBlue)
+                                        ) {
+                                            Text(text = "🔵 ${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 9.sp, modifier = Modifier.padding(4.dp))
+                                        }
+                                    }
+                                    enemyWombos.forEach { wombo ->
+                                        Card(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha=0.6f)),
+                                            border = androidx.compose.foundation.BorderStroke(0.5.dp, DangerRed)
+                                        ) {
+                                            Text(text = "🔴 ${wombo.title}: ${wombo.description}", color = DangerRed, fontSize = 9.sp, modifier = Modifier.padding(4.dp))
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(6.dp))
+                            
+                            Spacer(modifier = Modifier.height(6.dp))
+                            
+                            Text(
+                                text = "🏆 " + tr("Tier List Meta (S+) para ${tr(activeRole.shortName)}"),
+                                color = HextechGold,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            val topTierChamps = remember(activeRole) {
+                                WildRiftRepository.champions.filter { 
+                                    it.primaryRole == activeRole && it.tier == "S+" 
+                                }.take(3)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                topTierChamps.forEach { champ ->
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.weight(1f)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(HextechSurface)
+                                            .clickable { selectedChampionDetail = champ }
+                                            .padding(4.dp)
+                                    ) {
+                                        ChampionAvatar(champion = champ, size = 32.dp)
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(champ.name, color = TextPrimary, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    }
+                                }
+                            }
+
+                            // Botón de Tier List
+                            Button(
+                                onClick = {
+                                    val intent = android.content.Intent(context, com.example.MainActivity::class.java).apply {
+                                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                                        putExtra("OPEN_TIER_LIST", true)
+                                    }
+                                    context.startActivity(intent)
+                                },
+                                modifier = Modifier.fillMaxWidth().height(28.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("Ver Tier List Completa", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+
                             // 3. MEJORES PICKS RECOMENDADOS POR EL COACH
                             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 analysis.recommendations.forEach { pick ->
@@ -1052,7 +1143,9 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // 4. DETALLE RÁPIDO DE CAMPEÓN SI ESTÁ SELECCIONADO
+
+
+                            // 5. DETALLE RÁPIDO DE CAMPEÓN SI ESTÁ SELECCIONADO
                             if (selectedChampionDetail != null) {
                                 val champ = selectedChampionDetail!!
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -1069,7 +1162,7 @@ private fun FloatingOverlayContent(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "🛡️ ${champ.name} • ${tr("Runas y Core")}",
+                                                text = "🛡️ ${champ.name} • ${tr("Build Core")}",
                                                 color = HextechGold,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 11.sp
@@ -1082,21 +1175,7 @@ private fun FloatingOverlayContent(
                                             )
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "${tr("Runa Clave")}: ${champ.recommendedRunes}",
-                                            color = HextechCyan,
-                                            fontSize = 9.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        if (champ.runeTreeDetails.isNotBlank()) {
-                                            Text(
-                                                text = champ.runeTreeDetails,
-                                                color = TextPrimary,
-                                                fontSize = 8.5.sp,
-                                                lineHeight = 11.sp
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(3.dp))
+
                                         Text(
                                             text = "${tr("Objetos Core")}: " + champ.coreItems.take(4).joinToString(", "),
                                             color = HextechGoldLight,
@@ -1124,7 +1203,7 @@ private fun FloatingOverlayContent(
                                         }
                                         if (champ.advantageAgainst.isNotEmpty()) {
                                             Text(
-                                                text = "⚔️ Fuerte contra: " + champ.advantageAgainst.joinToString(", "),
+                                                text = "⚔️ Fuerte contra: " + champ.advantageAgainst.take(3).joinToString(", "),
                                                 color = AllyBlue,
                                                 fontSize = 9.sp,
                                                 lineHeight = 11.sp
@@ -1203,7 +1282,7 @@ private fun FloatingOverlayContent(
         val filteredList = remember(searchChampQuery) {
             WildRiftRepository.champions.filter {
                 searchChampQuery.isBlank() || it.name.contains(searchChampQuery, ignoreCase = true)
-            }
+            }.sortedBy { it.name }
         }
 
         Box(
@@ -1238,6 +1317,8 @@ private fun FloatingOverlayContent(
                             Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     OutlinedTextField(
                         value = searchChampQuery,
@@ -1328,7 +1409,7 @@ private fun DraftSlotItem(
                     )
                     if (!isAlly) {
                         Text(
-                            text = explicitRoleName ?: "? ${champion.primaryRole.shortName}",
+                            text = explicitRoleName ?: "? (Oculto)",
                             color = if (explicitRoleName != null) Color(0xFF00FF7F) else DangerRed.copy(alpha = 0.8f),
                             fontSize = 7.5.sp,
                             fontWeight = if (explicitRoleName != null) FontWeight.Bold else FontWeight.Medium

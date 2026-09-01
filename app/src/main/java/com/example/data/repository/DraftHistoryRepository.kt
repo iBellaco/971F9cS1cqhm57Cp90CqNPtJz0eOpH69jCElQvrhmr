@@ -7,6 +7,7 @@ import com.example.data.local.entity.SavedDraftEntity
 import com.example.data.local.entity.SavedDraftSlotData
 import com.example.model.DraftAnalysisResult
 import com.example.model.DraftSlot
+import com.example.model.Champion
 import com.example.model.LaneRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.encodeToString
@@ -33,7 +34,7 @@ object DraftHistoryRepository {
         myRole: LaneRole,
         isFirstPick: Boolean,
         allies: List<DraftSlot>,
-        enemies: List<DraftSlot>,
+        enemies: List<Champion>,
         analysis: DraftAnalysisResult,
         title: String? = null,
         notes: String = "",
@@ -50,15 +51,15 @@ object DraftHistoryRepository {
 
         val enemyDataList = enemies.map {
             SavedDraftSlotData(
-                championId = it.champion.id,
-                championName = it.champion.name,
-                role = it.assignedRole.name,
-                avatarUrl = it.champion.avatarUrl
+                championId = it.id,
+                championName = it.name,
+                role = it.primaryRole.name,
+                avatarUrl = it.avatarUrl
             )
         }
 
         val myChampion = allies.find { it.assignedRole == myRole }?.champion
-        val enemyLaneOpponent = enemies.find { it.assignedRole == myRole }?.champion
+        val enemyLaneOpponent = enemies.find { it.primaryRole == myRole } ?: enemies.find { it.secondaryRoles.contains(myRole) }
 
         val bestPick = analysis.bestOverallPick ?: analysis.recommendations.firstOrNull()
         val estimatedWr = if (myChampion != null) {
@@ -66,7 +67,7 @@ object DraftHistoryRepository {
                 champ = myChampion,
                 myRole = myRole,
                 allies = allies.map { it.champion },
-                enemies = enemies.map { it.champion },
+                enemies = enemies,
                 enemyLaneOpponent = enemyLaneOpponent
             )
             eval.estimatedWinrate

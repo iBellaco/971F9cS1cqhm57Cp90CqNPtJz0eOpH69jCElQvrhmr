@@ -224,8 +224,8 @@ fun MetaAndDraftScreen(
     }
 
     val enemySlots = remember(WildRiftRepository.champions.toList()) {
-        mutableStateListOf<DraftSlot>().apply {
-            addAll(generateRoleBasedDraft(usedDraftChampIds))
+        mutableStateListOf<Champion>().apply {
+            addAll(generateRoleBasedDraft(usedDraftChampIds).map { it.champion })
         }
     }
 
@@ -243,7 +243,7 @@ fun MetaAndDraftScreen(
                 allySlots.clear()
                 allySlots.addAll(allies)
                 enemySlots.clear()
-                enemySlots.addAll(enemies)
+                enemySlots.addAll(enemies.map { it.champion })
                 activeRole = role
                 isFirstPick = firstPick
                 showDraftHistoryScreen = false
@@ -254,13 +254,13 @@ fun MetaAndDraftScreen(
 
     // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
     val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
-    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion
+    val enemyLaneOpponent = enemySlots.find { it.primaryRole == activeRole } ?: enemySlots.find { it.secondaryRoles.contains(activeRole) }
 
     val analysis = remember(activeRole, isFirstPick, allySlots.toList(), enemySlots.toList(), lang) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
             allies = allySlots.map { it.champion },
-            enemies = enemySlots.map { it.champion },
+            enemies = enemySlots,
             enemyLaneOpponent = enemyLaneOpponent,
             isFirstPick = isFirstPick,
             lang = lang
@@ -365,17 +365,16 @@ fun MetaAndDraftScreen(
                             suggestedPickingRole = role
                             pickingForTeam = "ALLY"
                         },
-                        onPickEnemyRole = { role ->
-                            suggestedPickingRole = role
+                        onPickEnemy = {
+                            suggestedPickingRole = null
                             pickingForTeam = "ENEMY"
                         },
                         onRemoveAllyRole = { role ->
                             val idx = allySlots.indexOfFirst { it.assignedRole == role }
                             if (idx >= 0) allySlots.removeAt(idx)
                         },
-                        onRemoveEnemyRole = { role ->
-                            val idx = enemySlots.indexOfFirst { it.assignedRole == role }
-                            if (idx >= 0) enemySlots.removeAt(idx)
+                        onRemoveEnemy = { champ ->
+                            enemySlots.remove(champ)
                         },
                         onPickRecommendation = { champ ->
                             val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
@@ -605,7 +604,7 @@ fun MetaAndDraftScreen(
         DraftChampionPickerSheet(
             team = pickingForTeam!!,
             suggestedRole = suggestedPickingRole,
-            alreadySelected = (allySlots + enemySlots).map { it.champion.id },
+            alreadySelected = allySlots.map { it.champion.id } + enemySlots.map { it.id },
             onChampionPicked = { champ, chosenRole ->
                 val targetRole = suggestedPickingRole ?: chosenRole
                 when (pickingForTeam) {
@@ -628,12 +627,9 @@ fun MetaAndDraftScreen(
                         }
                     }
                     "ENEMY" -> {
-                        val idx = enemySlots.indexOfFirst { it.assignedRole == targetRole }
-                        if (idx >= 0) {
-                            enemySlots[idx] = DraftSlot(champ, targetRole)
-                        } else {
-                            if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
-                            enemySlots.add(DraftSlot(champ, targetRole))
+                        if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
+                        if (!enemySlots.any { it.id == champ.id }) {
+                            enemySlots.add(champ)
                         }
                     }
                 }
@@ -3059,16 +3055,16 @@ private fun DraftAnalysisTab(
     myChampion: Champion?,
     activeRole: LaneRole,
     allySlots: List<DraftSlot>,
-    enemySlots: List<DraftSlot>,
+    enemySlots: List<Champion>,
     analysis: DraftAnalysisResult,
     isFirstPick: Boolean,
     enemyLaneOpponent: Champion?,
     onToggleFirstPick: () -> Unit,
     onChangeRole: () -> Unit,
     onPickAllyRole: (LaneRole) -> Unit,
-    onPickEnemyRole: (LaneRole) -> Unit,
+    onPickEnemy: () -> Unit,
     onRemoveAllyRole: (LaneRole) -> Unit,
-    onRemoveEnemyRole: (LaneRole) -> Unit,
+    onRemoveEnemy: (Champion) -> Unit,
     onPickRecommendation: (Champion) -> Unit,
     onSelectChampion: (Champion) -> Unit,
     onOpenHistory: () -> Unit
@@ -3085,7 +3081,7 @@ private fun DraftAnalysisTab(
     val defeatToastText = " " + tr("Draft registrado como Derrota")
 
     if (showMatchupDialog && myChampion != null) {
-        val opponent = enemyLaneOpponent ?: enemySlots.firstOrNull()?.champion ?: myChampion
+        val opponent = enemyLaneOpponent ?: enemySlots.firstOrNull() ?: myChampion
         MatchupPreviewDialog(
             myChampion = myChampion,
             enemyOpponent = opponent,
@@ -3379,14 +3375,11 @@ private fun DraftAnalysisTab(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Panel de Selección Oficial de Posiciones - Equipo Rival
-        DraftTeamPositionCard(
-            title = "Equipo Rival",
-            isEnemy = true,
-            slots = enemySlots,
-            activeUserRole = null,
-            onPickChampionForRole = onPickEnemyRole,
-            onRemoveChampionForRole = onRemoveEnemyRole,
+        // Panel de Selección de Equipo Rival
+        com.example.ui.components.DraftEnemyTeamCard(
+            enemies = enemySlots,
+            onPickEnemy = onPickEnemy,
+            onRemoveEnemy = onRemoveEnemy,
             onChampionClick = onSelectChampion
         )
 
@@ -3496,7 +3489,7 @@ private fun DraftAnalysisTab(
                 champ = myChamp,
                 myRole = activeRole,
                 allies = allySlots.map { it.champion },
-                enemies = enemySlots.map { it.champion },
+                enemies = enemySlots,
                 enemyLaneOpponent = enemyLaneOpponent,
                 lang = "es"
             )
@@ -3570,7 +3563,7 @@ private fun DraftAnalysisTab(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = tr(" Runas:") + " ${myEval.champion.recommendedRunes} • " + tr("Toca para ver build completa"),
+                        text = tr("Toca para ver build completa"),
                         color = TextPrimary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -3790,7 +3783,7 @@ private fun DraftAnalysisTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = tr(" Runas:") + " ${topPick.champion.recommendedRunes}",
+                            text = tr("Toca para ver build completa"),
                             color = TextMuted,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,

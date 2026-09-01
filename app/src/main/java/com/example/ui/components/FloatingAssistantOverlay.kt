@@ -400,7 +400,7 @@ private fun OverlayRunesTabContent(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(champ.name, color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                Text("${tr(champ.primaryRole.shortName)} • ${tr("Runas")}: ${champ.recommendedRunes}", color = HextechGold, fontSize = 10.sp)
+                                Text("${tr(champ.primaryRole.shortName)}", color = HextechGold, fontSize = 10.sp)
                             }
                         }
                         Icon(Icons.Default.Check, contentDescription = "Seleccionar", tint = HextechCyan, modifier = Modifier.size(16.dp))

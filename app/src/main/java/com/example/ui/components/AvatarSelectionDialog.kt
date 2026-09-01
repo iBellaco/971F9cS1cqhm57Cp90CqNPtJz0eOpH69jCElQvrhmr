@@ -67,16 +67,23 @@ fun AvatarSelectionBottomSheet(
     val userRole by SubscriptionManager.userRole.collectAsState()
 
     val validRegions = remember {
-        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun", "Variado")
+        setOf("Aguas Esturbias", "Ciudad de Bandle", "Demacia", "El Vacío", "Freljord", "Islas de la Sombra", "Jonia", "Ixtal", "Noxus", "Piltóver", "Runaterra", "Shurima", "Targon", "Zaun", "Poro")
     }
     
     val prefs = remember { context.getSharedPreferences("avatar_prefs", android.content.Context.MODE_PRIVATE) }
     var favoriteAvatars by remember { mutableStateOf(prefs.getStringSet("favorites", emptySet())?.toSet() ?: emptySet()) }
 
     val filterOptions = remember(favoriteAvatars) {
-        listOf("Todas", "Favoritos") + AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
+        val baseOptions = if (favoriteAvatars.isNotEmpty()) listOf("Todas", "Favoritos") else listOf("Todas")
+        baseOptions + AvatarCatalog.avatars.map { it.region }.filter { validRegions.contains(it) }.distinct().sorted()
     }
-    var selectedFilter by remember { mutableStateOf(filterOptions.firstOrNull() ?: "Todas") }
+    var selectedFilter by remember { mutableStateOf("Todas") }
+    
+    LaunchedEffect(favoriteAvatars) {
+        if (favoriteAvatars.isEmpty() && selectedFilter == "Favoritos") {
+            selectedFilter = "Todas"
+        }
+    }
     
     var selectedCategory by remember { mutableStateOf("Avatares") }
     var showPremiumRequiredDialog by remember { mutableStateOf<AvatarItem?>(null) }

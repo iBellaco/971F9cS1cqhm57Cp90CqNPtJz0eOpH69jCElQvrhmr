@@ -7,7 +7,7 @@ object AvatarCatalog {
         id = "default_poro",
         name = "Poro Guardián",
         title = "Espíritu de la Grieta",
-        region = "Variado",
+        region = "Poro",
         rarity = "Clásico",
         imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/588.png",
         borderHex = "#C8AA6E",
@@ -18,70 +18,70 @@ object AvatarCatalog {
     val avatars: List<AvatarItem> = listOf(
         DEFAULT_AVATAR,
         AvatarItem(
-            id = "poro_astronauta",
-            name = "Poro Astronauta",
-            title = "Explorador Espacial",
-            region = "Variado",
+            id = "poro_wukong",
+            name = "Poro Wukong",
+            title = "El Rey Mono",
+            region = "Poro",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/751.png",
+            imageUrl = "https://i.postimg.cc/LXS8Tbv5/1788243501865.jpg",
             borderHex = "#A0A0A0",
-            description = "Un pequeño poro listo para explorar las estrellas."
+            description = "Un poro listo para la batalla con su bastón mágico."
         ),
         AvatarItem(
-            id = "poro_maquina_guerra",
-            name = "Poro Máquina de Guerra",
-            title = "Poro Mecanizado",
-            region = "Variado",
-            rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/752.png",
-            borderHex = "#A0A0A0",
-            description = "Tecnología implacable en un paquete adorable."
+            id = "poro_volibear",
+            name = "Poro Volibear",
+            title = "El Rugido del Trueno",
+            region = "Poro",
+            rarity = "Raro",
+            imageUrl = "https://i.postimg.cc/LXV6030W/1788243804693.jpg",
+            borderHex = "#00BFFF",
+            description = "Un poro imbuido con el poder de la tormenta."
         ),
         AvatarItem(
-            id = "poro_matadragones",
-            name = "Poro Matadragones",
-            title = "Cazador Escamado",
-            region = "Variado",
-            rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/772.png",
-            borderHex = "#A0A0A0",
-            description = "Equipado para cazar a las bestias más temibles."
+            id = "poro_nashor",
+            name = "Poro Nashor",
+            title = "El Rey de la Grieta",
+            region = "Poro",
+            rarity = "Épico",
+            imageUrl = "https://i.postimg.cc/bJRNF9FF/1788243975279.jpg",
+            borderHex = "#8A2BE2",
+            description = "El poro más temible del río."
         ),
         AvatarItem(
-            id = "poro_caballero",
-            name = "Poro Caballero",
-            title = "Elegancia Poro",
-            region = "Variado",
-            rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/773.png",
-            borderHex = "#A0A0A0",
-            description = "Un poro con gustos refinados."
+            id = "poro_ahri",
+            name = "Poro Ahri",
+            title = "La Mujer Zorro",
+            region = "Poro",
+            rarity = "Épico",
+            imageUrl = "https://i.postimg.cc/gJKkBHBt/1788244165659.jpg",
+            borderHex = "#8A2BE2",
+            description = "Un poro con un encanto irresistible."
         ),
         AvatarItem(
-            id = "poro_proyecto",
-            name = "Poro Proyecto",
-            title = "Mejora Cibernética",
-            region = "Variado",
-            rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/1301.png",
-            borderHex = "#A0A0A0",
-            description = "La perfección de la evolución cibernética."
+            id = "poro_kaisa",
+            name = "Poro Kai'Sa",
+            title = "Hija del Vacío",
+            region = "Poro",
+            rarity = "Épico",
+            imageUrl = "https://i.postimg.cc/NMxfPkPV/1788244288372.jpg",
+            borderHex = "#8A2BE2",
+            description = "Un poro que sobrevivió al vacío."
         ),
         AvatarItem(
-            id = "poro_recreativa",
-            name = "Poro Recreativa",
-            title = "Jugador 1",
-            region = "Variado",
+            id = "poro_irelia",
+            name = "Poro Irelia",
+            title = "La Danza de las Cuchillas",
+            region = "Poro",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/1302.png",
+            imageUrl = "https://i.postimg.cc/QtqxnJyG/1788244351208.jpg",
             borderHex = "#A0A0A0",
-            description = "Un poro de 8 bits listo para la acción."
+            description = "Un poro que danza en el campo de batalla."
         ),
         AvatarItem(
             id = "aatrox",
             name = "Aatrox",
             title = "la Espada de los Oscuros",
-            region = "Variado",
+            region = "Runaterra",
             rarity = "Raro",
             imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Aatrox.png",
             borderHex = "#C8AA6E",
@@ -1487,106 +1487,6 @@ object AvatarCatalog {
             borderHex = "#C8AA6E",
             description = "Nacida gracias a un fenómeno sobrenatural hace mucho tiempo, Zyra encarna la ira de la naturale..."
         ),
-        AvatarItem(
-            id = "poro_dragon_fuego",
-            name = "Poro Dragón de Fuego",
-            title = "Alma Infernal",
-            region = "Variado",
-            rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3457.png",
-            borderHex = "#C8AA6E",
-            description = "Un poro incandescente que habita en las grietas infernales."
-        ),
-        AvatarItem(
-            id = "poro_dragon_aire",
-            name = "Poro Dragón de Aire",
-            title = "Alma de las Nubes",
-            region = "Variado",
-            rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3458.png",
-            borderHex = "#C8AA6E",
-            description = "Ligero como el viento, este poro vuela entre las nubes."
-        ),
-        AvatarItem(
-            id = "poro_dragon_tierra",
-            name = "Poro Dragón de Tierra",
-            title = "Alma de la Montaña",
-            region = "Variado",
-            rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3459.png",
-            borderHex = "#C8AA6E",
-            description = "Robusto e inamovible."
-        ),
-        AvatarItem(
-            id = "poro_dragon_hielo",
-            name = "Poro Dragón de Hielo",
-            title = "Alma Glacial",
-            region = "Variado",
-            rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3460.png",
-            borderHex = "#C8AA6E",
-            description = "Frío al tacto, pero con un corazón cálido."
-        ),
-        AvatarItem(
-            id = "dragon_ancestral",
-            name = "Dragón Ancestral",
-            title = "Poder Definitivo",
-            region = "Variado",
-            rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/4433.png",
-            borderHex = "#C8AA6E",
-            description = "El gobernante supremo de los cielos de la Grieta."
-        ),
-        AvatarItem(
-            id = "heraldo_grieta",
-            name = "Heraldo de la Grieta",
-            title = "Ojo del Vacío",
-            region = "Variado",
-            rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3534.png",
-            borderHex = "#C8AA6E",
-            description = "El terror de las torretas."
-        ),
-        AvatarItem(
-            id = "baron_nashor",
-            name = "Barón Nashor",
-            title = "Rey de la Grieta",
-            region = "Variado",
-            rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3535.png",
-            borderHex = "#C8AA6E",
-            description = "La criatura más temible que acecha en el río."
-        ),
-        AvatarItem(
-            id = "kda_akali",
-            name = "Akali K/DA",
-            title = "Estrella del Pop",
-            region = "Variado",
-            rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/3588.png",
-            borderHex = "#C8AA6E",
-            description = "Brillando en el escenario mundial."
-        ),
-        AvatarItem(
-            id = "flor_espiritual",
-            name = "Flor Espiritual",
-            title = "Vínculo del más allá",
-            region = "Variado",
-            rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/4570.png",
-            borderHex = "#C8AA6E",
-            description = "Una flor que florece solo para aquellos que recuerdan."
-        ),
-        AvatarItem(
-            id = "celestial_sol",
-            name = "Aurelion Celestial",
-            title = "Forjador de Estrellas",
-            region = "Variado",
-            rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/1337.png",
-            borderHex = "#C8AA6E",
-            description = "El vasto universo en la palma de tu mano."
-        )
     )
 
     fun getAvatarById(id: String): AvatarItem {
