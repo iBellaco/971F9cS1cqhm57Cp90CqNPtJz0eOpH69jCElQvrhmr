@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.filled.Star
@@ -128,8 +129,6 @@ fun ChampionDetailSheet(
     var matchupExplanationTarget by remember { mutableStateOf<String?>(null) }
     var matchupExplanationType by remember { mutableStateOf<String?>(null) }
     var selectedSituationalItem by remember { mutableStateOf<String?>(null) }
-    var selectedSynergyTeammate by remember { mutableStateOf<SynergyTeammate?>(null) }
-    var selectedSynergyFilter by remember { mutableStateOf("ALL") }
     var itemForDetail by remember { mutableStateOf<com.example.model.WildRiftItem?>(null) }
     var runeForDetail by remember { mutableStateOf<com.example.model.RuneItem?>(null) }
     var spellForDetail by remember { mutableStateOf<com.example.model.SummonerSpellItem?>(null) }
@@ -1234,18 +1233,18 @@ fun ChampionDetailSheet(
             // ==========================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Fuerte Contra (Ventaja)
                 Card(
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, AllyBlue.copy(alpha = 0.5f))
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(6.dp))
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(tr("Ventaja Contra:"), color = AllyBlue, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(modifier = Modifier.height(4.dp))
                         val advantageList = roleProfile.advantageAgainst.take(3)
                         advantageList.forEach { target ->
                             Row(
@@ -1255,10 +1254,10 @@ fun ChampionDetailSheet(
                                         matchupExplanationTarget = target
                                         matchupExplanationType = "Ventaja"
                                     }
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 3.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("• $target", color = TextPrimary, fontSize = 12.sp)
+                                Text("• $target", color = TextPrimary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                         }
                     }
@@ -1267,13 +1266,13 @@ fun ChampionDetailSheet(
                 // Débil Contra (Debilidad)
                 Card(
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.5f))
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(tr("Débil Contra:"), color = DangerRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(6.dp))
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(tr("Débil Contra:"), color = DangerRed, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(modifier = Modifier.height(4.dp))
                         val counteredList = roleProfile.counteredBy.take(3)
                         counteredList.forEach { counter ->
                             Row(
@@ -1283,368 +1282,58 @@ fun ChampionDetailSheet(
                                         matchupExplanationTarget = counter
                                         matchupExplanationType = "Debilidad"
                                     }
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 3.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("• $counter", color = TextPrimary, fontSize = 12.sp)
+                                Text("• $counter", color = TextPrimary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // ==========================================
-            // SECCIÓN: PERSICACIA DE SINERGIAS (SYNERGY INSIGHT)
-            // ==========================================
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("synergy_insight_card"),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold.copy(alpha = 0.7f))
-            ) {
-                Column(
+                // Sinergias (Compañeros ideales)
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp)
+                        .weight(1f)
+                        .testTag("synergy_insight_card"),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                 ) {
-                    // Encabezado de la Sección
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f, fill = false)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(HextechGold.copy(alpha = 0.15f))
-                                    .border(1.dp, HextechGold.copy(alpha = 0.5f), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Bolt,
-                                    contentDescription = null,
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column {
-                                Text(
-                                    text = tr("Synergy Insight"),
-                                    color = HextechGold,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = tr("Compañeros ideales según fortalezas y meta"),
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
-                            }
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text(tr("Sinergias:"), color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        val rawSynergies = if (roleProfile.synergies.isNotEmpty()) {
+                            roleProfile.synergies
+                        } else if (champion.synergies.isNotEmpty()) {
+                            champion.synergies
+                        } else {
+                            synergyProfile.bestTeammates.map { it.championName }
                         }
-
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(HextechGold.copy(alpha = 0.2f))
-                                .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
-                        ) {
-                            Text(
-                                text = "⚡ META DUO",
-                                color = HextechGoldLight,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Tarjeta de Arquetipo & Fortalezas
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(HextechDarkBg.copy(alpha = 0.65f))
-                            .border(1.dp, HextechCyan.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                            .padding(12.dp)
-                    ) {
-                        Column {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = synergyProfile.archetype,
-                                    color = HextechCyan,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = synergyProfile.archetypeBadge,
-                                    color = HextechGold,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(5.dp))
-
-                            Text(
-                                text = synergyProfile.archetypeDesc,
-                                color = TextPrimary.copy(alpha = 0.85f),
-                                fontSize = 11.5.sp,
-                                lineHeight = 16.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                synergyProfile.coreStrengths.forEach { strength ->
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(HextechSurfaceVariant)
-                                            .border(1.dp, HextechCyan.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
-                                            .padding(horizontal = 7.dp, vertical = 3.dp)
-                                    ) {
-                                        Text(
-                                            text = "✓ $strength",
-                                            color = HextechCyan,
-                                            fontSize = 10.5.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Filtros por Rol
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        val filterOptions = listOf(
-                            "ALL" to tr("Todos"),
-                            "SUPPORT" to tr("Dúo / Soporte"),
-                            "JUNGLE" to tr("Jungla"),
-                            "TOP" to tr("Top / Frontline"),
-                            "MID" to tr("Línea Central"),
-                            "ADC" to tr("Tiradores")
-                        )
-
-                        filterOptions.forEach { (key, label) ->
-                            val isSelected = selectedSynergyFilter == key
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(if (isSelected) HextechGold else HextechSurfaceVariant)
-                                    .border(
-                                        1.dp,
-                                        if (isSelected) HextechGoldLight else HextechGold.copy(alpha = 0.3f),
-                                        RoundedCornerShape(20.dp)
-                                    )
-                                    .clickable { selectedSynergyFilter = key }
-                                    .padding(horizontal = 10.dp, vertical = 5.dp)
-                            ) {
-                                Text(
-                                    text = label,
-                                    color = if (isSelected) HextechDarkBg else TextPrimary,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Lista de Compañeros Sugeridos
-                    val filteredTeammates = remember(synergyProfile.bestTeammates, selectedSynergyFilter) {
-                        when (selectedSynergyFilter) {
-                            "SUPPORT" -> synergyProfile.bestTeammates.filter { it.role == LaneRole.SUPPORT }
-                            "JUNGLE" -> synergyProfile.bestTeammates.filter { it.role == LaneRole.JUNGLE }
-                            "TOP" -> synergyProfile.bestTeammates.filter { it.role == LaneRole.TOP }
-                            "MID" -> synergyProfile.bestTeammates.filter { it.role == LaneRole.MID }
-                            "ADC" -> synergyProfile.bestTeammates.filter { it.role == LaneRole.ADC }
-                            else -> synergyProfile.bestTeammates
-                        }
-                    }
-
-                    if (filteredTeammates.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = tr("No hay compañeros registrados para este filtro."),
-                                color = TextMuted,
-                                fontSize = 12.sp
-                            )
-                        }
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            filteredTeammates.forEach { teammate ->
-                                Card(
+                        val synergyList = rawSynergies.distinct().take(3)
+                        if (synergyList.isEmpty()) {
+                            Text("—", color = TextMuted, fontSize = 11.sp)
+                        } else {
+                            synergyList.forEach { partner ->
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { selectedSynergyTeammate = teammate },
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f))
+                                        .clickable {
+                                            matchupExplanationTarget = partner
+                                            matchupExplanationType = "Sinergia"
+                                        }
+                                        .padding(vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            if (teammate.avatarUrl.isNotBlank()) {
-                                                AppAssetImage(
-                                                    url = teammate.avatarUrl,
-                                                    contentDescription = teammate.championName,
-                                                    fallbackText = teammate.championName,
-                                                    modifier = Modifier.size(44.dp),
-                                                    borderColor = HextechGold,
-                                                    shape = RoundedCornerShape(10.dp)
-                                                )
-                                            } else {
-                                                ChampionAvatar(
-                                                    champion = Champion(
-                                                        name = teammate.championName,
-                                                        ddragonId = teammate.championId,
-                                                        avatarUrl = teammate.avatarUrl
-                                                    ),
-                                                    size = 44.dp
-                                                )
-                                            }
-
-                                            Spacer(modifier = Modifier.width(10.dp))
-
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.SpaceBetween
-                                                ) {
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Text(
-                                                            text = teammate.championName,
-                                                            color = TextPrimary,
-                                                            fontSize = 14.sp,
-                                                            fontWeight = FontWeight.Bold
-                                                        )
-                                                        Spacer(modifier = Modifier.width(6.dp))
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .clip(RoundedCornerShape(4.dp))
-                                                                .background(HextechCyan.copy(alpha = 0.15f))
-                                                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                                                        ) {
-                                                            Text(
-                                                                text = teammate.role.shortName,
-                                                                color = HextechCyan,
-                                                                fontSize = 9.5.sp,
-                                                                fontWeight = FontWeight.Bold
-                                                            )
-                                                        }
-                                                    }
-
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .clip(RoundedCornerShape(6.dp))
-                                                            .background(HextechGold.copy(alpha = 0.18f))
-                                                            .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-                                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = "⚡ ${teammate.synergyScore}%",
-                                                            color = HextechGold,
-                                                            fontSize = 10.5.sp,
-                                                            fontWeight = FontWeight.Bold
-                                                        )
-                                                    }
-                                                }
-
-                                                Spacer(modifier = Modifier.height(2.dp))
-
-                                                Text(
-                                                    text = "${teammate.badgeIcon} ${teammate.synergyTitle}",
-                                                    color = HextechGoldLight,
-                                                    fontSize = 11.5.sp,
-                                                    fontWeight = FontWeight.SemiBold
-                                                )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(8.dp))
-
-                                        Text(
-                                            text = teammate.tacticalReason,
-                                            color = TextPrimary.copy(alpha = 0.9f),
-                                            fontSize = 11.5.sp,
-                                            lineHeight = 16.sp
-                                        )
-
-                                        if (teammate.comboTips.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(6.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .clip(RoundedCornerShape(6.dp))
-                                                    .background(HextechDarkBg.copy(alpha = 0.6f))
-                                                    .border(1.dp, HextechCyan.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
-                                                    .padding(horizontal = 8.dp, vertical = 5.dp)
-                                            ) {
-                                                Text(
-                                                    text = "🎯 Combo: ${teammate.comboTips}",
-                                                    color = HextechCyan,
-                                                    fontSize = 11.sp,
-                                                    lineHeight = 15.sp
-                                                )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.End,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = tr("Tocar para análisis táctico completo ➔"),
-                                                color = TextMuted,
-                                                fontSize = 10.sp
-                                            )
-                                        }
-                                    }
+                                    Text("• $partner", color = TextPrimary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                                 }
                             }
                         }
                     }
                 }
             }
+
+
 
             Spacer(modifier = Modifier.height(30.dp))
         }
@@ -1888,180 +1577,7 @@ fun AdaptiveDetailAlertDialog(
         )
     }
 
-    // ==========================================
-    // DIALOG DE ANÁLISIS DE SINERGIA PROFUNDA (SYNERGY INSIGHT)
-    // ==========================================
-    if (selectedSynergyTeammate != null) {
-        val teammate = selectedSynergyTeammate!!
-        AdaptiveDetailAlertDialog(
-            isOverlay = isOverlay,
-            onDismissRequest = { selectedSynergyTeammate = null },
-            title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ChampionAvatar(
-                            champion = champion,
-                            size = 34.dp
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Icon(
-                            imageVector = Icons.Default.Bolt,
-                            contentDescription = null,
-                            tint = HextechGold,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        if (teammate.avatarUrl.isNotBlank()) {
-                            AppAssetImage(
-                                url = teammate.avatarUrl,
-                                contentDescription = teammate.championName,
-                                fallbackText = teammate.championName,
-                                modifier = Modifier.size(34.dp),
-                                borderColor = HextechGold,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                        } else {
-                            ChampionAvatar(
-                                champion = Champion(name = teammate.championName, ddragonId = teammate.championId),
-                                size = 34.dp
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(
-                                text = "${champion.name} + ${teammate.championName}",
-                                color = HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.5.sp
-                            )
-                            Text(
-                                text = "${teammate.badgeIcon} ${teammate.synergyTitle}",
-                                color = HextechCyan,
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-                }
-            },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    // Match Score Pill
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(HextechGold.copy(alpha = 0.12f))
-                            .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Sinergia en Meta: ${teammate.synergyScore}%",
-                                color = HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "Tier ${teammate.tier} (${teammate.role.displayName})",
-                                color = HextechCyan,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
 
-                    // ¿Por qué se complementan?
-                    Column {
-                        Text(
-                            text = tr("¿Por qué complementa sus fortalezas?"),
-                            color = HextechGoldLight,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.5.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        FormattedWildRiftText(
-                            text = teammate.tacticalReason,
-                            color = TextPrimary,
-                            fontSize = 12.sp,
-                            lineHeight = 16.5.sp
-                        )
-                    }
-
-                    // Secuencia de Combo
-                    if (teammate.comboTips.isNotBlank()) {
-                        Column {
-                            Text(
-                                text = tr("Secuencia de Combo en Wild Rift:"),
-                                color = HextechCyan,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.5.sp
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(HextechDarkBg)
-                                    .border(1.dp, HextechCyan.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                                    .padding(8.dp)
-                            ) {
-                                Text(
-                                    text = teammate.comboTips,
-                                    color = TextPrimary,
-                                    fontSize = 11.5.sp,
-                                    lineHeight = 16.sp
-                                )
-                            }
-                        }
-                    }
-
-                    // Consejo Macro de Coach
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(HextechSurfaceVariant)
-                            .border(1.dp, HextechGold.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
-                            .padding(8.dp)
-                    ) {
-                        Column {
-                            Text(
-                                text = "🏆 Consejo de Coach Challenger:",
-                                color = HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.5.sp
-                            )
-                            Spacer(modifier = Modifier.height(3.dp))
-                            Text(
-                                text = "Sincroniza tus tiempos de Definitiva alrededor del Dragón y Heraldo. Esta dupla gana casi el 100% de los 2v2 en el río.",
-                                color = TextPrimary.copy(alpha = 0.9f),
-                                fontSize = 11.sp,
-                                lineHeight = 15.sp
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { selectedSynergyTeammate = null }) {
-                    Text(tr("Entendido"), color = HextechCyan, fontWeight = FontWeight.Bold)
-                }
-            }
-        )
-    }
 
     // ==========================================
     // DIALOG DE DETALLE DE MATCHUP / SINERGIA

@@ -2264,17 +2264,24 @@ private fun FloatingTierAndBuildsView(
                 Column(modifier = Modifier.padding(6.dp)) {
                     val adv = if (roleProfile.advantageAgainst.isNotEmpty()) roleProfile.advantageAgainst else champ.advantageAgainst
                     if (adv.isNotEmpty()) {
-                        Text("⚔️ " + tr("Fuerte contra") + ": " + adv.take(4).joinToString(", "), color = AllyBlue, fontSize = 8.5.sp)
+                        Text("⚔️ " + tr("Fuerte contra") + ": " + adv.take(3).joinToString(", "), color = AllyBlue, fontSize = 8.5.sp)
                         Spacer(modifier = Modifier.height(2.dp))
                     }
                     val count = if (roleProfile.counteredBy.isNotEmpty()) roleProfile.counteredBy else champ.counteredBy
                     if (count.isNotEmpty()) {
-                        Text("⚠️ " + tr("Débil contra (Counters)") + ": " + count.take(4).joinToString(", "), color = DangerRed, fontSize = 8.5.sp)
+                        Text("⚠️ " + tr("Débil contra (Counters)") + ": " + count.take(3).joinToString(", "), color = DangerRed, fontSize = 8.5.sp)
                         Spacer(modifier = Modifier.height(2.dp))
                     }
-                    val syn = if (roleProfile.synergies.isNotEmpty()) roleProfile.synergies else champ.synergies
-                    if (syn.isNotEmpty()) {
-                        Text("🤝 " + tr("Sinergias aliadas") + ": " + syn.take(4).joinToString(", "), color = HextechCyan, fontSize = 8.5.sp)
+                    val syn = if (roleProfile.synergies.isNotEmpty()) {
+                        roleProfile.synergies
+                    } else if (champ.synergies.isNotEmpty()) {
+                        champ.synergies
+                    } else {
+                        com.example.data.SynergyAdvisor.getSynergyProfile(champ, selectedRole ?: champ.primaryRole, "es").bestTeammates.map { it.championName }
+                    }
+                    val synDistinct = syn.distinct()
+                    if (synDistinct.isNotEmpty()) {
+                        Text("🤝 " + tr("Sinergias aliadas") + ": " + synDistinct.take(3).joinToString(", "), color = HextechCyan, fontSize = 8.5.sp)
                     }
                 }
             }
