@@ -1,6 +1,7 @@
 package com.example.service
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +78,11 @@ import androidx.compose.material.icons.filled.UnfoldLess
 import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Hardware
+import androidx.compose.material.icons.filled.Eco
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Healing
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -169,7 +175,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-enum class OverlayHubTab { DRAFT, TIER_LIST, CATALOG }
+enum class OverlayHubTab { DRAFT, TIER_LIST, HISTORY }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -481,6 +487,7 @@ private fun FloatingOverlayContent(
     var isExpanded by remember { mutableStateOf(false) }
     var overlayHubTab by remember { mutableStateOf(OverlayHubTab.DRAFT) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
+    var showRoleChangeDialog by remember { mutableStateOf(false) }
     var isSavedRecently by remember { mutableStateOf(false) }
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
@@ -946,7 +953,7 @@ private fun FloatingOverlayContent(
                             }
 
                             // Pestaña 3: Campeones
-                            val isHistoryActive = overlayHubTab == OverlayHubTab.CATALOG
+                            val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
                             Box(
                                 modifier = Modifier
                                     .weight(1.1f)
@@ -957,7 +964,7 @@ private fun FloatingOverlayContent(
                                         if (isHistoryActive) Color(0xFF00FF7F) else HextechCardBorder.copy(alpha = 0.5f),
                                         RoundedCornerShape(6.dp)
                                     )
-                                    .clickable { overlayHubTab = OverlayHubTab.CATALOG }
+                                    .clickable { overlayHubTab = OverlayHubTab.HISTORY }
                                     .padding(vertical = 5.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -966,13 +973,13 @@ private fun FloatingOverlayContent(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Icon(
-                                        Icons.Default.Star,
+                                        Icons.Default.History,
                                         contentDescription = null,
                                         tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = "Campeones",
+                                        text = "Historial",
                                         color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
                                         fontSize = 10.5.sp,
                                         fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
@@ -1005,61 +1012,57 @@ private fun FloatingOverlayContent(
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             when (overlayHubTab) {
                                 OverlayHubTab.DRAFT -> {
-                                    val mappedAllySlots = allies.mapIndexed { index, champ -> 
-                                        com.example.model.DraftSlot(champ, com.example.model.LaneRole.values().getOrElse(index % 5) { com.example.model.LaneRole.TOP }) 
-                                    }
-                                    val mappedEnemySlots = enemies.mapIndexed { index, champ -> 
-                                        com.example.model.DraftSlot(champ, com.example.model.LaneRole.values().getOrElse(index % 5) { com.example.model.LaneRole.TOP }) 
-                                    }
-
-                                    com.example.ui.screens.DraftAnalysisTab(
-                                        isOverlay = true,
-                                        myChampion = selectedChampionDetail,
+                                    FloatingDraftCoachView(
                                         activeRole = activeRole,
-                                        allySlots = mappedAllySlots,
-                                        enemySlots = mappedEnemySlots,
-                                        analysis = analysis,
+                                        onActiveRoleChange = { 
+                                            activeRole = it 
+                                            com.example.util.UserPreferences.setActiveDraftRole(context, it)
+                                        },
                                         isFirstPick = isFirstPick,
-                                        enemyLaneOpponent = null,
-                                        onToggleFirstPick = { isFirstPick = !isFirstPick },
-                                        onChangeRole = { },
-                                        onPickAllyRole = { },
-                                        onPickEnemyRole = { },
-                                        onRemoveAllyRole = { role -> 
-                                            val idx = mappedAllySlots.indexOfFirst { it.assignedRole == role }
-                                            if (idx in allies.indices) allies.removeAt(idx)
-                                        },
-                                        onRemoveEnemyRole = { role -> 
-                                            val idx = mappedEnemySlots.indexOfFirst { it.assignedRole == role }
-                                            if (idx in enemies.indices) enemies.removeAt(idx)
-                                        },
-                                        onPickRecommendation = { champ -> 
-                                            if (allies.size < 5) allies.add(champ)
-                                        },
+                                        onFirstPickToggle = { isFirstPick = !isFirstPick },
+                                        isLoadingScreenMode = isLoadingScreenMode,
+                                        onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
+                                        allies = allies,
+                                        enemies = enemies,
+                                        analysis = analysis,
+                                        selectedChampionDetail = selectedChampionDetail,
                                         onSelectChampion = { selectedChampionDetail = it },
-                                        onOpenHistory = { },
-                                        onClearAll = {
+                                        onOpenChampionPicker = { isAlly, idx -> showChampionPickerForSlot = Pair(isAlly, idx) },
+                                        onSaveDraftClick = { showSaveDraftDialog = true },
+                                        isSavedRecently = isSavedRecently,
+                                        onClearAll = { 
                                             allies.clear()
                                             enemies.clear()
                                             android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
-                                        }
+                                        },
+                                        onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
                                     )
                                 }
                                 OverlayHubTab.TIER_LIST -> {
-                                    com.example.ui.screens.TierListTab(
-                                        isOverlay = true,
-                                        onSelectChampion = { 
-                                            selectedChampionDetail = it 
-                                        },
-                                        isPremium = isPremium
+                                    FloatingTierAndBuildsView(
+                                        selectedChampion = selectedChampionDetail,
+                                        onSelectChampion = { selectedChampionDetail = it },
+                                        activeRoleFilter = activeRole,
+                                        onRoleFilterChange = {
+                                            activeRole = it
+                                            com.example.util.UserPreferences.setActiveDraftRole(context, it)
+                                        }
                                     )
                                 }
-                                OverlayHubTab.CATALOG -> {
-                                    com.example.ui.screens.ChampionsCatalogTab(
+                                OverlayHubTab.HISTORY -> {
+                                    com.example.ui.screens.DraftHistoryScreen(
                                         isOverlay = true,
-                                        onSelectChampion = { 
-                                            selectedChampionDetail = it
-                                            overlayHubTab = OverlayHubTab.TIER_LIST
+                                        onNavigateBack = {
+                                            overlayHubTab = OverlayHubTab.DRAFT
+                                        },
+                                        onLoadDraft = { loadedAllies, loadedEnemies, role, isFirst ->
+                                            allies.clear()
+                                            allies.addAll(loadedAllies.map { it.champion })
+                                            enemies.clear()
+                                            enemies.addAll(loadedEnemies.map { it.champion })
+                                            activeRole = role
+                                            isFirstPick = isFirst
+                                            overlayHubTab = OverlayHubTab.DRAFT
                                         }
                                     )
                                 }
@@ -1139,6 +1142,76 @@ private fun FloatingOverlayContent(
         }
     }
 
+    // Modal de selección de rol
+    if (showRoleChangeDialog) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.7f))
+                .clickable { showRoleChangeDialog = false },
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .clickable { /* no-op */ },
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = tr("Selecciona tu Línea"),
+                        color = HextechGold,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    LaneRole.entries.forEach { role ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (role == activeRole) HextechCyan.copy(alpha = 0.2f) else HextechSurface)
+                                .border(1.dp, if (role == activeRole) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    activeRole = role
+                                    com.example.util.UserPreferences.setActiveDraftRole(context, role)
+                                    showRoleChangeDialog = false
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = when (role) {
+                                    LaneRole.TOP -> Icons.Default.Hardware
+                                    LaneRole.JUNGLE -> Icons.Default.Eco
+                                    LaneRole.MID -> Icons.Default.LocalFireDepartment
+                                    LaneRole.ADC -> Icons.Default.Security
+                                    LaneRole.SUPPORT -> Icons.Default.Healing
+                                },
+                                contentDescription = null,
+                                tint = if (role == activeRole) HextechCyan else TextMuted,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = tr(role.displayName),
+                                color = if (role == activeRole) HextechCyan else TextPrimary,
+                                fontWeight = if (role == activeRole) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+    }
+
     // Modal para Guardar Partida en Base de Datos Room
     if (showSaveDraftDialog) {
         FloatingSaveMatchDialog(
@@ -1151,7 +1224,7 @@ private fun FloatingOverlayContent(
             onSaved = {
                 isSavedRecently = true
                 showSaveDraftDialog = false
-                overlayHubTab = OverlayHubTab.CATALOG
+                overlayHubTab = OverlayHubTab.HISTORY
             }
         )
     }
@@ -1275,8 +1348,8 @@ private fun FloatingSaveMatchDialog(
         com.example.data.AccountProfileManager.init(context)
     }
 
-    val profiles by com.example.data.AccountProfileManager.allProfiles.collectAsStateWithLifecycle(initialValue = emptyList<com.example.data.AccountProfile>())
-    val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsStateWithLifecycle(initialValue = "default")
+    val profiles by com.example.data.AccountProfileManager.allProfiles.collectAsState()
+    val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsState()
     var selectedProfileId by remember(activeProfileId) { mutableStateOf(activeProfileId) }
 
     val myChampion = allies.getOrNull(activeRole.ordinal) ?: allies.firstOrNull()
@@ -2181,7 +2254,7 @@ private fun FloatingTierAndBuildsView(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = { Text(tr("Buscar campeón o rol..."), fontSize = 10.5.sp) },
-                modifier = Modifier.fillMaxWidth().height(42.dp),
+                modifier = Modifier.fillMaxWidth().height(46.dp),
                 textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = HextechCyan,

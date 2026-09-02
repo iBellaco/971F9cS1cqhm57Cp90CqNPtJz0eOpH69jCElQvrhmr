@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import com.example.utils.parseHtmlColorToAnnotatedString
 import com.example.data.WildRiftItemsData
 import com.example.model.WildRiftItem
@@ -97,6 +98,7 @@ import com.example.util.tr
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ChampionDetailSheet(
+    isOverlay: Boolean = false,
     champion: Champion?,
     onDismiss: () -> Unit
 ) {
@@ -144,11 +146,12 @@ fun ChampionDetailSheet(
         SynergyAdvisor.getSynergyProfile(champion, selectedRole, currentLang)
     }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = HextechSurfaceVariant
-    ) {
+    val dialogContent = @Composable {
+        androidx.compose.material3.Card(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechSurfaceVariant)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1582,6 +1585,36 @@ fun ChampionDetailSheet(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
+        }
+    }
+    }
+
+    if (isOverlay) {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                ),
+            contentAlignment = androidx.compose.ui.Alignment.BottomCenter
+        ) {
+            androidx.compose.foundation.layout.Box(modifier = Modifier.clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            )) {
+                dialogContent()
+            }
+        }
+    } else {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = onDismiss,
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            dialogContent()
         }
     }
 

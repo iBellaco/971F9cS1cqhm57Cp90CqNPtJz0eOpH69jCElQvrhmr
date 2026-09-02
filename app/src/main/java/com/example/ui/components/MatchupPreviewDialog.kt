@@ -1,5 +1,9 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +38,7 @@ import com.example.util.tr
  */
 @Composable
 fun MatchupPreviewDialog(
+    isOverlay: Boolean = false,
     myChampion: Champion,
     enemyOpponent: Champion,
     activeRole: LaneRole,
@@ -57,10 +62,7 @@ fun MatchupPreviewDialog(
         else -> "SKILL_MATCHUP"
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
+    val dialogContent = @Composable {
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
@@ -436,6 +438,35 @@ fun MatchupPreviewDialog(
                     Text(tr("Entendido, volver al Draft"), fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                 }
             }
+        }
+    }
+
+    if (isOverlay) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(modifier = Modifier.clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            )) {
+                dialogContent()
+            }
+        }
+    } else {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            dialogContent()
         }
     }
 }

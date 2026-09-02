@@ -324,17 +324,22 @@ fun AdminDashboardDialog(
                 }
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
-                        val email = doc.getString("email") ?: "Sin email"
-                        val role = doc.getString("role") ?: "free"
-                        val lastActive = doc.getLong("last_active") ?: 0L
-                        val name = doc.getString("name") ?: ""
-                        val avatarId = doc.getString("avatarId") ?: "default_poro"
-                        val premiumUntil = doc.getLong("premiumUntil")
-                        @Suppress("UNCHECKED_CAST")
-                        val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
-                        @Suppress("UNCHECKED_CAST")
-                        val regDevices = doc.get("registeredDevices") as? List<String> ?: emptyList()
-                        UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil, regDevices)
+                        try {
+                            val email = doc.getString("email") ?: "Sin email"
+                            val role = doc.getString("role") ?: "free"
+                            val lastActive = doc.getLong("last_active") ?: 0L
+                            val name = doc.getString("name") ?: ""
+                            val avatarId = doc.getString("avatarId") ?: "default_poro"
+                            val premiumUntil = doc.getLong("premiumUntil")
+                            @Suppress("UNCHECKED_CAST")
+                            val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
+                            @Suppress("UNCHECKED_CAST")
+                            val regDevices = doc.get("registeredDevices") as? List<String> ?: emptyList()
+                            UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil, regDevices)
+                        } catch (e: Exception) {
+                            Log.e("AdminDashboard", "Error parsing user doc ${doc.id}", e)
+                            null
+                        }
                     }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                         .thenByDescending { it.role == "premium" }
                         .thenBy { it.name.ifEmpty { it.email } })

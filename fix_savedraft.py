@@ -1,6 +1,6 @@
 import sys
 
-with open('app/src/main/java/com/example/ui/components/MatchupPreviewDialog.kt', 'r') as f:
+with open('app/src/main/java/com/example/ui/components/SaveDraftDialog.kt', 'r') as f:
     content = f.read()
 
 target = """    Dialog(
@@ -12,5 +12,5 @@ replacement = """    val dialogContent = @Composable {"""
 
 content = content.replace(target, replacement)
 
-with open('app/src/main/java/com/example/ui/components/MatchupPreviewDialog.kt', 'w') as f:
+with open('app/src/main/java/com/example/ui/components/SaveDraftDialog.kt', 'w') as f:
     f.write(content)
