@@ -315,7 +315,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         super.onCreate(savedInstanceState)
         
         // OWASP MASVS: Anti-Tampering & Screen Protection (DevSecOps)
-        com.example.util.AppSecurityManager.enableScreenProtection(this)
+        // com.example.util.AppSecurityManager.enableScreenProtection(this)
         
         if (com.example.util.AppSecurityManager.isDeviceRooted() || com.example.util.AppSecurityManager.isDebuggerAttached()) {
             android.util.Log.w("AppSecurity", "WARNING: Device may be rooted or debugger is attached. Applying degraded functionality mode or just warning.")
