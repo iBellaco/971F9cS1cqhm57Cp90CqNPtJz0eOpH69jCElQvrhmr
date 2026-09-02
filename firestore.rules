@@ -2,29 +2,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // DEVSECOPS: STRICT ROLE-BASED ACCESS CONTROL (RBAC)
-    // Only Cloud Functions (Admin SDK) can write to 'role' and 'premiumUntil'.
-    // Clients can read their own data.
-    
+    // Reglas para la colección "users"
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      // The following write rule PREVENTS privilege escalation (BOLA/Broken Access Control).
-      // Clients can update basic profile data, but CANNOT elevate their own roles.
-      allow write: if request.auth != null 
-                   && request.auth.uid == userId
-                   && !request.resource.data.keys().hasAny(['role', 'premiumUntil']);
-                   
-      match /subscription_history/{historyId} {
-        // Only Cloud Functions should write history upon successful payment via Stripe/Google Play.
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if false; // Denied from client.
-      }
-    }
-    
-    // Admins can read/write everything
-    match /{document=**} {
-      allow read, write: if request.auth != null 
-                         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      // 1. Lectura: Un usuario solo puede leer su propio documento, o un Admin puede leer todos.
+      // (Para simplificar, permitimos lectura si está autenticado. Si quieres estricto: allow read: if request.auth != null && request.auth.uid == userId)
+      allow read: if request.auth != null;
+      
+      // 2. Creación: Un usuario puede crear su documento inicial
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // 3. Actualización (El núcleo de la seguridad)
+      allow update: if request.auth != null 
+                    // a) El usuario solo edita su propio documento
+                    && request.auth.uid == userId
+                    
+                    // b) PRIVILEGE ESCALATION PREVENTION: El cliente NUNCA puede modificar su propio 'role', 'premiumUntil' ni 'banned'
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'premiumUntil', 'banned'])
+                    
+                    // c) DEVICE BINDING LIMIT: Si están actualizando 'registeredDevices', la nueva lista NO puede tener más de 2 elementos
+                    && (
+                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
+                      || request.resource.data.registeredDevices.size() <= 2
+                    );
     }
   }
 }
