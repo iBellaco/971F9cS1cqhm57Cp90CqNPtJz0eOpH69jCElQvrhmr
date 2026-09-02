@@ -366,7 +366,7 @@ fun DraftHistoryScreen(
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                                 Spacer(modifier = Modifier.width(2.dp))
-                                Text(tr("Nueva Cuenta"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                Text(tr("Crear Perfil"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -758,7 +758,7 @@ fun DraftHistoryScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.AccountCircle, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(tr("Nueva Cuenta / Invocador"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(tr("Crear Perfil"), color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             },
             text = {

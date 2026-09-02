@@ -752,7 +752,7 @@ private fun FloatingOverlayContent(
                 Card(
                     modifier = Modifier
                         .widthIn(min = 300.dp, max = 340.dp)
-                        .heightIn(max = 530.dp)
+                        .height(530.dp)
                         .clip(RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
@@ -761,11 +761,12 @@ private fun FloatingOverlayContent(
                         if (isPanelNearClose) DangerRed else HextechGold
                     )
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp)
+                        ) {
                         // Header con barra de arrastre y controles
                         Row(
                             modifier = Modifier
@@ -1136,6 +1137,15 @@ private fun FloatingOverlayContent(
                             }
                         }
                     }
+                    
+                    if (selectedChampionDetail != null) {
+                        com.example.ui.screens.ChampionDetailSheet(
+                            isOverlay = true,
+                            champion = selectedChampionDetail,
+                            onDismiss = { selectedChampionDetail = null }
+                        )
+                    }
+                } // close Box
                 }
             }
         }
@@ -1321,6 +1331,7 @@ private fun FloatingOverlayContent(
                             }
                         }
                     }
+                    
                 }
             }
         }
@@ -2015,6 +2026,7 @@ private fun FloatingDraftCoachView(
                             Text(pick.tacticalReason, color = TextMuted, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
+                    
                 }
             }
         }
@@ -2382,6 +2394,7 @@ private fun FloatingTierAndBuildsView(
                             )
                         }
                     }
+                    
                 }
             }
         }
@@ -2646,6 +2659,7 @@ private fun FloatingHistoryView(
                             }
                         }
                     }
+                    
                 }
             }
         }

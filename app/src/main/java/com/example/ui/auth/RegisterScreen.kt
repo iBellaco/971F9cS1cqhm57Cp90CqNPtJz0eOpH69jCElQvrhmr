@@ -105,7 +105,7 @@ fun RegisterScreen(
         }
 
         AuthPrimaryButton(
-            text = "Crear cuenta",
+            text = "Crear perfil",
             onClick = { viewModel.register() },
             isLoading = uiState.isLoading
         )

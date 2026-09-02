@@ -1061,6 +1061,7 @@ fun UserManagementCard(
                 )
                 .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1335,6 +1336,7 @@ fun UserManagementCard(
                     }
                 }
                 
+            } // close Row
                 // --- HARDWARE & DEVICES SECTION ---
                 Spacer(modifier = Modifier.height(10.dp))
                 HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.2f), modifier = Modifier.padding(horizontal = 4.dp))
@@ -1391,7 +1393,7 @@ fun UserManagementCard(
                     modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                 )
             }
-        }
+            } // close Column
 
         // --- DYNAMIC RUNIC GOLDEN BORDER & CORNER ENGRAVINGS OVERLAY ---
         Canvas(

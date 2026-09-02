@@ -1,27 +1,54 @@
-import re
+import sys
 
-with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'r') as f:
+with open("app/src/main/java/com/example/ui/components/AdminDashboardDialog.kt", "r") as f:
     content = f.read()
 
-content = content.replace(
-    '''        // Panel de Selección Oficial de Posiciones - Equipo Rival
-        DraftTeamPositionCard(
-            title = "Equipo Rival",
-            isEnemy = true,
-            slots = enemySlots,
-            activeUserRole = null,
-            onPickChampionForRole = onPickEnemyRole,
-            onRemoveChampionForRole = onRemoveEnemyRole,
-            onChampionClick = onSelectChampion
-        )''',
-    '''        // Panel de Selección de Equipo Rival
-        com.example.ui.components.DraftEnemyTeamCard(
-            enemies = enemySlots,
-            onPickEnemy = onPickEnemy,
-            onRemoveEnemy = onRemoveEnemy,
-            onChampionClick = onSelectChampion
-        )'''
-)
+target = """        // Inner card body with subtle ambient role gradient
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            roleColor.copy(alpha = 0.08f),
+                            LolCardBg,
+                            Color(0xFF091428).copy(alpha = 0.95f)
+                        )
+                    )
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {"""
 
-with open('app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt', 'w') as f:
-    f.write(content)
+replacement = """        // Inner card body with subtle ambient role gradient
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            roleColor.copy(alpha = 0.08f),
+                            LolCardBg,
+                            Color(0xFF091428).copy(alpha = 0.95f)
+                        )
+                    )
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {"""
+
+content = content.replace(target, replacement)
+
+# Make sure we don't have dangling brackets
+# Wait, I already have the Column started, but I need to ensure it closes properly before the Canvas.
+
