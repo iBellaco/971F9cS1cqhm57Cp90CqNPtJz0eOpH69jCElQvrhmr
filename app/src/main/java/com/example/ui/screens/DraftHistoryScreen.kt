@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Description
@@ -123,6 +124,82 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+@Composable
+private fun AdaptiveHistoryDialog(
+    isOverlay: Boolean,
+    onDismissRequest: () -> Unit,
+    title: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    dismissButton: (@Composable () -> Unit)? = null
+) {
+    if (isOverlay) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.85f))
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismissRequest
+                )
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                border = BorderStroke(1.5.dp, HextechGold)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp)
+                ) {
+                    title()
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false)
+                    ) {
+                        text()
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        dismissButton?.invoke()
+                        if (dismissButton != null) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        confirmButton()
+                    }
+                }
+            }
+        }
+    } else {
+        AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = title,
+            text = text,
+            confirmButton = confirmButton,
+            dismissButton = dismissButton,
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -252,72 +329,139 @@ fun DraftHistoryScreen(
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = tr("Historial de Drafts"),
-                            color = TextPrimary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.testTag("draft_history_title")
-                        )
-                        Text(
-                            text = "${draftsList.size} " + tr("partidas guardadas"),
-                            color = HextechCyan,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack,
-                        modifier = Modifier.testTag("history_back_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = tr("Volver"),
-                            tint = HextechGold
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { showBackupRestoreDialog = true },
-                        modifier = Modifier.testTag("history_backup_restore_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SwapHoriz,
-                            contentDescription = tr("Copia de Seguridad / Restaurar"),
-                            tint = HextechCyan,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-
-                    if (draftsList.isNotEmpty()) {
+            if (isOverlay) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
-                            onClick = { showClearAllConfirm = true },
-                            modifier = Modifier.testTag("history_clear_all_button")
+                            onClick = onNavigateBack,
+                            modifier = Modifier.size(28.dp).testTag("history_back_button")
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = tr("Limpiar Historial"),
-                                tint = DangerRed.copy(alpha = 0.85f),
-                                modifier = Modifier.size(20.dp)
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = tr("Volver"),
+                                tint = HextechGold,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Column {
+                            Text(
+                                text = tr("Historial & Perfiles"),
+                                color = HextechGold,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.testTag("draft_history_title")
+                            )
+                            Text(
+                                text = "${draftsList.size} " + tr("partidas guardadas"),
+                                color = HextechCyan,
+                                fontSize = 9.5.sp
                             )
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
-            )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { showBackupRestoreDialog = true },
+                            modifier = Modifier.size(28.dp).testTag("history_backup_restore_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SwapHoriz,
+                                contentDescription = tr("Copia de Seguridad / Restaurar"),
+                                tint = HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        if (draftsList.isNotEmpty()) {
+                            IconButton(
+                                onClick = { showClearAllConfirm = true },
+                                modifier = Modifier.size(28.dp).testTag("history_clear_all_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = tr("Limpiar Historial"),
+                                    tint = DangerRed.copy(alpha = 0.85f),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = tr("Historial de Drafts"),
+                                color = TextPrimary,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.testTag("draft_history_title")
+                            )
+                            Text(
+                                text = "${draftsList.size} " + tr("partidas guardadas"),
+                                color = HextechCyan,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onNavigateBack,
+                            modifier = Modifier.testTag("history_back_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = tr("Volver"),
+                                tint = HextechGold
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { showBackupRestoreDialog = true },
+                            modifier = Modifier.testTag("history_backup_restore_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SwapHoriz,
+                                contentDescription = tr("Copia de Seguridad / Restaurar"),
+                                tint = HextechCyan,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+
+                        if (draftsList.isNotEmpty()) {
+                            IconButton(
+                                onClick = { showClearAllConfirm = true },
+                                modifier = Modifier.testTag("history_clear_all_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = tr("Limpiar Historial"),
+                                    tint = DangerRed.copy(alpha = 0.85f),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                )
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = if (isOverlay) 4.dp else 16.dp)
         ) {
             Spacer(modifier = Modifier.height(2.dp))
 
@@ -372,6 +516,38 @@ fun DraftHistoryScreen(
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
+
+                    // Indicador de deslizamiento para perfiles
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 1.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tr("Cuentas Activas"),
+                            color = HextechCyan,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(HextechCyan.copy(alpha = 0.12f))
+                                .padding(horizontal = 5.dp, vertical = 1.5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "↔ " + tr("Desliza para ver más perfiles"),
+                                color = HextechCyan,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(3.dp))
 
                     // Horizontal list of profile chips
                     Row(
@@ -721,6 +897,7 @@ fun DraftHistoryScreen(
     // Detail Bottom Sheet
     if (selectedDraftForDetail != null) {
         DraftDetailBottomSheet(
+            isOverlay = isOverlay,
             draft = selectedDraftForDetail!!,
             profiles = profiles,
             onDismiss = { selectedDraftForDetail = null },
@@ -752,7 +929,8 @@ fun DraftHistoryScreen(
         var newNick by remember { mutableStateOf("") }
         var newTag by remember { mutableStateOf("") }
 
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { showCreateProfileDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -821,9 +999,7 @@ fun DraftHistoryScreen(
                 TextButton(onClick = { showCreateProfileDialog = false }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
@@ -833,7 +1009,8 @@ fun DraftHistoryScreen(
         var editNick by remember { mutableStateOf(prof.name) }
         var editTag by remember { mutableStateOf(prof.tag) }
 
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { profileToEdit = null },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -954,15 +1131,14 @@ fun DraftHistoryScreen(
                 TextButton(onClick = { profileToEdit = null }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
     // Confirm Delete Dialog
     if (draftToDelete != null) {
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { draftToDelete = null },
             title = { Text(tr("Eliminar partida"), color = TextPrimary, fontWeight = FontWeight.Bold) },
             text = { Text(tr("¿Deseas eliminar este registro del historial? Esta acción no se puede deshacer."), color = TextSecondary, fontSize = 13.sp) },
@@ -984,9 +1160,7 @@ fun DraftHistoryScreen(
                 TextButton(onClick = { draftToDelete = null }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
@@ -995,7 +1169,8 @@ fun DraftHistoryScreen(
         val isAllSelected = selectedProfileIdFilter == "ALL" || selectedProfileIdFilter == null
         val profName = profiles.find { it.id == selectedProfileIdFilter }?.name ?: "esta cuenta"
 
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { showClearAllConfirm = false },
             title = { 
                 Text(
@@ -1033,15 +1208,14 @@ fun DraftHistoryScreen(
                 TextButton(onClick = { showClearAllConfirm = false }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
     // Backup & Restore Dialog (Export/Import JSON)
     if (showBackupRestoreDialog) {
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { showBackupRestoreDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1052,13 +1226,35 @@ fun DraftHistoryScreen(
             },
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
+                    if (isOverlay || !canUseLaunchers) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechGold.copy(alpha = 0.12f)),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = tr("Para exportar o importar archivos JSON en almacenamiento, abre la app principal. En este Hub puedes crear perfiles y consultar partidas."),
+                                    color = HextechGold,
+                                    fontSize = 10.5.sp,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                        }
+                    }
+
                     Text(
                         text = tr("Exporta o importa tus perfiles de cuenta personalizados y todo el historial de drafts que construye tu Tier List Personal en formato JSON."),
                         color = TextSecondary,
-                        fontSize = 12.5.sp,
-                        lineHeight = 17.sp
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp
                     )
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -1080,14 +1276,18 @@ fun DraftHistoryScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     // Action 1: Export JSON
                     Button(
                         onClick = {
-                            val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
-                            exportFileLauncher?.launch("WildRift_TierList_Backup_$timestamp.json")
-                            showBackupRestoreDialog = false
+                            if (canUseLaunchers && exportFileLauncher != null) {
+                                val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
+                                exportFileLauncher.launch("WildRift_TierList_Backup_$timestamp.json")
+                                showBackupRestoreDialog = false
+                            } else {
+                                Toast.makeText(context, "Abre la app principal para exportar a archivos del sistema.", Toast.LENGTH_SHORT).show()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
@@ -1095,16 +1295,20 @@ fun DraftHistoryScreen(
                     ) {
                         Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(tr("Exportar JSON (Copia de Seguridad)"), fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        Text(tr("Exportar JSON (Copia de Seguridad)"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     // Action 2: Import JSON
                     OutlinedButton(
                         onClick = {
-                            importFileLauncher?.launch(arrayOf("application/json", "text/*"))
-                            showBackupRestoreDialog = false
+                            if (canUseLaunchers && importFileLauncher != null) {
+                                importFileLauncher.launch(arrayOf("application/json", "text/*"))
+                                showBackupRestoreDialog = false
+                            } else {
+                                Toast.makeText(context, "Abre la app principal para importar archivos del sistema.", Toast.LENGTH_SHORT).show()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
@@ -1113,7 +1317,7 @@ fun DraftHistoryScreen(
                     ) {
                         Icon(Icons.Default.FileUpload, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(tr("Importar JSON desde Archivo"), fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
+                        Text(tr("Importar JSON desde Archivo"), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
                 }
             },
@@ -1122,15 +1326,14 @@ fun DraftHistoryScreen(
                 TextButton(onClick = { showBackupRestoreDialog = false }) {
                     Text(tr("Cerrar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
     // Import Confirmation Dialog
     if (showImportConfirmDialog && pendingImportJson != null) {
-        AlertDialog(
+        AdaptiveHistoryDialog(
+            isOverlay = isOverlay,
             onDismissRequest = {
                 showImportConfirmDialog = false
                 pendingImportJson = null
@@ -1242,9 +1445,7 @@ fun DraftHistoryScreen(
                 }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
-            },
-            containerColor = HextechSurface,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 }
@@ -1514,6 +1715,7 @@ private fun SavedDraftCard(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DraftDetailBottomSheet(
+    isOverlay: Boolean = false,
     draft: SavedDraftEntity,
     profiles: List<AccountProfile>,
     onDismiss: () -> Unit,
@@ -1521,7 +1723,72 @@ private fun DraftDetailBottomSheet(
     onSaveNotes: (String) -> Unit,
     onAssignProfile: (String, String) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    if (isOverlay) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.85f))
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismiss
+                )
+                .padding(6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                border = BorderStroke(1.5.dp, HextechGold)
+            ) {
+                DraftDetailInnerContent(
+                    isOverlay = true,
+                    draft = draft,
+                    profiles = profiles,
+                    onDismiss = onDismiss,
+                    onLoad = onLoad,
+                    onSaveNotes = onSaveNotes,
+                    onAssignProfile = onAssignProfile
+                )
+            }
+        }
+    } else {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = onDismiss,
+            sheetState = sheetState,
+            containerColor = HextechSurfaceVariant
+        ) {
+            DraftDetailInnerContent(
+                isOverlay = false,
+                draft = draft,
+                profiles = profiles,
+                onDismiss = onDismiss,
+                onLoad = onLoad,
+                onSaveNotes = onSaveNotes,
+                onAssignProfile = onAssignProfile
+            )
+        }
+    }
+}
+
+@Composable
+private fun DraftDetailInnerContent(
+    isOverlay: Boolean,
+    draft: SavedDraftEntity,
+    profiles: List<AccountProfile>,
+    onDismiss: () -> Unit,
+    onLoad: () -> Unit,
+    onSaveNotes: (String) -> Unit,
+    onAssignProfile: (String, String) -> Unit
+) {
     val allies = remember(draft.allyPicksJson) { DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson) }
     val enemies = remember(draft.enemyPicksJson) { DraftHistoryRepository.parseDraftSlots(draft.enemyPicksJson) }
 
@@ -1530,17 +1797,37 @@ private fun DraftDetailBottomSheet(
 
     val roleObj = try { LaneRole.valueOf(draft.userRole) } catch (_: Exception) { LaneRole.MID }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = HextechSurfaceVariant
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = if (isOverlay) 12.dp else 20.dp, vertical = if (isOverlay) 8.dp else 0.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
+        if (isOverlay) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(HextechSurface)
+                        .clickable { onDismiss() }
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(tr("Volver"), color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+                IconButton(onClick = onDismiss, modifier = Modifier.size(26.dp)) {
+                    Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1811,5 +2098,4 @@ private fun DraftDetailBottomSheet(
 
             Spacer(modifier = Modifier.height(30.dp))
         }
-    }
 }

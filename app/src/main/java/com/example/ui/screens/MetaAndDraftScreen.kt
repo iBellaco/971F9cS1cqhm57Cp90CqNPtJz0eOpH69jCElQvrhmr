@@ -974,104 +974,118 @@ fun ChampionsCatalogTab(
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut()
         ) {
-            // Role & Favorites Filter Chips
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-            ) {
-                // 1. Favoritos Filter Chip
-                val favCount = favorites.size
-                FilterChip(
-                    selected = showOnlyFavorites,
-                    onClick = {
-                        if (isPremium) {
-                            showOnlyFavorites = !showOnlyFavorites
-                            if (showOnlyFavorites) selectedRoleFilter = null
-                        } else {
-                            android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    label = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("⭐ " + tr("Favoritos"), fontSize = 11.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "($favCount)",
-                                color = if (showOnlyFavorites) HextechDarkBg else HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.5.sp
-                            )
-                            if (!isPremium) {
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(3.dp))
-                                        .background(if (showOnlyFavorites) HextechDarkBg else HextechGold)
-                                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
-                                ) {
-                                    Text(
-                                        text = "PRO",
-                                        color = if (showOnlyFavorites) HextechGold else HextechDarkBg,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Black
-                                    )
-                                }
-                            }
-                        }
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechGold,
-                        selectedLabelColor = HextechDarkBg
-                    )
-                )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Header con indicador de deslizamiento para líneas
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = tr("Filtrar por Línea"),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(HextechCyan.copy(alpha = 0.15f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "↔ " + tr("Desliza para ver más líneas"),
+                            color = HextechCyan,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
 
-                // 2. Todos los Roles
-                val totalCount = WildRiftRepository.champions.size
-                val isAllSelected = selectedRoleFilter == null && !showOnlyFavorites
-                FilterChip(
-                    selected = isAllSelected,
-                    onClick = {
-                        selectedRoleFilter = null
-                        showOnlyFavorites = false
-                    },
-                    label = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(tr("Todos los Roles"), fontSize = 11.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "($totalCount)",
-                                color = if (isAllSelected) HextechDarkBg else HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
-                        selectedLabelColor = HextechDarkBg
-                    )
-                )
-                LaneRole.entries.forEach { role ->
-                    val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
-                    val isSelected = selectedRoleFilter == role && !showOnlyFavorites
+                // Role & Favorites Filter Chips
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                ) {
+                    // 1. Favoritos Filter Chip
+                    val favCount = favorites.size
                     FilterChip(
-                        selected = isSelected,
+                        selected = showOnlyFavorites,
                         onClick = {
-                            showOnlyFavorites = false
-                            selectedRoleFilter = if (selectedRoleFilter == role) null else role
+                            if (isPremium) {
+                                showOnlyFavorites = !showOnlyFavorites
+                                if (showOnlyFavorites) selectedRoleFilter = null
+                            } else {
+                                android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                            }
                         },
                         label = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(tr(role.shortName), fontSize = 11.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("⭐ " + tr("Favoritos"), fontSize = if (isOverlay) 10.sp else 11.sp)
+                                Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    text = "($count)",
-                                    color = if (isSelected) HextechDarkBg else HextechGold,
+                                    text = "($favCount)",
+                                    color = if (showOnlyFavorites) HextechDarkBg else HextechGold,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 10.5.sp
+                                    fontSize = if (isOverlay) 9.5.sp else 10.5.sp
+                                )
+                                if (!isPremium) {
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(3.dp))
+                                            .background(if (showOnlyFavorites) HextechDarkBg else HextechGold)
+                                            .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
+                                    ) {
+                                        Text(
+                                            text = "PRO",
+                                            color = if (showOnlyFavorites) HextechGold else HextechDarkBg,
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechGold,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+
+                    // 2. Todos los Roles
+                    val totalCount = WildRiftRepository.champions.size
+                    val isAllSelected = selectedRoleFilter == null && !showOnlyFavorites
+                    FilterChip(
+                        selected = isAllSelected,
+                        onClick = {
+                            selectedRoleFilter = null
+                            showOnlyFavorites = false
+                        },
+                        label = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(if (isOverlay) tr("Todos") else tr("Todos los Roles"), fontSize = if (isOverlay) 10.sp else 11.sp)
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "($totalCount)",
+                                    color = if (isAllSelected) HextechDarkBg else HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = if (isOverlay) 9.5.sp else 10.5.sp
                                 )
                             }
                         },
@@ -1080,6 +1094,33 @@ fun ChampionsCatalogTab(
                             selectedLabelColor = HextechDarkBg
                         )
                     )
+                    LaneRole.entries.forEach { role ->
+                        val count = WildRiftRepository.champions.count { it.primaryRole == role || it.secondaryRoles.contains(role) }
+                        val isSelected = selectedRoleFilter == role && !showOnlyFavorites
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = {
+                                showOnlyFavorites = false
+                                selectedRoleFilter = if (selectedRoleFilter == role) null else role
+                            },
+                            label = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(tr(role.shortName), fontSize = if (isOverlay) 10.sp else 11.sp)
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "($count)",
+                                        color = if (isSelected) HextechDarkBg else HextechGold,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = if (isOverlay) 9.5.sp else 10.5.sp
+                                    )
+                                }
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechCyan,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -1368,12 +1409,51 @@ fun TierListTab(
         }
 
         item {
+            // Header con indicador de deslizamiento para líneas
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = tr("Filtrar por Línea"),
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(HextechCyan.copy(alpha = 0.15f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "↔ " + tr("Desliza para ver más líneas"),
+                        color = HextechCyan,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             // Role Filter
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilterChip(
@@ -1387,16 +1467,16 @@ fun TierListTab(
                     },
                     label = { 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(tr("Favoritos"), fontSize = 11.5.sp)
+                            Text(tr("Favoritos"), fontSize = if (isOverlay) 10.sp else 11.5.sp)
                             if (!isPremium) {
-                                Spacer(modifier = Modifier.width(4.dp))
+                                Spacer(modifier = Modifier.width(3.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(3.dp))
                                         .background(HextechGold)
-                                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                        .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                                 ) {
-                                    Text("PRO", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
+                                    Text("PRO", color = HextechDarkBg, fontSize = 7.sp, fontWeight = FontWeight.Black)
                                 }
                             }
                         }
@@ -1407,16 +1487,16 @@ fun TierListTab(
                     ),
                     leadingIcon = {
                         if (showFavoritesOnly) {
-                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(if (isOverlay) 14.dp else 16.dp))
                         } else {
-                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(16.dp), tint = if (isPremium) TextPrimary else TextMuted)
+                            Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(if (isOverlay) 14.dp else 16.dp), tint = if (isPremium) TextPrimary else TextMuted)
                         }
                     }
                 )
                 FilterChip(
                     selected = selectedLane == null,
                     onClick = { selectedLane = null },
-                    label = { Text(tr("Todas las Líneas"), fontSize = 11.5.sp) },
+                    label = { Text(if (isOverlay) tr("Todas") else tr("Todas las Líneas"), fontSize = if (isOverlay) 10.sp else 11.5.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -1426,7 +1506,7 @@ fun TierListTab(
                     FilterChip(
                         selected = selectedLane == role,
                         onClick = { selectedLane = if (selectedLane == role) null else role },
-                        label = { Text(tr(role.shortName), fontSize = 11.5.sp) },
+                        label = { Text(tr(role.shortName), fontSize = if (isOverlay) 10.sp else 11.5.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = HextechCyan,
                             selectedLabelColor = HextechDarkBg
@@ -1437,26 +1517,50 @@ fun TierListTab(
         }
 
         item {
+            // Header con indicador de deslizamiento para orden
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = tr("Criterio de Orden"),
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Text(
+                    text = "↔ " + tr("Desliza opciones"),
+                    color = TextMuted,
+                    fontSize = 9.sp
+                )
+            }
+
             // Sorting Selector (Por Tier, Win Rate, Pick Rate, Ban Rate)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = tr("Ordenar:"),
-                    color = TextPrimary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
                 TierSortOption.entries.forEach { sortOpt ->
                     val isSelected = selectedSort == sortOpt
                     FilterChip(
                         selected = isSelected,
                         onClick = { selectedSort = sortOpt },
-                        label = { Text(tr(sortOpt.shortLabel), fontSize = 10.5.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
+                        label = { Text(tr(sortOpt.shortLabel), fontSize = if (isOverlay) 9.5.sp else 10.5.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = HextechGold,
                             selectedLabelColor = HextechDarkBg

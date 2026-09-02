@@ -639,12 +639,20 @@ fun ChampionDetailSheet(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = if (buildOptionsList.size == 1) "1 ${tr("Opción Adaptada")}" else "${buildOptionsList.size} ${tr("Opciones Adaptadas")}",
-                    color = HextechCyan,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(HextechCyan.copy(alpha = 0.15f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "↔ " + tr("Desliza opciones"),
+                        color = HextechCyan,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -763,7 +771,7 @@ fun ChampionDetailSheet(
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = " OBJETIVO TÁCTICO & CUÁNDO USAR",
+                                    text = "🎯 OBJETIVO TÁCTICO & CUÁNDO USAR",
                                     color = HextechGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
@@ -782,12 +790,23 @@ fun ChampionDetailSheet(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Items List
-                    Text(
-                        text = tr("Objetos de la Build"),
-                        color = HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tr("Objetos de la Build"),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "↔ " + tr("Desliza objetos"),
+                            color = TextMuted,
+                            fontSize = 9.sp
+                        )
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Row(
@@ -864,7 +883,7 @@ fun ChampionDetailSheet(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = tr("Adaptación al Rival"),
+                                text = "↔ " + tr("Desliza"),
                                 color = HextechCyan,
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Medium
