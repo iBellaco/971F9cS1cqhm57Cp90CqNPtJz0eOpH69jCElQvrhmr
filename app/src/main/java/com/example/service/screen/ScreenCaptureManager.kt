@@ -74,16 +74,47 @@ class ScreenCaptureManager(private val context: Context) {
 
             updateScreenDimensions()
 
-            // Usamos resolución original para mayor precisión del OCR en ML Kit (los textos de campeones son pequeños)
             val captureWidth = screenWidth.coerceAtLeast(480)
-            val captureHeight = screenHeight.coerceAtLeast(800)
+            val captureHeight = screenHeight.coerceAtLeast(480)
 
             imageReader = ImageReader.newInstance(
                 captureWidth,
                 captureHeight,
                 PixelFormat.RGBA_8888,
-                2
+                3
             )
+
+            imageReader?.setOnImageAvailableListener({ reader ->
+                try {
+                    val img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    val planes = img.planes
+                    val buffer: ByteBuffer = planes[0].buffer
+                    val pixelStride = planes[0].pixelStride
+                    val rowStride = planes[0].rowStride
+                    val rowPadding = rowStride - pixelStride * img.width
+
+                    val bmp = Bitmap.createBitmap(
+                        img.width + rowPadding / pixelStride,
+                        img.height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    bmp.copyPixelsFromBuffer(buffer)
+
+                    val cleanBmp = if (rowPadding != 0) {
+                        val cropped = Bitmap.createBitmap(bmp, 0, 0, img.width, img.height)
+                        bmp.recycle()
+                        cropped
+                    } else {
+                        bmp
+                    }
+                    img.close()
+
+                    synchronized(frameLock) {
+                        lastFrame?.recycle()
+                        lastFrame = cleanBmp
+                    }
+                } catch (_: Exception) {}
+            }, handler)
 
             virtualDisplay = mediaProjection?.createVirtualDisplay(
                 VIRTUAL_DISPLAY_NAME,
@@ -104,8 +135,11 @@ class ScreenCaptureManager(private val context: Context) {
         }
     }
 
+    private val frameLock = Any()
+    private var lastFrame: Bitmap? = null
+
     /**
-     * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución.
+     * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución sin invalidar el token de MediaProjection.
      */
     @SuppressLint("WrongConstant")
     fun refreshProjection() {
@@ -114,31 +148,57 @@ class ScreenCaptureManager(private val context: Context) {
             updateScreenDimensions()
             
             val captureWidth = screenWidth.coerceAtLeast(480)
-            val captureHeight = screenHeight.coerceAtLeast(800)
-            
-            virtualDisplay?.release()
-            imageReader?.close()
-            
-            imageReader = ImageReader.newInstance(
+            val captureHeight = screenHeight.coerceAtLeast(480)
+
+            val newImageReader = ImageReader.newInstance(
                 captureWidth,
                 captureHeight,
                 PixelFormat.RGBA_8888,
-                2
+                3
             )
 
-            virtualDisplay = mediaProjection?.createVirtualDisplay(
-                VIRTUAL_DISPLAY_NAME,
-                captureWidth,
-                captureHeight,
-                screenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                imageReader?.surface,
-                null,
-                handler
-            )
-            AppLogger.d(TAG, "VirtualDisplay refrescado a ($captureWidth x $captureHeight) por cambio de configuración.")
+            newImageReader.setOnImageAvailableListener({ reader ->
+                try {
+                    val img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    val planes = img.planes
+                    val buffer: ByteBuffer = planes[0].buffer
+                    val pixelStride = planes[0].pixelStride
+                    val rowStride = planes[0].rowStride
+                    val rowPadding = rowStride - pixelStride * img.width
+
+                    val bmp = Bitmap.createBitmap(
+                        img.width + rowPadding / pixelStride,
+                        img.height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    bmp.copyPixelsFromBuffer(buffer)
+
+                    val cleanBmp = if (rowPadding != 0) {
+                        val cropped = Bitmap.createBitmap(bmp, 0, 0, img.width, img.height)
+                        bmp.recycle()
+                        cropped
+                    } else {
+                        bmp
+                    }
+                    img.close()
+
+                    synchronized(frameLock) {
+                        lastFrame?.recycle()
+                        lastFrame = cleanBmp
+                    }
+                } catch (_: Exception) {}
+            }, handler)
+
+            virtualDisplay?.resize(captureWidth, captureHeight, screenDensity)
+            virtualDisplay?.setSurface(newImageReader.surface)
+
+            val oldReader = imageReader
+            imageReader = newImageReader
+            oldReader?.close()
+
+            AppLogger.d(TAG, "VirtualDisplay redimensionado a ($captureWidth x $captureHeight) sin recrear token.")
         } catch (e: Exception) {
-            AppLogger.e(TAG, "Error al refrescar proyección de pantalla", e)
+            AppLogger.e(TAG, "Error al redimensionar proyección de pantalla", e)
         }
     }
 
@@ -156,14 +216,22 @@ class ScreenCaptureManager(private val context: Context) {
             }
         } catch (_: Exception) {}
 
+        // Intentar obtener el último frame recibido de forma segura
+        synchronized(frameLock) {
+            val cached = lastFrame
+            if (cached != null && !cached.isRecycled) {
+                return try {
+                    cached.copy(Bitmap.Config.ARGB_8888, false)
+                } catch (_: Exception) {
+                    null
+                }
+            }
+        }
+
         val reader = imageReader ?: return null
         var image: Image? = null
         return try {
-            image = reader.acquireLatestImage()
-            if (image == null) {
-                // Si aún no hay un nuevo frame listo, reintentar con el último buffer disponible
-                image = reader.acquireNextImage()
-            }
+            image = reader.acquireLatestImage() ?: reader.acquireNextImage()
             if (image == null) return null
 
             val planes = image.planes
@@ -179,14 +247,20 @@ class ScreenCaptureManager(private val context: Context) {
             )
             bitmap.copyPixelsFromBuffer(buffer)
 
-            // Recortar si hay padding en la fila
-            if (rowPadding != 0) {
-                val cleanBitmap = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
+            val cleanBitmap = if (rowPadding != 0) {
+                val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
                 bitmap.recycle()
-                cleanBitmap
+                cropped
             } else {
                 bitmap
             }
+
+            synchronized(frameLock) {
+                lastFrame?.recycle()
+                lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
+            }
+
+            cleanBitmap
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
             null

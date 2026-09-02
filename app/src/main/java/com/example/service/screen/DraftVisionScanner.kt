@@ -48,44 +48,59 @@ object DraftVisionScanner {
         return recognizerInstance
     }
 
-    // Mapa de alias comunes para campeones de Wild Rift
+    // Mapa de alias comunes para campeones de Wild Rift (mapeados tanto por ID canónico como nombre)
     private val aliasMap = mapOf(
-        "tf" to "twistedfate",
-        "twisted" to "twistedfate",
-        "mf" to "missfortune",
-        "fortune" to "missfortune",
-        "mundo" to "drmundo",
-        "dr mundo" to "drmundo",
-        "dr. mundo" to "drmundo",
-        "yi" to "masteryi",
-        "master" to "masteryi",
-        "aurelion" to "aurelionsol",
-        "sol" to "aurelionsol",
-        "asol" to "aurelionsol",
-        "jarvan" to "jarvaniv",
-        "jarvan 4" to "jarvaniv",
-        "j4" to "jarvaniv",
-        "nunu" to "nunu",
-        "willump" to "nunu",
-        "xin" to "xinzhao",
-        "zhao" to "xinzhao",
-        "lee" to "leesin",
-        "sin" to "leesin",
-        "tahm" to "tahmkench",
-        "kench" to "tahmkench",
-        "tk" to "tahmkench",
-        "renata" to "renataglasc",
-        "glasc" to "renataglasc",
+        "tf" to "twisted_fate",
+        "twisted" to "twisted_fate",
+        "twisted fate" to "twisted_fate",
+        "mf" to "miss_fortune",
+        "fortune" to "miss_fortune",
+        "miss fortune" to "miss_fortune",
+        "mundo" to "dr_mundo",
+        "dr mundo" to "dr_mundo",
+        "dr. mundo" to "dr_mundo",
+        "dr.mundo" to "dr_mundo",
+        "yi" to "master_yi",
+        "master" to "master_yi",
+        "master yi" to "master_yi",
+        "aurelion" to "aurelion_sol",
+        "sol" to "aurelion_sol",
+        "asol" to "aurelion_sol",
+        "aurelion sol" to "aurelion_sol",
+        "jarvan" to "jarvan_iv",
+        "jarvan 4" to "jarvan_iv",
+        "jarvan iv" to "jarvan_iv",
+        "j4" to "jarvan_iv",
+        "nunu" to "nunu_willump",
+        "willump" to "nunu_willump",
+        "nunu & willump" to "nunu_willump",
+        "nunu y willump" to "nunu_willump",
+        "xin" to "xin_zhao",
+        "zhao" to "xin_zhao",
+        "xin zhao" to "xin_zhao",
+        "lee" to "lee_sin",
+        "sin" to "lee_sin",
+        "lee sin" to "lee_sin",
+        "tahm" to "tahm_kench",
+        "kench" to "tahm_kench",
+        "tahm kench" to "tahm_kench",
+        "tk" to "tahm_kench",
+        "renata" to "renata_glasc",
+        "glasc" to "renata_glasc",
+        "renata glasc" to "renata_glasc",
         "wukong" to "wukong",
         "monkey" to "wukong",
         "cait" to "caitlyn",
+        "caitlin" to "caitlyn",
         "ez" to "ezreal",
         "eve" to "evelynn",
         "kass" to "kassadin",
         "kata" to "katarina",
-        "kz" to "khazix",
-        "k6" to "khazix",
-        "kha" to "khazix",
+        "kz" to "kha_zix",
+        "k6" to "kha_zix",
+        "kha" to "kha_zix",
+        "kha'zix" to "kha_zix",
+        "khazix" to "kha_zix",
         "renek" to "renekton",
         "vlad" to "vladimir",
         "voli" to "volibear",
@@ -93,7 +108,26 @@ object DraftVisionScanner {
         "luc" to "lucian",
         "tris" to "tristana",
         "naut" to "nautilus",
-        "ww" to "warwick"
+        "ww" to "warwick",
+        "kaisa" to "kai_sa",
+        "kai'sa" to "kai_sa",
+        "ksante" to "k_sante",
+        "k'sante" to "k_sante",
+        "chogath" to "cho_gath",
+        "cho'gath" to "cho_gath",
+        "velkoz" to "vel_koz",
+        "vel'koz" to "vel_koz",
+        "kogmaw" to "kog_maw",
+        "kog'maw" to "kog_maw",
+        "reksai" to "rek_sai",
+        "rek'sai" to "rek_sai"
+    )
+
+    private val ignoredWords = setOf(
+        "fase", "seleccion", "selección", "elegir", "confirmar", "bloquear", "bloqueo", "bloqueos",
+        "ban", "bans", "maestria", "maestría", "nivel", "level", "jugador", "player", "miembro", "member",
+        "wild", "rift", "ranked", "clasificatoria", "normal", "aram", "pvp", "victoria", "derrota",
+        "equipo", "team", "azul", "rojo", "blue", "red", "chat", "mute", "op", "fps", "ms", "ping"
     )
 
     /**
@@ -108,15 +142,24 @@ object DraftVisionScanner {
                 isSuccessful = false,
                 statusMessage = "El servicio de visión no se encuentra disponible en este entorno."
             )
-            val inputImage = InputImage.fromBitmap(bitmap, 0)
+
+            // Si el bitmap viene en vertical (portrait), rotarlo a horizontal para alinear la lectura con Wild Rift
+            val processBitmap = if (bitmap.width < bitmap.height) {
+                val matrix = android.graphics.Matrix().apply { postRotate(90f) }
+                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            } else {
+                bitmap
+            }
+
+            val inputImage = InputImage.fromBitmap(processBitmap, 0)
             val visionText = recognizer.process(inputImage).await()
 
             val detectedWords = mutableListOf<String>()
             val foundAllies = mutableListOf<Champion>()
             val foundEnemies = mutableListOf<Champion>()
 
-            val screenWidth = bitmap.width
-            val screenHeight = bitmap.height
+            val screenWidth = processBitmap.width
+            val screenHeight = processBitmap.height
 
             val allChamps = WildRiftRepository.champions
 
@@ -130,7 +173,7 @@ object DraftVisionScanner {
                     }
                     val lower = lineText.lowercase(Locale.ROOT)
 
-                    // Detección de rol por palabras clave en pantalla (incluye nombres en español de Wild Rift)
+                    // Detección de rol por palabras clave en pantalla (incluye nombres oficiales de Wild Rift en español e inglés)
                     if (detectedRole == null) {
                         if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
                             detectedRole = com.example.model.LaneRole.TOP
@@ -145,16 +188,26 @@ object DraftVisionScanner {
                         }
                     }
 
-                    // Intentar coincidir línea completa o elementos individuales
+                    // Extraer candidatos a partir de la línea completa, tokens individuales y pares de palabras
                     val candidateChamps = mutableListOf<Champion>()
                     candidateChamps.addAll(matchChampions(lineText, allChamps))
 
-                    // También probar cada elemento/palabra de la línea por si el OCR agrupó varios textos
+                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                    for (w in words) {
+                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
+                            candidateChamps.addAll(matchChampions(w, allChamps))
+                        }
+                    }
+                    for (i in 0 until words.size - 1) {
+                        candidateChamps.addAll(matchChampions("${words[i]} ${words[i + 1]}", allChamps))
+                    }
+
                     val elements = line.elements
                     for (i in elements.indices) {
                         val elemText = elements[i].text.trim()
-                        candidateChamps.addAll(matchChampions(elemText, allChamps))
-                        
+                        if (!ignoredWords.contains(elemText.lowercase(Locale.ROOT))) {
+                            candidateChamps.addAll(matchChampions(elemText, allChamps))
+                        }
                         if (i + 1 < elements.size) {
                             val twoWords = "$elemText ${elements[i + 1].text.trim()}"
                             candidateChamps.addAll(matchChampions(twoWords, allChamps))
@@ -168,33 +221,33 @@ object DraftVisionScanner {
                         val centerX = box?.centerX() ?: 0
                         val centerY = box?.centerY() ?: 0
 
-                        // Ignorar la fila superior de BANS (Y < 12%) para no registrar los baneos como picks jugables
-                        if (centerY < screenHeight * 0.12f) {
+                        // Ignorar la fila superior de BANS (Y < 8%) para no registrar los baneos como picks jugables
+                        if (centerY < screenHeight * 0.08f) {
                             continue
                         }
 
-                        // Ignorar el fondo extremo de la pantalla (Chat/Botonera Y > 90%)
-                        if (centerY > screenHeight * 0.90f) {
+                        // Ignorar el fondo extremo de la pantalla (Chat/Botonera Y > 93%)
+                        if (centerY > screenHeight * 0.93f) {
                             continue
                         }
 
                         // En Wild Rift en orientación horizontal (Landscape):
-                        // Columna Izquierda (X < 38%): Picks del equipo Aliado (Slots 1 al 5)
-                        // Columna Derecha (X > 62%): Picks del equipo Enemigo (Slots 1 al 5)
+                        // Columna Izquierda (X < 45%): Picks del equipo Aliado (Slots 1 al 5)
+                        // Columna Derecha (X > 55%): Picks del equipo Enemigo (Slots 1 al 5)
                         // Centro: Hover / Campeón seleccionado actualmente
-                        if (centerX < screenWidth * 0.38f) {
+                        if (centerX < screenWidth * 0.45f) {
                             if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
                                 foundAllies.add(matchedChamp)
                                 AppLogger.d(TAG, "Aliado detectado (Izquierda): ${matchedChamp.name} en ($centerX, $centerY)")
                             }
-                        } else if (centerX > screenWidth * 0.62f) {
+                        } else if (centerX > screenWidth * 0.55f) {
                             if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
                                 foundEnemies.add(matchedChamp)
                                 AppLogger.d(TAG, "Enemigo detectado (Derecha): ${matchedChamp.name} en ($centerX, $centerY)")
                             }
                         } else {
                             // Campeón en el centro (Hover / Selección activa)
-                            if (centerY in (screenHeight * 0.15f).toInt()..(screenHeight * 0.65f).toInt()) {
+                            if (centerY in (screenHeight * 0.12f).toInt()..(screenHeight * 0.78f).toInt()) {
                                 if (foundAllies.size <= foundEnemies.size) {
                                     if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
                                         foundAllies.add(matchedChamp)
@@ -250,8 +303,14 @@ object DraftVisionScanner {
         // 1. Coincidencia mediante tabla de alias
         for ((alias, aliasId) in aliasMap) {
             val aliasNorm = normalizeString(alias)
-            if (normalized == aliasNorm || (aliasNorm.length >= 3 && normalized.contains(aliasNorm))) {
-                val champ = allChamps.firstOrNull { it.id == aliasId }
+            if (normalized == aliasNorm || (aliasNorm.length >= 3 && normalized == aliasNorm)) {
+                val targetNorm = normalizeString(aliasId)
+                val champ = allChamps.firstOrNull { 
+                    normalizeString(it.id) == targetNorm || 
+                    normalizeString(it.name) == targetNorm ||
+                    it.id.equals(aliasId, ignoreCase = true) ||
+                    it.name.equals(aliasId, ignoreCase = true)
+                }
                 if (champ != null && !found.contains(champ)) {
                     found.add(champ)
                 }
@@ -265,9 +324,9 @@ object DraftVisionScanner {
             
             if (normalized == champNorm || normalized == idNorm) {
                 if (!found.contains(champ)) found.add(champ)
-            } else if (champNorm.length >= 3 && (normalized.contains(champNorm) || (normalized.length >= 4 && champNorm.contains(normalized)))) {
+            } else if (champNorm.length >= 3 && (normalized == champNorm || (normalized.length >= 4 && champNorm == normalized))) {
                 if (!found.contains(champ)) found.add(champ)
-            } else if (idNorm.length >= 3 && (normalized.contains(idNorm) || (normalized.length >= 4 && idNorm.contains(normalized)))) {
+            } else if (idNorm.length >= 3 && (normalized == idNorm || (normalized.length >= 4 && idNorm == normalized))) {
                 if (!found.contains(champ)) found.add(champ)
             } else if (normalized.length >= 4 && champNorm.length >= 4) {
                 // Fuzzy matching por distancia de Levenshtein (tolerar pequeños errores de OCR como 5->S, 1->I, V->Y)

@@ -109,9 +109,9 @@ object DeviceAndSessionManager {
         if (isAdmin) return
 
         val currentDeviceId = getDeviceId(context)
-        // Si el snapshot remoto proviene de este MISMO dispositivo, no cerrar sesión jamás
-        if (remoteDeviceId != null && remoteDeviceId == currentDeviceId) {
-            if (remoteSessionToken != null) {
+        // Si el snapshot remoto proviene de este MISMO dispositivo o los datos son incompletos, no cerrar sesión jamás
+        if (remoteDeviceId.isNullOrBlank() || remoteDeviceId == currentDeviceId) {
+            if (!remoteSessionToken.isNullOrBlank()) {
                 localSessionToken = remoteSessionToken
                 val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 prefs.edit().putString(KEY_SESSION_TOKEN, remoteSessionToken).apply()
@@ -120,9 +120,9 @@ object DeviceAndSessionManager {
         }
 
         val currentLocalToken = getOrCreateSessionToken(context)
-        if (remoteSessionToken != null && remoteSessionToken != currentLocalToken) {
+        if (!remoteSessionToken.isNullOrBlank() && remoteSessionToken != currentLocalToken) {
             // Solo desconectar si explícitamente se confirmó que otro dispositivo tomó la sesión activa
-            if (remoteDeviceId != null && remoteDeviceId != currentDeviceId) {
+            if (remoteDeviceId != currentDeviceId && remoteDeviceId.length >= 6) {
                 Log.w(TAG, "Sesión concurrente detectada desde otro dispositivo ($remoteDeviceId). Cerrando sesión local.")
                 AuthManager.getAuth()?.signOut()
                 Toast.makeText(context, "Sesión cerrada: Tu cuenta se inició en otro dispositivo.", Toast.LENGTH_LONG).show()

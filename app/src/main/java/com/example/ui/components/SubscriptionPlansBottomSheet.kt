@@ -91,7 +91,8 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Colección de Avatares Exclusiva completa", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardar Draft y Favoritos en la nube", true, isHighlight = true, icon = Icons.Default.Star)
+                    FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
+                    FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
                     com.example.util.SubscriptionManager.purchaseSubscription(
@@ -127,7 +128,8 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardar Draft y Favoritos ilimitado", true, isHighlight = true, icon = Icons.Default.Star)
+                    FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
+                    FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
                     com.example.util.SubscriptionManager.purchaseSubscription(
@@ -155,13 +157,14 @@ fun SubscriptionPlansBottomSheet(
                 title = "Plan Gratuito",
                 price = "Gratis",
                 features = listOf(
-                    FeatureItem("Acceso básico al Asistente de Draft", true),
+                    FeatureItem("Acceso al asistente del draft", true),
                     FeatureItem("Descarga de recursos offline", true),
                     FeatureItem("Avatares Comunes Gratuitos", true),
                     FeatureItem("Colección de Avatares Premium", false),
                     FeatureItem("Temas Visuales por Región", false),
                     FeatureItem("Partículas Mágicas", false),
-                    FeatureItem("Guardar Draft y Favoritos", false)
+                    FeatureItem("Tier list personal", false),
+                    FeatureItem("Campeón favorito", false)
                 )
             )
 

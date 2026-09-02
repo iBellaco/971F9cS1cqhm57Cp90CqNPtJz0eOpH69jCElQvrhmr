@@ -25,11 +25,15 @@ import android.animation.ValueAnimator
 import android.view.animation.DecelerateInterpolator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -95,6 +99,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -182,6 +187,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     private var windowManager: WindowManager? = null
     private var floatingComposeView: ComposeView? = null
+    private var closeTargetComposeView: ComposeView? = null
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -195,6 +201,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     override fun onCreate() {
         super.onCreate()
         try {
+            com.example.data.WildRiftRepository.initChampions(applicationContext)
             screenCaptureManager = ScreenCaptureManager(this)
             savedStateRegistryController.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -327,6 +334,37 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             WindowManager.LayoutParams.TYPE_PHONE
         }
 
+        val closeTargetParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            layoutType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = (24 * density).toInt()
+        }
+
+        var isCloseTargetVisible by mutableStateOf(false)
+        var isCloseTargetHovered by mutableStateOf(false)
+
+        closeTargetComposeView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@FloatingAssistantService)
+            setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
+            setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+
+            setContent {
+                FloatingCloseTarget(
+                    isVisible = isCloseTargetVisible,
+                    isTargeted = isCloseTargetHovered
+                )
+            }
+        }
+
+        try {
+            windowManager?.addView(closeTargetComposeView, closeTargetParams)
+        } catch (_: Exception) {}
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -377,17 +415,36 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
 
-                                // Zona de peligro / desactivación hacia abajo (solo si se arrastra hasta el fondo absoluto de la pantalla mientras está minimizado)
-                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (8 * density).toInt())
-
-                                if (!isDragging) {
-                                    // REGLA: Si el hub está abierto, NUNCA se cierra al arrastrar para evitar cierres accidentales.
-                                    // Solo se puede cerrar arrastrando cuando está minimizado en forma de burbuja.
-                                    if (isInDangerZone && !isOverlayExpanded) {
-                                        stopSelf()
+                                if (!isOverlayExpanded) {
+                                    if (isDragging) {
+                                        isCloseTargetVisible = true
+                                        // Centro de la burbuja flotante
+                                        val bubbleCenterX = params.x + bubbleSizePx / 2
+                                        val bubbleCenterY = params.y + bubbleSizePx / 2
+                                        
+                                        // Centro del target circular inferior
+                                        val targetCenterX = currentScreenWidth / 2
+                                        val targetCenterY = currentScreenHeight - (24 * density).toInt() - (32 * density).toInt()
+                                        
+                                        val dist = kotlin.math.hypot(
+                                            (bubbleCenterX - targetCenterX).toDouble(),
+                                            (bubbleCenterY - targetCenterY).toDouble()
+                                        )
+                                        
+                                        val isOver = dist < (72 * density) || (
+                                            params.y >= currentScreenHeight - bubbleSizePx - (45 * density).toInt() &&
+                                            kotlin.math.abs(bubbleCenterX - targetCenterX) < (80 * density).toInt()
+                                        )
+                                        isCloseTargetHovered = isOver
                                     } else {
-                                        // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral con animación fluida
-                                        if (!isOverlayExpanded) {
+                                        val shouldClose = isCloseTargetHovered
+                                        isCloseTargetVisible = false
+                                        isCloseTargetHovered = false
+
+                                        if (shouldClose) {
+                                            stopSelf()
+                                        } else {
+                                            // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral con animación fluida
                                             val targetX = if (params.x < currentScreenWidth / 2) marginPx else maxX
                                             val targetY = params.y
 
@@ -407,23 +464,25 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                                 } catch (_: Exception) {}
                                             }
                                             animator.start()
-                                        } else {
-                                            try {
-                                                windowManager?.updateViewLayout(this@apply, params)
-                                            } catch (_: Exception) {}
                                         }
                                     }
                                 } else {
-                                    try {
-                                        windowManager?.updateViewLayout(this@apply, params)
-                                    } catch (_: Exception) {}
+                                    isCloseTargetVisible = false
+                                    isCloseTargetHovered = false
                                 }
+
+                                try {
+                                    windowManager?.updateViewLayout(this@apply, params)
+                                } catch (_: Exception) {}
                             },
                             onExpandedChange = { expanded ->
                                 val currentMetrics = resources.displayMetrics
                                 val currentScreenWidth = currentMetrics.widthPixels
                                 val currentScreenHeight = currentMetrics.heightPixels
                                 isOverlayExpanded = expanded
+                                isCloseTargetVisible = false
+                                isCloseTargetHovered = false
+
                                 if (expanded) {
                                     params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
                                 } else {
@@ -461,6 +520,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 windowManager?.removeView(floatingComposeView)
                 floatingComposeView = null
             }
+            if (closeTargetComposeView != null) {
+                windowManager?.removeView(closeTargetComposeView)
+                closeTargetComposeView = null
+            }
         } catch (_: Exception) {}
     }
 
@@ -474,6 +537,68 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         const val ACTION_STOP = "ACTION_STOP_FLOATING_ASSISTANT"
         const val CHANNEL_ID = "wildrift_overlay_channel"
         const val NOTIFICATION_ID = 2001
+    }
+}
+
+@Composable
+private fun FloatingCloseTarget(
+    isVisible: Boolean,
+    isTargeted: Boolean
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn() + scaleIn(initialScale = 0.5f),
+        exit = fadeOut() + scaleOut(targetScale = 0.5f)
+    ) {
+        val targetSize by animateDpAsState(
+            targetValue = if (isTargeted) 68.dp else 54.dp,
+            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+        )
+        val targetBgColor by animateColorAsState(
+            targetValue = if (isTargeted) DangerRed else Color(0xDD12151D),
+            animationSpec = tween(150)
+        )
+        val targetBorderColor by animateColorAsState(
+            targetValue = if (isTargeted) Color.White else DangerRed.copy(alpha = 0.75f),
+            animationSpec = tween(150)
+        )
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(bottom = 12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(targetSize)
+                    .clip(CircleShape)
+                    .background(targetBgColor)
+                    .border(2.5.dp, targetBorderColor, CircleShape)
+                    .shadow(elevation = if (isTargeted) 16.dp else 6.dp, shape = CircleShape, ambientColor = DangerRed, spotColor = DangerRed),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cerrar y desactivar overlay",
+                    tint = Color.White,
+                    modifier = Modifier.size(if (isTargeted) 32.dp else 24.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = if (isTargeted) DangerRed else Color.Black.copy(alpha = 0.75f),
+                border = BorderStroke(1.dp, if (isTargeted) Color.White else DangerRed.copy(alpha = 0.4f))
+            ) {
+                Text(
+                    text = if (isTargeted) "✕ Soltar para desactivar" else "Arrastra aquí para cerrar",
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
+        }
     }
 }
 
@@ -649,46 +774,36 @@ private fun FloatingOverlayContent(
                     Box(
                         modifier = Modifier
                             .size(if (isCompactBubble) 36.dp else 46.dp)
-                            .scale(if (isNearCloseThreshold) 0.9f else 1.0f)
                             .clip(CircleShape)
                             .background(
                                 Brush.radialGradient(
-                                    colors = if (isNearCloseThreshold) listOf(DangerRed, Color(0xFF5A0000), HextechDarkBg)
-                                    else listOf(HextechCyan, Color(0xFF005A82), HextechDarkBg)
+                                    colors = listOf(HextechCyan, Color(0xFF005A82), HextechDarkBg)
                                 )
                             )
-                            .border(2.5.dp, bubbleBorderColor, CircleShape)
+                            .border(2.5.dp, if (isScanning) HextechCyan else HextechGold, CircleShape)
                             .pointerInput(Unit) {
                                 detectDragGestures(
                                     onDragStart = {
                                         isDraggingBubble = true
-                                        dragAccumulatedY = 0f
-                                        isNearCloseThreshold = false
                                     },
                                     onDrag = { change, dragAmount ->
                                         change.consume()
-                                        dragAccumulatedY += dragAmount.y
-                                        // Detecta si se arrastra hacia el borde inferior para activar alerta visual
-                                        isNearCloseThreshold = dragAccumulatedY > 350f
                                         onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                     },
                                     onDragEnd = {
                                         isDraggingBubble = false
-                                        onDragDelta(0, 0, false, isNearCloseThreshold)
-                                        dragAccumulatedY = 0f
-                                        isNearCloseThreshold = false
+                                        onDragDelta(0, 0, false, false)
                                     },
                                     onDragCancel = {
                                         isDraggingBubble = false
-                                        dragAccumulatedY = 0f
-                                        isNearCloseThreshold = false
+                                        onDragDelta(0, 0, false, false)
                                     }
                                 )
                             }
                             .clickable {
                                 isExpanded = true
                                 onExpandedChange(true)
-                                if (allies.isEmpty() && enemies.isEmpty()) {
+                                if (isAdmin && allies.isEmpty() && enemies.isEmpty()) {
                                     triggerManualScan()
                                 }
                             },
@@ -702,52 +817,38 @@ private fun FloatingOverlayContent(
                             )
                         } else {
                             Icon(
-                                imageVector = if (isNearCloseThreshold) Icons.Default.Close else Icons.Default.Shield,
+                                imageVector = Icons.Default.Shield,
                                 contentDescription = "Wild Rift Drafting Coach",
-                                tint = if (isNearCloseThreshold) DangerRed else Color.White,
+                                tint = Color.White,
                                 modifier = Modifier.size(if (isCompactBubble) 16.dp else 22.dp)
                             )
                         }
 
-                        if (!isScanning && !isNearCloseThreshold) {
+                        if (!isScanning) {
                             // Pulsing green auto-scan indicator
                             Box(
                                 modifier = Modifier
                                     .size(10.dp)
                                     .align(Alignment.TopEnd)
                                     .clip(CircleShape)
-                                    .background(if (autoScanEnabled) Color(0xFF00FF7F) else HextechGold)
+                                    .background(if (autoScanEnabled && isAdmin) Color(0xFF00FF7F) else HextechGold)
                             )
                         }
                     }
 
-                    // Alerta o Indicador de deslizamiento
-                    Spacer(modifier = Modifier.height(4.dp))
-                    if (isNearCloseThreshold) {
+                    // Indicador sutil de arrastre
+                    if (isDraggingBubble) {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
-                                .background(DangerRed.copy(alpha = 0.95f), RoundedCornerShape(8.dp))
-                                .border(1.dp, Color.White, RoundedCornerShape(8.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "🔥 " + tr("SOLTAR PARA CERRAR"),
-                                color = Color.White,
-                                fontSize = 9.5.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-                    } else if (isDraggingBubble) {
-                        Box(
-                            modifier = Modifier
-                                .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(6.dp))
+                                .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = tr("↓ Al fondo para desactivar"),
-                                color = TextMuted,
-                                fontSize = 9.sp,
-                                fontWeight = FontWeight.Medium
+                                text = tr("↓ Arrastra al círculo inferior para cerrar"),
+                                color = TextSecondary,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
