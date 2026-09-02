@@ -13,8 +13,10 @@ object DeviceAndSessionManager {
     private const val TAG = "DeviceAndSessionManager"
     private const val PREFS_NAME = "device_session_prefs"
     private const val KEY_SESSION_TOKEN = "local_session_token"
+    private const val KEY_PERSISTENT_DEVICE_ID = "persistent_device_id"
 
     private var localSessionToken: String? = null
+    private var lastLocalLoginTimestamp: Long = 0L
 
     // Obtener o generar un token único para esta sesión de la app
     fun getOrCreateSessionToken(context: Context): String {
@@ -40,10 +42,30 @@ object DeviceAndSessionManager {
         return newToken
     }
 
-    // Obtener ID del dispositivo
+    // Obtener ID del dispositivo persistente y determinista por instalación
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {
-        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "UNKNOWN_DEVICE"
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val savedId = prefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
+        if (!savedId.isNullOrBlank()) {
+            return savedId
+        }
+
+        var hardwareId: String? = null
+        try {
+            hardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error obtaining ANDROID_ID: ${e.message}")
+        }
+
+        val finalId = if (!hardwareId.isNullOrBlank() && hardwareId != "9774d56d682e549c" && hardwareId != "UNKNOWN_DEVICE") {
+            "WRD_$hardwareId"
+        } else {
+            "WRD_UUID_${UUID.randomUUID().toString().replace("-", "").take(16)}"
+        }
+
+        prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
+        return finalId
     }
 
     // Registrar sesión y dispositivo en Firestore de manera segura y sin desconexiones accidentales
@@ -54,11 +76,13 @@ object DeviceAndSessionManager {
             return
         }
 
+        val deviceId = getDeviceId(context)
+        val sessionToken = refreshSessionToken(context)
+        val loginTimestamp = System.currentTimeMillis()
+        lastLocalLoginTimestamp = loginTimestamp
+
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
-        
-        val deviceId = getDeviceId(context)
-        val sessionToken = getOrCreateSessionToken(context)
         val userEmail = user.email ?: ""
         val isAdmin = AuthManager.isAdminEmail(userEmail) || AuthManager.isCurrentUserAdmin()
 
@@ -78,7 +102,7 @@ object DeviceAndSessionManager {
             val updatePayload = hashMapOf<String, Any>(
                 "sessionToken" to sessionToken,
                 "lastDeviceId" to deviceId,
-                "lastActiveTimestamp" to System.currentTimeMillis(),
+                "lastActiveTimestamp" to loginTimestamp,
                 "registeredDevices" to mutableDevices
             )
 
@@ -98,7 +122,7 @@ object DeviceAndSessionManager {
         }
     }
 
-    fun handleSessionChanged(remoteSessionToken: String?, remoteDeviceId: String?, context: Context) {
+    fun handleSessionChanged(remoteSessionToken: String?, remoteDeviceId: String?, remoteTimestamp: Long = 0L, context: Context) {
         val user = AuthManager.getAuth()?.currentUser ?: return
         val userEmail = user.email ?: ""
         val isAdmin = AuthManager.isAdminEmail(userEmail) || 
@@ -109,6 +133,7 @@ object DeviceAndSessionManager {
         if (isAdmin) return
 
         val currentDeviceId = getDeviceId(context)
+        
         // Si el snapshot remoto proviene de este MISMO dispositivo o los datos son incompletos, no cerrar sesión jamás
         if (remoteDeviceId.isNullOrBlank() || remoteDeviceId == currentDeviceId) {
             if (!remoteSessionToken.isNullOrBlank()) {
@@ -121,8 +146,9 @@ object DeviceAndSessionManager {
 
         val currentLocalToken = getOrCreateSessionToken(context)
         if (!remoteSessionToken.isNullOrBlank() && remoteSessionToken != currentLocalToken) {
-            // Solo desconectar si explícitamente se confirmó que otro dispositivo tomó la sesión activa
-            if (remoteDeviceId != currentDeviceId && remoteDeviceId.length >= 6) {
+            // Solo desconectar si explícitamente se confirmó que otro dispositivo tomó la sesión activa y ocurrió después de nuestro login
+            val isSubsequentRemoteLogin = remoteTimestamp > (lastLocalLoginTimestamp + 3000L)
+            if (remoteDeviceId != currentDeviceId && remoteDeviceId.length >= 6 && isSubsequentRemoteLogin) {
                 Log.w(TAG, "Sesión concurrente detectada desde otro dispositivo ($remoteDeviceId). Cerrando sesión local.")
                 AuthManager.getAuth()?.signOut()
                 Toast.makeText(context, "Sesión cerrada: Tu cuenta se inició en otro dispositivo.", Toast.LENGTH_LONG).show()
@@ -133,4 +159,5 @@ object DeviceAndSessionManager {
         }
     }
 }
+
 

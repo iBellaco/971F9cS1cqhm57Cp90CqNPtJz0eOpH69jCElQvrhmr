@@ -127,7 +127,8 @@ object SubscriptionManager {
                     }
                     val sessionToken = listenSnapshot.getString("sessionToken")
                     val remoteDeviceId = listenSnapshot.getString("lastDeviceId")
-                    com.example.util.DeviceAndSessionManager.handleSessionChanged(sessionToken, remoteDeviceId, context)
+                    val remoteTimestamp = listenSnapshot.getLong("lastActiveTimestamp") ?: 0L
+                    com.example.util.DeviceAndSessionManager.handleSessionChanged(sessionToken, remoteDeviceId, remoteTimestamp, context)
                     val banned = listenSnapshot.getBoolean("banned") ?: false
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
