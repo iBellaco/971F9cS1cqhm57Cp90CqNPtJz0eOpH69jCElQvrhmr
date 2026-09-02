@@ -1,0 +1,1 @@
+git commit -m "refactor(admin): rediseña UI de la tarjeta de usuario en el panel y añade vista de hardware (dispositivos registrados)"

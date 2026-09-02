@@ -66,7 +66,8 @@ data class UserRecord(
     val name: String = "",
     val avatarId: String = "default_poro",
     val unlockedAvatars: List<String> = emptyList(),
-    val premiumUntil: Long? = null
+    val premiumUntil: Long? = null,
+    val registeredDevices: List<String> = emptyList()
 )
 
 // LoL Themed Palette Constants
@@ -331,7 +332,9 @@ fun AdminDashboardDialog(
                         val premiumUntil = doc.getLong("premiumUntil")
                         @Suppress("UNCHECKED_CAST")
                         val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
-                        UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil)
+                        @Suppress("UNCHECKED_CAST")
+                        val regDevices = doc.get("registeredDevices") as? List<String> ?: emptyList()
+                        UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil, regDevices)
                     }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                         .thenByDescending { it.role == "premium" }
                         .thenBy { it.name.ifEmpty { it.email } })
@@ -1326,6 +1329,62 @@ fun UserManagementCard(
                         }
                     }
                 }
+                
+                // --- HARDWARE & DEVICES SECTION ---
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.2f), modifier = Modifier.padding(horizontal = 4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            androidx.compose.material.icons.Icons.Default.Devices,
+                            contentDescription = null,
+                            tint = TextSecondary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Text(
+                            text = "Dispositivos (${user.registeredDevices.size}/2)",
+                            color = TextSecondary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (user.registeredDevices.isNotEmpty()) {
+                        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            user.registeredDevices.forEachIndexed { index, deviceId ->
+                                Text(
+                                    text = "Slot ${index + 1}: ${deviceId.take(12)}...",
+                                    color = LolHextechCyan,
+                                    fontSize = 9.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
+                        }
+                    } else {
+                        Text(
+                            text = "0 slots ocupados",
+                            color = TextMuted,
+                            fontSize = 9.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
+                
+                // UID footer
+                Text(
+                    text = "UID: ${user.uid}",
+                    color = TextMuted.copy(alpha = 0.35f),
+                    fontSize = 8.sp,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                )
             }
         }
 

@@ -1235,7 +1235,7 @@ fun ChampionsCatalogTab(
                                     Text(
                                         text = "${com.example.util.tr(champion.primaryRole.displayName)} • ${com.example.util.tr(champion.damageType.displayName)}",
                                         color = HextechCyan,
-                                        fontSize = 11.5.sp
+                                        fontSize = if (isOverlay) 9.5.sp else 11.5.sp
                                     )
                                     if (champion.secondaryRoles.isNotEmpty()) {
                                         Box(
@@ -1260,9 +1260,10 @@ fun ChampionsCatalogTab(
                             Text(
                                 text = champion.summary,
                                 color = TextMuted,
-                                fontSize = 11.sp,
-                                maxLines = 2,
-                                lineHeight = 15.sp
+                                fontSize = if (isOverlay) 9.5.sp else 11.sp,
+                                maxLines = if (isOverlay) 1 else 2,
+                                lineHeight = if (isOverlay) 12.sp else 15.sp,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             // Skill icons preview
@@ -1721,15 +1722,19 @@ fun TierSectionCard(
                                     val formattedDelta = String.format(java.util.Locale.US, "%.2f", winDelta)
                                     val winDeltaText = if (winDelta >= 0) "+${formattedDelta}%" else "${formattedDelta}%"
                                     val winDeltaColor = if (winDelta >= 0) Color(0xFF4CAF50) else DangerRed
-                                    Text(
-                                        text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
-                                        color = winDeltaColor,
-                                        fontSize = 9.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    if (!isOverlay) {
+                                        Text(
+                                            text = if (winDelta >= 0) "▲ $winDeltaText" else "▼ $winDeltaText",
+                                            color = winDeltaColor,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                     Text(tr("WR") + ": ${String.format(java.util.Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.5.sp)
                                 }
-                                Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
+                                if (!isOverlay) {
+                                    Text("Pick: ${String.format(java.util.Locale.US, "%.2f", champ.pickRate)}% • Ban: ${String.format(java.util.Locale.US, "%.2f", champ.banRate)}%", color = TextMuted, fontSize = 10.sp)
+                                }
                             }
                             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
                         }
@@ -3398,15 +3403,11 @@ fun DraftAnalysisTab(
         Spacer(modifier = Modifier.height(10.dp))
 
         // Role active pill & First Pick Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        val roleActivePill = @Composable {
             // Role active pill (Hextech styled)
             Card(
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .clickable { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -3472,9 +3473,13 @@ fun DraftAnalysisTab(
                 }
             }
 
+        }
+        
+        val firstPickCard = @Composable {
             // First Pick / Blind Pick Mode Switch (Redesigned with Hextech theme)
             Card(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .clickable { 
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -3542,6 +3547,25 @@ fun DraftAnalysisTab(
                         modifier = Modifier.size(34.dp)
                     )
                 }
+            }
+        }
+        
+        if (isOverlay) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                roleActivePill()
+                firstPickCard()
+            }
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) { roleActivePill() }
+                androidx.compose.foundation.layout.Box { firstPickCard() }
             }
         }
 
