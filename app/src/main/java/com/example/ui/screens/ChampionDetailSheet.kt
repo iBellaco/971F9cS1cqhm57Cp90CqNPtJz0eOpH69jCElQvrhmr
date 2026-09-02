@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
@@ -148,16 +149,58 @@ fun ChampionDetailSheet(
 
     val dialogContent = @Composable {
         androidx.compose.material3.Card(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = HextechSurfaceVariant)
+            modifier = if (isOverlay) Modifier.fillMaxSize() else Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
+            shape = if (isOverlay) androidx.compose.foundation.shape.RoundedCornerShape(14.dp) else androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = if (isOverlay) HextechDarkBg else HextechSurfaceVariant)
         ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .fillMaxSize()
+                .padding(horizontal = if (isOverlay) 10.dp else 20.dp, vertical = if (isOverlay) 8.dp else 0.dp)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (isOverlay) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(HextechSurface)
+                            .clickable { onDismiss() }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = tr("Volver"),
+                            tint = HextechCyan,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = tr("Volver"),
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = tr("Detalle de Campeón"),
+                        color = HextechGold,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+
             // Header with Avatar, Name, Tier and Winrate
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1593,19 +1636,23 @@ fun ChampionDetailSheet(
         androidx.compose.foundation.layout.Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.6f))
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.95f))
                 .clickable(
                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                     indication = null,
                     onClick = onDismiss
                 ),
-            contentAlignment = androidx.compose.ui.Alignment.BottomCenter
+            contentAlignment = androidx.compose.ui.Alignment.Center
         ) {
-            androidx.compose.foundation.layout.Box(modifier = Modifier.clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-                onClick = {}
-            )) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    )
+            ) {
                 dialogContent()
             }
         }
@@ -1618,6 +1665,72 @@ fun ChampionDetailSheet(
         }
     }
 
+@Composable
+fun AdaptiveDetailAlertDialog(
+    isOverlay: Boolean,
+    onDismissRequest: () -> Unit,
+    title: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    confirmButton: @Composable () -> Unit
+) {
+    if (isOverlay) {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.85f))
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismissRequest
+                )
+                .padding(12.dp),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
+            androidx.compose.material3.Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechDarkBg),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, com.example.ui.theme.HextechGold)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp)
+                ) {
+                    title()
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Box(modifier = Modifier.weight(1f, fill = false)) {
+                        text()
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        confirmButton()
+                    }
+                }
+            }
+        }
+    } else {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = onDismissRequest,
+            title = title,
+            text = text,
+            confirmButton = confirmButton,
+            containerColor = com.example.ui.theme.HextechSurface,
+            titleContentColor = com.example.ui.theme.HextechGold,
+            textContentColor = com.example.ui.theme.TextPrimary
+        )
+    }
+}
+
     // ==========================================
     // DIALOG DE DETALLE DE OBJETO SITUACIONAL
     // ==========================================
@@ -1625,7 +1738,8 @@ fun ChampionDetailSheet(
         val itemName = selectedSituationalItem!!
         val advice = SituationalItemAdvisor.getAdvice(itemName)
 
-        AlertDialog(
+        AdaptiveDetailAlertDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { selectedSituationalItem = null },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1751,10 +1865,7 @@ fun ChampionDetailSheet(
                 TextButton(onClick = { selectedSituationalItem = null }) {
                     Text(tr("Entendido"), color = HextechCyan, fontWeight = FontWeight.Bold)
                 }
-            },
-            containerColor = HextechSurface,
-            titleContentColor = HextechGold,
-            textContentColor = TextPrimary
+            }
         )
     }
 
@@ -1763,7 +1874,8 @@ fun ChampionDetailSheet(
     // ==========================================
     if (selectedSynergyTeammate != null) {
         val teammate = selectedSynergyTeammate!!
-        AlertDialog(
+        AdaptiveDetailAlertDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { selectedSynergyTeammate = null },
             title = {
                 Row(
@@ -1928,10 +2040,7 @@ fun ChampionDetailSheet(
                 TextButton(onClick = { selectedSynergyTeammate = null }) {
                     Text(tr("Entendido"), color = HextechCyan, fontWeight = FontWeight.Bold)
                 }
-            },
-            containerColor = HextechSurface,
-            titleContentColor = HextechGold,
-            textContentColor = TextPrimary
+            }
         )
     }
 
@@ -1960,7 +2069,8 @@ fun ChampionDetailSheet(
 
         val descText = CoachingGenerator.generateMatchupReason(champion, selectedRole, target, type, com.example.util.LocalLanguage.current)
 
-        AlertDialog(
+        AdaptiveDetailAlertDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { matchupExplanationTarget = null },
             title = {
                 Text(
@@ -1976,20 +2086,17 @@ fun ChampionDetailSheet(
                 TextButton(onClick = { matchupExplanationTarget = null }) {
                     Text(tr("Entendido"), color = HextechCyan)
                 }
-            },
-            containerColor = HextechSurface,
-            titleContentColor = HextechGold,
-            textContentColor = TextPrimary
+            }
         )
     }
 
 
     itemForDetail?.let { item ->
-        androidx.compose.ui.window.Dialog(onDismissRequest = { itemForDetail = null }) {
+        val itemDetailCard = @Composable {
             androidx.compose.material3.Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(if (isOverlay) 4.dp else 16.dp),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
                 colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechDarkBg),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, com.example.ui.theme.HextechGold)
@@ -2151,13 +2258,33 @@ fun ChampionDetailSheet(
                 }
             }
         }
+
+        if (isOverlay) {
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.85f))
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = null,
+                        onClick = { itemForDetail = null }
+                    )
+                    .padding(8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                itemDetailCard()
+            }
+        } else {
+            androidx.compose.ui.window.Dialog(onDismissRequest = { itemForDetail = null }) {
+                itemDetailCard()
+            }
+        }
     }
 
     runeForDetail?.let { rune ->
-        androidx.compose.material3.AlertDialog(
+        AdaptiveDetailAlertDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { runeForDetail = null },
-            containerColor = com.example.ui.theme.HextechSurface,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     com.example.ui.components.AppAssetImage(
@@ -2202,10 +2329,9 @@ fun ChampionDetailSheet(
     }
 
     spellForDetail?.let { spell ->
-        androidx.compose.material3.AlertDialog(
+        AdaptiveDetailAlertDialog(
+            isOverlay = isOverlay,
             onDismissRequest = { spellForDetail = null },
-            containerColor = com.example.ui.theme.HextechSurface,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     com.example.ui.components.AppAssetImage(

@@ -43,6 +43,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -822,7 +823,8 @@ fun MetaAndDraftScreen(
 @Composable
 fun ChampionsCatalogTab(
     isOverlay: Boolean = false,
-    onSelectChampion: (Champion) -> Unit
+    onSelectChampion: (Champion) -> Unit,
+    horizontalPadding: androidx.compose.ui.unit.Dp = if (isOverlay) 4.dp else 16.dp
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -877,7 +879,7 @@ fun ChampionsCatalogTab(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -973,9 +975,12 @@ fun ChampionsCatalogTab(
             exit = shrinkVertically() + fadeOut()
         ) {
             // Role & Favorites Filter Chips
-            FlowRow(
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
             ) {
                 // 1. Favoritos Filter Chip
                 val favCount = favorites.size
@@ -1316,7 +1321,7 @@ fun TierListTab(
     isOverlay: Boolean = false,
     onSelectChampion: (Champion) -> Unit,
     isPremium: Boolean = false,
-    horizontalPadding: androidx.compose.ui.unit.Dp = 16.dp
+    horizontalPadding: androidx.compose.ui.unit.Dp = if (isOverlay) 4.dp else 16.dp
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -1364,9 +1369,12 @@ fun TierListTab(
 
         item {
             // Role Filter
-            FlowRow(
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 FilterChip(
                     selected = showFavoritesOnly,
@@ -1431,9 +1439,11 @@ fun TierListTab(
         item {
             // Sorting Selector (Por Tier, Win Rate, Pick Rate, Ban Rate)
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = tr("Ordenar:"),

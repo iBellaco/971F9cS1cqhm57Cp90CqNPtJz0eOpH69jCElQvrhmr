@@ -175,7 +175,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-enum class OverlayHubTab { DRAFT, TIER_LIST, HISTORY }
+enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -755,7 +755,7 @@ private fun FloatingOverlayContent(
                         .height(530.dp)
                         .clip(RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.98f)),
+                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
                     border = androidx.compose.foundation.BorderStroke(
                         if (isPanelNearClose) 2.5.dp else 1.5.dp,
                         if (isPanelNearClose) DangerRed else HextechGold
@@ -883,7 +883,7 @@ private fun FloatingOverlayContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
                         ) {
                             // Pestaña 1: Draft Coach
                             val isDraftActive = overlayHubTab == OverlayHubTab.DRAFT
@@ -903,18 +903,18 @@ private fun FloatingOverlayContent(
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     Icon(
                                         Icons.Default.Shield,
                                         contentDescription = null,
                                         tint = if (isDraftActive) HextechCyan else TextMuted,
-                                        modifier = Modifier.size(13.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                     Text(
-                                        text = "Drafting",
+                                        text = "Draft",
                                         color = if (isDraftActive) HextechCyan else TextMuted,
-                                        fontSize = 10.5.sp,
+                                        fontSize = 10.sp,
                                         fontWeight = if (isDraftActive) FontWeight.Bold else FontWeight.Medium
                                     )
                                 }
@@ -924,7 +924,7 @@ private fun FloatingOverlayContent(
                             val isTierActive = overlayHubTab == OverlayHubTab.TIER_LIST
                             Box(
                                 modifier = Modifier
-                                    .weight(1.2f)
+                                    .weight(1f)
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(if (isTierActive) HextechGold.copy(alpha = 0.2f) else HextechSurface)
                                     .border(
@@ -938,29 +938,64 @@ private fun FloatingOverlayContent(
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     Icon(
                                         Icons.Default.EmojiEvents,
                                         contentDescription = null,
                                         tint = if (isTierActive) HextechGold else TextMuted,
-                                        modifier = Modifier.size(13.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
                                     Text(
-                                        text = "Tier List",
+                                        text = "Tiers",
                                         color = if (isTierActive) HextechGold else TextMuted,
-                                        fontSize = 10.5.sp,
+                                        fontSize = 10.sp,
                                         fontWeight = if (isTierActive) FontWeight.Bold else FontWeight.Medium
                                     )
                                 }
                             }
 
-                            // Pestaña 3: Historial
+                            // Pestaña 3: Campeones
+                            val isChampsActive = overlayHubTab == OverlayHubTab.CHAMPIONS
+                            Box(
+                                modifier = Modifier
+                                    .weight(1.1f)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isChampsActive) HextechCyan.copy(alpha = 0.2f) else HextechSurface)
+                                    .border(
+                                        1.dp,
+                                        if (isChampsActive) HextechCyan else HextechCardBorder.copy(alpha = 0.5f),
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .clickable { overlayHubTab = OverlayHubTab.CHAMPIONS }
+                                    .padding(vertical = 5.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Shield,
+                                        contentDescription = null,
+                                        tint = if (isChampsActive) HextechCyan else TextMuted,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Text(
+                                        text = "Champs",
+                                        color = if (isChampsActive) HextechCyan else TextMuted,
+                                        fontSize = 10.sp,
+                                        fontWeight = if (isChampsActive) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+
+                            // Pestaña 4: Historial
                             if (isLoggedInAndPremium) {
                                 val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
                                 Box(
                                     modifier = Modifier
-                                        .weight(1.1f)
+                                        .weight(0.9f)
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(if (isHistoryActive) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface)
                                         .border(
@@ -974,18 +1009,18 @@ private fun FloatingOverlayContent(
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                                     ) {
                                         Icon(
                                             Icons.Default.History,
                                             contentDescription = null,
                                             tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
-                                            modifier = Modifier.size(13.dp)
+                                            modifier = Modifier.size(12.dp)
                                         )
                                         Text(
-                                            text = "Historial",
+                                            text = "Hist",
                                             color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
-                                            fontSize = 10.5.sp,
+                                            fontSize = 10.sp,
                                             fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
                                         )
                                     }
@@ -1048,6 +1083,12 @@ private fun FloatingOverlayContent(
                                         isOverlay = true,
                                         onSelectChampion = { selectedChampionDetail = it },
                                         isPremium = isPremium
+                                    )
+                                }
+                                OverlayHubTab.CHAMPIONS -> {
+                                    com.example.ui.screens.ChampionsCatalogTab(
+                                        isOverlay = true,
+                                        onSelectChampion = { selectedChampionDetail = it }
                                     )
                                 }
                                 OverlayHubTab.HISTORY -> {
