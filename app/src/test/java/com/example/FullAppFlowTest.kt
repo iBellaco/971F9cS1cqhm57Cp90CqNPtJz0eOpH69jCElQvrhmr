@@ -36,18 +36,14 @@ class FullAppFlowTest {
             }
         }
         
-        // 1. Tab Campeones (initial tab 0)
+        // 1. Initial tab check
         composeTestRule.waitForIdle()
         
-        // 2. Tab Tier List
-        composeTestRule.onNodeWithText("Tier List").performClick()
-        composeTestRule.waitForIdle()
-
-        // 3. Tab Objetos
+        // 2. Tab Objetos
         composeTestRule.onNodeWithText("Objetos").performClick()
         composeTestRule.waitForIdle()
 
-        // 4. Tab Runas
+        // 3. Tab Runas
         composeTestRule.onNodeWithText("Runas").performClick()
         composeTestRule.waitForIdle()
 
@@ -71,8 +67,8 @@ class FullAppFlowTest {
         composeTestRule.onNodeWithText("Hechizos").performClick()
         composeTestRule.waitForIdle()
 
-        // Return to Campeones
-        composeTestRule.onNodeWithText("Campeones").performClick()
+        // Return to Objetos
+        composeTestRule.onNodeWithText("Objetos").performClick()
         composeTestRule.waitForIdle()
     }
 

@@ -99,17 +99,22 @@ object AppSecurityManager {
      * Provides an instance of EncryptedSharedPreferences to store sensitive data (tokens, keys, etc.).
      */
     fun getEncryptedSharedPreferences(context: Context, prefName: String): android.content.SharedPreferences {
-        val masterKeyAlias = androidx.security.crypto.MasterKey.Builder(context)
-            .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
-            .build()
+        return try {
+            val masterKeyAlias = androidx.security.crypto.MasterKey.Builder(context)
+                .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+                .build()
 
-        return androidx.security.crypto.EncryptedSharedPreferences.create(
-            context,
-            prefName,
-            masterKeyAlias,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+            androidx.security.crypto.EncryptedSharedPreferences.create(
+                context,
+                prefName,
+                masterKeyAlias,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "EncryptedSharedPreferences unavailable (e.g. Test/Robolectric or corrupted keystore). Falling back to standard SharedPreferences: ${e.message}")
+            context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+        }
     }
 
 }

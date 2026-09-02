@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -125,6 +129,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+private fun Context.isOverlayOrNonActivity(): Boolean {
+    var ctx: Context? = this
+    while (ctx is ContextWrapper) {
+        if (ctx is Activity) return false
+        ctx = ctx.baseContext
+    }
+    return true
+}
+
 @Composable
 private fun AdaptiveHistoryDialog(
     isOverlay: Boolean,
@@ -134,7 +147,10 @@ private fun AdaptiveHistoryDialog(
     confirmButton: @Composable () -> Unit,
     dismissButton: (@Composable () -> Unit)? = null
 ) {
-    if (isOverlay) {
+    val context = LocalContext.current
+    val effectiveOverlay = isOverlay || context.isOverlayOrNonActivity()
+
+    if (effectiveOverlay) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -144,12 +160,13 @@ private fun AdaptiveHistoryDialog(
                     indication = null,
                     onClick = onDismissRequest
                 )
-                .padding(8.dp),
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .widthIn(max = 440.dp)
                     .clickable(
                         interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                         indication = null,
@@ -325,11 +342,13 @@ fun DraftHistoryScreen(
     val winRate = if (totalFinished > 0) (victoriesCount.toDouble() / totalFinished * 100).toInt() else 0
 
     val activeSelectedProfile = profiles.find { it.id == selectedProfileIdFilter }
+    val effectiveOverlay = isOverlay || context.isOverlayOrNonActivity()
 
-    Scaffold(
-        containerColor = androidx.compose.ui.graphics.Color.Transparent,
-        topBar = {
-            if (isOverlay) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            topBar = {
+                if (effectiveOverlay) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -897,7 +916,7 @@ fun DraftHistoryScreen(
     // Detail Bottom Sheet
     if (selectedDraftForDetail != null) {
         DraftDetailBottomSheet(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             draft = selectedDraftForDetail!!,
             profiles = profiles,
             onDismiss = { selectedDraftForDetail = null },
@@ -930,7 +949,7 @@ fun DraftHistoryScreen(
         var newTag by remember { mutableStateOf("") }
 
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = { showCreateProfileDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1010,7 +1029,7 @@ fun DraftHistoryScreen(
         var editTag by remember { mutableStateOf(prof.tag) }
 
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = { profileToEdit = null },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1138,7 +1157,7 @@ fun DraftHistoryScreen(
     // Confirm Delete Dialog
     if (draftToDelete != null) {
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = { draftToDelete = null },
             title = { Text(tr("Eliminar partida"), color = TextPrimary, fontWeight = FontWeight.Bold) },
             text = { Text(tr("¿Deseas eliminar este registro del historial? Esta acción no se puede deshacer."), color = TextSecondary, fontSize = 13.sp) },
@@ -1170,7 +1189,7 @@ fun DraftHistoryScreen(
         val profName = profiles.find { it.id == selectedProfileIdFilter }?.name ?: "esta cuenta"
 
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = { showClearAllConfirm = false },
             title = { 
                 Text(
@@ -1215,7 +1234,7 @@ fun DraftHistoryScreen(
     // Backup & Restore Dialog (Export/Import JSON)
     if (showBackupRestoreDialog) {
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = { showBackupRestoreDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1333,7 +1352,7 @@ fun DraftHistoryScreen(
     // Import Confirmation Dialog
     if (showImportConfirmDialog && pendingImportJson != null) {
         AdaptiveHistoryDialog(
-            isOverlay = isOverlay,
+            isOverlay = effectiveOverlay,
             onDismissRequest = {
                 showImportConfirmDialog = false
                 pendingImportJson = null
@@ -1448,6 +1467,7 @@ fun DraftHistoryScreen(
             }
         )
     }
+    } // End of enclosing Box
 }
 
 @Composable
@@ -1723,7 +1743,10 @@ private fun DraftDetailBottomSheet(
     onSaveNotes: (String) -> Unit,
     onAssignProfile: (String, String) -> Unit
 ) {
-    if (isOverlay) {
+    val context = LocalContext.current
+    val effectiveOverlay = isOverlay || context.isOverlayOrNonActivity()
+
+    if (effectiveOverlay) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
