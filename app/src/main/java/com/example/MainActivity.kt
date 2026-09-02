@@ -326,8 +326,10 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         com.example.util.SubscriptionManager.init(this)
         if (com.example.util.AuthManager.getAuth()?.currentUser != null) {
             com.example.util.DeviceAndSessionManager.registerDeviceAndSession(this, onError = { msg -> 
-                android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
-                com.example.util.AuthManager.getAuth()?.signOut()
+                if (msg.contains("Límite de dispositivos", ignoreCase = true)) {
+                    android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
+                    com.example.util.AuthManager.getAuth()?.signOut()
+                }
             })
         }
         askNotificationPermission()

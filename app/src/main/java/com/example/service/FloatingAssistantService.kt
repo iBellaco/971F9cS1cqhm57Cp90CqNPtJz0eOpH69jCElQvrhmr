@@ -377,11 +377,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
 
-                                // Zona de peligro / desactivación reducida para evitar cierres accidentales
-                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (16 * density).toInt())
+                                // Zona de peligro / desactivación hacia abajo (solo si se arrastra hasta el fondo absoluto de la pantalla)
+                                val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (8 * density).toInt())
 
                                 if (!isDragging) {
-                                    if (isEnded || isInDangerZone) {
+                                    if (isInDangerZone) {
                                         stopSelf()
                                     } else {
                                         // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral con animación fluida
@@ -493,6 +493,10 @@ private fun FloatingOverlayContent(
     val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsStateWithLifecycle()
     val isLoggedInAndPremium = isPremium && activeProfileId != null
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
+    val currentAuthEmail = remember { com.example.util.AuthManager.getAuth()?.currentUser?.email }
+    val isAdmin = com.example.util.AuthManager.isCurrentUserAdmin() || 
+                  userRole == "admin" || 
+                  com.example.util.AuthManager.isAdminEmail(currentAuthEmail)
     val context = LocalContext.current
     var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(context)) }
     var isFirstPick by remember { mutableStateOf(false) }
@@ -512,6 +516,7 @@ private fun FloatingOverlayContent(
     var selectedChampionDetail by remember { mutableStateOf<Champion?>(null) }
     var showChampionPickerForSlot by remember { mutableStateOf<Pair<Boolean, Int>?>(null) } // Pair(isAlly, slotIndex)
     var isLoadingScreenMode by remember { mutableStateOf(false) }
+    var isOverlayTabsMinimized by remember { mutableStateOf(false) }
 
     val explicitEnemyOpponent = remember(activeRole, enemies.toList(), isLoadingScreenMode) {
         if (isLoadingScreenMode) {
@@ -538,9 +543,9 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo
-    LaunchedEffect(autoScanEnabled) {
-        if (!autoScanEnabled) return@LaunchedEffect
+    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo (Exclusivo Administrador)
+    LaunchedEffect(autoScanEnabled, isAdmin) {
+        if (!autoScanEnabled || !isAdmin) return@LaunchedEffect
         while (true) {
             delay(2500)
             if (screenCaptureManager != null && screenCaptureManager.isReady() && !isScanning) {
@@ -582,6 +587,14 @@ private fun FloatingOverlayContent(
     }
 
     fun triggerManualScan() {
+        if (!isAdmin) {
+            scanNoticeMessage = "🔒 El escaneo automático/manual es exclusivo para Administradores"
+            coroutineScope.launch {
+                delay(3500)
+                scanNoticeMessage = null
+            }
+            return
+        }
         isScanning = true
         scanNoticeMessage = "Escaneando selección en directo..."
         coroutineScope.launch(Dispatchers.IO) {
@@ -825,6 +838,19 @@ private fun FloatingOverlayContent(
                             }
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                // Botón Minimizar/Mostrar Pestañas del Hub
+                                IconButton(
+                                    onClick = { isOverlayTabsMinimized = !isOverlayTabsMinimized },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isOverlayTabsMinimized) Icons.Default.UnfoldMore else Icons.Default.UnfoldLess,
+                                        contentDescription = if (isOverlayTabsMinimized) "Mostrar pestañas del Hub" else "Minimizar pestañas del Hub",
+                                        tint = if (isOverlayTabsMinimized) HextechGold else TextMuted,
+                                        modifier = Modifier.size(17.dp)
+                                    )
+                                }
+
                                 // Botón Escaneo Manual
                                 IconButton(
                                     onClick = { triggerManualScan() },
@@ -879,12 +905,15 @@ private fun FloatingOverlayContent(
                         }
 
                         // Sub-Header con Pestañas de Navegación del Hub
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        AnimatedVisibility(
+                            visible = !isOverlayTabsMinimized
                         ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
                             // Pestaña 1: Draft Coach
                             val isDraftActive = overlayHubTab == OverlayHubTab.DRAFT
                             Box(
@@ -1027,6 +1056,39 @@ private fun FloatingOverlayContent(
                                 }
                             }
                         }
+                        }
+
+                        if (isOverlayTabsMinimized) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechSurface)
+                                    .border(1.dp, HextechGold.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                                    .clickable { isOverlayTabsMinimized = false }
+                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "⚡ Pestaña: ${when (overlayHubTab) {
+                                        OverlayHubTab.DRAFT -> "Draft Coach"
+                                        OverlayHubTab.TIER_LIST -> "Tiers & Builds"
+                                        OverlayHubTab.CHAMPIONS -> "Campeones"
+                                        OverlayHubTab.HISTORY -> "Historial & Perfiles"
+                                    }}",
+                                    color = HextechGold,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Mostrar barra", color = HextechCyan, fontSize = 9.sp)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                        }
 
                         // Banner de estado de escaneo si existe
                         if (scanNoticeMessage != null) {
@@ -1154,15 +1216,15 @@ private fun FloatingOverlayContent(
                                         fontSize = 9.5.sp,
                                         modifier = Modifier.padding(end = 4.dp)
                                     )
-                                    val maintenanceMsg = tr("El auto-escáner está fuera de servicio por mantenimiento.")
+                                    val adminOnlyMsg = tr("🔒 El auto-escáner es de uso exclusivo para Administradores.")
                                     Switch(
                                         checked = autoScanEnabled,
                                         onCheckedChange = { isChecked -> 
                                             if (isChecked) {
-                                                if (userRole == "admin") {
+                                                if (isAdmin) {
                                                     autoScanEnabled = true
                                                 } else {
-                                                    android.widget.Toast.makeText(context, maintenanceMsg, android.widget.Toast.LENGTH_LONG).show()
+                                                    android.widget.Toast.makeText(context, adminOnlyMsg, android.widget.Toast.LENGTH_LONG).show()
                                                     autoScanEnabled = false
                                                 }
                                             } else {

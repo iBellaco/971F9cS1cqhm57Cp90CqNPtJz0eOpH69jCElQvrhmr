@@ -3,12 +3,14 @@ package com.example.ui.components
 import com.example.ui.theme.HextechGoldLight
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,6 +91,7 @@ import com.example.ui.theme.HextechSurface
 import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.util.tr
 import kotlinx.coroutines.launch
 
@@ -123,16 +126,17 @@ fun BugReportFeedbackDialog(
     var suggestedRole by remember { mutableStateOf("Mid") }
     
     val selectedCoreItems = remember { mutableStateListOf<WildRiftItem>() }
+    val selectedBootsItems = remember { mutableStateListOf<WildRiftItem>() }
     val selectedSituationalItems = remember { mutableStateListOf<WildRiftItem>() }
-    val selectedAltSituationalItems = remember { mutableStateListOf<WildRiftItem>() }
-    var selectedBootsItem by remember { mutableStateOf<WildRiftItem?>(null) }
+    var situationalDescription by remember { mutableStateOf("") }
+    val selectedExtraSituationalItems = remember { mutableStateListOf<WildRiftItem>() }
     var selectedKeystoneRune by remember { mutableStateOf<RuneItem?>(null) }
     val selectedSecondaryRunes = remember { mutableStateListOf<RuneItem>() }
     val selectedSpells = remember { mutableStateListOf<SummonerSpellItem>() }
     
     // Dialog pickers
     var showChampionPicker by remember { mutableStateOf(false) }
-    var showItemPickerType by remember { mutableStateOf<String?>(null) } // "core", "situational", "boots"
+    var showItemPickerType by remember { mutableStateOf<String?>(null) } // "core", "situational", "situational_extra", "boots"
     var showRunePickerType by remember { mutableStateOf<String?>(null) } // "keystone", "secondary"
     var showSpellPicker by remember { mutableStateOf(false) }
 
@@ -191,9 +195,9 @@ fun BugReportFeedbackDialog(
     val isBuildSuggestionComplete = selectedChampionObj != null &&
         suggestedRole.isNotBlank() &&
         selectedCoreItems.size == 5 &&
-        selectedBootsItem != null &&
-        selectedSituationalItems.size == 2 &&
-        selectedAltSituationalItems.size == 2 &&
+        selectedBootsItems.isNotEmpty() &&
+        selectedSituationalItems.isNotEmpty() &&
+        situationalDescription.trim().isNotBlank() &&
         selectedKeystoneRune != null &&
         selectedSecondaryRunes.size == 4 &&
         selectedSpells.size == 2 &&
@@ -217,9 +221,9 @@ fun BugReportFeedbackDialog(
                 var finalDesc = description
                 if (selectedType == FeedbackType.BUILD_SUGGESTION) {
                     val coreItemsStr = selectedCoreItems.joinToString(" • ") { it.name }
+                    val bootsStr = selectedBootsItems.joinToString(" • ") { it.name }
                     val situItemsStr = selectedSituationalItems.joinToString(" • ") { it.name }
-                    val altSituItemsStr = selectedAltSituationalItems.joinToString(" • ") { it.name }
-                    val bootsStr = selectedBootsItem?.name ?: ""
+                    val extraSituStr = selectedExtraSituationalItems.joinToString(" • ") { it.name }
                     val currentKeystone = selectedKeystoneRune
                     val runesStr = buildString {
                         if (currentKeystone != null) {
@@ -234,14 +238,16 @@ fun BugReportFeedbackDialog(
 
                     val buildDetails = buildString {
                         appendLine("--- SUGERENCIA DE BUILD DE COMUNIDAD (CATÁLOGO) ---")
-                        appendLine("• Campeón: $effectiveChampName")
-                        appendLine("• Rol/Línea: $suggestedRole")
-                        if (coreItemsStr.isNotBlank()) appendLine("• Objetos Core (1-5): $coreItemsStr")
-                        if (bootsStr.isNotBlank()) appendLine("• Objeto 6 (Botas / Encantamiento): $bootsStr")
-                        if (situItemsStr.isNotBlank()) appendLine("• Objetos Situacionales (7-8): $situItemsStr")
-                        if (altSituItemsStr.isNotBlank()) appendLine("• Alternativas Situacionales (vs diferente composición para 7 y 8): $altSituItemsStr")
-                        if (runesStr.isNotBlank()) appendLine("• Runas: $runesStr")
-                        if (spellsStr.isNotBlank()) appendLine("• Hechizos: $spellsStr")
+                        appendLine("• 1. Campeón: $effectiveChampName")
+                        appendLine("• 2. Rol/Línea: $suggestedRole")
+                        appendLine("• Título: ${title.trim()}")
+                        if (coreItemsStr.isNotBlank()) appendLine("• 3. Objetos Core (1 al 5): $coreItemsStr")
+                        if (bootsStr.isNotBlank()) appendLine("• 4. Botas & Encantamientos: $bootsStr")
+                        if (situItemsStr.isNotBlank()) appendLine("• 5. Situacional: $situItemsStr")
+                        if (situationalDescription.isNotBlank()) appendLine("  - Justificación Situacional (Cuándo / Por qué): ${situationalDescription.trim()}")
+                        if (extraSituStr.isNotBlank()) appendLine("  - Situacionales adicionales (Opcional): $extraSituStr")
+                        if (runesStr.isNotBlank()) appendLine("• 6. Runas (1 Clave + 4 Secundarias): $runesStr")
+                        if (spellsStr.isNotBlank()) appendLine("• 7. Hechizos de Invocador: $spellsStr")
                         appendLine("\n• Justificación Táctica / Matchups:")
                         appendLine(description.trim())
                     }
@@ -261,21 +267,27 @@ fun BugReportFeedbackDialog(
                 )
                 isSubmitting = false
                 if (result.isSuccess) {
-                    Toast.makeText(context, " ¡Sugerencia/Reporte enviado con éxito!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "✅ ¡Sugerencia de Build enviada con éxito!", Toast.LENGTH_LONG).show()
                     onDismiss()
                 } else {
                     val err = result.exceptionOrNull()?.message ?: "Error desconocido"
-                    statusMessage = " Error al enviar: $err"
+                    statusMessage = "❌ Error al enviar: $err"
                     Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
                 }
             }
         } else {
             val msg = if (selectedType == FeedbackType.BUILD_SUGGESTION) {
                 when {
-                    selectedChampionObj == null && suggestedChampion.isBlank() -> "Por favor selecciona el campeón de la build"
-                    selectedCoreItems.isEmpty() -> "Añade al menos un objeto core (1 al 5)"
-                    selectedBootsItem == null -> "El objeto número 6 debe ser botas (Nivel 2 o 3) obligatorio"
-                    description.trim().isBlank() -> "La justificación táctica / matchups es obligatoria"
+                    selectedChampionObj == null && suggestedChampion.isBlank() -> "1. Por favor selecciona el campeón de la build (* Obligatorio)"
+                    suggestedRole.isBlank() -> "2. Por favor selecciona el rol o línea (* Obligatorio)"
+                    selectedCoreItems.size < 5 -> "3. Debes seleccionar los 5 objetos Core de la build (* Obligatorio)"
+                    selectedBootsItems.isEmpty() -> "4. Debes seleccionar al menos una opción de Botas (* Obligatorio)"
+                    selectedSituationalItems.isEmpty() -> "5. Debes seleccionar al menos un objeto situacional (* Obligatorio)"
+                    situationalDescription.trim().isBlank() -> "5. Escribe una breve descripción de por qué o en qué situaciones usar los situacionales (* Obligatorio)"
+                    selectedKeystoneRune == null || selectedSecondaryRunes.size < 4 -> "6. Debes completar las 5 runas (1 clave + 4 secundarias) (* Obligatorio)"
+                    selectedSpells.size < 2 -> "7. Debes seleccionar 2 hechizos de invocador (* Obligatorio)"
+                    title.trim().isBlank() -> "Por favor ingresa un título o resumen para la build (* Obligatorio)"
+                    description.trim().isBlank() -> "La justificación táctica / matchups es obligatoria (* Obligatorio)"
                     !isEmailValid -> "El formato del correo electrónico no es válido"
                     else -> "Por favor completa todos los campos requeridos de la build"
                 }
@@ -600,15 +612,15 @@ fun BugReportFeedbackDialog(
                         }
                     }
 
-                    // 4. OBJETO 6: BOTAS (NIVEL 2 O NIVEL 3) - OBLIGATORIO
+                    // 4. BOTAS (NIVEL 2 O 3 / ENCANTAMIENTOS) - OBLIGATORIO + OPCIONALES
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
                             .background(HextechSurfaceVariant.copy(alpha = 0.55f))
                             .border(
-                                width = if (selectedBootsItem != null) 1.5.dp else 1.dp,
-                                color = if (selectedBootsItem != null) HextechGold else HextechCyan.copy(alpha = 0.6f),
+                                width = if (selectedBootsItems.isNotEmpty()) 1.5.dp else 1.dp,
+                                color = if (selectedBootsItems.isNotEmpty()) HextechGold else HextechCyan.copy(alpha = 0.6f),
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .padding(10.dp),
@@ -621,7 +633,7 @@ fun BugReportFeedbackDialog(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(
-                                    text = tr("4. Objeto 6: Botas (Nivel 2 o 3)"),
+                                    text = tr("4. Botas & Encantamientos"),
                                     color = HextechGold,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
@@ -629,13 +641,13 @@ fun BugReportFeedbackDialog(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(if (selectedBootsItem != null) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
-                                        .border(0.8.dp, if (selectedBootsItem != null) HextechGold else DangerRed, RoundedCornerShape(4.dp))
+                                        .background(if (selectedBootsItems.isNotEmpty()) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                                        .border(0.8.dp, if (selectedBootsItems.isNotEmpty()) HextechGold else DangerRed, RoundedCornerShape(4.dp))
                                         .padding(horizontal = 5.dp, vertical = 1.dp)
                                 ) {
                                     Text(
-                                        text = if (selectedBootsItem != null) " " + tr("Elegidas") else "* " + tr("Obligatorio"),
-                                        color = if (selectedBootsItem != null) HextechGold else DangerRed,
+                                        text = if (selectedBootsItems.isNotEmpty()) "✓ ${selectedBootsItems.size} " + tr("Elegida(s)") else "* " + tr("Obligatorio (mín 1)"),
+                                        color = if (selectedBootsItems.isNotEmpty()) HextechGold else DangerRed,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -643,88 +655,134 @@ fun BugReportFeedbackDialog(
                             }
                         }
 
-                        val boots = selectedBootsItem
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(HextechSurface.copy(alpha = 0.7f))
-                                .border(1.dp, if (boots != null) HextechGold.copy(alpha = 0.5f) else HextechCardBorder, RoundedCornerShape(8.dp))
-                                .clickable { showItemPickerType = "boots" }
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (boots != null) {
-                                Box(
+                        // Lista de botas seleccionadas
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            selectedBootsItems.forEachIndexed { idx, bootItem ->
+                                Row(
                                     modifier = Modifier
-                                        .size(46.dp)
+                                        .fillMaxWidth()
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurfaceVariant)
-                                        .border(1.5.dp, HextechGold, RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
+                                        .background(HextechSurface.copy(alpha = 0.7f))
+                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                        .padding(6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(boots.iconUrl)
-                                            .crossfade(true)
-                                            .build(),
-                                        contentDescription = boots.name,
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(HextechSurfaceVariant)
+                                            .border(1.5.dp, HextechGold, RoundedCornerShape(8.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        AsyncImage(
+                                            model = ImageRequest.Builder(LocalContext.current)
+                                                .data(bootItem.iconUrl)
+                                                .crossfade(true)
+                                                .build(),
+                                            contentDescription = bootItem.name,
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = (if (idx == 0) "★ Principal: " else "+ Opcional: ") + bootItem.name,
+                                            color = TextPrimary,
+                                            fontSize = 11.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "${bootItem.category} • ${bootItem.goldCost} 💰",
+                                            color = HextechCyan,
+                                            fontSize = 9.5.sp
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { selectedBootsItems.remove(bootItem) },
+                                        modifier = Modifier.size(26.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.Red, modifier = Modifier.size(16.dp))
+                                    }
+                                }
+                            }
+
+                            if (selectedBootsItems.size < 4) {
+                                Button(
+                                    onClick = { showItemPickerType = "boots" },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (selectedBootsItems.isEmpty()) HextechCyan.copy(alpha = 0.2f) else HextechSurface
+                                    ),
+                                    border = BorderStroke(1.dp, if (selectedBootsItems.isEmpty()) HextechCyan else HextechCardBorder),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(vertical = 6.dp)
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = if (selectedBootsItems.isEmpty()) tr("Seleccionar Botas Principales (* Obligatorio)") else tr("+ Añadir más botas / encantamiento (Opcional)"),
+                                        fontSize = 11.sp,
+                                        color = if (selectedBootsItems.isEmpty()) HextechGold else TextSecondary,
+                                        fontWeight = FontWeight.SemiBold
                                     )
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(46.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechSurface)
-                                        .border(1.5.dp, DangerRed.copy(alpha = 0.7f), RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = boots?.name ?: tr("Toca aquí para seleccionar las Botas (Slot 6)"),
-                                    color = if (boots != null) TextPrimary else TextMuted,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (boots != null) FontWeight.Bold else FontWeight.Normal
-                                )
-                                Text(
-                                    text = if (boots != null) "${boots.category} • ${boots.goldCost} " else tr("Disponible: Botas Nivel 2 o Botas Nivel 3 (Encantamiento)"),
-                                    color = HextechCyan,
-                                    fontSize = 10.sp
-                                )
-                            }
-                            if (boots != null) {
-                                IconButton(onClick = { selectedBootsItem = null }, modifier = Modifier.size(26.dp)) {
-                                    Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.Red, modifier = Modifier.size(16.dp))
                                 }
                             }
                         }
                     }
 
-                    // 5. OBJETOS SITUACIONALES (7 y 8)
+                    // 5. SITUACIONAL (* OBLIGATORIO CON DESCRIPCIÓN Y SITUACIONALES EXTRA OPCIONALES)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(HextechSurfaceVariant.copy(alpha = 0.5f))
-                            .border(1.dp, HextechCardBorder, RoundedCornerShape(10.dp))
+                            .background(HextechSurfaceVariant.copy(alpha = 0.55f))
+                            .border(
+                                width = if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) 1.5.dp else 1.dp,
+                                color = if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) HextechGold else HextechCyan.copy(alpha = 0.6f),
+                                shape = RoundedCornerShape(10.dp)
+                            )
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("5. Situacional"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                                        .border(0.8.dp, if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) HextechGold else DangerRed, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) "✓ " + tr("Completo") else "* " + tr("Obligatorio"),
+                                        color = if (selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isNotBlank()) HextechGold else DangerRed,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        // Objetos Situacionales Principales
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                text = tr("5. Situacionales Base (7 y 8):"),
-                                color = HextechGold,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
+                                text = tr("Objetos Situacionales Principales (* Selecciona al menos 1):"),
+                                color = TextPrimary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 items(selectedSituationalItems) { item ->
                                     Box(
@@ -747,14 +805,14 @@ fun BugReportFeedbackDialog(
                                         )
                                     }
                                 }
-                                if (selectedSituationalItems.size < 2) {
+                                if (selectedSituationalItems.size < 4) {
                                     item {
                                         Box(
                                             modifier = Modifier
                                                 .size(42.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(HextechSurface)
-                                                .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                                                .border(1.dp, if (selectedSituationalItems.isEmpty()) DangerRed.copy(alpha = 0.8f) else HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                                                 .clickable { showItemPickerType = "situational" },
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -765,26 +823,42 @@ fun BugReportFeedbackDialog(
                             }
                         }
 
-                        // Alternativas Situacionales para 7 y 8 (vs composición rival)
-                        Column {
+                        // Breve descripción / Justificación de los situacionales
+                        OutlinedTextField(
+                            value = situationalDescription,
+                            onValueChange = { situationalDescription = it },
+                            label = { Text(tr("¿Por qué o en qué situaciones armarlos? (* Obligatorio)"), fontSize = 11.sp) },
+                            placeholder = { Text(tr("Ej: Armar Cortacuras si hay Aatrox/Soraka, comprar Penetración si arman armadura..."), fontSize = 10.5.sp, color = TextMuted) },
+                            minLines = 2,
+                            maxLines = 4,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HextechCyan,
+                                unfocusedBorderColor = if (situationalDescription.trim().isBlank()) DangerRed.copy(alpha = 0.6f) else HextechCardBorder,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+
+                        // Situacionales adicionales (Opcional)
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = tr("Alternativas Situacionales (vs diferente composición para 7 y 8):"),
+                                    text = tr("Situacionales adicionales (Opcional):"),
                                     color = HextechCyan,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                items(selectedAltSituationalItems) { item ->
+                                items(selectedExtraSituationalItems) { item ->
                                     Box(
                                         modifier = Modifier
                                             .size(42.dp)
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(HextechSurfaceVariant)
                                             .border(1.5.dp, HextechGoldLight, RoundedCornerShape(8.dp))
-                                            .clickable { selectedAltSituationalItems.remove(item) },
+                                            .clickable { selectedExtraSituationalItems.remove(item) },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         AsyncImage(
@@ -798,7 +872,7 @@ fun BugReportFeedbackDialog(
                                         )
                                     }
                                 }
-                                if (selectedAltSituationalItems.size < 2) {
+                                if (selectedExtraSituationalItems.size < 4) {
                                     item {
                                         Box(
                                             modifier = Modifier
@@ -806,7 +880,7 @@ fun BugReportFeedbackDialog(
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(HextechSurface)
                                                 .border(1.dp, HextechGoldLight.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                                .clickable { showItemPickerType = "situational_alt" },
+                                                .clickable { showItemPickerType = "situational_extra" },
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(Icons.Default.Add, contentDescription = null, tint = HextechGoldLight, modifier = Modifier.size(16.dp))
@@ -817,19 +891,35 @@ fun BugReportFeedbackDialog(
                         }
                     }
 
-                    // 5. RUNAS (CLAVE + SECUNDARIAS)
+                    // 6. RUNAS (CLAVE + SECUNDARIAS) - OBLIGATORIO
                     Column {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = tr("5. Runas (Clave + 4 Secundarias):"),
-                                color = HextechGold,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("6. Runas (Clave + 4 Secundarias)"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (selectedKeystoneRune != null && selectedSecondaryRunes.size == 4) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                                        .border(0.8.dp, if (selectedKeystoneRune != null && selectedSecondaryRunes.size == 4) HextechGold else DangerRed, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = if (selectedKeystoneRune != null && selectedSecondaryRunes.size == 4) "✓ " + tr("Completo (5/5)") else "* " + tr("Obligatorio"),
+                                        color = if (selectedKeystoneRune != null && selectedSecondaryRunes.size == 4) HextechGold else DangerRed,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                         Spacer(modifier = Modifier.height(6.dp))
                         val currentKeystone = selectedKeystoneRune
@@ -843,7 +933,7 @@ fun BugReportFeedbackDialog(
                                     .size(46.dp)
                                     .clip(CircleShape)
                                     .background(HextechSurfaceVariant)
-                                    .border(2.dp, if (currentKeystone != null) HextechGold else HextechCardBorder, CircleShape)
+                                    .border(2.dp, if (currentKeystone != null) HextechGold else DangerRed.copy(alpha = 0.7f), CircleShape)
                                     .clickable { showRunePickerType = "keystone" },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -870,13 +960,13 @@ fun BugReportFeedbackDialog(
                                         .clip(CircleShape)
                                         .background(HextechSurface)
                                         .border(1.dp, if (rune != null) HextechCyan else HextechCardBorder, CircleShape)
-                                        .clickable {
-                                            if (rune != null) {
-                                                selectedSecondaryRunes.remove(rune)
-                                            } else {
-                                                showRunePickerType = "secondary"
-                                            }
-                                        },
+                                    .clickable {
+                                        if (rune != null) {
+                                            selectedSecondaryRunes.remove(rune)
+                                        } else {
+                                            showRunePickerType = "secondary"
+                                        }
+                                    },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (rune != null) {
@@ -896,14 +986,36 @@ fun BugReportFeedbackDialog(
                         }
                     }
 
-                    // 6. HECHIZOS DE INVOCADOR
+                    // 7. HECHIZOS DE INVOCADOR - OBLIGATORIO
                     Column {
-                        Text(
-                            text = tr("6. Hechizos de Invocador (2):"),
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("7. Hechizos de Invocador (2)"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(if (selectedSpells.size == 2) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                                        .border(0.8.dp, if (selectedSpells.size == 2) HextechGold else DangerRed, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = if (selectedSpells.size == 2) "✓ " + tr("Elegidos (2/2)") else "* " + tr("Obligatorio"),
+                                        color = if (selectedSpells.size == 2) HextechGold else DangerRed,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                             for (i in 0 until 2) {
@@ -913,7 +1025,7 @@ fun BugReportFeedbackDialog(
                                         .size(44.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(HextechSurfaceVariant)
-                                        .border(1.5.dp, if (spell != null) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
+                                        .border(1.5.dp, if (spell != null) HextechCyan else DangerRed.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
                                         .clickable {
                                             if (spell != null) {
                                                 selectedSpells.remove(spell)
@@ -1233,18 +1345,20 @@ fun BugReportFeedbackDialog(
                             selectedCoreItems.add(item)
                         }
                     }
+                    "boots" -> {
+                        if (selectedBootsItems.size < 4 && !selectedBootsItems.contains(item)) {
+                            selectedBootsItems.add(item)
+                        }
+                    }
                     "situational" -> {
-                        if (selectedSituationalItems.size < 2 && !selectedSituationalItems.contains(item)) {
+                        if (selectedSituationalItems.size < 4 && !selectedSituationalItems.contains(item)) {
                             selectedSituationalItems.add(item)
                         }
                     }
-                    "situational_alt" -> {
-                        if (selectedAltSituationalItems.size < 2 && !selectedAltSituationalItems.contains(item)) {
-                            selectedAltSituationalItems.add(item)
+                    "situational_extra" -> {
+                        if (selectedExtraSituationalItems.size < 4 && !selectedExtraSituationalItems.contains(item)) {
+                            selectedExtraSituationalItems.add(item)
                         }
-                    }
-                    "boots" -> {
-                        selectedBootsItem = item
                     }
                 }
                 showItemPickerType = null
@@ -1429,17 +1543,54 @@ private fun ItemCatalogSelectionDialog(
     val items = remember(searchQuery, selectedCat, type) {
         WildRiftItemsData.list.filter { item ->
             val matchesSearch = item.name.contains(searchQuery, ignoreCase = true) || item.nameEn.contains(searchQuery, ignoreCase = true)
-            val isBootT2 = item.category.contains("Botas Nivel 2", ignoreCase = true) || (item.category.contains("bota", ignoreCase = true) && !item.category.contains("Nivel 3", ignoreCase = true) && !item.category.contains("encantamiento", ignoreCase = true))
-            val isBootT3 = item.category.contains("Botas Nivel 3", ignoreCase = true) || item.category.contains("encantamiento", ignoreCase = true) || item.category.contains("activos", ignoreCase = true)
-            val isAnyBoot = isBootT2 || isBootT3 || item.category.contains("bota", ignoreCase = true) || item.category.contains("encantamiento", ignoreCase = true)
-            
+            val cat = item.category.lowercase()
+            val id = item.id.lowercase()
+            val name = item.name.lowercase()
+            val nameEn = item.nameEn.lowercase()
+            val icon = item.iconUrl.lowercase()
+
+            val isBootItem = cat.contains("bota") ||
+                cat.contains("boot") ||
+                cat.contains("encantamiento") ||
+                id.contains("boot") ||
+                id.contains("greave") ||
+                id.contains("tread") ||
+                id.contains("tred") ||
+                id.contains("enchant") ||
+                icon.contains("enchant") ||
+                icon.contains("boot") ||
+                icon.contains("greaves") ||
+                icon.contains("treads") ||
+                name.startsWith("botas") ||
+                name.startsWith("grebas") ||
+                name.contains("botas ") ||
+                name.contains("grebas ") ||
+                nameEn.contains("boots") ||
+                nameEn.contains("greaves") ||
+                nameEn.contains("treads") ||
+                listOf(
+                    "gluttonous_greaves", "berserker_s_greaves", "mercury_s_treads", "plated_steelcaps",
+                    "ionian_boots_of_lucidity", "boots_of_mana", "boots_of_dynamism", "boots_of_swiftness",
+                    "immortal_treds", "gunmetal_greaves", "chainlaced_crushers", "armored_advance",
+                    "crimson_lucidity", "spellslinger_s_shoes", "armorcrusher_boots", "boots_of_speed"
+                ).contains(id)
+
+            val isBootT3 = isBootItem && (
+                cat.contains("nivel 3") ||
+                cat.contains("encantamiento") ||
+                id.contains("enchant") ||
+                icon.contains("enchant") ||
+                listOf("immortal_treds", "gunmetal_greaves", "chainlaced_crushers", "armored_advance", "crimson_lucidity", "spellslinger_s_shoes", "armorcrusher_boots").contains(id)
+            )
+            val isBootT2 = isBootItem && !isBootT3
+
             if (type == "boots") {
                 val matchesBootCat = when (selectedCat) {
                     "Botas Nivel 2" -> isBootT2
                     "Botas Nivel 3" -> isBootT3
                     else -> true
                 }
-                matchesSearch && isAnyBoot && matchesBootCat
+                matchesSearch && isBootItem && matchesBootCat
             } else {
                 val matchesCat = when (selectedCat) {
                     "Físico" -> item.category.contains("físico", ignoreCase = true) || item.category.contains("ataque", ignoreCase = true)
@@ -1448,7 +1599,7 @@ private fun ItemCatalogSelectionDialog(
                     "Apoyo" -> item.category.contains("apoyo", ignoreCase = true) || item.category.contains("soporte", ignoreCase = true)
                     else -> true
                 }
-                matchesSearch && matchesCat && !isAnyBoot
+                matchesSearch && matchesCat && !isBootItem
             }
         }
     }
@@ -1465,9 +1616,9 @@ private fun ItemCatalogSelectionDialog(
             ) {
                 Text(
                     text = when (type) {
-                        "boots" -> tr("Seleccionar Botas (Slot 6 - Nivel 2 o 3)")
-                        "situational" -> tr("Seleccionar Objeto Situacional (7 y 8)")
-                        "situational_alt" -> tr("Seleccionar Alternativa Situacional (vs Rival)")
+                        "boots" -> tr("Seleccionar Botas / Encantamiento")
+                        "situational" -> tr("Seleccionar Objeto Situacional")
+                        "situational_extra" -> tr("Seleccionar Situacional Extra (Opcional)")
                         else -> tr("Seleccionar Objeto Core (Slots 1 a 5)")
                     },
                     color = HextechGold,

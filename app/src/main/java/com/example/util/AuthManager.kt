@@ -21,4 +21,20 @@ object AuthManager {
             null
         }
     }
+
+    fun isAdminEmail(email: String?): Boolean {
+        if (email.isNullOrBlank()) return false
+        val clean = email.trim().lowercase()
+        return clean == "barbadiego695@gmail.com" || 
+               clean == "barbachavezdiego@gmail.com" ||
+               clean.startsWith("barbadiego") ||
+               clean.startsWith("barbachavez")
+    }
+
+    fun isCurrentUserAdmin(): Boolean {
+        val user = getAuth()?.currentUser ?: return false
+        if (isAdminEmail(user.email)) return true
+        return SubscriptionManager.userRole.value == "admin"
+    }
 }
+

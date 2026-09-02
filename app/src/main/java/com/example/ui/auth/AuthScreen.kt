@@ -88,9 +88,15 @@ fun AuthFlowContainer(
                 onLoginSuccess?.invoke()
             },
             onError = { errorMessage ->
-                auth?.signOut()
-                currentUser = null
-                android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
+                if (errorMessage.contains("Límite de dispositivos", ignoreCase = true)) {
+                    auth?.signOut()
+                    currentUser = null
+                    android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
+                } else {
+                    currentUser = auth?.currentUser
+                    com.example.util.SubscriptionManager.init(context)
+                    onLoginSuccess?.invoke()
+                }
                 viewModel.resetSuccessState()
             }
         )

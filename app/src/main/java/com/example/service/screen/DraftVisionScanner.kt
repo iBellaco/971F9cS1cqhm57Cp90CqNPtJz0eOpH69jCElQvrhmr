@@ -116,7 +116,7 @@ object DraftVisionScanner {
             val foundEnemies = mutableListOf<Champion>()
 
             val screenWidth = bitmap.width
-            val screenCenterX = screenWidth / 2
+            val screenHeight = bitmap.height
 
             val allChamps = WildRiftRepository.champions
 
@@ -125,64 +125,86 @@ object DraftVisionScanner {
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val lineText = line.text.trim()
-                    detectedWords.add(lineText)
+                    if (lineText.isNotBlank()) {
+                        detectedWords.add(lineText)
+                    }
                     val lower = lineText.lowercase(Locale.ROOT)
 
-                    // Detección de rol por palabras clave en pantalla
+                    // Detección de rol por palabras clave en pantalla (incluye nombres en español de Wild Rift)
                     if (detectedRole == null) {
-                        if (lower.contains("baron") || lower.contains("solo") || lower.contains("top")) {
+                        if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
                             detectedRole = com.example.model.LaneRole.TOP
                         } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
                             detectedRole = com.example.model.LaneRole.JUNGLE
                         } else if (lower.contains("mid") || lower.contains("central") || lower.contains("medio")) {
                             detectedRole = com.example.model.LaneRole.MID
-                        } else if (lower.contains("duo") || lower.contains("dragon") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
+                        } else if (lower.contains("duo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
                             detectedRole = com.example.model.LaneRole.ADC
-                        } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("sup")) {
+                        } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
                             detectedRole = com.example.model.LaneRole.SUPPORT
                         }
                     }
 
-                    // Intentar coincidir con el catálogo de campeones
-                    val matchedChamps = matchChampions(lineText, allChamps)
-                    for (matchedChamp in matchedChamps) {
+                    // Intentar coincidir línea completa o elementos individuales
+                    val candidateChamps = mutableListOf<Champion>()
+                    candidateChamps.addAll(matchChampions(lineText, allChamps))
+
+                    // También probar cada elemento/palabra de la línea por si el OCR agrupó varios textos
+                    val elements = line.elements
+                    for (i in elements.indices) {
+                        val elemText = elements[i].text.trim()
+                        candidateChamps.addAll(matchChampions(elemText, allChamps))
+                        
+                        if (i + 1 < elements.size) {
+                            val twoWords = "$elemText ${elements[i + 1].text.trim()}"
+                            candidateChamps.addAll(matchChampions(twoWords, allChamps))
+                        }
+                    }
+
+                    val distinctCandidates = candidateChamps.distinctBy { it.id }
+
+                    for (matchedChamp in distinctCandidates) {
                         val box = line.boundingBox
                         val centerX = box?.centerX() ?: 0
                         val centerY = box?.centerY() ?: 0
-                        val screenHeight = bitmap.height
 
-                        // Ignorar la mitad inferior de la pantalla (Grid de selección de campeones, Chat, etc.)
-                        // para evitar que el OCR lea 20 campeones de golpe y llene los slots falsamente.
-                        if (centerY > screenHeight * 0.65f) {
+                        // Ignorar la fila superior de BANS (Y < 12%) para no registrar los baneos como picks jugables
+                        if (centerY < screenHeight * 0.12f) {
                             continue
                         }
 
-                        // En Wild Rift:
-                        // La columna izquierda (X < 35% de la pantalla) corresponde a aliados
-                        // La columna derecha (X > 65% de la pantalla) corresponde a enemigos
-                        // El centro es el hover, lo asignamos por defecto a los aliados si hay espacio
-                        if (centerX < screenWidth * 0.35f) {
+                        // Ignorar el fondo extremo de la pantalla (Chat/Botonera Y > 90%)
+                        if (centerY > screenHeight * 0.90f) {
+                            continue
+                        }
+
+                        // En Wild Rift en orientación horizontal (Landscape):
+                        // Columna Izquierda (X < 38%): Picks del equipo Aliado (Slots 1 al 5)
+                        // Columna Derecha (X > 62%): Picks del equipo Enemigo (Slots 1 al 5)
+                        // Centro: Hover / Campeón seleccionado actualmente
+                        if (centerX < screenWidth * 0.38f) {
                             if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
                                 foundAllies.add(matchedChamp)
-                                AppLogger.d(TAG, "Aliado detectado (Izquierda): ${matchedChamp.name}")
+                                AppLogger.d(TAG, "Aliado detectado (Izquierda): ${matchedChamp.name} en ($centerX, $centerY)")
                             }
-                        } else if (centerX > screenWidth * 0.65f) {
+                        } else if (centerX > screenWidth * 0.62f) {
                             if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
                                 foundEnemies.add(matchedChamp)
-                                AppLogger.d(TAG, "Enemigo detectado (Derecha): ${matchedChamp.name}")
+                                AppLogger.d(TAG, "Enemigo detectado (Derecha): ${matchedChamp.name} en ($centerX, $centerY)")
                             }
                         } else {
-                            // Campeón en el centro (Hover).
-                            // Si detectamos un nombre en el centro en tamaño grande, suele ser el pick actual.
-                            if (foundAllies.size <= foundEnemies.size) {
-                                if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
-                                    foundAllies.add(matchedChamp)
-                                    AppLogger.d(TAG, "Aliado detectado (Centro-Hover): ${matchedChamp.name}")
-                                }
-                            } else {
-                                if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
-                                    foundEnemies.add(matchedChamp)
-                                    AppLogger.d(TAG, "Enemigo detectado (Centro-Hover): ${matchedChamp.name}")
+                            // Campeón en el centro (Hover / Selección activa)
+                            if (centerY in (screenHeight * 0.15f).toInt()..(screenHeight * 0.65f).toInt()) {
+                                if (foundAllies.size <= foundEnemies.size) {
+                                    if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
+                                        foundAllies.add(matchedChamp)
+                                        AppLogger.d(TAG, "Aliado detectado (Centro-Hover): ${matchedChamp.name}")
+                                    }
+                                } else {
+                                    if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
+                                        foundEnemies.add(matchedChamp)
+                                        AppLogger.d(TAG, "Enemigo detectado (Centro-Hover): ${matchedChamp.name}")
+                                    }
                                 }
                             }
                         }
@@ -190,13 +212,11 @@ object DraftVisionScanner {
                 }
             }
 
-            // Si no se detectaron suficientes por texto (ej. durante la animación inicial o bloqueo de retratos),
-            // el scanner retorna lo encontrado o un reporte claro
             val totalDetected = foundAllies.size + foundEnemies.size
             val status = if (totalDetected > 0) {
                 "Escaneo exitoso: $totalDetected campeones identificados en pantalla"
             } else {
-                "OCR no encontró nombres de campeones (Leyó: ${detectedWords.take(4).joinToString()}). ¡Recuerda que WR no muestra los nombres en los lados!"
+                "No se detectaron nombres de campeones en el frame actual."
             }
 
             AppLogger.d(TAG, "Resultado de escaneo: ${foundAllies.map { it.name }} vs ${foundEnemies.map { it.name }} (Rol: $detectedRole)")
@@ -230,7 +250,7 @@ object DraftVisionScanner {
         // 1. Coincidencia mediante tabla de alias
         for ((alias, aliasId) in aliasMap) {
             val aliasNorm = normalizeString(alias)
-            if (normalized.contains(aliasNorm)) {
+            if (normalized == aliasNorm || (aliasNorm.length >= 3 && normalized.contains(aliasNorm))) {
                 val champ = allChamps.firstOrNull { it.id == aliasId }
                 if (champ != null && !found.contains(champ)) {
                     found.add(champ)
@@ -238,22 +258,46 @@ object DraftVisionScanner {
             }
         }
 
-        // 2. Coincidencia por subcadena o nombre exacto
+        // 2. Coincidencia directa o por subcadena exacta
         for (champ in allChamps) {
             val champNorm = normalizeString(champ.name)
             val idNorm = normalizeString(champ.id)
-            if (champNorm.length >= 4 && (normalized.contains(champNorm) || champNorm.contains(normalized))) {
-                if (!found.contains(champ)) {
-                    found.add(champ)
-                }
-            } else if (normalized.contains(idNorm) && idNorm.length >= 4) {
-                if (!found.contains(champ)) {
-                    found.add(champ)
+            
+            if (normalized == champNorm || normalized == idNorm) {
+                if (!found.contains(champ)) found.add(champ)
+            } else if (champNorm.length >= 3 && (normalized.contains(champNorm) || (normalized.length >= 4 && champNorm.contains(normalized)))) {
+                if (!found.contains(champ)) found.add(champ)
+            } else if (idNorm.length >= 3 && (normalized.contains(idNorm) || (normalized.length >= 4 && idNorm.contains(normalized)))) {
+                if (!found.contains(champ)) found.add(champ)
+            } else if (normalized.length >= 4 && champNorm.length >= 4) {
+                // Fuzzy matching por distancia de Levenshtein (tolerar pequeños errores de OCR como 5->S, 1->I, V->Y)
+                val distance = calculateLevenshteinDistance(normalized, champNorm)
+                val maxAllowed = if (champNorm.length >= 7) 2 else 1
+                if (distance <= maxAllowed) {
+                    if (!found.contains(champ)) found.add(champ)
                 }
             }
         }
 
         return found
+    }
+
+    private fun calculateLevenshteinDistance(s1: String, s2: String): Int {
+        val dp = Array(s1.length + 1) { IntArray(s2.length + 1) }
+        for (i in 0..s1.length) dp[i][0] = i
+        for (j in 0..s2.length) dp[0][j] = j
+
+        for (i in 1..s1.length) {
+            for (j in 1..s2.length) {
+                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
+                dp[i][j] = minOf(
+                    dp[i - 1][j] + 1,
+                    dp[i][j - 1] + 1,
+                    dp[i - 1][j - 1] + cost
+                )
+            }
+        }
+        return dp[s1.length][s2.length]
     }
 
     private fun normalizeString(input: String): String {

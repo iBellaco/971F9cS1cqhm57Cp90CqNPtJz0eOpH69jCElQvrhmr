@@ -121,9 +121,13 @@ object SubscriptionManager {
                 }
 
                 if (listenSnapshot != null && listenSnapshot.exists()) {
-                    val role = listenSnapshot.getString("role") ?: "free"
+                    var role = listenSnapshot.getString("role") ?: "free"
+                    if (AuthManager.isAdminEmail(user.email)) {
+                        role = "admin"
+                    }
                     val sessionToken = listenSnapshot.getString("sessionToken")
-                    com.example.util.DeviceAndSessionManager.handleSessionChanged(sessionToken, context)
+                    val remoteDeviceId = listenSnapshot.getString("lastDeviceId")
+                    com.example.util.DeviceAndSessionManager.handleSessionChanged(sessionToken, remoteDeviceId, context)
                     val banned = listenSnapshot.getBoolean("banned") ?: false
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
@@ -140,7 +144,7 @@ object SubscriptionManager {
                     _premiumUntil.value = until
                     
                     val isPrem = when {
-                        role == "admin" -> true
+                        role == "admin" || AuthManager.isAdminEmail(user.email) -> true
                         role == "premium" -> {
                             until == null || until == 0L || until > System.currentTimeMillis()
                         }
@@ -151,9 +155,10 @@ object SubscriptionManager {
                     
                     _unlockedAvatars.value = unlocked
                 } else {
-                    _userName.value = ""
-                    _userRole.value = "free"
-                    _isPremium.value = false
+                    val isEmailAdmin = AuthManager.isAdminEmail(user.email)
+                    _userName.value = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""
+                    _userRole.value = if (isEmailAdmin) "admin" else "free"
+                    _isPremium.value = isEmailAdmin
                     _premiumUntil.value = null
                     _currentAvatarId.value = "default_poro"
                     _unlockedAvatars.value = emptyList()

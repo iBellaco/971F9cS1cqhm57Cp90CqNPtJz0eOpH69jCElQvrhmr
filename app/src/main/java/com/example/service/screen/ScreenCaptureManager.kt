@@ -146,6 +146,16 @@ class ScreenCaptureManager(private val context: Context) {
      * Captura el frame actual de la pantalla como un Bitmap.
      */
     fun captureCurrentFrame(): Bitmap? {
+        try {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val metrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getRealMetrics(metrics)
+            if (metrics.widthPixels != screenWidth || metrics.heightPixels != screenHeight) {
+                refreshProjection()
+            }
+        } catch (_: Exception) {}
+
         val reader = imageReader ?: return null
         var image: Image? = null
         return try {

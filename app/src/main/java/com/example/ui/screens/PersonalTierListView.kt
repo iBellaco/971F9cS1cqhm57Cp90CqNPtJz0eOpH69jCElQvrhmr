@@ -30,6 +30,8 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Leaderboard
@@ -57,6 +59,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.analytics.PersonalChampionStats
@@ -96,13 +100,15 @@ import com.example.util.tr
 @Composable
 fun PersonalTierListView(
     draftsList: List<SavedDraftEntity>,
-    onSelectDraftForDetail: (SavedDraftEntity) -> Unit
+    onSelectDraftForDetail: (SavedDraftEntity) -> Unit,
+    isOverlay: Boolean = false
 ) {
     val currentLang = LocalLanguage.current
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedChampionStats by remember { mutableStateOf<PersonalChampionStats?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var viewMode by remember { mutableStateOf("TIERS") } // "TIERS" or "TABLE"
+    var isFiltersExpanded by rememberSaveable { mutableStateOf(!isOverlay) }
 
     val tierData: PersonalTierListResult = remember(draftsList, selectedRoleFilter, currentLang) {
         PersonalTierListManager.calculatePersonalTierList(
@@ -142,110 +148,181 @@ fun PersonalTierListView(
             .fillMaxSize()
             .testTag("personal_tier_list_view")
     ) {
-        // Selector de Líneas / Rol
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = null,
-                    tint = HextechGold,
-                    modifier = Modifier.size(13.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = tr("Filtrar por Línea"),
-                    color = HextechGold,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+        if (!isFiltersExpanded) {
+            // Barra compacta de filtros minimizada
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(HextechGold.copy(alpha = 0.15f))
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechGold.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                    .clickable { isFiltersExpanded = true }
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "↔ " + tr("Desliza para ver más líneas"),
-                    color = HextechGold,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (selectedRoleFilter != null) "${tr("Línea")}: ${tr(selectedRoleFilter!!.displayName)}" else tr("Todas las Líneas"),
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (searchQuery.isNotBlank()) {
+                        Text(
+                            text = " • \"$searchQuery\"",
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = tr("Filtros / Buscar"),
+                        color = HextechCyan,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = tr("Expandir filtros"),
+                        tint = HextechCyan,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
-        }
+        } else {
+            // Selector de Líneas / Rol expandido
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.FilterList,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = tr("Filtrar por Línea"),
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(HextechGold.copy(alpha = 0.15f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "↔ " + tr("Desliza"),
+                            color = HextechGold,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = { isFiltersExpanded = false },
+                        modifier = Modifier.size(22.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExpandLess,
+                            contentDescription = tr("Minimizar filtros"),
+                            tint = HextechGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilterChip(
-                selected = selectedRoleFilter == null,
-                onClick = { selectedRoleFilter = null },
-                label = { Text(tr("Todas las Líneas"), fontSize = 11.sp) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = HextechGold,
-                    selectedLabelColor = HextechDarkBg
-                )
-            )
-
-            LaneRole.entries.forEach { role ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 FilterChip(
-                    selected = selectedRoleFilter == role,
-                    onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
-                    label = { Text(tr(role.displayName), fontSize = 11.sp) },
+                    selected = selectedRoleFilter == null,
+                    onClick = { selectedRoleFilter = null },
+                    label = { Text(tr("Todas las Líneas"), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = HextechCyan,
+                        selectedContainerColor = HextechGold,
                         selectedLabelColor = HextechDarkBg
                     )
                 )
+
+                LaneRole.entries.forEach { role ->
+                    FilterChip(
+                        selected = selectedRoleFilter == role,
+                        onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                        label = { Text(tr(role.displayName), fontSize = 11.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechCyan,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Buscador de Campeones
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("tier_list_search_input"),
+                placeholder = { Text(tr("Buscar campeón en Tier List..."), color = TextMuted, fontSize = 12.sp) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechCyan,
+                    unfocusedBorderColor = HextechCardBorder,
+                    focusedContainerColor = HextechSurface,
+                    unfocusedContainerColor = HextechSurface
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Buscador de Campeones
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("tier_list_search_input"),
-            placeholder = { Text(tr("Buscar campeón en Tier List..."), color = TextMuted, fontSize = 12.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = tr("Limpiar"), tint = TextMuted, modifier = Modifier.size(16.dp))
-                    }
-                }
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = HextechCyan,
-                unfocusedBorderColor = HextechCardBorder,
-                focusedContainerColor = HextechSurface,
-                unfocusedContainerColor = HextechSurface
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         if (tierData.allRankedChampions.isEmpty()) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(if (isOverlay) 12.dp else 24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -287,12 +364,14 @@ fun PersonalTierListView(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(if (isOverlay) 8.dp else 14.dp)
             ) {
                 // Header Summary Card (Signature pick, best role, global WR)
                 item {
-                    PersonalOverviewCard(overview = tierData.overview)
+                    PersonalOverviewCard(overview = tierData.overview, isOverlay = isOverlay)
                 }
 
                 // Selector de modo de visualización: Matriz de Tiers vs Lista Analítica
@@ -458,141 +537,165 @@ fun PersonalTierListView(
 }
 
 @Composable
-private fun PersonalOverviewCard(overview: com.example.data.analytics.PersonalOverviewStats) {
+private fun PersonalOverviewCard(
+    overview: com.example.data.analytics.PersonalOverviewStats,
+    isOverlay: Boolean = false
+) {
+    var isExpanded by rememberSaveable { mutableStateOf(!isOverlay) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("personal_overview_card"),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
         border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f))
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
+            val wrColor = if (overview.overallWinRate >= 50.0) Color(0xFF81C784) else DangerRed
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                             .clip(CircleShape)
                             .background(HextechGold.copy(alpha = 0.2f))
                             .border(1.dp, HextechGold, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
-                        Text(tr("Mi Perfil de Desempeño"), color = HextechGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        Text("${overview.totalGames} " + tr("partidas analizadas"), color = TextMuted, fontSize = 11.sp)
+                        Text(tr("Mi Desempeño"), color = HextechGold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        Text("${overview.totalGames} " + tr("partidas"), color = TextMuted, fontSize = 10.5.sp)
                     }
                 }
 
-                val wrColor = if (overview.overallWinRate >= 50.0) Color(0xFF81C784) else DangerRed
-                Surface(
-                    color = wrColor.copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, wrColor)
-                ) {
-                    Text(
-                        text = "WR Global: ${overview.overallWinRate.toInt()}%",
-                        color = wrColor,
-                        fontWeight = FontWeight.Black,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // 3 Column Metrics (Victorias / Derrotas / Mejor Rol)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(HextechSurfaceVariant)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(tr("Victorias"), color = TextMuted, fontSize = 10.sp)
-                        Text(
-                            text = "${overview.totalWins}W - ${overview.totalLosses}L",
-                            color = Color(0xFF81C784),
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(HextechSurfaceVariant)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(tr("Mejor Línea"), color = TextMuted, fontSize = 10.sp)
-                        Text(
-                            text = if (overview.bestRole != null) "${overview.bestRole.displayName} (${overview.bestRoleWinRate.toInt()}%)" else "N/A",
-                            color = HextechCyan,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(HextechSurfaceVariant)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(tr("Signature Pick"), color = TextMuted, fontSize = 10.sp)
-                        Text(
-                            text = overview.signatureChampion?.championName ?: "N/A",
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-
-            if (overview.totalGames == 0) {
-                Spacer(modifier = Modifier.height(10.dp))
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = HextechDarkBg,
-                    border = BorderStroke(0.8.dp, HextechGold.copy(alpha = 0.4f))
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = wrColor.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, wrColor)
                     ) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = tr("Todos los campeones inician en Tier C (0% WR). A medida que registres victorias o derrotas en tus partidas, ascenderán dinámicamente según su win rate."),
-                            color = TextSecondary,
-                            fontSize = 10.5.sp,
-                            lineHeight = 14.5.sp
+                            text = "WR: ${overview.overallWinRate.toInt()}%",
+                            color = wrColor,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 11.5.sp,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                         )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = { isExpanded = !isExpanded },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = if (isExpanded) tr("Minimizar") else tr("Expandir"),
+                            tint = HextechGold,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // 3 Column Metrics (Victorias / Derrotas / Mejor Rol)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HextechSurfaceVariant)
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Victorias"), color = TextMuted, fontSize = 10.sp)
+                            Text(
+                                text = "${overview.totalWins}W - ${overview.totalLosses}L",
+                                color = Color(0xFF81C784),
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HextechSurfaceVariant)
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Mejor Línea"), color = TextMuted, fontSize = 10.sp)
+                            Text(
+                                text = if (overview.bestRole != null) "${overview.bestRole.displayName} (${overview.bestRoleWinRate.toInt()}%)" else "N/A",
+                                color = HextechCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1.2f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HextechSurfaceVariant)
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(tr("Signature Pick"), color = TextMuted, fontSize = 10.sp)
+                            Text(
+                                text = overview.signatureChampion?.championName ?: "N/A",
+                                color = HextechGold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                if (overview.totalGames == 0) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = HextechDarkBg,
+                        border = BorderStroke(0.8.dp, HextechGold.copy(alpha = 0.4f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("Todos los campeones inician en Tier C (0% WR). A medida que registres victorias o derrotas en tus partidas, ascenderán dinámicamente según su win rate."),
+                                color = TextSecondary,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.5.sp
+                            )
+                        }
                     }
                 }
             }

@@ -40,11 +40,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.FilterList
@@ -88,6 +91,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -343,6 +347,7 @@ fun DraftHistoryScreen(
 
     val activeSelectedProfile = profiles.find { it.id == selectedProfileIdFilter }
     val effectiveOverlay = isOverlay || context.isOverlayOrNonActivity()
+    var isNavMinimized by rememberSaveable { mutableStateOf(effectiveOverlay) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -386,6 +391,19 @@ fun DraftHistoryScreen(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Botón para minimizar/expandir barra de navegación y perfiles
+                        IconButton(
+                            onClick = { isNavMinimized = !isNavMinimized },
+                            modifier = Modifier.size(28.dp).testTag("history_toggle_nav_button")
+                        ) {
+                            Icon(
+                                imageVector = if (isNavMinimized) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                                contentDescription = if (isNavMinimized) tr("Expandir barra de navegación") else tr("Minimizar barra de navegación"),
+                                tint = HextechGold,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
                         IconButton(
                             onClick = { showBackupRestoreDialog = true },
                             modifier = Modifier.size(28.dp).testTag("history_backup_restore_button")
@@ -446,6 +464,18 @@ fun DraftHistoryScreen(
                     },
                     actions = {
                         IconButton(
+                            onClick = { isNavMinimized = !isNavMinimized },
+                            modifier = Modifier.testTag("history_toggle_nav_button")
+                        ) {
+                            Icon(
+                                imageVector = if (isNavMinimized) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                                contentDescription = if (isNavMinimized) tr("Expandir barra") else tr("Minimizar barra"),
+                                tint = HextechGold,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+
+                        IconButton(
                             onClick = { showBackupRestoreDialog = true },
                             modifier = Modifier.testTag("history_backup_restore_button")
                         ) {
@@ -484,145 +514,353 @@ fun DraftHistoryScreen(
         ) {
             Spacer(modifier = Modifier.height(2.dp))
 
-            // Account Profiles Selector Bar
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f))
-            ) {
-                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (isNavMinimized) {
+                // Barra de navegación compacta y minimizada
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechSurface)
+                        .border(1.dp, HextechGold.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Selector rápido de perfil desplegable
+                    var showProfileDropdown by remember { mutableStateOf(false) }
+                    Box {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(HextechDarkBg.copy(alpha = 0.6f))
+                                .clickable { showProfileDropdown = true }
+                                .padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
                                 contentDescription = null,
                                 tint = HextechGold,
-                                modifier = Modifier.size(15.dp)
+                                modifier = Modifier.size(13.dp)
                             )
-                            Spacer(modifier = Modifier.width(5.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = tr("Cuentas / Perfiles"),
+                                text = activeSelectedProfile?.name ?: tr("Todas"),
                                 color = HextechGold,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(14.dp)
                             )
                         }
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TextButton(
-                                onClick = { showBackupRestoreDialog = true },
-                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
-                            ) {
-                                Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
-                                Spacer(modifier = Modifier.width(2.dp))
-                                Text(tr("JSON Backup"), color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            TextButton(
-                                onClick = { showCreateProfileDialog = true },
-                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
-                                Spacer(modifier = Modifier.width(2.dp))
-                                Text(tr("Crear Perfil"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        DropdownMenu(
+                            expanded = showProfileDropdown,
+                            onDismissRequest = { showProfileDropdown = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(tr("🌐 Todas las cuentas")) },
+                                onClick = {
+                                    selectedProfileIdFilter = "ALL"
+                                    showProfileDropdown = false
+                                }
+                            )
+                            profiles.forEach { prof ->
+                                DropdownMenuItem(
+                                    text = { Text("👤 ${prof.name}${if (prof.tag.isNotBlank()) " #${prof.tag}" else ""}") },
+                                    onClick = {
+                                        selectedProfileIdFilter = prof.id
+                                        AccountProfileManager.setActiveProfile(context, prof.id)
+                                        showProfileDropdown = false
+                                    }
+                                )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Indicador de deslizamiento para perfiles
+                    // Selector de Pestaña Compacto
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 1.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(HextechDarkBg.copy(alpha = 0.6f))
+                            .padding(1.dp),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Text(
-                            text = tr("Cuentas Activas"),
-                            color = HextechCyan,
-                            fontSize = 9.5.sp,
-                            fontWeight = FontWeight.SemiBold
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(if (currentHistoryTab == "DRAFTS") HextechGold else Color.Transparent)
+                                .clickable { currentHistoryTab = "DRAFTS" }
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = tr("Partidas"),
+                                color = if (currentHistoryTab == "DRAFTS") HextechDarkBg else TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(if (currentHistoryTab == "TIER_LIST") HextechGold else Color.Transparent)
+                                .clickable { currentHistoryTab = "TIER_LIST" }
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = tr("Tier List"),
+                                color = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // Botón para expandir la barra completa
+                    IconButton(
+                        onClick = { isNavMinimized = false },
+                        modifier = Modifier.size(26.dp).testTag("history_expand_nav_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ExpandMore,
+                            contentDescription = tr("Expandir barra"),
+                            tint = HextechCyan,
+                            modifier = Modifier.size(16.dp)
                         )
+                    }
+                }
+            } else {
+                // Account Profiles Selector Bar
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f))
+                ) {
+                    Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = tr("Cuentas / Perfiles"),
+                                    color = HextechGold,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TextButton(
+                                    onClick = { showBackupRestoreDialog = true },
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                ) {
+                                    Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(tr("JSON Backup"), color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+                                TextButton(
+                                    onClick = { showCreateProfileDialog = true },
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(tr("Crear Perfil"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(2.dp))
+                                IconButton(
+                                    onClick = { isNavMinimized = true },
+                                    modifier = Modifier.size(24.dp).testTag("history_collapse_nav_btn")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ExpandLess,
+                                        contentDescription = tr("Minimizar barra"),
+                                        tint = HextechGold,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Indicador de deslizamiento para perfiles
                         Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(HextechCyan.copy(alpha = 0.12f))
-                                .padding(horizontal = 5.dp, vertical = 1.5.dp),
+                                .fillMaxWidth()
+                                .padding(vertical = 1.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "↔ " + tr("Desliza para ver más perfiles"),
+                                text = tr("Cuentas Activas"),
                                 color = HextechCyan,
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(HextechCyan.copy(alpha = 0.12f))
+                                    .padding(horizontal = 5.dp, vertical = 1.5.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "↔ " + tr("Desliza para ver más perfiles"),
+                                    color = HextechCyan,
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(3.dp))
+
+                        // Horizontal list of profile chips
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val isAllSelected = selectedProfileIdFilter == "ALL" || selectedProfileIdFilter == null
+                            FilterChip(
+                                selected = isAllSelected,
+                                onClick = { selectedProfileIdFilter = "ALL" },
+                                label = {
+                                    Text(tr("🌐 Todas (${draftsList.size})"), fontSize = 10.5.sp)
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = HextechCyan,
+                                    selectedLabelColor = HextechDarkBg
+                                )
+                            )
+
+                            profiles.forEach { prof ->
+                                val isSelected = selectedProfileIdFilter == prof.id
+                                val countForProf = draftsList.count { it.accountProfileId == prof.id }
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = {
+                                        selectedProfileIdFilter = prof.id
+                                        AccountProfileManager.setActiveProfile(context, prof.id)
+                                    },
+                                    label = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("👤 ${prof.name}", fontSize = 10.5.sp)
+                                            if (prof.tag.isNotBlank()) {
+                                                Text(" #${prof.tag}", fontSize = 9.sp, color = if (isSelected) HextechDarkBg else HextechCyan)
+                                            }
+                                            Text(" ($countForProf)", fontSize = 9.5.sp)
+                                        }
+                                    },
+                                    trailingIcon = {
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = tr("Editar"),
+                                                modifier = Modifier
+                                                    .size(12.dp)
+                                                    .clickable { profileToEdit = prof },
+                                                tint = HextechDarkBg
+                                            )
+                                        }
+                                    },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = HextechGold,
+                                        selectedLabelColor = HextechDarkBg
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Main History / Tier List Tab Bar Switcher
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(HextechSurface)
+                        .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(9.dp))
+                            .background(if (currentHistoryTab == "DRAFTS") HextechGold else Color.Transparent)
+                            .clickable { currentHistoryTab = "DRAFTS" }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = null,
+                                tint = if (currentHistoryTab == "DRAFTS") HextechDarkBg else HextechGold,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("Partidas Guardadas"),
+                                color = if (currentHistoryTab == "DRAFTS") HextechDarkBg else TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(3.dp))
-
-                    // Horizontal list of profile chips
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .weight(1f)
+                            .clip(RoundedCornerShape(9.dp))
+                            .background(if (currentHistoryTab == "TIER_LIST") HextechGold else Color.Transparent)
+                            .clickable { currentHistoryTab = "TIER_LIST" }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        val isAllSelected = selectedProfileIdFilter == "ALL" || selectedProfileIdFilter == null
-                        FilterChip(
-                            selected = isAllSelected,
-                            onClick = { selectedProfileIdFilter = "ALL" },
-                            label = {
-                                Text(tr("🌐 Todas (${draftsList.size})"), fontSize = 10.5.sp)
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = HextechCyan,
-                                selectedLabelColor = HextechDarkBg
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Leaderboard,
+                                contentDescription = null,
+                                tint = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else HextechGold,
+                                modifier = Modifier.size(16.dp)
                             )
-                        )
-
-                        profiles.forEach { prof ->
-                            val isSelected = selectedProfileIdFilter == prof.id
-                            val countForProf = draftsList.count { it.accountProfileId == prof.id }
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    selectedProfileIdFilter = prof.id
-                                    AccountProfileManager.setActiveProfile(context, prof.id)
-                                },
-                                label = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("👤 ${prof.name}", fontSize = 10.5.sp)
-                                        if (prof.tag.isNotBlank()) {
-                                            Text(" #${prof.tag}", fontSize = 9.sp, color = if (isSelected) HextechDarkBg else HextechCyan)
-                                        }
-                                        Text(" ($countForProf)", fontSize = 9.5.sp)
-                                    }
-                                },
-                                trailingIcon = {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = tr("Editar"),
-                                            modifier = Modifier
-                                                .size(12.dp)
-                                                .clickable { profileToEdit = prof },
-                                            tint = HextechDarkBg
-                                        )
-                                    }
-                                },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = HextechGold,
-                                    selectedLabelColor = HextechDarkBg
-                                )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (activeSelectedProfile != null) "${tr("Tier List")} (${activeSelectedProfile.name})" else tr("Mi Tier List Personal"),
+                                color = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else TextPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
@@ -631,85 +869,18 @@ fun DraftHistoryScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Main History / Tier List Tab Bar Switcher
-            Row(
+            Box(
                 modifier = Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                    .padding(3.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(if (currentHistoryTab == "DRAFTS") HextechGold else Color.Transparent)
-                        .clickable { currentHistoryTab = "DRAFTS" }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = null,
-                            tint = if (currentHistoryTab == "DRAFTS") HextechDarkBg else HextechGold,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = tr("Partidas Guardadas"),
-                            color = if (currentHistoryTab == "DRAFTS") HextechDarkBg else TextPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(if (currentHistoryTab == "TIER_LIST") HextechGold else Color.Transparent)
-                        .clickable { currentHistoryTab = "TIER_LIST" }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Leaderboard,
-                            contentDescription = null,
-                            tint = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else HextechGold,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = if (activeSelectedProfile != null) "${tr("Tier List")} (${activeSelectedProfile.name})" else tr("Mi Tier List Personal"),
-                            color = if (currentHistoryTab == "TIER_LIST") HextechDarkBg else TextPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            if (currentHistoryTab == "TIER_LIST") {
-                PersonalTierListView(
-                    draftsList = currentScopeDrafts,
-                    onSelectDraftForDetail = { selectedDraftForDetail = it }
-                )
-            } else {
+                if (currentHistoryTab == "TIER_LIST") {
+                    PersonalTierListView(
+                        draftsList = currentScopeDrafts,
+                        onSelectDraftForDetail = { selectedDraftForDetail = it },
+                        isOverlay = effectiveOverlay
+                    )
+                } else {
                 // Vista de Partidas Guardadas
                 // Stats Summary Card
                 if (draftsList.isNotEmpty()) {
@@ -911,6 +1082,7 @@ fun DraftHistoryScreen(
                 }
             }
         }
+    }
     }
 
     // Detail Bottom Sheet
