@@ -44,11 +44,14 @@ object DeviceAndSessionManager {
             val registeredDevices = snapshot.get("registeredDevices") as? List<String> ?: emptyList()
             
             // Si es premium (o cualquier usuario), verificamos devices
+            val userEmail = user.email ?: ""
+            val isAdmin = userEmail == "barbachavezdiego@gmail.com"
             val mutableDevices = registeredDevices.toMutableList()
             if (!mutableDevices.contains(deviceId)) {
-                if (mutableDevices.size >= 2) {
+                if (mutableDevices.size >= 2 && !isAdmin) {
                     throw Exception("Límite de dispositivos alcanzado (Máx 2 dispositivos por cuenta).")
                 }
+                if (isAdmin && mutableDevices.size >= 10) mutableDevices.removeAt(0)
                 mutableDevices.add(deviceId)
             }
 

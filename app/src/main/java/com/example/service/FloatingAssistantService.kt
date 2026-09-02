@@ -490,6 +490,8 @@ private fun FloatingOverlayContent(
     var showRoleChangeDialog by remember { mutableStateOf(false) }
     var isSavedRecently by remember { mutableStateOf(false) }
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
+    val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsStateWithLifecycle()
+    val isLoggedInAndPremium = isPremium && activeProfileId != null
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(context)) }
@@ -952,38 +954,40 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Pestaña 3: Campeones
-                            val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
-                            Box(
-                                modifier = Modifier
-                                    .weight(1.1f)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(if (isHistoryActive) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface)
-                                    .border(
-                                        1.dp,
-                                        if (isHistoryActive) Color(0xFF00FF7F) else HextechCardBorder.copy(alpha = 0.5f),
-                                        RoundedCornerShape(6.dp)
-                                    )
-                                    .clickable { overlayHubTab = OverlayHubTab.HISTORY }
-                                    .padding(vertical = 5.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            // Pestaña 3: Historial
+                            if (isLoggedInAndPremium) {
+                                val isHistoryActive = overlayHubTab == OverlayHubTab.HISTORY
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1.1f)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isHistoryActive) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface)
+                                        .border(
+                                            1.dp,
+                                            if (isHistoryActive) Color(0xFF00FF7F) else HextechCardBorder.copy(alpha = 0.5f),
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable { overlayHubTab = OverlayHubTab.HISTORY }
+                                        .padding(vertical = 5.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(
-                                        Icons.Default.History,
-                                        contentDescription = null,
-                                        tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
-                                        modifier = Modifier.size(13.dp)
-                                    )
-                                    Text(
-                                        text = "Historial",
-                                        color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
-                                        fontSize = 10.5.sp,
-                                        fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.History,
+                                            contentDescription = null,
+                                            tint = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                        Text(
+                                            text = "Historial",
+                                            color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1039,14 +1043,10 @@ private fun FloatingOverlayContent(
                                     )
                                 }
                                 OverlayHubTab.TIER_LIST -> {
-                                    FloatingTierAndBuildsView(
-                                        selectedChampion = selectedChampionDetail,
+                                    com.example.ui.screens.TierListTab(
+                                        isOverlay = true,
                                         onSelectChampion = { selectedChampionDetail = it },
-                                        activeRoleFilter = activeRole,
-                                        onRoleFilterChange = {
-                                            activeRole = it
-                                            com.example.util.UserPreferences.setActiveDraftRole(context, it)
-                                        }
+                                        isPremium = isPremium
                                     )
                                 }
                                 OverlayHubTab.HISTORY -> {

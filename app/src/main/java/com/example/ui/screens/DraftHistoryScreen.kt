@@ -127,6 +127,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DraftHistoryScreen(
+    isOverlay: Boolean = false,
     onNavigateBack: () -> Unit,
     onLoadDraft: (allies: List<DraftSlot>, enemies: List<DraftSlot>, role: LaneRole, isFirstPick: Boolean) -> Unit
 ) {
@@ -163,49 +164,56 @@ fun DraftHistoryScreen(
     var importMergeMode by remember { mutableStateOf(true) }
     var isProcessingBackup by remember { mutableStateOf(false) }
 
+    val registryOwner = androidx.activity.compose.LocalActivityResultRegistryOwner.current
+    val canUseLaunchers = !isOverlay && registryOwner != null
+
     // File Save Launcher (Export JSON)
-    val exportFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("application/json")
-    ) { uri ->
-        if (uri != null) {
-            coroutineScope.launch {
-                isProcessingBackup = true
-                try {
-                    val jsonContent = BackupRestoreManager.generateBackupJson(context)
-                    val success = BackupRestoreManager.writeTextToUri(context, uri, jsonContent)
-                    if (success) {
-                        Toast.makeText(context, trStr(effectiveLang, "Copia de seguridad exportada con éxito"), Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(context, trStr(effectiveLang, "Error al guardar el archivo"), Toast.LENGTH_SHORT).show()
+    val exportFileLauncher = if (canUseLaunchers) {
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/json")
+        ) { uri ->
+            if (uri != null) {
+                coroutineScope.launch {
+                    isProcessingBackup = true
+                    try {
+                        val jsonContent = BackupRestoreManager.generateBackupJson(context)
+                        val success = BackupRestoreManager.writeTextToUri(context, uri, jsonContent)
+                        if (success) {
+                            Toast.makeText(context, trStr(effectiveLang, "Copia de seguridad exportada con éxito"), Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(context, trStr(effectiveLang, "Error al guardar el archivo"), Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        isProcessingBackup = false
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                } finally {
-                    isProcessingBackup = false
                 }
             }
         }
-    }
+    } else null
 
     // File Open Launcher (Import JSON)
-    val importFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            coroutineScope.launch {
-                isProcessingBackup = true
-                try {
-                    val fileText = BackupRestoreManager.readTextFromUri(context, uri)
-                    pendingImportJson = fileText
-                    showImportConfirmDialog = true
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Error al leer archivo: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                } finally {
-                    isProcessingBackup = false
+    val importFileLauncher = if (canUseLaunchers) {
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            if (uri != null) {
+                coroutineScope.launch {
+                    isProcessingBackup = true
+                    try {
+                        val fileText = BackupRestoreManager.readTextFromUri(context, uri)
+                        pendingImportJson = fileText
+                        showImportConfirmDialog = true
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error al leer archivo: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        isProcessingBackup = false
+                    }
                 }
             }
         }
-    }
+    } else null
 
     // Drafts scoped to selected account profile
     val currentScopeDrafts = remember(draftsList, selectedProfileIdFilter) {
@@ -1078,7 +1086,7 @@ fun DraftHistoryScreen(
                     Button(
                         onClick = {
                             val timestamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(Date())
-                            exportFileLauncher.launch("WildRift_TierList_Backup_$timestamp.json")
+                            exportFileLauncher?.launch("WildRift_TierList_Backup_$timestamp.json")
                             showBackupRestoreDialog = false
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -1095,7 +1103,7 @@ fun DraftHistoryScreen(
                     // Action 2: Import JSON
                     OutlinedButton(
                         onClick = {
-                            importFileLauncher.launch(arrayOf("application/json", "text/*"))
+                            importFileLauncher?.launch(arrayOf("application/json", "text/*"))
                             showBackupRestoreDialog = false
                         },
                         modifier = Modifier.fillMaxWidth(),

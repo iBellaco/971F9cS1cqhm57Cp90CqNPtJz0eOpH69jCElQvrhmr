@@ -1,0 +1,21 @@
+    // File Open Launcher (Import JSON)
+    val importFileLauncher = if (canUseLaunchers) {
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            if (uri != null) {
+                coroutineScope.launch {
+                    isProcessingBackup = true
+                    try {
+                        val fileText = BackupRestoreManager.readTextFromUri(context, uri)
+                        pendingImportJson = fileText
+                        showImportConfirmDialog = true
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error al leer archivo: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        isProcessingBackup = false
+                    }
+                }
+            }
+        }
+    } else null

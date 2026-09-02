@@ -3565,7 +3565,7 @@ fun DraftAnalysisTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) { roleActivePill() }
-                androidx.compose.foundation.layout.Box { firstPickCard() }
+                androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) { firstPickCard() }
             }
         }
 
