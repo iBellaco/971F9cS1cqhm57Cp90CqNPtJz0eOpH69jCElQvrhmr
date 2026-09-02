@@ -118,7 +118,7 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          gradle :app:assembleDebug --no-daemon --stacktrace
+          gradle :app:assembleDebug
 
       - name: Verify APK
         run: |
@@ -189,4 +189,17 @@ jobs:
             Descarga el archivo APK directamente en tu teléfono Android desde los archivos adjuntos (Assets) abajo.
           files: ${{ steps.prepare_asset.outputs.asset_path }}
           token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      - name: Cleanup old releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Buscando releases antiguos..."
+          # Lista todos los releases. El awk 'NR>1' omite el más reciente (el que acabamos de crear) y toma el Tag ($3) del resto.
+          gh release list | awk 'NR>1 {print $3}' | while read tag; do
+            if [ ! -z "$tag" ]; then
+              echo "Eliminando release y tag antiguo: $tag"
+              gh release delete "$tag" --cleanup-tag -y || true
+            fi
+          done
         continue-on-error: true
