@@ -377,11 +377,13 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 params.x = (params.x + dx).coerceIn(marginPx, maxX)
                                 params.y = (params.y + dy).coerceIn(marginPx, maxY)
 
-                                // Zona de peligro / desactivación hacia abajo (solo si se arrastra hasta el fondo absoluto de la pantalla)
+                                // Zona de peligro / desactivación hacia abajo (solo si se arrastra hasta el fondo absoluto de la pantalla mientras está minimizado)
                                 val isInDangerZone = params.y >= (currentScreenHeight - currentHeight - (8 * density).toInt())
 
                                 if (!isDragging) {
-                                    if (isInDangerZone) {
+                                    // REGLA: Si el hub está abierto, NUNCA se cierra al arrastrar para evitar cierres accidentales.
+                                    // Solo se puede cerrar arrastrando cuando está minimizado en forma de burbuja.
+                                    if (isInDangerZone && !isOverlayExpanded) {
                                         stopSelf()
                                     } else {
                                         // AUTO-SNAP: Cuando se suelta en forma de burbuja, pegarlo al borde lateral con animación fluida
@@ -759,8 +761,6 @@ private fun FloatingOverlayContent(
                 exit = scaleOut() + fadeOut()
             ) {
                 var isDraggingPanel by remember { mutableStateOf(false) }
-                var panelDragY by remember { mutableFloatStateOf(0f) }
-                var isPanelNearClose by remember { mutableStateOf(false) }
 
                 Card(
                     modifier = Modifier
@@ -769,10 +769,7 @@ private fun FloatingOverlayContent(
                         .clip(RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
-                    border = androidx.compose.foundation.BorderStroke(
-                        if (isPanelNearClose) 2.5.dp else 1.5.dp,
-                        if (isPanelNearClose) DangerRed else HextechGold
-                    )
+                    border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         Column(
@@ -780,7 +777,7 @@ private fun FloatingOverlayContent(
                                 .fillMaxSize()
                                 .padding(8.dp)
                         ) {
-                        // Header con barra de arrastre y controles
+                        // Header con barra de arrastre para reposicionar el Hub cómodamente
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -788,25 +785,18 @@ private fun FloatingOverlayContent(
                                     detectDragGestures(
                                         onDragStart = {
                                             isDraggingPanel = true
-                                            panelDragY = 0f
-                                            isPanelNearClose = false
                                         },
                                         onDrag = { change, dragAmount ->
                                             change.consume()
-                                            panelDragY += dragAmount.y
-                                            isPanelNearClose = panelDragY > 350f
                                             onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                         },
                                         onDragEnd = {
                                             isDraggingPanel = false
-                                            onDragDelta(0, 0, false, isPanelNearClose)
-                                            panelDragY = 0f
-                                            isPanelNearClose = false
+                                            onDragDelta(0, 0, false, false)
                                         },
                                         onDragCancel = {
                                             isDraggingPanel = false
-                                            panelDragY = 0f
-                                            isPanelNearClose = false
+                                            onDragDelta(0, 0, false, false)
                                         }
                                     )
                                 }
@@ -1175,47 +1165,30 @@ private fun FloatingOverlayContent(
 
                         Spacer(modifier = Modifier.height(6.dp))
 
-                        // Footer / Desactivar alerta
-                        if (isPanelNearClose) {
-                            Box(
+                        // Footer con acciones y estado
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "✕ " + tr("Detener Asistente"),
+                                color = DangerRed,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(DangerRed)
-                                    .padding(vertical = 6.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "🔥 " + tr("SOLTAR AQUÍ PARA CERRAR ASISTENTE"),
-                                    color = Color.White,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Black
-                                )
-                            }
-                        } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "✕ " + tr("Detener Asistente"),
-                                    color = DangerRed,
-                                    fontSize = 10.5.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .clickable { onClose() }
-                                        .padding(4.dp)
-                                )
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .clickable { onClose() }
+                                    .padding(4.dp)
+                            )
 
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = tr("Auto-Scan"),
-                                        color = TextMuted,
-                                        fontSize = 9.5.sp,
-                                        modifier = Modifier.padding(end = 4.dp)
-                                    )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = tr("Auto-Scan"),
+                                    color = TextMuted,
+                                    fontSize = 9.5.sp,
+                                    modifier = Modifier.padding(end = 4.dp)
+                                )
                                     val adminOnlyMsg = tr("🔒 El auto-escáner es de uso exclusivo para Administradores.")
                                     Switch(
                                         checked = autoScanEnabled,
@@ -1241,19 +1214,18 @@ private fun FloatingOverlayContent(
                             }
                         }
                     }
-                    
-                    if (selectedChampionDetail != null) {
-                        com.example.ui.screens.ChampionDetailSheet(
-                            isOverlay = true,
-                            champion = selectedChampionDetail,
-                            onDismiss = { selectedChampionDetail = null }
-                        )
-                    }
-                } // close Box
-                }
-            }
-        }
-    }
+
+                        if (selectedChampionDetail != null) {
+                            com.example.ui.screens.ChampionDetailSheet(
+                                isOverlay = true,
+                                champion = selectedChampionDetail,
+                                onDismiss = { selectedChampionDetail = null }
+                            )
+                        }
+                    } // close Box
+                } // close Card
+            } // close AnimatedVisibility
+        } // close Column
 
     // Modal de selección de rol
     if (showRoleChangeDialog) {
