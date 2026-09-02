@@ -1051,7 +1051,6 @@ private fun FloatingOverlayContent(
                                 }
                                 OverlayHubTab.HISTORY -> {
                                     com.example.ui.screens.DraftHistoryScreen(
-                                        isOverlay = true,
                                         onNavigateBack = {
                                             overlayHubTab = OverlayHubTab.DRAFT
                                         },
