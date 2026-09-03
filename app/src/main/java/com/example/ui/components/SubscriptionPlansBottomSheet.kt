@@ -91,6 +91,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Colección de Avatares Exclusiva completa", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Guardado de draft", true, isHighlight = true, icon = Icons.Default.Save),
                     FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
                     FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
@@ -128,6 +129,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
                     FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                    FeatureItem("Guardado de draft", true, isHighlight = true, icon = Icons.Default.Save),
                     FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
                     FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
@@ -163,6 +165,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Colección de Avatares Premium", false),
                     FeatureItem("Temas Visuales por Región", false),
                     FeatureItem("Partículas Mágicas", false),
+                    FeatureItem("Guardado de draft", false),
                     FeatureItem("Tier list personal", false),
                     FeatureItem("Campeón favorito", false)
                 )

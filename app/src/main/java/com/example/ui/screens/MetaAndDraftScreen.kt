@@ -1405,7 +1405,7 @@ fun TierListTab(
     ) {
         item {
             Spacer(modifier = Modifier.height(4.dp))
-            if (!isOverlay) { TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope) }
+            TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope, isOverlay = isOverlay)
         }
 
         item {
@@ -4903,15 +4903,16 @@ fun TierSelectionPanel(
     syncState: ChineseSyncState,
     currentRegion: String,
     context: android.content.Context,
-    coroutineScope: kotlinx.coroutines.CoroutineScope
+    coroutineScope: kotlinx.coroutines.CoroutineScope,
+    isOverlay: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        shape = RoundedCornerShape(14.dp),
-        border = androidx.compose.foundation.BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f))
+        shape = RoundedCornerShape(if (isOverlay) 10.dp else 14.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
             // REGION SELECTION PILLS
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -4921,7 +4922,7 @@ fun TierSelectionPanel(
                 Text(
                     text = "🌐 " + tr("Servidor / Meta:"),
                     color = HextechGold,
-                    fontSize = 11.5.sp,
+                    fontSize = if (isOverlay) 10.5.sp else 11.5.sp,
                     fontWeight = FontWeight.Black
                 )
                 Box(
@@ -4932,24 +4933,24 @@ fun TierSelectionPanel(
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "Δ 24h Meta Sync",
+                        text = if (isOverlay) "24h Sync" else "Δ 24h Meta Sync",
                         color = HextechCyan,
-                        fontSize = 9.sp,
+                        fontSize = if (isOverlay) 8.5.sp else 9.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(if (isOverlay) 6.dp else 8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp)
             ) {
                 val regionItems = listOf(
-                    Triple("CN", "🇨🇳 CN High-Elo", "API Tencent"),
-                    Triple("Global", "🌐 Meta Global Pro", "Meta Live"),
-                    Triple("NA", "🌎 América (NA)", "Local Cache")
+                    Triple("CN", if (isOverlay) "🇨🇳 CN" else "🇨🇳 CN High-Elo", if (isOverlay) "Tencent" else "API Tencent"),
+                    Triple("Global", if (isOverlay) "🌐 Global" else "🌐 Meta Global Pro", if (isOverlay) "Live" else "Meta Live"),
+                    Triple("NA", if (isOverlay) "🌎 NA" else "🌎 América (NA)", if (isOverlay) "Cache" else "Local Cache")
                 )
                 regionItems.forEach { (regionId, label, sub) ->
                     val isSelected = currentRegion == regionId || (regionId == "Global" && currentRegion == "BestBuildWR")

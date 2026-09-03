@@ -332,6 +332,11 @@ object ChampionRoleAdapter {
             defaultSpellsIcons = resolvedSpellsIcons
         )
 
+        val (laneAdv, laneCounters, laneSyn) = getLaneMatchupsAndSynergies(champ, champ.primaryRole)
+        val resolvedAdvantage = if (champ.advantageAgainst.isNotEmpty()) champ.advantageAgainst else laneAdv
+        val resolvedCountered = if (champ.counteredBy.isNotEmpty()) champ.counteredBy else laneCounters
+        val resolvedSynergies = if (champ.synergies.isNotEmpty()) champ.synergies else laneSyn
+
         return ChampionRoleProfile(
             role = champ.primaryRole,
             winrate = champ.winrate,
@@ -351,9 +356,9 @@ object ChampionRoleAdapter {
             primaryRuneIconUrl = primaryRuneIcon,
             recommendedSpells = resolvedSpells,
             spellsIcons = resolvedSpellsIcons,
-            advantageAgainst = champ.advantageAgainst,
-            counteredBy = champ.counteredBy,
-            synergies = champ.synergies,
+            advantageAgainst = resolvedAdvantage,
+            counteredBy = resolvedCountered,
+            synergies = resolvedSynergies,
             tacticalAdvice = champ.tacticalAdvice,
             build8Items = build8,
             bootBase = baseBoot,

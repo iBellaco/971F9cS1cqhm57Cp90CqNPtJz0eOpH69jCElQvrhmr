@@ -45,15 +45,24 @@ object DeviceAndSessionManager {
     // Obtener ID del dispositivo persistente y determinista por instalación
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val appContext = context.applicationContext ?: context
+        val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedId = prefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!savedId.isNullOrBlank()) {
             return savedId
         }
 
+        // Verificar también en user_preferences por redundancia
+        val userPrefs = appContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+        val backupId = userPrefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
+        if (!backupId.isNullOrBlank()) {
+            prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, backupId).apply()
+            return backupId
+        }
+
         var hardwareId: String? = null
         try {
-            hardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            hardwareId = Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID)
         } catch (e: Exception) {
             Log.w(TAG, "Error obtaining ANDROID_ID: ${e.message}")
         }
@@ -65,6 +74,7 @@ object DeviceAndSessionManager {
         }
 
         prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
+        userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
         return finalId
     }
 

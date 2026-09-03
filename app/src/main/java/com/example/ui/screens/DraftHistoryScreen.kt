@@ -1060,6 +1060,7 @@ fun DraftHistoryScreen(
                         items(filteredDrafts, key = { it.id }) { draft ->
                             SavedDraftCard(
                                 draft = draft,
+                                isOverlay = effectiveOverlay,
                                 onClick = { selectedDraftForDetail = draft },
                                 onLoad = {
                                     val allies = DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson)
@@ -1645,6 +1646,7 @@ fun DraftHistoryScreen(
 @Composable
 private fun SavedDraftCard(
     draft: SavedDraftEntity,
+    isOverlay: Boolean = false,
     onClick: () -> Unit,
     onLoad: () -> Unit,
     onUpdateResult: (String) -> Unit,
@@ -1653,7 +1655,7 @@ private fun SavedDraftCard(
     val allies = remember(draft.allyPicksJson) { DraftHistoryRepository.parseDraftSlots(draft.allyPicksJson) }
     val enemies = remember(draft.enemyPicksJson) { DraftHistoryRepository.parseDraftSlots(draft.enemyPicksJson) }
     val formattedDate = remember(draft.timestamp) {
-        val sdf = SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault())
+        val sdf = SimpleDateFormat("dd MMM • HH:mm", Locale.getDefault())
         sdf.format(Date(draft.timestamp))
     }
 
@@ -1680,13 +1682,13 @@ private fun SavedDraftCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
             .testTag("saved_draft_card_${draft.id}"),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
         border = BorderStroke(1.dp, HextechCardBorder)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(if (isOverlay) 10.dp else 12.dp)) {
             // Header Row: Date & Result Switcher
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1698,17 +1700,17 @@ private fun SavedDraftCard(
                         imageVector = Icons.Default.Shield,
                         contentDescription = null,
                         tint = HextechGold,
-                        modifier = Modifier.size(14.dp)
+                        modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = tr(roleObj.displayName),
                         color = HextechGold,
-                        fontSize = 11.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
                     if (draft.accountProfileName.isNotBlank()) {
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Surface(
                             color = HextechCyan.copy(alpha = 0.15f),
                             shape = RoundedCornerShape(4.dp),
@@ -1717,17 +1719,17 @@ private fun SavedDraftCard(
                             Text(
                                 text = "👤 ${draft.accountProfileName}",
                                 color = HextechCyan,
-                                fontSize = 9.5.sp,
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "•  $formattedDate",
+                        text = "• $formattedDate",
                         color = TextMuted,
-                        fontSize = 10.5.sp
+                        fontSize = 10.sp
                     )
                 }
 
@@ -1742,9 +1744,9 @@ private fun SavedDraftCard(
                         Text(
                             text = resultLabel,
                             color = resultBorder,
-                            fontSize = 11.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.5.dp)
                         )
                     }
 
@@ -1771,7 +1773,7 @@ private fun SavedDraftCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Champion matchup headline
             Row(
@@ -1782,84 +1784,127 @@ private fun SavedDraftCard(
                 Text(
                     text = draft.title,
                     color = TextPrimary,
-                    fontSize = 14.sp,
+                    fontSize = if (isOverlay) 12.5.sp else 13.5.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "${draft.estimatedWinrate}% " + tr("WR Est."),
                     color = HextechCyan,
-                    fontSize = 11.5.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // 5v5 Team Avatar Visualizer
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(HextechDarkBg.copy(alpha = 0.5f))
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Allies
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            if (isOverlay) {
+                // Team-by-team rows for compact overlay
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechDarkBg.copy(alpha = 0.5f))
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    allies.take(5).forEach { slot ->
-                        Box(contentAlignment = Alignment.BottomEnd) {
-                            ChampionAvatar(
-                                champion = slot.champion,
-                                size = 32.dp
-                            )
+                    // Allies Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🔵",
+                            fontSize = 9.sp,
+                            modifier = Modifier.width(18.dp)
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            allies.take(5).forEach { slot ->
+                                ChampionAvatar(champion = slot.champion, size = 26.dp)
+                            }
+                        }
+                    }
+                    // Enemies Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "🔴",
+                            fontSize = 9.sp,
+                            modifier = Modifier.width(18.dp)
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            enemies.take(5).forEach { slot ->
+                                ChampionAvatar(champion = slot.champion, size = 26.dp)
+                            }
                         }
                     }
                 }
-
-                // VS Badge
-                Text(
-                    text = "VS",
-                    color = DangerRed,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Black,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-
-                // Enemies
+            } else {
+                // 5v5 Team Avatar Visualizer
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechDarkBg.copy(alpha = 0.5f))
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    enemies.take(5).forEach { slot ->
-                        ChampionAvatar(
-                            champion = slot.champion,
-                            size = 32.dp
-                        )
+                    // Allies
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        allies.take(5).forEach { slot ->
+                            ChampionAvatar(
+                                champion = slot.champion,
+                                size = 30.dp
+                            )
+                        }
+                    }
+
+                    // VS Badge
+                    Text(
+                        text = "VS",
+                        color = DangerRed,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+
+                    // Enemies
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        enemies.take(5).forEach { slot ->
+                            ChampionAvatar(
+                                champion = slot.champion,
+                                size = 30.dp
+                            )
+                        }
                     }
                 }
             }
 
             // Notes preview if present
             if (draft.notes.isNotBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = " ${draft.notes}",
                     color = TextSecondary,
-                    fontSize = 11.5.sp,
+                    fontSize = 11.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Action Buttons Row
             Row(
@@ -1869,19 +1914,19 @@ private fun SavedDraftCard(
             ) {
                 TextButton(
                     onClick = onClick,
-                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
                 ) {
-                    Icon(Icons.Default.SportsKabaddi, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(tr("Ver Análisis"), color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                    Icon(Icons.Default.SportsKabaddi, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(tr("Ver Análisis"), color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = onDelete,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(28.dp)
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Delete, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(15.dp))
                     }
 
                     Button(
@@ -1891,12 +1936,12 @@ private fun SavedDraftCard(
                             contentColor = HextechDarkBg
                         ),
                         shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                        modifier = Modifier.height(32.dp)
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.height(28.dp)
                     ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(tr("Cargar Draft"), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(tr("Cargar Draft"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

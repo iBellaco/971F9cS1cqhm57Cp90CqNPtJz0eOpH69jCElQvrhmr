@@ -131,7 +131,8 @@ fun BugReportFeedbackDialog(
     var situationalDescription by remember { mutableStateOf("") }
     var selectedKeystoneRune by remember { mutableStateOf<RuneItem?>(null) }
     val selectedSecondaryRunes = remember { mutableStateListOf<RuneItem>() }
-    val selectedOptionalRunes = remember { mutableStateListOf<RuneItem>() }
+    var selectedOptionalKeystoneRune by remember { mutableStateOf<RuneItem?>(null) }
+    val selectedOptionalSecondaryRunes = remember { mutableStateListOf<RuneItem>() }
     var runesOptionalDescription by remember { mutableStateOf("") }
     val selectedSpells = remember { mutableStateListOf<SummonerSpellItem>() }
     val selectedOptionalSpells = remember { mutableStateListOf<SummonerSpellItem>() }
@@ -140,7 +141,7 @@ fun BugReportFeedbackDialog(
     // Dialog pickers
     var showChampionPicker by remember { mutableStateOf(false) }
     var showItemPickerType by remember { mutableStateOf<String?>(null) } // "core", "boots", "situational"
-    var showRunePickerType by remember { mutableStateOf<String?>(null) } // "keystone", "secondary", "optional"
+    var showRunePickerType by remember { mutableStateOf<String?>(null) } // "keystone", "secondary", "optional_keystone", "optional_secondary"
     var showSpellPickerType by remember { mutableStateOf<String?>(null) } // "primary", "optional"
 
     var isSubmitting by remember { mutableStateOf(false) }
@@ -196,7 +197,8 @@ fun BugReportFeedbackDialog(
 
     val isEmailValid = email.isBlank() || android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     val isSituationalValid = selectedSituationalItems.isEmpty() || situationalDescription.trim().isNotBlank()
-    val isOptionalRunesValid = selectedOptionalRunes.isEmpty() || runesOptionalDescription.trim().isNotBlank()
+    val hasOptionalRunes = selectedOptionalKeystoneRune != null || selectedOptionalSecondaryRunes.isNotEmpty()
+    val isOptionalRunesValid = !hasOptionalRunes || runesOptionalDescription.trim().isNotBlank()
     val isOptionalSpellsValid = selectedOptionalSpells.isEmpty() || spellsOptionalDescription.trim().isNotBlank()
 
     val isBuildSuggestionComplete = selectedChampionObj != null &&
@@ -241,7 +243,16 @@ fun BugReportFeedbackDialog(
                             append(selectedSecondaryRunes.joinToString(", ") { it.name })
                         }
                     }
-                    val optionalRunesStr = selectedOptionalRunes.joinToString(", ") { it.name }
+                    val currentOptKeystone = selectedOptionalKeystoneRune
+                    val optionalRunesStr = buildString {
+                        if (currentOptKeystone != null) {
+                            append("Clave Opcional: ${currentOptKeystone.name}")
+                        }
+                        if (selectedOptionalSecondaryRunes.isNotEmpty()) {
+                            if (isNotEmpty()) append(" | Secundarias Opcionales: ")
+                            append(selectedOptionalSecondaryRunes.joinToString(", ") { it.name })
+                        }
+                    }
                     val spellsStr = selectedSpells.joinToString(" + ") { it.name }
                     val optionalSpellsStr = selectedOptionalSpells.joinToString(" + ") { it.name }
 
@@ -308,7 +319,7 @@ fun BugReportFeedbackDialog(
                     selectedBootsItems.isEmpty() -> "4. Debes seleccionar al menos una opción de Botas (* Obligatorio)"
                     selectedSituationalItems.isNotEmpty() && situationalDescription.trim().isBlank() -> "5. Escribe la justificación de cuándo armar los objetos situacionales (* Obligatorio)"
                     selectedKeystoneRune == null || selectedSecondaryRunes.size < 4 -> "6. Debes completar las 5 runas principales (1 clave + 4 secundarias) (* Obligatorio)"
-                    selectedOptionalRunes.isNotEmpty() && runesOptionalDescription.trim().isBlank() -> "6. Escribe la justificación de cuándo usar las runas opcionales (* Obligatorio)"
+                    hasOptionalRunes && runesOptionalDescription.trim().isBlank() -> "6. Escribe la justificación de cuándo usar las runas opcionales (* Obligatorio)"
                     selectedSpells.size < 2 -> "7. Debes seleccionar 2 hechizos de invocador principales (* Obligatorio)"
                     selectedOptionalSpells.isNotEmpty() && spellsOptionalDescription.trim().isBlank() -> "7. Escribe la justificación de cuándo usar los hechizos opcionales (* Obligatorio)"
                     title.trim().isBlank() -> "Por favor ingresa un título o resumen para la build (* Obligatorio)"
@@ -421,12 +432,36 @@ fun BugReportFeedbackDialog(
                 if (selectedType == FeedbackType.BUILD_SUGGESTION) {
                     // 1. SELECTOR GRÁFICO DE CAMPEÓN
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = tr("1. Selecciona Campeón:"),
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("1. Selecciona Campeón:"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val champStatusText = if (selectedChampionObj != null) "✓ " + tr("Seleccionado") else "* " + tr("Obligatorio")
+                                val champStatusColor = if (selectedChampionObj != null) HextechGold else DangerRed
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(champStatusColor.copy(alpha = 0.2f))
+                                        .border(0.8.dp, champStatusColor, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = champStatusText,
+                                        color = champStatusColor,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                         Spacer(modifier = Modifier.height(6.dp))
                         
                         val currentChamp = selectedChampionObj
@@ -435,7 +470,7 @@ fun BugReportFeedbackDialog(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(10.dp))
                                 .background(HextechSurfaceVariant)
-                                .border(1.dp, if (currentChamp != null) HextechGold else HextechCardBorder, RoundedCornerShape(10.dp))
+                                .border(1.dp, if (currentChamp != null) HextechGold else DangerRed.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
                                 .clickable { showChampionPicker = true }
                                 .padding(10.dp)
                         ) {
@@ -497,7 +532,7 @@ fun BugReportFeedbackDialog(
                                         }
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Text(
-                                            text = tr("Toca para elegir del catálogo..."),
+                                            text = tr("Toca para elegir del catálogo... (* Obligatorio)"),
                                             color = TextMuted,
                                             fontSize = 12.5.sp
                                         )
@@ -515,12 +550,36 @@ fun BugReportFeedbackDialog(
 
                     // 2. SELECTOR DE ROL / LÍNEA
                     Column {
-                        Text(
-                            text = tr("2. Rol / Línea:"),
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("2. Rol / Línea:"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val roleStatusText = if (suggestedRole.isNotBlank()) "✓ " + tr("Seleccionado") else "* " + tr("Obligatorio")
+                                val roleStatusColor = if (suggestedRole.isNotBlank()) HextechGold else DangerRed
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(roleStatusColor.copy(alpha = 0.2f))
+                                        .border(0.8.dp, roleStatusColor, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = roleStatusText,
+                                        color = roleStatusColor,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
                         Spacer(modifier = Modifier.height(4.dp))
                         val roles = listOf("Solo / Baron", "Jungla", "Mid", "Dúo / ADC", "Soporte")
                         Row(
@@ -557,15 +616,33 @@ fun BugReportFeedbackDialog(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = tr("3. Objetos Core (1 al 5) [${selectedCoreItems.size}/5]:"),
-                                color = HextechGold,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = tr("3. Objetos Core (1 al 5):"),
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val coreStatusText = if (selectedCoreItems.size == 5) "✓ " + tr("Completo (5/5)") else "* " + tr("Obligatorio (${selectedCoreItems.size}/5)")
+                                val coreStatusColor = if (selectedCoreItems.size == 5) HextechGold else DangerRed
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(coreStatusColor.copy(alpha = 0.2f))
+                                        .border(0.8.dp, coreStatusColor, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                ) {
+                                    Text(
+                                        text = coreStatusText,
+                                        color = coreStatusColor,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                             if (selectedCoreItems.size < 5) {
                                 Text(
-                                    text = "+ " + tr("Añadir Objeto"),
+                                    text = "+ " + tr("Añadir"),
                                     color = HextechCyan,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
@@ -1014,44 +1091,75 @@ fun BugReportFeedbackDialog(
                         // Runas Opcionales / Situacionales
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                text = tr("Runas Opcionales / Situacionales (Opcional):"),
+                                text = tr("Runas Opcionales / Situacionales (Opcional - 1 Clave + hasta 4 Secundarias):"),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                items(selectedOptionalRunes) { rune ->
+                            val currentOptKeystone = selectedOptionalKeystoneRune
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Keystone Opcional
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechSurfaceVariant)
+                                        .border(2.dp, if (currentOptKeystone != null) HextechGoldLight else HextechCardBorder, CircleShape)
+                                        .clickable {
+                                            if (currentOptKeystone != null) {
+                                                selectedOptionalKeystoneRune = null
+                                            } else {
+                                                showRunePickerType = "optional_keystone"
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (currentOptKeystone != null) {
+                                        AsyncImage(
+                                            model = ImageRequest.Builder(LocalContext.current)
+                                                .data(currentOptKeystone.iconUrl)
+                                                .crossfade(true)
+                                                .build(),
+                                            contentDescription = currentOptKeystone.name,
+                                            modifier = Modifier.size(38.dp)
+                                        )
+                                    } else {
+                                        Icon(Icons.Default.Star, contentDescription = "Keystone Opcional", tint = HextechGoldLight.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
+                                    }
+                                }
+
+                                // Hasta 4 Secundarias Opcionales
+                                for (i in 0 until 4) {
+                                    val rune = selectedOptionalSecondaryRunes.getOrNull(i)
                                     Box(
                                         modifier = Modifier
                                             .size(36.dp)
                                             .clip(CircleShape)
-                                            .background(HextechSurfaceVariant)
-                                            .border(1.5.dp, HextechGoldLight, CircleShape)
-                                            .clickable { selectedOptionalRunes.remove(rune) },
+                                            .background(HextechSurface)
+                                            .border(1.dp, if (rune != null) HextechCyan else HextechCardBorder, CircleShape)
+                                        .clickable {
+                                            if (rune != null) {
+                                                selectedOptionalSecondaryRunes.remove(rune)
+                                            } else {
+                                                showRunePickerType = "optional_secondary"
+                                            }
+                                        },
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current)
-                                                .data(rune.iconUrl)
-                                                .crossfade(true)
-                                                .build(),
-                                            contentDescription = rune.name,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                    }
-                                }
-                                if (selectedOptionalRunes.size < 5) {
-                                    item {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(36.dp)
-                                                .clip(CircleShape)
-                                                .background(HextechSurface)
-                                                .border(1.dp, HextechGoldLight.copy(alpha = 0.6f), CircleShape)
-                                                .clickable { showRunePickerType = "optional" },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(Icons.Default.Add, contentDescription = "Añadir opcional", tint = HextechGoldLight, modifier = Modifier.size(16.dp))
+                                        if (rune != null) {
+                                            AsyncImage(
+                                                model = ImageRequest.Builder(LocalContext.current)
+                                                    .data(rune.iconUrl)
+                                                    .crossfade(true)
+                                                    .build(),
+                                                contentDescription = rune.name,
+                                                modifier = Modifier.size(28.dp)
+                                            )
+                                        } else {
+                                            Icon(Icons.Default.Add, contentDescription = "Añadir secundaria opcional", tint = HextechGoldLight.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
                                         }
                                     }
                                 }
@@ -1064,7 +1172,7 @@ fun BugReportFeedbackDialog(
                             onValueChange = { runesOptionalDescription = it },
                             label = {
                                 Text(
-                                    if (selectedOptionalRunes.isNotEmpty()) tr("¿Por qué y en qué situaciones usar estas runas? (* Obligatorio)") else tr("¿Por qué y en qué situaciones usar estas runas? (Opcional)"),
+                                    if (hasOptionalRunes) tr("¿Por qué y en qué situaciones usar estas runas? (* Obligatorio)") else tr("¿Por qué y en qué situaciones usar estas runas? (Opcional)"),
                                     fontSize = 11.sp
                                 )
                             },
@@ -1074,7 +1182,7 @@ fun BugReportFeedbackDialog(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = HextechCyan,
-                                unfocusedBorderColor = if (selectedOptionalRunes.isNotEmpty() && runesOptionalDescription.trim().isBlank()) DangerRed.copy(alpha = 0.8f) else HextechCardBorder,
+                                unfocusedBorderColor = if (hasOptionalRunes && runesOptionalDescription.trim().isBlank()) DangerRed.copy(alpha = 0.8f) else HextechCardBorder,
                                 focusedTextColor = TextPrimary,
                                 unfocusedTextColor = TextPrimary
                             )
@@ -1143,13 +1251,13 @@ fun BugReportFeedbackDialog(
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(HextechSurfaceVariant)
                                             .border(1.5.dp, if (spell != null) HextechCyan else DangerRed.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                                            .clickable {
-                                                if (spell != null) {
-                                                    selectedSpells.remove(spell)
-                                                } else {
-                                                    showSpellPickerType = "primary"
-                                                }
-                                            },
+                                        .clickable {
+                                            if (spell != null) {
+                                                selectedSpells.remove(spell)
+                                            } else {
+                                                showSpellPickerType = "primary"
+                                            }
+                                        },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         if (spell != null) {
@@ -1178,48 +1286,54 @@ fun BugReportFeedbackDialog(
                             }
                         }
 
-                        // Hechizos Opcionales / Situacionales
+                        // Hechizos Opcionales / Situacionales (Hasta 2)
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                text = tr("Hechizos Opcionales / Situacionales (Opcional):"),
+                                text = tr("Hechizos Opcionales / Situacionales (Opcional - Máximo 2):"),
                                 color = HextechCyan,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                selectedOptionalSpells.forEach { spell ->
+                                for (i in 0 until 2) {
+                                    val spell = selectedOptionalSpells.getOrNull(i)
                                     Box(
                                         modifier = Modifier
-                                            .size(40.dp)
+                                            .size(44.dp)
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(HextechSurfaceVariant)
-                                            .border(1.5.dp, HextechGoldLight, RoundedCornerShape(8.dp))
-                                            .clickable { selectedOptionalSpells.remove(spell) },
+                                            .border(1.5.dp, if (spell != null) HextechGoldLight else HextechCardBorder, RoundedCornerShape(8.dp))
+                                            .clickable {
+                                                if (spell != null) {
+                                                    selectedOptionalSpells.remove(spell)
+                                                } else {
+                                                    showSpellPickerType = "optional"
+                                                }
+                                            },
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current)
-                                                .data(spell.iconUrl)
-                                                .crossfade(true)
-                                                .build(),
-                                            contentDescription = spell.name,
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = ContentScale.Crop
-                                        )
+                                        if (spell != null) {
+                                            AsyncImage(
+                                                model = ImageRequest.Builder(LocalContext.current)
+                                                    .data(spell.iconUrl)
+                                                    .crossfade(true)
+                                                    .build(),
+                                                contentDescription = spell.name,
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        } else {
+                                            Icon(Icons.Default.Add, contentDescription = "Añadir Hechizo Opcional", tint = HextechGoldLight, modifier = Modifier.size(20.dp))
+                                        }
                                     }
                                 }
-                                if (selectedOptionalSpells.size < 3) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(HextechSurface)
-                                            .border(1.dp, HextechGoldLight.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                                            .clickable { showSpellPickerType = "optional" },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(Icons.Default.Add, contentDescription = "Añadir opcional", tint = HextechGoldLight, modifier = Modifier.size(18.dp))
-                                    }
+                                if (selectedOptionalSpells.isNotEmpty()) {
+                                    Text(
+                                        text = selectedOptionalSpells.joinToString(" + ") { it.name },
+                                        color = TextPrimary,
+                                        fontSize = 11.5.sp,
+                                        modifier = Modifier.padding(start = 4.dp)
+                                    )
                                 }
                             }
                         }
@@ -1561,7 +1675,8 @@ fun BugReportFeedbackDialog(
         val excludedNames = when (pickerType) {
             "keystone" -> emptySet()
             "secondary" -> selectedSecondaryRunes.map { it.name }.toSet()
-            "optional" -> (selectedOptionalRunes.map { it.name } + listOfNotNull(selectedKeystoneRune?.name) + selectedSecondaryRunes.map { it.name }).toSet()
+            "optional_keystone" -> emptySet()
+            "optional_secondary" -> selectedOptionalSecondaryRunes.map { it.name }.toSet()
             else -> emptySet()
         }
         RuneCatalogSelectionDialog(
@@ -1578,9 +1693,12 @@ fun BugReportFeedbackDialog(
                             selectedSecondaryRunes.add(rune)
                         }
                     }
-                    "optional" -> {
-                        if (selectedOptionalRunes.size < 5 && !selectedOptionalRunes.contains(rune)) {
-                            selectedOptionalRunes.add(rune)
+                    "optional_keystone" -> {
+                        selectedOptionalKeystoneRune = rune
+                    }
+                    "optional_secondary" -> {
+                        if (selectedOptionalSecondaryRunes.size < 4 && !selectedOptionalSecondaryRunes.contains(rune)) {
+                            selectedOptionalSecondaryRunes.add(rune)
                         }
                     }
                 }
@@ -1594,10 +1712,11 @@ fun BugReportFeedbackDialog(
         val pickerType = showSpellPickerType!!
         val excludedNames = when (pickerType) {
             "primary" -> selectedSpells.map { it.name }.toSet()
-            "optional" -> (selectedSpells.map { it.name } + selectedOptionalSpells.map { it.name }).toSet()
+            "optional" -> selectedOptionalSpells.map { it.name }.toSet() // Los opcionales pueden coincidir con los principales, solo no duplicar entre opcionales
             else -> emptySet()
         }
         SpellCatalogSelectionDialog(
+            title = if (pickerType == "primary") tr("Seleccionar Hechizo Principal") else tr("Seleccionar Hechizo Opcional (Máx 2)"),
             excludedSpellNames = excludedNames,
             onDismiss = { showSpellPickerType = null },
             onSelect = { spell ->
@@ -1608,7 +1727,7 @@ fun BugReportFeedbackDialog(
                         }
                     }
                     "optional" -> {
-                        if (selectedOptionalSpells.size < 3 && !selectedOptionalSpells.contains(spell)) {
+                        if (selectedOptionalSpells.size < 2 && !selectedOptionalSpells.contains(spell)) {
                             selectedOptionalSpells.add(spell)
                         }
                     }
@@ -1753,10 +1872,10 @@ private fun ItemCatalogSelectionDialog(
     onSelect: (WildRiftItem) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCat by remember(type) { mutableStateOf(if (type == "boots") "Todas las Botas" else "Todos") }
+    var selectedCat by remember(type) { mutableStateOf(if (type == "boots") "Botas Nivel 2" else "Todos") }
     
     val categories = if (type == "boots") {
-        listOf("Todas las Botas", "Botas Nivel 2", "Botas Nivel 3")
+        listOf("Botas Nivel 2")
     } else {
         listOf("Todos", "Físico", "Magia", "Defensa", "Apoyo")
     }
@@ -1771,15 +1890,13 @@ private fun ItemCatalogSelectionDialog(
             val nameEn = item.nameEn.lowercase()
             val icon = item.iconUrl.lowercase()
 
-            val isBootItem = cat.contains("bota") ||
+            val isBootItem = item.category.equals("Botas Nivel 2", ignoreCase = true) ||
+                cat.contains("bota") ||
                 cat.contains("boot") ||
-                cat.contains("encantamiento") ||
                 id.contains("boot") ||
                 id.contains("greave") ||
                 id.contains("tread") ||
                 id.contains("tred") ||
-                id.contains("enchant") ||
-                icon.contains("enchant") ||
                 icon.contains("boot") ||
                 icon.contains("greaves") ||
                 icon.contains("treads") ||
@@ -1792,27 +1909,19 @@ private fun ItemCatalogSelectionDialog(
                 nameEn.contains("treads") ||
                 listOf(
                     "gluttonous_greaves", "berserker_s_greaves", "mercury_s_treads", "plated_steelcaps",
-                    "ionian_boots_of_lucidity", "boots_of_mana", "boots_of_dynamism", "boots_of_swiftness",
-                    "immortal_treds", "gunmetal_greaves", "chainlaced_crushers", "armored_advance",
-                    "crimson_lucidity", "spellslinger_s_shoes", "armorcrusher_boots", "boots_of_speed"
+                    "ionian_boots_of_lucidity", "boots_of_mana", "boots_of_dynamism", "boots_of_swiftness", "boots_of_speed"
                 ).contains(id)
 
-            val isBootT3 = isBootItem && (
-                cat.contains("nivel 3") ||
+            val isBootT3 = cat.contains("nivel 3") ||
                 cat.contains("encantamiento") ||
                 id.contains("enchant") ||
                 icon.contains("enchant") ||
                 listOf("immortal_treds", "gunmetal_greaves", "chainlaced_crushers", "armored_advance", "crimson_lucidity", "spellslinger_s_shoes", "armorcrusher_boots").contains(id)
-            )
-            val isBootT2 = isBootItem && !isBootT3
+            
+            val isBootT2 = (item.category.equals("Botas Nivel 2", ignoreCase = true) || (isBootItem && !isBootT3 && !id.contains("speed")))
 
             if (type == "boots") {
-                val matchesBootCat = when (selectedCat) {
-                    "Botas Nivel 2" -> isBootT2
-                    "Botas Nivel 3" -> isBootT3
-                    else -> true
-                }
-                matchesSearch && isBootItem && matchesBootCat
+                matchesSearch && isBootT2
             } else {
                 val matchesCat = when (selectedCat) {
                     "Físico" -> item.category.contains("físico", ignoreCase = true) || item.category.contains("ataque", ignoreCase = true)
@@ -1838,7 +1947,7 @@ private fun ItemCatalogSelectionDialog(
             ) {
                 Text(
                     text = when (type) {
-                        "boots" -> tr("Seleccionar Botas / Encantamiento")
+                        "boots" -> tr("Seleccionar Botas")
                         "situational" -> tr("Seleccionar Objeto Situacional")
                         else -> tr("Seleccionar Objeto Core (Slots 1 a 5)")
                     },
@@ -1861,7 +1970,7 @@ private fun ItemCatalogSelectionDialog(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text(tr("Buscar objeto en catálogo..."), fontSize = 12.sp, color = TextMuted) },
+                    placeholder = { Text(if (type == "boots") tr("Buscar botas...") else tr("Buscar objeto en catálogo..."), fontSize = 12.sp, color = TextMuted) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -1873,23 +1982,25 @@ private fun ItemCatalogSelectionDialog(
                     )
                 )
 
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(categories) { c ->
-                        val isSel = selectedCat == c
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (isSel) HextechGold.copy(alpha = 0.25f) else HextechSurface)
-                                .border(1.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
-                                .clickable { selectedCat = c }
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = tr(c),
-                                color = if (isSel) HextechGold else TextMuted,
-                                fontSize = 11.sp,
-                                fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
-                            )
+                if (type != "boots") {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        items(categories) { c ->
+                            val isSel = selectedCat == c
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(if (isSel) HextechGold.copy(alpha = 0.25f) else HextechSurface)
+                                    .border(1.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
+                                    .clickable { selectedCat = c }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = tr(c),
+                                    color = if (isSel) HextechGold else TextMuted,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
                         }
                     }
                 }
@@ -1949,15 +2060,16 @@ private fun ItemCatalogSelectionDialog(
 
 @Composable
 private fun RuneCatalogSelectionDialog(
-    mode: String, // "keystone", "secondary", "optional"
+    mode: String, // "keystone", "secondary", "optional_keystone", "optional_secondary"
     excludedRuneNames: Set<String> = emptySet(),
     onDismiss: () -> Unit,
     onSelect: (RuneItem) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCat by remember(mode) { mutableStateOf(if (mode == "optional") "Todas" else if (mode == "keystone") "Clave" else "Secundarias") }
+    val isKeystoneMode = mode == "keystone" || mode == "optional_keystone"
+    var selectedCat by remember(mode) { mutableStateOf("Todas") }
 
-    val categories = if (mode == "optional") listOf("Todas", "Clave", "Secundarias") else emptyList()
+    val categories = if (!isKeystoneMode) listOf("Todas", "Dominación", "Precisión", "Valor", "Inspiración") else emptyList()
 
     val runes = remember(searchQuery, mode, selectedCat, excludedRuneNames) {
         WildRiftSpellsAndRunes.runes.filter { r ->
@@ -1965,15 +2077,16 @@ private fun RuneCatalogSelectionDialog(
             val matchesSearch = r.name.contains(searchQuery, ignoreCase = true)
             val isClave = r.category.equals("Clave", ignoreCase = true)
 
-            val matchesType = when (mode) {
-                "keystone" -> isClave
-                "secondary" -> !isClave
-                "optional" -> when (selectedCat) {
-                    "Clave" -> isClave
-                    "Secundarias" -> !isClave
+            val matchesType = if (isKeystoneMode) {
+                isClave
+            } else {
+                !isClave && when (selectedCat) {
+                    "Dominación" -> r.category.contains("Dominaci", ignoreCase = true)
+                    "Precisión" -> r.category.contains("Precisi", ignoreCase = true)
+                    "Valor" -> r.category.contains("Valor", ignoreCase = true)
+                    "Inspiración" -> r.category.contains("Inspiraci", ignoreCase = true) || r.category.contains("Brujer", ignoreCase = true)
                     else -> true
                 }
-                else -> true
             }
             matchesSearch && matchesType
         }
@@ -1992,8 +2105,10 @@ private fun RuneCatalogSelectionDialog(
                 Text(
                     text = when (mode) {
                         "keystone" -> tr("Seleccionar Runa Clave")
+                        "optional_keystone" -> tr("Seleccionar Runa Clave Opcional")
                         "secondary" -> tr("Seleccionar Runa Secundaria")
-                        else -> tr("Seleccionar Runa Opcional / Situacional")
+                        "optional_secondary" -> tr("Seleccionar Runa Secundaria Opcional")
+                        else -> tr("Seleccionar Runa")
                     },
                     color = HextechGold,
                     fontSize = 15.sp,
@@ -2101,6 +2216,7 @@ private fun RuneCatalogSelectionDialog(
 
 @Composable
 private fun SpellCatalogSelectionDialog(
+    title: String = tr("Seleccionar Hechizo de Invocador"),
     excludedSpellNames: Set<String> = emptySet(),
     onDismiss: () -> Unit,
     onSelect: (SummonerSpellItem) -> Unit
@@ -2120,7 +2236,7 @@ private fun SpellCatalogSelectionDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = tr("Seleccionar Hechizo de Invocador"),
+                    text = title,
                     color = HextechGold,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
