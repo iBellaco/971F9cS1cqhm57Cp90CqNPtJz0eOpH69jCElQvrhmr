@@ -137,6 +137,13 @@ fun AdminSupportReportsDialog(
                 if (supabaseResult.isSuccess) {
                     val supaList = supabaseResult.getOrDefault(emptyList())
                     for (fb in supaList) {
+                        val rawType = fb.type.trim().uppercase()
+                        val isSupport = rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA") ||
+                                fb.title.contains("Soporte", ignoreCase = true) ||
+                                fb.title.contains("Ticket", ignoreCase = true)
+                        
+                        if (!isSupport) continue
+
                         val id = fb.id ?: "${fb.title}_${fb.createdAt}"
                         val status = FeedbackRepository.getReportStatus(context, fb)
                         val email = fb.parsedEmail ?: ""

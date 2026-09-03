@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.LaneRole
 import com.example.ui.components.AppUpdateDialog
+import com.example.ui.components.PrivacyPolicyDialog
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.MainDraftingScreen
 import com.example.ui.screens.OnboardingScreen
@@ -354,6 +355,16 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        com.example.util.SubscriptionManager.init(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        com.example.util.SubscriptionManager.stopHeartbeat()
+    }
 }
 
 @Composable
@@ -621,6 +632,8 @@ fun DraftingApp() {
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     var isLanguageSet by remember { mutableStateOf(sharedPrefs.getBoolean("is_language_set", false)) }
     var hasSeenOnboarding by remember { mutableStateOf(sharedPrefs.getBoolean("has_seen_onboarding", false)) }
+    var showPrivacyPolicyAfterLang by remember { mutableStateOf(false) }
+    var pendingScreenAfterPrivacy by remember { mutableStateOf<AppScreen?>(null) }
     var currentScreen by remember { 
         mutableStateOf(
             when {
@@ -718,11 +731,9 @@ fun DraftingApp() {
                             .apply()
                         isLanguageSet = true
                         selectedLanguage = langCode
-                        if (!hasSeenOnboarding) {
-                            currentScreen = AppScreen.ONBOARDING
-                        } else {
-                            currentScreen = AppScreen.MAIN
-                        }
+                        val next = if (!hasSeenOnboarding) AppScreen.ONBOARDING else AppScreen.MAIN
+                        pendingScreenAfterPrivacy = next
+                        showPrivacyPolicyAfterLang = true
                         // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
                         coroutineScope.launch {
                             AppUpdateManager.checkForUpdates(context, true)
@@ -769,6 +780,18 @@ fun DraftingApp() {
                 )
             }
         }
+    }
+
+    if (showPrivacyPolicyAfterLang) {
+        PrivacyPolicyDialog(
+            onDismiss = {
+                showPrivacyPolicyAfterLang = false
+                pendingScreenAfterPrivacy?.let { next ->
+                    currentScreen = next
+                    pendingScreenAfterPrivacy = null
+                }
+            }
+        )
     }
 }
 }

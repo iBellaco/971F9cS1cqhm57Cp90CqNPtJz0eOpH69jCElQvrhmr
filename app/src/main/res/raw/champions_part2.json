@@ -6394,11 +6394,7 @@
       "Arcoescudo inmortal"
     ],
     "coreItemsIcons": [],
-    "situationalItems": [
-      "Recuerdos de Lord Dominik",
-      "Recordatorio mortal",
-      "Fauces de Malmortius"
-    ],
+    "situationalItems": [],
     "situationalItemsIcons": [],
     "skillOrder": "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
     "skills": [
@@ -6451,37 +6447,30 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/varus",
     "spells": [],
     "primaryRunes": [
-      "Pies Veloces"
+      "Compás Letal"
     ],
-    "build2Runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento De Huesos",
+    "build2Runes": "Primer Golpe,Impacto repentino,Colección de globos oculares,Tirano,Sobrecrecimiento",
     "build2Spells": [],
     "builds": [
       {
-        "title": "DPS Crítico & On-Hit (Matakrakens)",
+        "title": "VARUS DAÑOS DE ATAQUE",
         "lane": "ADC",
         "coreItems": [
           "Matakrakens",
           "Espada del Rey Arruinado",
-          "Arcoescudo inmortal"
+          "Terminus"
         ],
         "items": [
           "Matakrakens",
           "Espada del Rey Arruinado",
-          "Arcoescudo inmortal",
-          "Bailarina fantasma",
-          "Ángel custodio"
+          "Terminus",
+          "Bailarín Espectral",
+          "Ángel de la Guarda"
         ],
         "bootBase": "Grebas de berserker",
-        "bootUpgrade": "Fajín de mercurio",
-        "situationalBoots": [
-          "Botas de mercurio",
-          "Botas de acero revestidas"
-        ],
-        "situationalItems": [
-          "Recuerdos de Lord Dominik",
-          "Recordatorio mortal",
-          "Fauces de Malmortius"
-        ],
+        "bootUpgrade": "Grebas de metal",
+        "situationalBoots": [],
+        "situationalItems": [],
         "primaryRune": "Compás Letal",
         "secondaryRunes": [
           "Brutal",
@@ -6495,30 +6484,24 @@
         ]
       },
       {
-        "title": "Poder de Habilidad (Burst AP & Marcas H2)",
+        "title": "VARUS PODER DE HABILIDAD",
         "lane": "ADC",
         "coreItems": [
           "Diente de Nashor",
-          "Corona de la Reina Ahogada",
-          "Báculo del Vacío"
+          "Anochecer y amanecer",
+          "Bastón vacío"
         ],
         "items": [
           "Diente de Nashor",
-          "Corona de la Reina Ahogada",
-          "Báculo del Vacío",
-          "Sombrero mortal de Rabadon",
-          "Orbe infinito"
+          "Anochecer y amanecer",
+          "Bastón vacío",
+          "Gorro de muerte del miércoles",
+          "El reloj de arena de Zhonya"
         ],
         "bootBase": "Botas de maná",
-        "bootUpgrade": "Estasis",
-        "situationalBoots": [
-          "Botas de mercurio"
-        ],
-        "situationalItems": [
-          "Tridente de oceánida",
-          "El tormento de Liandry",
-          "Impulso cósmico"
-        ],
+        "bootUpgrade": "Botas del lanzahechizos",
+        "situationalBoots": [],
+        "situationalItems": [],
         "primaryRune": "Primer Golpe",
         "secondaryRunes": [
           "Impacto repentino",
@@ -6532,30 +6515,24 @@
         ]
       },
       {
-        "title": "Hostigamiento & Letalidad (Snipe H1 Poke)",
+        "title": "VARUS HOSTIGAMIENTO",
         "lane": "ADC",
         "coreItems": [
           "Manamune",
-          "Al filo de la noche",
+          "Filo de la noche",
           "El rencor de Serylda"
         ],
         "items": [
           "Manamune",
-          "Al filo de la noche",
+          "Filo de la noche",
           "El rencor de Serylda",
           "Colmillo de serpiente",
           "Ángel custodio"
         ],
-        "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Protocinturón",
-        "situationalBoots": [
-          "Botas de mercurio"
-        ],
-        "situationalItems": [
-          "Fauces de Malmortius",
-          "Filo de la noche",
-          "Recuerdos de Lord Dominik"
-        ],
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
+        "situationalBoots": [],
+        "situationalItems": [],
         "primaryRune": "Primer Golpe",
         "secondaryRunes": [
           "Impacto repentino",
@@ -6565,7 +6542,7 @@
         ],
         "spells": [
           "Destello",
-          "Fantasma"
+          "Barrera"
         ]
       }
     ]

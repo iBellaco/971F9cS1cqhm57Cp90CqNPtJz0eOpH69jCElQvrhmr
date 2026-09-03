@@ -615,8 +615,7 @@ object ChampionRoleAdapter {
                 val cleanItems = (if (b.items.isNotEmpty()) b.items else defaultBuild8).filter { !isBootItem(it) }
                 val bBootBase = if (b.bootBase.isNotBlank()) b.bootBase else if (bRole == "Top") "Botas blindadas" else if (bRole == "Jungla" && champ.damageType == DamageType.PHYSICAL) "Botas dinámicas" else defaultBootBase
                 val bBootUpgrade = if (b.bootUpgrade.isNotBlank()) b.bootUpgrade else getTier3BootUpgrade(bBootBase)
-                val baseSitBoots = getSituationalBoots(bBootBase, champ.damageType, champ.isFrontline, champ.isRanged, role)
-                val bSituationalBoots = (b.situationalBoots + baseSitBoots).filter { !it.equals(bBootBase, ignoreCase = true) }.distinct()
+                val bSituationalBoots = b.situationalBoots.filter { !it.equals(bBootBase, ignoreCase = true) }.distinct()
 
                 ChampionBuildOption(
                     optionNumber = idx + 1,

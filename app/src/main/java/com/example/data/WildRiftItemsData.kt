@@ -496,6 +496,20 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1768000022_abb24fd724faa77b82baf985dea956b8eae9f31a-512x512.webp"
         ),
         WildRiftItem(
+            id = "immortal_shieldbow",
+            name = "Arcoescudo inmortal",
+            nameEn = "Immortal Shieldbow",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+40 Daño de Ataque • +25% Probabilidad de Crítico • +15% Velocidad de Ataque",
+            statsEn = "+40 Attack Damage • +25% Critical Strike Chance • +15% Attack Speed",
+            passive = "Línea de vida: Si recibes daño que reduciría tu vida por debajo del 35%, obtienes un escudo que absorbe daño durante 5 s.\nFrenesí: Activar Línea de vida otorga velocidad de ataque y daño adicional.",
+            passiveEn = "Lifeline: Upon taking damage that would reduce maximum health below 35%, gain a shield for 5s.\nFrenzy: Triggering Lifeline grants bonus Attack Speed and AD.",
+            coachTip = "El mejor objeto defensivo para tiradores. Su escudo salva vidas contra daño masivo y asesinos explosivos.",
+            coachTipEn = "Premier defensive critical item for marksmen. Lifeline shield prevents sudden assassinations.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300898_immortal-shieldbow.webp"
+        ),
+        WildRiftItem(
             id = "wild_rift__kraken_slayer",
             name = "Matakrakens",
             nameEn = "Kraken Slayer",
@@ -760,6 +774,20 @@ object WildRiftItemsData {
             coachTip = "Transformación definitiva del Báculo del arcángel. Otorga un inmenso poder de habilidad por maná y un escudo automático para sobrevivir al daño de ráfaga asesino.",
             coachTipEn = "Upgraded form of Archangel's Staff. Grants massive AP based on mana and an emergency lifeline shield.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388429_seraphs-embrace.webp"
+        ),
+        WildRiftItem(
+            id = "crown_of_the_shattered_queen",
+            name = "Corona de la Reina Ahogada",
+            nameEn = "Crown of the Shattered Queen",
+            category = "Objetos de Daño Mágico",
+            goldCost = 3000,
+            stats = "+70 Poder de Habilidad • +200 Salud Máxima • +20 Celeridad de Habilidad • +7% Velocidad de Movimiento",
+            statsEn = "+70 Ability Power • +200 Max Health • +20 Ability Haste • +7% Move Speed",
+            passive = "Salvaguarda: Te protege reduciendo el daño recibido un 70% durante 1.5 s tras recibir daño de campeones.\nDesarmonía: Otorga AP adicional mientras Salvaguarda esté activa.",
+            passiveEn = "Safeguard: Gain 70% damage reduction for 1.5s after taking champion damage.\nPoise: Grants bonus AP while Safeguarded.",
+            coachTip = "Objeto crucial para magos vulnerables contra asesinos de ráfaga y composiciones con iniciaciones pesadas.",
+            coachTipEn = "Crucial defensive mage item against burst assassins and heavy dive teams.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388710_crown-of-the-shattered-queen.webp"
         ),
         WildRiftItem(
             id = "infinity_orb",
@@ -3127,6 +3155,12 @@ object WildRiftItemsData {
         "immortal shieldbow" to "immortal_shieldbow",
         "arcoescudo inmortal" to "immortal_shieldbow",
         "el arcoescudo inmortal" to "immortal_shieldbow",
+        "crown of the shattered queen" to "crown_of_the_shattered_queen",
+        "corona de la reina ahogada" to "crown_of_the_shattered_queen",
+        "la corona de la reina ahogada" to "crown_of_the_shattered_queen",
+        "corona de la reina fragmentada" to "crown_of_the_shattered_queen",
+        "la corona de la reina fragmentada" to "crown_of_the_shattered_queen",
+        "corona de la reina" to "crown_of_the_shattered_queen",
         "hullbreaker" to "hullbreaker",
         "rompecascos" to "hullbreaker",
         "el rompecascos" to "hullbreaker",
@@ -3153,7 +3187,15 @@ object WildRiftItemsData {
         "quicksilver sash" to "quicksilver_sash_mid_tier",
         "fajin de mercurio" to "quicksilver_sash_mid_tier",
         "fajín de mercurio" to "quicksilver_sash_mid_tier",
-        "el fajin de mercurio" to "quicksilver_sash_mid_tier"
+        "el fajin de mercurio" to "quicksilver_sash_mid_tier",
+        "bailarin espectral" to "phantom_dancer",
+        "bailarín espectral" to "phantom_dancer",
+        "el bailarin espectral" to "phantom_dancer",
+        "el bailarín espectral" to "phantom_dancer",
+        "botas del lanzahechicero" to "spellslinger_s_shoes",
+        "botas de lanzahechicero" to "spellslinger_s_shoes",
+        "grebas de metal" to "gunmetal_greaves",
+        "botas quebrantarmaduras" to "armorcrusher_boots"
     )
 
     private fun normalizeString(input: String): String {

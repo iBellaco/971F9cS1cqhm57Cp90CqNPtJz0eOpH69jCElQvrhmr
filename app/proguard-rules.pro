@@ -1,23 +1,56 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# ===================================================================
+# OFUSCACIÓN AVANZADA Y REGLAS DE SEGURIDAD R8 / PROGUARD
+# ===================================================================
 
-# Keep data models used for serialization (Moshi, Supabase/Kotlinx Serialization, Firebase, Room)
+# Optimización y reducción de metadatos de depuración
+-optimizationpasses 5
+-allowaccessmodification
+-repackageclasses 'com.example.wrdftx.o'
+-renamesourcefileattribute SourceFile
+-keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature, Exceptions
+
+# Eliminar logs de depuración en compilaciones ofuscadas de release
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}
+
+# Mantener Componentes Clave del Sistema Android (Declarados en AndroidManifest)
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+
+# Keep data models used for serialization (Kotlinx Serialization, Firebase, Room, Json)
 -keep class com.example.model.** { *; }
 -keep class com.example.data.remote.model.** { *; }
 -keep class com.example.data.supabase.model.** { *; }
 -keep class com.example.data.local.entity.** { *; }
 
-# Firebase (General safety for Reflection-based mapping)
+# Mantener serializadores generados por kotlinx.serialization
+-keepclassmembers class * {
+    @kotlinx.serialization.SerialName <fields>;
+}
+-keepclassmembers class * implements kotlinx.serialization.KSerializer {
+    public static *** INSTANCE;
+}
+-keepclassmembers class * {
+    *** Companion;
+}
+-keepclasseswithmembers class * {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+# Firebase & Google Play Services (Mapeos y Reflection)
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.**
 
-# Supabase (Ktor and Serialization)
--keep class io.ktor.** { *; }
--keep class io.github.jan.supabase.** { *; }
--keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature
-
-# Room (Keep Dao methods)
+# Room (Mantener DAOs y Entidades)
 -keep class com.example.data.local.dao.** { *; }
 -keepclassmembers class * {
     @androidx.room.Query *;
@@ -27,18 +60,23 @@
     @androidx.room.Transaction *;
 }
 
-# Coroutines
+# Jetpack Compose (Reglas de estabilidad para recomposiciones)
+-keep class androidx.compose.** { *; }
+-dontwarn androidx.compose.**
+
+# Coroutines & Kotlin Reflection
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-dontwarn kotlinx.coroutines.**
 
-# Moshi
--keep class * extends com.squareup.moshi.JsonAdapter {
-    public <init>(...);
-}
--keepclassmembers class * {
-    @com.squareup.moshi.Json *;
-}
-
-# Ktor Android missing classes
+# Jsoup & Networking
+-keep class org.jsoup.** { *; }
+-dontwarn org.jsoup.**
 -dontwarn java.lang.management.**
--dontwarn io.ktor.util.debug.**
+-dontwarn io.ktor.**
+
+# Módulos de Seguridad y Anti-Tampering (Evitar que sean removidos por dead-code elimination)
+-keep class com.example.util.AppSecurityManager { *; }
+-keep class com.example.util.DeviceAndSessionManager { *; }
+-keep class com.example.util.SubscriptionManager { *; }
+

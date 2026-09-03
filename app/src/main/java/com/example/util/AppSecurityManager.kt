@@ -14,15 +14,15 @@ object AppSecurityManager {
 
     /**
      * OWASP MASVS: Resiliency Against Reverse Engineering (MSTG-RESILIENCE)
-     * Basic Root Detection mechanism.
+     * Advanced Root & Hooking Detection (Frida, Xposed, Magisk, Zygisk).
      */
     fun isDeviceRooted(): Boolean {
-        return checkRootFiles() || checkTestKeys()
+        return checkRootFiles() || checkTestKeys() || checkMagiskMounts() || isFridaOrHookingDetected()
     }
 
     private fun checkTestKeys(): Boolean {
         val buildTags = Build.TAGS
-        return buildTags != null && buildTags.contains("test-keys")
+        return buildTags != null && (buildTags.contains("test-keys") || buildTags.contains("release-keys") == false && buildTags.contains("debug"))
     }
 
     private fun checkRootFiles(): Boolean {
@@ -36,13 +36,58 @@ object AppSecurityManager {
             "/system/sd/xbin/su",
             "/system/bin/failsafe/su",
             "/data/local/su",
-            "/su/bin/su"
+            "/su/bin/su",
+            "/data/local/tmp/su",
+            "/system/xbin/daemonsu"
         )
         for (path in paths) {
-            if (File(path).exists()) {
-                return true
-            }
+            try {
+                if (File(path).exists()) {
+                    return true
+                }
+            } catch (_: Exception) {}
         }
+        return false
+    }
+
+    private fun checkMagiskMounts(): Boolean {
+        return try {
+            val mounts = File("/proc/mounts").readText()
+            mounts.contains("magisk") || mounts.contains("core/mirror") || mounts.contains("core/img")
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * OWASP MASVS: Anti-Hooking / Frida / Xposed Detection
+     */
+    fun isFridaOrHookingDetected(): Boolean {
+        // 1. Check for Frida / Hooking artifacts in filesystem
+        val fridaPaths = arrayOf(
+            "/data/local/tmp/frida-server",
+            "/data/local/tmp/re.frida.server",
+            "/data/local/tmp/frida",
+            "/system/lib/libgadget.so",
+            "/data/local/tmp/libgadget.so"
+        )
+        for (p in fridaPaths) {
+            try {
+                if (File(p).exists()) return true
+            } catch (_: Exception) {}
+        }
+
+        // 2. Check /proc/self/maps for injected hooking libraries
+        try {
+            val maps = File("/proc/self/maps").readLines()
+            for (line in maps) {
+                val lower = line.lowercase()
+                if (lower.contains("frida") || lower.contains("xposed") || lower.contains("substrate") || lower.contains("gadget")) {
+                    return true
+                }
+            }
+        } catch (_: Exception) {}
+
         return false
     }
 

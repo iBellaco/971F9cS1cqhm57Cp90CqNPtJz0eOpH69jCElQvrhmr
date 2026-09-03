@@ -95,6 +95,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -170,8 +173,26 @@ import java.util.TimeZone
 
 enum class FeedbackCategoryTab(val titleKey: String, val icon: ImageVector) {
     ALL("Todos", Icons.Default.Inbox),
-    BUGS("Reportes", Icons.Default.BugReport),
-    SUGGESTIONS("Sugerencias", Icons.Default.Lightbulb)
+    BUGS("Bugs", Icons.Default.BugReport),
+    SUGGESTIONS("Sugerencias", Icons.Default.Lightbulb),
+    BUILDS("Builds", Icons.Default.SportsEsports),
+    SUPPORT("Soporte", Icons.Default.SupportAgent)
+}
+
+/**
+ * Clasifica de forma estricta y segura el tipo de feedback para evitar mezclas
+ */
+fun getFeedbackCategory(report: FeedbackReport): String {
+    val rawType = report.type.trim().uppercase(Locale.US)
+    val desc = report.cleanDescription.ifEmpty { report.description }
+    val title = report.title
+
+    return when {
+        rawType in listOf("BUG", "ERROR", "BUG_REPORT", "BUG / ERROR") -> "BUG"
+        rawType in listOf("BUILD_SUGGESTION", "BUILD", "SUGERIR BUILD", "SUGERENCIA DE BUILD") || parseBuildSuggestionFromText(desc, title) != null -> "BUILD"
+        rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA") -> "SUPPORT"
+        else -> "SUGGESTION"
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -238,42 +259,54 @@ fun AdminFeedbackBottomSheet(
         loadReports()
     }
 
-    // Contadores
+    // Contadores y listas clasificadas
     val totalCount = reports.size
-    val bugList = remember(reports) { reports.filter { it.type.equals("BUG", ignoreCase = true) } }
-    val suggestionList = remember(reports) { reports.filter { it.type.equals("SUGGESTION", ignoreCase = true) } }
+    val bugList = remember(reports) { reports.filter { getFeedbackCategory(it) == "BUG" } }
+    val suggestionList = remember(reports) { reports.filter { getFeedbackCategory(it) == "SUGGESTION" } }
+    val buildList = remember(reports) { reports.filter { getFeedbackCategory(it) == "BUILD" } }
+    val supportList = remember(reports) { reports.filter { getFeedbackCategory(it) == "SUPPORT" } }
 
-    val pendingCount = remember(reports, statusMap.toMap()) {
-        reports.count {
+    val currentCategoryItems = remember(reports, currentCategoryTab, bugList, suggestionList, buildList, supportList) {
+        when (currentCategoryTab) {
+            FeedbackCategoryTab.ALL -> reports
+            FeedbackCategoryTab.BUGS -> bugList
+            FeedbackCategoryTab.SUGGESTIONS -> suggestionList
+            FeedbackCategoryTab.BUILDS -> buildList
+            FeedbackCategoryTab.SUPPORT -> supportList
+        }
+    }
+
+    val pendingCount = remember(currentCategoryItems, statusMap.toMap()) {
+        currentCategoryItems.count {
             val key = it.id ?: "${it.title}_${it.createdAt}"
             (statusMap[key] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING
         }
     }
 
-    val solvedCount = remember(reports, statusMap.toMap()) {
-        reports.count {
+    val solvedCount = remember(currentCategoryItems, statusMap.toMap()) {
+        currentCategoryItems.count {
             val key = it.id ?: "${it.title}_${it.createdAt}"
             val s = statusMap[key]
             s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED
         }
     }
 
-    val readCount = remember(reports, statusMap.toMap()) {
-        reports.count {
+    val readCount = remember(currentCategoryItems, statusMap.toMap()) {
+        currentCategoryItems.count {
             val key = it.id ?: "${it.title}_${it.createdAt}"
             statusMap[key] == FeedbackRepository.STATUS_READ
         }
     }
 
-    val acceptedCount = remember(reports, statusMap.toMap()) {
-        reports.count {
+    val acceptedCount = remember(currentCategoryItems, statusMap.toMap()) {
+        currentCategoryItems.count {
             val key = it.id ?: "${it.title}_${it.createdAt}"
             statusMap[key] == FeedbackRepository.STATUS_ACCEPTED
         }
     }
 
-    val rejectedCount = remember(reports, statusMap.toMap()) {
-        reports.count {
+    val rejectedCount = remember(currentCategoryItems, statusMap.toMap()) {
+        currentCategoryItems.count {
             val key = it.id ?: "${it.title}_${it.createdAt}"
             statusMap[key] == FeedbackRepository.STATUS_REJECTED
         }
@@ -284,14 +317,15 @@ fun AdminFeedbackBottomSheet(
         reports.filter { item ->
             val key = item.id ?: "${item.title}_${item.createdAt}"
             val currentStatus = statusMap[key] ?: FeedbackRepository.STATUS_PENDING
-            val isBug = item.type.equals("BUG", ignoreCase = true)
-            val isSuggestion = item.type.equals("SUGGESTION", ignoreCase = true)
+            val cat = getFeedbackCategory(item)
 
             // Filtro por pestaña principal
             val matchCategory = when (currentCategoryTab) {
                 FeedbackCategoryTab.ALL -> true
-                FeedbackCategoryTab.BUGS -> isBug
-                FeedbackCategoryTab.SUGGESTIONS -> isSuggestion
+                FeedbackCategoryTab.BUGS -> cat == "BUG"
+                FeedbackCategoryTab.SUGGESTIONS -> cat == "SUGGESTION"
+                FeedbackCategoryTab.BUILDS -> cat == "BUILD"
+                FeedbackCategoryTab.SUPPORT -> cat == "SUPPORT"
             }
 
             // Filtro por subestado
@@ -437,11 +471,12 @@ fun AdminFeedbackBottomSheet(
                 }
             }
 
-            // Pestañas Principales (Todos / Reportes / Sugerencias)
-            TabRow(
+            // Pestañas Principales con Scroll Horizontal para 5 categorías bien diferenciadas
+            ScrollableTabRow(
                 selectedTabIndex = currentCategoryTab.ordinal,
                 containerColor = HextechSurface,
                 contentColor = HextechGold,
+                edgePadding = 8.dp,
                 indicator = { tabPositions ->
                     if (currentCategoryTab.ordinal in tabPositions.indices) {
                         TabRowDefaults.SecondaryIndicator(
@@ -458,6 +493,8 @@ fun AdminFeedbackBottomSheet(
                         FeedbackCategoryTab.ALL -> totalCount
                         FeedbackCategoryTab.BUGS -> bugList.size
                         FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
+                        FeedbackCategoryTab.BUILDS -> buildList.size
+                        FeedbackCategoryTab.SUPPORT -> supportList.size
                     }
                     Tab(
                         selected = isSelected,
@@ -504,6 +541,8 @@ fun AdminFeedbackBottomSheet(
                             FeedbackCategoryTab.ALL -> totalCount
                             FeedbackCategoryTab.BUGS -> bugList.size
                             FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
+                            FeedbackCategoryTab.BUILDS -> buildList.size
+                            FeedbackCategoryTab.SUPPORT -> supportList.size
                         },
                         isSelected = selectedSubFilter == "ALL",
                         color = HextechGold,
@@ -514,26 +553,20 @@ fun AdminFeedbackBottomSheet(
                 item {
                     StatusFilterChip(
                         label = tr("⏳ Pendientes"),
-                        count = when (currentCategoryTab) {
-                            FeedbackCategoryTab.ALL -> pendingCount
-                            FeedbackCategoryTab.BUGS -> bugList.count { (statusMap[it.id ?: "${it.title}_${it.createdAt}"] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING }
-                            FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { (statusMap[it.id ?: "${it.title}_${it.createdAt}"] ?: FeedbackRepository.STATUS_PENDING) == FeedbackRepository.STATUS_PENDING }
-                        },
+                        count = pendingCount,
                         isSelected = selectedSubFilter == "PENDING",
                         color = Color(0xFFFFB300),
                         onClick = { selectedSubFilter = "PENDING" }
                     )
                 }
 
-                if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.BUGS) {
+                if (currentCategoryTab == FeedbackCategoryTab.ALL ||
+                    currentCategoryTab == FeedbackCategoryTab.BUGS ||
+                    currentCategoryTab == FeedbackCategoryTab.SUPPORT) {
                     item {
                         StatusFilterChip(
                             label = tr("️ Leídos"),
-                            count = when (currentCategoryTab) {
-                                FeedbackCategoryTab.ALL -> readCount
-                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_READ }
-                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_READ }
-                            },
+                            count = readCount,
                             isSelected = selectedSubFilter == "READ",
                             color = HextechCyan,
                             onClick = { selectedSubFilter = "READ" }
@@ -543,11 +576,7 @@ fun AdminFeedbackBottomSheet(
                     item {
                         StatusFilterChip(
                             label = tr(" Solucionados"),
-                            count = when (currentCategoryTab) {
-                                FeedbackCategoryTab.ALL -> solvedCount
-                                FeedbackCategoryTab.BUGS -> bugList.count { val s = statusMap[it.id ?: "${it.title}_${it.createdAt}"]; s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED }
-                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { val s = statusMap[it.id ?: "${it.title}_${it.createdAt}"]; s == FeedbackRepository.STATUS_SOLVED || s == FeedbackRepository.STATUS_COMPLETED }
-                            },
+                            count = solvedCount,
                             isSelected = selectedSubFilter == "SOLVED",
                             color = HextechGreen,
                             onClick = { selectedSubFilter = "SOLVED" }
@@ -555,15 +584,13 @@ fun AdminFeedbackBottomSheet(
                     }
                 }
 
-                if (currentCategoryTab == FeedbackCategoryTab.ALL || currentCategoryTab == FeedbackCategoryTab.SUGGESTIONS) {
+                if (currentCategoryTab == FeedbackCategoryTab.ALL ||
+                    currentCategoryTab == FeedbackCategoryTab.SUGGESTIONS ||
+                    currentCategoryTab == FeedbackCategoryTab.BUILDS) {
                     item {
                         StatusFilterChip(
                             label = tr(" Aceptadas"),
-                            count = when (currentCategoryTab) {
-                                FeedbackCategoryTab.ALL -> acceptedCount
-                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_ACCEPTED }
-                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_ACCEPTED }
-                            },
+                            count = acceptedCount,
                             isSelected = selectedSubFilter == "ACCEPTED",
                             color = HextechGold,
                             onClick = { selectedSubFilter = "ACCEPTED" }
@@ -573,11 +600,7 @@ fun AdminFeedbackBottomSheet(
                     item {
                         StatusFilterChip(
                             label = tr(" Rechazadas"),
-                            count = when (currentCategoryTab) {
-                                FeedbackCategoryTab.ALL -> rejectedCount
-                                FeedbackCategoryTab.BUGS -> bugList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_REJECTED }
-                                FeedbackCategoryTab.SUGGESTIONS -> suggestionList.count { statusMap[it.id ?: "${it.title}_${it.createdAt}"] == FeedbackRepository.STATUS_REJECTED }
-                            },
+                            count = rejectedCount,
                             isSelected = selectedSubFilter == "REJECTED",
                             color = DangerRed,
                             onClick = { selectedSubFilter = "REJECTED" }
@@ -1168,7 +1191,8 @@ private fun ComprehensiveFeedbackCard(
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
-    val isBug = report.type.equals("BUG", ignoreCase = true)
+    val itemCategory = remember(report) { getFeedbackCategory(report) }
+    val isBugOrSupport = itemCategory == "BUG" || itemCategory == "SUPPORT"
 
     // Parsear sugerencia de build si contiene el formato estructurado
     val parsedBuild = remember(report.cleanDescription, report.description, report.title) {
@@ -1181,12 +1205,11 @@ private fun ComprehensiveFeedbackCard(
     }
 
     // Información del tipo
-    val (typeColor, typeIcon, typeLabel) = if (isBug) {
-        Triple(DangerRed, Icons.Default.BugReport, "BUG / ERROR")
-    } else if (parsedBuild != null) {
-        Triple(HextechGold, Icons.Default.Star, "BUILD SUGERIDA")
-    } else {
-        Triple(Color(0xFFFFB74D), Icons.Default.Lightbulb, "SUGERENCIA")
+    val (typeColor, typeIcon, typeLabel) = when (itemCategory) {
+        "BUG" -> Triple(DangerRed, Icons.Default.BugReport, "BUG / ERROR")
+        "SUPPORT" -> Triple(HextechCyan, Icons.Default.SupportAgent, "SOPORTE")
+        "BUILD" -> Triple(HextechGold, Icons.Default.SportsEsports, "BUILD SUGERIDA")
+        else -> Triple(Color(0xFFFFB74D), Icons.Default.Lightbulb, "SUGERENCIA")
     }
 
     // Información del estado visual actual
@@ -1457,8 +1480,8 @@ private fun ComprehensiveFeedbackCard(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    if (isBug) {
-                        // Opciones de Reportes: Pendiente | Leído | Solucionado
+                    if (isBugOrSupport) {
+                        // Opciones de Reportes / Soporte: Pendiente | Leído | Solucionado
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -1489,7 +1512,7 @@ private fun ComprehensiveFeedbackCard(
                             )
                         }
                     } else {
-                        // Opciones de Sugerencias: Pendiente | Aceptada | Rechazada
+                        // Opciones de Sugerencias / Builds: Pendiente | Aceptada | Rechazada
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)

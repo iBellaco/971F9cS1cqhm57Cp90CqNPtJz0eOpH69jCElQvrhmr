@@ -67,8 +67,14 @@ data class UserRecord(
     val avatarId: String = "default_poro",
     val unlockedAvatars: List<String> = emptyList(),
     val premiumUntil: Long? = null,
-    val registeredDevices: List<String> = emptyList()
-)
+    val registeredDevices: List<String> = emptyList(),
+    val isOnlineDoc: Boolean = false,
+    val duplicateUids: List<String> = emptyList()
+) {
+    fun isRealTimeOnline(currentTime: Long): Boolean {
+        return (isOnlineDoc && (currentTime - lastActive in 0L..300_000L)) || ((currentTime - lastActive) in 0L..120_000L)
+    }
+}
 
 // LoL Themed Palette Constants
 private val LolDeepNavy = Color(0xFF040A14)
@@ -313,6 +319,13 @@ fun AdminDashboardDialog(
     // Search and filter states
     var searchQuery by remember { mutableStateOf("") }
     var selectedRoleFilter by remember { mutableStateOf("ALL") }
+    var dashboardCurrentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(2000L)
+            dashboardCurrentTime = System.currentTimeMillis()
+        }
+    }
 
     DisposableEffect(Unit) {
         isLoading = true
@@ -324,41 +337,74 @@ fun AdminDashboardDialog(
                     return@addSnapshotListener
                 }
                 if (snapshot != null) {
-                    val list = snapshot.documents.mapNotNull { doc ->
+                    val rawList = snapshot.documents.mapNotNull { doc ->
                         try {
-                            val email = doc.getString("email") ?: "Sin email"
+                            val email = doc.getString("email")?.trim() ?: ""
                             val role = doc.getString("role") ?: "free"
                             val lastActive = doc.getLong("last_active") ?: 0L
                             val name = doc.getString("name") ?: ""
                             val avatarId = doc.getString("avatarId") ?: "default_poro"
                             val premiumUntil = doc.getLong("premiumUntil")
+                            val isOnline = doc.getBoolean("is_online") ?: false
                             @Suppress("UNCHECKED_CAST")
                             val unlocked = doc.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
                             @Suppress("UNCHECKED_CAST")
                             val regDevices = doc.get("registeredDevices") as? List<String> ?: emptyList()
-                            UserRecord(doc.id, email, role, lastActive, name, avatarId, unlocked, premiumUntil, regDevices)
+                            UserRecord(doc.id, email.ifBlank { "Sin email" }, role, lastActive, name, avatarId, unlocked, premiumUntil, regDevices, isOnline)
                         } catch (e: Exception) {
                             Log.e("AdminDashboard", "Error parsing user doc ${doc.id}", e)
                             null
                         }
-                    }.let { parsed ->
-                        val validEmails = parsed.map { it.email.lowercase().trim() }.filter { it.isNotBlank() && it != "sin email" }.toSet()
-                        parsed.filter { user ->
-                            val emailNorm = user.email.lowercase().trim()
-                            if (emailNorm.isBlank() || emailNorm == "sin email") {
-                                validEmails.isEmpty()
-                            } else {
-                                true
-                            }
-                        }.distinctBy { 
-                            val emailNorm = it.email.lowercase().trim()
-                            if (emailNorm.isBlank() || emailNorm == "sin email") it.uid else emailNorm
-                        }
                     }
-                    .sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
-                        .thenByDescending { it.role == "premium" }
-                        .thenBy { it.name.ifEmpty { it.email } })
-                    users = list
+
+                    // Deduplication by unique human user (grouping multiple docs for same email)
+                    val groupedUsers = mutableListOf<UserRecord>()
+                    val (withEmail, withoutEmail) = rawList.partition { it.email.isNotBlank() && it.email != "Sin email" }
+
+                    withEmail.groupBy { it.email.lowercase().trim() }.forEach { (_, group) ->
+                        val primary = group.maxWithOrNull(
+                            compareBy<UserRecord> { it.role == "admin" }
+                                .thenBy { it.role == "premium" }
+                                .thenBy { it.lastActive }
+                                .thenBy { it.name.isNotBlank() }
+                        ) ?: group.first()
+
+                        val allDevices = group.flatMap { it.registeredDevices }.distinct()
+                        val allAvatars = group.flatMap { it.unlockedAvatars }.distinct()
+                        val maxLastActive = group.maxOf { it.lastActive }
+                        val anyOnline = group.any { it.isOnlineDoc || (System.currentTimeMillis() - it.lastActive < 120_000L) }
+                        val duplicates = group.map { it.uid }.filter { it != primary.uid }
+                        val bestName = group.map { it.name }.firstOrNull { it.isNotBlank() } ?: primary.name
+                        val bestRole = when {
+                            group.any { it.role == "admin" } -> "admin"
+                            group.any { it.role == "premium" } -> "premium"
+                            group.any { it.role == "banned" } -> "banned"
+                            else -> primary.role
+                        }
+
+                        groupedUsers.add(
+                            primary.copy(
+                                name = bestName,
+                                role = bestRole,
+                                lastActive = maxLastActive,
+                                registeredDevices = allDevices,
+                                unlockedAvatars = allAvatars,
+                                isOnlineDoc = anyOnline,
+                                duplicateUids = duplicates
+                            )
+                        )
+                    }
+
+                    withoutEmail.forEach { anonUser ->
+                        groupedUsers.add(anonUser)
+                    }
+
+                    users = groupedUsers.sortedWith(
+                        compareByDescending<UserRecord> { it.role == "admin" }
+                            .thenByDescending { it.role == "premium" }
+                            .thenByDescending { it.isRealTimeOnline(System.currentTimeMillis()) }
+                            .thenBy { it.name.ifEmpty { it.email } }
+                    )
                     isLoading = false
                 }
             }
@@ -381,7 +427,7 @@ fun AdminDashboardDialog(
     }
 
     // Filtered user list
-    val filteredUsers = remember(users, searchQuery, selectedRoleFilter) {
+    val filteredUsers = remember(users, searchQuery, selectedRoleFilter, dashboardCurrentTime) {
         users.filter { user ->
             val matchesQuery = if (searchQuery.isBlank()) {
                 true
@@ -393,6 +439,7 @@ fun AdminDashboardDialog(
 
             val matchesRole = when (selectedRoleFilter) {
                 "ALL" -> true
+                "ONLINE" -> user.isRealTimeOnline(dashboardCurrentTime)
                 "ADMIN" -> user.role.equals("admin", ignoreCase = true)
                 "PREMIUM" -> user.role.equals("premium", ignoreCase = true)
                 "FREE" -> user.role.equals("free", ignoreCase = true)
@@ -662,24 +709,15 @@ fun AdminDashboardDialog(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // --- ADMIN STATS DASHBOARD ---
-                        val totalUsers = users.count { user ->
-                            val email = user.email.lowercase().trim()
-                            email.isNotBlank() && 
-                            email != "sin email" && 
-                            !email.contains("test") && 
-                            !email.contains("example") && 
-                            !email.contains("dummy")
-                        }.coerceAtLeast(if (users.isNotEmpty()) 1 else 0)
-                        val currentTime = System.currentTimeMillis()
-                        val registeredAndLoggedIn = users.count { user ->
-                            user.lastActive > (currentTime - 30 * 60 * 1000L) || user.registeredDevices.isNotEmpty()
-                        }.coerceAtLeast(if (totalUsers > 0) 1 else 0)
-                        val pendingRegistration = 0
+                        val totalUsers = users.size
+                        val onlineUsersCount = users.count { it.isRealTimeOnline(dashboardCurrentTime) }
+                        val loggedInUsers = users.count { it.email.isNotBlank() && it.email != "Sin email" }
+                        val premiumUsers = users.count { it.role.equals("premium", ignoreCase = true) }
 
                         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 AdminStatCard(
                                     modifier = Modifier.weight(1f),
@@ -691,19 +729,27 @@ fun AdminDashboardDialog(
                                 )
                                 AdminStatCard(
                                     modifier = Modifier.weight(1f),
-                                    title = "INICIADOS",
-                                    value = registeredAndLoggedIn.toString(),
+                                    title = "EN LÍNEA",
+                                    value = onlineUsersCount.toString(),
                                     icon = Icons.Default.CheckCircle,
                                     accentColor = LolZaunGreen,
                                     glowColor = Color(0xFF39FF14)
                                 )
                                 AdminStatCard(
                                     modifier = Modifier.weight(1f),
-                                    title = "PENDIENTES",
-                                    value = pendingRegistration.toString(),
-                                    icon = Icons.Default.Warning,
-                                    accentColor = LolNoxusRed,
-                                    glowColor = Color(0xFFFF5252)
+                                    title = "CON SESIÓN",
+                                    value = loggedInUsers.toString(),
+                                    icon = Icons.Default.VerifiedUser,
+                                    accentColor = LolBorderGold,
+                                    glowColor = Color(0xFFFFD700)
+                                )
+                                AdminStatCard(
+                                    modifier = Modifier.weight(1f),
+                                    title = "PREMIUM",
+                                    value = premiumUsers.toString(),
+                                    icon = Icons.Default.Stars,
+                                    accentColor = LolGoldLight,
+                                    glowColor = Color(0xFFFFE082)
                                 )
                             }
                         }
@@ -767,6 +813,7 @@ fun AdminDashboardDialog(
                         ) {
                             val filterOptions = listOf(
                                 "ALL" to "TODOS (${users.size})",
+                                "ONLINE" to "🟢 EN LÍNEA (${users.count { it.isRealTimeOnline(dashboardCurrentTime) }})",
                                 "ADMIN" to "ADMINS (${users.count { it.role == "admin" }})",
                                 "PREMIUM" to "PREMIUM (${users.count { it.role == "premium" }})",
                                 "FREE" to "FREE (${users.count { it.role == "free" }})",
@@ -978,6 +1025,17 @@ fun RunicGoldDivider() {
     }
 }
 
+private fun formatRelativeTime(timestamp: Long, currentTime: Long): String {
+    if (timestamp <= 0L) return "Sin actividad"
+    val diff = (currentTime - timestamp).coerceAtLeast(0L)
+    return when {
+        diff < 60_000L -> "Hace unos seg"
+        diff < 3_600_000L -> "Hace ${diff / 60_000L}m"
+        diff < 86_400_000L -> "Hace ${diff / 3_600_000L}h"
+        else -> "Hace ${diff / 86_400_000L}d"
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementCard(
@@ -992,10 +1050,11 @@ fun UserManagementCard(
     var showNameEdit by remember { mutableStateOf(false) }
     var showGiftAvatarDialog by remember { mutableStateOf(false) }
     var showSubscriptionTimeDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while(true) { kotlinx.coroutines.delay(1000L); currentTime = System.currentTimeMillis() } }
 
-    val isOnline = System.currentTimeMillis() - user.lastActive < 900_000
+    val isOnline = user.isRealTimeOnline(currentTime)
     val isExpired = user.role.equals("premium", ignoreCase = true) && user.premiumUntil != null && user.premiumUntil > 0L && user.premiumUntil <= System.currentTimeMillis()
 
     val roleColor = when (user.role.lowercase()) {
@@ -1033,6 +1092,16 @@ fun UserManagementCard(
             repeatMode = RepeatMode.Reverse
         ),
         label = "cornerGlow"
+    )
+
+    val onlinePulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "onlinePulse"
     )
 
     if (showGiftAvatarDialog) {
@@ -1103,6 +1172,53 @@ fun UserManagementCard(
         )
     }
 
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            title = {
+                Text(
+                    "¿Eliminar Usuario de la BD?",
+                    color = LolNoxusRed,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            },
+            text = {
+                Text(
+                    "Esta acción borrará permanentemente el registro del invocador (${user.name.ifBlank { user.email }}) con ID ${user.uid} de Firestore." +
+                            if (user.duplicateUids.isNotEmpty()) " También se purgarán automáticamente sus ${user.duplicateUids.size} registros huérfanos/duplicados." else "",
+                    color = TextPrimary,
+                    fontSize = 13.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("users").document(user.uid).delete()
+                        user.duplicateUids.forEach { dupId ->
+                            db.collection("users").document(dupId).delete()
+                        }
+                        Toast.makeText(context, "Registro(s) de usuario eliminado(s) con éxito", Toast.LENGTH_SHORT).show()
+                        onRefresh()
+                        showDeleteConfirmDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = LolNoxusRed),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text("Eliminar de la BD", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text("Cancelar", color = TextMuted)
+                }
+            },
+            containerColor = LolCardBg,
+            shape = RoundedCornerShape(12.dp)
+        )
+    }
+
     // Outer Runic Card Container with Dynamic Golden Runic Border
     Box(
         modifier = Modifier
@@ -1144,13 +1260,16 @@ fun UserManagementCard(
                             fallbackInitial = if (user.name.isNotBlank()) user.name else user.email
                         )
 
-                        // Online Status Bead
+                        // Online Status Bead with Real-Time Pulse
                         Box(
                             modifier = Modifier
-                                .size(10.dp)
+                                .size(11.dp)
                                 .clip(CircleShape)
-                                .background(if (isOnline) LolZaunGreen else Color.DarkGray)
-                                .border(1.dp, Color(0xFF05101E), CircleShape)
+                                .background(
+                                    if (isOnline) LolZaunGreen.copy(alpha = onlinePulseAlpha)
+                                    else Color.DarkGray
+                                )
+                                .border(1.2.dp, Color(0xFF05101E), CircleShape)
                         )
                     }
 
@@ -1183,7 +1302,7 @@ fun UserManagementCard(
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             // Role Pill with Runic Golden Border
                             Box(
@@ -1200,6 +1319,47 @@ fun UserManagementCard(
                                     fontWeight = FontWeight.ExtraBold,
                                     letterSpacing = 0.6.sp
                                 )
+                            }
+
+                            // Real-time Status Pill (En Línea vs Last Seen)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(
+                                        if (isOnline) LolZaunGreen.copy(alpha = 0.15f)
+                                        else Color(0xFF1E2328).copy(alpha = 0.6f)
+                                    )
+                                    .border(
+                                        0.8.dp,
+                                        if (isOnline) LolZaunGreen.copy(alpha = 0.8f) else LolBorderGoldDark.copy(alpha = 0.3f),
+                                        RoundedCornerShape(4.dp)
+                                    )
+                                    .padding(horizontal = 5.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = if (isOnline) "🟢 EN LÍNEA" else "🕒 ${formatRelativeTime(user.lastActive, currentTime)}",
+                                    color = if (isOnline) LolZaunGreen else TextMuted,
+                                    fontSize = 8.5.sp,
+                                    fontWeight = if (isOnline) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+
+                            // Merged Duplicates Pill if any
+                            if (user.duplicateUids.isNotEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color(0xFFFFA000).copy(alpha = 0.18f))
+                                        .border(0.8.dp, Color(0xFFFFA000).copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "⚠️ +${user.duplicateUids.size} dup",
+                                        color = Color(0xFFFFD54F),
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
 
                             // Subscription Duration Pill (Clickable to manage)
@@ -1231,13 +1391,6 @@ fun UserManagementCard(
                                     }
                                 }
                             }
-
-                            Text(
-                                text = "UID: ${user.uid.take(8)}...",
-                                color = TextMuted,
-                                fontSize = 9.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
                         }
                     }
                 }
@@ -1284,6 +1437,24 @@ fun UserManagementCard(
                                 .background(LolClientBg)
                                 .border(1.dp, LolBorderGold.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                         ) {
+                            if (user.duplicateUids.isNotEmpty()) {
+                                DropdownMenuItem(
+                                    leadingIcon = {
+                                        Icon(Icons.Default.CleaningServices, contentDescription = null, tint = Color(0xFFFFD54F), modifier = Modifier.size(16.dp))
+                                    },
+                                    text = { Text("🧹 Purgar Duplicados BD (${user.duplicateUids.size})", color = Color(0xFFFFD54F), fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                    onClick = {
+                                        val db = FirebaseFirestore.getInstance()
+                                        user.duplicateUids.forEach { dupId ->
+                                            db.collection("users").document(dupId).delete()
+                                        }
+                                        Toast.makeText(context, "Se purgaron ${user.duplicateUids.size} registros duplicados", Toast.LENGTH_SHORT).show()
+                                        onRefresh()
+                                        expanded = false
+                                    }
+                                )
+                                HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
+                            }
                             DropdownMenuItem(
                                 leadingIcon = {
                                     Icon(Icons.Default.HourglassTop, contentDescription = null, tint = LolBorderGold, modifier = Modifier.size(16.dp))
@@ -1393,6 +1564,17 @@ fun UserManagementCard(
                                 text = { Text("Suspender Invocador (BAN)", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
                                 onClick = {
                                     onRoleChange("banned")
+                                    expanded = false
+                                }
+                            )
+                            HorizontalDivider(color = LolBorderGoldDark.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 4.dp))
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.DeleteForever, contentDescription = null, tint = LolNoxusRed, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("🗑️ Eliminar de la Base de Datos", color = LolNoxusRed, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    showDeleteConfirmDialog = true
                                     expanded = false
                                 }
                             )

@@ -39,6 +39,8 @@ object SubscriptionManager {
     val unlockedAvatars: StateFlow<List<String>> = _unlockedAvatars.asStateFlow()
 
     private var roleListener: ListenerRegistration? = null
+    private var heartbeatJob: kotlinx.coroutines.Job? = null
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     init {
         com.example.util.AuthManager.getAuth()?.addAuthStateListener {
@@ -52,6 +54,49 @@ object SubscriptionManager {
                 _unlockedAvatars.value = emptyList()
                 roleListener?.remove()
                 roleListener = null
+                heartbeatJob?.cancel()
+                heartbeatJob = null
+            }
+        }
+    }
+
+    fun startHeartbeat(uid: String) {
+        heartbeatJob?.cancel()
+        heartbeatJob = scope.launch {
+            while (true) {
+                try {
+                    FirebaseFirestore.getInstance().collection("users").document(uid)
+                        .set(
+                            mapOf(
+                                "last_active" to System.currentTimeMillis(),
+                                "is_online" to true
+                            ),
+                            SetOptions.merge()
+                        )
+                } catch (e: Exception) {
+                    Log.w("SubscriptionManager", "Heartbeat update failed: ${e.message}")
+                }
+                kotlinx.coroutines.delay(30_000L) // Ping every 30 seconds
+            }
+        }
+    }
+
+    fun stopHeartbeat(uid: String? = null) {
+        heartbeatJob?.cancel()
+        heartbeatJob = null
+        val targetUid = uid ?: AuthManager.getAuth()?.currentUser?.uid
+        if (targetUid != null) {
+            scope.launch {
+                try {
+                    FirebaseFirestore.getInstance().collection("users").document(targetUid)
+                        .set(
+                            mapOf(
+                                "last_active" to System.currentTimeMillis(),
+                                "is_online" to false
+                            ),
+                            SetOptions.merge()
+                        )
+                } catch (_: Exception) {}
             }
         }
     }
@@ -69,8 +114,12 @@ object SubscriptionManager {
             _unlockedAvatars.value = emptyList()
             roleListener?.remove()
             roleListener = null
+            heartbeatJob?.cancel()
+            heartbeatJob = null
             return
         }
+
+        startHeartbeat(user.uid)
 
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
@@ -91,7 +140,8 @@ object SubscriptionManager {
                         "name" to initialName,
                         "avatarId" to "default_poro",
                         "unlockedAvatars" to listOf("default_poro"),
-                        "last_active" to System.currentTimeMillis()
+                        "last_active" to System.currentTimeMillis(),
+                        "is_online" to true
                     )
                     userRef.set(userData, SetOptions.merge())
                 } else {
@@ -107,7 +157,10 @@ object SubscriptionManager {
                     val dbUnlocked = snapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
                     _unlockedAvatars.value = dbUnlocked
 
-                    val updateData = hashMapOf<String, Any>("last_active" to System.currentTimeMillis())
+                    val updateData = hashMapOf<String, Any>(
+                        "last_active" to System.currentTimeMillis(),
+                        "is_online" to true
+                    )
                     userRef.set(updateData, SetOptions.merge())
                 }
             }
