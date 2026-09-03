@@ -4617,7 +4617,20 @@ private fun DraftChampionPickerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
+                trailingIcon = {
+                    if (search.isNotEmpty()) {
+                        IconButton(onClick = { search = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted)
+                        }
+                    }
+                },
                 singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechCyan,
+                    unfocusedBorderColor = HextechCardBorder,
+                    focusedContainerColor = HextechSurface,
+                    unfocusedContainerColor = HextechSurface
+                ),
                 shape = RoundedCornerShape(10.dp)
             )
 

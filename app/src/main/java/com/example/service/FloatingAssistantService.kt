@@ -630,8 +630,9 @@ private fun FloatingOverlayContent(
     var isFirstPick by remember { mutableStateOf(false) }
     var isCompactBubble by remember { mutableStateOf(false) }
 
-    val allies = remember { mutableStateListOf<Champion>() }
-    val enemies = remember { mutableStateListOf<Champion>() }
+    val defaultRoles = remember { listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT) }
+    val allies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
+    val enemies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
 
     var isScanning by remember { mutableStateOf(false) }
     var autoScanEnabled by remember { mutableStateOf(false) }
@@ -647,21 +648,15 @@ private fun FloatingOverlayContent(
     var isOverlayTabsMinimized by remember { mutableStateOf(false) }
 
     val explicitEnemyOpponent = remember(activeRole, enemies.toList()) {
-        val roleIndex = when (activeRole) {
-            LaneRole.TOP -> 0
-            LaneRole.JUNGLE -> 1
-            LaneRole.MID -> 2
-            LaneRole.ADC -> 3
-            LaneRole.SUPPORT -> 4
-        }
+        val roleIndex = defaultRoles.indexOf(activeRole).coerceIn(0, 4)
         enemies.getOrNull(roleIndex)
     }
 
     val analysis = remember(activeRole, isFirstPick, allies.toList(), enemies.toList(), explicitEnemyOpponent) {
         WildRiftRepository.analyzeDraft(
             myRole = activeRole,
-            allies = allies,
-            enemies = enemies,
+            allies = allies.filterNotNull(),
+            enemies = enemies.filterNotNull(),
             enemyLaneOpponent = explicitEnemyOpponent,
             isFirstPick = isFirstPick
         )
@@ -682,15 +677,31 @@ private fun FloatingOverlayContent(
                             var newEnemiesAdded = 0
                             
                             result.allies.forEach { champ ->
-                                if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
-                                    allies.add(champ)
-                                    newAlliesAdded++
+                                if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
+                                    val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
+                                    val targetIdx = if (preferredIdx in 0 until 5 && allies[preferredIdx] == null) {
+                                        preferredIdx
+                                    } else {
+                                        allies.indexOfFirst { it == null }
+                                    }
+                                    if (targetIdx in 0 until 5) {
+                                        allies[targetIdx] = champ
+                                        newAlliesAdded++
+                                    }
                                 }
                             }
                             result.enemies.forEach { champ ->
-                                if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
-                                    enemies.add(champ)
-                                    newEnemiesAdded++
+                                if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
+                                    val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
+                                    val targetIdx = if (preferredIdx in 0 until 5 && enemies[preferredIdx] == null) {
+                                        preferredIdx
+                                    } else {
+                                        enemies.indexOfFirst { it == null }
+                                    }
+                                    if (targetIdx in 0 until 5) {
+                                        enemies[targetIdx] = champ
+                                        newEnemiesAdded++
+                                    }
                                 }
                             }
                             if (result.detectedRole != null && activeRole != result.detectedRole) {
@@ -728,19 +739,36 @@ private fun FloatingOverlayContent(
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         result.allies.forEach { champ ->
-                            if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
-                                allies.add(champ)
+                            if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
+                                val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
+                                val targetIdx = if (preferredIdx in 0 until 5 && allies[preferredIdx] == null) {
+                                    preferredIdx
+                                } else {
+                                    allies.indexOfFirst { it == null }
+                                }
+                                if (targetIdx in 0 until 5) {
+                                    allies[targetIdx] = champ
+                                }
                             }
                         }
                         result.enemies.forEach { champ ->
-                            if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
-                                enemies.add(champ)
+                            if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
+                                val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
+                                val targetIdx = if (preferredIdx in 0 until 5 && enemies[preferredIdx] == null) {
+                                    preferredIdx
+                                } else {
+                                    enemies.indexOfFirst { it == null }
+                                }
+                                if (targetIdx in 0 until 5) {
+                                    enemies[targetIdx] = champ
+                                }
                             }
                         }
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole
                         }
-                        scanNoticeMessage = "✅ Escaneo exitoso (${result.allies.size + result.enemies.size} picks" +
+                        val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
+                        scanNoticeMessage = "✅ Escaneo exitoso ($totalDetected picks" +
                                 (if (result.detectedRole != null) ", rol ${result.detectedRole.shortName})" else ")")
                     } else {
                         scanNoticeMessage = "ℹ️ ${result.statusMessage}"
@@ -800,7 +828,7 @@ private fun FloatingOverlayContent(
                             .clickable {
                                 isExpanded = true
                                 onExpandedChange(true)
-                                if (isAdmin && allies.isEmpty() && enemies.isEmpty()) {
+                                if (isAdmin && allies.filterNotNull().isEmpty() && enemies.filterNotNull().isEmpty()) {
                                     triggerManualScan()
                                 }
                             },
@@ -962,8 +990,10 @@ private fun FloatingOverlayContent(
                                 // Botón Limpiar Draft
                                 IconButton(
                                     onClick = {
-                                        allies.clear()
-                                        enemies.clear()
+                                        for (i in 0 until 5) {
+                                            allies[i] = null
+                                            enemies[i] = null
+                                        }
                                         selectedChampionDetail = null
                                     },
                                     modifier = Modifier.size(28.dp)
@@ -1236,8 +1266,10 @@ private fun FloatingOverlayContent(
                                             onSaveDraftClick = { showSaveDraftDialog = true },
                                             isSavedRecently = isSavedRecently,
                                             onClearAll = { 
-                                                allies.clear()
-                                                enemies.clear()
+                                                for (i in 0 until 5) {
+                                                    allies[i] = null
+                                                    enemies[i] = null
+                                                }
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
                                             onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
@@ -1263,10 +1295,10 @@ private fun FloatingOverlayContent(
                                                 overlayHubTab = OverlayHubTab.DRAFT
                                             },
                                             onLoadDraft = { loadedAllies, loadedEnemies, role, isFirst ->
-                                                allies.clear()
-                                                allies.addAll(loadedAllies.map { it.champion })
-                                                enemies.clear()
-                                                enemies.addAll(loadedEnemies.map { it.champion })
+                                                for (i in 0 until 5) {
+                                                    allies[i] = loadedAllies.getOrNull(i)?.champion
+                                                    enemies[i] = loadedEnemies.getOrNull(i)?.champion
+                                                }
                                                 activeRole = role
                                                 isFirstPick = isFirst
                                                 overlayHubTab = OverlayHubTab.DRAFT
@@ -1329,13 +1361,6 @@ private fun FloatingOverlayContent(
                         }
                     }
 
-                        if (selectedChampionDetail != null) {
-                            com.example.ui.screens.ChampionDetailSheet(
-                                isOverlay = true,
-                                champion = selectedChampionDetail,
-                                onDismiss = { selectedChampionDetail = null }
-                            )
-                        }
                     } // close Box
                 } // close Card
             } // close AnimatedVisibility
@@ -1416,8 +1441,8 @@ private fun FloatingOverlayContent(
         FloatingSaveMatchDialog(
             activeRole = activeRole,
             isFirstPick = isFirstPick,
-            allies = allies.toList(),
-            enemies = enemies.toList(),
+            allies = allies.filterNotNull(),
+            enemies = enemies.filterNotNull(),
             analysis = analysis,
             onDismiss = { showSaveDraftDialog = false },
             onSaved = {
@@ -1434,7 +1459,7 @@ private fun FloatingOverlayContent(
         var searchChampQuery by remember { mutableStateOf("") }
         val currentChampInSlot = if (isAllySlot) allies.getOrNull(slotIndex)?.id else enemies.getOrNull(slotIndex)?.id
         val alreadySelectedIds = remember(allies.toList(), enemies.toList(), slotIndex, isAllySlot) {
-            val set = (allies.mapNotNull { it?.id } + enemies.mapNotNull { it?.id }).toMutableSet()
+            val set = (allies.filterNotNull().map { it.id } + enemies.filterNotNull().map { it.id }).toMutableSet()
             if (currentChampInSlot != null) {
                 set.remove(currentChampInSlot)
             }
@@ -1483,18 +1508,45 @@ private fun FloatingOverlayContent(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    OutlinedTextField(
-                        value = searchChampQuery,
-                        onValueChange = { searchChampQuery = it },
-                        placeholder = { Text(tr("Buscar campeón..."), fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth().height(38.dp),
-                        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechCyan,
-                            unfocusedBorderColor = HextechCardBorder
-                        ),
-                        singleLine = true
-                    )
+                    // Buscador Compacto y Proporcionado
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(34.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurface)
+                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (searchChampQuery.isEmpty()) {
+                                    Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 11.5.sp)
+                                }
+                                androidx.compose.foundation.text.BasicTextField(
+                                    value = searchChampQuery,
+                                    onValueChange = { searchChampQuery = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 11.5.sp),
+                                    singleLine = true
+                                )
+                            }
+                            if (searchChampQuery.isNotEmpty()) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Limpiar",
+                                    tint = TextMuted,
+                                    modifier = Modifier.size(15.dp).clickable { searchChampQuery = "" }
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
@@ -1510,12 +1562,20 @@ private fun FloatingOverlayContent(
                                     .background(HextechSurface)
                                     .clickable {
                                         if (isAllySlot) {
-                                            if (allies.none { it.id == champ.id } && enemies.none { it.id == champ.id } && allies.size < 5) {
-                                                allies.add(champ)
+                                            for (i in 0 until 5) {
+                                                if (allies[i]?.id == champ.id) allies[i] = null
+                                                if (enemies[i]?.id == champ.id) enemies[i] = null
+                                            }
+                                            if (slotIndex in 0 until 5) {
+                                                allies[slotIndex] = champ
                                             }
                                         } else {
-                                            if (enemies.none { it.id == champ.id } && allies.none { it.id == champ.id } && enemies.size < 5) {
-                                                enemies.add(champ)
+                                            for (i in 0 until 5) {
+                                                if (allies[i]?.id == champ.id) allies[i] = null
+                                                if (enemies[i]?.id == champ.id) enemies[i] = null
+                                            }
+                                            if (slotIndex in 0 until 5) {
+                                                enemies[slotIndex] = champ
                                             }
                                         }
                                         showChampionPickerForSlot = null
@@ -1844,8 +1904,8 @@ private fun FloatingDraftCoachView(
     onFirstPickToggle: () -> Unit,
     isLoadingScreenMode: Boolean,
     onLoadingScreenModeToggle: () -> Unit,
-    allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion>,
-    enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion>,
+    allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
+    enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
     analysis: com.example.model.DraftAnalysisResult,
     selectedChampionDetail: Champion?,
     onSelectChampion: (Champion?) -> Unit,
@@ -1857,30 +1917,25 @@ private fun FloatingDraftCoachView(
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
+    val defaultRoles = remember { listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT) }
+
     val explicitEnemyOpponent = remember(activeRole, enemies.toList(), isLoadingScreenMode) {
         if (isLoadingScreenMode) {
-            val roleIndex = when (activeRole) {
-                LaneRole.TOP -> 0
-                LaneRole.JUNGLE -> 1
-                LaneRole.MID -> 2
-                LaneRole.ADC -> 3
-                LaneRole.SUPPORT -> 4
-            }
+            val roleIndex = defaultRoles.indexOf(activeRole).coerceIn(0, 4)
             enemies.getOrNull(roleIndex)
         } else {
-            enemies.find { it.primaryRole == activeRole }
+            enemies.filterNotNull().find { it.primaryRole == activeRole }
         }
     }
 
-    val defaultRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
     val allySlots = remember(allies.toList()) {
-        allies.mapIndexed { index, champ ->
-            DraftSlot(champion = champ, assignedRole = defaultRoles.getOrElse(index) { champ.primaryRole })
+        defaultRoles.mapIndexedNotNull { index, role ->
+            allies.getOrNull(index)?.let { DraftSlot(champion = it, assignedRole = role) }
         }
     }
     val enemySlots = remember(enemies.toList()) {
-        enemies.mapIndexed { index, champ ->
-            DraftSlot(champion = champ, assignedRole = defaultRoles.getOrElse(index) { champ.primaryRole })
+        defaultRoles.mapIndexedNotNull { index, role ->
+            enemies.getOrNull(index)?.let { DraftSlot(champion = it, assignedRole = role) }
         }
     }
 
@@ -1901,11 +1956,10 @@ private fun FloatingDraftCoachView(
                 onOpenChampionPicker(true, index)
             },
             onRemoveChampionForRole = { role ->
-                val idx = allies.indexOfFirst { champ -> 
-                    val champRole = allies.indexOf(champ).let { defaultRoles.getOrNull(it) } ?: champ.primaryRole
-                    champRole == role
+                val roleIndex = defaultRoles.indexOf(role)
+                if (roleIndex in 0 until 5) {
+                    allies[roleIndex] = null
                 }
-                if (idx >= 0) allies.removeAt(idx)
             },
             onChampionClick = onSelectChampion
         )
@@ -1923,11 +1977,10 @@ private fun FloatingDraftCoachView(
                 onOpenChampionPicker(false, index)
             },
             onRemoveChampionForRole = { role ->
-                val idx = enemies.indexOfFirst { champ -> 
-                    val champRole = enemies.indexOf(champ).let { defaultRoles.getOrNull(it) } ?: champ.primaryRole
-                    champRole == role
+                val roleIndex = defaultRoles.indexOf(role)
+                if (roleIndex in 0 until 5) {
+                    enemies[roleIndex] = null
                 }
-                if (idx >= 0) enemies.removeAt(idx)
             },
             onChampionClick = onSelectChampion
         )
@@ -1990,8 +2043,8 @@ private fun FloatingDraftCoachView(
         }
 
         // Sinergias (Wombos)
-        val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.toList()) }
-        val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.toList()) }
+        val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.filterNotNull()) }
+        val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.filterNotNull()) }
 
         if (allyWombos.isNotEmpty() || enemyWombos.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -2018,7 +2071,7 @@ private fun FloatingDraftCoachView(
         }
 
         // Distribución de Daño del Draft (Aliados vs Enemigos)
-        if (allies.isNotEmpty() || enemies.isNotEmpty()) {
+        if (allies.any { it != null } || enemies.any { it != null }) {
             Spacer(modifier = Modifier.height(5.dp))
             Row(
                 modifier = Modifier
@@ -2338,20 +2391,20 @@ private fun FloatingTierAndBuildsView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         coreItems.forEachIndexed { idx, itemName ->
                             val iconUrl = coreIcons.getOrNull(idx) ?: WildRiftItemsData.getItemIconByName(itemName)
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(42.dp)
+                                modifier = Modifier.width(34.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(RoundedCornerShape(6.dp))
+                                        .size(26.dp)
+                                        .clip(RoundedCornerShape(5.dp))
                                         .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
+                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(5.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (iconUrl.isNotBlank()) {
@@ -2359,18 +2412,18 @@ private fun FloatingTierAndBuildsView(
                                             url = iconUrl,
                                             contentDescription = itemName,
                                             fallbackText = itemName.take(2),
-                                            modifier = Modifier.size(26.dp),
+                                            modifier = Modifier.size(22.dp),
                                             shape = RoundedCornerShape(4.dp)
                                         )
                                     } else {
-                                        Text("🛡️", fontSize = 12.sp)
+                                        Text("🛡️", fontSize = 11.sp)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = itemName,
                                     color = HextechGoldLight,
-                                    fontSize = 7.sp,
+                                    fontSize = 6.5.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )

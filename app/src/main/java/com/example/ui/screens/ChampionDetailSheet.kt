@@ -888,22 +888,23 @@ fun ChampionDetailSheet(
                             Text(
                                 text = tr("Objetos Situacionales:"),
                                 color = HextechGold,
-                                fontSize = 11.sp,
+                                fontSize = if (isCompact) 10.sp else 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
                                 text = "↔ " + tr("Desliza"),
                                 color = HextechCyan,
-                                fontSize = 9.sp,
+                                fontSize = if (isCompact) 8.sp else 9.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                         Spacer(modifier = Modifier.height(6.dp))
+                        val sitBoxSize = if (isCompact) 32.dp else 38.dp
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             activeOption.situationalItems.forEach { sitItemName ->
@@ -915,7 +916,7 @@ fun ChampionDetailSheet(
                                 val sitIcon = dbSitItem?.iconUrl ?: com.example.data.WildRiftItemsData.getItemIconByName(sitItemName)
                                 Box(
                                     modifier = Modifier
-                                        .size(38.dp)
+                                        .size(sitBoxSize)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(HextechSurfaceVariant)
                                         .border(1.dp, HextechGoldLight.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
@@ -963,6 +964,11 @@ fun ChampionDetailSheet(
             val currentBootBase = selectedBootBaseOverride ?: activeOption.bootBase.ifBlank { "Botas blindadas" }
             val currentBootUpgrade = ChampionRoleAdapter.getTier3BootUpgrade(currentBootBase)
 
+            val bootBoxSize = if (isCompact) 32.dp else 38.dp
+            val spellBoxSize = if (isCompact) 32.dp else 38.dp
+            val runeKeySize = if (isCompact) 36.dp else 44.dp
+            val runeSecSize = if (isCompact) 30.dp else 36.dp
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -995,7 +1001,7 @@ fun ChampionDetailSheet(
 
                             Box(
                                 modifier = Modifier
-                                    .size(38.dp)
+                                    .size(bootBoxSize)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurfaceVariant)
                                     .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
@@ -1021,7 +1027,7 @@ fun ChampionDetailSheet(
 
                             Box(
                                 modifier = Modifier
-                                    .size(38.dp)
+                                    .size(bootBoxSize)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(HextechSurfaceVariant)
                                     .border(1.dp, HextechCyan, RoundedCornerShape(8.dp))
@@ -1120,7 +1126,7 @@ fun ChampionDetailSheet(
                                 }
                                 Box(
                                     modifier = Modifier
-                                        .size(38.dp)
+                                        .size(spellBoxSize)
                                         .clip(CircleShape)
                                         .background(HextechSurfaceVariant)
                                         .border(1.5.dp, HextechCyan, CircleShape)
@@ -1202,7 +1208,7 @@ fun ChampionDetailSheet(
                             Box(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .size(if (isKeystone) 44.dp else 36.dp)
+                                    .size(if (isKeystone) runeKeySize else runeSecSize)
                                     .clip(CircleShape)
                                     .background(HextechSurfaceVariant)
                                     .border(
