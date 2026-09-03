@@ -261,7 +261,14 @@ fun MetaAndDraftScreen(
 
     // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
     val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
-    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion
+    val roleIndex = when (activeRole) {
+        LaneRole.TOP -> 0
+        LaneRole.JUNGLE -> 1
+        LaneRole.MID -> 2
+        LaneRole.ADC -> 3
+        LaneRole.SUPPORT -> 4
+    }
+    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion ?: enemySlots.getOrNull(roleIndex)?.champion
 
     val analysis = remember(activeRole, isFirstPick, allySlots.toList(), enemySlots.toList(), lang) {
         WildRiftRepository.analyzeDraft(

@@ -646,19 +646,15 @@ private fun FloatingOverlayContent(
     var isLoadingScreenMode by remember { mutableStateOf(false) }
     var isOverlayTabsMinimized by remember { mutableStateOf(false) }
 
-    val explicitEnemyOpponent = remember(activeRole, enemies.toList(), isLoadingScreenMode) {
-        if (isLoadingScreenMode) {
-            val roleIndex = when (activeRole) {
-                LaneRole.TOP -> 0
-                LaneRole.JUNGLE -> 1
-                LaneRole.MID -> 2
-                LaneRole.ADC -> 3
-                LaneRole.SUPPORT -> 4
-            }
-            enemies.getOrNull(roleIndex)
-        } else {
-            enemies.find { it.primaryRole == activeRole }
+    val explicitEnemyOpponent = remember(activeRole, enemies.toList()) {
+        val roleIndex = when (activeRole) {
+            LaneRole.TOP -> 0
+            LaneRole.JUNGLE -> 1
+            LaneRole.MID -> 2
+            LaneRole.ADC -> 3
+            LaneRole.SUPPORT -> 4
         }
+        enemies.getOrNull(roleIndex)
     }
 
     val analysis = remember(activeRole, isFirstPick, allies.toList(), enemies.toList(), explicitEnemyOpponent) {
@@ -1434,10 +1430,15 @@ private fun FloatingOverlayContent(
 
     // Modal de selección rápida de campeón si el usuario toca un slot manual
     if (showChampionPickerForSlot != null) {
-        val (isAllySlot, _) = showChampionPickerForSlot!!
+        val (isAllySlot, slotIndex) = showChampionPickerForSlot!!
         var searchChampQuery by remember { mutableStateOf("") }
-        val alreadySelectedIds = remember(allies.toList(), enemies.toList()) {
-            (allies.map { it.id } + enemies.map { it.id }).toSet()
+        val currentChampInSlot = if (isAllySlot) allies.getOrNull(slotIndex)?.id else enemies.getOrNull(slotIndex)?.id
+        val alreadySelectedIds = remember(allies.toList(), enemies.toList(), slotIndex, isAllySlot) {
+            val set = (allies.mapNotNull { it?.id } + enemies.mapNotNull { it?.id }).toMutableSet()
+            if (currentChampInSlot != null) {
+                set.remove(currentChampInSlot)
+            }
+            set
         }
         val filteredList = remember(searchChampQuery, alreadySelectedIds) {
             WildRiftRepository.champions.filter { champ ->
