@@ -1457,6 +1457,7 @@ private fun FloatingOverlayContent(
     if (showChampionPickerForSlot != null) {
         val (isAllySlot, slotIndex) = showChampionPickerForSlot!!
         val targetRole = defaultRoles.getOrNull(slotIndex)
+        var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
         var searchChampQuery by remember { mutableStateOf("") }
         val currentChampInSlot = if (isAllySlot) allies.getOrNull(slotIndex)?.id else enemies.getOrNull(slotIndex)?.id
         val alreadySelectedIds = remember(allies.toList(), enemies.toList(), slotIndex, isAllySlot) {
@@ -1467,13 +1468,15 @@ private fun FloatingOverlayContent(
             set
         }
 
-        val filteredList = remember(searchChampQuery, alreadySelectedIds, targetRole) {
+        val filteredList = remember(searchChampQuery, alreadySelectedIds, selectedRoleFilter, targetRole) {
             WildRiftRepository.champions.filter { champ ->
                 val notSelected = !alreadySelectedIds.contains(champ.id)
                 val matchesQuery = searchChampQuery.isBlank() || champ.name.contains(searchChampQuery, ignoreCase = true) || champ.summary.contains(searchChampQuery, ignoreCase = true)
-                notSelected && matchesQuery
+                val matchesRole = selectedRoleFilter == null || champ.primaryRole == selectedRoleFilter || champ.secondaryRoles.contains(selectedRoleFilter)
+                notSelected && matchesQuery && matchesRole
             }.sortedWith(
-                compareByDescending<Champion> { targetRole != null && (it.primaryRole == targetRole || it.secondaryRoles.contains(targetRole)) }
+                compareByDescending<Champion> { selectedRoleFilter != null && it.primaryRole == selectedRoleFilter }
+                    .thenByDescending { selectedRoleFilter == null && targetRole != null && (it.primaryRole == targetRole || it.secondaryRoles.contains(targetRole)) }
                     .thenByDescending { it.tier == "S+" }
                     .thenByDescending { it.tier == "S" }
                     .thenBy { it.name }
@@ -1551,6 +1554,38 @@ private fun FloatingOverlayContent(
                                     contentDescription = "Limpiar",
                                     tint = TextMuted,
                                     modifier = Modifier.size(12.dp).clickable { searchChampQuery = "" }
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Selector de Líneas / Filtro Flexible por Rol
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        val filterOptions = listOf<LaneRole?>(null, LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+                        filterOptions.forEach { lane ->
+                            val isSel = selectedRoleFilter == lane
+                            val label = lane?.let { com.example.util.tr(it.shortName) } ?: tr("Todos")
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(if (isSel) HextechCyan else HextechSurface)
+                                    .border(0.5.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(4.dp))
+                                    .clickable { selectedRoleFilter = lane }
+                                    .padding(vertical = 3.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = label,
+                                    fontSize = 8.sp,
+                                    fontWeight = if (isSel) FontWeight.Black else FontWeight.Medium,
+                                    color = if (isSel) HextechDarkBg else TextPrimary,
+                                    maxLines = 1
                                 )
                             }
                         }
@@ -2451,6 +2486,31 @@ private fun FloatingTierAndBuildsView(
                                 )
                             }
                         }
+                    }
+
+                    // 🥾 BOTAS Y ENCANTAMIENTOS
+                    val bootBase = roleProfile.bootBase.ifBlank { "Botas blindadas" }
+                    val bootUpgrade = roleProfile.bootUpgrade.ifBlank { "Avance blindado" }
+                    val activeOpt = roleProfile.buildOptions.firstOrNull()
+                    val sitBoots = activeOpt?.situationalBoots ?: roleProfile.buildOptions.flatMap { it.situationalBoots }.distinct()
+
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text("🥾 " + tr("Botas y Encantamiento:"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "$bootBase  ➔  $bootUpgrade",
+                        color = HextechCyan,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    if (sitBoots.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = tr("Botas situacionales:") + " ${sitBoots.joinToString(", ")}",
+                            color = TextMuted,
+                            fontSize = 8.sp
+                        )
                     }
 
                     if (roleProfile.situationalItems.isNotEmpty() || champ.situationalItems.isNotEmpty()) {

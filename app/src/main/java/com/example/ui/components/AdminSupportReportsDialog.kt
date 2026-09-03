@@ -3,6 +3,7 @@ package com.example.ui.components
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,13 +32,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,7 +52,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +71,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.data.remote.model.FeedbackReport
+import com.example.data.supabase.FeedbackRepository
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
@@ -82,25 +84,33 @@ import com.example.ui.theme.HextechSurfaceVariant
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
-data class SupportReportItem(
-    val id: String = "",
+private const val TAG = "AdminSupportReports"
+
+data class UnifiedSupportReport(
+    val id: String,
+    val type: String = "SOPORTE",
     val title: String = "",
     val description: String = "",
     val userId: String = "",
     val userEmail: String = "",
     val userName: String = "",
-    val photos: List<String> = emptyList(),
-    val status: String = "PENDIENTE",
+    val photosBase64: List<String> = emptyList(),
+    val status: String = FeedbackRepository.STATUS_PENDING,
     val appVersion: String = "",
     val device: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAtMillis: Long = System.currentTimeMillis(),
+    val rawSupabaseReport: FeedbackReport? = null,
+    val isFirestoreDoc: Boolean = false
 )
 
 @Composable
@@ -109,83 +119,213 @@ fun AdminSupportReportsDialog(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val reports = remember { mutableStateListOf<SupportReportItem>() }
+    val reportsList = remember { mutableStateListOf<UnifiedSupportReport>() }
     var isLoading by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("TODOS") } // "TODOS", "PENDIENTE", "RESUELTO"
+    var selectedFilter by remember { mutableStateOf("ALL") } // "ALL", "PENDING", "READ", "SOLVED"
     var previewZoomBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var reportToDelete by remember { mutableStateOf<SupportReportItem?>(null) }
+    var reportToDelete by remember { mutableStateOf<UnifiedSupportReport?>(null) }
 
-    // Listener en tiempo real a Firestore collection support_reports
-    DisposableEffect(Unit) {
-        val listener = FirebaseFirestore.getInstance()
-            .collection("support_reports")
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                isLoading = false
-                if (error != null) {
-                    Toast.makeText(context, "Error cargando reportes: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    reports.clear()
-                    for (doc in snapshot.documents) {
-                        val id = doc.id
-                        val title = doc.getString("title") ?: "Sin título"
-                        val description = doc.getString("description") ?: ""
-                        val userId = doc.getString("userId") ?: ""
-                        val userEmail = doc.getString("userEmail") ?: ""
-                        val userName = doc.getString("userName") ?: ""
-                        @Suppress("UNCHECKED_CAST")
-                        val photos = (doc.get("photos") as? List<String>) ?: emptyList()
-                        val status = doc.getString("status") ?: "PENDIENTE"
-                        val appVersion = doc.getString("appVersion") ?: ""
-                        val device = doc.getString("device") ?: ""
-                        val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
+    fun loadAllReports() {
+        isLoading = true
+        coroutineScope.launch {
+            val combined = mutableListOf<UnifiedSupportReport>()
 
-                        reports.add(
-                            SupportReportItem(
+            // 1. Cargar desde Supabase (FeedbackRepository) - Fuente de datos primaria
+            try {
+                val supabaseResult = FeedbackRepository.getAllFeedbacks()
+                if (supabaseResult.isSuccess) {
+                    val supaList = supabaseResult.getOrDefault(emptyList())
+                    for (fb in supaList) {
+                        val id = fb.id ?: "${fb.title}_${fb.createdAt}"
+                        val status = FeedbackRepository.getReportStatus(context, fb)
+                        val email = fb.parsedEmail ?: ""
+                        val cleanDesc = fb.cleanDescription.substringBefore("[IMAGE_BASE64]").trim()
+                        val cleanDev = fb.deviceInfo.substringBefore("[IMAGE_BASE64]").trim()
+
+                        // Extraer fotos base64
+                        val photos = mutableListOf<String>()
+                        val fullRaw = "${fb.description}\n${fb.deviceInfo}"
+                        if (fullRaw.contains("[IMAGE_BASE64]")) {
+                            val parts = fullRaw.split("[IMAGE_BASE64]")
+                            for (i in 1 until parts.size) {
+                                val segment = parts[i].trim().substringBefore("\n\n").substringBefore("[IMAGE_BASE64]").trim()
+                                if (segment.isNotBlank()) {
+                                    photos.add(segment)
+                                }
+                            }
+                        }
+
+                        val createdMillis = parseIsoDateToMillis(fb.createdAt)
+
+                        combined.add(
+                            UnifiedSupportReport(
                                 id = id,
-                                title = title,
-                                description = description,
-                                userId = userId,
-                                userEmail = userEmail,
-                                userName = userName,
-                                photos = photos,
+                                type = fb.type,
+                                title = fb.title.ifBlank { "Reporte sin título" },
+                                description = cleanDesc,
+                                userId = "",
+                                userEmail = email,
+                                userName = "",
+                                photosBase64 = photos,
                                 status = status,
-                                appVersion = appVersion,
-                                device = device,
-                                createdAt = ts
+                                appVersion = fb.appVersion,
+                                device = cleanDev,
+                                createdAtMillis = createdMillis,
+                                rawSupabaseReport = fb,
+                                isFirestoreDoc = false
                             )
                         )
                     }
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error cargando feedbacks de Supabase: ${e.message}")
             }
 
-        onDispose {
-            listener.remove()
+            // 2. Intentar leer también desde Firestore silenciosamente
+            try {
+                FirebaseFirestore.getInstance()
+                    .collection("support_reports")
+                    .orderBy("createdAt", Query.Direction.DESCENDING)
+                    .limit(50)
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        if (snapshot != null && !snapshot.isEmpty) {
+                            for (doc in snapshot.documents) {
+                                val docId = doc.id
+                                val docTitle = doc.getString("title") ?: ""
+                                val existing = combined.find { it.id == docId || (docTitle.isNotBlank() && it.title == docTitle) }
+                                if (existing == null) {
+                                    val desc = doc.getString("description") ?: ""
+                                    val userId = doc.getString("userId") ?: ""
+                                    val userEmail = doc.getString("userEmail") ?: ""
+                                    val userName = doc.getString("userName") ?: ""
+                                    @Suppress("UNCHECKED_CAST")
+                                    val photos = (doc.get("photos") as? List<String>) ?: emptyList()
+                                    val rawStatus = doc.getString("status") ?: "PENDIENTE"
+                                    val normalizedStatus = when (rawStatus.uppercase()) {
+                                        "SOLVED", "SOLUCIONADO", "RESUELTO" -> FeedbackRepository.STATUS_SOLVED
+                                        "READ", "LEIDO", "LEÍDO" -> FeedbackRepository.STATUS_READ
+                                        else -> FeedbackRepository.STATUS_PENDING
+                                    }
+                                    val appVer = doc.getString("appVersion") ?: ""
+                                    val dev = doc.getString("device") ?: ""
+                                    val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
+
+                                    combined.add(
+                                        UnifiedSupportReport(
+                                            id = docId,
+                                            type = "SOPORTE",
+                                            title = docTitle.ifBlank { "Ticket de soporte" },
+                                            description = desc,
+                                            userId = userId,
+                                            userEmail = userEmail,
+                                            userName = userName,
+                                            photosBase64 = photos,
+                                            status = normalizedStatus,
+                                            appVersion = appVer,
+                                            device = dev,
+                                            createdAtMillis = ts,
+                                            rawSupabaseReport = null,
+                                            isFirestoreDoc = true
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                        reportsList.clear()
+                        reportsList.addAll(combined.sortedByDescending { it.createdAtMillis })
+                        isLoading = false
+                    }
+                    .addOnFailureListener {
+                        reportsList.clear()
+                        reportsList.addAll(combined.sortedByDescending { it.createdAtMillis })
+                        isLoading = false
+                    }
+            } catch (e: Exception) {
+                reportsList.clear()
+                reportsList.addAll(combined.sortedByDescending { it.createdAtMillis })
+                isLoading = false
+            }
         }
     }
 
-    val filteredReports = remember(reports.toList(), searchQuery, selectedFilter) {
-        reports.filter { item ->
+    LaunchedEffect(Unit) {
+        loadAllReports()
+    }
+
+    // Filtrar reportes
+    val filteredReports = remember(reportsList.toList(), searchQuery, selectedFilter) {
+        reportsList.filter { item ->
             val matchesFilter = when (selectedFilter) {
-                "PENDIENTE" -> item.status.equals("PENDIENTE", ignoreCase = true)
-                "RESUELTO" -> item.status.equals("RESUELTO", ignoreCase = true)
+                "PENDING" -> item.status == FeedbackRepository.STATUS_PENDING || item.status.equals("PENDIENTE", ignoreCase = true)
+                "READ" -> item.status == FeedbackRepository.STATUS_READ || item.status.equals("LEIDO", ignoreCase = true) || item.status.equals("LEÍDO", ignoreCase = true)
+                "SOLVED" -> item.status == FeedbackRepository.STATUS_SOLVED || item.status.equals("SOLUCIONADO", ignoreCase = true) || item.status.equals("RESUELTO", ignoreCase = true) || item.status.equals("ACCEPTED", ignoreCase = true)
                 else -> true
             }
             val matchesSearch = if (searchQuery.isBlank()) true else {
                 item.title.contains(searchQuery, ignoreCase = true) ||
                 item.description.contains(searchQuery, ignoreCase = true) ||
                 item.userEmail.contains(searchQuery, ignoreCase = true) ||
-                item.userName.contains(searchQuery, ignoreCase = true)
+                item.userName.contains(searchQuery, ignoreCase = true) ||
+                item.device.contains(searchQuery, ignoreCase = true)
             }
             matchesFilter && matchesSearch
         }
     }
 
-    val pendingCount = remember(reports.toList()) {
-        reports.count { it.status.equals("PENDIENTE", ignoreCase = true) }
+    val pendingCount = remember(reportsList.toList()) {
+        reportsList.count { it.status == FeedbackRepository.STATUS_PENDING || it.status.equals("PENDIENTE", ignoreCase = true) }
+    }
+    val readCount = remember(reportsList.toList()) {
+        reportsList.count { it.status == FeedbackRepository.STATUS_READ || it.status.equals("LEIDO", ignoreCase = true) || it.status.equals("LEÍDO", ignoreCase = true) }
+    }
+    val solvedCount = remember(reportsList.toList()) {
+        reportsList.count { it.status == FeedbackRepository.STATUS_SOLVED || it.status.equals("SOLUCIONADO", ignoreCase = true) || it.status.equals("RESUELTO", ignoreCase = true) || it.status.equals("ACCEPTED", ignoreCase = true) }
+    }
+
+    fun updateReportStatus(report: UnifiedSupportReport, newStatus: String) {
+        val idx = reportsList.indexOfFirst { it.id == report.id }
+        if (idx != -1) {
+            reportsList[idx] = reportsList[idx].copy(status = newStatus)
+        }
+
+        // 1. Guardar en SharedPreferences y sincronizar en Supabase
+        if (report.rawSupabaseReport != null) {
+            FeedbackRepository.setFeedbackStatus(context, report.rawSupabaseReport, newStatus)
+            coroutineScope.launch {
+                report.rawSupabaseReport.id?.let { sid ->
+                    FeedbackRepository.updateFeedbackStatusInCloud(sid, newStatus)
+                }
+            }
+        } else {
+            val fakeReport = FeedbackReport(id = report.id, title = report.title, type = report.type)
+            FeedbackRepository.setFeedbackStatus(context, fakeReport, newStatus)
+        }
+
+        // 2. Si es de Firestore, intentar actualizar documento
+        if (report.isFirestoreDoc || report.id.isNotBlank()) {
+            coroutineScope.launch {
+                try {
+                    val firestoreStatus = when (newStatus) {
+                        FeedbackRepository.STATUS_SOLVED -> "SOLUCIONADO"
+                        FeedbackRepository.STATUS_READ -> "LEIDO"
+                        else -> "PENDIENTE"
+                    }
+                    FirebaseFirestore.getInstance()
+                        .collection("support_reports")
+                        .document(report.id)
+                        .update("status", firestoreStatus)
+                } catch (_: Exception) {}
+            }
+        }
+
+        val statusLabel = when (newStatus) {
+            FeedbackRepository.STATUS_SOLVED -> "Solucionado"
+            FeedbackRepository.STATUS_READ -> "Leído"
+            else -> "Pendiente"
+        }
+        Toast.makeText(context, "Estado actualizado: $statusLabel", Toast.LENGTH_SHORT).show()
     }
 
     Dialog(
@@ -195,14 +335,14 @@ fun AdminSupportReportsDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(HextechDarkBg.copy(alpha = 0.92f))
-                .padding(12.dp),
+                .background(HextechDarkBg.copy(alpha = 0.95f))
+                .padding(horizontal = 8.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Card(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 10.dp),
+                    .padding(vertical = 4.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
                 border = BorderStroke(1.5.dp, HextechCyan)
@@ -210,60 +350,86 @@ fun AdminSupportReportsDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(14.dp)
                 ) {
-                    // Encabezado
+                    // Encabezado Superior
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.HeadsetMic,
-                                contentDescription = null,
-                                tint = HextechGold,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechGold.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechGold, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.HeadsetMic,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
                                     text = "Buzón de Soporte y Reportes",
                                     color = HextechGold,
-                                    fontSize = 17.sp,
+                                    fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "$pendingCount reporte(s) pendiente(s) de revisión",
+                                    text = "$pendingCount pendiente(s) • $readCount leído(s) • $solvedCount solucionado(s)",
                                     color = if (pendingCount > 0) HextechCyan else TextMuted,
-                                    fontSize = 11.5.sp
+                                    fontSize = 11.sp
                                 )
                             }
                         }
 
-                        IconButton(onClick = onDismiss, modifier = Modifier.size(30.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { loadAllReports() },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = "Recargar",
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     // Barra de búsqueda compacta
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("Buscar por título, contenido o usuario...", fontSize = 12.sp, color = TextMuted) },
+                        placeholder = { Text("Buscar por título, usuario, correo o detalle...", fontSize = 11.5.sp, color = TextMuted) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp)) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(16.dp))
+                                IconButton(onClick = { searchQuery = "" }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(15.dp))
                                 }
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
+                            .height(46.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = HextechCyan,
                             unfocusedBorderColor = HextechCardBorder,
@@ -274,42 +440,52 @@ fun AdminSupportReportsDialog(
                         shape = RoundedCornerShape(10.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    // Chips de filtro (TODOS, PENDIENTES, RESUELTOS)
+                    // Chips de filtro (TODOS, PENDIENTES, LEÍDOS, SOLUCIONADOS)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         listOf(
-                            "TODOS" to "Todos (${reports.size})",
-                            "PENDIENTE" to "Pendientes ($pendingCount)",
-                            "RESUELTO" to "Resueltos (${reports.size - pendingCount})"
+                            "ALL" to "Todos (${reportsList.size})",
+                            "PENDING" to "Pendientes ($pendingCount)",
+                            "READ" to "Leídos ($readCount)",
+                            "SOLVED" to "Solucionados ($solvedCount)"
                         ).forEach { (filterKey, label) ->
                             val isSelected = selectedFilter == filterKey
+                            val activeColor = when (filterKey) {
+                                "PENDING" -> HextechGold
+                                "READ" -> HextechCyan
+                                "SOLVED" -> HextechGreen
+                                else -> HextechCyan
+                            }
                             Box(
                                 modifier = Modifier
+                                    .weight(1f)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                                    .background(if (isSelected) activeColor.copy(alpha = 0.22f) else HextechSurface)
                                     .border(
                                         1.dp,
-                                        if (isSelected) HextechCyan else HextechCardBorder,
+                                        if (isSelected) activeColor else HextechCardBorder,
                                         RoundedCornerShape(8.dp)
                                     )
                                     .clickable { selectedFilter = filterKey }
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    .padding(vertical = 6.dp),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = label,
-                                    color = if (isSelected) HextechCyan else TextSecondary,
-                                    fontSize = 11.5.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    color = if (isSelected) activeColor else TextSecondary,
+                                    fontSize = 10.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    maxLines = 1
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     // Contenido: Lista de reportes
                     if (isLoading) {
@@ -317,7 +493,11 @@ fun AdminSupportReportsDialog(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = HextechCyan)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator(color = HextechCyan, modifier = Modifier.size(36.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("Cargando reportes y tickets...", color = TextMuted, fontSize = 12.sp)
+                            }
                         }
                     } else if (filteredReports.isEmpty()) {
                         Box(
@@ -328,8 +508,15 @@ fun AdminSupportReportsDialog(
                                 Text(
                                     text = "📭 No hay reportes de soporte en esta categoría",
                                     color = TextMuted,
-                                    fontSize = 13.sp
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium
                                 )
+                                if (searchQuery.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    TextButton(onClick = { searchQuery = "" }) {
+                                        Text("Limpiar búsqueda", color = HextechCyan, fontSize = 12.sp)
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -338,19 +525,10 @@ fun AdminSupportReportsDialog(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(filteredReports, key = { it.id }) { item ->
-                                SupportReportAdminCard(
+                                UnifiedReportAdminCard(
                                     report = item,
                                     onImageClick = { bmp -> previewZoomBitmap = bmp },
-                                    onToggleStatus = {
-                                        val newStatus = if (item.status == "PENDIENTE") "RESUELTO" else "PENDIENTE"
-                                        coroutineScope.launch {
-                                            FirebaseFirestore.getInstance()
-                                                .collection("support_reports")
-                                                .document(item.id)
-                                                .update("status", newStatus)
-                                            Toast.makeText(context, "Estado actualizado a $newStatus", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
+                                    onSetStatus = { newStat -> updateReportStatus(item, newStat) },
                                     onDelete = { reportToDelete = item }
                                 )
                             }
@@ -363,31 +541,73 @@ fun AdminSupportReportsDialog(
 
     // Modal de confirmación para eliminar reporte
     if (reportToDelete != null) {
+        val target = reportToDelete!!
         AlertDialog(
             onDismissRequest = { reportToDelete = null },
-            title = { Text("Eliminar reporte", color = HextechGold, fontWeight = FontWeight.Bold) },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Delete, contentDescription = null, tint = DangerRed, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Eliminar reporte", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
             text = {
-                Text(
-                    "¿Estás seguro de que deseas eliminar permanentemente el reporte \"${reportToDelete!!.title}\"?",
-                    color = TextPrimary
-                )
+                Column {
+                    Text(
+                        text = "¿Estás seguro de que deseas eliminar permanentemente este reporte?",
+                        color = TextPrimary,
+                        fontSize = 13.5.sp
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "\"${target.title}\"",
+                        color = HextechCyan,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (target.userEmail.isNotBlank()) {
+                        Text(
+                            text = "De: ${target.userEmail}",
+                            color = TextMuted,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        val id = reportToDelete!!.id
+                        val idToDelete = target.id
                         reportToDelete = null
+                        reportsList.removeAll { it.id == idToDelete }
                         coroutineScope.launch {
-                            FirebaseFirestore.getInstance()
-                                .collection("support_reports")
-                                .document(id)
-                                .delete()
-                            Toast.makeText(context, "Reporte eliminado", Toast.LENGTH_SHORT).show()
+                            // 1. Eliminar de Supabase
+                            try {
+                                if (target.rawSupabaseReport?.id != null) {
+                                    FeedbackRepository.deleteFeedback(target.rawSupabaseReport.id)
+                                } else {
+                                    FeedbackRepository.deleteFeedback(idToDelete)
+                                }
+                            } catch (e: Exception) {
+                                Log.w(TAG, "Error eliminando en Supabase: ${e.message}")
+                            }
+
+                            // 2. Eliminar de Firestore
+                            try {
+                                FirebaseFirestore.getInstance()
+                                    .collection("support_reports")
+                                    .document(idToDelete)
+                                    .delete()
+                            } catch (_: Exception) {}
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Reporte eliminado permanentemente", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
                 ) {
-                    Text("Eliminar", color = Color.White)
+                    Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -405,74 +625,119 @@ fun AdminSupportReportsDialog(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.92f))
+                    .background(Color.Black.copy(alpha = 0.94f))
                     .clickable { previewZoomBitmap = null }
-                    .padding(16.dp),
+                    .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    bitmap = previewZoomBitmap!!.asImageBitmap(),
-                    contentDescription = "Foto ampliada",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(
+                        bitmap = previewZoomBitmap!!.asImageBitmap(),
+                        contentDescription = "Foto ampliada",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(1.dp, HextechGold, RoundedCornerShape(12.dp))
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Toca la pantalla para cerrar",
+                        color = HextechCyan,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun SupportReportAdminCard(
-    report: SupportReportItem,
+private fun UnifiedReportAdminCard(
+    report: UnifiedSupportReport,
     onImageClick: (Bitmap) -> Unit,
-    onToggleStatus: () -> Unit,
+    onSetStatus: (String) -> Unit,
     onDelete: () -> Unit
 ) {
-    val isPending = report.status.equals("PENDIENTE", ignoreCase = true)
-    val dateStr = remember(report.createdAt) {
+    val isPending = report.status == FeedbackRepository.STATUS_PENDING || report.status.equals("PENDIENTE", ignoreCase = true)
+    val isRead = report.status == FeedbackRepository.STATUS_READ || report.status.equals("LEIDO", ignoreCase = true) || report.status.equals("LEÍDO", ignoreCase = true)
+    val isSolved = report.status == FeedbackRepository.STATUS_SOLVED || report.status.equals("SOLUCIONADO", ignoreCase = true) || report.status.equals("RESUELTO", ignoreCase = true) || report.status.equals("ACCEPTED", ignoreCase = true)
+
+    val dateStr = remember(report.createdAtMillis) {
         try {
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-            sdf.format(report.createdAt)
+            sdf.format(Date(report.createdAtMillis))
         } catch (e: Exception) {
             ""
         }
+    }
+
+    val borderColor = when {
+        isSolved -> HextechGreen.copy(alpha = 0.6f)
+        isRead -> HextechCyan.copy(alpha = 0.6f)
+        else -> HextechGold.copy(alpha = 0.6f)
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
-        border = BorderStroke(
-            1.dp,
-            if (isPending) HextechGold.copy(alpha = 0.6f) else HextechGreen.copy(alpha = 0.4f)
-        )
+        border = BorderStroke(1.dp, borderColor)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Fila superior: Estado + Título + Acciones
+            // Fila Superior: Tipo + Estado actual + Fecha + Eliminar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Badge de Estado
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(if (isPending) HextechGold.copy(alpha = 0.2f) else HextechGreen.copy(alpha = 0.2f))
-                        .border(
-                            1.dp,
-                            if (isPending) HextechGold else HextechGreen,
-                            RoundedCornerShape(6.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text(
-                        text = if (isPending) "⏳ PENDIENTE" else "✓ RESUELTO",
-                        color = if (isPending) HextechGold else HextechGreen,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black
-                    )
+                    // Badge de Tipo
+                    val typeLabel = when (report.type.uppercase()) {
+                        "SOPORTE" -> "🎧 SOPORTE"
+                        "BUG" -> "🐛 BUG"
+                        "SUGGESTION" -> "💡 SUGERENCIA"
+                        else -> "📝 ${report.type}"
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(HextechDarkBg)
+                            .border(0.5.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = typeLabel,
+                            color = HextechCyan,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Badge de Estado Actual
+                    val (statusText, statusBg, statusTextColor) = when {
+                        isSolved -> Triple("✓ SOLUCIONADO", HextechGreen.copy(alpha = 0.2f), HextechGreen)
+                        isRead -> Triple("👁️ LEÍDO", HextechCyan.copy(alpha = 0.2f), HextechCyan)
+                        else -> Triple("⏳ PENDIENTE", HextechGold.copy(alpha = 0.2f), HextechGold)
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(statusBg)
+                            .border(1.dp, statusTextColor, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = statusText,
+                            color = statusTextColor,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -481,13 +746,16 @@ private fun SupportReportAdminCard(
                         color = TextMuted,
                         fontSize = 10.5.sp
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    IconButton(onClick = onDelete, modifier = Modifier.size(26.dp)) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(28.dp)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Eliminar",
-                            tint = DangerRed.copy(alpha = 0.8f),
-                            modifier = Modifier.size(16.dp)
+                            tint = DangerRed.copy(alpha = 0.85f),
+                            modifier = Modifier.size(17.dp)
                         )
                     }
                 }
@@ -499,28 +767,37 @@ private fun SupportReportAdminCard(
             Text(
                 text = report.title,
                 color = TextPrimary,
-                fontSize = 14.sp,
+                fontSize = 13.5.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Descripción
+            // Descripción del reporte
             Text(
                 text = report.description,
                 color = TextSecondary,
                 fontSize = 12.sp,
-                lineHeight = 17.sp
+                lineHeight = 16.5.sp
             )
 
-            // Datos del usuario remitente y dispositivo
+            // Datos de contacto y dispositivo
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                val emailOrName = when {
+                    report.userEmail.isNotBlank() -> report.userEmail
+                    report.userName.isNotBlank() -> report.userName
+                    else -> "Usuario de la App"
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
@@ -529,15 +806,19 @@ private fun SupportReportAdminCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (report.userEmail.isNotBlank()) report.userEmail else report.userName,
+                        text = emailOrName,
                         color = HextechCyan,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1
                     )
                 }
 
                 if (report.device.isNotBlank()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Smartphone,
                             contentDescription = null,
@@ -548,29 +829,40 @@ private fun SupportReportAdminCard(
                         Text(
                             text = report.device,
                             color = TextMuted,
-                            fontSize = 10.5.sp
+                            fontSize = 10.sp,
+                            maxLines = 1
                         )
                     }
                 }
             }
 
-            // Fotos adjuntas si tiene
-            if (report.photos.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(10.dp))
+            if (report.appVersion.isNotBlank()) {
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Fotos adjuntas (${report.photos.size}):",
+                    text = "Versión: ${report.appVersion}",
+                    color = TextMuted.copy(alpha = 0.7f),
+                    fontSize = 9.5.sp
+                )
+            }
+
+            // Fotos adjuntas
+            if (report.photosBase64.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Capturas adjuntas (${report.photosBase64.size}):",
                     color = HextechGold,
-                    fontSize = 11.sp,
+                    fontSize = 10.5.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    itemsIndexed(report.photos) { idx, b64 ->
+                    itemsIndexed(report.photosBase64) { idx, b64 ->
                         val bmp = remember(b64) {
                             try {
-                                val bytes = Base64.decode(b64, Base64.DEFAULT)
+                                val cleanB64 = if (b64.contains(",")) b64.substringAfter(",") else b64
+                                val bytes = Base64.decode(cleanB64, Base64.DEFAULT)
                                 BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                             } catch (e: Exception) {
                                 null
@@ -579,7 +871,7 @@ private fun SupportReportAdminCard(
                         if (bmp != null) {
                             Box(
                                 modifier = Modifier
-                                    .size(60.dp)
+                                    .size(56.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                                     .clickable { onImageClick(bmp) }
@@ -598,33 +890,124 @@ private fun SupportReportAdminCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Botón de alternar estado
-            Button(
-                onClick = onToggleStatus,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(34.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isPending) HextechGreen.copy(alpha = 0.2f) else HextechGold.copy(alpha = 0.2f)
-                ),
-                border = BorderStroke(1.dp, if (isPending) HextechGreen else HextechGold),
-                shape = RoundedCornerShape(8.dp),
-                contentPadding = PaddingValues(0.dp)
+            // 🎯 BOTONES DE ACCIÓN: PENDIENTE | LEÍDO | SOLUCIONADO
+            Text(
+                text = "Cambiar estado del reporte:",
+                color = TextMuted,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Icon(
-                    imageVector = if (isPending) Icons.Default.CheckCircle else Icons.Default.HourglassEmpty,
-                    contentDescription = null,
-                    tint = if (isPending) HextechGreen else HextechGold,
-                    modifier = Modifier.size(15.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = if (isPending) "Marcar como Resuelto" else "Reabrir como Pendiente",
-                    color = if (isPending) HextechGreen else HextechGold,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                // Botón Pendiente
+                Button(
+                    onClick = { onSetStatus(FeedbackRepository.STATUS_PENDING) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isPending) HextechGold.copy(alpha = 0.25f) else HextechDarkBg
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (isPending) HextechGold else HextechCardBorder
+                    ),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        Icons.Default.HourglassEmpty,
+                        contentDescription = null,
+                        tint = if (isPending) HextechGold else TextMuted,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "Pendiente",
+                        color = if (isPending) HextechGold else TextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = if (isPending) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+
+                // Botón Leído
+                Button(
+                    onClick = { onSetStatus(FeedbackRepository.STATUS_READ) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isRead) HextechCyan.copy(alpha = 0.25f) else HextechDarkBg
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (isRead) HextechCyan else HextechCardBorder
+                    ),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Visibility,
+                        contentDescription = null,
+                        tint = if (isRead) HextechCyan else TextMuted,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "Leído",
+                        color = if (isRead) HextechCyan else TextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = if (isRead) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+
+                // Botón Solucionado
+                Button(
+                    onClick = { onSetStatus(FeedbackRepository.STATUS_SOLVED) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isSolved) HextechGreen.copy(alpha = 0.25f) else HextechDarkBg
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (isSolved) HextechGreen else HextechCardBorder
+                    ),
+                    shape = RoundedCornerShape(6.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = if (isSolved) HextechGreen else TextMuted,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "Solucionado",
+                        color = if (isSolved) HextechGreen else TextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = if (isSolved) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
             }
         }
+    }
+}
+
+private fun parseIsoDateToMillis(dateStr: String?): Long {
+    if (dateStr.isNullOrBlank()) return System.currentTimeMillis()
+    return try {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val clean = dateStr.substringBefore(".").substringBefore("+").substringBefore("Z")
+        sdf.parse(clean)?.time ?: System.currentTimeMillis()
+    } catch (_: Exception) {
+        System.currentTimeMillis()
     }
 }

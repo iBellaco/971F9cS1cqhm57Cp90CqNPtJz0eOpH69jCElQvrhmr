@@ -164,7 +164,7 @@ fun ChampionDetailSheet(
         ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(horizontal = if (isOverlay) 8.dp else 20.dp, vertical = if (isOverlay) 6.dp else 0.dp)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -574,24 +574,24 @@ fun ChampionDetailSheet(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         val slotTranslation = when {
-                                            skill.slotName.contains("Pasiva", true) -> tr("Pasiva:")
-                                            skill.slotName.contains("Habilidad 1", true) -> tr("Habilidad") + " 1:"
-                                            skill.slotName.contains("Habilidad 2", true) -> tr("Habilidad") + " 2:"
-                                            skill.slotName.contains("Habilidad 3", true) -> tr("Habilidad") + " 3:"
-                                            skill.slotName.contains("Definitiva", true) -> tr("Definitiva:")
-                                            else -> skill.slotName
+                                            skill.slotName.contains("Pasiva", true) || skill.slot.equals("P", true) || skill.slot.equals("Passive", true) -> tr("Pasiva:")
+                                            skill.slotName.contains("Habilidad 1", true) || skill.slot == "1" || skill.slot.equals("Q", true) -> tr("Habilidad") + " 1:"
+                                            skill.slotName.contains("Habilidad 2", true) || skill.slot == "2" || skill.slot.equals("W", true) -> tr("Habilidad") + " 2:"
+                                            skill.slotName.contains("Habilidad 3", true) || skill.slot == "3" || skill.slot.equals("E", true) -> tr("Habilidad") + " 3:"
+                                            skill.slotName.contains("Definitiva", true) || skill.slot == "4" || skill.slot.equals("R", true) -> tr("Definitiva:")
+                                            else -> if (skill.slotName.isNotBlank()) skill.slotName else if (skill.slot.isNotBlank()) "Habilidad ${skill.slot}:" else ""
                                         }
                                         Text(
-                                            text = "$slotTranslation ${skill.name}",
+                                            text = if (slotTranslation.isNotBlank()) "$slotTranslation ${skill.name}" else skill.name,
                                             color = TextPrimary,
-                                            fontSize = 13.sp,
+                                            fontSize = if (isCompact) 11.sp else 13.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                         if (skill.cooldown.isNotBlank()) {
                                             Text(
                                                 text = skill.cooldown,
                                                 color = HextechCyan,
-                                                fontSize = 11.sp,
+                                                fontSize = if (isCompact) 9.sp else 11.sp,
                                                 fontWeight = FontWeight.SemiBold
                                             )
                                         }
@@ -600,8 +600,8 @@ fun ChampionDetailSheet(
                                     FormattedWildRiftText(
                                         text = tr(skill.description),
                                         color = TextPrimary.copy(alpha = 0.9f),
-                                        fontSize = 12.sp,
-                                        lineHeight = 16.sp
+                                        fontSize = if (isCompact) 9.5.sp else 12.sp,
+                                        lineHeight = if (isCompact) 13.sp else 16.sp
                                     )
                                 }
                             }
