@@ -843,14 +843,10 @@ fun ChampionsCatalogTab(
     var showFilterChips by remember { mutableStateOf(true) }
 
     val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, showOnlyFavorites, favorites, syncState, WildRiftRepository.champions.toList()) {
+        val trimmedQuery = searchQuery.trim()
         val list = WildRiftRepository.champions.filter { champ ->
-            val matchesQuery = searchQuery.isBlank() ||
-                    champ.name.contains(searchQuery, ignoreCase = true) ||
-                    champ.title.contains(searchQuery, ignoreCase = true) ||
-                    champ.summary.contains(searchQuery, ignoreCase = true) ||
-                    champ.primaryRole.displayName.contains(searchQuery, ignoreCase = true) ||
-                    champ.primaryRole.shortName.contains(searchQuery, ignoreCase = true) ||
-                    champ.secondaryRoles.any { it.shortName.contains(searchQuery, ignoreCase = true) || it.displayName.contains(searchQuery, ignoreCase = true) }
+            val matchesQuery = trimmedQuery.isBlank() ||
+                    champ.name.contains(trimmedQuery, ignoreCase = true)
             val matchesRole = selectedRoleFilter == null ||
                     champ.primaryRole == selectedRoleFilter ||
                     champ.secondaryRoles.contains(selectedRoleFilter)

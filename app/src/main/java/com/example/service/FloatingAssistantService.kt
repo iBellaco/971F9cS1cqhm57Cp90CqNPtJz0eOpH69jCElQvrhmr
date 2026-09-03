@@ -2520,9 +2520,10 @@ private fun FloatingTierAndBuildsView(
             Spacer(modifier = Modifier.height(4.dp))
 
             val filteredChampions = remember(searchQuery, selectedRole) {
+                val trimmedQuery = searchQuery.trim()
                 WildRiftRepository.champions.filter { champ ->
                     val matchesRole = selectedRole == null || champ.primaryRole == selectedRole || champ.secondaryRoles.contains(selectedRole)
-                    val matchesSearch = searchQuery.isBlank() || champ.name.contains(searchQuery, ignoreCase = true) || champ.title.contains(searchQuery, ignoreCase = true)
+                    val matchesSearch = trimmedQuery.isBlank() || champ.name.contains(trimmedQuery, ignoreCase = true)
                     matchesRole && matchesSearch
                 }.sortedWith(compareBy<Champion> {
                     when (it.tier) {

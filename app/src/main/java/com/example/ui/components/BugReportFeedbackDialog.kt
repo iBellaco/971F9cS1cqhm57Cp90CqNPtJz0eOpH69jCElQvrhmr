@@ -127,6 +127,8 @@ fun BugReportFeedbackDialog(
     
     val selectedCoreItems = remember { mutableStateListOf<WildRiftItem>() }
     val selectedBootsItems = remember { mutableStateListOf<WildRiftItem>() }
+    var selectedBootTier2 by remember { mutableStateOf<WildRiftItem?>(null) }
+    var selectedBootTier3 by remember { mutableStateOf<WildRiftItem?>(null) }
     val selectedSituationalItems = remember { mutableStateListOf<WildRiftItem>() }
     var situationalDescription by remember { mutableStateOf("") }
     var selectedKeystoneRune by remember { mutableStateOf<RuneItem?>(null) }
@@ -714,15 +716,15 @@ fun BugReportFeedbackDialog(
                         }
                     }
 
-                    // 4. BOTAS (NIVEL 2 O 3 / ENCANTAMIENTOS) - OBLIGATORIO + OPCIONALES
+                    // 4. BOTAS (NIVEL 2 + EVOLUCIÓN NIVEL 3) - OBLIGATORIO
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
                             .background(HextechSurfaceVariant.copy(alpha = 0.55f))
                             .border(
-                                width = if (selectedBootsItems.isNotEmpty()) 1.5.dp else 1.dp,
-                                color = if (selectedBootsItems.isNotEmpty()) HextechGold else HextechCyan.copy(alpha = 0.6f),
+                                width = if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) 1.5.dp else 1.dp,
+                                color = if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) HextechGold else DangerRed.copy(alpha = 0.7f),
                                 shape = RoundedCornerShape(10.dp)
                             )
                             .padding(10.dp),
@@ -735,7 +737,7 @@ fun BugReportFeedbackDialog(
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(
-                                    text = tr("4. Botas & Encantamientos"),
+                                    text = tr("4. Botas"),
                                     color = HextechGold,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
@@ -743,13 +745,13 @@ fun BugReportFeedbackDialog(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(if (selectedBootsItems.isNotEmpty()) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
-                                        .border(0.8.dp, if (selectedBootsItems.isNotEmpty()) HextechGold else DangerRed, RoundedCornerShape(4.dp))
+                                        .background(if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) HextechGold.copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
+                                        .border(0.8.dp, if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) HextechGold else DangerRed, RoundedCornerShape(4.dp))
                                         .padding(horizontal = 5.dp, vertical = 1.dp)
                                 ) {
                                     Text(
-                                        text = if (selectedBootsItems.isNotEmpty()) "✓ ${selectedBootsItems.size} " + tr("Elegida(s)") else "* " + tr("Obligatorio (mín 1)"),
-                                        color = if (selectedBootsItems.isNotEmpty()) HextechGold else DangerRed,
+                                        text = if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) "✓ " + tr("Configuradas") else "* " + tr("Obligatorio (Nivel 2)"),
+                                        color = if (selectedBootTier2 != null || selectedBootsItems.isNotEmpty()) HextechGold else DangerRed,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -757,15 +759,39 @@ fun BugReportFeedbackDialog(
                             }
                         }
 
-                        // Lista de botas seleccionadas
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            selectedBootsItems.forEachIndexed { idx, bootItem ->
+                        val effectiveT2 = selectedBootTier2 ?: selectedBootsItems.firstOrNull()
+                        val effectiveT3 = selectedBootTier3 ?: if (selectedBootsItems.size > 1) selectedBootsItems.getOrNull(1) else null
+
+                        if (effectiveT2 == null) {
+                            Button(
+                                onClick = { showItemPickerType = "boots_t2" },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = HextechCyan.copy(alpha = 0.2f)
+                                ),
+                                border = BorderStroke(1.dp, HextechGold),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(vertical = 10.dp)
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = tr("Seleccionar Botas Nivel 2 y su Evolución Nivel 3"),
+                                    fontSize = 11.5.sp,
+                                    color = HextechGold,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        } else {
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                // Bota Nivel 2
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(HextechSurface.copy(alpha = 0.7f))
                                         .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                        .clickable { showItemPickerType = "boots_t2" }
                                         .padding(6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -779,10 +805,10 @@ fun BugReportFeedbackDialog(
                                     ) {
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current)
-                                                .data(bootItem.iconUrl)
+                                                .data(effectiveT2.iconUrl)
                                                 .crossfade(true)
                                                 .build(),
-                                            contentDescription = bootItem.name,
+                                            contentDescription = effectiveT2.name,
                                             modifier = Modifier.fillMaxSize(),
                                             contentScale = ContentScale.Crop
                                         )
@@ -790,45 +816,118 @@ fun BugReportFeedbackDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = (if (idx == 0) "★ Principal: " else "+ Opcional: ") + bootItem.name,
+                                            text = "★ " + tr("Bota Nivel 2: ") + effectiveT2.name,
                                             color = TextPrimary,
                                             fontSize = 11.5.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = "${bootItem.category} • ${bootItem.goldCost} 💰",
+                                            text = "${effectiveT2.category} • ${effectiveT2.goldCost} 💰 (Toca para cambiar)",
                                             color = HextechCyan,
                                             fontSize = 9.5.sp
                                         )
                                     }
                                     IconButton(
-                                        onClick = { selectedBootsItems.remove(bootItem) },
+                                        onClick = {
+                                            selectedBootTier2 = null
+                                            selectedBootTier3 = null
+                                            selectedBootsItems.clear()
+                                        },
                                         modifier = Modifier.size(26.dp)
                                     ) {
                                         Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.Red, modifier = Modifier.size(16.dp))
                                     }
                                 }
-                            }
 
-                            if (selectedBootsItems.size < 4) {
-                                Button(
-                                    onClick = { showItemPickerType = "boots" },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (selectedBootsItems.isEmpty()) HextechCyan.copy(alpha = 0.2f) else HextechSurface
-                                    ),
-                                    border = BorderStroke(1.dp, if (selectedBootsItems.isEmpty()) HextechCyan else HextechCardBorder),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(vertical = 6.dp)
+                                // Indicador de Evolución hacia Nivel 3
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Default.Add, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = if (selectedBootsItems.isEmpty()) tr("Seleccionar Botas Principales (* Obligatorio)") else tr("+ Añadir más botas / encantamiento (Opcional)"),
-                                        fontSize = 11.sp,
-                                        color = if (selectedBootsItems.isEmpty()) HextechGold else TextSecondary,
-                                        fontWeight = FontWeight.SemiBold
+                                        text = "↓ " + tr("Evolución a Nivel 3 (Encantamiento / Bota T3)") + " ↓",
+                                        color = HextechGold,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
+                                }
+
+                                // Bota Nivel 3 / Evolución
+                                if (effectiveT3 != null) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(HextechSurface.copy(alpha = 0.7f))
+                                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                            .clickable { showItemPickerType = "boots_t3" }
+                                            .padding(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(HextechSurfaceVariant)
+                                                .border(1.5.dp, HextechCyan, RoundedCornerShape(8.dp)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            AsyncImage(
+                                                model = ImageRequest.Builder(LocalContext.current)
+                                                    .data(effectiveT3.iconUrl)
+                                                    .crossfade(true)
+                                                    .build(),
+                                                contentDescription = effectiveT3.name,
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "⚡ " + tr("Evolución Nivel 3: ") + effectiveT3.name,
+                                                color = TextPrimary,
+                                                fontSize = 11.5.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                text = "${effectiveT3.category} • ${effectiveT3.goldCost} 💰 (Toca para cambiar)",
+                                                color = HextechCyan,
+                                                fontSize = 9.5.sp
+                                            )
+                                        }
+                                        IconButton(
+                                            onClick = {
+                                                selectedBootTier3 = null
+                                                selectedBootsItems.clear()
+                                                if (selectedBootTier2 != null) selectedBootsItems.add(selectedBootTier2!!)
+                                            },
+                                            modifier = Modifier.size(26.dp)
+                                        ) {
+                                            Icon(Icons.Default.Close, contentDescription = "Quitar evolución", tint = Color.Red, modifier = Modifier.size(16.dp))
+                                        }
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { showItemPickerType = "boots_t3" },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = HextechSurface
+                                        ),
+                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                                        shape = RoundedCornerShape(8.dp),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(vertical = 6.dp)
+                                    ) {
+                                        Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = tr("+ Seleccionar Evolución (Botas Nivel 3)"),
+                                            fontSize = 11.sp,
+                                            color = HextechCyan,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1638,7 +1737,7 @@ fun BugReportFeedbackDialog(
         val pickerType = showItemPickerType!!
         val excludedIds = when (pickerType) {
             "core" -> selectedCoreItems.map { it.id }.toSet()
-            "boots" -> selectedBootsItems.map { it.id }.toSet()
+            "boots", "boots_t2", "boots_t3" -> emptySet()
             "situational" -> (selectedCoreItems.map { it.id } + selectedSituationalItems.map { it.id }).toSet()
             else -> emptySet()
         }
@@ -1652,19 +1751,39 @@ fun BugReportFeedbackDialog(
                         if (selectedCoreItems.size < 5 && !selectedCoreItems.contains(item)) {
                             selectedCoreItems.add(item)
                         }
+                        showItemPickerType = null
+                    }
+                    "boots_t2" -> {
+                        selectedBootTier2 = item
+                        selectedBootsItems.clear()
+                        selectedBootsItems.add(item)
+                        if (selectedBootTier3 != null) selectedBootsItems.add(selectedBootTier3!!)
+                        // Inmediatamente abre la selección de evolución de Nivel 3
+                        showItemPickerType = "boots_t3"
+                    }
+                    "boots_t3" -> {
+                        selectedBootTier3 = item
+                        selectedBootsItems.clear()
+                        if (selectedBootTier2 != null) selectedBootsItems.add(selectedBootTier2!!)
+                        selectedBootsItems.add(item)
+                        showItemPickerType = null
                     }
                     "boots" -> {
                         if (selectedBootsItems.size < 4 && !selectedBootsItems.contains(item)) {
                             selectedBootsItems.add(item)
                         }
+                        showItemPickerType = null
                     }
                     "situational" -> {
                         if (selectedSituationalItems.size < 6 && !selectedSituationalItems.contains(item)) {
                             selectedSituationalItems.add(item)
                         }
+                        showItemPickerType = null
+                    }
+                    else -> {
+                        showItemPickerType = null
                     }
                 }
-                showItemPickerType = null
             }
         )
     }
@@ -1872,12 +1991,22 @@ private fun ItemCatalogSelectionDialog(
     onSelect: (WildRiftItem) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCat by remember(type) { mutableStateOf(if (type == "boots") "Botas Nivel 2" else "Todos") }
+    var selectedCat by remember(type) {
+        mutableStateOf(
+            when (type) {
+                "boots_t2" -> "Botas Nivel 2"
+                "boots_t3" -> "Evolución Nivel 3"
+                "boots" -> "Botas"
+                else -> "Todos"
+            }
+        )
+    }
     
-    val categories = if (type == "boots") {
-        listOf("Botas Nivel 2")
-    } else {
-        listOf("Todos", "Físico", "Magia", "Defensa", "Apoyo")
+    val categories = when (type) {
+        "boots_t2" -> listOf("Botas Nivel 2")
+        "boots_t3" -> listOf("Evolución Nivel 3")
+        "boots" -> listOf("Botas")
+        else -> listOf("Todos", "Físico", "Magia", "Defensa", "Apoyo")
     }
 
     val items = remember(searchQuery, selectedCat, type, excludedItemIds) {
@@ -1891,6 +2020,7 @@ private fun ItemCatalogSelectionDialog(
             val icon = item.iconUrl.lowercase()
 
             val isBootItem = item.category.equals("Botas Nivel 2", ignoreCase = true) ||
+                item.category.equals("Botas Nivel 3", ignoreCase = true) ||
                 cat.contains("bota") ||
                 cat.contains("boot") ||
                 id.contains("boot") ||
@@ -1912,7 +2042,8 @@ private fun ItemCatalogSelectionDialog(
                     "ionian_boots_of_lucidity", "boots_of_mana", "boots_of_dynamism", "boots_of_swiftness", "boots_of_speed"
                 ).contains(id)
 
-            val isBootT3 = cat.contains("nivel 3") ||
+            val isBootT3 = item.category.equals("Botas Nivel 3", ignoreCase = true) ||
+                cat.contains("nivel 3") ||
                 cat.contains("encantamiento") ||
                 id.contains("enchant") ||
                 icon.contains("enchant") ||
@@ -1920,17 +2051,20 @@ private fun ItemCatalogSelectionDialog(
             
             val isBootT2 = (item.category.equals("Botas Nivel 2", ignoreCase = true) || (isBootItem && !isBootT3 && !id.contains("speed")))
 
-            if (type == "boots") {
-                matchesSearch && isBootT2
-            } else {
-                val matchesCat = when (selectedCat) {
-                    "Físico" -> item.category.contains("físico", ignoreCase = true) || item.category.contains("ataque", ignoreCase = true)
-                    "Magia" -> item.category.contains("magia", ignoreCase = true) || item.category.contains("mágico", ignoreCase = true)
-                    "Defensa" -> item.category.contains("defensa", ignoreCase = true) || item.category.contains("tanque", ignoreCase = true)
-                    "Apoyo" -> item.category.contains("apoyo", ignoreCase = true) || item.category.contains("soporte", ignoreCase = true)
-                    else -> true
+            when (type) {
+                "boots_t2" -> matchesSearch && isBootT2
+                "boots_t3" -> matchesSearch && (isBootT3 || item.category.contains("Nivel 3", ignoreCase = true))
+                "boots" -> matchesSearch && (isBootT2 || isBootT3)
+                else -> {
+                    val matchesCat = when (selectedCat) {
+                        "Físico" -> item.category.contains("físico", ignoreCase = true) || item.category.contains("ataque", ignoreCase = true)
+                        "Magia" -> item.category.contains("magia", ignoreCase = true) || item.category.contains("mágico", ignoreCase = true)
+                        "Defensa" -> item.category.contains("defensa", ignoreCase = true) || item.category.contains("tanque", ignoreCase = true)
+                        "Apoyo" -> item.category.contains("apoyo", ignoreCase = true) || item.category.contains("soporte", ignoreCase = true)
+                        else -> true
+                    }
+                    matchesSearch && matchesCat && !isBootItem
                 }
-                matchesSearch && matchesCat && !isBootItem
             }
         }
     }
@@ -1947,6 +2081,8 @@ private fun ItemCatalogSelectionDialog(
             ) {
                 Text(
                     text = when (type) {
+                        "boots_t2" -> tr("Seleccionar Botas (Nivel 2)")
+                        "boots_t3" -> tr("Seleccionar Evolución (Nivel 3)")
                         "boots" -> tr("Seleccionar Botas")
                         "situational" -> tr("Seleccionar Objeto Situacional")
                         else -> tr("Seleccionar Objeto Core (Slots 1 a 5)")

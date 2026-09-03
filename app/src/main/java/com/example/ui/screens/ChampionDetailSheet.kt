@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.heightIn
 import com.example.utils.parseHtmlColorToAnnotatedString
 import com.example.data.WildRiftItemsData
 import com.example.model.WildRiftItem
@@ -148,7 +149,7 @@ fun ChampionDetailSheet(
 
     val dialogContent = @Composable {
         androidx.compose.material3.Card(
-            modifier = if (isOverlay) Modifier.fillMaxSize() else Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
+            modifier = if (isOverlay) Modifier.fillMaxWidth().heightIn(max = 550.dp) else Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
             shape = if (isOverlay) androidx.compose.foundation.shape.RoundedCornerShape(14.dp) else androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = if (isOverlay) HextechDarkBg else HextechSurfaceVariant)
         ) {

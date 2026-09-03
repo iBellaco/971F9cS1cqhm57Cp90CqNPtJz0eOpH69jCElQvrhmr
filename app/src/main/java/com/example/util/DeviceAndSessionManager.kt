@@ -42,24 +42,51 @@ object DeviceAndSessionManager {
         return newToken
     }
 
+    private var cachedDeviceId: String? = null
+
     // Obtener ID del dispositivo persistente y determinista por instalación
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {
+        if (!cachedDeviceId.isNullOrBlank()) {
+            return cachedDeviceId!!
+        }
+
         val appContext = context.applicationContext ?: context
+
+        // 1. Verificar archivo plano interno permanente
+        val internalFile = java.io.File(appContext.filesDir, "device_id.txt")
+        try {
+            if (internalFile.exists()) {
+                val fileId = internalFile.readText().trim()
+                if (fileId.isNotBlank()) {
+                    cachedDeviceId = fileId
+                    return fileId
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error reading device_id.txt: ${e.message}")
+        }
+
+        // 2. Verificar SharedPreferences principales
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val savedId = prefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!savedId.isNullOrBlank()) {
+            cachedDeviceId = savedId
+            try { internalFile.writeText(savedId) } catch (_: Exception) {}
             return savedId
         }
 
-        // Verificar también en user_preferences por redundancia
+        // 3. Verificar también en user_preferences por redundancia
         val userPrefs = appContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
         val backupId = userPrefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!backupId.isNullOrBlank()) {
+            cachedDeviceId = backupId
             prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, backupId).apply()
+            try { internalFile.writeText(backupId) } catch (_: Exception) {}
             return backupId
         }
 
+        // 4. Obtener ANDROID_ID o generar hash determinista de hardware
         var hardwareId: String? = null
         try {
             hardwareId = Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID)
@@ -70,11 +97,16 @@ object DeviceAndSessionManager {
         val finalId = if (!hardwareId.isNullOrBlank() && hardwareId != "9774d56d682e549c" && hardwareId != "UNKNOWN_DEVICE") {
             "WRD_$hardwareId"
         } else {
-            "WRD_UUID_${UUID.randomUUID().toString().replace("-", "").take(16)}"
+            // Huella digital de hardware determinista fija para este dispositivo físico
+            val hardwareSeed = "${android.os.Build.MANUFACTURER}_${android.os.Build.MODEL}_${android.os.Build.BRAND}_${android.os.Build.DEVICE}_${android.os.Build.BOARD}_${android.os.Build.HARDWARE}"
+            val deterministicUUID = UUID.nameUUIDFromBytes(hardwareSeed.toByteArray()).toString().replace("-", "").take(16)
+            "WRD_HW_$deterministicUUID"
         }
 
+        cachedDeviceId = finalId
         prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
         userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
+        try { internalFile.writeText(finalId) } catch (_: Exception) {}
         return finalId
     }
 
