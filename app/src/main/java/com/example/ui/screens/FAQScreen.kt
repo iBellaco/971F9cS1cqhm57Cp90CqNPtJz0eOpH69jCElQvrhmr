@@ -35,6 +35,14 @@ fun FAQScreen(
                 "Básicamente, al activar el asistente te aparece una burbuja en la pantalla que puedes mover donde te sea más cómoda. Cuando entras a selección de campeones, la abres y te tira al toque las recomendaciones según tu línea y el draft enemigo. Lo armé para que no tengas que salirte del juego ni marearte buscando guías."
             ),
             Pair(
+                "¿Para qué sirve exactamente cada botón y sección de la app?",
+                "Te cuento rápido cómo está armado: el botón de selección de campeones te abre el asistente de draft interactivo para armar tus composiciones y counters en tiempo real. La sección de Tier List te muestra el meta actual ordenado por tiers (S+, S, A) según winrate y desempeño en las rankeds. Las estadísticas recopilan datos actualizados por rol y enfrentamientos directos. El panel de usuario te deja gestionar tu cuenta, verificar tu estado premium y revisar tu historial de partidas guardadas con Room."
+            ),
+            Pair(
+                "¿De dónde salen las estadísticas, los campeones y las builds?",
+                "Todo el contenido viene directo del meta competitivo oficial de Wild Rift y servidores de alto elo (Challenger/Grandmaster). Analizamos constantemente las builds de los mejores jugadores del mundo, las runas óptimas, los hechizos de invocador que más se usan por línea y las guías de objetos core o situacionales (como cortacuras o fajines) para que siempre tengas la información más precisa."
+            ),
+            Pair(
                 "¿Por qué cambian las recomendaciones de campeones si elijo 1er Pick?",
                 "Buena pregunta. No es lo mismo pickear de los primeros que ir de counter en la última ronda. Si vas de primer pick, la app te sugiere campeones seguros que encajen bien en cualquier composición y no tengan counters fáciles. Si eres el último, te busca el counter perfecto contra el rival que ya sacó la cara."
             ),
