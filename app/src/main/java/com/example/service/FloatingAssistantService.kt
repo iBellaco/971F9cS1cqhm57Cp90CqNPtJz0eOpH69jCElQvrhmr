@@ -1202,65 +1202,73 @@ private fun FloatingOverlayContent(
                             Spacer(modifier = Modifier.height(4.dp))
                         }
 
-                        // Contenido Principal del Hub según la Pestaña Activa
+                        // Contenido Principal del Hub según la Pestaña Activa o Detalle de Campeón
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                            when (overlayHubTab) {
-                                OverlayHubTab.DRAFT -> {
-                                    FloatingDraftCoachView(
-                                        activeRole = activeRole,
-                                        onActiveRoleChange = { 
-                                            activeRole = it 
-                                            com.example.util.UserPreferences.setActiveDraftRole(context, it)
-                                        },
-                                        isFirstPick = isFirstPick,
-                                        onFirstPickToggle = { isFirstPick = !isFirstPick },
-                                        isLoadingScreenMode = isLoadingScreenMode,
-                                        onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
-                                        allies = allies,
-                                        enemies = enemies,
-                                        analysis = analysis,
-                                        selectedChampionDetail = selectedChampionDetail,
-                                        onSelectChampion = { selectedChampionDetail = it },
-                                        onOpenChampionPicker = { isAlly, idx -> showChampionPickerForSlot = Pair(isAlly, idx) },
-                                        onSaveDraftClick = { showSaveDraftDialog = true },
-                                        isSavedRecently = isSavedRecently,
-                                        onClearAll = { 
-                                            allies.clear()
-                                            enemies.clear()
-                                            android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
-                                    )
-                                }
-                                OverlayHubTab.TIER_LIST -> {
-                                    com.example.ui.screens.TierListTab(
-                                        isOverlay = true,
-                                        onSelectChampion = { selectedChampionDetail = it },
-                                        isPremium = isPremium
-                                    )
-                                }
-                                OverlayHubTab.CHAMPIONS -> {
-                                    com.example.ui.screens.ChampionsCatalogTab(
-                                        isOverlay = true,
-                                        onSelectChampion = { selectedChampionDetail = it }
-                                    )
-                                }
-                                OverlayHubTab.HISTORY -> {
-                                    com.example.ui.screens.DraftHistoryScreen(
-                                        isOverlay = true,
-                                        onNavigateBack = {
-                                            overlayHubTab = OverlayHubTab.DRAFT
-                                        },
-                                        onLoadDraft = { loadedAllies, loadedEnemies, role, isFirst ->
-                                            allies.clear()
-                                            allies.addAll(loadedAllies.map { it.champion })
-                                            enemies.clear()
-                                            enemies.addAll(loadedEnemies.map { it.champion })
-                                            activeRole = role
-                                            isFirstPick = isFirst
-                                            overlayHubTab = OverlayHubTab.DRAFT
-                                        }
-                                    )
+                            if (selectedChampionDetail != null) {
+                                com.example.ui.screens.ChampionDetailSheet(
+                                    isOverlay = true,
+                                    champion = selectedChampionDetail,
+                                    onDismiss = { selectedChampionDetail = null }
+                                )
+                            } else {
+                                when (overlayHubTab) {
+                                    OverlayHubTab.DRAFT -> {
+                                        FloatingDraftCoachView(
+                                            activeRole = activeRole,
+                                            onActiveRoleChange = { 
+                                                activeRole = it 
+                                                com.example.util.UserPreferences.setActiveDraftRole(context, it)
+                                            },
+                                            isFirstPick = isFirstPick,
+                                            onFirstPickToggle = { isFirstPick = !isFirstPick },
+                                            isLoadingScreenMode = isLoadingScreenMode,
+                                            onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
+                                            allies = allies,
+                                            enemies = enemies,
+                                            analysis = analysis,
+                                            selectedChampionDetail = selectedChampionDetail,
+                                            onSelectChampion = { selectedChampionDetail = it },
+                                            onOpenChampionPicker = { isAlly, idx -> showChampionPickerForSlot = Pair(isAlly, idx) },
+                                            onSaveDraftClick = { showSaveDraftDialog = true },
+                                            isSavedRecently = isSavedRecently,
+                                            onClearAll = { 
+                                                allies.clear()
+                                                enemies.clear()
+                                                android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
+                                            },
+                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
+                                        )
+                                    }
+                                    OverlayHubTab.TIER_LIST -> {
+                                        com.example.ui.screens.TierListTab(
+                                            isOverlay = true,
+                                            onSelectChampion = { selectedChampionDetail = it },
+                                            isPremium = isPremium
+                                        )
+                                    }
+                                    OverlayHubTab.CHAMPIONS -> {
+                                        com.example.ui.screens.ChampionsCatalogTab(
+                                            isOverlay = true,
+                                            onSelectChampion = { selectedChampionDetail = it }
+                                        )
+                                    }
+                                    OverlayHubTab.HISTORY -> {
+                                        com.example.ui.screens.DraftHistoryScreen(
+                                            isOverlay = true,
+                                            onNavigateBack = {
+                                                overlayHubTab = OverlayHubTab.DRAFT
+                                            },
+                                            onLoadDraft = { loadedAllies, loadedEnemies, role, isFirst ->
+                                                allies.clear()
+                                                allies.addAll(loadedAllies.map { it.champion })
+                                                enemies.clear()
+                                                enemies.addAll(loadedEnemies.map { it.champion })
+                                                activeRole = role
+                                                isFirstPick = isFirst
+                                                overlayHubTab = OverlayHubTab.DRAFT
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -2438,29 +2446,45 @@ private fun FloatingTierAndBuildsView(
     } else {
         // Vista de lista / búsqueda de campeones
         Column(modifier = Modifier.fillMaxSize()) {
-            // Buscador
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text(tr("Buscar campeón o rol..."), fontSize = 10.5.sp) },
-                modifier = Modifier.fillMaxWidth().height(38.dp),
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = HextechCyan,
-                    unfocusedBorderColor = HextechCardBorder
-                ),
-                singleLine = true,
-                trailingIcon = {
+            // Buscador Compacto y Proporcionado
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechCardBorder, RoundedCornerShape(6.dp))
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        if (searchQuery.isEmpty()) {
+                            Text(tr("Buscar campeón o rol..."), color = TextMuted, fontSize = 10.sp)
+                        }
+                        androidx.compose.foundation.text.BasicTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 10.5.sp),
+                            singleLine = true
+                        )
+                    }
                     if (searchQuery.isNotEmpty()) {
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Limpiar",
                             tint = TextMuted,
-                            modifier = Modifier.size(16.dp).clickable { searchQuery = "" }
+                            modifier = Modifier.size(14.dp).clickable { searchQuery = "" }
                         )
                     }
                 }
-            )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 

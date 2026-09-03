@@ -521,7 +521,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 Icon(imageVector = Icons.Default.Face, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Cambiar Avatar de LoL", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text("Cambiar Avatar", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -340,7 +340,8 @@ fun AdminDashboardDialog(
                             Log.e("AdminDashboard", "Error parsing user doc ${doc.id}", e)
                             null
                         }
-                    }.sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
+                    }.distinctBy { it.email.lowercase().trim().ifEmpty { it.uid } }
+                    .sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                         .thenByDescending { it.role == "premium" }
                         .thenBy { it.name.ifEmpty { it.email } })
                     users = list

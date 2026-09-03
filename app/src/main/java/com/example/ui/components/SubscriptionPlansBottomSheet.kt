@@ -96,21 +96,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
-                    com.example.util.SubscriptionManager.purchaseSubscription(
-                        durationMillis = 30L * 24L * 60L * 60L * 1000L, // 30 days
-                        planName = "Coach Premium (Mensual)",
-                        price = "$1.00",
-                        onSuccess = {
-                            Toast.makeText(context, "Suscripción adquirida exitosamente.", Toast.LENGTH_LONG).show()
-                            scope.launch {
-                                sheetState.hide()
-                                onDismiss()
-                            }
-                        },
-                        onError = { err ->
-                            Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
-                        }
-                    )
+                    Toast.makeText(context, "Servicio de suscripción temporalmente fuera de servicio", Toast.LENGTH_LONG).show()
                 }
             )
 
@@ -134,21 +120,7 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
                 ),
                 onSubscribe = {
-                    com.example.util.SubscriptionManager.purchaseSubscription(
-                        durationMillis = 365L * 24L * 60L * 60L * 1000L, // 365 days
-                        planName = "Coach Premium (Anual)",
-                        price = "$11.00",
-                        onSuccess = {
-                            Toast.makeText(context, "Suscripción adquirida exitosamente.", Toast.LENGTH_LONG).show()
-                            scope.launch {
-                                sheetState.hide()
-                                onDismiss()
-                            }
-                        },
-                        onError = { err ->
-                            Toast.makeText(context, "Error: $err", Toast.LENGTH_LONG).show()
-                        }
-                    )
+                    Toast.makeText(context, "Servicio de suscripción temporalmente fuera de servicio", Toast.LENGTH_LONG).show()
                 }
             )
 

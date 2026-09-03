@@ -552,6 +552,15 @@ object WildRiftRepository {
         val recommendations = candidates.map { champ ->
             var score = champ.winrate
 
+            // Role affinity bonus so recommendations vary correctly across lanes
+            if (champ.primaryRole == myRole) {
+                score += 10.0
+            } else if (champ.secondaryRoles.contains(myRole)) {
+                score += 5.0
+            } else {
+                score -= 15.0
+            }
+
             // Tier Bonus
             when (champ.tier) {
                 "S+" -> score += 3.5

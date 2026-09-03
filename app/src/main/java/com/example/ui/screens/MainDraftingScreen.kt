@@ -807,7 +807,7 @@ fun OfflineResourceDownloadCard() {
                 .padding(vertical = 8.dp),
             colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.5f)),
             shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+            border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(
@@ -827,7 +827,22 @@ fun OfflineResourceDownloadCard() {
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    if (downloadState == DownloadState.DOWNLOADING || downloadState == DownloadState.PAUSED) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(HextechGold.copy(alpha = 0.2f))
+                            .border(0.5.dp, HextechGold, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 4.dp, vertical = 1.dp)
+                    ) {
+                        Text("⭐ " + tr("RECOMENDADO"), color = HextechGold, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                if (downloadState == DownloadState.DOWNLOADING || downloadState == DownloadState.PAUSED) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
                         IconButton(
                             onClick = { isMinimized = true },
                             modifier = Modifier.size(28.dp)

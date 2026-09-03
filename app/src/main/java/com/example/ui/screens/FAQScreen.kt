@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +29,8 @@ fun FAQScreen(
     onNavigateBack: () -> Unit
 ) {
     var faqSearchQuery by remember { mutableStateOf("") }
+    var selectedFaq by remember { mutableStateOf<Pair<String, String>?>(null) }
+    
     val faqs = remember {
         listOf(
             Pair(
@@ -57,6 +60,22 @@ fun FAQScreen(
             Pair(
                 "¿Por qué usa la nomenclatura H1, H2, H3 en lugar de Q, W, E?",
                 "Porque en Wild Rift las habilidades se llaman Habilidad 1, Habilidad 2, Habilidad 3 y Definitiva (H4). Como la app es 100% exclusiva para móviles y no un port de PC, usamos los términos oficiales para que no te confundas al momento de jugar rápido."
+            ),
+            Pair(
+                "¿Cómo funciona la suscripción y qué beneficios incluye?",
+                "La suscripción te da acceso total a funciones avanzadas como guardar tus drafts, personalizar avatares y temas visuales exclusivos. Ten en cuenta que actualmente el servicio de suscripción está temporalmente fuera de servicio mientras preparamos pasarelas de pago oficiales, pero podrás disfrutarlo muy pronto."
+            ),
+            Pair(
+                "¿Cómo puedo personalizar los temas visuales de la aplicación?",
+                "Puedes cambiar el aspecto de la app desde tu perfil o ajustes seleccionando entre varios temas visuales inspirados en las regiones de Runaterra. Así adaptas los colores, acentos y la interfaz completa al estilo de tu campeón favorito."
+            ),
+            Pair(
+                "¿Cómo puedo cambiar mi avatar en la aplicación?",
+                "Es muy sencillo. Solo entra a tu perfil y toca el botón 'Cambiar Avatar'. Se abrirá el catálogo completo donde puedes elegir tu icono preferido, desde poros divertidos hasta avatares legendarios de campeones."
+            ),
+            Pair(
+                "¿Por qué se recomienda descargar los recursos offline?",
+                "Te sugiero ampliamente usar la opción de descarga de recursos offline en la pantalla principal. Esto baja las imágenes de campeones, habilidades, objetos y runas directo a tu dispositivo para que todo cargue al instante y puedas consultar la app sin consumir datos ni depender de internet."
             )
         )
     }
@@ -128,37 +147,73 @@ fun FAQScreen(
                     )
                 }
             } else {
-                filteredFaqs.forEach { (question, answer) ->
+                filteredFaqs.forEach { pair ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp),
+                            .padding(vertical = 6.dp)
+                            .clickable { selectedFaq = pair },
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(containerColor = HextechSurface),
                         border = BorderStroke(1.dp, HextechCardBorder)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = question,
-                                    color = HextechGoldLight,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = answer,
-                                color = TextSecondary,
-                                fontSize = 13.sp,
-                                lineHeight = 18.sp
+                                text = pair.first,
+                                color = HextechGoldLight,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    if (selectedFaq != null) {
+        AlertDialog(
+            onDismissRequest = { selectedFaq = null },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp),
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = selectedFaq!!.first,
+                        color = HextechGold,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        lineHeight = 20.sp
+                    )
+                }
+            },
+            text = {
+                Text(
+                    text = selectedFaq!!.second,
+                    color = TextPrimary,
+                    fontSize = 13.5.sp,
+                    lineHeight = 20.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { selectedFaq = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(tr("Entendido"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                }
+            }
+        )
     }
 }
