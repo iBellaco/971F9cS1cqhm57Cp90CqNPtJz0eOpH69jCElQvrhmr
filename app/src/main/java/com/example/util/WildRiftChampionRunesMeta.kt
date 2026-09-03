@@ -508,10 +508,10 @@ object WildRiftChampionRunesMeta {
             option2 = listOf("Conquistador", "Brutal", "Leyenda: Tenacidad", "Último Esfuerzo", "Fuerzas Renovadas")
         ),
         "wukong" to ChampionRunePair(
-            opt1Title = "Conquistador & Ciclón Definitiva (Meta)",
-            option1 = listOf("Conquistador", "Triunfo", "Leyenda: Tenacidad", "Último Esfuerzo", "Revestimiento de Huesos"),
-            opt2Title = "Primer Golpe (Iniciación en Sigilo)",
-            option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Triunfo")
+            opt1Title = "Conquistador & Asesino / Duelista (Jungla)",
+            option1 = listOf("Conquistador", "Fervor de combate", "Golpe de gracia", "Leyenda: Linaje", "Impacto súbito"),
+            opt2Title = "Agarre del perpetuo & Tanque (Jungla)",
+            option2 = listOf("Agarre del perpetuo", "Inquebrantable", "Coraza ósea", "Crecimiento excesivo", "Impacto súbito")
         ),
         "nunu" to ChampionRunePair(
             opt1Title = "Irrupción de Fase (Bola de Nieve)",

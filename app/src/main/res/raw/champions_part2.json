@@ -8018,8 +8018,8 @@
       "Diana"
     ],
     "tacticalAdvice": "Lanza tu clon con Guerrero Pícaro (H2) antes de activar Ciclón (H4) para levantar al equipo enemigo dos veces seguidas.",
-    "recommendedRunes": "PRIMER GOLPE,PRIMER GOLPE,IMPACTO REPENTINO,ASALTO ENCADENADO,COLECCIÓN DE GLOBOS OCULARES,LEYENDA: PRESTEZA",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Tenacidad • Segundo Aire",
+    "recommendedRunes": "Conquistador • Fervor de combate • Golpe de gracia • Leyenda: Linaje • Impacto súbito",
+    "runeTreeDetails": "Precisión: Fervor de combate • Golpe de gracia • Leyenda: Linaje • Dominación: Impacto súbito",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [],
     "spellsIcons": [],
@@ -8076,12 +8076,18 @@
     "wrMetaUrl": "https://wr-meta.com/champion/wukong/",
     "wildRiftCoreUrl": "https://wildriftcore.com/es/champions/wukong/",
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/wukong",
-    "spells": [],
-    "primaryRunes": [
-      "Soberano Gélido"
+    "spells": [
+      "Castigo",
+      "Destello"
     ],
-    "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Leyenda: Presteza",
-    "build2Spells": [],
+    "primaryRunes": [
+      "Conquistador"
+    ],
+    "build2Runes": "Conquistador,Fervor de combate,Golpe de gracia,Leyenda: Linaje,Impacto súbito",
+    "build2Spells": [
+      "Castigo",
+      "Destello"
+    ],
     "builds": [
       {
         "title": "TOP - Tanque - Potenciar 1º habilidad",
@@ -8104,12 +8110,12 @@
           "Botas de mercurio"
         ],
         "situationalItems": [],
-        "primaryRune": "Garras del inmortal",
+        "primaryRune": "Agarre del perpetuo",
         "secondaryRunes": [
           "Inquebrantable",
-          "Fuerzas renovadas",
-          "Sobrecrecimiento",
-          "Impacto repentino"
+          "Coraza ósea",
+          "Crecimiento excesivo",
+          "Impacto súbito"
         ],
         "spells": [
           "Prender",
@@ -8137,12 +8143,12 @@
           "Botas dinámicas"
         ],
         "situationalItems": [],
-        "primaryRune": "Primer golpe",
+        "primaryRune": "Conquistador",
         "secondaryRunes": [
-          "Impacto repentino",
-          "Asalto encadenado",
-          "Colección de globos oculares",
-          "Leyenda: Presteza"
+          "Fervor de combate",
+          "Golpe de gracia",
+          "Leyenda: Linaje",
+          "Impacto súbito"
         ],
         "spells": [
           "Castigo",
@@ -8172,12 +8178,12 @@
         "situationalItems": [
           "Armadura de sangre del Señor Supremo"
         ],
-        "primaryRune": "Garras del inmortal",
+        "primaryRune": "Agarre del perpetuo",
         "secondaryRunes": [
           "Inquebrantable",
-          "Fuerzas renovadas",
-          "Sobrecrecimiento",
-          "Brutal"
+          "Coraza ósea",
+          "Crecimiento excesivo",
+          "Impacto súbito"
         ],
         "spells": [
           "Destello",
@@ -8203,12 +8209,12 @@
         "bootUpgrade": "Botas inmortales",
         "situationalBoots": [],
         "situationalItems": [],
-        "primaryRune": "Conquistador",
+        "primaryRune": "Agarre del perpetuo",
         "secondaryRunes": [
-          "Brutal",
-          "Derribado",
-          "Leyenda: Presteza",
-          "Sobrecrecimiento"
+          "Inquebrantable",
+          "Coraza ósea",
+          "Crecimiento excesivo",
+          "Impacto súbito"
         ],
         "spells": [
           "Destello",

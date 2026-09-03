@@ -45,6 +45,7 @@ import com.example.util.tr
 @Composable
 fun ThemeCustomizationBottomSheet(
     isPremium: Boolean = false,
+    onOpenPremiumPlans: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -54,6 +55,7 @@ fun ThemeCustomizationBottomSheet(
     val isOledMode = AppThemeManager.isOledMode
     val isParticlesEnabled = AppThemeManager.isParticlesEnabled
     var previewTheme by remember { mutableStateOf(currentTheme) }
+    var showPremiumRequiredDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentTheme) {
         previewTheme = currentTheme
@@ -240,7 +242,7 @@ fun ThemeCustomizationBottomSheet(
                         checked = isParticlesEnabled,
                         onCheckedChange = { enabled ->
                             if (enabled && !isPremium) {
-                                android.widget.Toast.makeText(context, "Las partículas mágicas requieren suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                showPremiumRequiredDialog = true
                             } else {
                                 AppThemeManager.setParticlesEnabled(enabled, context)
                             }
@@ -271,11 +273,12 @@ fun ThemeCustomizationBottomSheet(
                 inspectedTheme = previewTheme,
                 isApplied = currentTheme == previewTheme,
                 isPremium = isPremium,
+                onShowPremiumAlert = { showPremiumRequiredDialog = true },
                 onApply = {
                     if (isPremium) {
                         AppThemeManager.setTheme(previewTheme, context)
                     } else {
-                        android.widget.Toast.makeText(context, "Requiere Suscripción Premium para aplicar el tema.", android.widget.Toast.LENGTH_SHORT).show()
+                        showPremiumRequiredDialog = true
                     }
                 }
             )
@@ -341,7 +344,7 @@ fun ThemeCustomizationBottomSheet(
                                                 )
                                             )
                                         )
-                                )
+                                    )
                             }
                             
                             Column(
@@ -375,12 +378,116 @@ fun ThemeCustomizationBottomSheet(
                                         .padding(6.dp)
                                         .size(16.dp)
                                 )
+                            } else if (!isPremium) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(5.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechDarkBg.copy(alpha = 0.75f))
+                                        .border(0.8.dp, HextechGold.copy(alpha = 0.7f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Lock,
+                                            contentDescription = "Premium",
+                                            tint = HextechGold,
+                                            modifier = Modifier.size(10.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    if (showPremiumRequiredDialog) {
+        AlertDialog(
+            onDismissRequest = { showPremiumRequiredDialog = false },
+            icon = {
+                Surface(
+                    shape = CircleShape,
+                    color = HextechGold.copy(alpha = 0.15f),
+                    border = BorderStroke(1.5.dp, HextechGold),
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Palette,
+                            contentDescription = null,
+                            tint = HextechGold,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            },
+            title = {
+                Text(
+                    text = tr("Tema Exclusivo Premium"),
+                    color = HextechGold,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = tr("Para personalizar y aplicar los temas visuales oficiales de League of Legends: Wild Rift (Jonia, Noxus, Zaun, Piltover, Shurima, Freljord, etc.) necesitas una suscripción Premium activa."),
+                        color = TextPrimary,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = tr("¡Desbloquea todos los temas por región, partículas mágicas, avatares legendarios y herramientas tácticas avanzadas!"),
+                        color = HextechCyan,
+                        fontSize = 11.5.sp,
+                        lineHeight = 15.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showPremiumRequiredDialog = false
+                        onOpenPremiumPlans()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Star,
+                        contentDescription = null,
+                        tint = HextechDarkBg,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = tr("Desbloquear con Premium"),
+                        color = HextechDarkBg,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPremiumRequiredDialog = false }) {
+                    Text(tr("Entendido"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.border(1.2.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(16.dp))
+        )
     }
 }
 
@@ -389,6 +496,7 @@ private fun RegionVisualPreviewGridCard(
     inspectedTheme: AppTheme,
     isApplied: Boolean,
     isPremium: Boolean,
+    onShowPremiumAlert: () -> Unit = {},
     onApply: () -> Unit
 ) {
     Card(
@@ -604,48 +712,79 @@ private fun RegionVisualPreviewGridCard(
                         }
                     }
 
-                    // Apply Action Button inside Preview
-                    Button(
-                        onClick = onApply,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isApplied) inspectedTheme.surfaceVariant else inspectedTheme.primary
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            if (isApplied) inspectedTheme.secondary else inspectedTheme.primaryGlow
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        modifier = Modifier.height(32.dp)
+                    // Apply Action Button inside Preview (with Premium alert badge on the left when non-premium)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        if (isApplied) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                tint = inspectedTheme.secondary,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = tr("Aplicado"),
-                                color = inspectedTheme.secondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        } else {
-                            Icon(
-                                Icons.Default.FlashOn,
-                                contentDescription = null,
-                                tint = inspectedTheme.background,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = tr("Aplicar"),
-                                color = inspectedTheme.background,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        if (!isPremium) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
+                                    .clickable { onShowPremiumAlert() }
+                                    .padding(horizontal = 6.dp, vertical = 5.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = "Premium",
+                                        tint = HextechDarkBg,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = "PREMIUM",
+                                        color = HextechDarkBg,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = onApply,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isApplied) inspectedTheme.surfaceVariant else inspectedTheme.primary
+                            ),
+                            border = BorderStroke(
+                                1.dp,
+                                if (isApplied) inspectedTheme.secondary else inspectedTheme.primaryGlow
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            if (isApplied) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = inspectedTheme.secondary,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = tr("Aplicado"),
+                                    color = inspectedTheme.secondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Default.FlashOn,
+                                    contentDescription = null,
+                                    tint = inspectedTheme.background,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = tr("Aplicar"),
+                                    color = inspectedTheme.background,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }

@@ -191,6 +191,10 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showThemeDialog) {
         com.example.ui.components.ThemeCustomizationBottomSheet(
             isPremium = isPremium,
+            onOpenPremiumPlans = {
+                showThemeDialog = false
+                showPlansDialog = true
+            },
             onDismiss = { showThemeDialog = false }
         )
     }
