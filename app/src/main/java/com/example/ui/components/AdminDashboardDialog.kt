@@ -340,7 +340,20 @@ fun AdminDashboardDialog(
                             Log.e("AdminDashboard", "Error parsing user doc ${doc.id}", e)
                             null
                         }
-                    }.distinctBy { it.email.lowercase().trim().ifEmpty { it.uid } }
+                    }.let { parsed ->
+                        val validEmails = parsed.map { it.email.lowercase().trim() }.filter { it.isNotBlank() && it != "sin email" }.toSet()
+                        parsed.filter { user ->
+                            val emailNorm = user.email.lowercase().trim()
+                            if (emailNorm.isBlank() || emailNorm == "sin email") {
+                                validEmails.isEmpty()
+                            } else {
+                                true
+                            }
+                        }.distinctBy { 
+                            val emailNorm = it.email.lowercase().trim()
+                            if (emailNorm.isBlank() || emailNorm == "sin email") it.uid else emailNorm
+                        }
+                    }
                     .sortedWith(compareByDescending<UserRecord> { it.role == "admin" }
                         .thenByDescending { it.role == "premium" }
                         .thenBy { it.name.ifEmpty { it.email } })

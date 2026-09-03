@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1046
-    versionName = "1.0.46"
+    versionCode = 1048
+    versionName = "1.0.48"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -135,6 +135,9 @@ dependencies {
   // implementation(libs.googleid)
   //
   implementation(libs.androidx.work.runtime.ktx)
+  implementation("com.startapp:inapp-sdk:4.10.0") {
+      exclude(group = "org.jetbrains.kotlin")
+  }
   implementation(libs.jsoup)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)

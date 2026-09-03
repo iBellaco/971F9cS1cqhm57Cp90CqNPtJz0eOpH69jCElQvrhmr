@@ -76,6 +76,14 @@ fun FAQScreen(
             Pair(
                 "¿Por qué se recomienda descargar los recursos offline?",
                 "Te sugiero ampliamente usar la opción de descarga de recursos offline en la pantalla principal. Esto baja las imágenes de campeones, habilidades, objetos y runas directo a tu dispositivo para que todo cargue al instante y puedas consultar la app sin consumir datos ni depender de internet."
+            ),
+            Pair(
+                "¿Cómo funciona el sistema de Tier List y las valoraciones S+, S y A?",
+                "La Tier List clasifica a los campeones basándose en su tasa de victoria (winrate), tasa de selección y desempeño general en partidas clasificatorias de alto elo. Los campeones en Tier S+ son prioritarios para el meta actual por su versatilidad y poder en manos expertas, mientras que los tiers S y A ofrecen opciones sólidas adaptadas a composiciones específicas."
+            ),
+            Pair(
+                "¿Cómo funcionan los servidores y regiones en la aplicación?",
+                "La aplicación te permite sincronizar y consultar datos adaptados al meta de diferentes regiones (como el servidor de China CN, metadatos Globales o servidores de América). Cada región prioriza estilos de juego y composiciones distintas, permitiéndote aplicar estrategias de vanguardia en tus partidas."
             )
         )
     }

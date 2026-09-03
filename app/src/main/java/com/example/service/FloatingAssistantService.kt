@@ -887,17 +887,25 @@ private fun FloatingOverlayContent(
                                     detectDragGestures(
                                         onDragStart = {
                                             isDraggingPanel = true
+                                            dragAccumulatedY = 0f
                                         },
                                         onDrag = { change, dragAmount ->
                                             change.consume()
+                                            dragAccumulatedY += dragAmount.y
                                             onDragDelta(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
                                         },
                                         onDragEnd = {
                                             isDraggingPanel = false
-                                            onDragDelta(0, 0, false, false)
+                                            if (dragAccumulatedY > 120f) {
+                                                onClose()
+                                            } else {
+                                                onDragDelta(0, 0, false, false)
+                                            }
+                                            dragAccumulatedY = 0f
                                         },
                                         onDragCancel = {
                                             isDraggingPanel = false
+                                            dragAccumulatedY = 0f
                                             onDragDelta(0, 0, false, false)
                                         }
                                     )
@@ -1848,6 +1856,21 @@ private fun FloatingDraftCoachView(
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
+    val explicitEnemyOpponent = remember(activeRole, enemies.toList(), isLoadingScreenMode) {
+        if (isLoadingScreenMode) {
+            val roleIndex = when (activeRole) {
+                LaneRole.TOP -> 0
+                LaneRole.JUNGLE -> 1
+                LaneRole.MID -> 2
+                LaneRole.ADC -> 3
+                LaneRole.SUPPORT -> 4
+            }
+            enemies.getOrNull(roleIndex)
+        } else {
+            enemies.find { it.primaryRole == activeRole }
+        }
+    }
+
     val defaultRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
     val allySlots = remember(allies.toList()) {
         allies.mapIndexed { index, champ ->
@@ -2052,6 +2075,36 @@ private fun FloatingDraftCoachView(
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Medium,
                         lineHeight = 10.sp
+                    )
+                }
+            }
+        }
+
+        // Análisis 1v1 de línea / Matchup Directo con Rival
+        if (explicitEnemyOpponent != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                shape = RoundedCornerShape(6.dp)
+            ) {
+                Column(modifier = Modifier.padding(6.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ChampionAvatar(champion = explicitEnemyOpponent, size = 22.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "⚔️ " + tr("Matchup 1v1 vs") + " ${explicitEnemyOpponent.name}",
+                            color = DangerRed,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = analysis.directMatchupWarning ?: "Analizando ventana de poder en línea contra ${explicitEnemyOpponent.name}.",
+                        color = TextPrimary,
+                        fontSize = 8.5.sp
                     )
                 }
             }
@@ -2290,11 +2343,11 @@ private fun FloatingTierAndBuildsView(
                             val iconUrl = coreIcons.getOrNull(idx) ?: WildRiftItemsData.getItemIconByName(itemName)
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(52.dp)
+                                modifier = Modifier.width(42.dp)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(36.dp)
+                                        .size(30.dp)
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(HextechSurface)
                                         .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
@@ -2305,18 +2358,18 @@ private fun FloatingTierAndBuildsView(
                                             url = iconUrl,
                                             contentDescription = itemName,
                                             fallbackText = itemName.take(2),
-                                            modifier = Modifier.size(32.dp),
+                                            modifier = Modifier.size(26.dp),
                                             shape = RoundedCornerShape(4.dp)
                                         )
                                     } else {
-                                        Text("🛡️", fontSize = 14.sp)
+                                        Text("🛡️", fontSize = 12.sp)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
                                     text = itemName,
                                     color = HextechGoldLight,
-                                    fontSize = 7.5.sp,
+                                    fontSize = 7.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -2465,7 +2518,7 @@ private fun FloatingTierAndBuildsView(
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(modifier = Modifier.weight(1f)) {
                         if (searchQuery.isEmpty()) {
-                            Text(tr("Buscar campeón o rol..."), color = TextMuted, fontSize = 10.sp)
+                            Text(tr("Buscar campeón"), color = TextMuted, fontSize = 10.sp)
                         }
                         androidx.compose.foundation.text.BasicTextField(
                             value = searchQuery,

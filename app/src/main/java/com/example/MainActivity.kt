@@ -428,26 +428,42 @@ fun DashboardScreen(
                     )
                 }
 
-                // Top golden/accent glowing divider line
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(
-                                    Color.Transparent,
-                                    navAccent.copy(alpha = 0.6f),
-                                    Color.Transparent
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (!isPremium) {
+                        androidx.compose.ui.viewinterop.AndroidView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            factory = { context ->
+                                com.startapp.sdk.ads.banner.Banner(context).apply {
+                                    // Start.io banner
+                                }
+                            }
+                        )
+                    }
+
+                    // Top golden/accent glowing divider line
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        navAccent.copy(alpha = 0.6f),
+                                        Color.Transparent
+                                    )
                                 )
                             )
-                        )
-                )
+                    )
 
-                NavigationBar(
-                    containerColor = Color.Transparent,
-                    contentColor = navSelectedText
-                ) {
+                    NavigationBar(
+                        containerColor = Color.Transparent,
+                        contentColor = navSelectedText
+                    ) {
                     // 1. Inicio
                     NavigationBarItem(
                         selected = pagerState.currentPage == 0,
@@ -518,6 +534,7 @@ fun DashboardScreen(
                             unselectedTextColor = navUnselected
                         )
                     )
+                }
                 }
 
                 // Ambient Runic Particles Floating across Bottom Navigation Bar
