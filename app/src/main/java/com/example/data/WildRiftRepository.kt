@@ -464,7 +464,7 @@ object WildRiftRepository {
             else -> "¡Alerta! Falta Frontline e Iniciación aliada"
         }
 
-        val isFirstPickEffective = isFirstPick || enemies.isEmpty()
+        val isFirstPickEffective = isFirstPick
 
         // Known safe blind-picks per role in Wild Rift Meta
         val safeBlindPicks = mapOf(

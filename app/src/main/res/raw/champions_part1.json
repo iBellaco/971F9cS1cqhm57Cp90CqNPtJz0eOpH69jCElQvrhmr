@@ -31,7 +31,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Conecta los filos de tu Habilidad 1 (H1) en el Línea de Barón para castigar campeones inmóviles. Usa tu Habilidad 3 (H3) para reposicionar la espada durante la animación.",
-    "recommendedRunes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
+    "recommendedRunes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
     "runeTreeDetails": "Dominación / Valor: Conquistador • Coraje del Coloso • Fuerzas Renovadas • Perseverancia • Impacto Repentino",
     "primaryRuneIconUrl": "https://images.ctfassets.net/ekkp7rrkr2gn/6ZqBIEsBgpDsZrvw2jbrvz/0673ee14b9321dba3b2878ee9e277a81/conqueror_hanu.png",
     "recommendedSpells": [
@@ -44,11 +44,10 @@
     ],
     "coreItems": [
       "Eclipse",
-      "Cielo desgarrado",
-      "La danza de la muerte",
+      "Fuerza de trinidad",
       "El rencor de Serylda",
-      "Fuerza trinitaria",
-      "Ángel custodio"
+      "Calibrador de Sterak",
+      "La danza de la muerte"
     ],
     "coreItemsIcons": [
       "https://images.ctfassets.net/ekkp7rrkr2gn/7EsROl8ZKAh0Se2feQm1TM/737819c31452577aeb8503ff1dc76551/eclipse_hanu.png",
@@ -135,19 +134,18 @@
         "role": "top",
         "items": [
           "Eclipse",
-          "Cielo desgarrado",
-          "La danza de la muerte",
+          "Fuerza de trinidad",
           "El rencor de Serylda",
-          "Fuerza trinitaria",
-          "Ángel custodio"
+          "Calibrador de Sterak",
+          "La danza de la muerte"
         ],
-        "runes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Perseverancia,Impacto Repentino",
+        "runes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
         "spells": [
           "Destello",
           "Prender"
         ],
         "bootBase": "Botas blindadas",
-        "bootUpgrade": "Avance blindado",
+        "bootUpgrade": "Cimitarra mercurial",
         "situationalBoots": [
           "Grebas codiciosas"
         ]
@@ -3890,12 +3888,21 @@
       "Lux"
     ],
     "tacticalAdvice": "Mantén las 5 cargas de tu pasiva golpeando con tu Habilidad 1 (H1) antes de pelear. Guarda tu Desplazamiento Arcano (H3) para esquivar iniciaciones clave.",
-    "recommendedRunes": "CONQUISTADOR,CONQUISTADOR,INQUEBRANTABLE,Revestimiento de huesos,PERSEVERANCIA,TRASCENDENCIA",
+    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Linaje,Revestimiento de huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
-    "recommendedSpells": [],
+    "recommendedSpells": [
+      "Destello",
+      "Extenuación"
+    ],
     "spellsIcons": [],
-    "coreItems": [],
+    "coreItems": [
+      "Manamune",
+      "Fuerza de trinidad",
+      "El rencor de Serylda",
+      "Lanza de Shojin",
+      "Hoja del rey arruinado"
+    ],
     "coreItemsIcons": [],
     "situationalItems": [],
     "situationalItemsIcons": [],
@@ -3965,13 +3972,13 @@
         ],
         "items": [
           "Manamune",
-          "Guantelete nacido del hielo",
-          "Espada del Rey Arruinado",
+          "Fuerza de trinidad",
           "El rencor de Serylda",
-          "Ángel custodio"
+          "Lanza de Shojin",
+          "Hoja del rey arruinado"
         ],
-        "bootBase": "Botas blindadas",
-        "bootUpgrade": "Avance blindado",
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Cinturón de cohetes",
         "situationalBoots": [
           "Grebas codiciosas"
         ],
@@ -3984,9 +3991,10 @@
           "Trascendencia"
         ],
         "spells": [
-          "Extenuación",
-          "Destello"
-        ]
+          "Destello",
+          "Extenuación"
+        ],
+        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Linaje,Revestimiento de huesos"
       },
       {
         "title": "ADC - Daño explosivo",
@@ -5379,12 +5387,21 @@
       "Amumu"
     ],
     "tacticalAdvice": "Usa Niebla Sagrada (H2) para volverte inmune a los proyectiles y habilidades de los tiradores enemigos fuera de la zona.",
-    "recommendedRunes": "Conquistador",
+    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
-    "recommendedSpells": [],
+    "recommendedSpells": [
+      "Fantasma",
+      "Prender"
+    ],
     "spellsIcons": [],
-    "coreItems": [],
+    "coreItems": [
+      "Creagrietas",
+      "Diente de Nashor",
+      "Sombrero mortífero de Rabadon",
+      "Báculo del Vacío",
+      "Orbe del infinito"
+    ],
     "coreItemsIcons": [],
     "situationalItems": [],
     "situationalItemsIcons": [],
@@ -5453,14 +5470,14 @@
           "Gorro de muerte del miércoles"
         ],
         "items": [
-          "Anochecer y amanecer",
-          "Hacedor de grietas",
-          "Gorro de muerte del miércoles",
+          "Creagrietas",
           "Diente de Nashor",
-          "Bastón vacío"
+          "Sombrero mortífero de Rabadon",
+          "Báculo del Vacío",
+          "Orbe del infinito"
         ],
         "bootBase": "Botas de maná",
-        "bootUpgrade": "Botas del lanzahechizos",
+        "bootUpgrade": "Estasis",
         "situationalBoots": [],
         "situationalItems": [],
         "primaryRune": "Conquistador",
@@ -5471,9 +5488,10 @@
           "Sobrecrecimiento"
         ],
         "spells": [
-          "Destello",
+          "Fantasma",
           "Prender"
-        ]
+        ],
+        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino"
       },
       {
         "title": "JG - Daño continuo",

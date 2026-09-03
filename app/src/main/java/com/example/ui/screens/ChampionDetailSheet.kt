@@ -962,7 +962,7 @@ fun ChampionDetailSheet(
             // ==========================================
             var selectedBootBaseOverride by remember(activeOption) { mutableStateOf<String?>(null) }
             val currentBootBase = selectedBootBaseOverride ?: activeOption.bootBase.ifBlank { "Botas blindadas" }
-            val currentBootUpgrade = ChampionRoleAdapter.getTier3BootUpgrade(currentBootBase)
+            val currentBootUpgrade = if (activeOption.bootUpgrade.isNotBlank()) activeOption.bootUpgrade else ChampionRoleAdapter.getTier3BootUpgrade(currentBootBase)
 
             val bootBoxSize = if (isCompact) 26.dp else 38.dp
             val spellBoxSize = if (isCompact) 26.dp else 38.dp
