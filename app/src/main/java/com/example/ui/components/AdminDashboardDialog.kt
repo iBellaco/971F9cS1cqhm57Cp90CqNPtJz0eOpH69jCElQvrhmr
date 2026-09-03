@@ -611,7 +611,10 @@ fun AdminDashboardDialog(
 
                         // --- ADMIN STATS DASHBOARD ---
                         val totalUsers = users.size
-                        val registeredAndLoggedIn = totalUsers
+                        val currentTime = System.currentTimeMillis()
+                        val registeredAndLoggedIn = users.count { user ->
+                            user.lastActive > (currentTime - 30 * 60 * 1000L) || user.registeredDevices.isNotEmpty()
+                        }.coerceAtLeast(if (totalUsers > 0) 1 else 0)
                         val pendingRegistration = 0
 
                         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {

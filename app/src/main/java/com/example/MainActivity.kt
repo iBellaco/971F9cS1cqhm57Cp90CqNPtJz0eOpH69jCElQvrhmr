@@ -285,6 +285,7 @@ enum class AppScreen {
     LANGUAGE_SELECTION,
     MAIN,
     INFO,
+    FAQ,
     META
 }
 
@@ -358,6 +359,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
 @Composable
 fun DashboardScreen(
     onNavigateToInfo: () -> Unit,
+    onNavigateToFAQ: () -> Unit,
     onNavigateToLogin: () -> Unit,
     mainRole: LaneRole,
     onMainRoleChange: (LaneRole) -> Unit,
@@ -541,6 +543,7 @@ fun DashboardScreen(
                 0 -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToFAQ = onNavigateToFAQ,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -587,6 +590,7 @@ fun DashboardScreen(
                 else -> {
                     MainDraftingScreen(
                         onNavigateToInfo = onNavigateToInfo,
+                        onNavigateToFAQ = onNavigateToFAQ,
                         onNavigateToMeta = { coroutineScope.launch { pagerState.animateScrollToPage(2) } },
                         onNavigateToLogin = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         mainRole = mainRole,
@@ -724,6 +728,7 @@ fun DraftingApp() {
             AppScreen.MAIN -> {
                 DashboardScreen(
                     onNavigateToInfo = { currentScreen = AppScreen.INFO },
+                    onNavigateToFAQ = { currentScreen = AppScreen.FAQ },
                     onNavigateToLogin = { currentScreen = AppScreen.LOGIN },
                     mainRole = mainRole,
                     onMainRoleChange = { 
@@ -750,6 +755,11 @@ fun DraftingApp() {
             AppScreen.META -> {}
             AppScreen.INFO -> {
                 InfoScreen(
+                    onNavigateBack = { currentScreen = AppScreen.MAIN }
+                )
+            }
+            AppScreen.FAQ -> {
+                com.example.ui.screens.FAQScreen(
                     onNavigateBack = { currentScreen = AppScreen.MAIN }
                 )
             }

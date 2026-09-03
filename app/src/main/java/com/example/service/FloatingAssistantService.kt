@@ -1420,9 +1420,14 @@ private fun FloatingOverlayContent(
     if (showChampionPickerForSlot != null) {
         val (isAllySlot, _) = showChampionPickerForSlot!!
         var searchChampQuery by remember { mutableStateOf("") }
-        val filteredList = remember(searchChampQuery) {
-            WildRiftRepository.champions.filter {
-                searchChampQuery.isBlank() || it.name.contains(searchChampQuery, ignoreCase = true)
+        val alreadySelectedIds = remember(allies.toList(), enemies.toList()) {
+            (allies.map { it.id } + enemies.map { it.id }).toSet()
+        }
+        val filteredList = remember(searchChampQuery, alreadySelectedIds) {
+            WildRiftRepository.champions.filter { champ ->
+                val notSelected = !alreadySelectedIds.contains(champ.id)
+                val matchesQuery = searchChampQuery.isBlank() || champ.name.contains(searchChampQuery, ignoreCase = true)
+                notSelected && matchesQuery
             }.sortedBy { it.name }
         }
 

@@ -134,7 +134,7 @@ import android.content.Context
 @Composable
 fun MainDraftingScreen(
     onNavigateToInfo: () -> Unit,
-
+    onNavigateToFAQ: () -> Unit,
     onNavigateToMeta: () -> Unit,
     onNavigateToLogin: () -> Unit,
     mainRole: LaneRole,
@@ -443,12 +443,38 @@ fun MainDraftingScreen(
                         Text(
                             text = tr("Información"),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
+                            fontSize = 11.sp,
                             letterSpacing = 0.5.sp
                         )
                     }
-                    
 
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = onNavigateToFAQ,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp)
+                            .testTag("btn_faq_top"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                            containerColor = HextechSurface.copy(alpha = 0.9f),
+                            contentColor = HextechCyan
+                        ),
+                        border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(17.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = tr("Preguntas Frecuentes"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                            letterSpacing = 0.3.sp
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
