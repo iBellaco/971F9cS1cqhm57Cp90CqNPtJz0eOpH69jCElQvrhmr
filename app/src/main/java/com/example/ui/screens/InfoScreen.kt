@@ -223,35 +223,6 @@ fun InfoScreen(
                 )
             }
 
-            // Recomendación Oficial: Recursos Offline
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.5.dp, HextechGold, RoundedCornerShape(12.dp)),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface)
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "⭐ " + tr("RECOMENDACIÓN: Descarga de Recursos Offline"),
-                            color = HextechGold,
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = tr("Te recomendamos encarecidamente utilizar la función de descarga de recursos offline disponible en el menú superior. Al descargar los datos del meta y campeones localmente, garantizas un funcionamiento 100% fluido, velocidad instantánea sin latencia y acceso total a todas las builds y guías tácticas incluso si te quedas sin conexión o con datos móviles limitados durante tus partidas."),
-                        color = TextSecondary,
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp
-                    )
-                }
-            }
-
             // Section: Preguntas Frecuentes (FAQ)
             InfoCard(
                 title = tr("Preguntas Frecuentes"),

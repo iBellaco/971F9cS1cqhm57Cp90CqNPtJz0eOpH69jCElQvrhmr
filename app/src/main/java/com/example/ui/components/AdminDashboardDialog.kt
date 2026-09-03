@@ -611,9 +611,8 @@ fun AdminDashboardDialog(
 
                         // --- ADMIN STATS DASHBOARD ---
                         val totalUsers = users.size
-                        val registeredAndLoggedIn = users.count { it.registeredDevices.isNotEmpty() }
-                        val pendingRegistration = totalUsers - registeredAndLoggedIn
-                        val totalConnectedSlots = users.sumOf { it.registeredDevices.size }
+                        val registeredAndLoggedIn = totalUsers
+                        val pendingRegistration = 0
 
                         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(
@@ -643,19 +642,6 @@ fun AdminDashboardDialog(
                                     icon = Icons.Default.Warning,
                                     accentColor = LolNoxusRed,
                                     glowColor = Color(0xFFFF5252)
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                AdminStatCard(
-                                    modifier = Modifier.weight(1f),
-                                    title = "SLOTS CONECTADOS",
-                                    value = totalConnectedSlots.toString(),
-                                    icon = Icons.Default.Devices,
-                                    accentColor = LolBorderGold,
-                                    glowColor = LolGoldLight
                                 )
                             }
                         }

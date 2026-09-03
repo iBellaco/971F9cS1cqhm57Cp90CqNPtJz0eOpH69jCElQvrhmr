@@ -38,6 +38,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -1834,116 +1835,65 @@ private fun FloatingDraftCoachView(
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
+    val defaultRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+    val allySlots = remember(allies.toList()) {
+        allies.mapIndexed { index, champ ->
+            DraftSlot(champion = champ, assignedRole = defaultRoles.getOrElse(index) { champ.primaryRole })
+        }
+    }
+    val enemySlots = remember(enemies.toList()) {
+        enemies.mapIndexed { index, champ ->
+            DraftSlot(champion = champ, assignedRole = defaultRoles.getOrElse(index) { champ.primaryRole })
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // 1. TABLERO DE DRAFT (5 ALIADOS VS 5 ENEMIGOS)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            // Columna Aliados (Azul)
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, AllyBlue.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                    .padding(5.dp)
-            ) {
-                Text(
-                    text = "🔵 " + tr("Aliados") + " (${allies.size}/5)",
-                    color = AllyBlue,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(3.dp))
-                for (i in 0 until 5) {
-                    val champ = allies.getOrNull(i)
-                    DraftSlotItem(
-                        slotIndex = i + 1,
-                        champion = champ,
-                        isAlly = true,
-                        onSlotClick = {
-                            if (champ != null) onSelectChampion(champ)
-                            else onOpenChampionPicker(true, i)
-                        },
-                        onRemoveClick = {
-                            if (champ != null) allies.remove(champ)
-                        }
-                    )
-                    if (i < 4) Spacer(modifier = Modifier.height(3.dp))
+        // 1. TABLERO DE DRAFT (EQUIPO ALIADO Y RIVAL) CON EL MODELO EXACTO DE LA APP
+        com.example.ui.components.DraftTeamPositionCard(
+            isOverlay = true,
+            title = tr("Equipo Aliado"),
+            isEnemy = false,
+            slots = allySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = { role ->
+                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                onOpenChampionPicker(true, index)
+            },
+            onRemoveChampionForRole = { role ->
+                val idx = allies.indexOfFirst { champ -> 
+                    val champRole = allies.indexOf(champ).let { defaultRoles.getOrNull(it) } ?: champ.primaryRole
+                    champRole == role
                 }
-            }
+                if (idx >= 0) allies.removeAt(idx)
+            },
+            onChampionClick = onSelectChampion
+        )
 
-            // Columna Enemigos (Rojo)
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, DangerRed.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                    .padding(5.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "🔴 " + tr("Enemigos") + " (${enemies.size}/5)",
-                        color = DangerRed,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Icon(
-                        imageVector = if (isLoadingScreenMode) Icons.Default.CheckCircle else Icons.Default.Info,
-                        contentDescription = "Pantalla de Carga",
-                        tint = if (isLoadingScreenMode) Color(0xFF00FF7F) else TextMuted,
-                        modifier = Modifier
-                            .size(15.dp)
-                            .clickable { onLoadingScreenModeToggle() }
-                    )
-                }
+        Spacer(modifier = Modifier.height(8.dp))
 
-                if (isLoadingScreenMode) {
-                    Text(tr("Modo Carga (Orden exacto)"), color = Color(0xFF00FF7F), fontSize = 7.sp, fontWeight = FontWeight.Bold)
-                } else {
-                    Text(tr("(Oculto en Draft)"), color = TextMuted, fontSize = 7.sp, fontWeight = FontWeight.Medium)
+        com.example.ui.components.DraftTeamPositionCard(
+            isOverlay = true,
+            title = tr("Equipo Rival"),
+            isEnemy = true,
+            slots = enemySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = { role ->
+                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                onOpenChampionPicker(false, index)
+            },
+            onRemoveChampionForRole = { role ->
+                val idx = enemies.indexOfFirst { champ -> 
+                    val champRole = enemies.indexOf(champ).let { defaultRoles.getOrNull(it) } ?: champ.primaryRole
+                    champRole == role
                 }
-                Spacer(modifier = Modifier.height(3.dp))
-                for (i in 0 until 5) {
-                    val champ = enemies.getOrNull(i)
-                    val explicitRole = if (isLoadingScreenMode) {
-                        when (i) {
-                            0 -> LaneRole.TOP.shortName
-                            1 -> LaneRole.JUNGLE.shortName
-                            2 -> LaneRole.MID.shortName
-                            3 -> LaneRole.ADC.shortName
-                            4 -> LaneRole.SUPPORT.shortName
-                            else -> null
-                        }
-                    } else null
-
-                    DraftSlotItem(
-                        slotIndex = i + 1,
-                        champion = champ,
-                        isAlly = false,
-                        explicitRoleName = explicitRole,
-                        onSlotClick = {
-                            if (champ != null) onSelectChampion(champ)
-                            else onOpenChampionPicker(false, i)
-                        },
-                        onRemoveClick = {
-                            if (champ != null) enemies.remove(champ)
-                        }
-                    )
-                    if (i < 4) Spacer(modifier = Modifier.height(3.dp))
-                }
-            }
-        }
+                if (idx >= 0) enemies.removeAt(idx)
+            },
+            onChampionClick = onSelectChampion
+        )
 
         Spacer(modifier = Modifier.height(6.dp))
 
@@ -2304,7 +2254,7 @@ private fun FloatingTierAndBuildsView(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // 🎒 OBJETOS (CORE Y SITUACIONALES)
+             // 🎒 OBJETOS (CORE Y SITUACIONALES)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
@@ -2312,18 +2262,57 @@ private fun FloatingTierAndBuildsView(
                 border = BorderStroke(1.dp, HextechCardBorder)
             ) {
                 Column(modifier = Modifier.padding(6.dp)) {
-                    Text("🎒 " + tr("Objetos Core"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("🎒 " + tr("Objetos Core (Builds Visuales)"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.height(6.dp))
                     val coreItems = if (roleProfile.coreItems.isNotEmpty()) roleProfile.coreItems else champ.coreItems
-                    Text(
-                        text = coreItems.joinToString(" ➔ "),
-                        color = HextechGoldLight,
-                        fontSize = 9.5.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    val coreIcons = if (roleProfile.coreItemsIcons.isNotEmpty()) roleProfile.coreItemsIcons else coreItems.map { WildRiftItemsData.getItemIconByName(it) }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        coreItems.forEachIndexed { idx, itemName ->
+                            val iconUrl = coreIcons.getOrNull(idx) ?: WildRiftItemsData.getItemIconByName(itemName)
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.width(52.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(HextechSurface)
+                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (iconUrl.isNotBlank()) {
+                                        AppAssetImage(
+                                            url = iconUrl,
+                                            contentDescription = itemName,
+                                            fallbackText = itemName.take(2),
+                                            modifier = Modifier.size(32.dp),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                    } else {
+                                        Text("🛡️", fontSize = 14.sp)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = itemName,
+                                    color = HextechGoldLight,
+                                    fontSize = 7.5.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
 
                     if (roleProfile.situationalItems.isNotEmpty() || champ.situationalItems.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text("🔄 " + tr("Situacionales Clave"), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(2.dp))
                         val sitItems = if (roleProfile.situationalItems.isNotEmpty()) roleProfile.situationalItems else champ.situationalItems

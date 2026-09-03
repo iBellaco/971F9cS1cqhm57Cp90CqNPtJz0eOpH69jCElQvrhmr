@@ -216,7 +216,10 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
         border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AuthHeader(
