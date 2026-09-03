@@ -147,23 +147,32 @@ fun ChampionDetailSheet(
         SynergyAdvisor.getSynergyProfile(champion, selectedRole, currentLang)
     }
 
+    val isCompact = isOverlay
+    val avatarSize = if (isCompact) 40.dp else 68.dp
+    val titleFontSize = if (isCompact) 15.sp else 22.sp
+    val sectionTitleFontSize = if (isCompact) 12.sp else 15.sp
+    val cardPadding = if (isCompact) 8.dp else 12.dp
+    val itemBoxSize = if (isCompact) 34.dp else 46.dp
+    val itemImageSize = if (isCompact) 30.dp else 42.dp
+    val subItemSize = if (isCompact) 28.dp else 38.dp
+
     val dialogContent = @Composable {
         androidx.compose.material3.Card(
-            modifier = if (isOverlay) Modifier.fillMaxWidth().heightIn(max = 550.dp) else Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
+            modifier = if (isOverlay) Modifier.fillMaxWidth().heightIn(max = 480.dp) else Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(top = 16.dp),
             shape = if (isOverlay) androidx.compose.foundation.shape.RoundedCornerShape(14.dp) else androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = if (isOverlay) HextechDarkBg else HextechSurfaceVariant)
         ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = if (isOverlay) 10.dp else 20.dp, vertical = if (isOverlay) 8.dp else 0.dp)
+                .padding(horizontal = if (isOverlay) 8.dp else 20.dp, vertical = if (isOverlay) 6.dp else 0.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             if (isOverlay) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                        .padding(bottom = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -179,20 +188,20 @@ fun ChampionDetailSheet(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = tr("Volver"),
                             tint = HextechCyan,
-                            modifier = Modifier.size(14.dp)
+                            modifier = Modifier.size(13.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = tr("Volver"),
                             color = HextechCyan,
-                            fontSize = 11.sp,
+                            fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Text(
-                        text = tr("Detalle de Campeón"),
+                        text = tr("Build y Tácticas"),
                         color = HextechGold,
-                        fontSize = 11.5.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
@@ -208,27 +217,27 @@ fun ChampionDetailSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ChampionAvatar(champion = champion, size = 68.dp)
-                    Spacer(modifier = Modifier.width(14.dp))
+                    ChampionAvatar(champion = champion, size = avatarSize)
+                    Spacer(modifier = Modifier.width(if (isCompact) 8.dp else 14.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = champion.name,
                                 color = TextPrimary,
-                                fontSize = 22.sp,
+                                fontSize = titleFontSize,
                                 fontWeight = FontWeight.Bold
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
+                                    .clip(RoundedCornerShape(if (isCompact) 4.dp else 6.dp))
                                     .background(TierSPlusColor)
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    .padding(horizontal = if (isCompact) 4.dp else 6.dp, vertical = if (isCompact) 1.dp else 2.dp)
                             ) {
                                 Text(
                                     text = "Tier ${roleProfile.tier}",
                                     color = Color.Black,
-                                    fontSize = 11.sp,
+                                    fontSize = if (isCompact) 8.5.sp else 11.sp,
                                     fontWeight = FontWeight.Black
                                 )
                             }
@@ -237,13 +246,13 @@ fun ChampionDetailSheet(
                             Text(
                                 text = tr(champion.title),
                                 color = TextPrimary,
-                                fontSize = 12.sp
+                                fontSize = if (isCompact) 9.5.sp else 12.sp
                             )
                         }
                         Text(
                             text = "${tr(selectedRole.displayName)}${if (selectedRole != champion.primaryRole) " (Flex)" else ""} • ${tr(champion.damageType.displayName)}",
                             color = HextechCyan,
-                            fontSize = 12.sp,
+                            fontSize = if (isCompact) 9.5.sp else 12.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -841,21 +850,21 @@ fun ChampionDetailSheet(
                                 Box(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier
-                                        .size(46.dp)
-                                        .clip(RoundedCornerShape(10.dp))
+                                        .size(itemBoxSize)
+                                        .clip(RoundedCornerShape(8.dp))
                                         .background(HextechSurfaceVariant)
                                         .border(
                                             width = 1.5.dp,
                                             color = finalBorderColor,
-                                            shape = RoundedCornerShape(10.dp)
+                                            shape = RoundedCornerShape(8.dp)
                                         )
                                 ) {
                                     AppAssetImage(
                                         url = iconUrl,
                                         contentDescription = itemName,
                                         fallbackText = itemName,
-                                        modifier = Modifier.size(42.dp),
-                                        shape = RoundedCornerShape(8.dp)
+                                        modifier = Modifier.size(itemImageSize),
+                                        shape = RoundedCornerShape(6.dp)
                                     )
                                 }
                             }

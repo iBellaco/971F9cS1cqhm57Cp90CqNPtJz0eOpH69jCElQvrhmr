@@ -350,10 +350,10 @@ object WildRiftChampionRunesMeta {
             option2 = listOf("Pies Veloces", "Triunfo", "Leyenda: Linaje", "Derribado", "Fuerzas Renovadas")
         ),
         "varus" to ChampionRunePair(
-            opt1Title = "Primer Golpe (Letalidad Flecha H1)",
-            option1 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná"),
-            opt2Title = "Compás Letal (On-Hit / AS)",
-            option2 = listOf("Compás Letal", "Brutal", "Leyenda: Linaje", "Golpe de Gracia", "Sobrecrecimiento")
+            opt1Title = "Compás Letal (DPS On-Hit & Crítico)",
+            option1 = listOf("Compás Letal", "Brutal", "Derribado", "Leyenda: Presteza", "Revestimiento de Huesos"),
+            opt2Title = "Primer Golpe (AP Burst / Letalidad H1)",
+            option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná")
         ),
         "lucian" to ChampionRunePair(
             opt1Title = "Conquistador & Pistolero (Meta)",

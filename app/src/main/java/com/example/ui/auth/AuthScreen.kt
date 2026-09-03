@@ -501,6 +501,36 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
                     }
+                    if (registeredDevicesCount > 1) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text(
+                                text = "🔄 Liberar otros slots y dejar solo este teléfono",
+                                color = com.example.ui.theme.HextechCyan,
+                                fontSize = 10.5.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f))
+                                    .clickable {
+                                        com.example.util.DeviceAndSessionManager.resetDeviceSlots(
+                                            context,
+                                            onSuccess = {
+                                                registeredDevicesCount = 1
+                                                android.widget.Toast.makeText(context, "Slots liberados. Solo este teléfono registrado.", android.widget.Toast.LENGTH_SHORT).show()
+                                            },
+                                            onError = { err ->
+                                                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        )
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),

@@ -6380,14 +6380,25 @@
       "Braum"
     ],
     "tacticalAdvice": "Detona las 3 marcas de Infección (H2) disparando una Flecha Penetrante (H1) totalmente cargada para un daño letal a distancia.",
-    "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
-    "runeTreeDetails": "Brujería: Banda de Maná • Trascendencia • Piroláser • Golpe de Gracia",
+    "recommendedRunes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Revestimiento de huesos",
+    "runeTreeDetails": "Precisión: Compás Letal • Brutal • Derribado • Leyenda: Presteza | Valor: Revestimiento de huesos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/sorcery/arcanecomet/arcanecomet.png",
-    "recommendedSpells": [],
+    "recommendedSpells": [
+      "Destello",
+      "Fantasma"
+    ],
     "spellsIcons": [],
-    "coreItems": [],
+    "coreItems": [
+      "Matakrakens",
+      "Espada del Rey Arruinado",
+      "Arcoescudo inmortal"
+    ],
     "coreItemsIcons": [],
-    "situationalItems": [],
+    "situationalItems": [
+      "Recuerdos de Lord Dominik",
+      "Recordatorio mortal",
+      "Fauces de Malmortius"
+    ],
     "situationalItemsIcons": [],
     "skillOrder": "Habilidad 1 > Habilidad 2 > Habilidad 3 (Priorizar Definitiva)",
     "skills": [
@@ -6446,25 +6457,32 @@
     "build2Spells": [],
     "builds": [
       {
-        "title": "ADC - Ataques Básicos",
+        "title": "DPS Crítico & On-Hit (Matakrakens)",
         "lane": "ADC",
         "coreItems": [
+          "Matakrakens",
           "Espada del Rey Arruinado",
-          "Hoja de furia de Guinsoo",
-          "El huracán de Runaan"
+          "Arcoescudo inmortal"
         ],
         "items": [
+          "Matakrakens",
           "Espada del Rey Arruinado",
-          "Hoja de furia de Guinsoo",
-          "El huracán de Runaan",
-          "Terminus",
-          "Guardia gemela de amaranto"
+          "Arcoescudo inmortal",
+          "Bailarina fantasma",
+          "Ángel custodio"
         ],
         "bootBase": "Grebas de berserker",
-        "bootUpgrade": "Grebas de metal",
-        "situationalBoots": [],
-        "situationalItems": [],
-        "primaryRune": "Compás letal",
+        "bootUpgrade": "Fajín de mercurio",
+        "situationalBoots": [
+          "Botas de mercurio",
+          "Botas de acero revestidas"
+        ],
+        "situationalItems": [
+          "Recuerdos de Lord Dominik",
+          "Recordatorio mortal",
+          "Fauces de Malmortius"
+        ],
+        "primaryRune": "Compás Letal",
         "secondaryRunes": [
           "Brutal",
           "Derribado",
@@ -6477,35 +6495,73 @@
         ]
       },
       {
-        "title": "ADC - Explotar marcas",
+        "title": "Poder de Habilidad (Burst AP & Marcas H2)",
         "lane": "ADC",
         "coreItems": [
           "Diente de Nashor",
-          "El huracán de Runaan",
-          "Hacedor de grietas"
+          "Corona de la Reina Ahogada",
+          "Báculo del Vacío"
         ],
         "items": [
           "Diente de Nashor",
-          "El huracán de Runaan",
-          "Hacedor de grietas",
-          "Orbe infinito",
-          "Gorro de muerte del miércoles"
+          "Corona de la Reina Ahogada",
+          "Báculo del Vacío",
+          "Sombrero mortal de Rabadon",
+          "Orbe infinito"
         ],
-        "bootBase": "Grebas de berserker",
-        "bootUpgrade": "Grebas de metal",
+        "bootBase": "Botas de maná",
+        "bootUpgrade": "Estasis",
         "situationalBoots": [
           "Botas de mercurio"
         ],
         "situationalItems": [
           "Tridente de oceánida",
-          "El tormento de Liandry"
+          "El tormento de Liandry",
+          "Impulso cósmico"
         ],
-        "primaryRune": "Compás letal",
+        "primaryRune": "Primer Golpe",
         "secondaryRunes": [
-          "Brutal",
-          "Derribado",
-          "Leyenda: Presteza",
-          "Revestimiento de huesos"
+          "Impacto repentino",
+          "Colección de globos oculares",
+          "Tirano",
+          "Sobrecrecimiento"
+        ],
+        "spells": [
+          "Destello",
+          "Barrera"
+        ]
+      },
+      {
+        "title": "Hostigamiento & Letalidad (Snipe H1 Poke)",
+        "lane": "ADC",
+        "coreItems": [
+          "Manamune",
+          "Al filo de la noche",
+          "El rencor de Serylda"
+        ],
+        "items": [
+          "Manamune",
+          "Al filo de la noche",
+          "El rencor de Serylda",
+          "Colmillo de serpiente",
+          "Ángel custodio"
+        ],
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Protocinturón",
+        "situationalBoots": [
+          "Botas de mercurio"
+        ],
+        "situationalItems": [
+          "Fauces de Malmortius",
+          "Filo de la noche",
+          "Recuerdos de Lord Dominik"
+        ],
+        "primaryRune": "Primer Golpe",
+        "secondaryRunes": [
+          "Impacto repentino",
+          "Colección de globos oculares",
+          "Tirano",
+          "Banda de maná"
         ],
         "spells": [
           "Destello",

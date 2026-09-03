@@ -44,7 +44,7 @@ object DeviceAndSessionManager {
 
     private var cachedDeviceId: String? = null
 
-    // Obtener ID del dispositivo persistente y estable por instalación
+    // Obtener ID del dispositivo persistente y estable por hardware / instalación
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {
         if (!cachedDeviceId.isNullOrBlank()) {
@@ -56,7 +56,21 @@ object DeviceAndSessionManager {
         val userPrefs = appContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
         val internalFile = java.io.File(appContext.filesDir, "device_id.txt")
 
-        // 1. SharedPreferences
+        // 1. Hardware-level Android ID (100% estable en el mismo teléfono físico)
+        val androidId = try {
+            Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID)
+        } catch (_: Exception) { null }
+
+        if (!androidId.isNullOrBlank() && androidId != "9774d56d682e549c") {
+            val hardwareId = "WRD_DEVICE_" + androidId.trim().lowercase()
+            cachedDeviceId = hardwareId
+            prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, hardwareId).apply()
+            userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, hardwareId).apply()
+            try { internalFile.writeText(hardwareId) } catch (_: Exception) {}
+            return hardwareId
+        }
+
+        // 2. SharedPreferences
         val savedId = prefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!savedId.isNullOrBlank()) {
             cachedDeviceId = savedId
@@ -64,7 +78,7 @@ object DeviceAndSessionManager {
             return savedId
         }
 
-        // 2. Internal file
+        // 3. Internal file
         try {
             if (internalFile.exists()) {
                 val fileId = internalFile.readText().trim()
@@ -78,7 +92,7 @@ object DeviceAndSessionManager {
             Log.w(TAG, "Error reading device_id.txt: ${e.message}")
         }
 
-        // 3. User preferences backup
+        // 4. User preferences backup
         val backupId = userPrefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!backupId.isNullOrBlank()) {
             cachedDeviceId = backupId
@@ -87,13 +101,28 @@ object DeviceAndSessionManager {
             return backupId
         }
 
-        // 4. Generate stable persistent installation UUID once and store it forever
+        // 5. Generate stable persistent installation UUID once and store it forever
         val newId = "WRD_INST_" + UUID.randomUUID().toString()
         cachedDeviceId = newId
         prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, newId).apply()
         userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, newId).apply()
         try { internalFile.writeText(newId) } catch (_: Exception) {}
         return newId
+    }
+
+    // Limpia slots huérfanos o resetea dispositivos registrados para dejar solo el teléfono actual
+    fun resetDeviceSlots(context: Context, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        val user = AuthManager.getAuth()?.currentUser
+        if (user == null) {
+            onError("Usuario no logueado")
+            return
+        }
+        val currentDeviceId = getDeviceId(context)
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(user.uid)
+        userRef.update("registeredDevices", listOf(currentDeviceId))
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onError(e.message ?: "Error al resetear dispositivos") }
     }
 
     // Registrar sesión y dispositivo en Firestore de manera segura y sin desconexiones accidentales
