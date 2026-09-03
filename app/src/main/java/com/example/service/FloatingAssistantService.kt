@@ -1456,6 +1456,7 @@ private fun FloatingOverlayContent(
     // Modal de selección rápida de campeón si el usuario toca un slot manual
     if (showChampionPickerForSlot != null) {
         val (isAllySlot, slotIndex) = showChampionPickerForSlot!!
+        val targetRole = defaultRoles.getOrNull(slotIndex)
         var searchChampQuery by remember { mutableStateOf("") }
         val currentChampInSlot = if (isAllySlot) allies.getOrNull(slotIndex)?.id else enemies.getOrNull(slotIndex)?.id
         val alreadySelectedIds = remember(allies.toList(), enemies.toList(), slotIndex, isAllySlot) {
@@ -1465,18 +1466,24 @@ private fun FloatingOverlayContent(
             }
             set
         }
-        val filteredList = remember(searchChampQuery, alreadySelectedIds) {
+
+        val filteredList = remember(searchChampQuery, alreadySelectedIds, targetRole) {
             WildRiftRepository.champions.filter { champ ->
                 val notSelected = !alreadySelectedIds.contains(champ.id)
-                val matchesQuery = searchChampQuery.isBlank() || champ.name.contains(searchChampQuery, ignoreCase = true)
+                val matchesQuery = searchChampQuery.isBlank() || champ.name.contains(searchChampQuery, ignoreCase = true) || champ.summary.contains(searchChampQuery, ignoreCase = true)
                 notSelected && matchesQuery
-            }.sortedBy { it.name }
+            }.sortedWith(
+                compareByDescending<Champion> { targetRole != null && (it.primaryRole == targetRole || it.secondaryRoles.contains(targetRole)) }
+                    .thenByDescending { it.tier == "S+" }
+                    .thenByDescending { it.tier == "S" }
+                    .thenBy { it.name }
+            )
         }
 
         Box(
             modifier = Modifier
-                .widthIn(min = 300.dp, max = 340.dp)
-                .heightIn(min = 400.dp, max = 530.dp)
+                .widthIn(min = 280.dp, max = 330.dp)
+                .heightIn(min = 340.dp, max = 460.dp)
                 .padding(4.dp)
                 .pointerInput(Unit) { },
             contentAlignment = Alignment.Center
@@ -1484,57 +1491,58 @@ private fun FloatingOverlayContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(440.dp),
-                shape = RoundedCornerShape(14.dp),
+                    .height(390.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
                 border = androidx.compose.foundation.BorderStroke(1.5.dp, if (isAllySlot) AllyBlue else DangerRed)
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
+                Column(modifier = Modifier.padding(8.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (isAllySlot) "🔵 " + tr("Elegir Aliado") else "🔴 " + tr("Elegir Enemigo"),
+                            text = (if (isAllySlot) "🔵 " + tr("Elegir Aliado") else "🔴 " + tr("Elegir Rival")) + (if (targetRole != null) " - ${com.example.util.tr(targetRole.displayName)}" else ""),
                             color = if (isAllySlot) AllyBlue else DangerRed,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp
+                            fontSize = 11.5.sp
                         )
-                        IconButton(onClick = { showChampionPickerForSlot = null }, modifier = Modifier.size(24.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                        IconButton(onClick = { showChampionPickerForSlot = null }, modifier = Modifier.size(22.dp)) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted, modifier = Modifier.size(16.dp))
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     // Buscador Compacto y Proporcionado
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(34.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .height(28.dp)
+                            .clip(RoundedCornerShape(6.dp))
                             .background(HextechSurface)
-                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 8.dp),
+                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 6.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Box(modifier = Modifier.weight(1f)) {
                                 if (searchChampQuery.isEmpty()) {
-                                    Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 11.5.sp)
+                                    Text(tr("Buscar campeón..."), color = TextMuted, fontSize = 10.5.sp)
                                 }
                                 androidx.compose.foundation.text.BasicTextField(
                                     value = searchChampQuery,
                                     onValueChange = { searchChampQuery = it },
                                     modifier = Modifier.fillMaxWidth(),
-                                    textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 11.5.sp),
-                                    singleLine = true
+                                    textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 10.5.sp),
+                                    singleLine = true,
+                                    cursorBrush = androidx.compose.ui.graphics.SolidColor(HextechCyan)
                                 )
                             }
                             if (searchChampQuery.isNotEmpty()) {
@@ -1542,17 +1550,17 @@ private fun FloatingOverlayContent(
                                     Icons.Default.Close,
                                     contentDescription = "Limpiar",
                                     tint = TextMuted,
-                                    modifier = Modifier.size(15.dp).clickable { searchChampQuery = "" }
+                                    modifier = Modifier.size(12.dp).clickable { searchChampQuery = "" }
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     LazyColumn(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         items(filteredList) { champ ->
                             Row(
@@ -1580,14 +1588,28 @@ private fun FloatingOverlayContent(
                                         }
                                         showChampionPickerForSlot = null
                                     }
-                                    .padding(6.dp),
+                                    .padding(horizontal = 6.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                ChampionAvatar(champion = champ, size = 30.dp)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(champ.tier, color = HextechGold, fontWeight = FontWeight.Black, fontSize = 10.sp)
+                                ChampionAvatar(champion = champ, size = 26.dp)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 11.sp, maxLines = 1)
+                                    Text(
+                                        text = com.example.util.tr(champ.primaryRole.displayName),
+                                        color = TextMuted,
+                                        fontSize = 8.5.sp
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(HextechGold.copy(alpha = 0.15f))
+                                        .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                                ) {
+                                    Text(champ.tier, color = HextechGold, fontWeight = FontWeight.Black, fontSize = 9.sp)
+                                }
                             }
                         }
                     }
@@ -2557,19 +2579,19 @@ private fun FloatingTierAndBuildsView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp)
+                    .height(28.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .background(HextechSurface)
-                    .border(1.dp, HextechCardBorder, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp),
+                    .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
                     Box(modifier = Modifier.weight(1f)) {
                         if (searchQuery.isEmpty()) {
                             Text(tr("Buscar campeón"), color = TextMuted, fontSize = 10.sp)
@@ -2579,7 +2601,8 @@ private fun FloatingTierAndBuildsView(
                             onValueChange = { searchQuery = it },
                             modifier = Modifier.fillMaxWidth(),
                             textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 10.5.sp),
-                            singleLine = true
+                            singleLine = true,
+                            cursorBrush = androidx.compose.ui.graphics.SolidColor(HextechCyan)
                         )
                     }
                     if (searchQuery.isNotEmpty()) {
@@ -2587,7 +2610,7 @@ private fun FloatingTierAndBuildsView(
                             Icons.Default.Close,
                             contentDescription = "Limpiar",
                             tint = TextMuted,
-                            modifier = Modifier.size(14.dp).clickable { searchQuery = "" }
+                            modifier = Modifier.size(12.dp).clickable { searchQuery = "" }
                         )
                     }
                 }

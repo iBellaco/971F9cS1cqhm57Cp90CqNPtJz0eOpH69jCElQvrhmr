@@ -96,6 +96,15 @@ object SituationalItemAdvisor {
             keyEffect = "Frío Intenso: Las habilidades dañinas ralentizan un 30% a los enemigos durante 1 segundo.",
             recommendationTip = "Excelente para tiradores de habilidades (Ezreal, Varus, Jhin) o asesinos para kitear a tanques lentos."
         ),
+        "Recuerdos de lord Dominik" to SituationalItemInfo(
+            name = "Recuerdos de lord Dominik",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774953440_lord-dominiks-regards.webp",
+            categoryName = "Anti-Tanques & Vida Máxima",
+            purpose = "Penetra armadura masiva (+36%) y destroza a enemigos que acumulan mucha vida adicional mediante daño porcentual.",
+            bestAgainst = listOf("Sion", "Dr. Mundo", "Cho'Gath", "Ornn", "Malphite", "Sett", "Volibear", "Nautilus"),
+            keyEffect = "Verdugo de gigantes: Inflige hasta un 12% de daño adicional según la vida adicional del enemigo (máximo con 1200 de vida adicional) y +36% Penetración de Armadura.",
+            recommendationTip = "El mejor objeto antitanques para tiradores críticos frente a campeones que acumulen Corazón de Acero o Warmog."
+        ),
         "Ángel Guardián" to SituationalItemInfo(
             name = "Ángel Guardián",
             iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png",
@@ -230,6 +239,15 @@ object SituationalItemAdvisor {
             bestAgainst = listOf("Veigar", "Skarner", "Warwick", "Ashe", "Leona", "Twisted Fate"),
             keyEffect = "Fajín de Mercurio: Limpia todo el CC activo y otorga 30% de tenacidad durante 1.5s.",
             recommendationTip = "Indispensable para tiradores cuando el rival tiene aturdimientos o supresiones directas."
+        ),
+        "Arco axiomático" to SituationalItemInfo(
+            name = "Arco axiomático",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/item/6696.png",
+            categoryName = "Letalidad & Reset de Definitiva (H4)",
+            purpose = "Reembolsa 20% del enfriamiento total de la Habilidad Definitiva al conseguir derribos.",
+            bestAgainst = listOf("Composiciones de squishies frágiles", "Zed", "Pyke", "Miss Fortune", "Varus", "Kha'Zix"),
+            keyEffect = "Oleada: Los derribos reembolsan un 20% del enfriamiento total de tu H4 (Definitiva).",
+            recommendationTip = "Imprescindible para asesinos y tiradores de letalidad en peleas de equipo caóticas donde requieres tu Definitiva en múltiples ocasiones."
         )
     )
 

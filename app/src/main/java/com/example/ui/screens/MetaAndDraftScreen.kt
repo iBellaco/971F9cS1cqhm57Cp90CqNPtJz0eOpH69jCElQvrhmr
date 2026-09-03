@@ -768,14 +768,19 @@ fun MetaAndDraftScreen(
             alreadySelected = allySlots.map { it.champion.id } + enemySlots.map { it.champion.id },
             onChampionPicked = { champ, chosenRole ->
                 val targetRole = suggestedPickingRole ?: chosenRole
+                val roleOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
                 when (pickingForTeam) {
                     "MYSELF" -> {
-                        val idx = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                        val selfRole = suggestedPickingRole ?: activeRole
+                        val idx = allySlots.indexOfFirst { it.assignedRole == selfRole }
                         if (idx >= 0) {
-                            allySlots[idx] = DraftSlot(champ, activeRole)
+                            allySlots[idx] = DraftSlot(champ, selfRole)
                         } else {
+                            val targetOrder = roleOrder.indexOf(selfRole)
+                            var insertPos = allySlots.indexOfFirst { roleOrder.indexOf(it.assignedRole) > targetOrder }
+                            if (insertPos < 0) insertPos = allySlots.size
                             if (allySlots.size >= 5) allySlots.removeAt(allySlots.size - 1)
-                            allySlots.add(0, DraftSlot(champ, activeRole))
+                            allySlots.add(insertPos, DraftSlot(champ, selfRole))
                         }
                     }
                     "ALLY" -> {
@@ -783,23 +788,23 @@ fun MetaAndDraftScreen(
                         if (idx >= 0) {
                             allySlots[idx] = DraftSlot(champ, targetRole)
                         } else {
+                            val targetOrder = roleOrder.indexOf(targetRole)
+                            var insertPos = allySlots.indexOfFirst { roleOrder.indexOf(it.assignedRole) > targetOrder }
+                            if (insertPos < 0) insertPos = allySlots.size
                             if (allySlots.size >= 5) allySlots.removeAt(allySlots.size - 1)
-                            allySlots.add(DraftSlot(champ, targetRole))
+                            allySlots.add(insertPos, DraftSlot(champ, targetRole))
                         }
                     }
                     "ENEMY" -> {
-                        if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
-                        if (!enemySlots.any { it.champion.id == champ.id }) {
-                            val roleToAssign = suggestedPickingRole ?: LaneRole.TOP
-                            val existingIndex = enemySlots.indexOfFirst { it.assignedRole == roleToAssign }
-                            if (existingIndex >= 0) {
-                                enemySlots[existingIndex] = DraftSlot(champ, roleToAssign)
-                            } else {
-                                if (enemySlots.size >= 5) {
-                                    enemySlots.removeAt(enemySlots.size - 1)
-                                }
-                                enemySlots.add(DraftSlot(champ, roleToAssign))
-                            }
+                        val idx = enemySlots.indexOfFirst { it.assignedRole == targetRole }
+                        if (idx >= 0) {
+                            enemySlots[idx] = DraftSlot(champ, targetRole)
+                        } else {
+                            val targetOrder = roleOrder.indexOf(targetRole)
+                            var insertPos = enemySlots.indexOfFirst { roleOrder.indexOf(it.assignedRole) > targetOrder }
+                            if (insertPos < 0) insertPos = enemySlots.size
+                            if (enemySlots.size >= 5) enemySlots.removeAt(enemySlots.size - 1)
+                            enemySlots.add(insertPos, DraftSlot(champ, targetRole))
                         }
                     }
                 }
@@ -884,36 +889,97 @@ fun ChampionsCatalogTab(
             .fillMaxSize()
             .padding(horizontal = horizontalPadding)
     ) {
-        Spacer(modifier = Modifier.height(10.dp))
+        if (isOverlay) Spacer(modifier = Modifier.height(4.dp)) else Spacer(modifier = Modifier.height(10.dp))
 
         if (!isOverlay) { TierSelectionPanel(currentTier, syncState, currentRegion, context, coroutineScope) }
 
 
-        // Search Bar
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("champions_search_input"),
-            placeholder = { Text(tr("Buscar campeón por nombre o habilidad..."), color = TextMuted, fontSize = 13.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
-                        Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted)
+        // Search Bar (Proporcionado y compacto en overlay)
+        if (isOverlay) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(28.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(HextechSurface)
+                    .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                    .padding(horizontal = 6.dp)
+                    .testTag("champions_search_input"),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    androidx.compose.foundation.text.BasicTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.weight(1f),
+                        textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 10.5.sp),
+                        singleLine = true,
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(HextechCyan),
+                        decorationBox = { innerTextField ->
+                            if (searchQuery.isEmpty()) {
+                                Text(
+                                    text = tr("Buscar campeón..."),
+                                    color = TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                            innerTextField()
+                        }
+                    )
+                    if (searchQuery.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .clickable { searchQuery = "" },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Limpiar",
+                                tint = TextMuted,
+                                modifier = Modifier.size(10.dp)
+                            )
+                        }
                     }
                 }
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = HextechCyan,
-                unfocusedBorderColor = HextechCardBorder,
-                focusedContainerColor = HextechSurface,
-                unfocusedContainerColor = HextechSurface
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
+            }
+        } else {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("champions_search_input"),
+                placeholder = { Text(tr("Buscar campeón por nombre o habilidad..."), color = TextMuted, fontSize = 13.sp) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = "Limpiar", tint = TextMuted)
+                        }
+                    }
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HextechCyan,
+                    unfocusedBorderColor = HextechCardBorder,
+                    focusedContainerColor = HextechSurface,
+                    unfocusedContainerColor = HextechSurface
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -4679,7 +4745,7 @@ private fun DraftChampionPickerSheet(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
-                                val assignedRole = selectedRoleFilter ?: suggestedRole ?: champ.primaryRole
+                                val assignedRole = suggestedRole ?: selectedRoleFilter ?: champ.primaryRole
                                 onChampionPicked(champ, assignedRole)
                             }
                             .padding(4.dp),

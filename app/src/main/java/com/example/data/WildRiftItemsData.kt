@@ -538,17 +538,17 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630328_experimental-hexplate.webp"
         ),
         WildRiftItem(
-            id = "dominik_s_regards",
-            name = "Saludos de Dominik",
-            nameEn = "Dominik’s Regards",
+            id = "lord_dominik_s_regards",
+            name = "Recuerdos de lord Dominik",
+            nameEn = "Lord Dominik's Regards",
             category = "Objetos con Daños Físicos",
             goldCost = 3300,
-            stats = "+30 Daño de ataque • +36% Penetración de armadura • +25% Tasa crítica",
-            statsEn = "+30 Attack Damage • +36% Armor Penetration • +25% Critical Rate",
-            passive = "Asesino de gigantes: inflige daño adicional según la salud adicional del objetivo. Con 1500 puntos de vida adicionales, el daño adicional aumenta hasta un 15 %.",
-            passiveEn = "Giant Slayer: Deal bonus damage based on the target’s bonus Health. At 1500 bonus Health, the bonus damage is increased up to 15%.",
-            coachTip = "Está diseñado para castigar a enemigos voluminosos. Convierte una parte de tu poder ofensivo en penetración de armadura y agrega daño adicional que aumenta con la salud adicional del enemigo, lo que lo convierte en una opción ideal cuando el equipo enemigo acumula HP y armadura. Debido a que se centra en la penetración y el daño en lugar de la capacidad de supervivencia, úsalo cuando necesites atravesar objetivos tanque rápidamente mientras confías en el posicionamiento o en tus compañeros de equipo para protegerte.",
-            coachTipEn = "Is built to punish bulky foes. It converts a chunk of your offensive power into armor penetration and adds bonus damage that scales with the enemy’s extra health, making it a go-to pick when the enemy team stacks HP and armor. Because it focuses on penetration and damage rather than survivability, use it when you need to cut through tanky targets quickly while relying on positioning or teammates for protection.",
+            stats = "+30 Daño de ataque • +36% Penetración de armadura • +25% Probabilidad de crítico",
+            statsEn = "+30 Attack Damage • +36% Armor Penetration • +25% Critical Strike Chance",
+            passive = "Verdugo de gigantes: Inflige daño adicional según la vida adicional del campeón enemigo, hasta un máximo de un 12% de daño adicional cuando el campeón enemigo tiene 1200 de vida adicional.",
+            passiveEn = "Giant Slayer: Deal bonus damage based on the enemy champion's bonus Health, up to a maximum of 12% bonus damage when the enemy champion has 1200 bonus Health.",
+            coachTip = "El objeto definitivo antitanques para tiradores y campeones de daño físico basados en críticos. Su 36% de penetración de armadura y la pasiva 'Verdugo de gigantes' destrozan a colosos con vida acumulada (como usuarios de Corazón de acero o Warmog). Cómpralo como 3er o 4to objeto frente a composiciones con 2 o más enemigos tanques.",
+            coachTipEn = "The premier anti-tank critical item for AD carries. Offering a massive 36% Armor Penetration and the 'Giant Slayer' passive that deals up to 12% bonus damage against enemies stacking bonus Health. Essential as a 3rd or 4th item against bulky team compositions.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774953440_lord-dominiks-regards.webp"
         ),
         WildRiftItem(
@@ -606,6 +606,20 @@ object WildRiftItemsData {
             coachTip = "Este objeto está diseñado para contrarrestar el control de multitudes. Su activo elimina la mayoría de los efectos incapacitantes y otorga brevemente inmunidad al control de seguimiento, mientras que el pasivo proporciona resistencia adicional al control de multitudes y ralentiza una vez que finaliza el efecto. Es una excelente opción para tiradores, luchadores y asesinos que necesitan mantener su movilidad y seguir infligiendo daño contra composiciones de equipos con mucho CC.",
             coachTipEn = "This item is designed to counter crowd control. Its active removes most disabling effects and briefly grants immunity to follow-up control, while the passive provides additional resistance to crowd control and slows once the effect ends. It is an excellent choice for marksmen, fighters, and assassins who need to maintain their mobility and keep dealing damage against heavy-CC team compositions.",
             iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
+        ),
+        WildRiftItem(
+            id = "axiom_arc",
+            name = "Arco axiomático",
+            nameEn = "Axiom Arc",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3000,
+            stats = "+55 Daño de Ataque • +18 Letalidad • +25 Aceleración de Habilidad",
+            statsEn = "+55 Attack Damage • +18 Lethality • +25 Ability Haste",
+            passive = "Oleada: Tras infligir daño a un campeón enemigo que muera en los siguientes 3 s, recuperas un 20% del enfriamiento total de tu Habilidad Definitiva (H4).",
+            passiveEn = "Flux: Scoring a takedown against an enemy champion within 3 seconds of damaging them refunds 20% of your Ultimate Ability's total cooldown.",
+            coachTip = "Objeto legendario definitivo para asesinos y tiradores de letalidad cuya condición de victoria gira en torno a su Definitiva (H4), como Zed, Pyke, Miss Fortune, Varus o Kha'Zix. Te permite encadenar definitivas en peleas de equipo prolongadas o ejecutar emboscadas consecutivas sin esperar el enfriamiento base.",
+            coachTipEn = "Premier legendary item for AD assassins and lethality carries reliant on their Ultimate (H4), such as Zed, Pyke, Miss Fortune, Varus, or Kha'Zix. Takedowns refund a massive portion of ultimate cooldown, enabling multiple casts in extended skirmishes or rapid back-to-back picks.",
+            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/item/6696.png"
         ),
         WildRiftItem(
             id = "luden_s_echo",
@@ -2947,9 +2961,13 @@ object WildRiftItemsData {
         "coleccionista" to "the_collector",
         "el recaudador" to "the_collector",
         "recaudador" to "the_collector",
+        "recuerdos de lord dominik" to "lord_dominik_s_regards",
+        "recuerdos de dominik" to "lord_dominik_s_regards",
         "lord dominik's regards" to "lord_dominik_s_regards",
+        "lord dominiks regards" to "lord_dominik_s_regards",
         "saludos de dominik" to "lord_dominik_s_regards",
         "lord dominik" to "lord_dominik_s_regards",
+        "dominik" to "lord_dominik_s_regards",
         "mortal reminder" to "mortal_reminder",
         "recordatorio mortal" to "mortal_reminder",
         "el recordatorio mortal" to "mortal_reminder",
@@ -3243,6 +3261,7 @@ object WildRiftItemsData {
             cleaned.contains("incensario") || cleaned.contains("censer") -> return list.find { it.id == "ardent_censer" }
             cleaned.contains("eco armonico") || cleaned.contains("harmonic") -> return list.find { it.id == "harmonic_echo" }
             cleaned.contains("mandato") || cleaned.contains("mandate") -> return list.find { it.id == "imperial_mandate" }
+            cleaned.contains("axiom") || cleaned.contains("axiomatico") -> return list.find { it.id == "axiom_arc" }
         }
 
         return null

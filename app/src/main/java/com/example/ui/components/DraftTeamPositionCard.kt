@@ -248,7 +248,7 @@ fun DraftTeamPositionCard(
                             contentAlignment = Alignment.Center
                         ) {
                             if (champ != null) {
-                                // Imagen del Campeón Seleccionado
+                                // Imagen del Campeón Seleccionado (Al hacer click se abre el selector para ESTA casilla)
                                 AppAssetImage(
                                     url = champ.avatarUrl,
                                     contentDescription = champ.name,
@@ -257,7 +257,7 @@ fun DraftTeamPositionCard(
                                         .fillMaxSize()
                                         .clip(RoundedCornerShape(8.dp))
                                         .clickable {
-                                            onChampionClick(champ)
+                                            onPickChampionForRole(role)
                                         }
                                 )
 
@@ -314,7 +314,8 @@ fun DraftTeamPositionCard(
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.clickable { onChampionClick(champ) }
                             )
                         } else {
                             Spacer(modifier = Modifier.height(if (isMyRole) 8.dp else 3.dp))

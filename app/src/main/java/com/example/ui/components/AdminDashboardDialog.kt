@@ -308,6 +308,7 @@ fun AdminDashboardDialog(
     var users by remember { mutableStateOf<List<UserRecord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showReportsPanel by remember { mutableStateOf(false) }
+    var showSupportReportsPanel by remember { mutableStateOf(false) }
 
     // Search and filter states
     var searchQuery by remember { mutableStateOf("") }
@@ -370,6 +371,12 @@ fun AdminDashboardDialog(
     if (showReportsPanel) {
         AdminFeedbackBottomSheet(
             onDismiss = { showReportsPanel = false }
+        )
+    }
+
+    if (showSupportReportsPanel) {
+        AdminSupportReportsDialog(
+            onDismiss = { showSupportReportsPanel = false }
         )
     }
 
@@ -568,13 +575,13 @@ fun AdminDashboardDialog(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Action Buttons Row (Reports Box + Terminal Scraper + Refresh)
+                        // Action Buttons Row (Support Tickets + Reports Box + Refresh)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Button(
-                                onClick = { showReportsPanel = true },
+                                onClick = { showSupportReportsPanel = true },
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(42.dp),
@@ -586,7 +593,38 @@ fun AdminDashboardDialog(
                                     )
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp)
+                                contentPadding = PaddingValues(horizontal = 6.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.SupportAgent,
+                                    contentDescription = null,
+                                    tint = LolHextechCyan,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    "Tickets Soporte",
+                                    color = LolHextechCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.2.sp
+                                )
+                            }
+
+                            Button(
+                                onClick = { showReportsPanel = true },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(42.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = LolCardBg),
+                                border = BorderStroke(
+                                    1.dp,
+                                    Brush.horizontalGradient(
+                                        listOf(LolBorderGold, LolHextechCyan)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(horizontal = 6.dp)
                             ) {
                                 Icon(
                                     Icons.Default.BugReport,
@@ -594,13 +632,13 @@ fun AdminDashboardDialog(
                                     tint = LolBorderGold,
                                     modifier = Modifier.size(16.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    "Buzón Reportes",
+                                    "Buzón Bugs",
                                     color = LolGoldLight,
-                                    fontSize = 11.5.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    letterSpacing = 0.3.sp
+                                    letterSpacing = 0.2.sp
                                 )
                             }
 
@@ -1388,6 +1426,26 @@ fun UserManagementCard(
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
+                        if (user.registeredDevices.isNotEmpty()) {
+                            Text(
+                                text = "• [Reset Slots]",
+                                color = LolNoxusRed,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(LolNoxusRed.copy(alpha = 0.15f))
+                                    .clickable {
+                                        FirebaseFirestore.getInstance().collection("users")
+                                            .document(user.uid)
+                                            .update("registeredDevices", emptyList<String>())
+                                            .addOnSuccessListener {
+                                                Toast.makeText(context, "Slots de hardware liberados", Toast.LENGTH_SHORT).show()
+                                            }
+                                    }
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            )
+                        }
                     }
                     if (user.registeredDevices.isNotEmpty()) {
                         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {

@@ -81,7 +81,7 @@ object ChampionRoleAdapter {
             "diente de nashor", "nashor", "impulso cósmico", "cosmic drive", "enfoque del horizonte", "horizon focus",
             "antorcha de fuego negro", "blackfire torch", "oleada de tormenta", "stormsurge",
             "borde infinito", "infinity edge", "el coleccionista", "el recaudador", "the collector",
-            "saludos de dominik", "lord dominik", "sanguinario", "bloodthirster", "el huracán de runaan",
+            "recuerdos de lord dominik", "recuerdos de dominik", "saludos de dominik", "lord dominik", "sanguinario", "bloodthirster", "el huracán de runaan",
             "runaan", "cañón de fuego rápido", "blaster magnético", "magnetic blaster", "bailarina fantasma",
             "phantom dancer", "arcoescudo inmortal", "inmortal shieldbow", "filo de la noche", "edge of night",
             "hoja del ocaso de draktharr", "draktharr", "el cuchillo fantasma de youmuu", "youmuu",

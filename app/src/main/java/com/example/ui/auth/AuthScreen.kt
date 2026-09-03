@@ -456,6 +456,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 )
             }
             
+            var showSupportDialog by remember { mutableStateOf(false) }
+
+            if (showSupportDialog) {
+                com.example.ui.components.SupportReportDialog(onDismiss = { showSupportDialog = false })
+            }
+
             if (showHistoryDialog) {
                 com.example.ui.components.SubscriptionHistoryDialog(onDismiss = { showHistoryDialog = false })
             }
@@ -488,12 +494,17 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "📱 " + com.example.util.tr("Slots de Dispositivo:"),
-                            color = com.example.ui.theme.HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "📱 " + com.example.util.tr("Slots de Dispositivo:"),
+                                color = com.example.ui.theme.HextechGold,
+                                fontSize = 12.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            )
+                        }
                         Text(
                             text = "$registeredDevicesCount de 2 en uso",
                             color = com.example.ui.theme.HextechCyan,
@@ -501,42 +512,19 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
                     }
-                    if (registeredDevicesCount > 1) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            Text(
-                                text = "🔄 Liberar otros slots y dejar solo este teléfono",
-                                color = com.example.ui.theme.HextechCyan,
-                                fontSize = 10.5.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f))
-                                    .clickable {
-                                        com.example.util.DeviceAndSessionManager.resetDeviceSlots(
-                                            context,
-                                            onSuccess = {
-                                                registeredDevicesCount = 1
-                                                android.widget.Toast.makeText(context, "Slots liberados. Solo este teléfono registrado.", android.widget.Toast.LENGTH_SHORT).show()
-                                            },
-                                            onError = { err ->
-                                                android.widget.Toast.makeText(context, err, android.widget.Toast.LENGTH_SHORT).show()
-                                            }
-                                        )
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "🔒 " + com.example.util.tr("Por seguridad de tu cuenta, la liberación y reasignación de slots de hardware es gestionada exclusivamente por los Administradores desde el panel de soporte."),
+                        color = com.example.ui.theme.TextSecondary,
+                        fontSize = 10.5.sp,
+                        lineHeight = 14.sp
+                    )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
-                        color = com.example.ui.theme.TextSecondary,
-                        fontSize = 11.sp,
-                        lineHeight = 15.sp
+                        color = com.example.ui.theme.TextMuted,
+                        fontSize = 10.5.sp,
+                        lineHeight = 14.sp
                     )
                 }
             }
@@ -565,6 +553,30 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Icon(imageVector = Icons.Filled.Palette, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Personalizar Tema", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Botón de Centro de Soporte
+            Button(
+                onClick = { showSupportDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
+                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f)),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = com.example.ui.theme.HextechCyan
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Centro de Soporte y Ayuda",
+                    color = com.example.ui.theme.HextechCyan,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 13.5.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

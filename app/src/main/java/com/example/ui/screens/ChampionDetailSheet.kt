@@ -148,13 +148,13 @@ fun ChampionDetailSheet(
     }
 
     val isCompact = isOverlay
-    val avatarSize = if (isCompact) 40.dp else 68.dp
-    val titleFontSize = if (isCompact) 15.sp else 22.sp
-    val sectionTitleFontSize = if (isCompact) 12.sp else 15.sp
-    val cardPadding = if (isCompact) 8.dp else 12.dp
-    val itemBoxSize = if (isCompact) 34.dp else 46.dp
-    val itemImageSize = if (isCompact) 30.dp else 42.dp
-    val subItemSize = if (isCompact) 28.dp else 38.dp
+    val avatarSize = if (isCompact) 36.dp else 68.dp
+    val titleFontSize = if (isCompact) 13.5.sp else 22.sp
+    val sectionTitleFontSize = if (isCompact) 11.sp else 15.sp
+    val cardPadding = if (isCompact) 6.dp else 12.dp
+    val itemBoxSize = if (isCompact) 28.dp else 46.dp
+    val itemImageSize = if (isCompact) 24.dp else 42.dp
+    val subItemSize = if (isCompact) 22.dp else 38.dp
 
     val dialogContent = @Composable {
         androidx.compose.material3.Card(
@@ -691,13 +691,13 @@ fun ChampionDetailSheet(
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .clickable { selectedBuildOptionIndex = idx }
-                            .padding(horizontal = 12.dp, vertical = 7.dp)
+                            .padding(horizontal = if (isCompact) 8.dp else 12.dp, vertical = if (isCompact) 4.dp else 7.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = label,
                                 color = if (isSelected) HextechGold else TextMuted,
-                                fontSize = 12.sp,
+                                fontSize = if (isCompact) 10.sp else 12.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         }
@@ -705,7 +705,7 @@ fun ChampionDetailSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(if (isCompact) 6.dp else 10.dp))
 
             // Main Card of Active Option
             Card(
@@ -714,7 +714,7 @@ fun ChampionDetailSheet(
                 colors = CardDefaults.cardColors(containerColor = HextechSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
+                Column(modifier = Modifier.padding(if (isCompact) 8.dp else 12.dp)) {
                     // Header with Title, Badge and Source
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -725,7 +725,7 @@ fun ChampionDetailSheet(
                             Text(
                                 text = activeOption.title,
                                 color = HextechGold,
-                                fontSize = 14.sp,
+                                fontSize = if (isCompact) 11.5.sp else 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -775,28 +775,28 @@ fun ChampionDetailSheet(
                             .clip(RoundedCornerShape(8.dp))
                             .background(HextechSurfaceVariant.copy(alpha = 0.7f))
                             .border(1.dp, HextechCardBorder.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                            .padding(10.dp)
+                            .padding(if (isCompact) 6.dp else 10.dp)
                     ) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = "🎯 OBJETIVO TÁCTICO & CUÁNDO USAR",
                                     color = HextechGold,
-                                    fontSize = 11.sp,
+                                    fontSize = if (isCompact) 9.5.sp else 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(if (isCompact) 2.dp else 4.dp))
                             Text(
                                 text = activeOption.tacticalReason,
                                 color = TextPrimary,
-                                fontSize = 11.5.sp,
-                                lineHeight = 16.sp
+                                fontSize = if (isCompact) 9.5.sp else 11.5.sp,
+                                lineHeight = if (isCompact) 13.sp else 16.sp
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(if (isCompact) 6.dp else 12.dp))
 
                     // Items List
                     Row(
@@ -807,22 +807,22 @@ fun ChampionDetailSheet(
                         Text(
                             text = tr("Objetos de la Build"),
                             color = HextechCyan,
-                            fontSize = 11.sp,
+                            fontSize = if (isCompact) 9.5.sp else 11.sp,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = "↔ " + tr("Desliza objetos"),
                             color = TextMuted,
-                            fontSize = 9.sp
+                            fontSize = if (isCompact) 8.sp else 9.sp
                         )
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 6.dp))
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(if (isCompact) 6.dp else 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         activeOption.items.forEach { rawName ->
@@ -899,7 +899,7 @@ fun ChampionDetailSheet(
                             )
                         }
                         Spacer(modifier = Modifier.height(6.dp))
-                        val sitBoxSize = if (isCompact) 32.dp else 38.dp
+                        val sitBoxSize = if (isCompact) 26.dp else 38.dp
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -964,10 +964,10 @@ fun ChampionDetailSheet(
             val currentBootBase = selectedBootBaseOverride ?: activeOption.bootBase.ifBlank { "Botas blindadas" }
             val currentBootUpgrade = ChampionRoleAdapter.getTier3BootUpgrade(currentBootBase)
 
-            val bootBoxSize = if (isCompact) 32.dp else 38.dp
-            val spellBoxSize = if (isCompact) 32.dp else 38.dp
-            val runeKeySize = if (isCompact) 36.dp else 44.dp
-            val runeSecSize = if (isCompact) 30.dp else 36.dp
+            val bootBoxSize = if (isCompact) 26.dp else 38.dp
+            val spellBoxSize = if (isCompact) 26.dp else 38.dp
+            val runeKeySize = if (isCompact) 28.dp else 44.dp
+            val runeSecSize = if (isCompact) 24.dp else 36.dp
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
