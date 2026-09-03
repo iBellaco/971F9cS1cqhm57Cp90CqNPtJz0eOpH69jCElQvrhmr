@@ -1884,12 +1884,20 @@ fun AdminManageSubscriptionDialog(
                     .set(updateMap, SetOptions.merge())
                     .await()
 
-                if (durationMillis != -1L) {
+                if (durationMillis == -1L) {
+                    com.example.util.SubscriptionHistoryManager.addRecordForUser(
+                        uid = user.uid,
+                        durationMillis = 0L,
+                        planName = "Revocación Manual (Admin)",
+                        status = "Cancelado (Admin)",
+                        amount = "$0.00"
+                    )
+                } else {
                     val durationToLog = if (durationMillis != null && durationMillis > 0) durationMillis else 0L
                     com.example.util.SubscriptionHistoryManager.addRecordForUser(
                         uid = user.uid,
                         durationMillis = durationToLog,
-                        planName = "Asignación Manual: $label",
+                        planName = "Regalo Admin: $label",
                         status = "Completado (Admin)",
                         amount = "$0.00"
                     )

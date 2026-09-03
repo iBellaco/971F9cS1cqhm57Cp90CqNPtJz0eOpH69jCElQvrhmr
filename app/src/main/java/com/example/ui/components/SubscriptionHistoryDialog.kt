@@ -132,23 +132,50 @@ fun SubscriptionHistoryItem(record: SubscriptionRecord) {
                 fontSize = 14.sp
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Duración: ${if (record.durationMillis == 0L) "Vitalicio" else formatDurationLocal(record.durationMillis)}",
-                color = TextSecondary,
-                fontSize = 12.sp
-            )
-            Text(
-                text = dateString,
-                color = TextMuted,
-                fontSize = 12.sp
-            )
-        }
         Spacer(modifier = Modifier.height(6.dp))
+
+        val isRevocation = record.planName.contains("Revocación", ignoreCase = true)
+        val isGift = record.planName.contains("Regalo Admin", ignoreCase = true) || record.planName.contains("Asignación Manual", ignoreCase = true)
+
+        if (isRevocation) {
+            Text(
+                text = "Fecha de cancelación: $dateString",
+                color = com.example.ui.theme.DangerRed,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+        } else {
+            val endDateStr = if (record.durationMillis == 0L) "Para siempre (Vitalicio)" else dateFormat.format(Date(record.timestamp + record.durationMillis))
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Activado: $dateString",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = "Vence: $endDateStr",
+                        color = HextechGoldLight,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                if (isGift) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "🎁 Obsequiado por el Administrador",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier

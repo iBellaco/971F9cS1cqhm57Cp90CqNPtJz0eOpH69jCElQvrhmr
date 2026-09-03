@@ -31,7 +31,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Conecta los filos de tu Habilidad 1 (H1) en el Línea de Barón para castigar campeones inmóviles. Usa tu Habilidad 3 (H3) para reposicionar la espada durante la animación.",
-    "recommendedRunes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
+    "recommendedRunes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
     "runeTreeDetails": "Dominación / Valor: Conquistador • Coraje del Coloso • Fuerzas Renovadas • Perseverancia • Impacto Repentino",
     "primaryRuneIconUrl": "https://images.ctfassets.net/ekkp7rrkr2gn/6ZqBIEsBgpDsZrvw2jbrvz/0673ee14b9321dba3b2878ee9e277a81/conqueror_hanu.png",
     "recommendedSpells": [
@@ -44,9 +44,9 @@
     ],
     "coreItems": [
       "Eclipse",
-      "Fuerza de trinidad",
+      "Fuerza trinitaria",
       "El rencor de Serylda",
-      "Calibrador de Sterak",
+      "Guantelete de Sterak",
       "La danza de la muerte"
     ],
     "coreItemsIcons": [
@@ -134,12 +134,12 @@
         "role": "top",
         "items": [
           "Eclipse",
-          "Fuerza de trinidad",
+          "Fuerza trinitaria",
           "El rencor de Serylda",
-          "Calibrador de Sterak",
+          "Guantelete de Sterak",
           "La danza de la muerte"
         ],
-        "runes": "Conquistador,Coraje del Coloso,Fuerzas Renovadas,Sobrecrecimiento,Impacto Repentino",
+        "runes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
         "spells": [
           "Destello",
           "Prender"
@@ -155,21 +155,19 @@
         "title": "Estándar",
         "role": "jungle",
         "items": [
+          "Eclipse",
           "Fuerza trinitaria",
-          "La danza de la muerte",
           "El rencor de Serylda",
-          "Colmillo de serpiente",
-          "Fauces de Malmortius",
-          "El cuchillo fantasma de Youmuu",
-          "Ángel custodio"
+          "Guantelete de Sterak",
+          "La danza de la muerte"
         ],
-        "runes": "Pies Veloces,Triunfo,Derribado,Leyenda: Presteza,Sobrecrecimiento",
+        "runes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
         "spells": [
-          "Castigo",
-          "Destello"
+          "Destello",
+          "Prender"
         ],
-        "bootBase": "Botas dinámicas",
-        "bootUpgrade": "Botas quebrantarmaduras",
+        "bootBase": "Botas blindadas",
+        "bootUpgrade": "Cimitarra mercurial",
         "situationalBoots": [
           "Grebas codiciosas",
           "Botas blindadas"
@@ -3888,7 +3886,7 @@
       "Lux"
     ],
     "tacticalAdvice": "Mantén las 5 cargas de tu pasiva golpeando con tu Habilidad 1 (H1) antes de pelear. Guarda tu Desplazamiento Arcano (H3) para esquivar iniciaciones clave.",
-    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Linaje,Revestimiento de huesos",
+    "recommendedRunes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Revestimiento de huesos",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Banda de Maná",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -3898,10 +3896,10 @@
     "spellsIcons": [],
     "coreItems": [
       "Manamune",
-      "Fuerza de trinidad",
+      "Fuerza trinitaria",
       "El rencor de Serylda",
       "Lanza de Shojin",
-      "Hoja del rey arruinado"
+      "Espada del Rey Arruinado"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -3972,13 +3970,13 @@
         ],
         "items": [
           "Manamune",
-          "Fuerza de trinidad",
+          "Fuerza trinitaria",
           "El rencor de Serylda",
           "Lanza de Shojin",
-          "Hoja del rey arruinado"
+          "Espada del Rey Arruinado"
         ],
         "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Cinturón de cohetes",
+        "bootUpgrade": "Cinturón de cohetes hextech",
         "situationalBoots": [
           "Grebas codiciosas"
         ],
@@ -3994,7 +3992,7 @@
           "Destello",
           "Extenuación"
         ],
-        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Linaje,Revestimiento de huesos"
+        "runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Revestimiento de huesos"
       },
       {
         "title": "ADC - Daño explosivo",
@@ -4008,11 +4006,11 @@
           "Manamune",
           "Fuerza trinitaria",
           "El rencor de Serylda",
-          "Espada del Rey Arruinado",
-          "Lanza de Shojin"
+          "Lanza de Shojin",
+          "Espada del Rey Arruinado"
         ],
-        "bootBase": "Grebas codiciosas",
-        "bootUpgrade": "Botas inmortales",
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Cinturón de cohetes hextech",
         "situationalBoots": [
           "Botas jonias de la lucidez"
         ],
@@ -4025,9 +4023,10 @@
           "Revestimiento de huesos"
         ],
         "spells": [
-          "Extenuación",
-          "Destello"
-        ]
+          "Destello",
+          "Extenuación"
+        ],
+        "runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Revestimiento de huesos"
       }
     ]
   },
@@ -5387,20 +5386,20 @@
       "Amumu"
     ],
     "tacticalAdvice": "Usa Niebla Sagrada (H2) para volverte inmune a los proyectiles y habilidades de los tiradores enemigos fuera de la zona.",
-    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino",
+    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Ataque Potenciado",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Segundo Aire",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
-      "Fantasma",
+      "Fantasmal",
       "Prender"
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Creagrietas",
+      "Hacedor de grietas",
       "Diente de Nashor",
-      "Sombrero mortífero de Rabadon",
-      "Báculo del Vacío",
-      "Orbe del infinito"
+      "Gorro de muerte del miércoles",
+      "Bastón vacío",
+      "Orbe infinito"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -5470,11 +5469,11 @@
           "Gorro de muerte del miércoles"
         ],
         "items": [
-          "Creagrietas",
+          "Hacedor de grietas",
           "Diente de Nashor",
-          "Sombrero mortífero de Rabadon",
-          "Báculo del Vacío",
-          "Orbe del infinito"
+          "Gorro de muerte del miércoles",
+          "Bastón vacío",
+          "Orbe infinito"
         ],
         "bootBase": "Botas de maná",
         "bootUpgrade": "Estasis",
@@ -5488,10 +5487,10 @@
           "Sobrecrecimiento"
         ],
         "spells": [
-          "Fantasma",
+          "Fantasmal",
           "Prender"
         ],
-        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino"
+        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Ataque Potenciado"
       },
       {
         "title": "JG - Daño continuo",
@@ -5502,14 +5501,14 @@
           "Hacedor de grietas"
         ],
         "items": [
-          "Anochecer y amanecer",
-          "Diente de Nashor",
           "Hacedor de grietas",
+          "Diente de Nashor",
           "Gorro de muerte del miércoles",
+          "Bastón vacío",
           "Orbe infinito"
         ],
         "bootBase": "Botas de maná",
-        "bootUpgrade": "Botas del lanzahechizos",
+        "bootUpgrade": "Estasis",
         "situationalBoots": [],
         "situationalItems": [],
         "primaryRune": "Conquistador",
@@ -5520,9 +5519,10 @@
           "Sobrecrecimiento"
         ],
         "spells": [
-          "Destello",
-          "Castigo"
-        ]
+          "Fantasmal",
+          "Prender"
+        ],
+        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Ataque Potenciado"
       }
     ]
   },

@@ -2044,9 +2044,6 @@ private fun ItemCatalogSelectionDialog(
 
             val isBootT3 = item.category.equals("Botas Nivel 3", ignoreCase = true) ||
                 cat.contains("nivel 3") ||
-                cat.contains("encantamiento") ||
-                id.contains("enchant") ||
-                icon.contains("enchant") ||
                 listOf("immortal_treds", "gunmetal_greaves", "chainlaced_crushers", "armored_advance", "crimson_lucidity", "spellslinger_s_shoes", "armorcrusher_boots").contains(id)
             
             val isBootT2 = (item.category.equals("Botas Nivel 2", ignoreCase = true) || (isBootItem && !isBootT3 && !id.contains("speed")))

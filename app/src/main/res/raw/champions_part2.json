@@ -4489,7 +4489,7 @@
       "Nami"
     ],
     "tacticalAdvice": "Acumula 225 cargas de Dracomanía para desbloquear daño verdadero en área y ejecución en su Aliento de Fuego (H1).",
-    "recommendedRunes": "Pies veloces,Triunfo,Verdugo de gigantes,Leyenda: Linaje,Banda de maná",
+    "recommendedRunes": "Pies veloces,Brutal,Derribado,Leyenda: Linaje,Banda de maná",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Entrega de Galletas",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
@@ -4498,11 +4498,11 @@
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Saqueador de esencias",
-      "Hidra voraz",
-      "Fuerza de trinidad",
+      "Saqueador de esencia",
+      "Cuchilla negra",
+      "Fuerza trinitaria",
       "Lanza de Shojin",
-      "Ángel custodio"
+      "Ángel de la guarda"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -4572,11 +4572,11 @@
           "El rencor de Serylda"
         ],
         "items": [
-          "Saqueador de esencias",
-          "Hidra voraz",
-          "Fuerza de trinidad",
+          "Saqueador de esencia",
+          "Cuchilla negra",
+          "Fuerza trinitaria",
           "Lanza de Shojin",
-          "Ángel custodio"
+          "Ángel de la guarda"
         ],
         "bootBase": "Botas jonias de la lucidez",
         "bootUpgrade": "Estasis",
@@ -4593,7 +4593,7 @@
           "Destello",
           "Barrera"
         ],
-        "runes": "Pies veloces,Triunfo,Verdugo de gigantes,Leyenda: Linaje,Banda de maná"
+        "runes": "Pies veloces,Brutal,Derribado,Leyenda: Linaje,Banda de maná"
       }
     ]
   },
@@ -7276,19 +7276,19 @@
       "Lulu"
     ],
     "tacticalAdvice": "Posee los cuerpos de los enemigos caídos para obtener sus habilidades, curarte e invocar Rompecorazones (H4) sin coste.",
-    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino",
+    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Impacto repentino",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Cazador de Ojos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
-      "Castigo",
-      "Destello"
+      "Destello",
+      "Aplastar"
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Fuerza de trinidad",
-      "Hoja del rey arruinado",
+      "Fuerza trinitaria",
+      "Espada del Rey Arruinado",
       "Recordatorio mortal",
-      "Filo del infinito",
+      "Filo infinito",
       "La sanguinaria"
     ],
     "coreItemsIcons": [],
@@ -7359,10 +7359,10 @@
           "Borde infinito"
         ],
         "items": [
-          "Fuerza de trinidad",
-          "Hoja del rey arruinado",
+          "Fuerza trinitaria",
+          "Espada del Rey Arruinado",
           "Recordatorio mortal",
-          "Filo del infinito",
+          "Filo infinito",
           "La sanguinaria"
         ],
         "bootBase": "Botas blindadas",
@@ -7377,10 +7377,10 @@
           "Sobrecrecimiento"
         ],
         "spells": [
-          "Castigo",
-          "Destello"
+          "Destello",
+          "Aplastar"
         ],
-        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Impacto Repentino"
+        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Impacto repentino"
       }
     ]
   },
@@ -8668,7 +8668,7 @@
       "Orianna"
     ],
     "tacticalAdvice": "Sal en Alma Desatada (H3) para comerciar daño seguro y regresa a tu cuerpo limpiando ralentizaciones tras ejecutar Destino Sellado (H4).",
-    "recommendedRunes": "Garras del Inmortal,Triunfo,Golpe de Gracia,Leyenda: Presteza,Sobrecrecimiento",
+    "recommendedRunes": "Garras del inmortal,Brutal,Golpe de gracia,Leyenda: Presteza,Sobrecrecimiento",
     "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Revestimiento de Hueso",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
     "recommendedSpells": [
@@ -8677,11 +8677,11 @@
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Hoja del rey arruinado",
+      "Espada del Rey Arruinado",
       "La sanguinaria",
-      "Filo del infinito",
+      "Filo infinito",
       "Recordatorio mortal",
-      "Ángel custodio"
+      "Ángel de la guarda"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -8751,13 +8751,13 @@
           "Recordatorio mortal"
         ],
         "items": [
-          "Hoja del rey arruinado",
+          "Espada del Rey Arruinado",
           "La sanguinaria",
-          "Filo del infinito",
+          "Filo infinito",
           "Recordatorio mortal",
-          "Ángel custodio"
+          "Ángel de la guarda"
         ],
-        "bootBase": "Grebas de metal",
+        "bootBase": "Grebas de berserker",
         "bootUpgrade": "Cimitarra mercurial",
         "situationalBoots": [],
         "situationalItems": [],
@@ -8772,7 +8772,7 @@
           "Destello",
           "Prender"
         ],
-        "runes": "Garras del Inmortal,Triunfo,Golpe de Gracia,Leyenda: Presteza,Sobrecrecimiento"
+        "runes": "Garras del inmortal,Brutal,Golpe de gracia,Leyenda: Presteza,Sobrecrecimiento"
       }
     ]
   },
@@ -9069,7 +9069,7 @@
       "Vi"
     ],
     "tacticalAdvice": "Coloca tu Sombra Viviente (H2) de forma lateral para conectar una doble Shuriken (H1) y asegura la eliminación con Marca de la Muerte (H4).",
-    "recommendedRunes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Trascendencia",
+    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Trascendencia",
     "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Ingenio Cazador • Triunfo",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
     "recommendedSpells": [
@@ -9159,7 +9159,7 @@
           "Filo de la noche"
         ],
         "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Cinturón de cohetes",
+        "bootUpgrade": "Cinturón de cohetes hextech",
         "situationalBoots": [
           "Grebas codiciosas"
         ],
@@ -9178,7 +9178,7 @@
           "Destello",
           "Prender"
         ],
-        "runes": "Conquistador,Triunfo,Golpe de Gracia,Leyenda: Presteza,Trascendencia"
+        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Trascendencia"
       },
       {
         "title": "MID - Daño explosivo",
@@ -9189,14 +9189,14 @@
           "El rencor de Serylda"
         ],
         "items": [
-          "Eclipse",
+          "El cuchillo fantasma de Youmuu",
           "Colmillo de serpiente",
           "El rencor de Serylda",
-          "Hoja del Ocaso de Draktharr",
+          "Lanza de Shojin",
           "Filo de la noche"
         ],
-        "bootBase": "Botas dinámicas",
-        "bootUpgrade": "Botas quebrantarmaduras",
+        "bootBase": "Botas jonias de la lucidez",
+        "bootUpgrade": "Cinturón de cohetes hextech",
         "situationalBoots": [],
         "situationalItems": [],
         "primaryRune": "Primer golpe",
@@ -9207,9 +9207,10 @@
           "Revestimiento de huesos"
         ],
         "spells": [
-          "Prender",
-          "Destello"
-        ]
+          "Destello",
+          "Prender"
+        ],
+        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Trascendencia"
       }
     ]
   },

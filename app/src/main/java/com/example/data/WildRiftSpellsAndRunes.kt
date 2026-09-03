@@ -610,7 +610,7 @@ object WildRiftSpellsAndRunes {
             id = "perseverance",
             name = "Perseverancia",
             category = "Valor",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/conditioning/conditioning.png",
+            iconUrl = "https://i.postimg.cc/MKZswv6W/perseverance.webp",
             description = "Otorga 10% de tenacidad. Otorga de 10 a 15 de armadura y resistencia mágica () durante 1,5 s cuando te inmovilizan. La duración se reinicia cuando te inmovilizan múltiples veces."
         ),
         RuneItem(
