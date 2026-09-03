@@ -80,6 +80,7 @@ object BestBuildWrScraper {
             )
             true
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             AppLogger.e(TAG, "Error durante vinculación de catálogo", e)
             _syncState.value = BestBuildSyncState.Error(e.localizedMessage ?: "Error al vincular catálogo")
             false
@@ -222,6 +223,7 @@ object BestBuildWrScraper {
             _syncState.value = BestBuildSyncState.Success(updatedChamps.size, "BBWR + WildRiftFire", System.currentTimeMillis())
             true
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             AppLogger.e(TAG, "Error syncing BBWR/WRF tierlist", e)
             _syncState.value = BestBuildSyncState.Error(e.localizedMessage ?: "Unknown error")
             false
@@ -290,6 +292,7 @@ object BestBuildWrScraper {
                 }
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             AppLogger.e(TAG, "Failed to fetch BBWR", e)
         }
         return champData
@@ -351,6 +354,7 @@ object BestBuildWrScraper {
                 }
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             AppLogger.e(TAG, "Failed to fetch WRF", e)
         }
         return champData

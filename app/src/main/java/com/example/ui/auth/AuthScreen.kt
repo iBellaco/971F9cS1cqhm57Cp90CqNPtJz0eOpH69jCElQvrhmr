@@ -459,6 +459,57 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            // Slot usage and no-logout recommendation
+            var registeredDevicesCount by remember { mutableStateOf(1) }
+            LaunchedEffect(user.uid) {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val devs = doc.get("registeredDevices") as? List<*> ?: emptyList<Any>()
+                        registeredDevicesCount = devs.size.coerceAtLeast(1)
+                    }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)),
+                border = BorderStroke(1.dp, com.example.ui.theme.HextechCardBorder)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "📱 " + com.example.util.tr("Slots de Dispositivo:"),
+                            color = com.example.ui.theme.HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        Text(
+                            text = "$registeredDevicesCount de 2 en uso",
+                            color = com.example.ui.theme.HextechCyan,
+                            fontSize = 12.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
+                        color = com.example.ui.theme.TextSecondary,
+                        fontSize = 11.sp,
+                        lineHeight = 15.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Button(
                 onClick = { showAvatarDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechGold),

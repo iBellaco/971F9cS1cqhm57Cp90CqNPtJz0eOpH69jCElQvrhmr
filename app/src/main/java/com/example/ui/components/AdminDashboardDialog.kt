@@ -611,37 +611,53 @@ fun AdminDashboardDialog(
 
                         // --- ADMIN STATS DASHBOARD ---
                         val totalUsers = users.size
-                        val premiumUsers = users.count { it.role == "premium" }
-                        val onlineUsers = users.count { System.currentTimeMillis() - it.lastActive < 900_000 }
+                        val registeredAndLoggedIn = users.count { it.registeredDevices.isNotEmpty() }
+                        val pendingRegistration = totalUsers - registeredAndLoggedIn
+                        val totalConnectedSlots = users.sumOf { it.registeredDevices.size }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            AdminStatCard(
-                                modifier = Modifier.weight(1f),
-                                title = "TOTAL",
-                                value = totalUsers.toString(),
-                                icon = Icons.Default.Group,
-                                accentColor = LolHextechCyan,
-                                glowColor = LolCyanGlow
-                            )
-                            AdminStatCard(
-                                modifier = Modifier.weight(1f),
-                                title = "EN LÍNEA",
-                                value = onlineUsers.toString(),
-                                icon = Icons.Default.Bolt,
-                                accentColor = LolZaunGreen,
-                                glowColor = Color(0xFF39FF14)
-                            )
-                            AdminStatCard(
-                                modifier = Modifier.weight(1f),
-                                title = "PREMIUM",
-                                value = premiumUsers.toString(),
-                                icon = Icons.Default.Stars,
-                                accentColor = LolBorderGold,
-                                glowColor = LolGoldLight
-                            )
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                AdminStatCard(
+                                    modifier = Modifier.weight(1f),
+                                    title = "TOTAL USUARIOS",
+                                    value = totalUsers.toString(),
+                                    icon = Icons.Default.Group,
+                                    accentColor = LolHextechCyan,
+                                    glowColor = LolCyanGlow
+                                )
+                                AdminStatCard(
+                                    modifier = Modifier.weight(1f),
+                                    title = "INICIADOS",
+                                    value = registeredAndLoggedIn.toString(),
+                                    icon = Icons.Default.CheckCircle,
+                                    accentColor = LolZaunGreen,
+                                    glowColor = Color(0xFF39FF14)
+                                )
+                                AdminStatCard(
+                                    modifier = Modifier.weight(1f),
+                                    title = "PENDIENTES",
+                                    value = pendingRegistration.toString(),
+                                    icon = Icons.Default.Warning,
+                                    accentColor = LolNoxusRed,
+                                    glowColor = Color(0xFFFF5252)
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                AdminStatCard(
+                                    modifier = Modifier.weight(1f),
+                                    title = "SLOTS CONECTADOS",
+                                    value = totalConnectedSlots.toString(),
+                                    icon = Icons.Default.Devices,
+                                    accentColor = LolBorderGold,
+                                    glowColor = LolGoldLight
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))

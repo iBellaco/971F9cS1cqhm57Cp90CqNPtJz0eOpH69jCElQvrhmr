@@ -130,6 +130,7 @@ object MetaCrawlerSyncService {
                     timestamp = nowStr
                 )
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 Log.e(TAG, "Error durante el crawler dinámico de parches", e)
                 _syncState.value = SyncState.Error(e.localizedMessage ?: "Fallo al sincronizar parche")
             }

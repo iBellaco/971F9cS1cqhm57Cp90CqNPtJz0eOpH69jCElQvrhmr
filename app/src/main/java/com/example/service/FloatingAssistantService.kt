@@ -1464,7 +1464,7 @@ private fun FloatingOverlayContent(
                         value = searchChampQuery,
                         onValueChange = { searchChampQuery = it },
                         placeholder = { Text(tr("Buscar campeón..."), fontSize = 11.sp) },
-                        modifier = Modifier.fillMaxWidth().height(46.dp),
+                        modifier = Modifier.fillMaxWidth().height(38.dp),
                         textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = HextechCyan,
@@ -2449,7 +2449,7 @@ private fun FloatingTierAndBuildsView(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = { Text(tr("Buscar campeón o rol..."), fontSize = 10.5.sp) },
-                modifier = Modifier.fillMaxWidth().height(46.dp),
+                modifier = Modifier.fillMaxWidth().height(38.dp),
                 textStyle = androidx.compose.ui.text.TextStyle(fontSize = 11.sp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = HextechCyan,
