@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.DarkMode
@@ -44,6 +45,7 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.example.ui.components.PrivacyPolicyDialog
 import com.example.data.sync.OfflineResourceManager
 import com.example.data.sync.DownloadState
 import com.example.ui.theme.DangerRed
@@ -154,6 +156,7 @@ fun MainDraftingScreen(
     var showBugReportDialog by remember { mutableStateOf(false) }
     var showDonationDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showPrivacyPolicyDialog by remember { mutableStateOf(false) }
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
     val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
 
@@ -477,6 +480,36 @@ fun MainDraftingScreen(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(10.dp))
+
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { showPrivacyPolicyDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .testTag("btn_privacy_top"),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        containerColor = HextechSurface.copy(alpha = 0.9f),
+                        contentColor = HextechGoldLight
+                    ),
+                    border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.5f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = tr("Política de Privacidad"),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Card de Rendimiento en Segundo Plano (Se oculta automáticamente si todo está activo)
@@ -722,6 +755,10 @@ fun MainDraftingScreen(
                 isPremium = com.example.util.SubscriptionManager.isPremium.collectAsState().value,
                 onDismiss = { showThemeDialog = false }
             )
+        }
+
+        if (showPrivacyPolicyDialog) {
+            PrivacyPolicyDialog(onDismiss = { showPrivacyPolicyDialog = false })
         }
     }
 }
@@ -978,4 +1015,5 @@ fun OfflineResourceDownloadCard() {
             }
         }
     }
+
 }

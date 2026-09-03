@@ -431,18 +431,6 @@ fun DashboardScreen(
                 Column(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    if (!isPremium) {
-                        androidx.compose.ui.viewinterop.AndroidView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            factory = { context ->
-                                com.startapp.sdk.ads.banner.Banner(context).apply {
-                                    // Start.io banner
-                                }
-                            }
-                        )
-                    }
 
                     // Top golden/accent glowing divider line
                     Box(

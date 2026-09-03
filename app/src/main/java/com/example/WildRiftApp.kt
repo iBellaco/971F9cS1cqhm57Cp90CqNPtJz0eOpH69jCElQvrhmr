@@ -83,13 +83,6 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             AppLogger.e("WildRiftApp", "Error inicializando ImagePrefetcher", e)
         }
 
-        try {
-            com.startapp.sdk.adsbase.StartAppSDK.init(this, "208671360", false)
-            AppLogger.d("WildRiftApp", "Start.io SDK initialized successfully.")
-        } catch (e: Exception) {
-            AppLogger.e("WildRiftApp", "Error initializing Start.io SDK", e)
-        }
-
         setupInstantAndPeriodicScraping()
         AppLogger.d("APP", "Application started successfully.")
     }

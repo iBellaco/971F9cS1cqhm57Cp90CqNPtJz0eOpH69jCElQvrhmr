@@ -54,10 +54,6 @@
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
 
-        <meta-data
-            android:name="com.startapp.sdk.APPLICATION_ID"
-            android:value="208671360" />
-
         <!-- Servicio en segundo plano para la superposición flotante y escaneo de draft sobre Wild Rift -->
         <service
             android:name=".service.FloatingAssistantService"
