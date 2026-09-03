@@ -624,7 +624,14 @@ fun AdminDashboardDialog(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // --- ADMIN STATS DASHBOARD ---
-                        val totalUsers = users.size
+                        val totalUsers = users.count { user ->
+                            val email = user.email.lowercase().trim()
+                            email.isNotBlank() && 
+                            email != "sin email" && 
+                            !email.contains("test") && 
+                            !email.contains("example") && 
+                            !email.contains("dummy")
+                        }.coerceAtLeast(if (users.isNotEmpty()) 1 else 0)
                         val currentTime = System.currentTimeMillis()
                         val registeredAndLoggedIn = users.count { user ->
                             user.lastActive > (currentTime - 30 * 60 * 1000L) || user.registeredDevices.isNotEmpty()

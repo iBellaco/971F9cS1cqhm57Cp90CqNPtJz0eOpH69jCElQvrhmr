@@ -44,7 +44,7 @@ object DeviceAndSessionManager {
 
     private var cachedDeviceId: String? = null
 
-    // Obtener ID del dispositivo persistente y determinista por instalación
+    // Obtener ID del dispositivo persistente y estable por instalación
     @SuppressLint("HardwareIds")
     fun getDeviceId(context: Context): String {
         if (!cachedDeviceId.isNullOrBlank()) {
@@ -52,23 +52,11 @@ object DeviceAndSessionManager {
         }
 
         val appContext = context.applicationContext ?: context
-
-        // 1. Verificar archivo plano interno permanente
-        val internalFile = java.io.File(appContext.filesDir, "device_id.txt")
-        try {
-            if (internalFile.exists()) {
-                val fileId = internalFile.readText().trim()
-                if (fileId.isNotBlank()) {
-                    cachedDeviceId = fileId
-                    return fileId
-                }
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Error reading device_id.txt: ${e.message}")
-        }
-
-        // 2. Verificar SharedPreferences principales
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val userPrefs = appContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+        val internalFile = java.io.File(appContext.filesDir, "device_id.txt")
+
+        // 1. SharedPreferences
         val savedId = prefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!savedId.isNullOrBlank()) {
             cachedDeviceId = savedId
@@ -76,8 +64,21 @@ object DeviceAndSessionManager {
             return savedId
         }
 
-        // 3. Verificar también en user_preferences por redundancia
-        val userPrefs = appContext.getSharedPreferences("user_preferences", Context.MODE_PRIVATE)
+        // 2. Internal file
+        try {
+            if (internalFile.exists()) {
+                val fileId = internalFile.readText().trim()
+                if (fileId.isNotBlank()) {
+                    cachedDeviceId = fileId
+                    prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, fileId).apply()
+                    return fileId
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error reading device_id.txt: ${e.message}")
+        }
+
+        // 3. User preferences backup
         val backupId = userPrefs.getString(KEY_PERSISTENT_DEVICE_ID, null)
         if (!backupId.isNullOrBlank()) {
             cachedDeviceId = backupId
@@ -86,28 +87,13 @@ object DeviceAndSessionManager {
             return backupId
         }
 
-        // 4. Obtener ANDROID_ID o generar hash determinista de hardware
-        var hardwareId: String? = null
-        try {
-            hardwareId = Settings.Secure.getString(appContext.contentResolver, Settings.Secure.ANDROID_ID)
-        } catch (e: Exception) {
-            Log.w(TAG, "Error obtaining ANDROID_ID: ${e.message}")
-        }
-
-        val finalId = if (!hardwareId.isNullOrBlank() && hardwareId != "9774d56d682e549c" && hardwareId != "UNKNOWN_DEVICE") {
-            "WRD_$hardwareId"
-        } else {
-            // Huella digital de hardware determinista fija para este dispositivo físico
-            val hardwareSeed = "${android.os.Build.MANUFACTURER}_${android.os.Build.MODEL}_${android.os.Build.BRAND}_${android.os.Build.DEVICE}_${android.os.Build.BOARD}_${android.os.Build.HARDWARE}"
-            val deterministicUUID = UUID.nameUUIDFromBytes(hardwareSeed.toByteArray()).toString().replace("-", "").take(16)
-            "WRD_HW_$deterministicUUID"
-        }
-
-        cachedDeviceId = finalId
-        prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
-        userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, finalId).apply()
-        try { internalFile.writeText(finalId) } catch (_: Exception) {}
-        return finalId
+        // 4. Generate stable persistent installation UUID once and store it forever
+        val newId = "WRD_INST_" + UUID.randomUUID().toString()
+        cachedDeviceId = newId
+        prefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, newId).apply()
+        userPrefs.edit().putString(KEY_PERSISTENT_DEVICE_ID, newId).apply()
+        try { internalFile.writeText(newId) } catch (_: Exception) {}
+        return newId
     }
 
     // Registrar sesión y dispositivo en Firestore de manera segura y sin desconexiones accidentales
