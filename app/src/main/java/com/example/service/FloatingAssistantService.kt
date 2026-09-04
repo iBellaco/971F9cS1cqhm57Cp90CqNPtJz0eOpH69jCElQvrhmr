@@ -75,6 +75,7 @@ import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
@@ -743,6 +744,7 @@ private fun FloatingOverlayContent(
 
                             if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
+                                com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
                                 scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName}) + ${newAlliesAdded + newEnemiesAdded} picks"
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
@@ -808,6 +810,7 @@ private fun FloatingOverlayContent(
                         }
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole
+                            com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
                         }
                         val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
                         scanNoticeMessage = "✅ Escaneo exitoso ($totalDetected picks" +
@@ -874,9 +877,6 @@ private fun FloatingOverlayContent(
                             .clickable {
                                 isExpanded = true
                                 onExpandedChange(true)
-                                if (isAdmin && allies.filterNotNull().isEmpty() && enemies.filterNotNull().isEmpty()) {
-                                    triggerManualScan()
-                                }
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -1029,7 +1029,12 @@ private fun FloatingOverlayContent(
                                     if (isScanning) {
                                         CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechCyan, strokeWidth = 2.dp)
                                     } else {
-                                        Icon(Icons.Default.FlashOn, contentDescription = "Escanear", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                        Icon(
+                                            imageVector = if (isAdmin) Icons.Default.FlashOn else Icons.Default.Lock,
+                                            contentDescription = if (isAdmin) "Escanear selección" else "Escáner restringido a Administrador",
+                                            tint = if (isAdmin) HextechCyan else TextMuted,
+                                            modifier = Modifier.size(18.dp)
+                                        )
                                     }
                                 }
 
@@ -1388,32 +1393,35 @@ private fun FloatingOverlayContent(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = tr("Auto-Scan"),
-                                    color = TextMuted,
+                                    color = if (isAdmin) TextMuted else TextMuted.copy(alpha = 0.5f),
                                     fontSize = 9.5.sp,
                                     modifier = Modifier.padding(end = 4.dp)
                                 )
-                                    val adminOnlyMsg = tr("🔒 El auto-escáner es de uso exclusivo para Administradores.")
-                                    Switch(
-                                        checked = autoScanEnabled,
-                                        onCheckedChange = { isChecked -> 
-                                            if (isChecked) {
-                                                if (isAdmin) {
-                                                    autoScanEnabled = true
-                                                } else {
-                                                    android.widget.Toast.makeText(context, adminOnlyMsg, android.widget.Toast.LENGTH_LONG).show()
-                                                    autoScanEnabled = false
-                                                }
+                                val adminOnlyMsg = tr("🔒 El auto-escáner es de uso exclusivo para Administradores.")
+                                Switch(
+                                    checked = autoScanEnabled && isAdmin,
+                                    enabled = isAdmin,
+                                    onCheckedChange = { isChecked -> 
+                                        if (isChecked) {
+                                            if (isAdmin) {
+                                                autoScanEnabled = true
                                             } else {
+                                                android.widget.Toast.makeText(context, adminOnlyMsg, android.widget.Toast.LENGTH_LONG).show()
                                                 autoScanEnabled = false
                                             }
-                                        },
-                                        modifier = Modifier.scale(0.7f),
-                                        colors = SwitchDefaults.colors(
-                                            checkedThumbColor = HextechDarkBg,
-                                            checkedTrackColor = Color(0xFF00FF7F)
-                                        )
+                                        } else {
+                                            autoScanEnabled = false
+                                        }
+                                    },
+                                    modifier = Modifier.scale(0.7f),
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = HextechDarkBg,
+                                        checkedTrackColor = Color(0xFF00FF7F),
+                                        disabledCheckedTrackColor = TextMuted.copy(alpha = 0.3f),
+                                        disabledUncheckedTrackColor = HextechSurface
                                     )
-                                }
+                                )
+                            }
                             }
                         }
                     }

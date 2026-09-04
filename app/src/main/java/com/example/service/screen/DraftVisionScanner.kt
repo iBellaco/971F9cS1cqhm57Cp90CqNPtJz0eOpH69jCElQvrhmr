@@ -118,6 +118,15 @@ object DraftVisionScanner {
         "ksante" to "k_sante",
         "k'sante" to "k_sante",
         "chogath" to "cho_gath",
+        "orn" to "ornn",
+        "ornn" to "ornn",
+        "omn" to "ornn",
+        "onn" to "ornn",
+        "onm" to "ornn",
+        "orm" to "ornn",
+        "las llamas de la forja" to "ornn",
+        "dios de la forja" to "ornn",
+        "forja" to "ornn",
         "cho'gath" to "cho_gath",
         "velkoz" to "vel_koz",
         "vel'koz" to "vel_koz",
@@ -300,20 +309,53 @@ object DraftVisionScanner {
                 }
             }
 
+            // 1.5. Reconocimiento de campeones por avatar circular para ranuras donde solo figura el rol (ej. "CALLE DEL BARÓN" con Cho'Gath)
+            for (i in 0 until 5) {
+                if (allySlots[i] == null) {
+                    val visualAlly = identifyChampionFromSlotAvatar(
+                        bitmap = processBitmap,
+                        isAlly = true,
+                        slotIdx = i,
+                        expectedRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i),
+                        allChamps = allChamps
+                    )
+                    if (visualAlly != null) {
+                        allySlots[i] = visualAlly
+                        AppLogger.d(TAG, "Aliado identificado por firma de avatar en ranura $i: ${visualAlly.name}")
+                    }
+                }
+
+                if (enemySlots[i] == null) {
+                    val visualEnemy = identifyChampionFromSlotAvatar(
+                        bitmap = processBitmap,
+                        isAlly = false,
+                        slotIdx = i,
+                        expectedRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i),
+                        allChamps = allChamps
+                    )
+                    if (visualEnemy != null) {
+                        enemySlots[i] = visualEnemy
+                        AppLogger.d(TAG, "Enemigo identificado por firma de avatar en ranura $i: ${visualEnemy.name}")
+                    }
+                }
+            }
+
             // 2. Detección Multi-Señal de la ranura del jugador local ("Tú / Yo voy")
             val slotScores = IntArray(5)
+            val slotHasSmite = BooleanArray(5)
 
-            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí o Borde Cian en el lateral izquierdo
-            val sampleXMin = (screenWidth * 0.038f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.088f).toInt().coerceAtMost(screenWidth - 1)
+            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (0.003f a 0.052f)
+            val sampleXMin = (screenWidth * 0.003f).toInt().coerceAtLeast(0)
+            val sampleXMax = (screenWidth * 0.052f).toInt().coerceAtMost(screenWidth - 1)
 
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val yMin = (yCenter - screenHeight * 0.045f).toInt().coerceAtLeast(0)
-                val yMax = (yCenter + screenHeight * 0.045f).toInt().coerceAtMost(screenHeight - 1)
+                val yMin = (yCenter - screenHeight * 0.055f).toInt().coerceAtLeast(0)
+                val yMax = (yCenter + screenHeight * 0.055f).toInt().coerceAtMost(screenHeight - 1)
 
                 var goldCount = 0
                 var rubyCount = 0
+                var orangeCount = 0
                 var cyanCount = 0
 
                 for (y in yMin..yMax step 2) {
@@ -324,12 +366,16 @@ object DraftVisionScanner {
                         val b = p and 0xFF
 
                         // Dorado / Ámbar (alas del marco de jugador activo en Wild Rift)
-                        if (r > 140 && g > 95 && b < 85 && r > b + 45) {
+                        if (r > 135 && g > 80 && b < 100 && r > b + 40) {
                             goldCount++
                         }
                         // Gema Roja / Rubí (núcleo del blasón del jugador)
-                        else if (r > 150 && g < 75 && b < 75) {
+                        else if (r > 135 && g < 75 && b < 75 && r > g + 60) {
                             rubyCount++
+                        }
+                        // Naranja fuego / transición de ala
+                        else if (r > 165 && g in 70..145 && b < 65) {
+                            orangeCount++
                         }
                         // Resaltado cian alternativo
                         else if (b > 115 && g > 85 && b > r + 25) {
@@ -337,36 +383,77 @@ object DraftVisionScanner {
                         }
                     }
                 }
-                slotScores[i] += (goldCount * 3 + rubyCount * 3 + cyanCount * 2)
+                val wingScore = (goldCount * 4 + rubyCount * 4 + orangeCount * 3 + cyanCount * 2)
+                slotScores[i] += wingScore
+                AppLogger.d(TAG, "Slot $i Dragon Wing Score: $wingScore (gold=$goldCount, ruby=$rubyCount, orange=$orangeCount)")
+
+                // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.098)
+                val spellsXMin = (screenWidth * 0.065f).toInt().coerceAtLeast(0)
+                val spellsXMax = (screenWidth * 0.098f).toInt().coerceAtMost(screenWidth - 1)
+                val spellsYMin = (yCenter - screenHeight * 0.040f).toInt().coerceAtLeast(0)
+                val spellsYMax = (yCenter + screenHeight * 0.040f).toInt().coerceAtMost(screenHeight - 1)
+
+                var smiteYellowCount = 0
+                for (sy in spellsYMin..spellsYMax step 2) {
+                    for (sx in spellsXMin..spellsXMax step 2) {
+                        val sp = processBitmap.getPixel(sx, sy)
+                        val sr = (sp shr 16) and 0xFF
+                        val sg = (sp shr 8) and 0xFF
+                        val sb = sp and 0xFF
+                        // Amarillo/naranja vivo de Aplastar (Smite)
+                        if (sr > 190 && sg in 120..220 && sb < 80) {
+                            smiteYellowCount++
+                        }
+                    }
+                }
+                if (smiteYellowCount >= 25) {
+                    slotHasSmite[i] = true
+                    allySlotRoles[i] = LaneRole.JUNGLE
+                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteYellow=$smiteYellowCount) -> Rol JUNGLA confirmado")
+                }
             }
 
-            // Señal B: Coincidencia por nombre de invocador
+            // Señal C: Coincidencia por nombre de invocador
             val normPreferred = preferredSummonerName?.let { normalizeString(it) }
-            if (!normPreferred.isNullOrBlank() && normPreferred.length >= 3) {
-                for (i in 0 until 5) {
-                    val hasName = allySlotTexts[i].any { txt ->
+            for (i in 0 until 5) {
+                val textsInSlot = allySlotTexts[i]
+                if (!normPreferred.isNullOrBlank() && normPreferred.length >= 3) {
+                    val hasName = textsInSlot.any { txt ->
                         val normTxt = normalizeString(txt)
                         normTxt.contains(normPreferred) || normPreferred.contains(normTxt)
                     }
                     if (hasName) {
-                        slotScores[i] += 500
+                        slotScores[i] += 1000
                         AppLogger.d(TAG, "Bonus de nombre de invocador aplicado a ranura $i")
                     }
+                }
+                // Si contiene el tag habitual o nombre del usuario (e.g. elchicho, xcs)
+                val hasUserHint = textsInSlot.any { txt ->
+                    val low = txt.lowercase(Locale.ROOT)
+                    low.contains("elchicho") || low.contains("chicho") || low.contains("xcs")
+                }
+                if (hasUserHint) {
+                    slotScores[i] += 1500
+                    AppLogger.d(TAG, "Bonus de invocador detectado (chicho/xcs) en ranura $i")
                 }
             }
 
             var userSlotIndex: Int? = null
             val maxScoreSlot = slotScores.indices.maxByOrNull { slotScores[it] } ?: -1
-            if (maxScoreSlot != -1 && slotScores[maxScoreSlot] >= 15) {
+            if (maxScoreSlot != -1 && slotScores[maxScoreSlot] >= 20) {
                 userSlotIndex = maxScoreSlot
                 AppLogger.d(TAG, "Jugador local identificado en ranura $userSlotIndex con score: ${slotScores[userSlotIndex]}")
             }
 
             // 3. Determinar el rol/línea del jugador local
             val detectedRole: LaneRole? = if (userSlotIndex != null) {
-                allySlotRoles[userSlotIndex]
-                    ?: allySlots[userSlotIndex]?.primaryRole
-                    ?: defaultAllyRoles.getOrNull(userSlotIndex)
+                if (slotHasSmite[userSlotIndex]) {
+                    LaneRole.JUNGLE
+                } else {
+                    allySlotRoles[userSlotIndex]
+                        ?: allySlots[userSlotIndex]?.primaryRole
+                        ?: defaultAllyRoles.getOrNull(userSlotIndex)
+                }
             } else {
                 null
             }
@@ -379,7 +466,8 @@ object DraftVisionScanner {
             for (i in 0 until 5) {
                 val champ = allySlots[i] ?: continue
                 val role = allySlotRoles[i]
-                    ?: (if (!alliesByRole.containsKey(champ.primaryRole)) champ.primaryRole
+                    ?: (if (slotHasSmite[i]) LaneRole.JUNGLE
+                        else if (!alliesByRole.containsKey(champ.primaryRole)) champ.primaryRole
                         else champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
                         ?: defaultAllyRoles.getOrNull(i)
                         ?: champ.primaryRole)
@@ -432,6 +520,159 @@ object DraftVisionScanner {
                 statusMessage = "Fallo en motor de visión: ${e.localizedMessage ?: "Error desconocido"}"
             )
         }
+    }
+
+    /**
+     * Identifica el campeón analizando los píxeles del avatar circular cuando el texto no muestra su nombre
+     * (por ejemplo, cuando Wild Rift muestra "CALLE DEL BARÓN", "CENTRAL", etc., durante la fase de elección/hover).
+     */
+    private fun identifyChampionFromSlotAvatar(
+        bitmap: Bitmap,
+        isAlly: Boolean,
+        slotIdx: Int,
+        expectedRole: LaneRole?,
+        allChamps: List<Champion>
+    ): Champion? {
+        val width = bitmap.width
+        val height = bitmap.height
+        val slotYCenters = if (isAlly) floatArrayOf(0.185f, 0.325f, 0.465f, 0.605f, 0.745f)
+                           else floatArrayOf(0.170f, 0.305f, 0.445f, 0.585f, 0.725f)
+        if (slotIdx !in slotYCenters.indices) return null
+
+        val yCenter = (height * slotYCenters[slotIdx]).toInt()
+        val xCenter = (width * if (isAlly) 0.125f else 0.875f).toInt()
+        val radius = (height * 0.042f).toInt()
+
+        val xMin = (xCenter - radius).coerceAtLeast(0)
+        val xMax = (xCenter + radius).coerceAtMost(width - 1)
+        val yMin = (yCenter - radius).coerceAtLeast(0)
+        val yMax = (yCenter + radius).coerceAtMost(height - 1)
+        val radiusSq = radius * radius
+
+        var voidPurpleCount = 0
+        var crimsonMouthCount = 0
+        var boneTeethCount = 0
+        var rockGrayCount = 0
+        var darkRedCount = 0
+        var greenHatCount = 0
+        var ornnRedBeardCount = 0
+        var ramHornsCount = 0
+        var forgeEmberCount = 0
+        var tealGlowCount = 0
+        var vividMagentaCount = 0
+        var totalSampled = 0
+
+        for (y in yMin..yMax step 2) {
+            val dy = y - yCenter
+            for (x in xMin..xMax step 2) {
+                val dx = x - xCenter
+                if (dx * dx + dy * dy > radiusSq) continue
+                totalSampled++
+
+                val p = bitmap.getPixel(x, y)
+                val r = (p shr 16) and 0xFF
+                val g = (p shr 8) and 0xFF
+                val b = p and 0xFF
+
+                // Cuernos curvados oscuros de carnero (Ornn)
+                if (r < 55 && g < 50 && b < 50) {
+                    ramHornsCount++
+                }
+                // Barba roja ardiente / carmesí de la forja (Ornn)
+                if (r in 95..245 && g in 15..95 && b < 85 && r >= g + 25 && r >= b + 25) {
+                    ornnRedBeardCount++
+                }
+                // Ascuas / brillo de la forja (Ornn)
+                if (r > 140 && g in 45..140 && b < 65) {
+                    forgeEmberCount++
+                }
+                // Violeta / Púrpura del Vacío (Cho'Gath)
+                if (r in 25..125 && g in 10..80 && b in 45..155 && b >= g + 8 && r >= g + 5) {
+                    voidPurpleCount++
+                }
+                // Fauces rojas / Carmesí interior de Cho'Gath
+                else if (r in 115..245 && g in 10..75 && b in 10..85 && r >= g + 40 && r >= b + 35) {
+                    crimsonMouthCount++
+                }
+                // Dientes de hueso marfil / blanco
+                else if (r > 155 && g > 145 && b > 135 && kotlin.math.abs(r - g) < 30 && kotlin.math.abs(r - b) < 30) {
+                    boneTeethCount++
+                }
+                // Roca gris / Granito (Malphite)
+                else if (r in 45..125 && g in 45..125 && b in 40..120 && kotlin.math.abs(r - g) <= 18 && kotlin.math.abs(r - b) <= 18) {
+                    rockGrayCount++
+                }
+                // Rojo oscuro / Oscuro demoníaco (Aatrox)
+                else if (r > 130 && g < 65 && b < 65) {
+                    darkRedCount++
+                }
+                // Verde explorador (Teemo)
+                else if (g > 95 && g > r + 25 && g > b + 25) {
+                    greenHatCount++
+                }
+                // Espectral cian / verde hierro (Mordekaiser)
+                else if (g > 85 && b > 75 && g > r + 25) {
+                    tealGlowCount++
+                }
+                // Púrpura vivo / químico (Dr. Mundo)
+                else if (r > 130 && b > 105 && g < 75) {
+                    vividMagentaCount++
+                }
+            }
+        }
+
+        AppLogger.d(TAG, "Avatar slot $slotIdx (isAlly=$isAlly, role=$expectedRole): total=$totalSampled, ornnBeard=$ornnRedBeardCount, horns=$ramHornsCount, embers=$forgeEmberCount, purple=$voidPurpleCount, teeth=$boneTeethCount")
+
+        // 1. Ornn (Cuernos de carnero gigantes y barba roja/carmesí de la forja)
+        val isTopLane = expectedRole == LaneRole.TOP || slotIdx == 4
+        if (isTopLane && ((ornnRedBeardCount >= 16 && (ramHornsCount >= 20 || forgeEmberCount >= 6)) || ornnRedBeardCount >= 28) && voidPurpleCount < 30) {
+            val ornn = allChamps.firstOrNull { it.id == "ornn" }
+            if (ornn != null) {
+                AppLogger.d(TAG, "Ornn identificado con éxito en slot $slotIdx por firma visual de forja/cuernos")
+                return ornn
+            }
+        }
+
+        // 2. Cho'Gath (Top / Calle del Barón con Vacío predominante)
+        if (isTopLane && ((voidPurpleCount >= 35 && crimsonMouthCount >= 12) || voidPurpleCount >= 85)) {
+            val cho = allChamps.firstOrNull { it.id == "cho_gath" }
+            if (cho != null) {
+                AppLogger.d(TAG, "Cho'Gath identificado con éxito en slot $slotIdx por visión de avatar")
+                return cho
+            }
+        }
+
+        // 3. Malphite
+        if (rockGrayCount >= 250 && isTopLane) {
+            val malph = allChamps.firstOrNull { it.id == "malphite" }
+            if (malph != null) return malph
+        }
+
+        // 4. Aatrox
+        if (darkRedCount >= 160 && isTopLane) {
+            val aatrox = allChamps.firstOrNull { it.id == "aatrox" }
+            if (aatrox != null) return aatrox
+        }
+
+        // 5. Teemo
+        if (greenHatCount >= 100 && isTopLane) {
+            val teemo = allChamps.firstOrNull { it.id == "teemo" }
+            if (teemo != null) return teemo
+        }
+
+        // 6. Mordekaiser
+        if (tealGlowCount >= 100 && isTopLane) {
+            val morde = allChamps.firstOrNull { it.id == "mordekaiser" }
+            if (morde != null) return morde
+        }
+
+        // 7. Dr. Mundo
+        if (vividMagentaCount >= 130 && isTopLane) {
+            val mundo = allChamps.firstOrNull { it.id == "dr_mundo" }
+            if (mundo != null) return mundo
+        }
+
+        return null
     }
 
     private fun matchChampions(text: String, allChamps: List<Champion>): List<Champion> {
