@@ -165,7 +165,8 @@ class ScreenCaptureManager(private val context: Context) {
 
     /**
      * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución sin invalidar el token de MediaProjection.
-     * En Android, recrear el VirtualDisplay es necesario tras rotación de pantalla para mantener activa la emisión de frames.
+     * En Android 14+, recrear el VirtualDisplay con el mismo token lanza SecurityException; por ello se redimensiona
+     * el VirtualDisplay existente usando la API nativa `resize` y actualizando el Surface.
      */
     @SuppressLint("WrongConstant")
     fun refreshProjection() {
@@ -216,38 +217,48 @@ class ScreenCaptureManager(private val context: Context) {
                 } catch (e: Exception) {
                     AppLogger.w(TAG, "Error procesando frame en listener tras refresh: ${e.message}")
                 } finally {
-                    img?.close()
+                    try {
+                        img?.close()
+                    } catch (_: Exception) {}
                 }
             }, handler)
 
-            // Recrear limpiamente el VirtualDisplay para evitar que SurfaceFlinger suspenda la emisión de frames
-            val oldVirtualDisplay = virtualDisplay
-            virtualDisplay = null
-            oldVirtualDisplay?.release()
+            val currentVirtualDisplay = virtualDisplay
+            if (currentVirtualDisplay != null) {
+                // Actualización segura y nativa de Surface y dimensiones sin destruir el token de proyección
+                try {
+                    currentVirtualDisplay.surface = newImageReader.surface
+                    currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
+                    AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente a ($captureWidth x $captureHeight).")
+                } catch (e: Exception) {
+                    AppLogger.w(TAG, "Error al redimensionar VirtualDisplay: ${e.message}")
+                }
+            } else {
+                virtualDisplay = proj.createVirtualDisplay(
+                    VIRTUAL_DISPLAY_NAME,
+                    captureWidth,
+                    captureHeight,
+                    screenDensity,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                    newImageReader.surface,
+                    null,
+                    handler
+                )
+            }
 
             val oldReader = imageReader
             imageReader = newImageReader
-            oldReader?.close()
+            try {
+                oldReader?.close()
+            } catch (_: Exception) {}
 
-            virtualDisplay = proj.createVirtualDisplay(
-                VIRTUAL_DISPLAY_NAME,
-                captureWidth,
-                captureHeight,
-                screenDensity,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                newImageReader.surface,
-                null,
-                handler
-            )
-
-            AppLogger.d(TAG, "VirtualDisplay recreado limpiamente a ($captureWidth x $captureHeight) con nueva orientación.")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error al redimensionar proyección de pantalla", e)
         }
     }
 
     /**
-     * Captura el frame actual de la pantalla como un Bitmap.
+     * Captura el frame actual de la pantalla como un Bitmap con sincronización protegida.
      */
     fun captureCurrentFrame(): Bitmap? {
         try {
@@ -268,7 +279,7 @@ class ScreenCaptureManager(private val context: Context) {
                 if (cached != null && !cached.isRecycled) {
                     return try {
                         cached.copy(Bitmap.Config.ARGB_8888, false)
-                    } catch (_: Exception) {
+                    } catch (_: Throwable) {
                         null
                     }
                 }
@@ -301,8 +312,11 @@ class ScreenCaptureManager(private val context: Context) {
                     }
 
                     synchronized(frameLock) {
-                        lastFrame?.recycle()
-                        lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                        val old = lastFrame
+                        try {
+                            lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                        } catch (_: Throwable) {}
+                        old?.recycle()
                     }
 
                     return cleanBitmap
@@ -310,12 +324,14 @@ class ScreenCaptureManager(private val context: Context) {
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
             } finally {
-                image?.close()
+                try {
+                    image?.close()
+                } catch (_: Exception) {}
             }
 
             attempts++
             try {
-                Thread.sleep(60)
+                Thread.sleep(35)
             } catch (_: Exception) {}
         }
 

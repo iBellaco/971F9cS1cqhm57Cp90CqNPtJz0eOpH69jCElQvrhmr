@@ -161,6 +161,27 @@ object DraftVisionScanner {
      */
     suspend fun scanDraftFromBitmap(bitmap: Bitmap, preferredSummonerName: String? = null): DraftScanResult {
         return try {
+            if (bitmap.isRecycled) {
+                return DraftScanResult(
+                    allies = emptyList(),
+                    enemies = emptyList(),
+                    detectedRawWords = emptyList(),
+                    isSuccessful = false,
+                    statusMessage = "Fotograma no disponible."
+                )
+            }
+
+            // Si el dispositivo está en vertical (Portrait), esperar a que esté en apaisado (Wild Rift)
+            if (bitmap.width < bitmap.height) {
+                return DraftScanResult(
+                    allies = emptyList(),
+                    enemies = emptyList(),
+                    detectedRawWords = emptyList(),
+                    isSuccessful = false,
+                    statusMessage = "Esperando pantalla horizontal de Wild Rift..."
+                )
+            }
+
             val recognizer = getRecognizer() ?: return DraftScanResult(
                 allies = emptyList(),
                 enemies = emptyList(),
@@ -169,20 +190,35 @@ object DraftVisionScanner {
                 statusMessage = "El servicio de visión no se encuentra disponible en este entorno."
             )
 
-            // Si el bitmap viene en vertical (portrait), rotarlo a horizontal para alinear la lectura con Wild Rift
-            val processBitmap = if (bitmap.width < bitmap.height) {
-                val matrix = android.graphics.Matrix().apply { postRotate(90f) }
-                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            } else {
-                bitmap
+            val screenWidth = bitmap.width
+            val screenHeight = bitmap.height
+
+            // OPTIMIZACIÓN DE VELOCIDAD: Escalar para OCR si la resolución es superior a 1280px.
+            // ML Kit procesa ~10x más rápido en 1280px sin perder precisión de texto.
+            var scaledOcrBmp: Bitmap? = null
+            val ocrImage = try {
+                if (screenWidth > 1280) {
+                    val targetWidth = 1280
+                    val targetHeight = (screenHeight * (1280f / screenWidth)).toInt()
+                    scaledOcrBmp = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+                    InputImage.fromBitmap(scaledOcrBmp, 0)
+                } else {
+                    InputImage.fromBitmap(bitmap, 0)
+                }
+            } catch (_: Throwable) {
+                InputImage.fromBitmap(bitmap, 0)
             }
 
-            val inputImage = InputImage.fromBitmap(processBitmap, 0)
-            val visionText = recognizer.process(inputImage).await()
+            val visionText = try {
+                recognizer.process(ocrImage).await()
+            } finally {
+                scaledOcrBmp?.recycle()
+            }
+
+            val ocrWidth = if (screenWidth > 1280) 1280 else screenWidth
+            val ocrHeight = if (screenWidth > 1280) (screenHeight * (1280f / screenWidth)).toInt() else screenHeight
 
             val detectedWords = mutableListOf<String>()
-            val screenWidth = processBitmap.width
-            val screenHeight = processBitmap.height
             val allChamps = WildRiftRepository.champions
 
             // Coordenadas verticales oficiales de las 5 ranuras en Wild Rift (Landscape)
@@ -212,16 +248,17 @@ object DraftVisionScanner {
                     val centerX = box?.centerX() ?: 0
                     val centerY = box?.centerY() ?: 0
 
+                    val xRatio = centerX.toFloat() / ocrWidth.toFloat()
+                    val yRatio = centerY.toFloat() / ocrHeight.toFloat()
+
                     // Descartar barra superior (bans < 8%) y extremos inferiores (> 88%)
-                    if (centerY < screenHeight * 0.08f || centerY > screenHeight * 0.88f) {
+                    if (yRatio < 0.08f || yRatio > 0.88f) {
                         continue
                     }
 
                     // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
                     // Acotado estrictamente entre 11% y 27.5% del ancho de pantalla.
-                    // A partir de 28% comienza la lista de selección de campeones (Syndra, Nami, Akali, etc.)
-                    if (centerX in (screenWidth * 0.11f).toInt()..(screenWidth * 0.275f).toInt()) {
-                        val yRatio = centerY.toFloat() / screenHeight.toFloat()
+                    if (xRatio in 0.11f..0.275f) {
                         val slotIdx = when {
                             yRatio < 0.255f -> 0
                             yRatio < 0.395f -> 1
@@ -270,8 +307,7 @@ object DraftVisionScanner {
 
                     // --- COLUMNA DERECHA: EQUIPO ENEMIGO ---
                     // Acotado estrictamente entre 71% y 88% del ancho de pantalla
-                    else if (centerX in (screenWidth * 0.71f).toInt()..(screenWidth * 0.88f).toInt()) {
-                        val yRatio = centerY.toFloat() / screenHeight.toFloat()
+                    else if (xRatio in 0.71f..0.88f) {
                         val slotIdx = when {
                             yRatio < 0.240f -> 0
                             yRatio < 0.375f -> 1
@@ -330,7 +366,7 @@ object DraftVisionScanner {
             for (i in 0 until 5) {
                 if (allySlots[i] == null) {
                     val visualAlly = identifyChampionFromSlotAvatar(
-                        bitmap = processBitmap,
+                        bitmap = bitmap,
                         isAlly = true,
                         slotIdx = i,
                         expectedRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i),
@@ -347,7 +383,7 @@ object DraftVisionScanner {
                 // Si la ranura enemiga dice "Jugador X", está confirmada vacía y PROHIBIDO asignar campeón
                 if (enemySlots[i] == null && !enemySlotEmpty[i]) {
                     val visualEnemy = identifyChampionFromSlotAvatar(
-                        bitmap = processBitmap,
+                        bitmap = bitmap,
                         isAlly = false,
                         slotIdx = i,
                         expectedRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i),
@@ -408,7 +444,7 @@ object DraftVisionScanner {
 
                 for (y in yMin..yMax step 2) {
                     for (x in sampleXMin..sampleXMax step 2) {
-                        val p = processBitmap.getPixel(x, y)
+                        val p = bitmap.getPixel(x, y)
                         val r = (p shr 16) and 0xFF
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
@@ -445,7 +481,7 @@ object DraftVisionScanner {
                 val bYMax = (yCenter + screenHeight * 0.025f).toInt().coerceAtMost(screenHeight - 1)
                 for (by in bYMin..bYMax step 2) {
                     for (bx in roleBadgeXMin..roleBadgeXMax step 2) {
-                        val bp = processBitmap.getPixel(bx, by)
+                        val bp = bitmap.getPixel(bx, by)
                         val br = (bp shr 16) and 0xFF
                         val bg = (bp shr 8) and 0xFF
                         val bb = bp and 0xFF
@@ -474,7 +510,7 @@ object DraftVisionScanner {
                     var smiteFlameCount = 0
                     for (sy in spellsYMin..spellsYMax step 2) {
                         for (sx in spellsXMin..spellsXMax step 2) {
-                            val sp = processBitmap.getPixel(sx, sy)
+                            val sp = bitmap.getPixel(sx, sy)
                             val sr = (sp shr 16) and 0xFF
                             val sg = (sp shr 8) and 0xFF
                             val sb = sp and 0xFF
@@ -532,7 +568,7 @@ object DraftVisionScanner {
                 var count = 0
                 for (sy in swapYMin..swapYMax step 2) {
                     for (sx in swapXMin..swapXMax step 2) {
-                        val p = processBitmap.getPixel(sx, sy)
+                        val p = bitmap.getPixel(sx, sy)
                         val r = (p shr 16) and 0xFF
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
@@ -663,10 +699,6 @@ object DraftVisionScanner {
             }
 
             AppLogger.d(TAG, "Resultado: Aliados=${alliesByRole.map { "${it.key.shortName}:${it.value.name}" }} vs Enemigos=${enemiesByRole.map { "${it.key.shortName}:${it.value.name}" }} (Rol detectado: $detectedRole)")
-
-            if (processBitmap != bitmap) {
-                try { processBitmap.recycle() } catch (_: Exception) {}
-            }
 
             DraftScanResult(
                 allies = foundAllies,

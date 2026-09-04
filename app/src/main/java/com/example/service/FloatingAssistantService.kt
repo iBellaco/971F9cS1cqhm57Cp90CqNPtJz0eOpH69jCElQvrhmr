@@ -190,6 +190,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private var windowManager: WindowManager? = null
     private var floatingComposeView: ComposeView? = null
     private var closeTargetComposeView: ComposeView? = null
+    private var floatingParams: WindowManager.LayoutParams? = null
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -407,6 +408,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             x = (screenWidth - bubbleSizePx - marginPx * 2).coerceAtLeast(marginPx)
             y = (120 * density).toInt()
         }
+        floatingParams = params
 
         floatingComposeView = ComposeView(this).apply {
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
@@ -560,7 +562,27 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
-        screenCaptureManager?.refreshProjection()
+        try {
+            screenCaptureManager?.refreshProjection()
+            
+            // Reajustar coordenadas de la vista flotante para la nueva orientación de pantalla
+            val params = floatingParams
+            val view = floatingComposeView
+            if (params != null && view != null) {
+                val metrics = resources.displayMetrics
+                val density = metrics.density
+                val marginPx = (8 * density).toInt()
+                val bubbleSizePx = (46 * density).toInt()
+                val maxX = (metrics.widthPixels - bubbleSizePx - marginPx).coerceAtLeast(marginPx)
+                val maxY = (metrics.heightPixels - bubbleSizePx - marginPx).coerceAtLeast(marginPx)
+                
+                params.x = params.x.coerceIn(marginPx, maxX)
+                params.y = params.y.coerceIn(marginPx, maxY)
+                windowManager?.updateViewLayout(view, params)
+            }
+        } catch (e: Exception) {
+            AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
+        }
     }
 
     companion object {
@@ -718,11 +740,11 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo
+    // Auto-Scan Loop en segundo plano cada 1.1 segundos mientras esté activo
     LaunchedEffect(autoScanEnabled) {
         if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
-            delay(2500)
+            delay(1100)
             if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                 scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
             } else if (!isScanning) {
