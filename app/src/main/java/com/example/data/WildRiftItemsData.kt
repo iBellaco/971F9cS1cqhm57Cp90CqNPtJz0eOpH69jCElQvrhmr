@@ -1571,7 +1571,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5s, but unable to move, attack, cast spells or use items. (120s Cooldown).",
             coachTip = "El Brazalete de la buscadora proporciona la invaluable activa de Éstasis (2.5 s de invulnerabilidad) a mitad de partida, permitiendo esquivar definitivas letales y combos de asesinos antes de completar el Reloj de arena de Zhonya.",
             coachTipEn = "Seeker's Armguard provides the invaluable Stasis active (2.5s invulnerability) at mid-tier cost, allowing you to dodge lethal ultimates and assassin combos before finishing Zhonya's Hourglass.",
-            iconUrl = "file:///android_asset/offline_images/a3b6e6c6102ce5f573811ec15758dfb2.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/a3b6e6c6102ce5f573811ec15758dfb2.png"
         ),
         WildRiftItem(
             id = "stridebreaker",
@@ -1949,7 +1949,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (120s Cooldown)",
             coachTip = "El Brazalete de la buscadora proporciona la invaluable activa de Éstasis (2.5 s de invulnerabilidad) a mitad de partida, permitiendo esquivar definitivas letales y combos de asesinos antes de completar el Reloj de arena de Zhonya.",
             coachTipEn = "This item combines Ability Power with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your cooldowns to return. It is an excellent choice for mages and AP assassins who need to survive burst damage and outplay opponents in critical teamfights.",
-            iconUrl = "file:///android_asset/offline_images/a3b6e6c6102ce5f573811ec15758dfb2.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/a3b6e6c6102ce5f573811ec15758dfb2.png"
         ),
         WildRiftItem(
             id = "vampiric_scepter_wild_rift",
@@ -1963,7 +1963,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Excelente componente temprano para mantenerte con vida y sustain en la fase de líneas sin tener que regresar constantemente a base.",
             coachTipEn = "Great early component for sustaining through the laning phase without needing frequent recalls.",
-            iconUrl = "file:///android_asset/offline_images/e97953f0759810c41743165bc7cd3fa9.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/e97953f0759810c41743165bc7cd3fa9.png"
         ),
         WildRiftItem(
             id = "zeal_wild_rift",
@@ -1977,7 +1977,7 @@ object WildRiftItemsData {
             passiveEn = "Fervor: +5% Move Speed.",
             coachTip = "Objeto intermedio clave para tiradores y campeones de daño sostenido que necesitan velocidad de ataque y probabilidad de crítico para escalar.",
             coachTipEn = "Key mid-tier item for marksmen and sustained damage dealers scaling with attack speed and critical strike.",
-            iconUrl = "file:///android_asset/offline_images/1d3d0b38318e429fd5cec574709ba25c.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/1d3d0b38318e429fd5cec574709ba25c.png"
         ),
         WildRiftItem(
             id = "kircheis_shard_wild_rift",
@@ -1991,7 +1991,7 @@ object WildRiftItemsData {
             passiveEn = "Jolt: Energized attacks deal 50 bonus magic damage. Moving and attacking generates energized attacks.",
             coachTip = "Aumenta tu daño de ráfaga y desgaste en intercambios cortos gracias al daño adicional de los ataques con vigor.",
             coachTipEn = "Increases burst damage and short trade potential with extra energized magic damage.",
-            iconUrl = "file:///android_asset/offline_images/53d19baa2793ddd0dcc8a706211907c9.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/53d19baa2793ddd0dcc8a706211907c9.png"
         ),
         WildRiftItem(
             id = "serrated_dirk_wild_rift",
@@ -2005,7 +2005,7 @@ object WildRiftItemsData {
             passiveEn = "Sharp: +8 Armor Penetration.",
             coachTip = "Otorga penetración de armadura plana temprana, ideal para asesinos y tiradores de letalidad en sus primeros enfrentamientos.",
             coachTipEn = "Grants early flat armor penetration, ideal for assassins and lethality users.",
-            iconUrl = "file:///android_asset/offline_images/96d151af56d30e9ad2b839b8aa0c6a60.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/96d151af56d30e9ad2b839b8aa0c6a60.png"
         ),
         WildRiftItem(
             id = "recurve_bow_wild_rift",
@@ -2019,7 +2019,7 @@ object WildRiftItemsData {
             passiveEn = "Reinforced: Attacks deal 15 bonus physical damage on-hit against targets.",
             coachTip = "Otorga velocidad de ataque y daño directo al impacto, ideal para campeones que aprovechan efectos al golpear rápidamente.",
             coachTipEn = "Grants attack speed and on-hit damage, great for on-hit reliant champions.",
-            iconUrl = "file:///android_asset/offline_images/4220aa90b0441f533fd1160267218516.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/4220aa90b0441f533fd1160267218516.png"
         ),
         WildRiftItem(
             id = "b__f__sword_wild_rift",
@@ -2033,7 +2033,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El componente de daño físico más contundente para tiradores y asesinos AD. Proporciona una gran inyección de daño en el juego temprano.",
             coachTipEn = "The heaviest AD component for marksmen and assassins, providing high early-game attack power.",
-            iconUrl = "file:///android_asset/offline_images/734a3b1e160287aa1993b1760b58a51b.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/734a3b1e160287aa1993b1760b58a51b.png"
         ),
         WildRiftItem(
             id = "cloak_of_agility_wild_rift",
@@ -2047,7 +2047,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Pieza clave para acelerar la acumulación de probabilidad de golpe crítico en tiradores y campeones de daño crítico como Yasuo o Yone.",
             coachTipEn = "Key component to accelerate crit chance builds for marksmen and crit champions.",
-            iconUrl = "file:///android_asset/offline_images/8e8ce032aeca62cc15a4a617dae18167.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/8e8ce032aeca62cc15a4a617dae18167.png"
         ),
         WildRiftItem(
             id = "last_whisper_wild_rift",
@@ -2061,7 +2061,7 @@ object WildRiftItemsData {
             passiveEn = "Last Whisper: +12% Armor Penetration.",
             coachTip = "Componente esencial contra tanques o enemigos que empiezan a armarse armadura temprano en la partida.",
             coachTipEn = "Essential early armor shred against targets building armor.",
-            iconUrl = "file:///android_asset/offline_images/bab2bfe9c989e479ea3733e49a418842.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/bab2bfe9c989e479ea3733e49a418842.png"
         ),
         WildRiftItem(
             id = "executioner_s_calling_wild_rift",
@@ -2075,7 +2075,7 @@ object WildRiftItemsData {
             passiveEn = "Rend: Physical Damage inflicts 40% Grievous Wounds to enemy champions for 3 seconds.",
             coachTip = "El componente cortacuras AD por excelencia. Cómpralo temprano cuando te enfrentes a enemigos con mucha regeneración o curación como Aatrox, Warwick o Soraka.",
             coachTipEn = "The go-to early anti-heal AD component against high sustain or healing enemies.",
-            iconUrl = "file:///android_asset/offline_images/0021f149f91cc1567701be1238176f67.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/0021f149f91cc1567701be1238176f67.png"
         ),
         WildRiftItem(
             id = "phage_wild_rift",
@@ -2089,7 +2089,7 @@ object WildRiftItemsData {
             passiveEn = "Rage: Attacks grant 20 Move Speed and kills grant 60 Move Speed for 2 seconds. Bonuses do not stack. Ranged champions gain halved values.",
             coachTip = "Te da vida, daño y la velocidad necesaria para perseguir a los rivales o esquivar habilidades en duelos prolongados.",
             coachTipEn = "Provides health, damage, and mobility to stick to enemies or kite during trades.",
-            iconUrl = "file:///android_asset/offline_images/34f0f9e7689d7fa1a29b72c5c870fc4a.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/34f0f9e7689d7fa1a29b72c5c870fc4a.png"
         ),
         WildRiftItem(
             id = "stinger_wild_rift",
@@ -2117,7 +2117,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un componente muy versátil que combina daño y reducción de enfriamiento, clave para luchadores y asesinos basados en habilidades.",
             coachTipEn = "Combines attack power with ability haste, great for caster bruisers and assassins.",
-            iconUrl = "file:///android_asset/offline_images/83c7928ec8fe440cfc62b8e50d7180fc.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/83c7928ec8fe440cfc62b8e50d7180fc.png"
         ),
         WildRiftItem(
             id = "jaurim_s_fist_wild_rift",
@@ -2131,7 +2131,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Componente equilibrado para luchadores que necesitan durabilidad sin sacrificar su presión de daño.",
             coachTipEn = "Balanced health and attack damage component for bruisers.",
-            iconUrl = "file:///android_asset/offline_images/333371fbb7e193e76748ef3f2197fc9b.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/333371fbb7e193e76748ef3f2197fc9b.png"
         ),
         WildRiftItem(
             id = "aether_wisp_wild_rift",
@@ -2145,7 +2145,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Te ofrece el poder necesario con un sutil pero valioso toque de movilidad extra, excelente para rotar por el mapa o esquivar tiros de habilidad.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/94291cfd2a0a84a2880ce80831566ff5.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/94291cfd2a0a84a2880ce80831566ff5.png"
         ),
         WildRiftItem(
             id = "lost_chapter_wild_rift",
@@ -2159,7 +2159,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El componente estrella para los magos hambrientos de maná. Resolverá tus problemas de energía permitiéndote acosar incesantemente a tus rivales.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/deb8d0db21accf19a6d9b4f916c805df.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/deb8d0db21accf19a6d9b4f916c805df.png"
         ),
         WildRiftItem(
             id = "fiendish_codex_wild_rift",
@@ -2173,7 +2173,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "La pieza ideal si lo que necesitas es rotar tus habilidades más rápido manteniendo al mismo tiempo tu presión ofensiva en la línea.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/5931118ed82a04668244c5004ac00a03.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/5931118ed82a04668244c5004ac00a03.png"
         ),
         WildRiftItem(
             id = "blasting_wand_wild_rift",
@@ -2187,7 +2187,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una sólida inyección de daño en el juego medio. Otorga poder constante para construir casi cualquier objeto mágico avanzado que requieras.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/3fc642a9e6e408709eb21b8c4b7127f9.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/3fc642a9e6e408709eb21b8c4b7127f9.png"
         ),
         WildRiftItem(
             id = "needlessly_large_rod_wild_rift",
@@ -2201,7 +2201,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un pico de poder bruto enorme. Ahorrar para este objeto vale completamente la pena, ya que incrementa de forma masiva el daño de todo tu kit.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/eb3ac0e1d61e44c74c226ad7f39465dc.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/eb3ac0e1d61e44c74c226ad7f39465dc.png"
         ),
         WildRiftItem(
             id = "haunting_guise_wild_rift",
@@ -2215,7 +2215,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Perfecto para magos de daño sostenido y luchadores AP. Cuanto más logres alargar el enfrentamiento, más daño infligirás.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/38bcaabdaf63e6dc337ed3357e8ddf18.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/38bcaabdaf63e6dc337ed3357e8ddf18.png"
         ),
         WildRiftItem(
             id = "sheen_wild_rift",
@@ -2229,7 +2229,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una mejora de daño excelente para campeones que pueden intercalar fácilmente ataques básicos con sus habilidades (como Ezreal o Camille).",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/e1223aff990a601b707b86263bf61e1e.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/e1223aff990a601b707b86263bf61e1e.png"
         ),
         WildRiftItem(
             id = "oblivion_orb_wild_rift",
@@ -2243,7 +2243,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Tu respuesta prioritaria contra campeones con alta regeneración o curación (como Soraka, Dr. Mundo). Cómpralo temprano para cortar de raíz su sustento.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/1958e3834e80ab02b704308a0372d5f6.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/1958e3834e80ab02b704308a0372d5f6.png"
         ),
         WildRiftItem(
             id = "bami_s_cinder_wild_rift",
@@ -2257,7 +2257,7 @@ object WildRiftItemsData {
             passiveEn = "Cinders: Deals 10-20 magic damage per second to nearby enemies. Deals 15% bonus damage to minions and monsters.",
             coachTip = "Vital para tanques de la jungla o top, ya que aumenta dramáticamente tu capacidad para limpiar oleadas o campamentos.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/7938b908a6b5cc2ef9f8319fd1fc7c57.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/7938b908a6b5cc2ef9f8319fd1fc7c57.png"
         ),
         WildRiftItem(
             id = "spectre_s_cowl_wild_rift",
@@ -2271,7 +2271,7 @@ object WildRiftItemsData {
             passiveEn = "Spectral Visit: Grants 150% Health Regen for 10 seconds after taking damage from an enemy champion.",
             coachTip = "Fantástico para sostenerte en línea contra campeones de daño mágico que te hacen daño de desgaste (poke).",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/499fa576de6e50bb1decf5656ef0601b.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/499fa576de6e50bb1decf5656ef0601b.png"
         ),
         WildRiftItem(
             id = "kindlegem_wild_rift",
@@ -2285,7 +2285,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Estadísticas muy eficientes. Te permite lanzar hechizos con mayor frecuencia mientras te hace más resistente.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/7b89d30d687b24ad23a1f14bfbd9099a.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/7b89d30d687b24ad23a1f14bfbd9099a.png"
         ),
         WildRiftItem(
             id = "giant_s_belt_wild_rift",
@@ -2299,7 +2299,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una inyección enorme de vida, excelente contra daño verdadero y todo tipo de daño mixto.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/5368af31c04bf286142840505b392e5e.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/5368af31c04bf286142840505b392e5e.png"
         ),
         WildRiftItem(
             id = "warden_s_mail_wild_rift",
@@ -2313,7 +2313,7 @@ object WildRiftItemsData {
             passiveEn = "Cold Steel: Reduce the Attack Speed of enemies by 15% for 1.5 seconds when struck by an attack.",
             coachTip = "El counter definitivo para campeones que dependen de su velocidad de ataque (como Jinx, Vayne o Yasuo).",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/e97cc01895707a49497a5800bf15622d.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/e97cc01895707a49497a5800bf15622d.png"
         ),
         WildRiftItem(
             id = "catalyst_of_aeons_wild_rift",
@@ -2327,7 +2327,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Otorga una increíble sustentabilidad para el juego temprano, dándote los recursos necesarios para mantenerte agresivo en tu línea sin tener que regresar a base.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/f381b661b209aea5b3d901ab3cbf9677.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/f381b661b209aea5b3d901ab3cbf9677.png"
         ),
         WildRiftItem(
             id = "chain_vest_wild_rift",
@@ -2341,7 +2341,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Gran bloque de armadura sólida. Perfecto para mitigar daño de asesinos AD o tiradores.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/54298039ca4192e39e128be58cb5232b.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/54298039ca4192e39e128be58cb5232b.png"
         ),
         WildRiftItem(
             id = "bramble_vest_wild_rift",
@@ -2355,7 +2355,7 @@ object WildRiftItemsData {
             passiveEn = "Thorns: When struck by an attack, deal 4 magic damage + 6% bonus armor to the attacker and inflict 40% Grievous Wounds for 3 seconds if they are a champion.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Objeto defensivo clave si te enfrentas a campeones con mucha curación o robo de vida. ¡Cómpralo rápido contra ellos!",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/96336e7eafce4efdc8441793dbf08ea5.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/96336e7eafce4efdc8441793dbf08ea5.png"
         ),
         WildRiftItem(
             id = "hexdrinker_wild_rift",
@@ -2369,7 +2369,7 @@ object WildRiftItemsData {
             passiveEn = "Lifeline: Upon taking magic damage that reduces health below 35%, grants a magic shield.",
             coachTip = "Defensa temprana contra magos de ráfaga para evitar morir en un solo combo.",
             coachTipEn = "Crucial early anti-magic burst defense.",
-            iconUrl = "file:///android_asset/offline_images/b61c64b2268692e16a08bed7e7ccb33c.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/b61c64b2268692e16a08bed7e7ccb33c.png"
         ),
         WildRiftItem(
             id = "negatron_cloak_wild_rift",
@@ -2383,7 +2383,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Pico de resistencia mágica esencial. Cómpralo cuando enfrentes ráfagas severas de daño mágico.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/db68e1f3e54a0d9dfe8ef7c3bba37ed7.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/db68e1f3e54a0d9dfe8ef7c3bba37ed7.png"
         ),
         WildRiftItem(
             id = "glacial_shroud_wild_rift",
@@ -2397,7 +2397,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Gran objeto intermedio para tanques que usan mucho maná y dependen de sus habilidades.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/85f9d39b508b2816e6e4c50d8d216f26.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/85f9d39b508b2816e6e4c50d8d216f26.png"
         ),
         WildRiftItem(
             id = "winged_moonplate_wild_rift",
@@ -2411,7 +2411,7 @@ object WildRiftItemsData {
             passiveEn = "Flight: +5% Move Speed.",
             coachTip = "Mejora tu capacidad de supervivencia y te da movilidad extra, excelente para tanques que necesitan alcanzar objetivos.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/3942c1ad8b231a488139ffc5021ab871.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/3942c1ad8b231a488139ffc5021ab871.png"
         ),
         WildRiftItem(
             id = "nashor_s_talon_wild_rift",
@@ -2425,7 +2425,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un componente muy versátil que escala según lo que necesites, dándote un poder flexible antes de completar el Diente de Nashor.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/f7a1496d801b3fdbdd48af70cdc60b22.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/f7a1496d801b3fdbdd48af70cdc60b22.png"
         ),
         WildRiftItem(
             id = "noonquiver_wild_rift",
@@ -2481,7 +2481,7 @@ object WildRiftItemsData {
             passiveEn = "Surge: Gain 20% Slow Resist while in combat with an enemy champion.",
             coachTip = "Otorga armadura y movilidad en combate, útil para campeones que necesitan persecución o reposicionamiento.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/4fac563b3f41db16ad8090ab099cfffb.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/4fac563b3f41db16ad8090ab099cfffb.png"
         ),
         WildRiftItem(
             id = "forbidden_idol_wild_rift",
@@ -2537,7 +2537,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "La mejor protección mágica temprana contra magos de ráfaga y asesinos AP (como Akali o Fizz), forzándolos a quemar recursos antes de intentar matarte.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/1d2cd876e0badc2e53d9dc179f32a22f.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/1d2cd876e0badc2e53d9dc179f32a22f.png"
         ),
         WildRiftItem(
             id = "boots_of_speed",
@@ -2621,7 +2621,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: 10% of Mana spent is refunded.\nMana Charge: Increases max Mana by 6 every time Mana is spent. Caps at 700 bonus Mana. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Compra este objeto al principio si usas un campeón que depende mucho del maná, ya que necesitas tiempo para cargarlo completamente y evolucionarlo.",
             coachTipEn = "",
-            iconUrl = "file:///android_asset/offline_images/e1577a7ebf54d6e7e774226ab83bc735.png"
+            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/e1577a7ebf54d6e7e774226ab83bc735.png"
         ),
         WildRiftItem(
             id = "amplifying_tome",
