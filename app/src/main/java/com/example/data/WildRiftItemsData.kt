@@ -35,7 +35,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "magnetic_blaster",
-            name = "Blaster magnético",
+            name = "Cañón Magnético",
             nameEn = "Magnetic Blaster",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -63,7 +63,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "runaan_s_hurricane",
-            name = "El huracán de Runaan",
+            name = "Huracán de Runaan",
             nameEn = "Runaan's Hurricane",
             category = "Objetos con Daños Físicos",
             goldCost = 2900,
@@ -77,7 +77,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "youmuu_s_ghostblade",
-            name = "El cuchillo fantasma de Youmuu",
+            name = "Espada Fantasma de Youmuu",
             nameEn = "Youmuu's Ghostblade",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -91,7 +91,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "duskblade_of_draktharr",
-            name = "Hoja del Ocaso de Draktharr",
+            name = "Hoja Crepuscular de Draktharr",
             nameEn = "Duskblade of Draktharr",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -175,7 +175,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "trinity_force",
-            name = "Fuerza trinitaria",
+            name = "Fuerza de la Trinidad",
             nameEn = "Trinity Force",
             category = "Objetos con Daños Físicos",
             goldCost = 3333,
@@ -203,7 +203,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "death_s_dance",
-            name = "La danza de la muerte",
+            name = "Danza de la Muerte",
             nameEn = "Death's Dance",
             category = "Objetos con Daños Físicos",
             goldCost = 3100,
@@ -217,7 +217,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "phantom_dancer",
-            name = "Bailarina fantasma",
+            name = "Bailarín Espectral",
             nameEn = "Phantom Dancer",
             category = "Objetos con Daños Físicos",
             goldCost = 2900,
@@ -245,7 +245,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "wit_s_end",
-            name = "Al filo de la cordura",
+            name = "Al Final del Ingenio",
             nameEn = "Wit's End",
             category = "Objetos con Daños Físicos",
             goldCost = 2800,
@@ -259,7 +259,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "essence_reaver",
-            name = "Saqueador de esencia",
+            name = "Saqueador de Esencias",
             nameEn = "Essence Reaver",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -273,7 +273,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "serylda_s_grudge",
-            name = "El rencor de Serylda",
+            name = "Rencor de Serylda",
             nameEn = "Serylda’s Grudge",
             category = "Objetos con Daños Físicos",
             goldCost = 3300,
@@ -315,7 +315,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "divine_sunderer",
-            name = "Cercenador Divino",
+            name = "Desgarrador Divino",
             nameEn = "Divine Sunderer",
             category = "Objetos con Daños Físicos",
             goldCost = 3400,
@@ -343,7 +343,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "chempunk_chainsword",
-            name = "Espada sierra quimopunk",
+            name = "Motosierra Quimopunk",
             nameEn = "Chempunk Chainsword",
             category = "Objetos con Daños Físicos",
             goldCost = 2800,
@@ -357,7 +357,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "the_collector",
-            name = "Coleccionista",
+            name = "El Coleccionista",
             nameEn = "The Collector",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -455,7 +455,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "soul_transfer",
-            name = "Transferencia de alma",
+            name = "Arcoescudo Inmortal",
             nameEn = "Soul Transfer",
             category = "Objetos con Daños Físicos",
             goldCost = 3200,
@@ -483,7 +483,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "experimental_hexplate",
-            name = "Placa del hexperimento",
+            name = "Hexperimento",
             nameEn = "Experimental Hexplate",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -721,7 +721,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "runaan_s_hurricane",
-            name = "El huracán de Runaan",
+            name = "Huracán de Runaan",
             nameEn = "Runaan's Hurricane",
             category = "Objetos de Daño Mágico",
             goldCost = 2900,
@@ -1029,7 +1029,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "death_s_dance",
-            name = "La danza de la muerte",
+            name = "Danza de la Muerte",
             nameEn = "Death's Dance",
             category = "Artículos de Defensa",
             goldCost = 3100,
@@ -1617,7 +1617,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "stridebreaker",
-            name = "Cortasendas",
+            name = "Rompeavances",
             nameEn = "Stridebreaker",
             category = "Objetos de Hechizo Activos",
             goldCost = 3100,
@@ -1631,7 +1631,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "goredrinker",
-            name = "Chupasangre",
+            name = "Bebedor de Sangre",
             nameEn = "Goredrinker",
             category = "Objetos de Hechizo Activos",
             goldCost = 3100,
@@ -1645,7 +1645,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "galeforce",
-            name = "Viento huracanado",
+            name = "Fuerza del Viento",
             nameEn = "Galeforce",
             category = "Objetos de Hechizo Activos",
             goldCost = 3100,
@@ -2766,7 +2766,7 @@ object WildRiftItemsData {
 
         WildRiftItem(
             id = "kraken_slayer",
-            name = "Matakrakens",
+            name = "Verdugo de Krakens",
             nameEn = "Kraken Slayer",
             category = "Objetos con Daños Físicos",
             goldCost = 2800,
@@ -2780,7 +2780,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "stridebreaker",
-            name = "Cortasendas",
+            name = "Rompeavances",
             nameEn = "Stridebreaker",
             category = "Objetos con Daños Físicos",
             goldCost = 3100,
@@ -2794,7 +2794,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "goredrinker",
-            name = "Chupasangre",
+            name = "Bebedor de Sangre",
             nameEn = "Goredrinker",
             category = "Objetos con Daños Físicos",
             goldCost = 3100,
@@ -2822,7 +2822,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "overlord_s_bloodmail",
-            name = "Cota de sangre del soberano",
+            name = "Malla Sanguínea del Soberano",
             nameEn = "Overlord's Bloodmail",
             category = "Objetos con Daños Físicos",
             goldCost = 3200,
@@ -2850,7 +2850,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "galeforce",
-            name = "Viento huracanado",
+            name = "Fuerza del Viento",
             nameEn = "Galeforce",
             category = "Objetos con Daños Físicos",
             goldCost = 3100,

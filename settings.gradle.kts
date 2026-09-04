@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Wild Rift Drafting"
+rootProject.name = "Wild Rift Coach"
 
 include(":app")
