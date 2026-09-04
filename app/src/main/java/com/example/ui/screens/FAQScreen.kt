@@ -84,6 +84,162 @@ fun FAQScreen(
             Pair(
                 "¿Cómo funcionan los servidores y regiones en la aplicación?",
                 "La aplicación te permite sincronizar y consultar datos adaptados al meta de diferentes regiones (como el servidor de China CN, metadatos Globales o servidores de América). Cada región prioriza estilos de juego y composiciones distintas, permitiéndote aplicar estrategias de vanguardia en tus partidas."
+            ),
+            Pair(
+                "¿Me pueden banear en Wild Rift por usar esta burbuja flotante?",
+                "No, no hay riesgo de ban. El asistente funciona como una capa de información sobre la pantalla (overlay) y no modifica, inyecta código, ni interactúa directamente con los archivos o la memoria de Wild Rift. Es 100% legal y seguro según las políticas de Riot."
+            ),
+            Pair(
+                "¿Puedo cambiar el tamaño de la burbuja flotante?",
+                "Por ahora la burbuja tiene un tamaño estándar diseñado para no estorbar, pero estamos trabajando en una actualización para que puedas escalar su tamaño o hacerla semi-transparente."
+            ),
+            Pair(
+                "¿Qué pasa si abro la burbuja en medio de una teamfight por accidente?",
+                "Te tapará parte de la pantalla, así que te recomendamos abrirla SOLO durante la fase de selección de campeones (Draft), pantalla de carga o mientras estás muerto. Puedes moverla a una esquina muerta de tu pantalla para evitar toques accidentales."
+            ),
+            Pair(
+                "¿Por qué la burbuja se cierra sola a veces?",
+                "Esto suele ocurrir si el sistema operativo (Android) está matando los procesos en segundo plano para ahorrar batería. Asegúrate de darle permisos de 'Mostrar sobre otras apps' y quitarle la restricción de batería al asistente."
+            ),
+            Pair(
+                "¿Tengo que usar el mismo correo de mi cuenta de Riot Games?",
+                "No es necesario. Puedes usar cualquier correo para registrarte en la aplicación. No te pedimos vinculación directa con Riot Games, todo tu progreso en la app es independiente."
+            ),
+            Pair(
+                "Olvidé mi contraseña, ¿cómo la recupero?",
+                "En la pantalla de inicio de sesión, dale a '¿Olvidaste tu contraseña?'. Te enviaremos un correo con un enlace seguro para que la cambies."
+            ),
+            Pair(
+                "¿Se pueden tener dos cuentas en la misma aplicación?",
+                "No simultáneamente. Tendrás que cerrar sesión en tu cuenta actual desde el panel de usuario e iniciar con la otra."
+            ),
+            Pair(
+                "¿Por qué mi nombre de usuario aparece diferente al del juego?",
+                "Porque la app no se vincula mágicamente a tu cuenta de Riot. El nombre que ves es el que pusiste al registrarte. Puedes cambiarlo en la pestaña de Configuración/Perfil de nuestra app."
+            ),
+            Pair(
+                "¿Por qué me recomienda campeones que no tengo comprados?",
+                "El asistente recomienda estrictamente basándose en la victoria matemática y el meta. Aún no tiene cómo saber tu inventario (champion pool). Te sugerimos mirar la 2da o 3ra opción si no tienes la primera recomendación."
+            ),
+            Pair(
+                "¿Puedo filtrar las recomendaciones solo para mi rol principal?",
+                "Sí, cuando abres el asistente de Draft, asegúrate de seleccionar el icono de tu carril (Top, Jungla, Mid, ADC o Support) para que las sugerencias de campeones se adapten únicamente a esa línea."
+            ),
+            Pair(
+                "¿Qué significa 'Win Condition' o Condición de Victoria?",
+                "Es el objetivo principal o la manera en que tu composición de equipo debe jugar para asegurar ganar. Por ejemplo: 'Proteger al tirador', 'Pelear en la jungla' o 'Presionar líneas separadas (Split-push)'."
+            ),
+            Pair(
+                "Mi equipo hizo 'Troll Pick', ¿el asistente sabe cómo compensarlo?",
+                "¡Sí! Si tu equipo saca 4 ADCs, el algoritmo detectará que falta daño mágico, tanque y control de masas, y te sugerirá fuertemente llenar esos vacíos (ej. un tanque AP como Galio, Gragas o un support de engage)."
+            ),
+            Pair(
+                "¿Cada cuánto tiempo se actualiza la Tier List?",
+                "Se actualiza de forma dinámica varias veces a la semana, y hace un reinicio masivo cada vez que sale un parche oficial de balance en Wild Rift."
+            ),
+            Pair(
+                "Mi campeón favorito está en Tier C, ¿significa que no debo usarlo?",
+                "Para nada. Si tienes mucha maestría con un campeón Tier C, probablemente jugarás mejor con él que intentando usar un Tier S+ que no dominas. La Tier List mide el potencial general, pero tu habilidad es la que acarrea."
+            ),
+            Pair(
+                "¿Por qué algunos campeones nuevos no aparecen en ninguna Tier List al salir?",
+                "Esperamos al menos de 3 a 5 días para recopilar suficientes datos de winrate y banrate en rankeds de elo alto antes de clasificarlos con precisión en un Tier."
+            ),
+            Pair(
+                "¿De dónde sacan las combinaciones de runas que recomiendan?",
+                "El algoritmo cruza los datos de las builds más exitosas en partidas Challenger (principalmente del servidor de China, que es el más competitivo) y te muestra las que mejor porcentaje de victoria tienen frente a la composición actual."
+            ),
+            Pair(
+                "¿El asistente recomienda objetos situacionales (como cortacuras)?",
+                "Totalmente. Si el equipo enemigo tiene a Soraka, Dr. Mundo o Aatrox, te saltará una alerta recomendando que armes 'Llamada del Verdugo' o 'Orbe del Olvido' como objeto situacional prioritario."
+            ),
+            Pair(
+                "¿Cómo funciona la calculadora de penetración de armadura/mágica?",
+                "Toma en cuenta las resistencias base del campeón enemigo por nivel y los objetos que lleva armados, y te dice exactamente qué porcentaje de tu daño vas a aplicar, sugiriendo si rentan objetos porcentuales o planos."
+            ),
+            Pair(
+                "Si descargo los recursos offline, ¿cuánto espacio ocupan en mi celular?",
+                "Dependiendo de si descargas solo iconos o también habilidades de alta calidad, ocupará entre 50 MB y 150 MB. Nada grave para los teléfonos actuales."
+            ),
+            Pair(
+                "¿La descarga offline se actualiza sola cuando sale un parche nuevo?",
+                "Cuando hay campeones nuevos, la app te notificará para que corras una sincronización rápida. No tienes que descargar todo de cero, solo actualizará los cambios."
+            ),
+            Pair(
+                "¿Qué pasa si juego sin internet y no tengo los recursos descargados?",
+                "Podrás ver los textos de sugerencias, porcentajes y winrates, pero los iconos de campeones, objetos y habilidades no cargarán y verás cuadrados grises."
+            ),
+            Pair(
+                "Borré los datos de la app desde mi Android, ¿tengo que descargar todo de nuevo?",
+                "Sí, al borrar el caché/datos de la aplicación o desinstalarla, se pierden los recursos locales y tu historial de drafts (a menos que esté sincronizado por ser premium)."
+            ),
+            Pair(
+                "¿Qué hago si soy Premium pero sigo viendo funciones bloqueadas?",
+                "Prueba darle a 'Restaurar Compras' o cerrando sesión y volviendo a entrar. Si el problema persiste, contacta al soporte desde el panel de reportes de bugs."
+            ),
+            Pair(
+                "¿Si cambio de celular pierdo mis drafts guardados?",
+                "Si usas la versión gratuita (que usa Room de manera local), sí los pierdes al cambiar de dispositivo. Con la versión Premium, los drafts se respaldan en la nube."
+            ),
+            Pair(
+                "Si soy nivel bajo en Wild Rift (ej. Hierro), ¿me sirve usar la aplicación?",
+                "¡Por supuesto! De hecho es el mejor momento para usarla. Te ayudará a aprender los roles, qué compran los campeones, cómo contrarrestar y asimilar mejor los conceptos del juego."
+            ),
+            Pair(
+                "¿La app juega la partida por mí?",
+                "Jajaja, claro que no. Somos una app de análisis y estrategia (Coach), no un bot ni un software de trampas (hacks). Las mecánicas y el macro juego en partida dependen al 100% de ti."
+            ),
+            Pair(
+                "¿Me ayuda a subir a Challenger si soy Hierro 4?",
+                "Te damos las herramientas teóricas, el conocimiento táctico, las builds y los counters perfectos... pero si sigues fallando el destello (Flash) contra el muro, la app no puede salvarte. ¡A practicar mecánicas!"
+            ),
+            Pair(
+                "¿El asistente se da cuenta si estoy lagueado o si tengo mal ping?",
+                "No, no monitorizamos la conexión de tu red al juego. Si estás a 999ms, el asistente no sabrá por qué te mataron bajo torre."
+            ),
+            Pair(
+                "¿Por qué no me sale el muñeco de práctica en las sugerencias?",
+                "El pobre muñeco de práctica ya sufre mucho, no hace falta buscarle un counter. La app solo evalúa a los campeones reales."
+            ),
+            Pair(
+                "¿Me recomiendan jugar Teemo Jungla si el asistente lo sugiere?",
+                "Si nuestro algoritmo hiper-avanzado (o los dioses del caos) te sugiere Teemo Jungla, ten por seguro que las matemáticas le respaldan... Pero asume las consecuencias si tu equipo te flamea."
+            ),
+            Pair(
+                "Si pierdo mi promoción a Maestro, ¿es culpa de la aplicación?",
+                "Oficialmente: no. Siempre puedes culpar al Jungla, es una regla universal de los MOBAs. Nosotros te dimos el draft perfecto, pero no podemos controlar al Yasuo 0/10 de tu equipo."
+            ),
+            Pair(
+                "¿La aplicación tiene modo oscuro o claro?",
+                "Actualmente la app tiene un esquema de color inspirado en tecnología 'Hextech' muy oscuro, ideado para cansar la vista lo menos posible. Así que sí, es modo oscuro siempre."
+            ),
+            Pair(
+                "¿Se puede conectar a Discord para que mis amigos vean mis drafts?",
+                "En este momento no hay integración nativa para transmitir tu draft directo a Discord desde la app, pero siempre puedes compartir pantalla."
+            ),
+            Pair(
+                "¿Qué pasa si mi celular es de gama baja?",
+                "La app es súper ligera. A menos que tu celular esté peleando por abrir la calculadora, podrá correr nuestra app en segundo plano mientras juegas Wild Rift."
+            ),
+            Pair(
+                "¿La burbuja tiene modo invisible?",
+                "No invisible total, pero la interfaz se minimiza a un botoncito discreto que no molestará tu línea de visión."
+            ),
+            Pair(
+                "¿Por qué el asistente no habla con voz humana?",
+                "Leer consume menos concentración auditiva en partidas intensas donde necesitas escuchar los pings y habilidades. Aunque puede ser una idea para el futuro (Coach por voz)."
+            ),
+            Pair(
+                "¿Si el rival pilla mi counter directo, qué recomienda hacer la app?",
+                "La sección de 'Plan de Juego Macro' te sugerirá jugar bajo torre, pedir gankeos (ayuda) al jungla, y priorizar objetos defensivos o de supervivencia."
+            ),
+            Pair(
+                "¿La app sabe si un campeón está roto en el parche actual?",
+                "Absolutamente. Los campeones rotos (Tier S+) saltarán como primera recomendación si están disponibles y se adaptan a la composición."
+            ),
+            Pair(
+                "¿Cómo reporto si veo una estadística claramente equivocada?",
+                "En el menú principal tienes un botón de 'Reporte de Bugs'. Escríbenos ahí qué campeón o estadística crees que está mal y nuestro equipo lo validará con la base de datos oficial."
             )
         )
     }

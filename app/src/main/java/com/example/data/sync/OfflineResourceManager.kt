@@ -145,7 +145,7 @@ object OfflineResourceManager {
                 }
 
                 
-                val concurrency = 15 // Descargar de a 15 a la vez para mayor velocidad
+                val concurrency = 50 // Descargar de a 50 a la vez para mayor velocidad
                 while (currentIdx < totalSize) {
                     if (isPaused) {
                         _downloadState.value = DownloadState.PAUSED
