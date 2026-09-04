@@ -420,7 +420,9 @@ private fun DonationPixCard(
                 coil.compose.AsyncImage(
                     model = coil.request.ImageRequest.Builder(context)
                         .data(qrCodeUrl)
-                        .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                        
                         .build(),
                     contentDescription = "QR Pix",
                     modifier = androidx.compose.ui.Modifier.fillMaxSize(),
@@ -492,7 +494,9 @@ private fun DonationPixCard(
                         coil.compose.AsyncImage(
                             model = coil.request.ImageRequest.Builder(context)
                                 .data(qrCodeUrl)
-                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                
                                 .build(),
                             contentDescription = "Pix QR Ampliado",
                             modifier = androidx.compose.ui.Modifier.fillMaxSize(),
@@ -719,7 +723,9 @@ private fun DonationPixCombinedCard() {
                     coil.compose.AsyncImage(
                         model = coil.request.ImageRequest.Builder(context)
                             .data(qrCodeUrl)
-                            .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                            
                             .build(),
                         contentDescription = "QR Pix",
                         modifier = androidx.compose.ui.Modifier.fillMaxSize(),
@@ -773,7 +779,9 @@ private fun DonationPixCombinedCard() {
                         coil.compose.AsyncImage(
                             model = coil.request.ImageRequest.Builder(context)
                                 .data(qrCodeUrl)
-                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                
                                 .build(),
                             contentDescription = "QR Pix",
                             modifier = androidx.compose.ui.Modifier.fillMaxSize(),

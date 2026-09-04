@@ -2138,7 +2138,9 @@ private fun GraphicalBuildSuggestionView(
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(build.championAvatar)
-                            .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                            
                             .build(),
                         contentDescription = build.championName,
                         modifier = Modifier.fillMaxSize(),
@@ -2212,7 +2214,9 @@ private fun GraphicalBuildSuggestionView(
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(spell.iconUrl)
-                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                
                                 .build(),
                             contentDescription = spell.name,
                             modifier = Modifier.fillMaxSize(),
@@ -2231,7 +2235,9 @@ private fun GraphicalBuildSuggestionView(
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(rune.iconUrl)
-                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                
                                 .build(),
                             contentDescription = rune.name,
                             modifier = Modifier.fillMaxSize(),
@@ -2413,7 +2419,9 @@ private fun GraphicalBuildSuggestionView(
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
                                         .data(rune.iconUrl)
-                                        .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                        
                                         .build(),
                                     contentDescription = rune.name,
                                     modifier = Modifier.fillMaxSize(),
@@ -2480,7 +2488,9 @@ private fun BuildItemSlot(
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(item.iconUrl)
-                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                
                 .build(),
             contentDescription = item.name,
             modifier = Modifier.fillMaxSize(),
@@ -2552,7 +2562,9 @@ private fun AdminItemDetailDialog(
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(item.iconUrl)
-                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                
                                 .build(),
                             contentDescription = item.name,
                             modifier = Modifier.fillMaxSize(),

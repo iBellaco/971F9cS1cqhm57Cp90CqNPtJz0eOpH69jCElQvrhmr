@@ -31,7 +31,7 @@
       "Diana"
     ],
     "tacticalAdvice": "Conecta los filos de tu Habilidad 1 (H1) en el Línea de Barón para castigar campeones inmóviles. Usa tu Habilidad 3 (H3) para reposicionar la espada durante la animación.",
-    "recommendedRunes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
+    "recommendedRunes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Perseverancia,Impacto repentino",
     "runeTreeDetails": "Dominación / Valor: Conquistador • Coraje del Coloso • Fuerzas Renovadas • Perseverancia • Impacto Repentino",
     "primaryRuneIconUrl": "https://images.ctfassets.net/ekkp7rrkr2gn/6ZqBIEsBgpDsZrvw2jbrvz/0673ee14b9321dba3b2878ee9e277a81/conqueror_hanu.png",
     "recommendedSpells": [
@@ -45,9 +45,9 @@
     "coreItems": [
       "Eclipse",
       "Fuerza trinitaria",
+      "Cimitarra mercurial",
       "El rencor de Serylda",
-      "Guantelete de Sterak",
-      "La danza de la muerte"
+      "Guantelete de Sterak"
     ],
     "coreItemsIcons": [
       "https://images.ctfassets.net/ekkp7rrkr2gn/7EsROl8ZKAh0Se2feQm1TM/737819c31452577aeb8503ff1dc76551/eclipse_hanu.png",
@@ -129,48 +129,26 @@
     ],
     "builds": [
       {
-        "id": "aatrox_top_dano_y_aguante",
-        "title": "Daño y aguante",
-        "role": "top",
+        "name": "Build Luchador (Trinidad)",
         "items": [
           "Eclipse",
           "Fuerza trinitaria",
+          "Cimitarra mercurial",
           "El rencor de Serylda",
-          "Guantelete de Sterak",
-          "La danza de la muerte"
+          "Guantelete de Sterak"
         ],
-        "runes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
-        "spells": [
+        "boots": "Botas blindadas",
+        "bootEnchant": "Avance blindado",
+        "runes": [
+          "Conquistador",
+          "Coraje del coloso",
+          "Fuerzas renovadas",
+          "Perseverancia",
+          "Impacto repentino"
+        ],
+        "summonerSpells": [
           "Destello",
           "Prender"
-        ],
-        "bootBase": "Botas blindadas",
-        "bootUpgrade": "Cimitarra mercurial",
-        "situationalBoots": [
-          "Grebas codiciosas"
-        ]
-      },
-      {
-        "id": "aatrox_jungle_estandar",
-        "title": "Estándar",
-        "role": "jungle",
-        "items": [
-          "Eclipse",
-          "Fuerza trinitaria",
-          "El rencor de Serylda",
-          "Guantelete de Sterak",
-          "La danza de la muerte"
-        ],
-        "runes": "Conquistador,Coraje del coloso,Fuerzas renovadas,Sobrecrecimiento,Impacto repentino",
-        "spells": [
-          "Destello",
-          "Prender"
-        ],
-        "bootBase": "Botas blindadas",
-        "bootUpgrade": "Cimitarra mercurial",
-        "situationalBoots": [
-          "Grebas codiciosas",
-          "Botas blindadas"
         ]
       }
     ]

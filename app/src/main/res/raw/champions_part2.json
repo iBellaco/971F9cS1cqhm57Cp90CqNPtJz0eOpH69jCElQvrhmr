@@ -4564,36 +4564,27 @@
     "build2Spells": [],
     "builds": [
       {
-        "title": "ADC - Estándar",
-        "lane": "ADC",
-        "coreItems": [
+        "name": "Build Híbrida / Escalar",
+        "items": [
           "Manamune",
           "Fuerza trinitaria",
-          "El rencor de Serylda"
-        ],
-        "items": [
-          "Saqueador de esencia",
-          "Cuchilla negra",
-          "Fuerza trinitaria",
+          "El rencor de Serylda",
           "Lanza de Shojin",
-          "Ángel de la guarda"
+          "Ángel custodio"
         ],
-        "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Estasis",
-        "situationalBoots": [],
-        "situationalItems": [],
-        "primaryRune": "Pies veloces",
-        "secondaryRunes": [
-          "Fervor de batalla",
+        "boots": "Grebas codiciosas",
+        "bootEnchant": "Botas inmortales",
+        "runes": [
+          "Pies veloces",
+          "Brutal",
           "Derribado",
-          "Leyenda: Presteza",
+          "Leyenda: Linaje",
           "Trascendencia"
         ],
-        "spells": [
+        "summonerSpells": [
           "Destello",
-          "Barrera"
-        ],
-        "runes": "Pies veloces,Brutal,Derribado,Leyenda: Linaje,Banda de maná"
+          "Fantasmal"
+        ]
       }
     ]
   },

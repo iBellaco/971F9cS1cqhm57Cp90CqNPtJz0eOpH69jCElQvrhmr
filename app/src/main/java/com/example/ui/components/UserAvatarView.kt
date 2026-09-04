@@ -148,7 +148,9 @@ fun UserAvatarView(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(avatar.imageUrl)
-                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                    
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),

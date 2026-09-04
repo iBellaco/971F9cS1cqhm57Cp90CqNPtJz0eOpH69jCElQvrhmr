@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import java.util.Locale
 
 enum class DownloadState {
@@ -142,6 +144,8 @@ object OfflineResourceManager {
                     return@launch
                 }
 
+                
+                val concurrency = 15 // Descargar de a 15 a la vez para mayor velocidad
                 while (currentIdx < totalSize) {
                     if (isPaused) {
                         _downloadState.value = DownloadState.PAUSED
@@ -149,30 +153,30 @@ object OfflineResourceManager {
                         return@launch
                     }
                     
-                    val url = urlsToDownload[currentIdx]
-                    try {
-                        val request = ImageRequest.Builder(context)
-                            .data(url)
-                            .memoryCachePolicy(CachePolicy.DISABLED)
-                            .diskCachePolicy(CachePolicy.ENABLED)
-                            .build()
-                        
-                        imageLoader.execute(request)
-                    } catch (e: Exception) {
-                        if (e is CancellationException) throw e
-                        // Ignore individual image download failure to continue with others
-                    }
+                    val endIndex = minOf(currentIdx + concurrency, totalSize)
+                    val batch = urlsToDownload.subList(currentIdx, endIndex)
                     
-                    currentIdx++
+                    batch.map { url ->
+                        async {
+                            try {
+                                val request = ImageRequest.Builder(context)
+                                    .data(url)
+                                    .memoryCachePolicy(CachePolicy.DISABLED)
+                                    .diskCachePolicy(CachePolicy.ENABLED)
+                                    .build()
+                                imageLoader.execute(request)
+                            } catch (e: Exception) {
+                                if (e is CancellationException) throw e
+                            }
+                        }
+                    }.awaitAll()
+                    
+                    currentIdx = endIndex
                     _downloadedCount.value = currentIdx
                     _progress.value = currentIdx.toFloat() / totalSize.toFloat()
                     _downloadedMB.value = (currentIdx * ESTIMATED_BYTES_PER_RESOURCE) / (1024f * 1024f)
-
-                    if (currentIdx % 10 == 0) {
-                        prefs.edit().putInt(KEY_INDEX, currentIdx).apply()
-                    }
                     
-                    delay(20)
+                    prefs.edit().putInt(KEY_INDEX, currentIdx).apply()
                 }
                 
                 prefs.edit().putInt(KEY_INDEX, totalSize).apply()

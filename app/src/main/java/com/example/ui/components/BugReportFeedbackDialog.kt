@@ -671,7 +671,9 @@ fun BugReportFeedbackDialog(
                                     AsyncImage(
                                         model = ImageRequest.Builder(LocalContext.current)
                                             .data(item.iconUrl)
-                                            .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                            
                                             .build(),
                                         contentDescription = item.name,
                                         modifier = Modifier.fillMaxSize(),
@@ -806,7 +808,9 @@ fun BugReportFeedbackDialog(
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current)
                                                 .data(effectiveT2.iconUrl)
-                                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                
                                                 .build(),
                                             contentDescription = effectiveT2.name,
                                             modifier = Modifier.fillMaxSize(),
@@ -876,7 +880,9 @@ fun BugReportFeedbackDialog(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(effectiveT3.iconUrl)
-                                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                    
                                                     .build(),
                                                 contentDescription = effectiveT3.name,
                                                 modifier = Modifier.fillMaxSize(),
@@ -1007,7 +1013,9 @@ fun BugReportFeedbackDialog(
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current)
                                                 .data(item.iconUrl)
-                                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                
                                                 .build(),
                                             contentDescription = item.name,
                                             modifier = Modifier.fillMaxSize(),
@@ -1142,7 +1150,9 @@ fun BugReportFeedbackDialog(
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current)
                                                 .data(currentKeystone.iconUrl)
-                                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                
                                                 .build(),
                                             contentDescription = currentKeystone.name,
                                             modifier = Modifier.size(38.dp)
@@ -1174,7 +1184,9 @@ fun BugReportFeedbackDialog(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(rune.iconUrl)
-                                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                    
                                                     .build(),
                                                 contentDescription = rune.name,
                                                 modifier = Modifier.size(28.dp)
@@ -1220,7 +1232,9 @@ fun BugReportFeedbackDialog(
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current)
                                                 .data(currentOptKeystone.iconUrl)
-                                                .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                
                                                 .build(),
                                             contentDescription = currentOptKeystone.name,
                                             modifier = Modifier.size(38.dp)
@@ -1252,7 +1266,9 @@ fun BugReportFeedbackDialog(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(rune.iconUrl)
-                                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                    
                                                     .build(),
                                                 contentDescription = rune.name,
                                                 modifier = Modifier.size(28.dp)
@@ -1363,7 +1379,9 @@ fun BugReportFeedbackDialog(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(spell.iconUrl)
-                                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                    
                                                     .build(),
                                                 contentDescription = spell.name,
                                                 modifier = Modifier.fillMaxSize(),
@@ -1415,7 +1433,9 @@ fun BugReportFeedbackDialog(
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(spell.iconUrl)
-                                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                                    
                                                     .build(),
                                                 contentDescription = spell.name,
                                                 modifier = Modifier.fillMaxSize(),
@@ -2166,7 +2186,9 @@ private fun ItemCatalogSelectionDialog(
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
                                         .data(item.iconUrl)
-                                        .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                        
                                         .build(),
                                     contentDescription = item.name,
                                     modifier = Modifier.fillMaxSize(),
@@ -2323,7 +2345,9 @@ private fun RuneCatalogSelectionDialog(
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
                                         .data(rune.iconUrl)
-                                        .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                        
                                         .build(),
                                     contentDescription = rune.name,
                                     modifier = Modifier.size(34.dp)
@@ -2406,7 +2430,9 @@ private fun SpellCatalogSelectionDialog(
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(spell.iconUrl)
-                                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                                    
                                     .build(),
                                 contentDescription = spell.name,
                                 modifier = Modifier.fillMaxSize(),

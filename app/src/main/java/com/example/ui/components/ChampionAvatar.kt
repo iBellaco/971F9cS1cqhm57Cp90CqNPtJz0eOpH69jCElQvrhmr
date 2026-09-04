@@ -84,7 +84,9 @@ fun ChampionAvatar(
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(modelData)
-                        .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                        
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .listener(
@@ -169,7 +171,9 @@ fun AppAssetImage(
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
-                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                    
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .listener(
@@ -181,15 +185,7 @@ fun AppAssetImage(
                 imageLoader = context.imageLoader,
                 contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(shape),
-                error = androidx.compose.ui.res.painterResource(id = android.R.drawable.ic_menu_report_image)
-            )
-        } else {
-            Icon(
-                painter = androidx.compose.ui.res.painterResource(id = android.R.drawable.ic_dialog_alert),
-                contentDescription = "Missing Image",
-                tint = borderColor.copy(alpha = 0.5f),
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.fillMaxSize().clip(shape)
             )
         }
     }

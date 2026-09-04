@@ -487,7 +487,7 @@ object WildRiftSpellsAndRunes {
             id = "brutal",
             name = "Brutal",
             category = "Precisión",
-            iconUrl = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/presstheattack/presstheattack.png",
+            iconUrl = "https://i.postimg.cc/tC7KgsqK/brutal.webp",
             description = "Los ataques infligen (5 + 6% AD adicional + 3% AP) de daño adaptable adicional a los campeones enemigos."
         ),
         RuneItem(

@@ -650,7 +650,7 @@ fun MainDraftingScreen(
 
                 // Barra de Redes Sociales del Creador (Instagram, Facebook, WhatsApp, Discord)
                 com.example.ui.components.CreatorSocialMediaBar(
-                    modifier = Modifier.fillMaxWidth(0.92f)
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -658,7 +658,7 @@ fun MainDraftingScreen(
                 // Derechos de autor y créditos de creador
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.9f)
+                        .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(HextechSurface.copy(alpha = 0.5f))
                         .border(1.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
@@ -801,7 +801,7 @@ fun OfflineResourceDownloadCard() {
     if (isMinimized) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth()
                 .padding(vertical = 4.dp)
                 .clickable { isMinimized = false },
             colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.8f)),
@@ -854,7 +854,7 @@ fun OfflineResourceDownloadCard() {
     } else {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth()
                 .padding(vertical = 8.dp),
             colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.5f)),
             shape = RoundedCornerShape(12.dp),
