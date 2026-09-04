@@ -718,9 +718,9 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo (Exclusivo Administrador)
-    LaunchedEffect(autoScanEnabled, isAdmin) {
-        if (!autoScanEnabled || !isAdmin) return@LaunchedEffect
+    // Auto-Scan Loop en segundo plano cada 2.5 segundos mientras esté activo
+    LaunchedEffect(autoScanEnabled) {
+        if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
             delay(2500)
             if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
@@ -750,8 +750,7 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            val isRoleProtected = (System.currentTimeMillis() - lastManualRoleChangeTime) < 15000L
-                            if (result.detectedRole != null && activeRole != result.detectedRole && !isRoleProtected) {
+                            if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
                                 com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
                                 scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName})"
@@ -770,8 +769,15 @@ private fun FloatingOverlayContent(
     }
 
     fun triggerManualScan() {
-        if (!isAdmin) {
-            scanNoticeMessage = "🔒 El escaneo automático/manual es exclusivo para Administradores"
+        if (screenCaptureManager?.isReady() != true) {
+            scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Abriendo solicitud..."
+            try {
+                val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    putExtra("EXTRA_REQUEST_CAPTURE", true)
+                }
+                context.startActivity(reqIntent)
+            } catch (_: Exception) {}
             coroutineScope.launch {
                 delay(3500)
                 scanNoticeMessage = null
@@ -814,18 +820,7 @@ private fun FloatingOverlayContent(
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    if (screenCaptureManager?.isReady() != true) {
-                        scanNoticeMessage = "⚠️ Permiso de captura no activo. Abriendo solicitud..."
-                        try {
-                            val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                putExtra("EXTRA_REQUEST_CAPTURE", true)
-                            }
-                            context.startActivity(reqIntent)
-                        } catch (_: Exception) {}
-                    } else {
-                        scanNoticeMessage = "⚠️ No hay frame de captura disponible"
-                    }
+                    scanNoticeMessage = "⚠️ No hay frame de captura disponible"
                     isScanning = false
                 }
             }
@@ -1053,9 +1048,9 @@ private fun FloatingOverlayContent(
                                         CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechCyan, strokeWidth = 2.dp)
                                     } else {
                                         Icon(
-                                            imageVector = if (isAdmin) Icons.Default.FlashOn else Icons.Default.Lock,
-                                            contentDescription = if (isAdmin) "Escanear selección" else "Escáner restringido a Administrador",
-                                            tint = if (isAdmin) HextechCyan else TextMuted,
+                                            imageVector = Icons.Default.FlashOn,
+                                            contentDescription = "Escanear selección",
+                                            tint = HextechCyan,
                                             modifier = Modifier.size(18.dp)
                                         )
                                     }
@@ -1417,31 +1412,25 @@ private fun FloatingOverlayContent(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = tr("Auto-Scan"),
-                                    color = if (isAdmin) TextMuted else TextMuted.copy(alpha = 0.5f),
+                                    color = TextMuted,
                                     fontSize = 9.5.sp,
                                     modifier = Modifier.padding(end = 4.dp)
                                 )
-                                val adminOnlyMsg = tr("🔒 El auto-escáner es de uso exclusivo para Administradores.")
                                 Switch(
-                                    checked = autoScanEnabled && isAdmin,
-                                    enabled = isAdmin,
+                                    checked = autoScanEnabled,
+                                    enabled = true,
                                     onCheckedChange = { isChecked -> 
                                         if (isChecked) {
-                                            if (isAdmin) {
-                                                autoScanEnabled = true
-                                                if (screenCaptureManager?.isReady() != true) {
-                                                    scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Toca aquí para activarlo."
-                                                    try {
-                                                        val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
-                                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                                                            putExtra("EXTRA_REQUEST_CAPTURE", true)
-                                                        }
-                                                        context.startActivity(reqIntent)
-                                                    } catch (_: Exception) {}
-                                                }
-                                            } else {
-                                                android.widget.Toast.makeText(context, adminOnlyMsg, android.widget.Toast.LENGTH_LONG).show()
-                                                autoScanEnabled = false
+                                            autoScanEnabled = true
+                                            if (screenCaptureManager?.isReady() != true) {
+                                                scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Toca aquí para activarlo."
+                                                try {
+                                                    val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
+                                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                        putExtra("EXTRA_REQUEST_CAPTURE", true)
+                                                    }
+                                                    context.startActivity(reqIntent)
+                                                } catch (_: Exception) {}
                                             }
                                         } else {
                                             autoScanEnabled = false

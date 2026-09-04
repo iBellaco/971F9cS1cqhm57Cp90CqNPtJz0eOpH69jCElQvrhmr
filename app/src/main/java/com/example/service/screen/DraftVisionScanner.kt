@@ -519,40 +519,39 @@ object DraftVisionScanner {
             }
 
             // Señal D: Detección de Botones de Intercambio de Turno (Flechas ⇄)
-            // En Wild Rift, los compañeros aliados tienen el botón de swap en X ≈ 0.242f..0.275f.
+            // En Wild Rift, los compañeros aliados tienen el botón de swap en X ≈ 0.235f..0.280f.
             // La ranura del jugador local NUNCA tiene el botón ⇄ (espacio vacío).
-            val swapXMin = (screenWidth * 0.242f).toInt().coerceAtLeast(0)
-            val swapXMax = (screenWidth * 0.275f).toInt().coerceAtMost(screenWidth - 1)
-            val hasSwapButton = BooleanArray(5)
+            val swapXMin = (screenWidth * 0.235f).toInt().coerceAtLeast(0)
+            val swapXMax = (screenWidth * 0.280f).toInt().coerceAtMost(screenWidth - 1)
+            val swapButtonPixelCounts = IntArray(5)
 
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val swapYMin = (yCenter - screenHeight * 0.022f).toInt().coerceAtLeast(0)
-                val swapYMax = (yCenter + screenHeight * 0.022f).toInt().coerceAtMost(screenHeight - 1)
-                var swapSilverCount = 0
+                val swapYMin = (yCenter - screenHeight * 0.024f).toInt().coerceAtLeast(0)
+                val swapYMax = (yCenter + screenHeight * 0.024f).toInt().coerceAtMost(screenHeight - 1)
+                var count = 0
                 for (sy in swapYMin..swapYMax step 2) {
                     for (sx in swapXMin..swapXMax step 2) {
                         val p = processBitmap.getPixel(sx, sy)
                         val r = (p shr 16) and 0xFF
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
-                        // Flechas plateadas/blancas de intercambio ⇄
-                        if (r in 130..255 && g in 130..255 && b in 130..255 && kotlin.math.abs(r - g) <= 24 && kotlin.math.abs(r - b) <= 24) {
-                            swapSilverCount++
+                        // Flechas plateadas/blancas o grises azuladas translúcidas de intercambio ⇄
+                        if ((r in 115..255 && g in 115..255 && b in 115..255 && kotlin.math.abs(r - g) <= 25 && kotlin.math.abs(r - b) <= 25) ||
+                            (r in 85..155 && g in 90..165 && b in 95..180 && kotlin.math.abs(r - g) <= 25 && kotlin.math.abs(r - b) <= 30)) {
+                            count++
                         }
                     }
                 }
-                if (swapSilverCount >= 10) {
-                    hasSwapButton[i] = true
-                }
+                swapButtonPixelCounts[i] = count
             }
-            val swapCount = hasSwapButton.count { it }
-            if (swapCount in 3..4) {
-                val userSwapCandidate = (0 until 5).firstOrNull { !hasSwapButton[it] }
-                if (userSwapCandidate != null) {
-                    slotScores[userSwapCandidate] += 7500
-                    AppLogger.d(TAG, "Jugador local identificado por ausencia de botón de swap en ranura $userSwapCandidate (+7500)")
-                }
+
+            val slotsWithSwap = (0 until 5).filter { swapButtonPixelCounts[it] >= 5 }
+            val slotsWithoutSwap = (0 until 5).filter { swapButtonPixelCounts[it] < 4 }
+            if (slotsWithSwap.size in 2..4 && slotsWithoutSwap.size == 1) {
+                val userSwapCandidate = slotsWithoutSwap.first()
+                slotScores[userSwapCandidate] += 7500
+                AppLogger.d(TAG, "Jugador local identificado por ausencia de botón de swap en ranura $userSwapCandidate (swapPixels=${swapButtonPixelCounts[userSwapCandidate]}, otros=${slotsWithSwap.map { swapButtonPixelCounts[it] }}) (+7500)")
             }
 
             var userSlotIndex: Int? = null
@@ -714,10 +713,11 @@ object DraftVisionScanner {
         val yCenter = (height * slotYCenters[slotIdx]).toInt()
 
         // En Wild Rift, según la fase de draft:
-        // - Si no hay hechizos visibles (fase de bans/primera selección), el avatar aliado está en X ≈ 0.108f.
+        // - En fase inicial / bans / primera selección, el avatar aliado está centrado en X ≈ 0.116f.
         // - Si hay hechizos visibles a la izquierda, el avatar aliado está en X ≈ 0.124f.
-        // Muestreamos en ambas coordenadas para máxima compatibilidad.
-        val candidateXRatios = if (isAlly) floatArrayOf(0.108f, 0.124f) else floatArrayOf(0.875f, 0.890f)
+        // - Si el marco es compacto o sin borde expandido, el avatar aliado está en X ≈ 0.108f.
+        // Muestreamos en estas coordenadas para máxima compatibilidad con todas las fases del draft.
+        val candidateXRatios = if (isAlly) floatArrayOf(0.116f, 0.124f, 0.108f) else floatArrayOf(0.875f, 0.890f, 0.900f)
 
         for (xRatio in candidateXRatios) {
             val champ = sampleAvatarAt(
@@ -768,6 +768,7 @@ object DraftVisionScanner {
         var tealGlowCount = 0
         var vividMagentaCount = 0
         var whitePolarFurCount = 0
+        var freljordStormCount = 0
         var silverHairCount = 0
         var darkinToneCount = 0
         var darkNightBlueCount = 0
@@ -797,9 +798,14 @@ object DraftVisionScanner {
                     gladiatorHelmetCount++
                 }
 
-                // Pelaje blanco polar níveo / Tormenta de hielo (Volibear)
-                if (r in 148..255 && g in 150..255 && b in 160..255 && kotlin.math.abs(r - g) <= 28 && kotlin.math.abs(r - b) <= 32) {
+                // Pelaje blanco polar níveo (Volibear)
+                if (r in 115..255 && g in 120..255 && b in 130..255 && kotlin.math.abs(r - g) <= 35 && kotlin.math.abs(r - b) <= 35) {
                     whitePolarFurCount++
+                }
+
+                // Sombras de tormenta azul freljordiana (Volibear)
+                if (r in 50..165 && g in 70..185 && b in 105..235 && b >= r + 10) {
+                    freljordStormCount++
                 }
 
                 // Cabello plateado / blanco ceniza (Varus)
@@ -863,10 +869,10 @@ object DraftVisionScanner {
         val isDuoLane = expectedRole == LaneRole.ADC || slotIdx == 0
 
         // 1. Volibear (Gran oso blanco polar con pelaje de tormenta freljordiana en Top)
-        if (isTopLane && !alreadyDetectedIds.contains("volibear") && whitePolarFurCount >= 25) {
+        if (isTopLane && !alreadyDetectedIds.contains("volibear") && (whitePolarFurCount >= 18 || (whitePolarFurCount + freljordStormCount >= 26))) {
             val voli = allChamps.firstOrNull { it.id == "volibear" }
             if (voli != null) {
-                AppLogger.d(TAG, "Volibear identificado con éxito en slot $slotIdx por pelaje blanco polar (count=$whitePolarFurCount, x=$xCenter)")
+                AppLogger.d(TAG, "Volibear identificado con éxito en slot $slotIdx por pelaje polar freljordiano (white=$whitePolarFurCount, storm=$freljordStormCount, x=$xCenter)")
                 return voli
             }
         }
