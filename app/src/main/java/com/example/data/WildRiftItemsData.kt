@@ -7,7 +7,7 @@ object WildRiftItemsData {
     val list: List<WildRiftItem> = listOf(
         WildRiftItem(
             id = "bloodthirster",
-            name = "sanguinario",
+            name = "La Sanguinaria",
             nameEn = "Bloodthirster",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -105,7 +105,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "infinity_edge",
-            name = "Borde infinito",
+            name = "Filo Infinito",
             nameEn = "Infinity Edge",
             category = "Objetos con Daños Físicos",
             goldCost = 3400,
@@ -315,7 +315,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "divine_sunderer",
-            name = "Divino Divino",
+            name = "Cercenador Divino",
             nameEn = "Divine Sunderer",
             category = "Objetos con Daños Físicos",
             goldCost = 3400,
@@ -357,7 +357,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "the_collector",
-            name = "El coleccionista",
+            name = "Coleccionista",
             nameEn = "The Collector",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
@@ -371,7 +371,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "sterak_s_gage",
-            name = "Guantelete de Sterak",
+            name = "Calibrador de Sterak",
             nameEn = "Sterak's Gage",
             category = "Objetos con Daños Físicos",
             goldCost = 3200,
@@ -466,6 +466,48 @@ object WildRiftItemsData {
             coachTip = "Este objeto es perfecto para campeones que dependen de golpes críticos y ataques automáticos, especialmente en peleas en equipo prolongadas. Otorga daño de ataque adicional, probabilidad de golpe crítico y velocidad de ataque. En un golpe crítico contra un campeón o un monstruo grande, invocas un clon que ataca a los enemigos cercanos; el clon hereda una parte de tu DA y convierte la probabilidad de crítico adicional en velocidad de ataque. Ideal para tiradores que frecuentemente lanzan críticos y necesitan daño adicional contra múltiples objetivos.",
             coachTipEn = "This item is perfect for champions relying on critical strikes and auto-attacks, especially in extended teamfights. It grants bonus attack damage, critical strike chance, and attack speed. On a critical strike against a champion or large monster, you summon a clone that attacks nearby enemies— the clone inherits a portion of your AD and converts extra crit chance into attack speed. Ideal for marksmen who frequently land crits and need extra multi-target damage.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305204_soul-transfer.webp"
+        ),
+        WildRiftItem(
+            id = "lord_dominik_s_regards",
+            name = "Recuerdos de Lord Dominik",
+            nameEn = "Lord Dominik's Regards",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+35 Daño de Ataque • +25% Tasa Crítica • +16-30% Penetración de Armadura",
+            statsEn = "+35 Attack Damage • +25% Critical Rate • +16-30% Armor Penetration",
+            passive = "Últimas palabras: Otorga penetración de armadura física. Mata-gigantes: Inflige daño adicional contra campeones con mayor vida máxima que tú.",
+            passiveEn = "Last Whisper: Grants physical armor penetration. Giant Slayer: Deals bonus damage against champions with greater max health.",
+            coachTip = "Fundamental cuando el equipo enemigo tiene tanques que acumulan mucha vida y armadura.",
+            coachTipEn = "Essential when the enemy team has tanks stacking a lot of health and armor.",
+            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3036.png"
+        ),
+        WildRiftItem(
+            id = "experimental_hexplate",
+            name = "Placa del hexperimento",
+            nameEn = "Experimental Hexplate",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3000,
+            stats = "+40 Daño de Ataque • +300 Vida Máxima • +20 Aceleración de Habilidad",
+            statsEn = "+40 Attack Damage • +300 Max Health • +20 Ability Haste",
+            passive = "Sobrecarga: Usar tu definitiva te otorga Velocidad de Ataque y Velocidad de Movimiento extra.",
+            passiveEn = "Overdrive: Casting your ultimate grants bonus Attack Speed and Movement Speed.",
+            coachTip = "Excelente en campeones cuyas definitivas son el centro de su estilo de juego, como Nocturne o Xin Zhao.",
+            coachTipEn = "Excellent on champions whose ultimates are the core of their playstyle, like Nocturne or Xin Zhao.",
+            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3153.png"
+        ),
+        WildRiftItem(
+            id = "hullbreaker",
+            name = "Rompecascos",
+            nameEn = "Hullbreaker",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3000,
+            stats = "+55 Daño de Ataque • +300 Vida Máxima",
+            statsEn = "+55 Attack Damage • +300 Max Health",
+            passive = "Partidario: Cuando no hay campeones aliados cerca, ganas Armadura y Resistencia Mágica, e infliges daño extra a estructuras. Los súbditos cercanos también se potencian.",
+            passiveEn = "Boarding Party: While no allied champions are nearby, gain Armor/MR and deal bonus damage to structures. Nearby minions are also buffed.",
+            coachTip = "El objeto definitivo para el split-push (empuje dividido). Si vas a ignorar a tu equipo para tirar torres, este es tu ítem.",
+            coachTipEn = "The ultimate split-push item. If you plan to ignore your team to take down towers, this is your item.",
+            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3181.png"
         ),
         WildRiftItem(
             id = "luden_s_echo",
@@ -931,7 +973,7 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "sterak_s_gage",
-            name = "Guantelete de Sterak",
+            name = "Calibrador de Sterak",
             nameEn = "Sterak's Gage",
             category = "Artículos de Defensa",
             goldCost = 3200,
@@ -2720,6 +2762,105 @@ object WildRiftItemsData {
             coachTip = "Ideal para soportes basados en daño de ataque. Acosa a tus enemigos constantemente en fase de líneas para acumular oro rápidamente y mejorar tu objeto.",
             coachTipEn = "Ideal for AD-based supports. Harass your enemies constantly in the laning phase to quickly stack gold and upgrade your item.",
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"
+        ),
+
+        WildRiftItem(
+            id = "kraken_slayer",
+            name = "Matakrakens",
+            nameEn = "Kraken Slayer",
+            category = "Objetos con Daños Físicos",
+            goldCost = 2800,
+            stats = "+40 Daño de Ataque • +30% Velocidad de Ataque",
+            statsEn = "+40 Attack Damage • +30% Attack Speed",
+            passive = "Paso de nube: +5% de velocidad de movimiento.\nDerríbalo: Cada tercer ataque inflige de 120 a 160 de daño físico adicional (aumenta según la vida faltante del objetivo).",
+            passiveEn = "Cloud Stride: +5% Move Speed.\nBring it Down: Every third attack deals 120-160 bonus physical damage, increased by missing health.",
+            coachTip = "Este objeto potencia tus ataques básicos proporcionando daño adicional, velocidad de ataque y una mejora de movilidad. Periódicamente tus golpes infligen daño adicional que escala con la salud faltante del objetivo, haciéndolo fuerte tanto contra tanques como para rematar enemigos con poca vida.",
+            coachTipEn = "This item boosts your basic attacks by providing extra damage, attack speed, and a mobility bonus for better positioning. Periodically your hits deal bonus damage that scales with the target’s missing health.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630263_kraken-slayer.webp"
+        ),
+        WildRiftItem(
+            id = "stridebreaker",
+            name = "Cortasendas",
+            nameEn = "Stridebreaker",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+400 Vida Máxima • +40 Daño de Ataque • +25% Velocidad de Ataque",
+            statsEn = "+400 Max Health • +40 Attack Damage • +25% Attack Speed",
+            passive = "Onda de choque rompedora (Activa): Actívalo para deslizarte una corta distancia y ralentizar a los enemigos.\nZancada: Otorga velocidad de movimiento adicional.",
+            passiveEn = "Breaking Shockwave (Active): Activate to dash a short distance and slow enemies.\nStride: Gain Movement Speed when dealing physical damage.",
+            coachTip = "Este objeto combina movilidad, daño y control de masas, facilitando mantenerse sobre los objetivos. Su activa te permite realizar un deslizamiento corto y ralentizar enormemente a los enemigos cercanos.",
+            coachTipEn = "This item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily slow them.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
+        ),
+        WildRiftItem(
+            id = "goredrinker",
+            name = "Chupasangre",
+            nameEn = "Goredrinker",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+350 Vida Máxima • +40 Daño de Ataque • +15 Aceleración de Habilidad",
+            statsEn = "+350 Max Health • +40 Attack Damage • +15 Ability Haste",
+            passive = "Chupasangre: Otorga 8% de Omnivampirismo.\nCorte sediento (Activa): Inflige daño a enemigos cercanos y restaura vida por cada campeón golpeado.",
+            passiveEn = "Goredrink: Gain 8% Omni Vamp.\nThirsting Slash (Active): Deal physical damage to nearby enemies. Restore Health for each enemy champion hit.",
+            coachTip = "Este objeto es ideal para luchadores en combates prolongados. Otorga Omnivampirismo y su activa inflige daño de área y restaura salud en base a la cantidad de campeones enemigos golpeados.",
+            coachTipEn = "This item is perfect for fighters who excel in extended combat. It grants Omni Vamp, while its active ability deals area physical damage and restores health based on the number of enemy champions hit.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389878_goredrinker.webp"
+        ),
+        WildRiftItem(
+            id = "guinsoo_s_rageblade",
+            name = "Hoja de furia de Guinsoo",
+            nameEn = "Guinsoo's Rageblade",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+30% Velocidad de Ataque",
+            statsEn = "+30% Attack Speed",
+            passive = "Oleada: Otorga velocidad de movimiento.\nCaos: Daño adaptable.\nIra: Convierte prob. de crítico en daño mágico.\nGolpe ferviente: Acumula velocidad de ataque e impactos adicionales.",
+            passiveEn = "Surge: Gain Move Speed.\nChaos: Gain Adaptive Force.\nWrath: Attacks deal magic damage based on crit.\nSeething Strike: Attacks grant stacking Attack Speed and trigger extra on-hit effects.",
+            coachTip = "Perfecto para builds de impactos (on-hit) y alta velocidad de ataque. Convierte estadísticas de críticos en daño mágico consistente y aumenta gradualmente tu velocidad de ataque.",
+            coachTipEn = "Perfect for on-hit and high-attack-speed builds. It converts crit-focused stats into consistent on-hit magic damage, provides a powerful ramp of attack speed and stacking bursts.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1768000022_abb24fd724faa77b82baf985dea956b8eae9f31a-512x512.webp"
+        ),
+        WildRiftItem(
+            id = "overlord_s_bloodmail",
+            name = "Cota de sangre del soberano",
+            nameEn = "Overlord's Bloodmail",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3200,
+            stats = "+450 Vida Máxima • +30 Daño de Ataque",
+            statsEn = "+450 Max Health • +30 Attack Damage",
+            passive = "Tiranía: Obtienes Daño de Ataque adicional igual al 2.5% de tu vida extra.\nRepresalia: Aumenta tu daño según la vida que te falte.",
+            passiveEn = "Tyranny: Gain Attack Damage equal to 2.5% of your bonus Health.\nRetribution: Gain up to 9% increased Attack Damage based on missing Health.",
+            coachTip = "Convierte la vida adicional en poder de ataque y potencia tu daño cuando tu salud baja a niveles peligrosos. Es ideal para luchadores agresivos que priorizan objetos de vida.",
+            coachTipEn = "Converts bonus health into attack power and ramps up your damage when you drop into dangerous HP ranges. It suits bruisers and solo laners who stack health and embrace high-risk skirmishes.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630274_overlords-bloodmail.webp"
+        ),
+        WildRiftItem(
+            id = "mercurial_scimitar",
+            name = "Cimitarra mercurial",
+            nameEn = "Mercurial Scimitar",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+45 Daño de Ataque • +10% Vampirismo Físico • +40 Resistencia Mágica",
+            statsEn = "+45 Attack Damage • +10% Physical Vamp • +40 Magic Resistance",
+            passive = "Fajín de mercurio (Activa): Elimina todas las mermas de control de masas.\nPerseverancia: Tras usar el fajín, otorga tenacidad temporal.",
+            passiveEn = "Quicksilver Sash (Active): Removes all crowd control debuffs.\nPerseverance: Grants temporary Tenacity after use.",
+            coachTip = "Diseñado para contrarrestar el control de masas. Su activa elimina efectos inhabilitantes y otorga brevemente inmunidad a los mismos. Fundamental para tiradores y asesinos contra composiciones de alto CC.",
+            coachTipEn = "Designed to counter crowd control. Its active removes most disabling effects and briefly grants immunity to follow-up control. Excellent for marksmen and assassins against heavy-CC teams.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
+        ),
+        WildRiftItem(
+            id = "galeforce",
+            name = "Viento huracanado",
+            nameEn = "Galeforce",
+            category = "Objetos con Daños Físicos",
+            goldCost = 3100,
+            stats = "+50 Daño de Ataque • +25% Tasa Crítica • +15% Velocidad de Ataque • +5% Vel. de Movimiento",
+            statsEn = "+50 Attack Damage • +25% Critical Rate • +15% Attack Speed • +5% Move Speed",
+            passive = "Borrasca (Activa): Te deslizas en la dirección del objetivo y disparas misiles al enemigo con menos vida.",
+            passiveEn = "Cloudburst (Active): Dash in a target direction and fire missiles at the lowest Health enemy.",
+            coachTip = "Mejora significativamente la movilidad de los tiradores otorgando un deslizamiento que dispara proyectiles. Perfecto para rematar objetivos y esquivar habilidades vitales.",
+            coachTipEn = "Greatly improves the mobility of marksmen by granting a dash that also fires projectiles at the lowest-health nearby target. Perfect for finishing enemies and repositioning.",
+            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
         ),
     )
 

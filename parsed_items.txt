@@ -1,0 +1,269 @@
+Total items parsed from HTML: 268
+ Duskblade of Draktharr
+Absolute Focus
+Abyssal Mask
+Aery
+Aether Wisp
+Amaranth&#039;s Twinguard
+Amaranth's Twinguard
+Amplifying Tome
+Arcane Comet
+Archangel&#039;s Staff
+Archangel's Staff
+Ardent Censer
+Armorcrusher Boots
+Armored Advance
+Axiom Arcanist
+B. F. Sword
+Bami's Cinder
+Banshee&#039;s Veil
+Banshee's Veil
+Barrier
+Battle Zeal
+Berserker&#039;s Greaves
+Berserker's Greaves
+Black Cleaver
+Black Mist Scythe
+Blackfire Torch
+Blade of the Ruined King
+Blasting Wand
+Bloodletter&#039;s Curse
+Bloodletter's Curse
+Bloodthirster
+Bone Plating
+Boots of Dynamism
+Boots of Mana
+Boots of Speed
+Botanist
+Bramble Vest
+Brawler&#039;s Gloves
+Brawler's Gloves
+Brutal
+Bulwark of the Mountain
+Catalyst of Aeons
+Caulfield's Warhammer
+Celerity
+Chain Assault
+Chain Vest
+Chainlaced Crushers
+Cheap Shot
+Chempunk Chainsword
+Cleanse
+Cloak of Agility
+Cloth Armor
+Conqueror
+Cosmic Drive
+Coup de Grace
+Courage of the Colossus
+Crimson Lucidity
+Cryptbloom
+Cut Down
+Dagger
+Dark Harvest
+Dawnshroud
+Dead Man&#039;s Plate
+Dead Man's Plate
+Death&#039;s Dance
+Death's Dance
+Demolish
+Divine Sunderer
+Dominik’s Regards
+Dusk and Dawn
+Duskblade of Draktharr
+Eclipse
+Edge of Night
+Electrocute
+Empowered Attack
+Empowerment
+Essence Reaver
+Executioner's Calling
+Exhaust
+Experimental Hexplate
+Eyeball Collection
+Fated Ashes
+Fiendish Codex
+Fimbulwinter
+First Strike
+Flash
+Fleet Footwork
+Font of Life
+Forbidden Idol
+Force of Nature
+Frozen Heart
+Galeforce
+Gargoyle Stoneplate
+Gathering Storm
+Ghost
+Giant's Belt
+Glacial Shroud
+Gluttonous Greaves
+Goredrinker
+Grasp of Undying
+Guardian
+Guardian Angel
+Guinsoo&#039;s Rageblade
+Guinsoo's Rageblade
+Gunmetal Greaves
+Harmonic Echo
+Haunting Guise
+Heal
+Heartsteel
+Hexdrinker
+Hextech Alternator
+Hextech Flashtraption
+Hextech Roketbelt
+Hollow Radiance
+Horizon Focus
+Hubris
+Hullbreaker
+Ice Overlord
+Iceborn Gauntlet
+Ignite
+Immortal Treds
+Imperial Mandate
+Infinity Edge
+Infinity Orb
+Ingenious Hunter
+Ionian Boots of Lucidity
+Ixtali Seedjar
+Jaurim's Fist
+Kaenic Rookern
+Kindlegem
+Kircheis Shard
+Knight&#039;s Vow
+Knight's Vow
+Kraken Slayer
+Last Stand
+Last Whisper
+Legend: Alacrity
+Legend: Bloodline
+Legend: Tenacity
+Lethal Tempo
+Liandry&#039;s Torment
+Liandry's Torment
+Lich Bane
+Locket of the Iron Solari
+Long Sword
+Lost Chapter
+Luden&#039;s Echo
+Luden's Echo
+Magnetic Blaster
+Malignance
+Manaflow Band
+Manamune
+Mantle of the Twelfth Hour
+Maw of Malmortius
+Mejai's Soulstealer
+Mercurial Scimitar
+Mercury&#039;s Treads
+Mercury's Treads
+Mikael&#039;s Blessing
+Mikael's Blessing
+Morellonomicon
+Mortal Reminder
+Muramana
+Nashor&#039;s Tooth
+Nashor's Talon
+Nashor's Tooth
+Navori Quickblades
+Needlessly Large Rod
+Negatron Cloak
+Nimbus Cloak
+Noonquiver
+Null-Magic Mantle
+Nullifying Orb
+Oblivion Orb
+Oceanid&#039;s Trident
+Oceanid's Trident
+Overgrowth
+Overlord's Bloodmail
+Perseverance
+Phage
+Phantom Dancer
+Phase Rush
+Plated Steelcaps
+Quicksilver Sash
+Rabadon&#039;s Deathcap
+Rabadon's Deathcap
+Radiant Virtue
+Radiant Virtue Wild Rift
+Randuin&#039;s Omen
+Randuin's Omen
+Recurve Bow
+Redemption
+Relentless Hunter
+Relic Shield
+Revitalize
+Riftmaker
+Ring of Revelation
+Rod of Ages
+Ruby Crystal
+Runaan&#039;s Hurricane
+Runaan's Hurricane
+Rylai&#039;s Crystal Scepter
+Rylai's Crystal Scepter
+Scorch
+Searing Crown
+Second Wind
+Seeker's Armguard
+Seraph&#039;s Embrace
+Seraph's Embrace
+Serpent&#039;s Fang
+Serpent's Fang
+Serrated Dirk
+Serylda’s Grudge
+Sheen
+Shimmering Spark
+Shurelya&#039;s Battlesong
+Shurelya's Battlesong
+Smite
+Soul Transfer
+Spear of Shojin
+Spectral Sickle
+Spectre's Cowl
+Spellslinger&#039;s Shoes
+Spellslinger's Shoes
+Staff of Flowing Water
+Sterak&#039;s Gage
+Sterak's Gage
+Stinger
+Stormsurge
+Stridebreaker
+Sudden Impact
+Sundered Sky
+Sunfire Aegis
+Surging Scales
+Tear of the Goddess
+Teleport
+Terminus
+The Collector
+Thornmail
+Titanic Hydra
+Transcendence
+Trinity Force
+Triumph
+Tyrant
+Unending Despair
+Unshakeable
+Vampiric Scepter
+Verdant Barrier
+Void Amethyst
+Void Staff
+Warden's Mail
+Warmog&#039;s Armor
+Warmog's Armor
+Winged Moonplate
+Winter&#039;s Approach
+Winter's Approach
+Wit&#039;s End
+Wit's End
+Yordle Trap
+Youmuu&#039;s Ghostblade
+Youmuu's Ghostblade
+Zeal
+Zeke&#039;s Convergence
+Zeke's Convergence
+Zhonya&#039;s Hourglass
+Zhonya's Hourglass
+Zombie Ward
+Сhilling Smite
