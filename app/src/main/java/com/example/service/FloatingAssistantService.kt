@@ -707,37 +707,43 @@ private fun FloatingOverlayContent(
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
+                            // 1. Asignación directa y de alta precisión por rol/carril detectado
+                            defaultRoles.forEachIndexed { idx, role ->
+                                val scannedAlly = result.alliesByRole[role]
+                                if (scannedAlly != null && allies[idx]?.id != scannedAlly.id) {
+                                    allies[idx] = scannedAlly
+                                    newAlliesAdded++
+                                }
+                                val scannedEnemy = result.enemiesByRole[role]
+                                if (scannedEnemy != null && enemies[idx]?.id != scannedEnemy.id) {
+                                    enemies[idx] = scannedEnemy
+                                    newEnemiesAdded++
+                                }
+                            }
+
+                            // 2. Colocar en ranura vacía cualquier campeón adicional
                             result.allies.forEach { champ ->
                                 if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
-                                    val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
-                                    val targetIdx = if (preferredIdx in 0 until 5 && allies[preferredIdx] == null) {
-                                        preferredIdx
-                                    } else {
-                                        allies.indexOfFirst { it == null }
-                                    }
-                                    if (targetIdx in 0 until 5) {
-                                        allies[targetIdx] = champ
+                                    val emptyIdx = allies.indexOfFirst { it == null }
+                                    if (emptyIdx in 0 until 5) {
+                                        allies[emptyIdx] = champ
                                         newAlliesAdded++
                                     }
                                 }
                             }
                             result.enemies.forEach { champ ->
                                 if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
-                                    val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
-                                    val targetIdx = if (preferredIdx in 0 until 5 && enemies[preferredIdx] == null) {
-                                        preferredIdx
-                                    } else {
-                                        enemies.indexOfFirst { it == null }
-                                    }
-                                    if (targetIdx in 0 until 5) {
-                                        enemies[targetIdx] = champ
+                                    val emptyIdx = enemies.indexOfFirst { it == null }
+                                    if (emptyIdx in 0 until 5) {
+                                        enemies[emptyIdx] = champ
                                         newEnemiesAdded++
                                     }
                                 }
                             }
+
                             if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
-                                scanNoticeMessage = "⚡ Auto-Scan: Rol detectado (${result.detectedRole.shortName}) + ${newAlliesAdded + newEnemiesAdded} picks"
+                                scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName}) + ${newAlliesAdded + newEnemiesAdded} picks"
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
                             }
@@ -771,29 +777,32 @@ private fun FloatingOverlayContent(
                 val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
+                        // 1. Asignación directa por rol/posición
+                        defaultRoles.forEachIndexed { idx, role ->
+                            val scannedAlly = result.alliesByRole[role]
+                            if (scannedAlly != null) {
+                                allies[idx] = scannedAlly
+                            }
+                            val scannedEnemy = result.enemiesByRole[role]
+                            if (scannedEnemy != null) {
+                                enemies[idx] = scannedEnemy
+                            }
+                        }
+
+                        // 2. Colocar cualquier campeón adicional sin rol en ranura vacía
                         result.allies.forEach { champ ->
                             if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
-                                val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
-                                val targetIdx = if (preferredIdx in 0 until 5 && allies[preferredIdx] == null) {
-                                    preferredIdx
-                                } else {
-                                    allies.indexOfFirst { it == null }
-                                }
-                                if (targetIdx in 0 until 5) {
-                                    allies[targetIdx] = champ
+                                val emptyIdx = allies.indexOfFirst { it == null }
+                                if (emptyIdx in 0 until 5) {
+                                    allies[emptyIdx] = champ
                                 }
                             }
                         }
                         result.enemies.forEach { champ ->
                             if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
-                                val preferredIdx = defaultRoles.indexOf(champ.primaryRole)
-                                val targetIdx = if (preferredIdx in 0 until 5 && enemies[preferredIdx] == null) {
-                                    preferredIdx
-                                } else {
-                                    enemies.indexOfFirst { it == null }
-                                }
-                                if (targetIdx in 0 until 5) {
-                                    enemies[targetIdx] = champ
+                                val emptyIdx = enemies.indexOfFirst { it == null }
+                                if (emptyIdx in 0 until 5) {
+                                    enemies[emptyIdx] = champ
                                 }
                             }
                         }
@@ -802,7 +811,7 @@ private fun FloatingOverlayContent(
                         }
                         val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
                         scanNoticeMessage = "✅ Escaneo exitoso ($totalDetected picks" +
-                                (if (result.detectedRole != null) ", rol ${result.detectedRole.shortName})" else ")")
+                                (if (result.detectedRole != null) ", tu rol: ${result.detectedRole.shortName})" else ")")
                     } else {
                         scanNoticeMessage = "ℹ️ ${result.statusMessage}"
                     }

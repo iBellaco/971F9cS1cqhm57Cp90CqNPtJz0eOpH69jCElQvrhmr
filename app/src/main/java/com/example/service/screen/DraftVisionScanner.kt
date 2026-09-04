@@ -1,7 +1,6 @@
 package com.example.service.screen
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Rect
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
@@ -12,7 +11,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
-import kotlin.math.sqrt
+import kotlin.math.abs
 
 data class DetectedChampionSlot(
     val champion: Champion,
@@ -24,15 +23,17 @@ data class DetectedChampionSlot(
 data class DraftScanResult(
     val allies: List<Champion>,
     val enemies: List<Champion>,
-    val detectedRole: com.example.model.LaneRole? = null,
-    val detectedRawWords: List<String>,
+    val alliesByRole: Map<LaneRole, Champion> = emptyMap(),
+    val enemiesByRole: Map<LaneRole, Champion> = emptyMap(),
+    val detectedRole: LaneRole? = null,
+    val detectedRawWords: List<String> = emptyList(),
     val isSuccessful: Boolean,
     val statusMessage: String
 )
 
 /**
  * Motor de Visión Computacional y Reconocimiento Óptico (OCR) para la pantalla de selección de campeón en Wild Rift.
- * Detecta campeones aliados (columna izquierda) y enemigos (columna derecha) a partir del frame de captura de pantalla.
+ * Detecta campeones aliados (columna izquierda) y enemigos (columna derecha) y el rol activo del jugador local ("yo voy").
  */
 object DraftVisionScanner {
 
@@ -123,14 +124,23 @@ object DraftVisionScanner {
         "kogmaw" to "kog_maw",
         "kog'maw" to "kog_maw",
         "reksai" to "rek_sai",
-        "rek'sai" to "rek_sai"
+        "rek'sai" to "rek_sai",
+        "shiva" to "shyvana",
+        "shivana" to "shyvana",
+        "morde" to "mordekaiser",
+        "panth" to "pantheon",
+        "malph" to "malphite",
+        "blitz" to "blitzcrank",
+        "sera" to "seraphine"
     )
 
     private val ignoredWords = setOf(
         "fase", "seleccion", "selección", "elegir", "confirmar", "bloquear", "bloqueo", "bloqueos",
         "ban", "bans", "maestria", "maestría", "nivel", "level", "jugador", "player", "miembro", "member",
         "wild", "rift", "ranked", "clasificatoria", "normal", "aram", "pvp", "victoria", "derrota",
-        "equipo", "team", "azul", "rojo", "blue", "red", "chat", "mute", "op", "fps", "ms", "ping"
+        "equipo", "team", "azul", "rojo", "blue", "red", "chat", "mute", "op", "fps", "ms", "ping",
+        "calle", "del", "baron", "barón", "central", "jungla", "jungle", "duo", "dúo", "dragon",
+        "dragón", "soporte", "support", "apoyo", "tirador", "beta", "fps:", "ms:"
     )
 
     /**
@@ -158,65 +168,57 @@ object DraftVisionScanner {
             val visionText = recognizer.process(inputImage).await()
 
             val detectedWords = mutableListOf<String>()
-            val foundAllies = mutableListOf<Champion>()
-            val foundEnemies = mutableListOf<Champion>()
-
             val screenWidth = processBitmap.width
             val screenHeight = processBitmap.height
             val allChamps = WildRiftRepository.champions
 
-            // Coordenadas relativas de las 5 ranuras de aliados (Columna Izquierda)
-            val allySlotYCenters = floatArrayOf(0.185f, 0.335f, 0.485f, 0.635f, 0.785f)
+            // Coordenadas verticales oficiales de las 5 ranuras en Wild Rift (Landscape)
+            val allySlotYCenters = floatArrayOf(0.185f, 0.325f, 0.465f, 0.605f, 0.745f)
+            val enemySlotYCenters = floatArrayOf(0.170f, 0.305f, 0.445f, 0.585f, 0.725f)
+
+            // Mapeo por defecto de roles según el orden habitual de selección en Wild Rift
+            val defaultAllyRoles = arrayOf(LaneRole.ADC, LaneRole.SUPPORT, LaneRole.MID, LaneRole.JUNGLE, LaneRole.TOP)
+            val defaultEnemyRoles = arrayOf(LaneRole.ADC, LaneRole.JUNGLE, LaneRole.MID, LaneRole.SUPPORT, LaneRole.TOP)
+
+            val allySlots = arrayOfNulls<Champion>(5)
+            val enemySlots = arrayOfNulls<Champion>(5)
             val allySlotRoles = arrayOfNulls<LaneRole>(5)
+            val enemySlotRoles = arrayOfNulls<LaneRole>(5)
             val allySlotTexts = Array(5) { mutableListOf<String>() }
 
-            // 1. Análisis de Resaltado Cian en el borde izquierdo de cada ranura (Identificador oficial de "TÚ / Yo voy")
-            val cyanCounts = IntArray(5)
-            val sampleXMin = (screenWidth * 0.035f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.070f).toInt().coerceAtMost(screenWidth - 1)
-
-            for (i in 0 until 5) {
-                val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val yMin = (yCenter - screenHeight * 0.035f).toInt().coerceAtLeast(0)
-                val yMax = (yCenter + screenHeight * 0.035f).toInt().coerceAtMost(screenHeight - 1)
-
-                var cCount = 0
-                for (y in yMin..yMax step 2) {
-                    for (x in sampleXMin..sampleXMax step 2) {
-                        val p = processBitmap.getPixel(x, y)
-                        val r = (p shr 16) and 0xFF
-                        val g = (p shr 8) and 0xFF
-                        val b = p and 0xFF
-                        // Detección de color cian brillante (borde de ranura del jugador local en Wild Rift)
-                        if (b > 115 && g > 85 && b > r + 25) {
-                            cCount++
-                        }
-                    }
-                }
-                cyanCounts[i] = cCount
-            }
-
-            // 2. Procesamiento de Texto OCR para asignar líneas a ranuras y detectar roles
+            // 1. Procesamiento OCR exclusivo por columnas laterales (EXCLUIR CENTRO PARA EVITAR LEER EL ASISTENTE FLOTANTE)
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val lineText = line.text.trim()
-                    if (lineText.isNotBlank()) {
-                        detectedWords.add(lineText)
-                    }
+                    if (lineText.isBlank()) continue
+                    detectedWords.add(lineText)
+
                     val box = line.boundingBox
                     val centerX = box?.centerX() ?: 0
                     val centerY = box?.centerY() ?: 0
 
-                    if (centerX < screenWidth * 0.42f) {
-                        // Buscar la ranura aliada más cercana verticalmente
+                    // Descartar barra superior (bans < 8%) y extremos inferiores (> 88%)
+                    if (centerY < screenHeight * 0.08f || centerY > screenHeight * 0.88f) {
+                        continue
+                    }
+
+                    // Excluir zona central donde flota el Asistente/Coach (38% a 68% del ancho)
+                    if (centerX in (screenWidth * 0.38f).toInt()..(screenWidth * 0.68f).toInt()) {
+                        continue
+                    }
+
+                    // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
+                    if (centerX < screenWidth * 0.38f) {
                         val slotIdx = allySlotYCenters.indices.minByOrNull {
                             val slotY = (screenHeight * allySlotYCenters[it]).toInt()
-                            kotlin.math.abs(centerY - slotY)
+                            abs(centerY - slotY)
                         } ?: -1
 
                         if (slotIdx in 0 until 5) {
                             allySlotTexts[slotIdx].add(lineText)
                             val lower = lineText.lowercase(Locale.ROOT)
+
+                            // Detección de Rol/Línea por texto en la ranura
                             if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
                                 allySlotRoles[slotIdx] = LaneRole.MID
                             } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
@@ -228,120 +230,68 @@ object DraftVisionScanner {
                             } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
                                 allySlotRoles[slotIdx] = LaneRole.SUPPORT
                             }
-                        }
-                    }
-                }
-            }
 
-            // 3. Determinar la ranura activa del jugador local ("yo voy")
-            var userSlotIndex: Int? = null
-
-            // Prioridad A: Coincidencia por nombre de invocador
-            val normPreferred = preferredSummonerName?.let { normalizeString(it) }
-            if (!normPreferred.isNullOrBlank() && normPreferred.length >= 3) {
-                for (i in 0 until 5) {
-                    val hasName = allySlotTexts[i].any { txt ->
-                        val normTxt = normalizeString(txt)
-                        normTxt.contains(normPreferred) || normPreferred.contains(normTxt)
-                    }
-                    if (hasName) {
-                        userSlotIndex = i
-                        AppLogger.d(TAG, "Jugador local identificado por nombre de invocador en ranura $i")
-                        break
-                    }
-                }
-            }
-
-            // Prioridad B: Resaltado cian del marco de jugador local
-            if (userSlotIndex == null) {
-                val maxCyanIdx = cyanCounts.indices.maxByOrNull { cyanCounts[it] } ?: -1
-                if (maxCyanIdx != -1 && cyanCounts[maxCyanIdx] >= 8) {
-                    userSlotIndex = maxCyanIdx
-                    AppLogger.d(TAG, "Jugador local identificado por borde cian en ranura $maxCyanIdx (score: ${cyanCounts[maxCyanIdx]})")
-                }
-            }
-
-            val detectedRole: LaneRole? = if (userSlotIndex != null) {
-                allySlotRoles[userSlotIndex]
-            } else {
-                null
-            }
-
-            // 4. Reconocimiento Visual por Iconos de Avatares Circulares (Aliados y Enemigos)
-            for (i in 0 until 5) {
-                val cx = (screenWidth * 0.115f).toInt()
-                val cy = (screenHeight * allySlotYCenters[i]).toInt()
-                val radius = (screenHeight * 0.042f).toInt()
-
-                val detectedChamp = matchChampionFromAvatarCircle(
-                    processBitmap, cx, cy, radius, allySlotRoles[i], allChamps
-                )
-                if (detectedChamp != null && foundAllies.none { it.id == detectedChamp.id } && foundAllies.size < 5) {
-                    foundAllies.add(detectedChamp)
-                    AppLogger.d(TAG, "Aliado detectado por icono en ranura $i: ${detectedChamp.name}")
-                }
-            }
-
-            for (i in 0 until 5) {
-                val cx = (screenWidth * 0.885f).toInt()
-                val cy = (screenHeight * allySlotYCenters[i]).toInt()
-                val radius = (screenHeight * 0.042f).toInt()
-
-                val detectedChamp = matchChampionFromAvatarCircle(
-                    processBitmap, cx, cy, radius, null, allChamps
-                )
-                if (detectedChamp != null && foundEnemies.none { it.id == detectedChamp.id } && foundEnemies.size < 5) {
-                    foundEnemies.add(detectedChamp)
-                    AppLogger.d(TAG, "Enemigo detectado por icono en ranura $i: ${detectedChamp.name}")
-                }
-            }
-
-            // 5. Reconocimiento Complementario por OCR (Chat, búsqueda y hover central)
-            for (block in visionText.textBlocks) {
-                for (line in block.lines) {
-                    val lineText = line.text.trim()
-                    val box = line.boundingBox
-                    val centerX = box?.centerX() ?: 0
-                    val centerY = box?.centerY() ?: 0
-
-                    // Ignorar la fila superior de BANS (Y < 8%) y extremos inferiores (Y > 93%)
-                    if (centerY < screenHeight * 0.08f || centerY > screenHeight * 0.93f) {
-                        continue
-                    }
-
-                    val candidateChamps = mutableListOf<Champion>()
-                    candidateChamps.addAll(matchChampions(lineText, allChamps))
-
-                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
-                    for (w in words) {
-                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
-                            candidateChamps.addAll(matchChampions(w, allChamps))
-                        }
-                    }
-
-                    for (matchedChamp in candidateChamps.distinctBy { it.id }) {
-                        if (centerX < screenWidth * 0.45f) {
-                            if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
-                                foundAllies.add(matchedChamp)
-                                AppLogger.d(TAG, "Aliado detectado (Texto Izquierda): ${matchedChamp.name}")
-                            }
-                        } else if (centerX > screenWidth * 0.55f) {
-                            if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
-                                foundEnemies.add(matchedChamp)
-                                AppLogger.d(TAG, "Enemigo detectado (Texto Derecha): ${matchedChamp.name}")
-                            }
-                        } else {
-                            // Centro: Hover / Campeón seleccionado actualmente
-                            if (centerY in (screenHeight * 0.12f).toInt()..(screenHeight * 0.78f).toInt()) {
-                                if (foundAllies.size <= foundEnemies.size) {
-                                    if (foundAllies.none { it.id == matchedChamp.id } && foundAllies.size < 5) {
-                                        foundAllies.add(matchedChamp)
-                                        AppLogger.d(TAG, "Aliado detectado (Centro-Hover): ${matchedChamp.name}")
-                                    }
+                            // Detección de Campeón Aliado
+                            if (allySlots[slotIdx] == null) {
+                                val matchedDirect = matchChampions(lineText, allChamps)
+                                if (matchedDirect.isNotEmpty()) {
+                                    allySlots[slotIdx] = matchedDirect.first()
+                                    AppLogger.d(TAG, "Aliado detectado en slot $slotIdx: ${matchedDirect.first().name}")
                                 } else {
-                                    if (foundEnemies.none { it.id == matchedChamp.id } && foundEnemies.size < 5) {
-                                        foundEnemies.add(matchedChamp)
-                                        AppLogger.d(TAG, "Enemigo detectado (Centro-Hover): ${matchedChamp.name}")
+                                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                                    for (w in words) {
+                                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
+                                            val matchedWord = matchChampions(w, allChamps)
+                                            if (matchedWord.isNotEmpty() && allySlots[slotIdx] == null) {
+                                                allySlots[slotIdx] = matchedWord.first()
+                                                AppLogger.d(TAG, "Aliado detectado por palabra en slot $slotIdx: ${matchedWord.first().name}")
+                                                break
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // --- COLUMNA DERECHA: EQUIPO ENEMIGO ---
+                    else if (centerX > screenWidth * 0.68f) {
+                        val slotIdx = enemySlotYCenters.indices.minByOrNull {
+                            val slotY = (screenHeight * enemySlotYCenters[it]).toInt()
+                            abs(centerY - slotY)
+                        } ?: -1
+
+                        if (slotIdx in 0 until 5) {
+                            val lower = lineText.lowercase(Locale.ROOT)
+                            if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
+                                enemySlotRoles[slotIdx] = LaneRole.MID
+                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
+                                enemySlotRoles[slotIdx] = LaneRole.TOP
+                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
+                                enemySlotRoles[slotIdx] = LaneRole.JUNGLE
+                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
+                                enemySlotRoles[slotIdx] = LaneRole.ADC
+                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
+                                enemySlotRoles[slotIdx] = LaneRole.SUPPORT
+                            }
+
+                            // Detección de Campeón Enemigo
+                            if (enemySlots[slotIdx] == null) {
+                                val matchedDirect = matchChampions(lineText, allChamps)
+                                if (matchedDirect.isNotEmpty()) {
+                                    enemySlots[slotIdx] = matchedDirect.first()
+                                    AppLogger.d(TAG, "Enemigo detectado en slot $slotIdx: ${matchedDirect.first().name}")
+                                } else {
+                                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                                    for (w in words) {
+                                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
+                                            val matchedWord = matchChampions(w, allChamps)
+                                            if (matchedWord.isNotEmpty() && enemySlots[slotIdx] == null) {
+                                                enemySlots[slotIdx] = matchedWord.first()
+                                                AppLogger.d(TAG, "Enemigo detectado por palabra en slot $slotIdx: ${matchedWord.first().name}")
+                                                break
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -350,18 +300,121 @@ object DraftVisionScanner {
                 }
             }
 
+            // 2. Detección Multi-Señal de la ranura del jugador local ("Tú / Yo voy")
+            val slotScores = IntArray(5)
+
+            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí o Borde Cian en el lateral izquierdo
+            val sampleXMin = (screenWidth * 0.038f).toInt().coerceAtLeast(0)
+            val sampleXMax = (screenWidth * 0.088f).toInt().coerceAtMost(screenWidth - 1)
+
+            for (i in 0 until 5) {
+                val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
+                val yMin = (yCenter - screenHeight * 0.045f).toInt().coerceAtLeast(0)
+                val yMax = (yCenter + screenHeight * 0.045f).toInt().coerceAtMost(screenHeight - 1)
+
+                var goldCount = 0
+                var rubyCount = 0
+                var cyanCount = 0
+
+                for (y in yMin..yMax step 2) {
+                    for (x in sampleXMin..sampleXMax step 2) {
+                        val p = processBitmap.getPixel(x, y)
+                        val r = (p shr 16) and 0xFF
+                        val g = (p shr 8) and 0xFF
+                        val b = p and 0xFF
+
+                        // Dorado / Ámbar (alas del marco de jugador activo en Wild Rift)
+                        if (r > 140 && g > 95 && b < 85 && r > b + 45) {
+                            goldCount++
+                        }
+                        // Gema Roja / Rubí (núcleo del blasón del jugador)
+                        else if (r > 150 && g < 75 && b < 75) {
+                            rubyCount++
+                        }
+                        // Resaltado cian alternativo
+                        else if (b > 115 && g > 85 && b > r + 25) {
+                            cyanCount++
+                        }
+                    }
+                }
+                slotScores[i] += (goldCount * 3 + rubyCount * 3 + cyanCount * 2)
+            }
+
+            // Señal B: Coincidencia por nombre de invocador
+            val normPreferred = preferredSummonerName?.let { normalizeString(it) }
+            if (!normPreferred.isNullOrBlank() && normPreferred.length >= 3) {
+                for (i in 0 until 5) {
+                    val hasName = allySlotTexts[i].any { txt ->
+                        val normTxt = normalizeString(txt)
+                        normTxt.contains(normPreferred) || normPreferred.contains(normTxt)
+                    }
+                    if (hasName) {
+                        slotScores[i] += 500
+                        AppLogger.d(TAG, "Bonus de nombre de invocador aplicado a ranura $i")
+                    }
+                }
+            }
+
+            var userSlotIndex: Int? = null
+            val maxScoreSlot = slotScores.indices.maxByOrNull { slotScores[it] } ?: -1
+            if (maxScoreSlot != -1 && slotScores[maxScoreSlot] >= 15) {
+                userSlotIndex = maxScoreSlot
+                AppLogger.d(TAG, "Jugador local identificado en ranura $userSlotIndex con score: ${slotScores[userSlotIndex]}")
+            }
+
+            // 3. Determinar el rol/línea del jugador local
+            val detectedRole: LaneRole? = if (userSlotIndex != null) {
+                allySlotRoles[userSlotIndex]
+                    ?: allySlots[userSlotIndex]?.primaryRole
+                    ?: defaultAllyRoles.getOrNull(userSlotIndex)
+            } else {
+                null
+            }
+
+            // 4. Estructurar la asignación exacta por rol (alliesByRole y enemiesByRole)
+            val alliesByRole = mutableMapOf<LaneRole, Champion>()
+            val enemiesByRole = mutableMapOf<LaneRole, Champion>()
+
+            // Asignar aliados detectados a sus roles
+            for (i in 0 until 5) {
+                val champ = allySlots[i] ?: continue
+                val role = allySlotRoles[i]
+                    ?: (if (!alliesByRole.containsKey(champ.primaryRole)) champ.primaryRole
+                        else champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
+                        ?: defaultAllyRoles.getOrNull(i)
+                        ?: champ.primaryRole)
+                alliesByRole[role] = champ
+            }
+
+            // Asignar enemigos detectados a sus roles
+            for (i in 0 until 5) {
+                val champ = enemySlots[i] ?: continue
+                val role = enemySlotRoles[i]
+                    ?: (if (!enemiesByRole.containsKey(champ.primaryRole)) champ.primaryRole
+                        else champ.secondaryRoles.firstOrNull { !enemiesByRole.containsKey(it) }
+                        ?: defaultEnemyRoles.getOrNull(i)
+                        ?: champ.primaryRole)
+                enemiesByRole[role] = champ
+            }
+
+            val standardOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+            val foundAllies = standardOrder.mapNotNull { alliesByRole[it] }
+            val foundEnemies = standardOrder.mapNotNull { enemiesByRole[it] }
+
             val totalDetected = foundAllies.size + foundEnemies.size
             val status = if (totalDetected > 0 || detectedRole != null) {
-                "Escaneo exitoso: $totalDetected campeones identificados" + (if (detectedRole != null) " • Tu rol: ${detectedRole.displayName}" else "")
+                "Escaneo exitoso: $totalDetected campeones asignados" + (if (detectedRole != null) " • Tu rol: ${detectedRole.displayName}" else "")
             } else {
                 "No se detectaron selecciones de campeones en el frame actual."
             }
 
-            AppLogger.d(TAG, "Resultado de escaneo: ${foundAllies.map { it.name }} vs ${foundEnemies.map { it.name }} (Rol detectado: $detectedRole)")
+            AppLogger.d(TAG, "Resultado: Aliados=${alliesByRole.map { "${it.key.shortName}:${it.value.name}" }} vs Enemigos=${enemiesByRole.map { "${it.key.shortName}:${it.value.name}" }} (Rol detectado: $detectedRole)")
 
             DraftScanResult(
                 allies = foundAllies,
                 enemies = foundEnemies,
+                alliesByRole = alliesByRole,
+                enemiesByRole = enemiesByRole,
                 detectedRole = detectedRole,
                 detectedRawWords = detectedWords,
                 isSuccessful = totalDetected > 0 || detectedRole != null,
@@ -372,169 +425,13 @@ object DraftVisionScanner {
             DraftScanResult(
                 allies = emptyList(),
                 enemies = emptyList(),
+                alliesByRole = emptyMap(),
+                enemiesByRole = emptyMap(),
                 detectedRawWords = emptyList(),
                 isSuccessful = false,
                 statusMessage = "Fallo en motor de visión: ${e.localizedMessage ?: "Error desconocido"}"
             )
         }
-    }
-
-    private fun matchChampionFromAvatarCircle(
-        bitmap: Bitmap,
-        cx: Int,
-        cy: Int,
-        radius: Int,
-        expectedRole: LaneRole?,
-        allChamps: List<Champion>
-    ): Champion? {
-        if (cx - radius < 0 || cx + radius >= bitmap.width || cy - radius < 0 || cy + radius >= bitmap.height) {
-            return null
-        }
-
-        var sampleCount = 0
-        var sumR = 0L
-        var sumG = 0L
-        var sumB = 0L
-        var sumSqR = 0.0
-        var sumSqG = 0.0
-        var sumSqB = 0.0
-
-        var purpleCount = 0
-        var whiteCount = 0
-        var stormCyanCount = 0
-        var redCount = 0
-        var goldCount = 0
-        var tealCount = 0
-        var darkCount = 0
-
-        val hsv = FloatArray(3)
-        val rSq = radius * radius
-
-        for (y in (cy - radius)..(cy + radius) step 2) {
-            for (x in (cx - radius)..(cx + radius) step 2) {
-                val dx = x - cx
-                val dy = y - cy
-                if (dx * dx + dy * dy <= rSq) {
-                    val p = bitmap.getPixel(x, y)
-                    val r = (p shr 16) and 0xFF
-                    val g = (p shr 8) and 0xFF
-                    val b = p and 0xFF
-
-                    sampleCount++
-                    sumR += r
-                    sumG += g
-                    sumB += b
-                    sumSqR += r * r
-                    sumSqG += g * g
-                    sumSqB += b * b
-
-                    Color.colorToHSV(p, hsv)
-                    val hue = hsv[0]
-                    val sat = hsv[1]
-                    val v = hsv[2]
-
-                    if (v < 0.22f) {
-                        darkCount++
-                    } else if (v > 0.65f && sat < 0.28f) {
-                        whiteCount++
-                    } else if (sat >= 0.20f) {
-                        if (hue in 260f..320f) {
-                            purpleCount++
-                        } else if (hue in 180f..225f) {
-                            stormCyanCount++
-                        } else if (hue in 345f..360f || hue in 0f..20f) {
-                            redCount++
-                        } else if (hue in 40f..65f) {
-                            goldCount++
-                        } else if (hue in 160f..180f) {
-                            tealCount++
-                        }
-                    }
-                }
-            }
-        }
-
-        if (sampleCount < 40) return null
-
-        val meanR = sumR.toDouble() / sampleCount
-        val meanG = sumG.toDouble() / sampleCount
-        val meanB = sumB.toDouble() / sampleCount
-
-        val stdDevR = sqrt((sumSqR / sampleCount) - (meanR * meanR)).coerceAtLeast(0.0)
-        val stdDevG = sqrt((sumSqG / sampleCount) - (meanG * meanG)).coerceAtLeast(0.0)
-        val stdDevB = sqrt((sumSqB / sampleCount) - (meanB * meanB)).coerceAtLeast(0.0)
-        val avgStdDev = (stdDevR + stdDevG + stdDevB) / 3.0
-        val avgBrightness = (meanR + meanG + meanB) / 3.0
-
-        // Si la ranura tiene baja variación de color o es muy oscura, es un icono de rol vacío o casco oscuro
-        if (avgStdDev < 23.0 || avgBrightness < 28.0) {
-            return null
-        }
-
-        val purpleFrac = purpleCount.toFloat() / sampleCount
-        val whiteFrac = whiteCount.toFloat() / sampleCount
-        val stormCyanFrac = stormCyanCount.toFloat() / sampleCount
-        val redFrac = redCount.toFloat() / sampleCount
-        val goldFrac = goldCount.toFloat() / sampleCount
-        val darkFrac = darkCount.toFloat() / sampleCount
-        val tealFrac = tealCount.toFloat() / sampleCount
-
-        // 1. Coincidencia para Varus (ADC): Violeta/Púrpura corrupto + cabello blanco + arco oscuro
-        if ((expectedRole == null || expectedRole == LaneRole.ADC) && purpleFrac >= 0.12f && (whiteFrac >= 0.06f || darkFrac >= 0.18f)) {
-            return allChamps.firstOrNull { it.id.equals("varus", ignoreCase = true) || it.name.equals("varus", ignoreCase = true) }
-        }
-
-        // 2. Coincidencia para Volibear (Baron/Top o Jungle): Pelaje blanco polar + relámpagos cian tormenta
-        if ((expectedRole == null || expectedRole == LaneRole.TOP || expectedRole == LaneRole.JUNGLE) && whiteFrac >= 0.18f && (stormCyanFrac >= 0.06f || meanB > meanR)) {
-            return allChamps.firstOrNull { it.id.equals("volibear", ignoreCase = true) || it.name.equals("volibear", ignoreCase = true) }
-        }
-
-        // 3. Coincidencia para Ezreal (ADC): Cabello rubio dorado + chaqueta azul
-        if ((expectedRole == null || expectedRole == LaneRole.ADC || expectedRole == LaneRole.MID) && goldFrac >= 0.14f && (stormCyanFrac >= 0.08f || meanB > meanG)) {
-            return allChamps.firstOrNull { it.id.equals("ezreal", ignoreCase = true) || it.name.equals("ezreal", ignoreCase = true) }
-        }
-
-        // 4. Coincidencia para Jinx (ADC): Trenzas cian/aguamarina + acentos rosa
-        if ((expectedRole == null || expectedRole == LaneRole.ADC) && (stormCyanFrac >= 0.18f || tealFrac >= 0.15f)) {
-            return allChamps.firstOrNull { it.id.equals("jinx", ignoreCase = true) || it.name.equals("jinx", ignoreCase = true) }
-        }
-
-        // 5. Coincidencia para Kai'Sa (ADC): Caparazón del vacío violeta + rostro
-        if ((expectedRole == null || expectedRole == LaneRole.ADC || expectedRole == LaneRole.MID) && purpleFrac >= 0.14f) {
-            return allChamps.firstOrNull { it.id.equals("kai_sa", ignoreCase = true) || it.name.equals("kai_sa", ignoreCase = true) }
-        }
-
-        // 6. Coincidencia para Aatrox (Top): Carmesí oscuro + cuernos
-        if ((expectedRole == null || expectedRole == LaneRole.TOP) && redFrac >= 0.18f && darkFrac >= 0.22f) {
-            return allChamps.firstOrNull { it.id.equals("aatrox", ignoreCase = true) || it.name.equals("aatrox", ignoreCase = true) }
-        }
-
-        // 7. Coincidencia para Darius (Top): Armadura de acero oscura + capa roja
-        if ((expectedRole == null || expectedRole == LaneRole.TOP) && redFrac >= 0.10f && darkFrac >= 0.30f) {
-            return allChamps.firstOrNull { it.id.equals("darius", ignoreCase = true) || it.name.equals("darius", ignoreCase = true) }
-        }
-
-        // 8. Coincidencia para Viego (Jungle/Mid): Cabello blanco plateado + bruma verde azulada
-        if ((expectedRole == null || expectedRole == LaneRole.JUNGLE || expectedRole == LaneRole.MID) && whiteFrac >= 0.14f && tealFrac >= 0.08f) {
-            return allChamps.firstOrNull { it.id.equals("viego", ignoreCase = true) || it.name.equals("viego", ignoreCase = true) }
-        }
-
-        // 9. Coincidencia para Gwen (Top): Coletas turquesa + vestido gótico
-        if ((expectedRole == null || expectedRole == LaneRole.TOP || expectedRole == LaneRole.JUNGLE) && (tealFrac >= 0.18f || stormCyanFrac >= 0.16f) && darkFrac >= 0.20f) {
-            return allChamps.firstOrNull { it.id.equals("gwen", ignoreCase = true) || it.name.equals("gwen", ignoreCase = true) }
-        }
-
-        // 10. Coincidencia para Yone (Top/Mid): Máscara roja Azakana + cabello negro
-        if ((expectedRole == null || expectedRole == LaneRole.TOP || expectedRole == LaneRole.MID) && redFrac >= 0.10f && darkFrac >= 0.25f) {
-            return allChamps.firstOrNull { it.id.equals("yone", ignoreCase = true) || it.name.equals("yone", ignoreCase = true) }
-        }
-
-        // 11. Coincidencia para Zed (Mid): Sombras oscuras + visores rojos
-        if ((expectedRole == null || expectedRole == LaneRole.MID) && darkFrac >= 0.35f && redFrac >= 0.04f) {
-            return allChamps.firstOrNull { it.id.equals("zed", ignoreCase = true) || it.name.equals("zed", ignoreCase = true) }
-        }
-
-        return null
     }
 
     private fun matchChampions(text: String, allChamps: List<Champion>): List<Champion> {
@@ -572,7 +469,7 @@ object DraftVisionScanner {
             } else if (idNorm.length >= 3 && (normalized == idNorm || (normalized.length >= 4 && idNorm == normalized))) {
                 if (!found.contains(champ)) found.add(champ)
             } else if (normalized.length >= 4 && champNorm.length >= 4) {
-                // Fuzzy matching por distancia de Levenshtein (tolerar pequeños errores de OCR como 5->S, 1->I, V->Y)
+                // Fuzzy matching por distancia de Levenshtein (tolerar errores de OCR como 5->S, 1->I, V->Y)
                 val distance = calculateLevenshteinDistance(normalized, champNorm)
                 val maxAllowed = if (champNorm.length >= 7) 2 else 1
                 if (distance <= maxAllowed) {
