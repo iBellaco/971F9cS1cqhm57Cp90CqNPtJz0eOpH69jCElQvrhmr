@@ -111,7 +111,7 @@ object ChampionRoleAdapter {
                 return "Grebas de berserker"
             }
             if (clean.contains("jonia") || clean.contains("lucidez") || clean.contains("carmesí") || clean.contains("carmesi")) return "Botas jonias de la lucidez"
-            if (clean.contains("dinámica") || clean.contains("dinamica") || clean.contains("quebrantarmadura")) {
+            if (clean.contains("dinámica") || clean.contains("dinamica") || clean.contains("quebrantarmadura") || clean.contains("penetraci")) {
                 if (role == LaneRole.SUPPORT) return "Botas jonias de la lucidez"
                 return "Botas dinámicas"
             }
@@ -135,7 +135,7 @@ object ChampionRoleAdapter {
             clean.contains("mercurio") || clean.contains("trituradora") || clean.contains("treads") -> "Trituradoras encadenadas"
             clean.contains("berserker") || clean.contains("metal") || clean.contains("gunmetal") -> "Grebas de metal"
             clean.contains("jonia") || clean.contains("lucidez") || clean.contains("carmesí") || clean.contains("carmesi") -> "Lucidez carmesí"
-            clean.contains("dinámica") || clean.contains("dinamica") || clean.contains("quebrantarmadura") -> "Botas quebrantarmaduras"
+            clean.contains("dinámica") || clean.contains("dinamica") || clean.contains("quebrantarmadura") || clean.contains("penetraci") -> "Botas quebrantarmaduras"
             clean.contains("codiciosa") || clean.contains("inmortal") -> "Botas inmortales"
             else -> "Lucidez carmesí"
         }

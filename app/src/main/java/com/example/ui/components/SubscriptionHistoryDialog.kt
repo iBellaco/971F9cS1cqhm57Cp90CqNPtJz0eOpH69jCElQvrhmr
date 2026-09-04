@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,17 +25,30 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.model.SubscriptionRecord
 import com.example.ui.theme.*
 import com.example.util.SubscriptionHistoryManager
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun SubscriptionHistoryDialog(onDismiss: () -> Unit) {
+fun SubscriptionHistoryDialog(
+    userId: String? = null,
+    userEmail: String? = null,
+    onDismiss: () -> Unit
+) {
     var history by remember { mutableStateOf<List<SubscriptionRecord>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        history = SubscriptionHistoryManager.getHistory()
-        isLoading = false
+    fun loadHistory() {
+        scope.launch {
+            isLoading = true
+            history = SubscriptionHistoryManager.getHistory(userId = userId, userEmail = userEmail)
+            isLoading = false
+        }
+    }
+
+    LaunchedEffect(userId, userEmail) {
+        loadHistory()
     }
 
     Dialog(
@@ -42,11 +57,12 @@ fun SubscriptionHistoryDialog(onDismiss: () -> Unit) {
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .fillMaxHeight(0.8f)
-                .padding(16.dp),
+                .fillMaxWidth(0.92f)
+                .fillMaxHeight(0.82f)
+                .padding(vertical = 16.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+            colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+            border = BorderStroke(1.dp, HextechCardBorder)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Header
@@ -54,33 +70,124 @@ fun SubscriptionHistoryDialog(onDismiss: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(HextechSurface)
-                        .padding(16.dp),
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.History, contentDescription = null, tint = HextechCyan)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Historial de Suscripciones",
-                            color = HextechCyan,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            Icons.Default.History,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(22.dp)
                         )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "Historial de Suscripciones",
+                                color = HextechCyan,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (!userEmail.isNullOrBlank()) {
+                                Text(
+                                    text = userEmail,
+                                    color = TextSecondary,
+                                    fontSize = 11.sp,
+                                    maxLines = 1
+                                )
+                            }
+                        }
                     }
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextSecondary)
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { loadHistory() },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Actualizar",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Cerrar",
+                                tint = TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
-                Divider(color = HextechCardBorder)
+                HorizontalDivider(color = HextechCardBorder)
 
                 if (isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = HextechGold)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = HextechGold, modifier = Modifier.size(36.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Consultando registros en la nube...",
+                                color = TextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 } else if (history.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No hay historial de suscripciones", color = TextSecondary)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                Icons.Default.History,
+                                contentDescription = null,
+                                tint = TextMuted,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "No hay historial de suscripciones",
+                                color = TextPrimary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Tus registros de compras, pases temporales y membresías otorgadas aparecerán aquí.",
+                                color = TextSecondary,
+                                fontSize = 12.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 20.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedButton(
+                                onClick = { loadHistory() },
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                            ) {
+                                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Reintentar búsqueda", fontSize = 12.sp)
+                            }
+                        }
                     }
                 } else {
                     LazyColumn(
@@ -89,7 +196,7 @@ fun SubscriptionHistoryDialog(onDismiss: () -> Unit) {
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(history) { record ->
+                        items(history, key = { it.id }) { record ->
                             SubscriptionHistoryItem(record)
                         }
                     }
@@ -101,18 +208,44 @@ fun SubscriptionHistoryDialog(onDismiss: () -> Unit) {
 
 @Composable
 fun SubscriptionHistoryItem(record: SubscriptionRecord) {
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val dateString = dateFormat.format(Date(record.timestamp))
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
+    val dateString = if (record.timestamp > 0L) dateFormat.format(Date(record.timestamp)) else "Reciente"
 
-    val statusColor = if (record.status.contains("Completado", true)) Color(0xFF00FF7F) else TextSecondary
+    val isRevocation = record.planName.contains("Revocación", ignoreCase = true) ||
+            record.status.contains("Cancelado", ignoreCase = true) ||
+            record.status.contains("Revocado", ignoreCase = true)
+
+    val isGift = record.planName.contains("Regalo Admin", ignoreCase = true) ||
+            record.planName.contains("Asignación Manual", ignoreCase = true) ||
+            record.planName.contains("Admin", ignoreCase = true)
+
+    val isLifetime = record.durationMillis == 0L && !isRevocation
+    val expiryTimestamp = if (record.durationMillis > 0L) record.timestamp + record.durationMillis else 0L
+    val isExpired = !isLifetime && !isRevocation && expiryTimestamp > 0L && expiryTimestamp < System.currentTimeMillis()
+    val isActive = !isRevocation && (isLifetime || (!isExpired && expiryTimestamp > 0L))
+
+    val statusColor = when {
+        isRevocation -> com.example.ui.theme.DangerRed
+        isExpired -> Color(0xFFFFB74D) // Amber/orange
+        isActive -> Color(0xFF00FF7F) // Vivid Zaun/Emerald Green
+        else -> TextSecondary
+    }
+
+    val displayStatus = when {
+        isRevocation -> "Revocado / Cancelado"
+        isExpired -> "Expirado / Finalizado"
+        isLifetime -> "Activo (Vitalicio)"
+        isActive -> "Vigente / Activo"
+        else -> record.status.ifBlank { "Completado" }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(HextechSurfaceVariant)
-            .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
-            .padding(12.dp)
+            .border(1.dp, if (isActive) HextechGold.copy(alpha = 0.35f) else HextechCardBorder, RoundedCornerShape(10.dp))
+            .padding(14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -121,32 +254,38 @@ fun SubscriptionHistoryItem(record: SubscriptionRecord) {
         ) {
             Text(
                 text = record.planName.ifEmpty { "Suscripción Premium" },
-                color = TextPrimary,
+                color = if (isActive) HextechGoldLight else TextPrimary,
                 fontWeight = FontWeight.Bold,
-                fontSize = 15.sp
+                fontSize = 14.5.sp,
+                modifier = Modifier.weight(1f)
             )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = record.amount,
+                text = if (record.amount.isNotBlank()) record.amount else "$0.00",
                 color = HextechGold,
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
+                fontSize = 13.5.sp
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
 
-        val isRevocation = record.planName.contains("Revocación", ignoreCase = true)
-        val isGift = record.planName.contains("Regalo Admin", ignoreCase = true) || record.planName.contains("Asignación Manual", ignoreCase = true)
-
         if (isRevocation) {
             Text(
-                text = "Fecha de cancelación: $dateString",
-                color = com.example.ui.theme.DangerRed,
+                text = "Fecha de registro: $dateString",
+                color = DangerRed,
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Medium
             )
         } else {
-            val endDateStr = if (record.durationMillis == 0L) "Para siempre (Vitalicio)" else dateFormat.format(Date(record.timestamp + record.durationMillis))
-            Column {
+            val endDateStr = if (isLifetime) {
+                "Para siempre (Vitalicio)"
+            } else if (expiryTimestamp > 0L) {
+                dateFormat.format(Date(expiryTimestamp))
+            } else {
+                "Permanente"
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -154,22 +293,23 @@ fun SubscriptionHistoryItem(record: SubscriptionRecord) {
                     Text(
                         text = "Activado: $dateString",
                         color = TextSecondary,
-                        fontSize = 12.sp
+                        fontSize = 11.5.sp
                     )
                     Text(
                         text = "Vence: $endDateStr",
-                        color = HextechGoldLight,
-                        fontSize = 12.sp,
+                        color = if (isExpired) Color(0xFFFFB74D) else HextechGoldLight,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
+
                 if (isGift) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "🎁 Obsequiado por el Administrador",
+                        text = "🎁 Concesión Oficial de Administrador",
                         color = HextechCyan,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -185,7 +325,7 @@ fun SubscriptionHistoryItem(record: SubscriptionRecord) {
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = record.status,
+                text = displayStatus,
                 color = statusColor,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold

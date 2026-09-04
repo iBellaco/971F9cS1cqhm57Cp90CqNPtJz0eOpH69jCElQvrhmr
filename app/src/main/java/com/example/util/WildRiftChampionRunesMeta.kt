@@ -100,10 +100,10 @@ object WildRiftChampionRunesMeta {
             option2 = listOf("Garras del Inmortal", "Fuente de Vida", "Revestimiento de Huesos", "Sobrecrecimiento", "Banda de Maná")
         ),
         "gwen" to ChampionRunePair(
-            opt1Title = "Conquistador AP & Tijeretazos",
-            option1 = listOf("Conquistador", "Triunfo", "Leyenda: Linaje", "Último Esfuerzo", "Revestimiento de Huesos"),
-            opt2Title = "Primer Golpe (Burst de Definitiva)",
-            option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Trascendencia")
+            opt1Title = "Pies Veloces & Tijeretazos (Meta)",
+            option1 = listOf("Pies Veloces", "Triunfo", "Fuerzas Renovadas", "Perseverancia", "Leyenda: Linaje"),
+            opt2Title = "Conquistador AP (Duelo Extendido)",
+            option2 = listOf("Conquistador", "Triunfo", "Leyenda: Linaje", "Último Esfuerzo", "Revestimiento de Huesos")
         ),
         "jayce" to ChampionRunePair(
             opt1Title = "Primer Golpe (Aceleración de Oro)",
@@ -186,8 +186,8 @@ object WildRiftChampionRunesMeta {
             option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Cazador Ingenioso", "Trascendencia")
         ),
         "zed" to ChampionRunePair(
-            opt1Title = "Electrocutar & Sombra Letal (Meta)",
-            option1 = listOf("Electrocutar", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Triunfo"),
+            opt1Title = "Conquistador & Duelista (Meta)",
+            option1 = listOf("Conquistador", "Fervor de Batalla", "Golpe de Gracia", "Leyenda: Presteza", "Trascendencia"),
             opt2Title = "Primer Golpe (Snowball Rápido)",
             option2 = listOf("Primer Golpe", "Impacto Repentino", "Soberbia", "Cazador Ingenioso", "Trascendencia")
         ),
@@ -198,8 +198,8 @@ object WildRiftChampionRunesMeta {
             option2 = listOf("Conquistador", "Triunfo", "Leyenda: Presteza", "Último Esfuerzo", "Fuerzas Renovadas")
         ),
         "yone" to ChampionRunePair(
-            opt1Title = "Compás Letal & Desatado (Meta)",
-            option1 = listOf("Compás Letal", "Brutal", "Leyenda: Linaje", "Golpe de Gracia", "Revestimiento de Huesos"),
+            opt1Title = "Garras del Inmortal & Duelo (Meta)",
+            option1 = listOf("Garras del Inmortal", "Impacto Repentino", "Golpe de Gracia", "Leyenda: Presteza", "Fuerzas Renovadas"),
             opt2Title = "Conquistador (Peleas Grupales Definitiva)",
             option2 = listOf("Conquistador", "Triunfo", "Leyenda: Presteza", "Último Esfuerzo", "Sobrecrecimiento")
         ),
@@ -327,7 +327,13 @@ object WildRiftChampionRunesMeta {
         ),
         "kaisa" to ChampionRunePair(
             opt1Title = "Compás Letal & Plasma (Meta)",
-            option1 = listOf("Compás Letal", "Brutal", "Leyenda: Linaje", "Golpe de Gracia", "Sobrecrecimiento"),
+            option1 = listOf("Compás Letal", "Impacto Repentino", "Golpe de Gracia", "Leyenda: Linaje", "Revestimiento de Huesos"),
+            opt2Title = "Primer Golpe (Burst de Evolución H1)",
+            option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Triunfo")
+        ),
+        "kai_sa" to ChampionRunePair(
+            opt1Title = "Compás Letal & Plasma (Meta)",
+            option1 = listOf("Compás Letal", "Impacto Repentino", "Golpe de Gracia", "Leyenda: Linaje", "Revestimiento de Huesos"),
             opt2Title = "Primer Golpe (Burst de Evolución H1)",
             option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Triunfo")
         ),
@@ -339,7 +345,7 @@ object WildRiftChampionRunesMeta {
         ),
         "ezreal" to ChampionRunePair(
             opt1Title = "Conquistador & Disparo Místico",
-            option1 = listOf("Conquistador", "Brutal", "Leyenda: Linaje", "Golpe de Gracia", "Banda de Maná"),
+            option1 = listOf("Conquistador", "Impacto Repentino", "Golpe de Gracia", "Leyenda: Presteza", "Revestimiento de Huesos"),
             opt2Title = "Primer Golpe (Oro Rápido H1)",
             option2 = listOf("Primer Golpe", "Impacto Repentino", "Colección de Globos Oculares", "Tirano", "Banda de Maná")
         ),
@@ -443,7 +449,7 @@ object WildRiftChampionRunesMeta {
         ),
         "viego" to ChampionRunePair(
             opt1Title = "Conquistador & Posesiones (Meta)",
-            option1 = listOf("Conquistador", "Triunfo", "Leyenda: Linaje", "Golpe de Gracia", "Impacto Repentino"),
+            option1 = listOf("Conquistador", "Impacto Repentino", "Golpe de Gracia", "Leyenda: Presteza", "Concentración Absoluta"),
             opt2Title = "Compás Letal (Duelo Directo)",
             option2 = listOf("Compás Letal", "Triunfo", "Leyenda: Presteza", "Último Esfuerzo", "Revestimiento de Huesos")
         ),

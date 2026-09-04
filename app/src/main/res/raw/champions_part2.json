@@ -7261,8 +7261,8 @@
       "Lulu"
     ],
     "tacticalAdvice": "Posee los cuerpos de los enemigos caídos para obtener sus habilidades, curarte e invocar Rompecorazones (H4) sin coste.",
-    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Impacto repentino",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Cazador de Ojos",
+    "recommendedRunes": "Conquistador,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Concentración Absoluta",
+    "runeTreeDetails": "Precisión: Conquistador • Impacto Repentino • Golpe de Gracia • Leyenda: Presteza • Concentración Absoluta",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
       "Destello",
@@ -7270,11 +7270,11 @@
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Fuerza trinitaria",
-      "Espada del Rey Arruinado",
+      "Saqueador de esencia",
       "Recordatorio mortal",
-      "Filo infinito",
-      "La sanguinaria"
+      "Muramana",
+      "Borde infinito",
+      "La Sanguinaria"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -7336,36 +7336,36 @@
     "build2Spells": [],
     "builds": [
       {
-        "title": "JG - Críticos",
+        "title": "JG - Críticos y Reseteos",
         "lane": "JG",
         "coreItems": [
           "Saqueador de esencia",
-          "El coleccionista",
-          "Borde infinito"
+          "Recordatorio mortal",
+          "Muramana"
         ],
         "items": [
-          "Fuerza trinitaria",
-          "Espada del Rey Arruinado",
+          "Saqueador de esencia",
           "Recordatorio mortal",
-          "Filo infinito",
-          "La sanguinaria"
+          "Muramana",
+          "Borde infinito",
+          "La Sanguinaria"
         ],
-        "bootBase": "Botas blindadas",
-        "bootUpgrade": "Estasis",
+        "bootBase": "Grebas de berserker",
+        "bootUpgrade": "Grebas de metal",
         "situationalBoots": [],
         "situationalItems": [],
-        "primaryRune": "Fortalecimiento",
+        "primaryRune": "Conquistador",
         "secondaryRunes": [
-          "Brutal",
-          "Derribado",
+          "Impacto Repentino",
+          "Golpe de Gracia",
           "Leyenda: Presteza",
-          "Sobrecrecimiento"
+          "Concentración Absoluta"
         ],
         "spells": [
           "Destello",
           "Aplastar"
         ],
-        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Impacto repentino"
+        "runes": "Conquistador,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Concentración Absoluta"
       }
     ]
   },
@@ -8653,9 +8653,9 @@
       "Orianna"
     ],
     "tacticalAdvice": "Sal en Alma Desatada (H3) para comerciar daño seguro y regresa a tu cuerpo limpiando ralentizaciones tras ejecutar Destino Sellado (H4).",
-    "recommendedRunes": "Garras del inmortal,Brutal,Golpe de gracia,Leyenda: Presteza,Sobrecrecimiento",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Revestimiento de Hueso",
-    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
+    "recommendedRunes": "Garras del Inmortal,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Fuerzas Renovadas",
+    "runeTreeDetails": "Valor: Garras del Inmortal • Impacto Repentino • Golpe de Gracia • Leyenda: Presteza • Fuerzas Renovadas",
+    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/resolve/graspoftheundying/graspoftheundying.png",
     "recommendedSpells": [
       "Destello",
       "Prender"
@@ -8664,9 +8664,9 @@
     "coreItems": [
       "Espada del Rey Arruinado",
       "La sanguinaria",
-      "Filo infinito",
+      "Cortasendas",
       "Recordatorio mortal",
-      "Ángel de la guarda"
+      "Hojas rápidas de Navori"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -8722,42 +8722,42 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/yone",
     "spells": [],
     "primaryRunes": [
-      "Conquistador"
+      "Garras del Inmortal"
     ],
     "build2Runes": "Compás Letal,Brutal,Derribado,Leyenda: Presteza,Sobrecrecimiento",
     "build2Spells": [],
     "builds": [
       {
-        "title": "MID - Daño y aguante",
+        "title": "MID - Duelo y Letalidad",
         "lane": "MID",
         "coreItems": [
           "Espada del Rey Arruinado",
-          "Saqueador de esencia",
-          "Recordatorio mortal"
+          "La sanguinaria",
+          "Cortasendas"
         ],
         "items": [
           "Espada del Rey Arruinado",
           "La sanguinaria",
-          "Filo infinito",
+          "Cortasendas",
           "Recordatorio mortal",
-          "Ángel de la guarda"
+          "Hojas rápidas de Navori"
         ],
         "bootBase": "Grebas de berserker",
-        "bootUpgrade": "Cimitarra mercurial",
+        "bootUpgrade": "Grebas de metal",
         "situationalBoots": [],
         "situationalItems": [],
-        "primaryRune": "Compás letal",
+        "primaryRune": "Garras del Inmortal",
         "secondaryRunes": [
-          "Brutal",
-          "Derribado",
+          "Impacto Repentino",
+          "Golpe de Gracia",
           "Leyenda: Presteza",
-          "Sobrecrecimiento"
+          "Fuerzas Renovadas"
         ],
         "spells": [
           "Destello",
           "Prender"
         ],
-        "runes": "Garras del inmortal,Brutal,Golpe de gracia,Leyenda: Presteza,Sobrecrecimiento"
+        "runes": "Garras del Inmortal,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Fuerzas Renovadas"
       }
     ]
   },
@@ -9054,17 +9054,17 @@
       "Vi"
     ],
     "tacticalAdvice": "Coloca tu Sombra Viviente (H2) de forma lateral para conectar una doble Shuriken (H1) y asegura la eliminación con Marca de la Muerte (H4).",
-    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Trascendencia",
-    "runeTreeDetails": "Dominación: Impacto Repentino • Cazador de Ojos • Ingenio Cazador • Triunfo",
-    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/domination/electrocute/electrocute.png",
+    "recommendedRunes": "Conquistador,Fervor de batalla,Golpe de gracia,Leyenda: Presteza,Trascendencia",
+    "runeTreeDetails": "Precisión: Fervor de batalla • Golpe de gracia • Leyenda: Presteza | Brujería: Trascendencia",
+    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
       "Destello",
-      "Prender"
+      "Aplastar"
     ],
     "spellsIcons": [],
     "coreItems": [
-      "El cuchillo fantasma de Youmuu",
       "Colmillo de serpiente",
+      "Fuerza trinitaria",
       "El rencor de Serylda",
       "Lanza de Shojin",
       "Filo de la noche"
@@ -9123,7 +9123,7 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/zed",
     "spells": [],
     "primaryRunes": [
-      "Electrocutar"
+      "Conquistador"
     ],
     "build2Runes": "Primer Golpe,Impacto Repentino,Asalto Encadenado,Colección De Globos Oculares,Revestimiento De Huesos",
     "build2Spells": [],
@@ -9132,38 +9132,38 @@
         "title": "MID - Daño explosivo",
         "lane": "MID",
         "coreItems": [
-          "Eclipse",
+          "Colmillo de serpiente",
           "Fuerza trinitaria",
-          "Hoja del Ocaso de Draktharr"
+          "El rencor de Serylda"
         ],
         "items": [
-          "El cuchillo fantasma de Youmuu",
           "Colmillo de serpiente",
+          "Fuerza trinitaria",
           "El rencor de Serylda",
           "Lanza de Shojin",
           "Filo de la noche"
         ],
-        "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Cinturón de cohetes hextech",
+        "bootBase": "Botas dinámicas",
+        "bootUpgrade": "Botas quebrantarmaduras",
         "situationalBoots": [
           "Grebas codiciosas"
         ],
         "situationalItems": [
-          "Colmillo de serpiente",
-          "Cielo desgarrado"
+          "El cuchillo fantasma de Youmuu",
+          "Ángel custodio"
         ],
-        "primaryRune": "Electrocutar",
+        "primaryRune": "Conquistador",
         "secondaryRunes": [
           "Fervor de batalla",
-          "Derribado",
-          "Leyenda: Linaje",
-          "Impacto repentino"
+          "Golpe de gracia",
+          "Leyenda: Presteza",
+          "Trascendencia"
         ],
         "spells": [
           "Destello",
-          "Prender"
+          "Aplastar"
         ],
-        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Trascendencia"
+        "runes": "Conquistador,Fervor de batalla,Golpe de gracia,Leyenda: Presteza,Trascendencia"
       },
       {
         "title": "MID - Daño explosivo",

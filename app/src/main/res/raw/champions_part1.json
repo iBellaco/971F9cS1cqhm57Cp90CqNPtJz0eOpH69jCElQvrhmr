@@ -3858,16 +3858,16 @@
       "Lux"
     ],
     "tacticalAdvice": "Mantén las 5 cargas de tu pasiva golpeando con tu Habilidad 1 (H1) antes de pelear. Guarda tu Desplazamiento Arcano (H3) para esquivar iniciaciones clave.",
-    "recommendedRunes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Revestimiento de huesos",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Linaje • Banda de Maná",
+    "recommendedRunes": "Conquistador,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Revestimiento de Huesos",
+    "runeTreeDetails": "Precisión: Conquistador • Impacto Repentino • Golpe de Gracia • Leyenda: Presteza • Revestimiento de Huesos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
     "recommendedSpells": [
       "Destello",
-      "Extenuación"
+      "Barrera"
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Manamune",
+      "Muramana",
       "Fuerza trinitaria",
       "El rencor de Serylda",
       "Lanza de Shojin",
@@ -3927,44 +3927,44 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/ezreal",
     "spells": [],
     "primaryRunes": [
-      "Pies Veloces"
+      "Conquistador"
     ],
     "build2Runes": "Conquistador",
     "build2Spells": [],
     "builds": [
       {
-        "title": "ADC - Tanque anti AD",
+        "title": "ADC - Daño y Penetración",
         "lane": "ADC",
         "coreItems": [
-          "Manamune",
-          "Guantelete nacido del hielo",
-          "Espada del Rey Arruinado"
+          "Muramana",
+          "Fuerza trinitaria",
+          "El rencor de Serylda"
         ],
         "items": [
-          "Manamune",
+          "Muramana",
           "Fuerza trinitaria",
           "El rencor de Serylda",
           "Lanza de Shojin",
           "Espada del Rey Arruinado"
         ],
-        "bootBase": "Botas jonias de la lucidez",
-        "bootUpgrade": "Cinturón de cohetes hextech",
+        "bootBase": "Grebas codiciosas",
+        "bootUpgrade": "Botas inmortales",
         "situationalBoots": [
           "Grebas codiciosas"
         ],
         "situationalItems": [],
         "primaryRune": "Conquistador",
         "secondaryRunes": [
-          "Inquebrantable",
-          "Revestimiento de huesos",
-          "Perseverancia",
-          "Trascendencia"
+          "Impacto Repentino",
+          "Golpe de Gracia",
+          "Leyenda: Presteza",
+          "Revestimiento de Huesos"
         ],
         "spells": [
           "Destello",
-          "Extenuación"
+          "Barrera"
         ],
-        "runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Revestimiento de huesos"
+        "runes": "Conquistador,Impacto Repentino,Golpe de Gracia,Leyenda: Presteza,Revestimiento de Huesos"
       },
       {
         "title": "ADC - Daño explosivo",
@@ -5358,20 +5358,20 @@
       "Amumu"
     ],
     "tacticalAdvice": "Usa Niebla Sagrada (H2) para volverte inmune a los proyectiles y habilidades de los tiradores enemigos fuera de la zona.",
-    "recommendedRunes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Ataque Potenciado",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Segundo Aire",
-    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/conqueror/conqueror.png",
+    "recommendedRunes": "Pies Veloces,Triunfo,Fuerzas Renovadas,Perseverancia,Leyenda: Linaje",
+    "runeTreeDetails": "Precisión: Pies Veloces • Triunfo • Fuerzas Renovadas • Perseverancia • Leyenda: Linaje",
+    "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/fleetfootwork/fleetfootwork.png",
     "recommendedSpells": [
       "Fantasmal",
       "Prender"
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Hacedor de grietas",
-      "Diente de Nashor",
+      "Vara de las edades",
+      "Anochecer y amanecer",
+      "Malignance",
       "Gorro de muerte del miércoles",
-      "Bastón vacío",
-      "Orbe infinito"
+      "Bastón vacío"
     ],
     "coreItemsIcons": [],
     "situationalItems": [],
@@ -5427,42 +5427,42 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/gwen",
     "spells": [],
     "primaryRunes": [
-      "Soberano Gélido"
+      "Pies Veloces"
     ],
     "build2Runes": "Conquistador,Brutal,Derribado,Leyenda: Linaje,Sobrecrecimiento",
     "build2Spells": [],
     "builds": [
       {
-        "title": "TOP - daño continuo",
+        "title": "TOP - Escalado y Duelo AP",
         "lane": "TOP",
         "coreItems": [
+          "Vara de las edades",
           "Anochecer y amanecer",
-          "Hacedor de grietas",
-          "Gorro de muerte del miércoles"
+          "Malignance"
         ],
         "items": [
-          "Hacedor de grietas",
-          "Diente de Nashor",
+          "Vara de las edades",
+          "Anochecer y amanecer",
+          "Malignance",
           "Gorro de muerte del miércoles",
-          "Bastón vacío",
-          "Orbe infinito"
+          "Bastón vacío"
         ],
         "bootBase": "Botas de maná",
-        "bootUpgrade": "Estasis",
+        "bootUpgrade": "Botas del lanzahechizos",
         "situationalBoots": [],
         "situationalItems": [],
-        "primaryRune": "Conquistador",
+        "primaryRune": "Pies Veloces",
         "secondaryRunes": [
-          "Fervor de batalla",
-          "Último esfuerzo",
-          "Leyenda: Linaje",
-          "Sobrecrecimiento"
+          "Triunfo",
+          "Fuerzas Renovadas",
+          "Perseverancia",
+          "Leyenda: Linaje"
         ],
         "spells": [
           "Fantasmal",
           "Prender"
         ],
-        "runes": "Conquistador,Brutal,Golpe de gracia,Leyenda: Presteza,Ataque Potenciado"
+        "runes": "Pies Veloces,Triunfo,Fuerzas Renovadas,Perseverancia,Leyenda: Linaje"
       },
       {
         "title": "JG - Daño continuo",
@@ -6965,12 +6965,21 @@
       "Alistar"
     ],
     "tacticalAdvice": "Evoluciona tu Habilidad 1 (H1) rápidamente con AD temprano. Usa tu Instinto Asesino (H4) para reposicionarte tras la retaguardia rival.",
-    "recommendedRunes": "COMPÁS LETAL,COMPÁS LETAL,BRUTAL,DERRIBADO,LEYENDA: PRESTEZA,Revestimiento de huesos",
-    "runeTreeDetails": "Precisión: Triunfo • Golpe de Gracia • Leyenda: Presteza • Banda de Maná",
+    "recommendedRunes": "Compás Letal,Impacto Repentino,Golpe de Gracia,Leyenda: Linaje,Revestimiento de Huesos",
+    "runeTreeDetails": "Precisión: Compás Letal • Impacto Repentino • Golpe de Gracia • Leyenda: Linaje • Revestimiento de Huesos",
     "primaryRuneIconUrl": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/perk-images/styles/precision/lethaltempo/lethaltempo.png",
-    "recommendedSpells": [],
+    "recommendedSpells": [
+      "Destello",
+      "Limpiar"
+    ],
     "spellsIcons": [],
-    "coreItems": [],
+    "coreItems": [
+      "Verdugo de Krakens",
+      "Hoja de furia de Guinsoo",
+      "Terminus",
+      "Huracán de Runaan",
+      "Anochecer y amanecer"
+    ],
     "coreItemsIcons": [],
     "situationalItems": [],
     "situationalItemsIcons": [],
@@ -7025,41 +7034,42 @@
     "bestBuildWrUrl": "https://bestbuildwr.com/champion/kai-sa",
     "spells": [],
     "primaryRunes": [
-      "Pies Veloces"
+      "Compás Letal"
     ],
     "build2Runes": "Compás Letal (Precisión)",
     "build2Spells": [],
     "builds": [
       {
-        "title": "ADC - Velocidad de ataque",
+        "title": "ADC - On-Hit Híbrido",
         "lane": "ADC",
         "coreItems": [
           "Verdugo de Krakens",
           "Hoja de furia de Guinsoo",
-          "El huracán de Runaan"
+          "Terminus"
         ],
         "items": [
           "Verdugo de Krakens",
           "Hoja de furia de Guinsoo",
-          "El huracán de Runaan",
           "Terminus",
-          "Espada del Rey Arruinado"
+          "Huracán de Runaan",
+          "Anochecer y amanecer"
         ],
         "bootBase": "Grebas de berserker",
         "bootUpgrade": "Grebas de metal",
         "situationalBoots": [],
         "situationalItems": [],
-        "primaryRune": "Compás letal",
+        "primaryRune": "Compás Letal",
         "secondaryRunes": [
-          "Brutal",
-          "Derribado",
-          "Leyenda: Presteza",
-          "Revestimiento de huesos"
+          "Impacto Repentino",
+          "Golpe de Gracia",
+          "Leyenda: Linaje",
+          "Revestimiento de Huesos"
         ],
         "spells": [
-          "Extenuación",
-          "Destello"
-        ]
+          "Destello",
+          "Limpiar"
+        ],
+        "runes": "Compás Letal,Impacto Repentino,Golpe de Gracia,Leyenda: Linaje,Revestimiento de Huesos"
       }
     ]
   },

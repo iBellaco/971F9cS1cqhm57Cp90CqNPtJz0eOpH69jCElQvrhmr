@@ -735,11 +735,12 @@ fun AdminDashboardDialog(
                                     accentColor = LolZaunGreen,
                                     glowColor = Color(0xFF39FF14)
                                 )
+                                val freeUsers = users.count { it.role.equals("user", ignoreCase = true) || it.role.isBlank() || it.role.equals("free", ignoreCase = true) }
                                 AdminStatCard(
                                     modifier = Modifier.weight(1f),
-                                    title = "CON SESIÓN",
-                                    value = loggedInUsers.toString(),
-                                    icon = Icons.Default.VerifiedUser,
+                                    title = "GRATUITOS",
+                                    value = freeUsers.toString(),
+                                    icon = Icons.Default.PersonOutline,
                                     accentColor = LolBorderGold,
                                     glowColor = Color(0xFFFFD700)
                                 )
@@ -958,8 +959,25 @@ fun AdminDashboardDialog(
                                                         .document(user.uid)
                                                         .update("role", newRole)
                                                         .await()
+                                                    if (newRole == "premium") {
+                                                        com.example.util.SubscriptionHistoryManager.addRecordForUser(
+                                                            uid = user.uid,
+                                                            durationMillis = 0L,
+                                                            planName = "Asignación Manual: PREMIUM (Vitalicio)",
+                                                            status = "Completado (Admin)",
+                                                            amount = "$0.00"
+                                                        )
+                                                    } else if (newRole == "free") {
+                                                        com.example.util.SubscriptionHistoryManager.addRecordForUser(
+                                                            uid = user.uid,
+                                                            durationMillis = 0L,
+                                                            planName = "Asignación Manual: GRATIS",
+                                                            status = "Revocado (Admin)",
+                                                            amount = "$0.00"
+                                                        )
+                                                    }
                                                 } catch (e: Exception) {
-                                                    Log.e("AdminDashboard", "Error updating role", e)
+                                                    android.util.Log.e("AdminDashboard", "Error updating role", e)
                                                 }
                                             }
                                         },
@@ -1050,6 +1068,7 @@ fun UserManagementCard(
     var showNameEdit by remember { mutableStateOf(false) }
     var showGiftAvatarDialog by remember { mutableStateOf(false) }
     var showSubscriptionTimeDialog by remember { mutableStateOf(false) }
+    var showHistoryDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while(true) { kotlinx.coroutines.delay(1000L); currentTime = System.currentTimeMillis() } }
@@ -1069,6 +1088,14 @@ fun UserManagementCard(
             user = user,
             onDismiss = { showSubscriptionTimeDialog = false },
             onSubscriptionUpdated = { onRefresh() }
+        )
+    }
+
+    if (showHistoryDialog) {
+        SubscriptionHistoryDialog(
+            userId = user.uid,
+            userEmail = user.email,
+            onDismiss = { showHistoryDialog = false }
         )
     }
 
@@ -1462,6 +1489,16 @@ fun UserManagementCard(
                                 text = { Text("⏱️ Gestionar Tiempo Suscripción", color = LolBorderGold, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
                                 onClick = {
                                     showSubscriptionTimeDialog = true
+                                    expanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = {
+                                    Icon(Icons.Default.History, contentDescription = null, tint = LolHextechCyan, modifier = Modifier.size(16.dp))
+                                },
+                                text = { Text("📜 Ver Historial de Suscripción", color = LolHextechCyan, fontSize = 12.5.sp, fontWeight = FontWeight.Bold) },
+                                onClick = {
+                                    showHistoryDialog = true
                                     expanded = false
                                 }
                             )

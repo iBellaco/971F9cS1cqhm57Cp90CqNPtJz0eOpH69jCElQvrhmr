@@ -58,8 +58,8 @@ fun FAQScreen(
                 "Si tienes la versión premium, con darle al botón de guardar al terminar la selección, la partida se almacena de una en tu base de datos local con Room. Así puedes revisar luego tus composiciones, ver con qué campeones tienes más winrate y repasar qué falló o funcionó."
             ),
             Pair(
-                "¿Por qué usa la nomenclatura H1, H2, H3 en lugar de Q, W, E?",
-                "Porque en Wild Rift las habilidades se llaman Habilidad 1, Habilidad 2, Habilidad 3 y Definitiva (H4). Como la app es 100% exclusiva para móviles y no un port de PC, usamos los términos oficiales para que no te confundas al momento de jugar rápido."
+                "¿Cómo se identifican las habilidades en Wild Rift (H1, H2, H3 y H4)?",
+                "En Wild Rift las habilidades de los controles táctiles se denominan oficialmente Habilidad 1 (H1), Habilidad 2 (H2), Habilidad 3 (H3) y Definitiva (H4 o Ulti). Diseñamos la aplicación exclusivamente orientada a la experiencia táctil de Wild Rift para que reconozcas tus botones al instante durante las partidas."
             ),
             Pair(
                 "¿Cómo funciona la suscripción y qué beneficios incluye?",
@@ -259,11 +259,11 @@ fun FAQScreen(
             ),
             Pair(
                 "¿Por qué la app no me dice cómo convencer a mi equipo de hacer el Dragón?",
-                "Ni la Inteligencia Artificial más potente del mundo ha logrado descifrar la psicología de un equipo de Solo Queue que prefiere ir a farmear los lobos en vez de hacer el Dragón Anciano. Es un misterio de la humanidad."
+                "Ni la Inteligencia Artificial más potente del mundo ha logrado descifrar la psicología de un equipo en partidas clasificatorias de Wild Rift que prefiere ir a farmear los lobos en vez de hacer el Dragón Anciano. Es un misterio de la humanidad."
             ),
             Pair(
                 "¿Si me pongo la skin de Lee Sin Puño de Dios, la app me da más winrate automáticamente?",
-                "Visualmente intimidarás más, pero el algoritmo sabe que seguirás fallando la Onda Sónica (Q). Las skins dan +10 de facha, pero no apuntan por ti."
+                "Visualmente intimidarás más, pero el algoritmo sabe que seguirás fallando la Onda Sónica (Habilidad 1 / H1). Las skins dan +10 de facha, pero no apuntan por ti."
             ),
             Pair(
                 "¿La app incluye un botón de 'rendición automática' al minuto 5?",

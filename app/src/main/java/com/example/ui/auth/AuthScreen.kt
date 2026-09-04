@@ -467,7 +467,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
 
             if (showHistoryDialog) {
-                com.example.ui.components.SubscriptionHistoryDialog(onDismiss = { showHistoryDialog = false })
+                com.example.ui.components.SubscriptionHistoryDialog(
+                    userId = user.uid,
+                    userEmail = user.email,
+                    onDismiss = { showHistoryDialog = false }
+                )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
