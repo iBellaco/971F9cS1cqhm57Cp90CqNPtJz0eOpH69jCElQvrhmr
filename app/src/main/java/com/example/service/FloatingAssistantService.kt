@@ -692,6 +692,7 @@ private fun FloatingOverlayContent(
     var isScanning by remember { mutableStateOf(false) }
     var autoScanEnabled by remember { mutableStateOf(false) }
     var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
+    var lastManualRoleChangeTime by remember { mutableStateOf(0L) }
 
     var isDraggingBubble by remember { mutableStateOf(false) }
     var dragAccumulatedY by remember { mutableFloatStateOf(0f) }
@@ -749,30 +750,11 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // 2. Colocar en ranura vacía cualquier campeón adicional garantizando unicidad total
-                            result.allies.forEach { champ ->
-                                if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
-                                    val emptyIdx = allies.indexOfFirst { it == null }
-                                    if (emptyIdx in 0 until 5) {
-                                        assignAllySlot(emptyIdx, champ)
-                                        newAlliesAdded++
-                                    }
-                                }
-                            }
-                            result.enemies.forEach { champ ->
-                                if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
-                                    val emptyIdx = enemies.indexOfFirst { it == null }
-                                    if (emptyIdx in 0 until 5) {
-                                        assignEnemySlot(emptyIdx, champ)
-                                        newEnemiesAdded++
-                                    }
-                                }
-                            }
-
-                            if (result.detectedRole != null && activeRole != result.detectedRole) {
+                            val isRoleProtected = (System.currentTimeMillis() - lastManualRoleChangeTime) < 15000L
+                            if (result.detectedRole != null && activeRole != result.detectedRole && !isRoleProtected) {
                                 activeRole = result.detectedRole
                                 com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
-                                scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName}) + ${newAlliesAdded + newEnemiesAdded} picks"
+                                scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName})"
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
                             }
@@ -806,7 +788,7 @@ private fun FloatingOverlayContent(
                 val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
-                        // 1. Asignación directa por rol/posición
+                        // 1. Asignación directa y de alta precisión por rol/posición
                         defaultRoles.forEachIndexed { idx, role ->
                             val scannedAlly = result.alliesByRole[role]
                             if (scannedAlly != null) {
@@ -818,23 +800,6 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        // 2. Colocar cualquier campeón adicional sin rol en ranura vacía
-                        result.allies.forEach { champ ->
-                            if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
-                                val emptyIdx = allies.indexOfFirst { it == null }
-                                if (emptyIdx in 0 until 5) {
-                                    assignAllySlot(emptyIdx, champ)
-                                }
-                            }
-                        }
-                        result.enemies.forEach { champ ->
-                            if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
-                                val emptyIdx = enemies.indexOfFirst { it == null }
-                                if (emptyIdx in 0 until 5) {
-                                    assignEnemySlot(emptyIdx, champ)
-                                }
-                            }
-                        }
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole
                             com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
@@ -1371,6 +1336,7 @@ private fun FloatingOverlayContent(
                                             activeRole = activeRole,
                                             onActiveRoleChange = { 
                                                 activeRole = it 
+                                                lastManualRoleChangeTime = System.currentTimeMillis()
                                                 com.example.util.UserPreferences.setActiveDraftRole(context, it)
                                             },
                                             isFirstPick = isFirstPick,
