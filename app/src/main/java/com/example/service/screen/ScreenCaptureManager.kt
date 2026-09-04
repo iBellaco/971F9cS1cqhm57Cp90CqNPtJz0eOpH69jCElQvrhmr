@@ -72,6 +72,22 @@ class ScreenCaptureManager(private val context: Context) {
                 return false
             }
 
+            try {
+                mediaProjection?.registerCallback(object : MediaProjection.Callback() {
+                    override fun onStop() {
+                        super.onStop()
+                        AppLogger.w(TAG, "MediaProjection detenido por el sistema.")
+                        synchronized(frameLock) {
+                            lastFrame?.recycle()
+                            lastFrame = null
+                        }
+                        mediaProjection = null
+                    }
+                }, handler)
+            } catch (e: Exception) {
+                AppLogger.w(TAG, "No se pudo registrar callback en MediaProjection: ${e.message}")
+            }
+
             updateScreenDimensions()
 
             val captureWidth = screenWidth.coerceAtLeast(480)
@@ -216,57 +232,66 @@ class ScreenCaptureManager(private val context: Context) {
             }
         } catch (_: Exception) {}
 
-        // Intentar obtener el último frame recibido de forma segura
-        synchronized(frameLock) {
-            val cached = lastFrame
-            if (cached != null && !cached.isRecycled) {
-                return try {
-                    cached.copy(Bitmap.Config.ARGB_8888, false)
-                } catch (_: Exception) {
-                    null
+        // Intentar obtener el frame disponible, con breve espera de sincronización si recién inicializa
+        var attempts = 0
+        while (attempts < 5) {
+            synchronized(frameLock) {
+                val cached = lastFrame
+                if (cached != null && !cached.isRecycled) {
+                    return try {
+                        cached.copy(Bitmap.Config.ARGB_8888, false)
+                    } catch (_: Exception) {
+                        null
+                    }
                 }
             }
-        }
 
-        val reader = imageReader ?: return null
-        var image: Image? = null
-        return try {
-            image = reader.acquireLatestImage() ?: reader.acquireNextImage()
-            if (image == null) return null
+            val reader = imageReader ?: return null
+            var image: Image? = null
+            try {
+                image = reader.acquireLatestImage() ?: reader.acquireNextImage()
+                if (image != null) {
+                    val planes = image.planes
+                    val buffer: ByteBuffer = planes[0].buffer
+                    val pixelStride = planes[0].pixelStride
+                    val rowStride = planes[0].rowStride
+                    val rowPadding = rowStride - pixelStride * image.width
 
-            val planes = image.planes
-            val buffer: ByteBuffer = planes[0].buffer
-            val pixelStride = planes[0].pixelStride
-            val rowStride = planes[0].rowStride
-            val rowPadding = rowStride - pixelStride * image.width
+                    val bitmap = Bitmap.createBitmap(
+                        image.width + rowPadding / pixelStride,
+                        image.height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    bitmap.copyPixelsFromBuffer(buffer)
 
-            val bitmap = Bitmap.createBitmap(
-                image.width + rowPadding / pixelStride,
-                image.height,
-                Bitmap.Config.ARGB_8888
-            )
-            bitmap.copyPixelsFromBuffer(buffer)
+                    val cleanBitmap = if (rowPadding != 0) {
+                        val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
+                        bitmap.recycle()
+                        cropped
+                    } else {
+                        bitmap
+                    }
 
-            val cleanBitmap = if (rowPadding != 0) {
-                val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-                bitmap.recycle()
-                cropped
-            } else {
-                bitmap
+                    synchronized(frameLock) {
+                        lastFrame?.recycle()
+                        lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                    }
+
+                    return cleanBitmap
+                }
+            } catch (e: Exception) {
+                AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
+            } finally {
+                image?.close()
             }
 
-            synchronized(frameLock) {
-                lastFrame?.recycle()
-                lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
-            }
-
-            cleanBitmap
-        } catch (e: Exception) {
-            AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
-            null
-        } finally {
-            image?.close()
+            attempts++
+            try {
+                Thread.sleep(60)
+            } catch (_: Exception) {}
         }
+
+        return null
     }
 
     fun isReady(): Boolean = mediaProjection != null && imageReader != null

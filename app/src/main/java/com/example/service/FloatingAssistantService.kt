@@ -216,7 +216,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     startForeground(
                         NOTIFICATION_ID,
                         notification,
-                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                     )
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     startForeground(
@@ -230,7 +231,15 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             } catch (e: Exception) {
                 AppLogger.w("FloatingService", "Fallback foreground service start: ${e.message}")
                 try {
-                    startForeground(NOTIFICATION_ID, notification)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        startForeground(
+                            NOTIFICATION_ID,
+                            notification,
+                            android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                        )
+                    } else {
+                        startForeground(NOTIFICATION_ID, notification)
+                    }
                 } catch (_: Exception) {}
             }
 
@@ -246,6 +255,26 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             return START_NOT_STICKY
         }
         if (ScreenCaptureManager.pendingMediaProjectionData != null) {
+            try {
+                val notification = buildForegroundNotification()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    startForeground(
+                        NOTIFICATION_ID,
+                        notification,
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                    )
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(
+                        NOTIFICATION_ID,
+                        notification,
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+                    )
+                }
+            } catch (e: Exception) {
+                AppLogger.w("FloatingService", "Error asegurando tipo FGS: ${e.message}")
+            }
+
             val success = screenCaptureManager?.initializeProjection(
                 ScreenCaptureManager.pendingMediaProjectionResultCode,
                 ScreenCaptureManager.pendingMediaProjectionData!!
@@ -671,7 +700,9 @@ private fun FloatingOverlayContent(
                 try {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
                     if (bitmap != null) {
-                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                        val preferredName = com.example.data.AccountProfileManager.allProfiles.value.firstOrNull()?.name
+                            ?: com.example.util.SubscriptionManager.userName.value
+                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
                         if (result.isSuccessful) {
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
@@ -735,7 +766,9 @@ private fun FloatingOverlayContent(
         coroutineScope.launch(Dispatchers.IO) {
             val bitmap = screenCaptureManager?.captureCurrentFrame()
             if (bitmap != null) {
-                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                val preferredName = com.example.data.AccountProfileManager.allProfiles.value.firstOrNull()?.name
+                    ?: com.example.util.SubscriptionManager.userName.value
+                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         result.allies.forEach { champ ->
@@ -777,7 +810,11 @@ private fun FloatingOverlayContent(
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    scanNoticeMessage = "⚠️ No hay frame de captura disponible"
+                    if (screenCaptureManager?.isReady() != true) {
+                        scanNoticeMessage = "⚠️ Permiso de captura no activo. Toca aquí para concederlo."
+                    } else {
+                        scanNoticeMessage = "⚠️ No hay frame de captura disponible"
+                    }
                     isScanning = false
                 }
             }
@@ -1224,6 +1261,17 @@ private fun FloatingOverlayContent(
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(HextechSurface)
                                     .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                    .clickable {
+                                        if (scanNoticeMessage?.contains("Permiso", ignoreCase = true) == true) {
+                                            try {
+                                                val intent = Intent(context, com.example.MainActivity::class.java).apply {
+                                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                    putExtra("EXTRA_REQUEST_CAPTURE", true)
+                                                }
+                                                context.startActivity(intent)
+                                            } catch (_: Exception) {}
+                                        }
+                                    }
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(

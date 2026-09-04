@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import com.example.ui.components.PrivacyPolicyDialog
 import com.example.data.sync.OfflineResourceManager
 import com.example.data.sync.DownloadState
@@ -185,6 +186,15 @@ fun MainDraftingScreen(
         } else {
             // Permiso de captura denegado
             isAssistantActive = false
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val activity = context as? Activity
+        if (activity?.intent?.getBooleanExtra("EXTRA_REQUEST_CAPTURE", false) == true) {
+            activity.intent.removeExtra("EXTRA_REQUEST_CAPTURE")
+            val mediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            mediaProjectionLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
         }
     }
 
