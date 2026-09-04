@@ -148,7 +148,7 @@ fun AppAssetImage(
     val parsedUrl = url.trim()
     
     val modelData: Any? = if (parsedUrl.startsWith("file:///android_asset/")) {
-        parsedUrl
+        android.net.Uri.parse(parsedUrl)
     } else if (parsedUrl.startsWith("file://")) {
         java.io.File(parsedUrl.removePrefix("file://"))
     } else if (parsedUrl.isNotBlank()) {
