@@ -385,36 +385,48 @@ object DraftVisionScanner {
                 }
                 val wingScore = (goldCount * 4 + rubyCount * 4 + orangeCount * 3 + cyanCount * 2)
                 slotScores[i] += wingScore
+                // Bonificación masiva al marco ornamental de dragón con rubí (exclusivo del jugador local en Wild Rift)
+                if (rubyCount >= 5 || (goldCount >= 14 && orangeCount >= 4)) {
+                    slotScores[i] += 4500
+                    AppLogger.d(TAG, "Marco dorado con gema rubí detectado en slot $i (+4500)")
+                }
                 AppLogger.d(TAG, "Slot $i Dragon Wing Score: $wingScore (gold=$goldCount, ruby=$rubyCount, orange=$orangeCount)")
 
                 // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.098)
-                // Smite posee una hoja al rojo vivo/carmesí con fuego (R alto, G medio-bajo, B muy bajo, R >> G).
-                // Flash (Destello) es amarillo brillante parejo (G muy alto, R - G pequeño). Se descarta Flash rigurosamente.
-                val spellsXMin = (screenWidth * 0.065f).toInt().coerceAtLeast(0)
-                val spellsXMax = (screenWidth * 0.098f).toInt().coerceAtMost(screenWidth - 1)
-                val spellsYMin = (yCenter - screenHeight * 0.040f).toInt().coerceAtLeast(0)
-                val spellsYMax = (yCenter + screenHeight * 0.040f).toInt().coerceAtMost(screenHeight - 1)
+                // Smite en Wild Rift posee una hoja dorada/amarilla viva con rayos (R alto, G medio-alto, B bajo).
+                // Prender (Ignite) es rojo fuego (R alto, G bajo). Destello (Flash) es amarillo uniforme.
+                // REGLA CRÍTICA: Un campeón cuyo rol nativo NO es Jungla (ej. Syndra, Sona, Varus, Ornn) NUNCA debe marcarse como Jungla por hechizos.
+                val champInSlot = allySlots[i]
+                val canChampionJungle = champInSlot == null || 
+                        champInSlot.primaryRole == LaneRole.JUNGLE || 
+                        champInSlot.secondaryRoles.contains(LaneRole.JUNGLE)
 
-                var smiteFlameCount = 0
-                for (sy in spellsYMin..spellsYMax step 2) {
-                    for (sx in spellsXMin..spellsXMax step 2) {
-                        val sp = processBitmap.getPixel(sx, sy)
-                        val sr = (sp shr 16) and 0xFF
-                        val sg = (sp shr 8) and 0xFF
-                        val sb = sp and 0xFF
-                        // Filo rojo fuego / llama naranja intensa de Aplastar (Smite)
-                        if (sr in 195..255 && sg in 50..135 && sb < 45 && sr >= sg + 60) {
-                            smiteFlameCount++
+                if (canChampionJungle) {
+                    val spellsXMin = (screenWidth * 0.065f).toInt().coerceAtLeast(0)
+                    val spellsXMax = (screenWidth * 0.098f).toInt().coerceAtMost(screenWidth - 1)
+                    val spellsYMin = (yCenter - screenHeight * 0.040f).toInt().coerceAtLeast(0)
+                    val spellsYMax = (yCenter + screenHeight * 0.040f).toInt().coerceAtMost(screenHeight - 1)
+
+                    var smiteFlameCount = 0
+                    for (sy in spellsYMin..spellsYMax step 2) {
+                        for (sx in spellsXMin..spellsXMax step 2) {
+                            val sp = processBitmap.getPixel(sx, sy)
+                            val sr = (sp shr 16) and 0xFF
+                            val sg = (sp shr 8) and 0xFF
+                            val sb = sp and 0xFF
+                            // Hoja dorada/ámbar brillante de Aplastar (Smite) con energía de rayo
+                            if (sr in 195..255 && sg in 140..230 && sb < 85 && sr >= sg) {
+                                smiteFlameCount++
+                            }
                         }
                     }
-                }
-                // Si detecta fuego carmesí/naranja de Smite y el rol no está explícitamente fijado como TOP/MID/ADC/SUP
-                if (smiteFlameCount >= 22) {
-                    slotHasSmite[i] = true
-                    if (allySlotRoles[i] == null) {
-                        allySlotRoles[i] = LaneRole.JUNGLE
+                    if (smiteFlameCount >= 22) {
+                        slotHasSmite[i] = true
+                        if (allySlotRoles[i] == null) {
+                            allySlotRoles[i] = LaneRole.JUNGLE
+                        }
+                        AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount)")
                     }
-                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount)")
                 }
             }
 
@@ -428,18 +440,19 @@ object DraftVisionScanner {
                         normTxt.contains(normPreferred) || normPreferred.contains(normTxt)
                     }
                     if (hasName) {
-                        slotScores[i] += 1000
+                        slotScores[i] += 3000
                         AppLogger.d(TAG, "Bonus de nombre de invocador aplicado a ranura $i")
                     }
                 }
-                // Si contiene el tag habitual o nombre del usuario (e.g. elchicho, xcs)
+                // Si contiene el nombre específico del usuario (ej. elchicho, chicho)
+                // NO usar tags genéricos como "xcs" que pueden compartir compañeros de gremio
                 val hasUserHint = textsInSlot.any { txt ->
                     val low = txt.lowercase(Locale.ROOT)
-                    low.contains("elchicho") || low.contains("chicho") || low.contains("xcs")
+                    low.contains("elchicho") || low.contains("chicho") || low.contains("chicho7")
                 }
                 if (hasUserHint) {
-                    slotScores[i] += 1500
-                    AppLogger.d(TAG, "Bonus de invocador detectado (chicho/xcs) en ranura $i")
+                    slotScores[i] += 5000
+                    AppLogger.d(TAG, "Bonus de invocador local detectado (chicho) en ranura $i (+5000)")
                 }
             }
 
@@ -461,56 +474,107 @@ object DraftVisionScanner {
             }
 
             // 4. Estructurar la asignación exacta por rol (alliesByRole y enemiesByRole)
-            // Asignación no destructiva: garantizar que ningún campeón aliado o enemigo quede excluido
             val alliesByRole = mutableMapOf<LaneRole, Champion>()
             val enemiesByRole = mutableMapOf<LaneRole, Champion>()
             val standardOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
 
-            // Paso A: Asignar aliados con rol explícito detectado
-            val unassignedAllies = mutableListOf<Champion>()
+            // ANCLA CRÍTICA 1: El campeón del usuario local ("TÚ") SIEMPRE se asigna a su línea detectada
+            if (userSlotIndex != null && detectedRole != null) {
+                val userChamp = allySlots[userSlotIndex]
+                if (userChamp != null) {
+                    alliesByRole[detectedRole] = userChamp
+                    AppLogger.d(TAG, "ANCLA USUARIO: Asignando campeón local ${userChamp.name} a su carril $detectedRole")
+                }
+            }
+
+            // PASO 2 ALIADOS: Asignar aliados con rol explícito detectado por OCR (ej. "CALLE DEL BARÓN" -> TOP)
             for (i in 0 until 5) {
+                if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
+                if (alliesByRole.containsValue(champ)) continue
+
                 val explicitRole = allySlotRoles[i]
                 if (explicitRole != null && !alliesByRole.containsKey(explicitRole)) {
                     alliesByRole[explicitRole] = champ
-                } else {
-                    unassignedAllies.add(champ)
                 }
             }
 
-            // Paso B: Asignar aliados restantes priorizando primaryRole, secondaryRoles o vacante disponible
-            for (champ in unassignedAllies) {
-                val role = if (!alliesByRole.containsKey(champ.primaryRole)) {
-                    champ.primaryRole
-                } else {
-                    champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
-                        ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
-                        ?: champ.primaryRole
+            // PASO 3 ALIADOS: Asignar aliados restantes priorizando su rol primario nativo (primaryRole)
+            for (i in 0 until 5) {
+                if (i == userSlotIndex) continue
+                val champ = allySlots[i] ?: continue
+                if (alliesByRole.containsValue(champ)) continue
+
+                if (!alliesByRole.containsKey(champ.primaryRole)) {
+                    alliesByRole[champ.primaryRole] = champ
                 }
-                alliesByRole[role] = champ
             }
 
-            // Asignar enemigos de forma igualmente robusta y no destructiva
-            val unassignedEnemies = mutableListOf<Champion>()
+            // PASO 4 ALIADOS: Asignar según el carril por defecto de la ranura en Wild Rift (defaultAllyRoles)
+            for (i in 0 until 5) {
+                if (i == userSlotIndex) continue
+                val champ = allySlots[i] ?: continue
+                if (alliesByRole.containsValue(champ)) continue
+
+                val slotDefaultRole = defaultAllyRoles.getOrNull(i)
+                if (slotDefaultRole != null && !alliesByRole.containsKey(slotDefaultRole)) {
+                    alliesByRole[slotDefaultRole] = champ
+                }
+            }
+
+            // PASO 5 ALIADOS: Asignar en roles secundarios o vacantes restantes
+            for (i in 0 until 5) {
+                if (i == userSlotIndex) continue
+                val champ = allySlots[i] ?: continue
+                if (alliesByRole.containsValue(champ)) continue
+
+                val freeRole = champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
+                    ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
+                if (freeRole != null) {
+                    alliesByRole[freeRole] = champ
+                }
+            }
+
+            // PASO 1 ENEMIGOS: Roles explícitos por texto
             for (i in 0 until 5) {
                 val champ = enemySlots[i] ?: continue
                 val explicitRole = enemySlotRoles[i]
                 if (explicitRole != null && !enemiesByRole.containsKey(explicitRole)) {
                     enemiesByRole[explicitRole] = champ
-                } else {
-                    unassignedEnemies.add(champ)
                 }
             }
 
-            for (champ in unassignedEnemies) {
-                val role = if (!enemiesByRole.containsKey(champ.primaryRole)) {
-                    champ.primaryRole
-                } else {
-                    champ.secondaryRoles.firstOrNull { !enemiesByRole.containsKey(it) }
-                        ?: standardOrder.firstOrNull { !enemiesByRole.containsKey(it) }
-                        ?: champ.primaryRole
+            // PASO 2 ENEMIGOS: Rol primario nativo (primaryRole)
+            for (i in 0 until 5) {
+                val champ = enemySlots[i] ?: continue
+                if (enemiesByRole.containsValue(champ)) continue
+
+                if (!enemiesByRole.containsKey(champ.primaryRole)) {
+                    enemiesByRole[champ.primaryRole] = champ
                 }
-                enemiesByRole[role] = champ
+            }
+
+            // PASO 3 ENEMIGOS: Rol por defecto de la ranura enemiga (defaultEnemyRoles)
+            for (i in 0 until 5) {
+                val champ = enemySlots[i] ?: continue
+                if (enemiesByRole.containsValue(champ)) continue
+
+                val slotDefaultRole = defaultEnemyRoles.getOrNull(i)
+                if (slotDefaultRole != null && !enemiesByRole.containsKey(slotDefaultRole)) {
+                    enemiesByRole[slotDefaultRole] = champ
+                }
+            }
+
+            // PASO 4 ENEMIGOS: Roles secundarios o vacantes restantes
+            for (i in 0 until 5) {
+                val champ = enemySlots[i] ?: continue
+                if (enemiesByRole.containsValue(champ)) continue
+
+                val freeRole = champ.secondaryRoles.firstOrNull { !enemiesByRole.containsKey(it) }
+                    ?: standardOrder.firstOrNull { !enemiesByRole.containsKey(it) }
+                if (freeRole != null) {
+                    enemiesByRole[freeRole] = champ
+                }
             }
 
             val foundAllies = standardOrder.mapNotNull { alliesByRole[it] }
