@@ -236,7 +236,13 @@ object DraftVisionScanner {
             val allySlotTexts = Array(5) { mutableListOf<String>() }
             val enemySlotEmpty = BooleanArray(5)
 
-            // 1. Procesamiento OCR exclusivo por columnas laterales delimitadas
+            // Registro de Pantalla de Carga (Loading Screen Horizontal):
+            // En Wild Rift, el orden canónico en la pantalla de carga de izquierda a derecha es:
+            // Col 0 = TOP (Barón), Col 1 = JUNGLE, Col 2 = MID, Col 3 = ADC (Dúo), Col 4 = SUPPORT
+            val loadingAllySlots = arrayOfNulls<Champion>(5)
+            val loadingEnemySlots = arrayOfNulls<Champion>(5)
+
+            // 1. Procesamiento OCR exclusivo por columnas laterales delimitadas o pantalla de carga
             // Excluir zona de selección de campeones (0.28 a 0.70) para evitar leer la lista desplegable de campeones
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
@@ -256,7 +262,41 @@ object DraftVisionScanner {
                         continue
                     }
 
-                    // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
+                    // --- DETECCIÓN DE PANTALLA DE CARGA (LOADING SCREEN) ---
+                    // Registra campeones según sus 5 columnas horizontales canónicas
+                    val loadingColIdx = when {
+                        xRatio in 0.02f..0.22f -> 0 // TOP
+                        xRatio in 0.22f..0.41f -> 1 // JUNGLE
+                        xRatio in 0.41f..0.60f -> 2 // MID
+                        xRatio in 0.60f..0.79f -> 3 // ADC
+                        xRatio in 0.79f..0.98f -> 4 // SUPPORT
+                        else -> -1
+                    }
+                    if (loadingColIdx in 0..4) {
+                        val matchedCandidate = matchChampions(lineText, allChamps).firstOrNull() ?: run {
+                            val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                            words.firstNotNullOfOrNull { w ->
+                                if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
+                                    matchChampions(w, allChamps).firstOrNull()
+                                } else null
+                            }
+                        }
+                        if (matchedCandidate != null) {
+                            if (yRatio < 0.50f) {
+                                if (loadingAllySlots[loadingColIdx] == null) {
+                                    loadingAllySlots[loadingColIdx] = matchedCandidate
+                                    AppLogger.d(TAG, "Loading Screen Aliado en col $loadingColIdx: ${matchedCandidate.name}")
+                                }
+                            } else {
+                                if (loadingEnemySlots[loadingColIdx] == null) {
+                                    loadingEnemySlots[loadingColIdx] = matchedCandidate
+                                    AppLogger.d(TAG, "Loading Screen Enemigo en col $loadingColIdx: ${matchedCandidate.name}")
+                                }
+                            }
+                        }
+                    }
+
+                    // --- COLUMNA IZQUIERDA: EQUIPO ALIADO (DRAFT VERTICAL) ---
                     // Acotado estrictamente entre 11% y 27.5% del ancho de pantalla.
                     if (xRatio in 0.11f..0.275f) {
                         val slotIdx = when {
@@ -611,70 +651,88 @@ object DraftVisionScanner {
             val alliesByRole = mutableMapOf<LaneRole, Champion>()
             val enemiesByRole = mutableMapOf<LaneRole, Champion>()
             val standardOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+            val canonicalRoles = arrayOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
 
-            // ANCLA CRÍTICA 1: El campeón del usuario local ("TÚ") SIEMPRE se asigna a su línea detectada
-            if (userSlotIndex != null && detectedRole != null) {
-                val userChamp = allySlots[userSlotIndex]
-                if (userChamp != null) {
-                    alliesByRole[detectedRole] = userChamp
-                    AppLogger.d(TAG, "ANCLA USUARIO: Asignando campeón local ${userChamp.name} a su carril $detectedRole")
+            val isLoadingScreenMode = loadingAllySlots.count { it != null } >= 2 || loadingEnemySlots.count { it != null } >= 2
+
+            if (isLoadingScreenMode) {
+                AppLogger.d(TAG, "MODO PANTALLA DE CARGA DETECTADO: Aplicando orden canónico de Wild Rift [TOP, JG, MID, ADC, SUP]")
+                for (col in 0 until 5) {
+                    val role = canonicalRoles[col]
+                    val allyChamp = loadingAllySlots[col]
+                    if (allyChamp != null) {
+                        alliesByRole[role] = allyChamp
+                    }
+                    val enemyChamp = loadingEnemySlots[col]
+                    if (enemyChamp != null) {
+                        enemiesByRole[role] = enemyChamp
+                    }
                 }
-            }
-
-            // ASIGNACIÓN DIRECTA DE RANURAS ALIADAS:
-            // En Wild Rift, el orden físico de las 5 ranuras aliadas en draft es:
-            // 0=ADC (Dúo), 1=SUPPORT, 2=MID, 3=JUNGLE, 4=TOP (Barón)
-            for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
-                // Prioridad 1: Rol asignado a la ranura por posición o texto explícito
-                val targetRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i)
-                if (targetRole != null && !alliesByRole.containsKey(targetRole)) {
-                    alliesByRole[targetRole] = champ
-                } else if (!alliesByRole.containsKey(champ.primaryRole)) {
-                    alliesByRole[champ.primaryRole] = champ
+            } else {
+                // ANCLA CRÍTICA 1: El campeón del usuario local ("TÚ") SIEMPRE se asigna a su línea detectada
+                if (userSlotIndex != null && detectedRole != null) {
+                    val userChamp = allySlots[userSlotIndex]
+                    if (userChamp != null) {
+                        alliesByRole[detectedRole] = userChamp
+                        AppLogger.d(TAG, "ANCLA USUARIO: Asignando campeón local ${userChamp.name} a su carril $detectedRole")
+                    }
                 }
-            }
 
-            // Rellenar vacantes aliadas si algún campeón quedó pendiente
-            for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
+                // ASIGNACIÓN DIRECTA DE RANURAS ALIADAS:
+                // En Wild Rift, el orden físico de las 5 ranuras aliadas en draft es:
+                // 0=ADC (Dúo), 1=SUPPORT, 2=MID, 3=JUNGLE, 4=TOP (Barón)
+                for (i in 0 until 5) {
+                    if (i == userSlotIndex) continue
+                    val champ = allySlots[i] ?: continue
+                    if (alliesByRole.containsValue(champ)) continue
 
-                val freeRole = champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
-                    ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
-                if (freeRole != null) {
-                    alliesByRole[freeRole] = champ
+                    // Prioridad 1: Rol asignado a la ranura por posición o texto explícito
+                    val targetRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i)
+                    if (targetRole != null && !alliesByRole.containsKey(targetRole)) {
+                        alliesByRole[targetRole] = champ
+                    } else if (!alliesByRole.containsKey(champ.primaryRole)) {
+                        alliesByRole[champ.primaryRole] = champ
+                    }
                 }
-            }
 
-            // ASIGNACIÓN DIRECTA DE RANURAS ENEMIGAS:
-            // En Wild Rift, el orden físico de las 5 ranuras enemigas en draft es:
-            // 0=ADC (Dúo), 1=JUNGLE, 2=MID, 3=SUPPORT, 4=TOP (Barón)
-            for (i in 0 until 5) {
-                val champ = enemySlots[i] ?: continue
-                if (enemiesByRole.containsValue(champ)) continue
+                // Rellenar vacantes aliadas si algún campeón quedó pendiente
+                for (i in 0 until 5) {
+                    if (i == userSlotIndex) continue
+                    val champ = allySlots[i] ?: continue
+                    if (alliesByRole.containsValue(champ)) continue
 
-                val targetRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i)
-                if (targetRole != null && !enemiesByRole.containsKey(targetRole)) {
-                    enemiesByRole[targetRole] = champ
-                } else if (!enemiesByRole.containsKey(champ.primaryRole)) {
-                    enemiesByRole[champ.primaryRole] = champ
+                    val freeRole = champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
+                        ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
+                    if (freeRole != null) {
+                        alliesByRole[freeRole] = champ
+                    }
                 }
-            }
 
-            // Rellenar vacantes enemigas si algún campeón quedó pendiente
-            for (i in 0 until 5) {
-                val champ = enemySlots[i] ?: continue
-                if (enemiesByRole.containsValue(champ)) continue
+                // ASIGNACIÓN DIRECTA DE RANURAS ENEMIGAS (DRAFT):
+                // En Wild Rift, el orden físico de las 5 ranuras enemigas en draft es:
+                // 0=ADC (Dúo), 1=JUNGLE, 2=MID, 3=SUPPORT, 4=TOP (Barón)
+                for (i in 0 until 5) {
+                    val champ = enemySlots[i] ?: continue
+                    if (enemiesByRole.containsValue(champ)) continue
 
-                val freeRole = champ.secondaryRoles.firstOrNull { !enemiesByRole.containsKey(it) }
-                    ?: standardOrder.firstOrNull { !enemiesByRole.containsKey(it) }
-                if (freeRole != null) {
-                    enemiesByRole[freeRole] = champ
+                    val targetRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i)
+                    if (targetRole != null && !enemiesByRole.containsKey(targetRole)) {
+                        enemiesByRole[targetRole] = champ
+                    } else if (!enemiesByRole.containsKey(champ.primaryRole)) {
+                        enemiesByRole[champ.primaryRole] = champ
+                    }
+                }
+
+                // Rellenar vacantes enemigas si algún campeón quedó pendiente
+                for (i in 0 until 5) {
+                    val champ = enemySlots[i] ?: continue
+                    if (enemiesByRole.containsValue(champ)) continue
+
+                    val freeRole = champ.secondaryRoles.firstOrNull { !enemiesByRole.containsKey(it) }
+                        ?: standardOrder.firstOrNull { !enemiesByRole.containsKey(it) }
+                    if (freeRole != null) {
+                        enemiesByRole[freeRole] = champ
+                    }
                 }
             }
 

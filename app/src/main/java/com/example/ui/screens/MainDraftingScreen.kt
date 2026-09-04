@@ -937,7 +937,7 @@ fun OfflineResourceDownloadCard() {
                 Spacer(modifier = Modifier.height(10.dp))
                 
                 Text(
-                    text = tr("Imágenes (campeones, habilidades, objetos, runas, avatares y hechizos) para usar sin conexión y carga ultrarrápida."),
+                    text = tr("Retratos e ilustraciones HD (campeones, habilidades y avatares) para visualización instantánea sin conexión."),
                     color = TextSecondary,
                     fontSize = 12.sp,
                     lineHeight = 16.sp
