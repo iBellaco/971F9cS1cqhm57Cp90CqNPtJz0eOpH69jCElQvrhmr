@@ -697,7 +697,9 @@ private fun FloatingOverlayContent(
         if (!autoScanEnabled || !isAdmin) return@LaunchedEffect
         while (true) {
             delay(2500)
-            if (screenCaptureManager != null && screenCaptureManager.isReady() && !isScanning) {
+            if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
+                scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
+            } else if (!isScanning) {
                 try {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
                     if (bitmap != null) {
@@ -823,7 +825,14 @@ private fun FloatingOverlayContent(
             } else {
                 withContext(Dispatchers.Main) {
                     if (screenCaptureManager?.isReady() != true) {
-                        scanNoticeMessage = "⚠️ Permiso de captura no activo. Toca aquí para concederlo."
+                        scanNoticeMessage = "⚠️ Permiso de captura no activo. Abriendo solicitud..."
+                        try {
+                            val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                putExtra("EXTRA_REQUEST_CAPTURE", true)
+                            }
+                            context.startActivity(reqIntent)
+                        } catch (_: Exception) {}
                     } else {
                         scanNoticeMessage = "⚠️ No hay frame de captura disponible"
                     }
@@ -989,17 +998,41 @@ private fun FloatingOverlayContent(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Column {
                                     Text("DRAFTING COACH", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 12.5.sp)
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val isCaptureReady = screenCaptureManager?.isReady() == true
+                                    val indicatorColor = when {
+                                        !isCaptureReady -> Color(0xFFFFB300)
+                                        autoScanEnabled -> Color(0xFF00FF7F)
+                                        else -> HextechGold
+                                    }
+                                    val indicatorText = when {
+                                        !isCaptureReady -> tr("Sin permiso de pantalla")
+                                        autoScanEnabled -> tr("Auto-Scan Activo")
+                                        else -> tr("Escaneo Manual")
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.clickable {
+                                            if (!isCaptureReady) {
+                                                try {
+                                                    val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
+                                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                        putExtra("EXTRA_REQUEST_CAPTURE", true)
+                                                    }
+                                                    context.startActivity(reqIntent)
+                                                } catch (_: Exception) {}
+                                            }
+                                        }
+                                    ) {
                                         Box(
                                             modifier = Modifier
                                                 .size(6.dp)
                                                 .clip(CircleShape)
-                                                .background(if (autoScanEnabled) Color(0xFF00FF7F) else HextechGold)
+                                                .background(indicatorColor)
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (autoScanEnabled) tr("Auto-Scan Activo") else tr("Escaneo Manual"),
-                                            color = if (autoScanEnabled) Color(0xFF00FF7F) else TextMuted,
+                                            text = indicatorText,
+                                            color = indicatorColor,
                                             fontSize = 9.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -1405,6 +1438,16 @@ private fun FloatingOverlayContent(
                                         if (isChecked) {
                                             if (isAdmin) {
                                                 autoScanEnabled = true
+                                                if (screenCaptureManager?.isReady() != true) {
+                                                    scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Toca aquí para activarlo."
+                                                    try {
+                                                        val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
+                                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                                                            putExtra("EXTRA_REQUEST_CAPTURE", true)
+                                                        }
+                                                        context.startActivity(reqIntent)
+                                                    } catch (_: Exception) {}
+                                                }
                                             } else {
                                                 android.widget.Toast.makeText(context, adminOnlyMsg, android.widget.Toast.LENGTH_LONG).show()
                                                 autoScanEnabled = false

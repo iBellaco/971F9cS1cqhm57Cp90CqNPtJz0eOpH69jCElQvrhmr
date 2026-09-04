@@ -589,6 +589,10 @@ object DraftVisionScanner {
 
             AppLogger.d(TAG, "Resultado: Aliados=${alliesByRole.map { "${it.key.shortName}:${it.value.name}" }} vs Enemigos=${enemiesByRole.map { "${it.key.shortName}:${it.value.name}" }} (Rol detectado: $detectedRole)")
 
+            if (processBitmap != bitmap) {
+                try { processBitmap.recycle() } catch (_: Exception) {}
+            }
+
             DraftScanResult(
                 allies = foundAllies,
                 enemies = foundEnemies,

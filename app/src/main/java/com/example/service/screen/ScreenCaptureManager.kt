@@ -12,6 +12,7 @@ import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
@@ -42,7 +43,10 @@ class ScreenCaptureManager(private val context: Context) {
     private var screenWidth: Int = 1080
     private var screenHeight: Int = 2400
     private var screenDensity: Int = 420
-    private val handler = Handler(Looper.getMainLooper())
+
+    // Hilo secundario dedicado para procesamiento de fotogramas sin bloquear el hilo principal (UI)
+    private val captureThread = HandlerThread("ScreenCaptureThread").apply { start() }
+    private val handler = Handler(captureThread.looper)
 
     init {
         updateScreenDimensions()
@@ -101,8 +105,9 @@ class ScreenCaptureManager(private val context: Context) {
             )
 
             imageReader?.setOnImageAvailableListener({ reader ->
+                var img: Image? = null
                 try {
-                    val img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
                     val planes = img.planes
                     val buffer: ByteBuffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
@@ -123,13 +128,17 @@ class ScreenCaptureManager(private val context: Context) {
                     } else {
                         bmp
                     }
-                    img.close()
 
                     synchronized(frameLock) {
-                        lastFrame?.recycle()
+                        val old = lastFrame
                         lastFrame = cleanBmp
+                        old?.recycle()
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    AppLogger.w(TAG, "Error procesando frame en listener: ${e.message}")
+                } finally {
+                    img?.close()
+                }
             }, handler)
 
             virtualDisplay = mediaProjection?.createVirtualDisplay(
@@ -156,10 +165,11 @@ class ScreenCaptureManager(private val context: Context) {
 
     /**
      * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución sin invalidar el token de MediaProjection.
+     * En Android, recrear el VirtualDisplay es necesario tras rotación de pantalla para mantener activa la emisión de frames.
      */
     @SuppressLint("WrongConstant")
     fun refreshProjection() {
-        if (mediaProjection == null) return
+        val proj = mediaProjection ?: return
         try {
             updateScreenDimensions()
             
@@ -174,8 +184,9 @@ class ScreenCaptureManager(private val context: Context) {
             )
 
             newImageReader.setOnImageAvailableListener({ reader ->
+                var img: Image? = null
                 try {
-                    val img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
                     val planes = img.planes
                     val buffer: ByteBuffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
@@ -196,23 +207,40 @@ class ScreenCaptureManager(private val context: Context) {
                     } else {
                         bmp
                     }
-                    img.close()
 
                     synchronized(frameLock) {
-                        lastFrame?.recycle()
+                        val old = lastFrame
                         lastFrame = cleanBmp
+                        old?.recycle()
                     }
-                } catch (_: Exception) {}
+                } catch (e: Exception) {
+                    AppLogger.w(TAG, "Error procesando frame en listener tras refresh: ${e.message}")
+                } finally {
+                    img?.close()
+                }
             }, handler)
 
-            virtualDisplay?.resize(captureWidth, captureHeight, screenDensity)
-            virtualDisplay?.setSurface(newImageReader.surface)
+            // Recrear limpiamente el VirtualDisplay para evitar que SurfaceFlinger suspenda la emisión de frames
+            val oldVirtualDisplay = virtualDisplay
+            virtualDisplay = null
+            oldVirtualDisplay?.release()
 
             val oldReader = imageReader
             imageReader = newImageReader
             oldReader?.close()
 
-            AppLogger.d(TAG, "VirtualDisplay redimensionado a ($captureWidth x $captureHeight) sin recrear token.")
+            virtualDisplay = proj.createVirtualDisplay(
+                VIRTUAL_DISPLAY_NAME,
+                captureWidth,
+                captureHeight,
+                screenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                newImageReader.surface,
+                null,
+                handler
+            )
+
+            AppLogger.d(TAG, "VirtualDisplay recreado limpiamente a ($captureWidth x $captureHeight) con nueva orientación.")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error al redimensionar proyección de pantalla", e)
         }
@@ -298,13 +326,18 @@ class ScreenCaptureManager(private val context: Context) {
 
     fun release() {
         try {
+            synchronized(frameLock) {
+                lastFrame?.recycle()
+                lastFrame = null
+            }
             virtualDisplay?.release()
             virtualDisplay = null
             imageReader?.close()
             imageReader = null
             mediaProjection?.stop()
             mediaProjection = null
-            AppLogger.d(TAG, "Recursos de MediaProjection liberados.")
+            captureThread.quitSafely()
+            AppLogger.d(TAG, "Recursos de MediaProjection y HandlerThread liberados.")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error liberando MediaProjection", e)
         }

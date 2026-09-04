@@ -198,6 +198,23 @@ fun MainDraftingScreen(
         }
     }
 
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                val activity = context as? Activity
+                if (activity?.intent?.getBooleanExtra("EXTRA_REQUEST_CAPTURE", false) == true) {
+                    activity.intent.removeExtra("EXTRA_REQUEST_CAPTURE")
+                    val mediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                    mediaProjectionLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     val toggleAssistant: () -> Unit = {
         if (isAssistantActive) {
             SystemPermissionHelper.stopFloatingService(context)
