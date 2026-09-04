@@ -608,20 +608,6 @@ object WildRiftItemsData {
             iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388429_seraphs-embrace.webp"
         ),
         WildRiftItem(
-            id = "crown_of_the_shattered_queen",
-            name = "Corona de la Reina Ahogada",
-            nameEn = "Crown of the Shattered Queen",
-            category = "Objetos de Daño Mágico",
-            goldCost = 3000,
-            stats = "+70 Poder de Habilidad • +200 Salud Máxima • +20 Celeridad de Habilidad • +7% Velocidad de Movimiento",
-            statsEn = "+70 Ability Power • +200 Max Health • +20 Ability Haste • +7% Move Speed",
-            passive = "Salvaguarda: Te protege reduciendo el daño recibido un 70% durante 1.5 s tras recibir daño de campeones.\nDesarmonía: Otorga AP adicional mientras Salvaguarda esté activa.",
-            passiveEn = "Safeguard: Gain 70% damage reduction for 1.5s after taking champion damage.\nPoise: Grants bonus AP while Safeguarded.",
-            coachTip = "Objeto crucial para magos vulnerables contra asesinos de ráfaga y composiciones con iniciaciones pesadas.",
-            coachTipEn = "Crucial defensive mage item against burst assassins and heavy dive teams.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388710_crown-of-the-shattered-queen.webp"
-        ),
-        WildRiftItem(
             id = "infinity_orb",
             name = "Orbe infinito",
             nameEn = "Infinity Orb",
@@ -3001,8 +2987,6 @@ object WildRiftItemsData {
         "immortal shieldbow" to "immortal_shieldbow",
         "arcoescudo inmortal" to "immortal_shieldbow",
         "el arcoescudo inmortal" to "immortal_shieldbow",
-        "crown of the shattered queen" to "crown_of_the_shattered_queen",
-        "corona de la reina ahogada" to "crown_of_the_shattered_queen",
         "la corona de la reina ahogada" to "crown_of_the_shattered_queen",
         "corona de la reina fragmentada" to "crown_of_the_shattered_queen",
         "la corona de la reina fragmentada" to "crown_of_the_shattered_queen",
