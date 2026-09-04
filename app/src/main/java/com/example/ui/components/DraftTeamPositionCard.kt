@@ -261,6 +261,25 @@ fun DraftTeamPositionCard(
                                         }
                                 )
 
+                                // Indicador "TÚ" si corresponde a la línea del usuario
+                                if (isMyRole) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomStart)
+                                            .padding(2.dp)
+                                            .clip(RoundedCornerShape(3.dp))
+                                            .background(HextechCyan)
+                                            .padding(horizontal = 3.dp, vertical = 1.dp)
+                                    ) {
+                                        Text(
+                                            text = tr("TÚ"),
+                                            color = Color.Black,
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
+
                                 // Botón pequeño 'X' en la esquina superior para deseleccionar
                                 Box(
                                     modifier = Modifier
