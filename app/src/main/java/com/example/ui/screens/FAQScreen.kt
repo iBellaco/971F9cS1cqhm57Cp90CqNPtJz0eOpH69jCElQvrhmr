@@ -75,7 +75,7 @@ fun FAQScreen(
             ),
             Pair(
                 "¿Por qué se recomienda descargar los recursos offline?",
-                "Te sugiero ampliamente usar la opción de descarga de recursos offline en la pantalla principal. Esto baja las imágenes de campeones, habilidades, objetos y runas directo a tu dispositivo para que todo cargue al instante y puedas consultar la app sin consumir datos ni depender de internet."
+                "Te sugiero ampliamente usar la opción de descarga de recursos offline en la pantalla principal. Esto baja las imágenes de campeones y habilidades directo a tu dispositivo para que todo cargue al instante y puedas consultar la app sin consumir datos ni depender de internet. Los objetos y runas ya están integrados en la aplicación."
             ),
             Pair(
                 "¿Cómo funciona el sistema de Tier List y las valoraciones S+, S y A?",

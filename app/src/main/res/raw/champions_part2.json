@@ -6384,7 +6384,7 @@
     ],
     "spellsIcons": [],
     "coreItems": [
-      "Matakrakens",
+      "Verdugo de Krakens",
       "Espada del Rey Arruinado",
       "Arcoescudo inmortal"
     ],
@@ -6451,12 +6451,12 @@
         "title": "VARUS DAÑOS DE ATAQUE",
         "lane": "ADC",
         "coreItems": [
-          "Matakrakens",
+          "Verdugo de Krakens",
           "Espada del Rey Arruinado",
           "Terminus"
         ],
         "items": [
-          "Matakrakens",
+          "Verdugo de Krakens",
           "Espada del Rey Arruinado",
           "Terminus",
           "Bailarín Espectral",
@@ -6643,12 +6643,12 @@
         "title": "ADC - Velocidad de ataque",
         "lane": "ADC",
         "coreItems": [
-          "Matakrakens",
+          "Verdugo de Krakens",
           "Hoja de furia de Guinsoo",
           "Espada del Rey Arruinado"
         ],
         "items": [
-          "Matakrakens",
+          "Verdugo de Krakens",
           "Hoja de furia de Guinsoo",
           "Espada del Rey Arruinado",
           "Terminus",

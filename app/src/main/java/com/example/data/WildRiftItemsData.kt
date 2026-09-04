@@ -483,17 +483,17 @@ object WildRiftItemsData {
         ),
         WildRiftItem(
             id = "experimental_hexplate",
-            name = "Hexperimento",
+            name = "Experimento de hexarmadura",
             nameEn = "Experimental Hexplate",
             category = "Objetos con Daños Físicos",
             goldCost = 3000,
-            stats = "+40 Daño de Ataque • +300 Vida Máxima • +20 Aceleración de Habilidad",
-            statsEn = "+40 Attack Damage • +300 Max Health • +20 Ability Haste",
-            passive = "Sobrecarga: Usar tu definitiva te otorga Velocidad de Ataque y Velocidad de Movimiento extra.",
-            passiveEn = "Overdrive: Casting your ultimate grants bonus Attack Speed and Movement Speed.",
+            stats = "+400 Vida máxima • +35 Daño de ataque • +20% Velocidad de ataque",
+            statsEn = "+400 Max Health • +35 Attack Damage • +20% Attack Speed",
+            passive = "Hexcarga: Obtienes 20 de velocidad de habilidades para tu habilidad definitiva. Sobrecarga: Tras usar tu habilidad definitiva, obtienes un 40% de velocidad de ataque (20% para campeones a distancia) y un 20% de velocidad de movimiento (10% para campeones a distancia) durante 8 s (30 s de enfriamiento).",
+            passiveEn = "Hexcharged: Gain 20 Ultimate Ability Haste. Overdrive: After casting your ultimate, gain 40% Attack Speed (20% for ranged) and 20% Movement Speed (10% for ranged) for 8s (30s cooldown).",
             coachTip = "Excelente en campeones cuyas definitivas son el centro de su estilo de juego, como Nocturne o Xin Zhao.",
             coachTipEn = "Excellent on champions whose ultimates are the core of their playstyle, like Nocturne or Xin Zhao.",
-            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3153.png"
+            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630328_experimental-hexplate.webp"
         ),
         WildRiftItem(
             id = "hullbreaker",

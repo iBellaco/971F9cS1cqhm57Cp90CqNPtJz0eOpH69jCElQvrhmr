@@ -79,18 +79,8 @@ object OfflineResourceManager {
             }
         }
         
-        // 2. Items icons
-        WildRiftItemsData.list.forEach { item ->
-            if (item.iconUrl.isNotBlank()) urls.add(item.iconUrl.trim())
-        }
-        
-        // 3. Spells & Runes
-        WildRiftSpellsAndRunes.summonerSpells.forEach { spell ->
-            if (spell.iconUrl.isNotBlank()) urls.add(spell.iconUrl.trim())
-        }
-        WildRiftSpellsAndRunes.runes.forEach { rune ->
-            if (rune.iconUrl.isNotBlank()) urls.add(rune.iconUrl.trim())
-        }
+        // 2. Items icons (Excluidos, ya integrados)
+        // 3. Spells & Runes (Excluidos, ya integrados)
 
         // 4. Avatars del catálogo
         AvatarCatalog.avatars.forEach { avatar ->

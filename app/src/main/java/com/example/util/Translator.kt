@@ -517,7 +517,7 @@ val translations = mapOf(
 
         // Runas
         "Conquistador" to "Conquistador",
-        "Matakrakens" to "Mata-Crácens",
+        "Verdugo de Krakens" to "Mata-Crácens",
         "Cadencia Letal" to "Ritmo Fatal",
         "Electrocutar" to "Eletrocutar",
         "Primer Golpe" to "Primeiro Ataque",
@@ -1635,7 +1635,7 @@ val translations = mapOf(
 
         // Runas
         "Conquistador" to "Conqueror",
-        "Matakrakens" to "Kraken Slayer",
+        "Verdugo de Krakens" to "Kraken Slayer",
         "Cadencia Letal" to "Lethal Tempo",
         "Electrocutar" to "Electrocute",
         "Primer Golpe" to "First Strike",
