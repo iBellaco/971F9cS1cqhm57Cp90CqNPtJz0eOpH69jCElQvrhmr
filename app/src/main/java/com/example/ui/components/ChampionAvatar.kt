@@ -1,4 +1,13 @@
 package com.example.ui.components
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.compose.ui.graphics.asImageBitmap
+
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -135,6 +144,7 @@ fun ChampionAvatar(
     }
 }
 
+
 @Composable
 fun AppAssetImage(
     url: String,
@@ -146,15 +156,30 @@ fun AppAssetImage(
 ) {
     val context = LocalContext.current
     val parsedUrl = url.trim()
-    
-    val modelData: Any? = if (parsedUrl.startsWith("file:///android_asset/")) {
-        android.net.Uri.parse(parsedUrl)
-    } else if (parsedUrl.startsWith("file://")) {
-        java.io.File(parsedUrl.removePrefix("file://"))
-    } else if (parsedUrl.isNotBlank()) {
-        parsedUrl
-    } else {
-        null
+
+    var assetBitmap by remember(parsedUrl) { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    var useCoil by remember(parsedUrl) { mutableStateOf(false) }
+
+    LaunchedEffect(parsedUrl) {
+        if (parsedUrl.startsWith("file:///android_asset/")) {
+            val assetPath = parsedUrl.removePrefix("file:///android_asset/")
+            withContext(Dispatchers.IO) {
+                try {
+                    context.assets.open(assetPath).use { inputStream ->
+                        val b = android.graphics.BitmapFactory.decodeStream(inputStream)
+                        if (b != null) {
+                            assetBitmap = b.asImageBitmap()
+                        } else {
+                            useCoil = true // fallback to Coil if decode fails for some reason
+                        }
+                    }
+                } catch (e: Exception) {
+                    useCoil = true
+                }
+            }
+        } else {
+            useCoil = true
+        }
     }
 
     Box(
@@ -171,20 +196,28 @@ fun AppAssetImage(
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold
         )
-        if (modelData != null && parsedUrl.isNotBlank()) {
+        
+        val bitmap = assetBitmap
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = contentDescription ?: fallbackText,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().clip(shape)
+            )
+        } else if (useCoil && parsedUrl.isNotBlank()) {
+            val modelData: Any = if (parsedUrl.startsWith("file://")) {
+                java.io.File(parsedUrl.removePrefix("file://"))
+            } else {
+                parsedUrl
+            }
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
-.crossfade(true)
-.placeholder(com.example.R.drawable.ic_placeholder_loading)
-                    
+                    .crossfade(true)
+                    .placeholder(com.example.R.drawable.ic_placeholder_loading)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
-                    .listener(
-                        onError = { request, result -> 
-                            com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
-                        }
-                    )
                     .build(),
                 imageLoader = context.imageLoader,
                 contentDescription = contentDescription ?: fallbackText,
