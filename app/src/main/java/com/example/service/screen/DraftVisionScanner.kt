@@ -218,45 +218,50 @@ object DraftVisionScanner {
 
                     // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
                     if (centerX < screenWidth * 0.38f) {
-                        val slotIdx = allySlotYCenters.indices.minByOrNull {
-                            val slotY = (screenHeight * allySlotYCenters[it]).toInt()
-                            abs(centerY - slotY)
-                        } ?: -1
+                        val yRatio = centerY.toFloat() / screenHeight.toFloat()
+                        val slotIdx = when {
+                            yRatio < 0.255f -> 0
+                            yRatio < 0.395f -> 1
+                            yRatio < 0.535f -> 2
+                            yRatio < 0.675f -> 3
+                            else -> 4
+                        }
 
                         if (slotIdx in 0 until 5) {
                             allySlotTexts[slotIdx].add(lineText)
                             val lower = lineText.lowercase(Locale.ROOT)
 
                             // Detección de Rol/Línea por texto en la ranura
+                            // En Wild Rift, el orden de ranuras aliadas corresponde a: 0=ADC, 1=SUPPORT, 2=MID, 3=JUNGLE, 4=TOP
                             if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
                                 allySlotRoles[slotIdx] = LaneRole.MID
                             } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                allySlotRoles[slotIdx] = LaneRole.TOP
+                                // "CALLE DEL BARÓN" corresponde exclusivamente a la posición de Top (ranura 4)
+                                allySlotRoles[4] = LaneRole.TOP
                             } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
-                                allySlotRoles[slotIdx] = LaneRole.JUNGLE
+                                allySlotRoles[3] = LaneRole.JUNGLE
                             } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                allySlotRoles[slotIdx] = LaneRole.ADC
+                                allySlotRoles[0] = LaneRole.ADC
                             } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
-                                allySlotRoles[slotIdx] = LaneRole.SUPPORT
+                                allySlotRoles[1] = LaneRole.SUPPORT
                             }
 
                             // Detección de Campeón Aliado
                             if (allySlots[slotIdx] == null) {
                                 val matchedDirect = matchChampions(lineText, allChamps)
-                                if (matchedDirect.isNotEmpty()) {
-                                    allySlots[slotIdx] = matchedDirect.first()
-                                    AppLogger.d(TAG, "Aliado detectado en slot $slotIdx: ${matchedDirect.first().name}")
-                                } else {
+                                val candidate = matchedDirect.firstOrNull() ?: run {
                                     val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
-                                    for (w in words) {
+                                    words.firstNotNullOfOrNull { w ->
                                         if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
-                                            val matchedWord = matchChampions(w, allChamps)
-                                            if (matchedWord.isNotEmpty() && allySlots[slotIdx] == null) {
-                                                allySlots[slotIdx] = matchedWord.first()
-                                                AppLogger.d(TAG, "Aliado detectado por palabra en slot $slotIdx: ${matchedWord.first().name}")
-                                                break
-                                            }
-                                        }
+                                            matchChampions(w, allChamps).firstOrNull()
+                                        } else null
+                                    }
+                                }
+                                if (candidate != null) {
+                                    // Regla estricta: No asignar si ya fue detectado en otra ranura aliada
+                                    if (allySlots.none { it?.id == candidate.id }) {
+                                        allySlots[slotIdx] = candidate
+                                        AppLogger.d(TAG, "Aliado detectado en slot $slotIdx: ${candidate.name}")
                                     }
                                 }
                             }
@@ -265,42 +270,45 @@ object DraftVisionScanner {
 
                     // --- COLUMNA DERECHA: EQUIPO ENEMIGO ---
                     else if (centerX > screenWidth * 0.68f) {
-                        val slotIdx = enemySlotYCenters.indices.minByOrNull {
-                            val slotY = (screenHeight * enemySlotYCenters[it]).toInt()
-                            abs(centerY - slotY)
-                        } ?: -1
+                        val yRatio = centerY.toFloat() / screenHeight.toFloat()
+                        val slotIdx = when {
+                            yRatio < 0.240f -> 0
+                            yRatio < 0.375f -> 1
+                            yRatio < 0.515f -> 2
+                            yRatio < 0.655f -> 3
+                            else -> 4
+                        }
 
                         if (slotIdx in 0 until 5) {
                             val lower = lineText.lowercase(Locale.ROOT)
                             if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
                                 enemySlotRoles[slotIdx] = LaneRole.MID
                             } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                enemySlotRoles[slotIdx] = LaneRole.TOP
+                                enemySlotRoles[4] = LaneRole.TOP
                             } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
-                                enemySlotRoles[slotIdx] = LaneRole.JUNGLE
+                                enemySlotRoles[1] = LaneRole.JUNGLE
                             } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                enemySlotRoles[slotIdx] = LaneRole.ADC
+                                enemySlotRoles[0] = LaneRole.ADC
                             } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
-                                enemySlotRoles[slotIdx] = LaneRole.SUPPORT
+                                enemySlotRoles[3] = LaneRole.SUPPORT
                             }
 
                             // Detección de Campeón Enemigo
                             if (enemySlots[slotIdx] == null) {
                                 val matchedDirect = matchChampions(lineText, allChamps)
-                                if (matchedDirect.isNotEmpty()) {
-                                    enemySlots[slotIdx] = matchedDirect.first()
-                                    AppLogger.d(TAG, "Enemigo detectado en slot $slotIdx: ${matchedDirect.first().name}")
-                                } else {
+                                val candidate = matchedDirect.firstOrNull() ?: run {
                                     val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
-                                    for (w in words) {
+                                    words.firstNotNullOfOrNull { w ->
                                         if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
-                                            val matchedWord = matchChampions(w, allChamps)
-                                            if (matchedWord.isNotEmpty() && enemySlots[slotIdx] == null) {
-                                                enemySlots[slotIdx] = matchedWord.first()
-                                                AppLogger.d(TAG, "Enemigo detectado por palabra en slot $slotIdx: ${matchedWord.first().name}")
-                                                break
-                                            }
-                                        }
+                                            matchChampions(w, allChamps).firstOrNull()
+                                        } else null
+                                    }
+                                }
+                                if (candidate != null) {
+                                    // Regla estricta: No asignar si ya fue detectado en otra ranura enemiga o aliada
+                                    if (enemySlots.none { it?.id == candidate.id } && allySlots.none { it?.id == candidate.id }) {
+                                        enemySlots[slotIdx] = candidate
+                                        AppLogger.d(TAG, "Enemigo detectado en slot $slotIdx: ${candidate.name}")
                                     }
                                 }
                             }
@@ -309,7 +317,10 @@ object DraftVisionScanner {
                 }
             }
 
-            // 1.5. Reconocimiento de campeones por avatar circular para ranuras donde solo figura el rol (ej. "CALLE DEL BARÓN" con Cho'Gath)
+            // 1.5. Reconocimiento de campeones por avatar circular para ranuras vacías
+            // Obtenemos los IDs ya confirmados por OCR para PROHIBIR que el avatar los duplique
+            val ocrConfirmedIds = (allySlots.filterNotNull() + enemySlots.filterNotNull()).map { it.id }.toMutableSet()
+
             for (i in 0 until 5) {
                 if (allySlots[i] == null) {
                     val visualAlly = identifyChampionFromSlotAvatar(
@@ -317,10 +328,12 @@ object DraftVisionScanner {
                         isAlly = true,
                         slotIdx = i,
                         expectedRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i),
-                        allChamps = allChamps
+                        allChamps = allChamps,
+                        alreadyDetectedIds = ocrConfirmedIds
                     )
                     if (visualAlly != null) {
                         allySlots[i] = visualAlly
+                        ocrConfirmedIds.add(visualAlly.id)
                         AppLogger.d(TAG, "Aliado identificado por firma de avatar en ranura $i: ${visualAlly.name}")
                     }
                 }
@@ -331,12 +344,35 @@ object DraftVisionScanner {
                         isAlly = false,
                         slotIdx = i,
                         expectedRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i),
-                        allChamps = allChamps
+                        allChamps = allChamps,
+                        alreadyDetectedIds = ocrConfirmedIds
                     )
                     if (visualEnemy != null) {
                         enemySlots[i] = visualEnemy
+                        ocrConfirmedIds.add(visualEnemy.id)
                         AppLogger.d(TAG, "Enemigo identificado por firma de avatar en ranura $i: ${visualEnemy.name}")
                     }
+                }
+            }
+
+            // 1.6. DEDUPLICACIÓN GLOBAL INICIAL: Asegurar unicidad total en las ranuras físicas
+            val seenSlotChampionIds = mutableSetOf<String>()
+            for (i in 0 until 5) {
+                val champ = allySlots[i] ?: continue
+                if (seenSlotChampionIds.contains(champ.id)) {
+                    AppLogger.w(TAG, "Eliminando duplicado aliado de ${champ.name} en slot $i")
+                    allySlots[i] = null
+                } else {
+                    seenSlotChampionIds.add(champ.id)
+                }
+            }
+            for (i in 0 until 5) {
+                val champ = enemySlots[i] ?: continue
+                if (seenSlotChampionIds.contains(champ.id)) {
+                    AppLogger.w(TAG, "Eliminando duplicado enemigo de ${champ.name} en slot $i (ya existe en la draft)")
+                    enemySlots[i] = null
+                } else {
+                    seenSlotChampionIds.add(champ.id)
                 }
             }
 
@@ -344,9 +380,10 @@ object DraftVisionScanner {
             val slotScores = IntArray(5)
             val slotHasSmite = BooleanArray(5)
 
-            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (0.003f a 0.075f)
-            val sampleXMin = (screenWidth * 0.003f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.075f).toInt().coerceAtMost(screenWidth - 1)
+            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (0.005f a 0.050f)
+            // Aislado cuidadosamente para NO muestrear los hechizos de invocador (Destello/Prender) en 0.065f..0.098f
+            val sampleXMin = (screenWidth * 0.005f).toInt().coerceAtLeast(0)
+            val sampleXMax = (screenWidth * 0.050f).toInt().coerceAtMost(screenWidth - 1)
 
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
@@ -465,10 +502,13 @@ object DraftVisionScanner {
 
             // 3. Determinar el rol/línea del jugador local
             val detectedRole: LaneRole? = if (userSlotIndex != null) {
-                allySlotRoles[userSlotIndex]
-                    ?: (if (slotHasSmite[userSlotIndex]) LaneRole.JUNGLE else null)
-                    ?: allySlots[userSlotIndex]?.primaryRole
-                    ?: defaultAllyRoles.getOrNull(userSlotIndex)
+                if (slotHasSmite[userSlotIndex]) {
+                    LaneRole.JUNGLE // ¡Smite garantiza Jungle al 100%!
+                } else {
+                    allySlotRoles[userSlotIndex]
+                        ?: allySlots[userSlotIndex]?.primaryRole
+                        ?: defaultAllyRoles.getOrNull(userSlotIndex)
+                }
             } else {
                 null
             }
@@ -487,42 +527,24 @@ object DraftVisionScanner {
                 }
             }
 
-            // PASO 2 ALIADOS: Asignar aliados con rol explícito detectado por OCR (ej. "CALLE DEL BARÓN" -> TOP)
+            // ASIGNACIÓN DIRECTA DE RANURAS ALIADAS:
+            // En Wild Rift, el orden físico de las 5 ranuras aliadas en draft es:
+            // 0=ADC (Dúo), 1=SUPPORT, 2=MID, 3=JUNGLE, 4=TOP (Barón)
             for (i in 0 until 5) {
                 if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
                 if (alliesByRole.containsValue(champ)) continue
 
-                val explicitRole = allySlotRoles[i]
-                if (explicitRole != null && !alliesByRole.containsKey(explicitRole)) {
-                    alliesByRole[explicitRole] = champ
-                }
-            }
-
-            // PASO 3 ALIADOS: Asignar aliados restantes priorizando su rol primario nativo (primaryRole)
-            for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
-                if (!alliesByRole.containsKey(champ.primaryRole)) {
+                // Prioridad 1: Rol asignado a la ranura por posición o texto explícito
+                val targetRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i)
+                if (targetRole != null && !alliesByRole.containsKey(targetRole)) {
+                    alliesByRole[targetRole] = champ
+                } else if (!alliesByRole.containsKey(champ.primaryRole)) {
                     alliesByRole[champ.primaryRole] = champ
                 }
             }
 
-            // PASO 4 ALIADOS: Asignar según el carril por defecto de la ranura en Wild Rift (defaultAllyRoles)
-            for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
-                val slotDefaultRole = defaultAllyRoles.getOrNull(i)
-                if (slotDefaultRole != null && !alliesByRole.containsKey(slotDefaultRole)) {
-                    alliesByRole[slotDefaultRole] = champ
-                }
-            }
-
-            // PASO 5 ALIADOS: Asignar en roles secundarios o vacantes restantes
+            // Rellenar vacantes aliadas si algún campeón quedó pendiente
             for (i in 0 until 5) {
                 if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
@@ -535,37 +557,22 @@ object DraftVisionScanner {
                 }
             }
 
-            // PASO 1 ENEMIGOS: Roles explícitos por texto
-            for (i in 0 until 5) {
-                val champ = enemySlots[i] ?: continue
-                val explicitRole = enemySlotRoles[i]
-                if (explicitRole != null && !enemiesByRole.containsKey(explicitRole)) {
-                    enemiesByRole[explicitRole] = champ
-                }
-            }
-
-            // PASO 2 ENEMIGOS: Rol primario nativo (primaryRole)
+            // ASIGNACIÓN DIRECTA DE RANURAS ENEMIGAS:
+            // En Wild Rift, el orden físico de las 5 ranuras enemigas en draft es:
+            // 0=ADC (Dúo), 1=JUNGLE, 2=MID, 3=SUPPORT, 4=TOP (Barón)
             for (i in 0 until 5) {
                 val champ = enemySlots[i] ?: continue
                 if (enemiesByRole.containsValue(champ)) continue
 
-                if (!enemiesByRole.containsKey(champ.primaryRole)) {
+                val targetRole = enemySlotRoles[i] ?: defaultEnemyRoles.getOrNull(i)
+                if (targetRole != null && !enemiesByRole.containsKey(targetRole)) {
+                    enemiesByRole[targetRole] = champ
+                } else if (!enemiesByRole.containsKey(champ.primaryRole)) {
                     enemiesByRole[champ.primaryRole] = champ
                 }
             }
 
-            // PASO 3 ENEMIGOS: Rol por defecto de la ranura enemiga (defaultEnemyRoles)
-            for (i in 0 until 5) {
-                val champ = enemySlots[i] ?: continue
-                if (enemiesByRole.containsValue(champ)) continue
-
-                val slotDefaultRole = defaultEnemyRoles.getOrNull(i)
-                if (slotDefaultRole != null && !enemiesByRole.containsKey(slotDefaultRole)) {
-                    enemiesByRole[slotDefaultRole] = champ
-                }
-            }
-
-            // PASO 4 ENEMIGOS: Roles secundarios o vacantes restantes
+            // Rellenar vacantes enemigas si algún campeón quedó pendiente
             for (i in 0 until 5) {
                 val champ = enemySlots[i] ?: continue
                 if (enemiesByRole.containsValue(champ)) continue
@@ -575,6 +582,16 @@ object DraftVisionScanner {
                 if (freeRole != null) {
                     enemiesByRole[freeRole] = champ
                 }
+            }
+
+            // REGLA CRÍTICA MOBA (UNICIDAD GLOBAL): Ningún campeón puede figurar en ambos equipos
+            val allyChampIds = alliesByRole.values.map { it.id }.toSet()
+            enemiesByRole.entries.removeIf { entry ->
+                val duplicate = allyChampIds.contains(entry.value.id)
+                if (duplicate) {
+                    AppLogger.w(TAG, "DEDUPLICACIÓN GLOBAL: Removiendo ${entry.value.name} de enemigos porque ya está en aliados")
+                }
+                duplicate
             }
 
             val foundAllies = standardOrder.mapNotNull { alliesByRole[it] }
@@ -626,7 +643,8 @@ object DraftVisionScanner {
         isAlly: Boolean,
         slotIdx: Int,
         expectedRole: LaneRole?,
-        allChamps: List<Champion>
+        allChamps: List<Champion>,
+        alreadyDetectedIds: Set<String> = emptySet()
     ): Champion? {
         val width = bitmap.width
         val height = bitmap.height
@@ -720,7 +738,8 @@ object DraftVisionScanner {
 
         // 1. Ornn (Cuernos de carnero gigantes oscuros + barba ardiente de la forja + ascuas de lava)
         val isTopLane = expectedRole == LaneRole.TOP || slotIdx == 4
-        if (isTopLane && ((ornnRedBeardCount >= 10 && (ramHornsCount >= 10 || forgeEmberCount >= 3)) || ornnRedBeardCount >= 18)) {
+        if (isTopLane && !alreadyDetectedIds.contains("ornn") &&
+            ((ornnRedBeardCount >= 6 && (ramHornsCount >= 8 || forgeEmberCount >= 2)) || ornnRedBeardCount >= 14)) {
             val ornn = allChamps.firstOrNull { it.id == "ornn" }
             if (ornn != null) {
                 AppLogger.d(TAG, "Ornn identificado con éxito en slot $slotIdx por firma visual de forja/cuernos")
@@ -730,7 +749,8 @@ object DraftVisionScanner {
 
         // 2. Cho'Gath (Top / Calle del Barón con Vacío predominante y fauces)
         // IMPORTANTE: Cho'Gath no posee la barba roja de la forja ni cuernos de carnero de Ornn
-        if (isTopLane && ornnRedBeardCount < 8 && ((voidPurpleCount >= 60 && crimsonMouthCount >= 15) || voidPurpleCount >= 120)) {
+        if (isTopLane && !alreadyDetectedIds.contains("cho_gath") && ornnRedBeardCount < 6 &&
+            ((voidPurpleCount >= 60 && crimsonMouthCount >= 15) || voidPurpleCount >= 120)) {
             val cho = allChamps.firstOrNull { it.id == "cho_gath" }
             if (cho != null) {
                 AppLogger.d(TAG, "Cho'Gath identificado con éxito en slot $slotIdx por visión de avatar")
@@ -739,31 +759,31 @@ object DraftVisionScanner {
         }
 
         // 3. Malphite
-        if (rockGrayCount >= 250 && isTopLane) {
+        if (rockGrayCount >= 250 && isTopLane && !alreadyDetectedIds.contains("malphite")) {
             val malph = allChamps.firstOrNull { it.id == "malphite" }
             if (malph != null) return malph
         }
 
         // 4. Aatrox
-        if (darkRedCount >= 160 && isTopLane) {
+        if (darkRedCount >= 160 && isTopLane && !alreadyDetectedIds.contains("aatrox")) {
             val aatrox = allChamps.firstOrNull { it.id == "aatrox" }
             if (aatrox != null) return aatrox
         }
 
         // 5. Teemo
-        if (greenHatCount >= 100 && isTopLane) {
+        if (greenHatCount >= 100 && isTopLane && !alreadyDetectedIds.contains("teemo")) {
             val teemo = allChamps.firstOrNull { it.id == "teemo" }
             if (teemo != null) return teemo
         }
 
-        // 6. Mordekaiser
-        if (tealGlowCount >= 100 && isTopLane) {
+        // 6. Mordekaiser (Requiere alta densidad de brillo espectral y no haber sido detectado ya por OCR)
+        if (tealGlowCount >= 220 && isTopLane && !alreadyDetectedIds.contains("mordekaiser")) {
             val morde = allChamps.firstOrNull { it.id == "mordekaiser" }
             if (morde != null) return morde
         }
 
         // 7. Dr. Mundo
-        if (vividMagentaCount >= 130 && isTopLane) {
+        if (vividMagentaCount >= 130 && isTopLane && !alreadyDetectedIds.contains("dr_mundo")) {
             val mundo = allChamps.firstOrNull { it.id == "dr_mundo" }
             if (mundo != null) return mundo
         }

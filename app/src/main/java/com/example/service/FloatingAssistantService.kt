@@ -664,6 +664,31 @@ private fun FloatingOverlayContent(
     val allies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
     val enemies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
 
+    // Funciones de asignación con Regla Estricta MOBA de Unicidad Absoluta (ningún campeón puede duplicarse en ningún bando)
+    val assignAllySlot: (Int, Champion) -> Unit = { targetIdx, champ ->
+        for (i in 0 until 5) {
+            if (enemies[i]?.id == champ.id) enemies[i] = null
+        }
+        for (i in 0 until 5) {
+            if (i != targetIdx && allies[i]?.id == champ.id) allies[i] = null
+        }
+        if (targetIdx in 0 until 5) {
+            allies[targetIdx] = champ
+        }
+    }
+
+    val assignEnemySlot: (Int, Champion) -> Unit = { targetIdx, champ ->
+        for (i in 0 until 5) {
+            if (allies[i]?.id == champ.id) allies[i] = null
+        }
+        for (i in 0 until 5) {
+            if (i != targetIdx && enemies[i]?.id == champ.id) enemies[i] = null
+        }
+        if (targetIdx in 0 until 5) {
+            enemies[targetIdx] = champ
+        }
+    }
+
     var isScanning by remember { mutableStateOf(false) }
     var autoScanEnabled by remember { mutableStateOf(false) }
     var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
@@ -714,22 +739,22 @@ private fun FloatingOverlayContent(
                             defaultRoles.forEachIndexed { idx, role ->
                                 val scannedAlly = result.alliesByRole[role]
                                 if (scannedAlly != null && allies[idx]?.id != scannedAlly.id) {
-                                    allies[idx] = scannedAlly
+                                    assignAllySlot(idx, scannedAlly)
                                     newAlliesAdded++
                                 }
                                 val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null && enemies[idx]?.id != scannedEnemy.id) {
-                                    enemies[idx] = scannedEnemy
+                                    assignEnemySlot(idx, scannedEnemy)
                                     newEnemiesAdded++
                                 }
                             }
 
-                            // 2. Colocar en ranura vacía cualquier campeón adicional
+                            // 2. Colocar en ranura vacía cualquier campeón adicional garantizando unicidad total
                             result.allies.forEach { champ ->
                                 if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
                                     val emptyIdx = allies.indexOfFirst { it == null }
                                     if (emptyIdx in 0 until 5) {
-                                        allies[emptyIdx] = champ
+                                        assignAllySlot(emptyIdx, champ)
                                         newAlliesAdded++
                                     }
                                 }
@@ -738,7 +763,7 @@ private fun FloatingOverlayContent(
                                 if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
                                     val emptyIdx = enemies.indexOfFirst { it == null }
                                     if (emptyIdx in 0 until 5) {
-                                        enemies[emptyIdx] = champ
+                                        assignEnemySlot(emptyIdx, champ)
                                         newEnemiesAdded++
                                     }
                                 }
@@ -785,11 +810,11 @@ private fun FloatingOverlayContent(
                         defaultRoles.forEachIndexed { idx, role ->
                             val scannedAlly = result.alliesByRole[role]
                             if (scannedAlly != null) {
-                                allies[idx] = scannedAlly
+                                assignAllySlot(idx, scannedAlly)
                             }
                             val scannedEnemy = result.enemiesByRole[role]
                             if (scannedEnemy != null) {
-                                enemies[idx] = scannedEnemy
+                                assignEnemySlot(idx, scannedEnemy)
                             }
                         }
 
@@ -798,7 +823,7 @@ private fun FloatingOverlayContent(
                             if (allies.none { it?.id == champ.id } && enemies.none { it?.id == champ.id }) {
                                 val emptyIdx = allies.indexOfFirst { it == null }
                                 if (emptyIdx in 0 until 5) {
-                                    allies[emptyIdx] = champ
+                                    assignAllySlot(emptyIdx, champ)
                                 }
                             }
                         }
@@ -806,7 +831,7 @@ private fun FloatingOverlayContent(
                             if (enemies.none { it?.id == champ.id } && allies.none { it?.id == champ.id }) {
                                 val emptyIdx = enemies.indexOfFirst { it == null }
                                 if (emptyIdx in 0 until 5) {
-                                    enemies[emptyIdx] = champ
+                                    assignEnemySlot(emptyIdx, champ)
                                 }
                             }
                         }
