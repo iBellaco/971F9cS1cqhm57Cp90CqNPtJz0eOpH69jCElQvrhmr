@@ -75,7 +75,9 @@ fun ChampionAvatar(
 
             if (champion.avatarUrl.isNotBlank()) {
                 val parsedUrl = champion.avatarUrl.trim()
-                val modelData: Any = if (parsedUrl.startsWith("file://")) {
+                val modelData: Any = if (parsedUrl.startsWith("file:///android_asset/")) {
+                    parsedUrl
+                } else if (parsedUrl.startsWith("file://")) {
                     java.io.File(parsedUrl.removePrefix("file://"))
                 } else {
                     parsedUrl
@@ -145,7 +147,9 @@ fun AppAssetImage(
     val context = LocalContext.current
     val parsedUrl = url.trim()
     
-    val modelData: Any? = if (parsedUrl.startsWith("file://")) {
+    val modelData: Any? = if (parsedUrl.startsWith("file:///android_asset/")) {
+        parsedUrl
+    } else if (parsedUrl.startsWith("file://")) {
         java.io.File(parsedUrl.removePrefix("file://"))
     } else if (parsedUrl.isNotBlank()) {
         parsedUrl

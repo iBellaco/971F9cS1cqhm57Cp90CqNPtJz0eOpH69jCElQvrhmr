@@ -9,7 +9,7 @@ object AvatarCatalog {
         title = "Espíritu de la Grieta",
         region = "Poro",
         rarity = "Clásico",
-        imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/588.png",
+        imageUrl = "file:///android_asset/offline_images/763bd901dd7903b0ef0081f2f1109dbd.png",
         borderHex = "#C8AA6E",
         description = "El leal compañero de todo Invocador de Wild Rift.",
         isDefault = true
@@ -23,7 +23,7 @@ object AvatarCatalog {
             title = "El Rey Mono",
             region = "Poro",
             rarity = "Común",
-            imageUrl = "https://i.postimg.cc/LXS8Tbv5/1788243501865.jpg",
+            imageUrl = "file:///android_asset/offline_images/e8a4313a1a6195419ea38509e182357f.jpg",
             borderHex = "#A0A0A0",
             description = "Un poro listo para la batalla con su bastón mágico."
         ),
@@ -33,7 +33,7 @@ object AvatarCatalog {
             title = "El Rugido del Trueno",
             region = "Poro",
             rarity = "Raro",
-            imageUrl = "https://i.postimg.cc/LXV6030W/1788243804693.jpg",
+            imageUrl = "file:///android_asset/offline_images/0e2476c9fb4f0a4f0bba0ca15a867c0f.jpg",
             borderHex = "#00BFFF",
             description = "Un poro imbuido con el poder de la tormenta."
         ),
@@ -43,7 +43,7 @@ object AvatarCatalog {
             title = "El Rey de la Grieta",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/bJRNF9FF/1788243975279.jpg",
+            imageUrl = "file:///android_asset/offline_images/0ff726a7d53de0d252297216e58ee357.jpg",
             borderHex = "#8A2BE2",
             description = "El poro más temible del río."
         ),
@@ -53,7 +53,7 @@ object AvatarCatalog {
             title = "La Mujer Zorro",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/gJKkBHBt/1788244165659.jpg",
+            imageUrl = "file:///android_asset/offline_images/03fa2d4274a2a4a79b70f0b8b40a26e2.jpg",
             borderHex = "#8A2BE2",
             description = "Un poro con un encanto irresistible."
         ),
@@ -63,7 +63,7 @@ object AvatarCatalog {
             title = "Hija del Vacío",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/NMxfPkPV/1788244288372.jpg",
+            imageUrl = "file:///android_asset/offline_images/e461f7b0e02a95ba7f0413a4981e2aa9.jpg",
             borderHex = "#8A2BE2",
             description = "Un poro que sobrevivió al vacío."
         ),
@@ -73,7 +73,7 @@ object AvatarCatalog {
             title = "La Danza de las Cuchillas",
             region = "Poro",
             rarity = "Común",
-            imageUrl = "https://i.postimg.cc/QtqxnJyG/1788244351208.jpg",
+            imageUrl = "file:///android_asset/offline_images/930c937ac0438948c6eadfb2bea29a30.jpg",
             borderHex = "#A0A0A0",
             description = "Un poro que danza en el campo de batalla."
         ),
@@ -83,7 +83,7 @@ object AvatarCatalog {
             title = "la Espada de los Oscuros",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Aatrox.png",
+            imageUrl = "file:///android_asset/offline_images/74852a4189d544eb59414d0709867265.png",
             borderHex = "#C8AA6E",
             description = "Aatrox y sus hermanos, otrora respetados defensores de Shurima contra el Vacío, acabarían convi..."
         ),
@@ -93,7 +93,7 @@ object AvatarCatalog {
             title = "La Mujer Zorro de nueve Colas",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ahri.png",
+            imageUrl = "file:///android_asset/offline_images/83315fc55220c38685e96adf421f31e0.png",
             borderHex = "#C8AA6E",
             description = "Ahri es una raposa vastaya conectada de forma innata a la magia del reino de los espíritus. Es ..."
         ),
@@ -103,7 +103,7 @@ object AvatarCatalog {
             title = "la Asesina Sigilosa",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Akali.png",
+            imageUrl = "file:///android_asset/offline_images/d28b883dddc36111fb7af94756b1dcd4.png",
             borderHex = "#C8AA6E",
             description = "Tras abandonar la Orden Kinkou y su título de Puño de la Sombra, Akali actúa ahora en solitario..."
         ),
@@ -113,7 +113,7 @@ object AvatarCatalog {
             title = "el Centinela Rebelde",
             region = "Shurima",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Akshan.png",
+            imageUrl = "file:///android_asset/offline_images/019644ac2e1f62baba680b1f8e28dcfc.png",
             borderHex = "#C8AA6E",
             description = "Impávido ante el peligro, Akshan combate el mal con gran carisma, ganas de impartir justa venga..."
         ),
@@ -123,7 +123,7 @@ object AvatarCatalog {
             title = "El Minotauro",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Alistar.png",
+            imageUrl = "file:///android_asset/offline_images/cc0eb1f1c81fd92a521f2efc9d74b7ab.png",
             borderHex = "#C8AA6E",
             description = "Alistar, un poderoso guerrero con una reputación temible, busca venganza por la muerte de su cl..."
         ),
@@ -133,7 +133,7 @@ object AvatarCatalog {
             title = "la Matriarca de la Guerra",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://wr-meta.com/uploads/posts/2024-10/1729619132_gacsdslw8a11au11q0i_11zon.webp",
+            imageUrl = "file:///android_asset/offline_images/0e02eb044e810d4aaad954fb52aabe0b.webp",
             borderHex = "#C8AA6E",
             description = "Ambessa Medarda comanda el campo de batalla con implacable disciplina militar. Sus cadenas y ho..."
         ),
@@ -143,7 +143,7 @@ object AvatarCatalog {
             title = "La Momia Triste",
             region = "Shurima",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Amumu.png",
+            imageUrl = "file:///android_asset/offline_images/874f0a93fd6cde60ca1872f60081cf5c.png",
             borderHex = "#C8AA6E",
             description = "Cuenta la leyenda que Amumu es un alma solitaria y melancólica de la vieja Shurima que vaga por..."
         ),
@@ -153,7 +153,7 @@ object AvatarCatalog {
             title = "La Hija de la Oscuridad",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Annie.png",
+            imageUrl = "file:///android_asset/offline_images/cf3d937003d9d0d5e889a3cf05da1edb.png",
             borderHex = "#C8AA6E",
             description = "Peligrosa pero encantadoramente precoz, Annie es una pequeña maga con un inmenso poder pirománt..."
         ),
@@ -163,7 +163,7 @@ object AvatarCatalog {
             title = "La Arquera de Hielo",
             region = "Freljord",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ashe.png",
+            imageUrl = "file:///android_asset/offline_images/b953214ea8a86ffb6978e181ea7dbce0.png",
             borderHex = "#C8AA6E",
             description = "Ashe, comandante hija del hielo de la tribu de Avarosa, lidera las hordas más numerosas del nor..."
         ),
@@ -173,7 +173,7 @@ object AvatarCatalog {
             title = "El Forjador de Estrellas",
             region = "Targon",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/AurelionSol.png",
+            imageUrl = "file:///android_asset/offline_images/ad2bfc2b5af3924c23d9b9ea9ab5e8ae.png",
             borderHex = "#C8AA6E",
             description = "Aurelion Sol solía agraciar al vasto vacío del cosmos con las maravillas celestiales que él mis..."
         ),
@@ -183,7 +183,7 @@ object AvatarCatalog {
             title = "la Bruja entre Mundos",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Aurora.png",
+            imageUrl = "file:///android_asset/offline_images/9d5fd5632405ccc08b56bba1b7727ba8.png",
             borderHex = "#C8AA6E",
             description = "Desde que nació, Aurora ha tenido una visión única de la vida gracias a su capacidad para mover..."
         ),
@@ -193,7 +193,7 @@ object AvatarCatalog {
             title = "El Guardián Errante",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Bard.png",
+            imageUrl = "file:///android_asset/offline_images/522f3172a1a447c6c67411263aa28c96.png",
             borderHex = "#C8AA6E",
             description = "Bardo, un viajero de más allá de las estrellas, es un agente de la serendipia que lucha para ma..."
         ),
@@ -203,7 +203,7 @@ object AvatarCatalog {
             title = "El Gran Gólem de Vapor",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Blitzcrank.png",
+            imageUrl = "file:///android_asset/offline_images/57e9af102c3176f9c9310b24e15efe4d.png",
             borderHex = "#C8AA6E",
             description = "Blitzcrank es un autómata enorme, casi indestructible, creado originalmente para el tratamiento..."
         ),
@@ -213,7 +213,7 @@ object AvatarCatalog {
             title = "La Venganza Ardiente",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Brand.png",
+            imageUrl = "file:///android_asset/offline_images/c1790673dd32d18bb870f0e5f14b4950.png",
             borderHex = "#C8AA6E",
             description = "Brand, antiguo miembro de la tribu Kegan Rodhe del helado Freljord, es una lección sobre la ten..."
         ),
@@ -223,7 +223,7 @@ object AvatarCatalog {
             title = "El Corazón de Freljord",
             region = "Freljord",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Braum.png",
+            imageUrl = "file:///android_asset/offline_images/cb2f5ecc60039533ee4b619d062bc0f8.png",
             borderHex = "#C8AA6E",
             description = "Bendecido con bíceps enormes y un corazón aún más grande, Braum es un héroe muy apreciado en Fr..."
         ),
@@ -233,7 +233,7 @@ object AvatarCatalog {
             title = "La Sheriff de Piltover",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Caitlyn.png",
+            imageUrl = "file:///android_asset/offline_images/951f8a840dc50ea1cc673dcd0e21ed67.png",
             borderHex = "#C8AA6E",
             description = "Reconocida como su mejor pacificadora, Caitlyn es también la mejor arma de Piltover para librar..."
         ),
@@ -243,7 +243,7 @@ object AvatarCatalog {
             title = "la Sombra de Acero",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Camille.png",
+            imageUrl = "file:///android_asset/offline_images/df72c99fd13adc4ca9813d951ccf873c.png",
             borderHex = "#C8AA6E",
             description = "Convertida en un arma viviente diseñada para operar fuera de la ley, Camille es la jefa de espí..."
         ),
@@ -253,7 +253,7 @@ object AvatarCatalog {
             title = "El Terror del Vacío",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Chogath.png",
+            imageUrl = "file:///android_asset/offline_images/0fd77b00a3816dea6e20d864432baa6d.png",
             borderHex = "#C8AA6E",
             description = "Desde el momento en que Cho'Gath emergió por primera vez a la dura luz solar de Runaterra, a la..."
         ),
@@ -263,7 +263,7 @@ object AvatarCatalog {
             title = "El Bombardero Osado",
             region = "Ciudad de Bandle",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Corki.png",
+            imageUrl = "file:///android_asset/offline_images/90de8072880a267598152b9d928f9c6c.png",
             borderHex = "#C8AA6E",
             description = "El piloto yordle Corki adora dos cosas por encima de todas las demás: volar y su glamuroso bigo..."
         ),
@@ -273,7 +273,7 @@ object AvatarCatalog {
             title = "La Mano de Noxus",
             region = "Noxus",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Darius.png",
+            imageUrl = "file:///android_asset/offline_images/6f1d5750c91a718d32c4c94948c75564.png",
             borderHex = "#C8AA6E",
             description = "No hay mayor símbolo del poder de Noxus que Darius, el comandante más temido y más curtido en b..."
         ),
@@ -283,7 +283,7 @@ object AvatarCatalog {
             title = "El Desdén de la Luna",
             region = "Targon",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Diana.png",
+            imageUrl = "file:///android_asset/offline_images/5fda3bd4a6d7032b00ac31492e9d3772.png",
             borderHex = "#C8AA6E",
             description = "Portadora de una espada en forma de media luna, Diana es una guerrera de los Lunari, una fe rec..."
         ),
@@ -293,7 +293,7 @@ object AvatarCatalog {
             title = "El Loco de Zaun",
             region = "Zaun",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/DrMundo.png",
+            imageUrl = "file:///android_asset/offline_images/81c5b6f71de4a1a9eb9106174db2ce6d.png",
             borderHex = "#C8AA6E",
             description = "Loco de remate, trágicamente homicida, terriblemente morado: el Dr. Mundo es lo que mantiene en..."
         ),
@@ -303,7 +303,7 @@ object AvatarCatalog {
             title = "El Ejecutor Glorioso",
             region = "Noxus",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Draven.png",
+            imageUrl = "file:///android_asset/offline_images/8b54c3fd57e1caef36cc6017dfc640f9.png",
             borderHex = "#C8AA6E",
             description = "En Noxus, los guerreros conocidos como 'justicieros' se enfrentan en recintos donde corre la sa..."
         ),
@@ -313,7 +313,7 @@ object AvatarCatalog {
             title = "El Chico que Quebró el Tiempo",
             region = "Zaun",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ekko.png",
+            imageUrl = "file:///android_asset/offline_images/7f8db4a5bb717364b1d25f121756e156.png",
             borderHex = "#C8AA6E",
             description = "Ekko, un prodigio surgido de las implacables calles de Zaun, manipula el tiempo para sacar vent..."
         ),
@@ -323,7 +323,7 @@ object AvatarCatalog {
             title = "El Abrazo Agónico",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Evelynn.png",
+            imageUrl = "file:///android_asset/offline_images/c9da26e26cd220d6e2d4f36d787391f2.png",
             borderHex = "#C8AA6E",
             description = "En los oscuros adentros de Runaterra, el súcubo Evelynn deambula en busca de su siguiente vícti..."
         ),
@@ -333,7 +333,7 @@ object AvatarCatalog {
             title = "El Explorador Pródigo",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ezreal.png",
+            imageUrl = "file:///android_asset/offline_images/9fdf05bb08a8101b0619e1e8c69b047c.png",
             borderHex = "#C8AA6E",
             description = "Ezreal, un aventurero aficionado a deslizarse y dotado de artes mágicas sin saberlo, saquea cat..."
         ),
@@ -343,7 +343,7 @@ object AvatarCatalog {
             title = "el Terror Ancestral",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fiddlesticks.png",
+            imageUrl = "file:///android_asset/offline_images/e12c40e93aaa4d9ee1afac8a7b5d8148.png",
             borderHex = "#C8AA6E",
             description = "Algo ha despertado en Runaterra. Algo ancestral. Algo terrible. El horror conocido como Fiddles..."
         ),
@@ -353,7 +353,7 @@ object AvatarCatalog {
             title = "La Estocada Excelsa",
             region = "Demacia",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fiora.png",
+            imageUrl = "file:///android_asset/offline_images/2e06bd1334bd767730d40c2849f3abc6.png",
             borderHex = "#C8AA6E",
             description = "Fiora, la duelista más temida de Valoran, ha alcanzado renombre por su estilo brusco y su mente..."
         ),
@@ -363,7 +363,7 @@ object AvatarCatalog {
             title = "El Gamberro de las Mareas",
             region = "Aguas Esturbias",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fizz.png",
+            imageUrl = "file:///android_asset/offline_images/a22c0a00c0abed61e9016735d761d5dc.png",
             borderHex = "#C8AA6E",
             description = "Fizz es un yordle anfibio que habita entre los arrecifes de alrededor de Aguas Estancadas. Suel..."
         ),
@@ -373,7 +373,7 @@ object AvatarCatalog {
             title = "el Coloso",
             region = "Demacia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Galio.png",
+            imageUrl = "file:///android_asset/offline_images/5a65513d117e7916180d3de85e65c944.png",
             borderHex = "#C8AA6E",
             description = "Fuera de la reluciente ciudad de Demacia, el coloso de piedra Galio se mantiene vigilante. Cons..."
         ),
@@ -383,7 +383,7 @@ object AvatarCatalog {
             title = "El Poder de Demacia",
             region = "Demacia",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Garen.png",
+            imageUrl = "file:///android_asset/offline_images/c3ae4ce66c3e0623b1e07f83f694c75b.png",
             borderHex = "#C8AA6E",
             description = "Garen, un orgulloso y noble guerrero, lucha en las filas de la Vanguardia Impertérrita. Es quer..."
         ),
@@ -393,7 +393,7 @@ object AvatarCatalog {
             title = "El Eslabón Perdido",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gnar.png",
+            imageUrl = "file:///android_asset/offline_images/f33f3749a2ce30ed7565d7745d2d227a.png",
             borderHex = "#C8AA6E",
             description = "Gnar es un yordle primitivo cuyas payasadas lúdicas pueden estallar en la ira de un niño pequeñ..."
         ),
@@ -403,7 +403,7 @@ object AvatarCatalog {
             title = "El Camorrista",
             region = "Freljord",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gragas.png",
+            imageUrl = "file:///android_asset/offline_images/75930aea9f43f935009f45fe2b1801d3.png",
             borderHex = "#C8AA6E",
             description = "Alegre e imponente por partes iguales, Gragas es un cervecero enorme y provocador en su propia ..."
         ),
@@ -413,7 +413,7 @@ object AvatarCatalog {
             title = "El Forajido",
             region = "Aguas Esturbias",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Graves.png",
+            imageUrl = "file:///android_asset/offline_images/eb9f9b4f34d79ecdcfab7e97947aafe0.png",
             borderHex = "#C8AA6E",
             description = "Malcolm Graves es un famoso mercenario, jugador y ladrón. Un hombre buscado en todas las ciudad..."
         ),
@@ -423,7 +423,7 @@ object AvatarCatalog {
             title = "La Costurera Consagrada",
             region = "Islas de la Sombra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gwen.png",
+            imageUrl = "file:///android_asset/offline_images/a46e193f74d246d1106851d3981c6ed7.png",
             borderHex = "#C8AA6E",
             description = "Gwen, una muñeca a la que la magia confirió vida, va armada con los mismos utensilios que en su..."
         ),
@@ -433,7 +433,7 @@ object AvatarCatalog {
             title = "La Sombra de la Guerra",
             region = "Islas de la Sombra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Hecarim.png",
+            imageUrl = "file:///android_asset/offline_images/b8e15a8394386e0631afe199872910f6.png",
             borderHex = "#C8AA6E",
             description = "Hecarim es una fusión espectral de hombre y bestia, condenado a arrollar las almas de los vivos..."
         ),
@@ -443,7 +443,7 @@ object AvatarCatalog {
             title = "El Inventor Venerado",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Heimerdinger.png",
+            imageUrl = "file:///android_asset/offline_images/64fcefbada9411cff0ce3ea6669f2791.png",
             borderHex = "#C8AA6E",
             description = "El profesor Cecil B. Heimerdinger, un científico yordle excéntrico pero brillante, es considera..."
         ),
@@ -453,7 +453,7 @@ object AvatarCatalog {
             title = "la Danza de las Cuchillas",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Irelia.png",
+            imageUrl = "file:///android_asset/offline_images/7441a90703d54db20a98298fa57d0395.png",
             borderHex = "#C8AA6E",
             description = "La ocupación noxiana de Jonia produjo mucho héroes, pero ninguno más improbable que la joven Ir..."
         ),
@@ -463,7 +463,7 @@ object AvatarCatalog {
             title = "La Furia de la Tormenta",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Janna.png",
+            imageUrl = "file:///android_asset/offline_images/b331446b8e11778abc5678e48e26fe5a.png",
             borderHex = "#C8AA6E",
             description = "Janna, armada con el poder de los vendavales de Runaterra, es un misterioso espíritu elemental ..."
         ),
@@ -473,7 +473,7 @@ object AvatarCatalog {
             title = "El Ejemplo de Demacia",
             region = "Demacia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/JarvanIV.png",
+            imageUrl = "file:///android_asset/offline_images/67d33b5fbce336a4579dff64e6e5e3d2.png",
             borderHex = "#C8AA6E",
             description = "El príncipe Jarvan, descendiente de la dinastía Escudo de Luz, es heredero al trono de Demacia...."
         ),
@@ -483,7 +483,7 @@ object AvatarCatalog {
             title = "El Maestro de Armas",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jax.png",
+            imageUrl = "file:///android_asset/offline_images/23edc6a12640f0b34c586048bfbb3aba.png",
             borderHex = "#C8AA6E",
             description = "Incomparable en su habilidad con armas especiales y su mordaz sarcasmo, Jax es el último maestr..."
         ),
@@ -493,7 +493,7 @@ object AvatarCatalog {
             title = "El Defensor del Mañana",
             region = "Piltóver",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jayce.png",
+            imageUrl = "file:///android_asset/offline_images/c0268f25ad12f9fec13701c144671fc2.png",
             borderHex = "#C8AA6E",
             description = "Jayce es un brillante inventor que ha jurado defender con su vida a Piltover y a su irreductibl..."
         ),
@@ -503,7 +503,7 @@ object AvatarCatalog {
             title = "El Virtuoso",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jhin.png",
+            imageUrl = "file:///android_asset/offline_images/9e2434ed6e0f274a3c2f63d3afcbce78.png",
             borderHex = "#C8AA6E",
             description = "Jhin es un meticuloso criminal psicópata que ve el asesinato como arte. Otrora prisionero jonio..."
         ),
@@ -513,7 +513,7 @@ object AvatarCatalog {
             title = "La Bala Perdida",
             region = "Zaun",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jinx.png",
+            imageUrl = "file:///android_asset/offline_images/ffaf0a1e6d0877aac7c62b863afc8704.png",
             borderHex = "#C8AA6E",
             description = "Jinx, una criminal perturbada e impulsiva de Zaun, vive para sembrar el caos sin importarle las..."
         ),
@@ -523,7 +523,7 @@ object AvatarCatalog {
             title = "el Orgullo de Nazumah",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/KSante.png",
+            imageUrl = "file:///android_asset/offline_images/09f271f6fb5ce280797bbace41644ec0.png",
             borderHex = "#C8AA6E",
             description = "K'Sante, un guerrero desafiante y valiente, lucha contra gigantescas bestias y despiadados Asce..."
         ),
@@ -533,7 +533,7 @@ object AvatarCatalog {
             title = "La Hija del Vacío",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kaisa.png",
+            imageUrl = "file:///android_asset/offline_images/53582eb7d0f6b766d40a1c548ae5a3cc.png",
             borderHex = "#C8AA6E",
             description = "Reclamada por el Vacío cuando era solo una niña, Kai'Sa logró sobrevivir por pura tenacidad y f..."
         ),
@@ -543,7 +543,7 @@ object AvatarCatalog {
             title = "El Espíritu de la Venganza",
             region = "Islas de la Sombra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kalista.png",
+            imageUrl = "file:///android_asset/offline_images/e4c68712ba6bd30a964fa05c85ac0aee.png",
             borderHex = "#C8AA6E",
             description = "Kalista, un espectro de cólera y castigo, es el inmortal espíritu de la venganza, una pesadilla..."
         ),
@@ -553,7 +553,7 @@ object AvatarCatalog {
             title = "La Iluminada",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Karma.png",
+            imageUrl = "file:///android_asset/offline_images/62390aabede484fd9966ae20cf147ccc.png",
             borderHex = "#C8AA6E",
             description = "No hay mortal que ejemplifique las tradiciones espirituales de Jonia mejor que Karma. Es la per..."
         ),
@@ -563,7 +563,7 @@ object AvatarCatalog {
             title = "El Caminante del Vacío",
             region = "El Vacío",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kassadin.png",
+            imageUrl = "file:///android_asset/offline_images/78a8558f01f24dd0559e5314e29a7e7e.png",
             borderHex = "#C8AA6E",
             description = "Dejando tras sí una huella ardiente por los lugares más oscuros del mundo, Kassadin sabe que su..."
         ),
@@ -573,7 +573,7 @@ object AvatarCatalog {
             title = "La Cuchilla Siniestra",
             region = "Noxus",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Katarina.png",
+            imageUrl = "file:///android_asset/offline_images/64762583ffb396c2d4743f6a4b2719f3.png",
             borderHex = "#C8AA6E",
             description = "Con un juicio decisivo y letal en el combate, Katarina es una de las mejores asesinas noxianas...."
         ),
@@ -583,7 +583,7 @@ object AvatarCatalog {
             title = "la Justa",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kayle.png",
+            imageUrl = "file:///android_asset/offline_images/890d2c080b9b18c52819e37752184baf.png",
             borderHex = "#C8AA6E",
             description = "Kayle, nacida de un Aspecto de Targon en el punto álgido de las Guerras Rúnicas, honró el legad..."
         ),
@@ -593,7 +593,7 @@ object AvatarCatalog {
             title = "la Guadaña de las Sombras",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kayn.png",
+            imageUrl = "file:///android_asset/offline_images/43578250a2e9cb31423fbbe009928d48.png",
             borderHex = "#C8AA6E",
             description = "Shieda Kayn, un practicante sin par de la mortífera magia sombría, lucha por alcanzar su verdad..."
         ),
@@ -603,7 +603,7 @@ object AvatarCatalog {
             title = "El Corazón de la Tempestad",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kennen.png",
+            imageUrl = "file:///android_asset/offline_images/90c9a36125ae0f77d27435332c93c296.png",
             borderHex = "#C8AA6E",
             description = "Más allá de ser el rápido encargado de mantener el equilibrio en Jonia, Kennen es también el ún..."
         ),
@@ -613,7 +613,7 @@ object AvatarCatalog {
             title = "El Saqueador del Vacío",
             region = "El Vacío",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Khazix.png",
+            imageUrl = "file:///android_asset/offline_images/c784a3ee58aa4a434685ef399dc537ad.png",
             borderHex = "#C8AA6E",
             description = "El Vacío crece y el Vacío se adapta; verdades que son más evidentes en Kha'Zix que en ningún ot..."
         ),
@@ -623,7 +623,7 @@ object AvatarCatalog {
             title = "Los Cazadores Eternos",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kindred.png",
+            imageUrl = "file:///android_asset/offline_images/466de974987ebebe6c7b954f31e2d6fb.png",
             borderHex = "#C8AA6E",
             description = "Divididos, pero nunca separados, Kindred representan las dos esencias de la muerte. El arco de ..."
         ),
@@ -633,7 +633,7 @@ object AvatarCatalog {
             title = "La Boca del Abismo",
             region = "Runaterra",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/KogMaw.png",
+            imageUrl = "file:///android_asset/offline_images/248e8b2f9ffcae169e43ad8f025e3ffa.png",
             borderHex = "#C8AA6E",
             description = "Escupido de una incursión deteriorada del Vacío en los yermos de Icathia, Kog'Maw es una criatu..."
         ),
@@ -643,7 +643,7 @@ object AvatarCatalog {
             title = "El Monje Ciego",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/LeeSin.png",
+            imageUrl = "file:///android_asset/offline_images/8b4a73bbdc2fd38b2a2e63e9211cd9e8.png",
             borderHex = "#C8AA6E",
             description = "Lee Sin, maestro de las artes marciales ancestrales de Jonia, es un luchador con principios que..."
         ),
@@ -653,7 +653,7 @@ object AvatarCatalog {
             title = "El Amanecer Radiante",
             region = "Targon",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Leona.png",
+            imageUrl = "file:///android_asset/offline_images/de763147e9338c1d278d51b8c106488b.png",
             borderHex = "#C8AA6E",
             description = "Imbuida del fuego del sol, Leona es una guerrera sagrada de los Solari que defiende el Monte Ta..."
         ),
@@ -663,7 +663,7 @@ object AvatarCatalog {
             title = "el Tímido Florecer",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lillia.png",
+            imageUrl = "file:///android_asset/offline_images/e9a7e1fb52ce0a26df8456a4fb542c97.png",
             borderHex = "#C8AA6E",
             description = "Lillia es una tímida cervatilla feérica que merodea a su antojo por los bosques jonios. Se ocul..."
         ),
@@ -673,7 +673,7 @@ object AvatarCatalog {
             title = "La Bruja de Hielo",
             region = "Freljord",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lissandra.png",
+            imageUrl = "file:///android_asset/offline_images/1c874d5b700890961095a69350b3cfd8.png",
             borderHex = "#C8AA6E",
             description = "La magia de Lissandra convierte el poder del hielo en algo oscuro y terrible. Con la fuerza de ..."
         ),
@@ -683,7 +683,7 @@ object AvatarCatalog {
             title = "El Destello Purificador",
             region = "Demacia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lucian.png",
+            imageUrl = "file:///android_asset/offline_images/2debc4be6366fa04f00c6c92b3f17db5.png",
             borderHex = "#C8AA6E",
             description = "Lucian, antiguo Centinela de la Luz, es un sombrío cazador de espíritus eternos a los que persi..."
         ),
@@ -693,7 +693,7 @@ object AvatarCatalog {
             title = "El Hada Hechicera",
             region = "Ciudad de Bandle",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lulu.png",
+            imageUrl = "file:///android_asset/offline_images/5325d16e9136e70c6e33ca941b08447b.png",
             borderHex = "#C8AA6E",
             description = "Lulu, la yordle maga, es conocida por invocar ilusiones oníricas y criaturas imaginarias en sus..."
         ),
@@ -703,7 +703,7 @@ object AvatarCatalog {
             title = "La Dama Luminosa",
             region = "Demacia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lux.png",
+            imageUrl = "file:///android_asset/offline_images/57f5df84c7aaacfb0df07ac031dca27a.png",
             borderHex = "#C8AA6E",
             description = "Luxanna Crownguard procede de Demacia, un reino insular en el que las habilidades mágicas se ob..."
         ),
@@ -713,7 +713,7 @@ object AvatarCatalog {
             title = "El Fragmento del Monolito",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Malphite.png",
+            imageUrl = "file:///android_asset/offline_images/8acbd3e15518cba86bc6c112b22b97ec.png",
             borderHex = "#C8AA6E",
             description = "Como una criatura enorme de piedra viviente, a Malphite le cuesta imponer el orden en un mundo ..."
         ),
@@ -723,7 +723,7 @@ object AvatarCatalog {
             title = "El Treant Retorcido",
             region = "Islas de la Sombra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Maokai.png",
+            imageUrl = "file:///android_asset/offline_images/694aef0e275eacfbb40d798edcd62cc6.png",
             borderHex = "#C8AA6E",
             description = "Maokai es un imponente y feroz treant que lucha contra los horrores antinaturales de las Islas ..."
         ),
@@ -733,7 +733,7 @@ object AvatarCatalog {
             title = "El Espadachín Wuju",
             region = "Jonia",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MasterYi.png",
+            imageUrl = "file:///android_asset/offline_images/f5378d0237f2091fec1dce6701123ddf.png",
             borderHex = "#C8AA6E",
             description = "Maestro Yi ha atemperado su cuerpo y agudizado su mente, de modo que el pensamiento y la acción..."
         ),
@@ -743,7 +743,7 @@ object AvatarCatalog {
             title = "la Consejera Dorada",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://wr-meta.com/uploads/posts/2025-01/1737748919_mel_0.webp",
+            imageUrl = "file:///android_asset/offline_images/19acee68d94821c4b6fed292f63821cc.webp",
             borderHex = "#C8AA6E",
             description = "Mel domina las líneas con magia solar áurea, proveyendo daño a distancia, escudos reflectantes ..."
         ),
@@ -753,7 +753,7 @@ object AvatarCatalog {
             title = "la Llama Serena",
             region = "Runaterra",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Milio.png",
+            imageUrl = "file:///android_asset/offline_images/7146c039b6cf4496a44db6aaa19e44c4.png",
             borderHex = "#C8AA6E",
             description = "Milio es un jovencito amable de Ixtal que, a pesar de su corta edad, ha conseguido dominar el a..."
         ),
@@ -763,7 +763,7 @@ object AvatarCatalog {
             title = "La Cazarrecompensas",
             region = "Aguas Esturbias",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MissFortune.png",
+            imageUrl = "file:///android_asset/offline_images/bb9ab31207ffa30c86d61a0d1c746d03.png",
             borderHex = "#C8AA6E",
             description = "Sarah Fortune se cuenta sin duda entre los capitanes más conocidos de Aguas Estancadas y es tan..."
         ),
@@ -773,7 +773,7 @@ object AvatarCatalog {
             title = "La Pesadilla de Hierro",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Mordekaiser.png",
+            imageUrl = "file:///android_asset/offline_images/19cfa1ec83a12c813888c7eb12a5d1b2.png",
             borderHex = "#C8AA6E",
             description = "Mordekaiser es un sanguinario señor de la guerra proveniente de tiempos olvidados al que los si..."
         ),
@@ -783,7 +783,7 @@ object AvatarCatalog {
             title = "la Caída",
             region = "Demacia",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Morgana.png",
+            imageUrl = "file:///android_asset/offline_images/aff5c9719f4e370fc858c1a7d3b24af0.png",
             borderHex = "#C8AA6E",
             description = "En vistas del conflicto entre su naturaleza celestial y su naturaleza mortal, Morgana decidió a..."
         ),
@@ -793,7 +793,7 @@ object AvatarCatalog {
             title = "La Invocadora de Mareas",
             region = "Aguas Esturbias",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nami.png",
+            imageUrl = "file:///android_asset/offline_images/7fa0233ca34724e8888f713d0733a540.png",
             borderHex = "#C8AA6E",
             description = "Nami, una joven y testaruda vastaya marina, fue la primera de la tribu marai en abandonar las o..."
         ),
@@ -803,7 +803,7 @@ object AvatarCatalog {
             title = "El Guardián de las Arenas",
             region = "Shurima",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nasus.png",
+            imageUrl = "file:///android_asset/offline_images/c7fd459086cffbcb46d4117152edd146.png",
             borderHex = "#C8AA6E",
             description = "Nasus es un imponente ser Ascendido con cabeza de chacal procedente de la antigua Shurima; una ..."
         ),
@@ -813,7 +813,7 @@ object AvatarCatalog {
             title = "El Titán Abisal",
             region = "Aguas Esturbias",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nautilus.png",
+            imageUrl = "file:///android_asset/offline_images/613420136723e9d52423a0866aacded2.png",
             borderHex = "#C8AA6E",
             description = "El gigante acorazado Nautilus, una leyenda solitaria tan antigua como los pecios de Aguas Estan..."
         ),
@@ -823,7 +823,7 @@ object AvatarCatalog {
             title = "La Cazadora Bestial",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nidalee.png",
+            imageUrl = "file:///android_asset/offline_images/a2404a8fd619603ee750cf28c4aa270a.png",
             borderHex = "#C8AA6E",
             description = "Criada en lo más profundo de la jungla, Nidalee es una rastreadora maestra que puede convertirs..."
         ),
@@ -833,7 +833,7 @@ object AvatarCatalog {
             title = "la Alegría Desatada",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nilah.png",
+            imageUrl = "file:///android_asset/offline_images/03bf785662f21a51f8b1732bc4768b0c.png",
             borderHex = "#C8AA6E",
             description = "Nilah es una guerrera ascética proveniente de tierras lejanas que busca a los adversarios más m..."
         ),
@@ -843,7 +843,7 @@ object AvatarCatalog {
             title = "La Pesadilla Eterna",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nocturne.png",
+            imageUrl = "file:///android_asset/offline_images/0423161828807dd49db11d584db2c405.png",
             borderHex = "#C8AA6E",
             description = "El ser conocido como Nocturne es una fusión demoníaca extraída de las pesadillas que acechan a ..."
         ),
@@ -853,7 +853,7 @@ object AvatarCatalog {
             title = "la Maestra de los Portales",
             region = "Runaterra",
             rarity = "Mítico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a1ba2f0d1178b81cf869741e94e9453ffd3e69f-285x323.jpg?accountingTag=WR",
+            imageUrl = "file:///android_asset/offline_images/87bfb0c8cb1949e183b6262556f5f12d.jpg",
             borderHex = "#C8AA6E",
             description = "Norra abre fisuras hacia la Ciudad de Bandle para dotar de hipermovilidad a su equipo y desorie..."
         ),
@@ -863,7 +863,7 @@ object AvatarCatalog {
             title = "Un Niño y su Yeti",
             region = "Freljord",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nunu.png",
+            imageUrl = "file:///android_asset/offline_images/47f44920a4b26afa28b42e9f5cea532f.png",
             borderHex = "#C8AA6E",
             description = "Había una vez un niño que quería acabar con un temible monstruo para demostrar que era un héroe..."
         ),
@@ -873,7 +873,7 @@ object AvatarCatalog {
             title = "El Berserker",
             region = "Freljord",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Olaf.png",
+            imageUrl = "file:///android_asset/offline_images/028b98a560a7d24082899b0cc2ced72f.png",
             borderHex = "#C8AA6E",
             description = "Olaf porta sus hachas de forma que es una fuerza imparable de destrucción que no quiere nada, s..."
         ),
@@ -883,7 +883,7 @@ object AvatarCatalog {
             title = "La Dama Mecánica",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Orianna.png",
+            imageUrl = "file:///android_asset/offline_images/a5c0ea1bd647e2be57834c090f333227.png",
             borderHex = "#C8AA6E",
             description = "Orianna, antaño una chica curiosa de carne y hueso, es ahora una maravilla tecnológica compuest..."
         ),
@@ -893,7 +893,7 @@ object AvatarCatalog {
             title = "Las Llamas de la Forja",
             region = "Freljord",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ornn.png",
+            imageUrl = "file:///android_asset/offline_images/f283cda8664a64d0d819e9e8f9df73f1.png",
             borderHex = "#C8AA6E",
             description = "Ornn es el espíritu de Freljord de la forja y la artesanía. Trabaja en la soledad de una enorme..."
         ),
@@ -903,7 +903,7 @@ object AvatarCatalog {
             title = "la Lanza Inquebrantable",
             region = "Targon",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pantheon.png",
+            imageUrl = "file:///android_asset/offline_images/d88e1d3f2686a46883474be7d2dfb288.png",
             borderHex = "#C8AA6E",
             description = "Tiempo atrás, Atreus había albergado al Aspecto de la Guerra en su interior contra su voluntad,..."
         ),
@@ -913,7 +913,7 @@ object AvatarCatalog {
             title = "La Guardiana del Martillo",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Poppy.png",
+            imageUrl = "file:///android_asset/offline_images/93d533b45fb5c95d82f833e2d95c25ee.png",
             borderHex = "#C8AA6E",
             description = "En Runaterra hay un gran número de campeones valerosos, pero muy pocos son tan tenaces como Pop..."
         ),
@@ -923,7 +923,7 @@ object AvatarCatalog {
             title = "el Destripador de los Puertos",
             region = "Aguas Esturbias",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pyke.png",
+            imageUrl = "file:///android_asset/offline_images/afeacbea2835d2d0e57d40c170003174.png",
             borderHex = "#C8AA6E",
             description = "A Pyke, un conocido arponero de los muelles del matadero de Aguas Estancadas, le esperaba la mu..."
         ),
@@ -933,7 +933,7 @@ object AvatarCatalog {
             title = "El Encantador",
             region = "Jonia",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rakan.png",
+            imageUrl = "file:///android_asset/offline_images/3ea7096360c7b93dcd7acd3044b031e0.png",
             borderHex = "#C8AA6E",
             description = "Con un carácter tan impulsivo como encantador, Rakan es un infame alborotador vastaya y el mejo..."
         ),
@@ -943,7 +943,7 @@ object AvatarCatalog {
             title = "El Armadurillo",
             region = "Shurima",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rammus.png",
+            imageUrl = "file:///android_asset/offline_images/56ac28ef06b17e59c6601d67f4ed8d0a.png",
             borderHex = "#C8AA6E",
             description = "Idealizado por muchos, ignorado por otros, inexplicable para todos, Rammus, el extraño ser, es ..."
         ),
@@ -953,7 +953,7 @@ object AvatarCatalog {
             title = "la Dama de Hierro",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rell.png",
+            imageUrl = "file:///android_asset/offline_images/6120390bb1838bc3bb12cfbbf40aa397.png",
             borderHex = "#C8AA6E",
             description = "Rell, producto de crueles experimentos a manos de la Rosa Negra, es ahora una intrépida arma vi..."
         ),
@@ -963,7 +963,7 @@ object AvatarCatalog {
             title = "El Carnicero de las Arenas",
             region = "Shurima",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Renekton.png",
+            imageUrl = "file:///android_asset/offline_images/2011340b7a1cbd634b2cf63b03f7bf88.png",
             borderHex = "#C8AA6E",
             description = "Renekton es una terrorífica criatura Ascendida movida por la ira y procedente de los desiertos ..."
         ),
@@ -973,7 +973,7 @@ object AvatarCatalog {
             title = "El Acechador Orgulloso",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rengar.png",
+            imageUrl = "file:///android_asset/offline_images/3a804c66e31d92ddd80474367ffeb344.png",
             borderHex = "#C8AA6E",
             description = "Rengar es un feroz cazador de trofeos vastaya que vive por el placer de perseguir y asesinar cr..."
         ),
@@ -983,7 +983,7 @@ object AvatarCatalog {
             title = "La Exiliada",
             region = "Noxus",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Riven.png",
+            imageUrl = "file:///android_asset/offline_images/d4139f2b198600253ea47ccfb0df137b.png",
             borderHex = "#C8AA6E",
             description = "Antaño maestra de la espada de las huestes de Noxus, Riven es una expatriada en la tierra que p..."
         ),
@@ -993,7 +993,7 @@ object AvatarCatalog {
             title = "La Amenaza Mecánica",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rumble.png",
+            imageUrl = "file:///android_asset/offline_images/066acc3e4c800ed4d6e189e7b488421f.png",
             borderHex = "#C8AA6E",
             description = "Rumble es un joven inventor con temperamento. Utilizando nada más que sus propias manos y un mo..."
         ),
@@ -1003,7 +1003,7 @@ object AvatarCatalog {
             title = "El Hechicero Rúnico",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ryze.png",
+            imageUrl = "file:///android_asset/offline_images/38d3f3d720aa95271156ba6bea624a7e.png",
             borderHex = "#C8AA6E",
             description = "Ryze es considerado uno de los hechiceros con más experiencia de Runaterra. El archimago ancest..."
         ),
@@ -1013,7 +1013,7 @@ object AvatarCatalog {
             title = "la Rosa del Desierto",
             region = "Noxus",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Samira.png",
+            imageUrl = "file:///android_asset/offline_images/0a02f88af8b9f3780796cd7f4a851a57.png",
             borderHex = "#C8AA6E",
             description = "Samira mira de cara a la muerte con una confianza férrea y busca emociones extremas allá donde ..."
         ),
@@ -1023,7 +1023,7 @@ object AvatarCatalog {
             title = "la Redentora",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Senna.png",
+            imageUrl = "file:///android_asset/offline_images/3eb56d39d4626cfc94f2fc455e908972.png",
             borderHex = "#C8AA6E",
             description = "Maldita desde que era apenas una niña y perseguida por la Niebla Negra, Senna se unió a una ord..."
         ),
@@ -1033,7 +1033,7 @@ object AvatarCatalog {
             title = "la Cantante Soñadora",
             region = "Piltóver",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Seraphine.png",
+            imageUrl = "file:///android_asset/offline_images/35ab446848a2a8bafc5e1248eb06cfc5.png",
             borderHex = "#C8AA6E",
             description = "Seraphine, de padres zaunitas, nació en Piltover y es capaz de escuchar las almas de los demás...."
         ),
@@ -1043,7 +1043,7 @@ object AvatarCatalog {
             title = "el Jefe",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sett.png",
+            imageUrl = "file:///android_asset/offline_images/bb5da1180bdd3f8ce545f87bff04ee4f.png",
             borderHex = "#C8AA6E",
             description = "Sett es una prominente figura en los emergentes círculos criminales jonios, que aseguró su posi..."
         ),
@@ -1053,7 +1053,7 @@ object AvatarCatalog {
             title = "El Ojo del Crepúsculo",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shen.png",
+            imageUrl = "file:///android_asset/offline_images/409a49bae4690243ee72cf9c5c34c9d1.png",
             borderHex = "#C8AA6E",
             description = "Shen, el Ojo del Crepúsculo, es el cabecilla de los sigilosos guerreros de Jonia conocidos como..."
         ),
@@ -1063,7 +1063,7 @@ object AvatarCatalog {
             title = "La Medio Dragón",
             region = "Demacia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shyvana.png",
+            imageUrl = "file:///android_asset/offline_images/b9cc38866588bc8c2e707081bc132eb2.png",
             borderHex = "#C8AA6E",
             description = "Shyvana es una criatura con la magia de un fragmento de runa incandescente alojada en lo más pr..."
         ),
@@ -1073,7 +1073,7 @@ object AvatarCatalog {
             title = "El Químico Loco",
             region = "Zaun",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Singed.png",
+            imageUrl = "file:///android_asset/offline_images/0be7415fb5e45ad42c954685675f791c.png",
             borderHex = "#C8AA6E",
             description = "Singed es un alquimista zaunita de intelecto sin igual que se ha entregado en cuerpo y alma a s..."
         ),
@@ -1083,7 +1083,7 @@ object AvatarCatalog {
             title = "El Coloso no Muerto",
             region = "Noxus",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sion.png",
+            imageUrl = "file:///android_asset/offline_images/db4565ecb18509d44ef42ef67ed735e3.png",
             borderHex = "#C8AA6E",
             description = "Sion fue un héroe de guerra en el pasado y los noxianos lo veneraban porque había arrebatado la..."
         ),
@@ -1093,7 +1093,7 @@ object AvatarCatalog {
             title = "La Señora de la Batalla",
             region = "Shurima",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sivir.png",
+            imageUrl = "file:///android_asset/offline_images/329901bf4b992cf6557ee6f63b54297a.png",
             borderHex = "#C8AA6E",
             description = "Sivir es una afamada buscadora de tesoros y capitana mercenaria que se gana la vida en el desie..."
         ),
@@ -1103,7 +1103,7 @@ object AvatarCatalog {
             title = "el Soberano Primigenio",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Skarner.png",
+            imageUrl = "file:///android_asset/offline_images/cbd4d31b1515630ff0142970fe9f6517.png",
             borderHex = "#C8AA6E",
             description = "A Skarner, el colosal brackern ancestral, se le rinde culto en Ixtal como uno de los fundadores..."
         ),
@@ -1113,7 +1113,7 @@ object AvatarCatalog {
             title = "el Heredero de las Llamas",
             region = "Runaterra",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Smolder.png",
+            imageUrl = "file:///android_asset/offline_images/957e2f365ce3a88e5449d095c72afc5b.png",
             borderHex = "#C8AA6E",
             description = "Oculto entre los escarpados acantilados de la frontera noxiana y bajo la atenta mirada de su ma..."
         ),
@@ -1123,7 +1123,7 @@ object AvatarCatalog {
             title = "La Virtuosa de las Cuerdas",
             region = "Demacia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sona.png",
+            imageUrl = "file:///android_asset/offline_images/367977f1ae28cf4637e7b300ed09f64a.png",
             borderHex = "#C8AA6E",
             description = "Sona es la artista más virtuosa de Demacia con el etwahl de cuerda y solo se comunica a través ..."
         ),
@@ -1133,7 +1133,7 @@ object AvatarCatalog {
             title = "La Hija de las Estrellas",
             region = "Targon",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Soraka.png",
+            imageUrl = "file:///android_asset/offline_images/110207895044be10c8067e82fc29705c.png",
             borderHex = "#C8AA6E",
             description = "Soraka, una nómada proveniente de las dimensiones celestiales más allá del monte Targon, dejó a..."
         ),
@@ -1143,7 +1143,7 @@ object AvatarCatalog {
             title = "el Gran General de Noxus",
             region = "Noxus",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Swain.png",
+            imageUrl = "file:///android_asset/offline_images/f8c09518be5dea83a1b9dfc3a1c1c6ac.png",
             borderHex = "#C8AA6E",
             description = "Jericho Swain es el visionario líder de Noxus, una nación expansionista que solo venera la fuer..."
         ),
@@ -1153,7 +1153,7 @@ object AvatarCatalog {
             title = "La Soberana Oscura",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Syndra.png",
+            imageUrl = "file:///android_asset/offline_images/d74d9d182c082667927c0eea6a02dc7d.png",
             borderHex = "#C8AA6E",
             description = "Syndra es una temible maga jonia con un poder increíble a su disposición. De niña, inquietó a l..."
         ),
@@ -1163,7 +1163,7 @@ object AvatarCatalog {
             title = "La Tejedora de Piedra",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Taliyah.png",
+            imageUrl = "file:///android_asset/offline_images/14cb30bb13ddc7ec46809e30351f683f.png",
             borderHex = "#C8AA6E",
             description = "Taliyah es una hechicera nómada de Shurima desgarrada entre la curiosidad de una adolescente y ..."
         ),
@@ -1173,7 +1173,7 @@ object AvatarCatalog {
             title = "La Sombra de la Espada",
             region = "Noxus",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Talon.png",
+            imageUrl = "file:///android_asset/offline_images/a3e3bbcb567154c82502e03bf7a91bd1.png",
             borderHex = "#C8AA6E",
             description = "Talon es el cuchillo de la oscuridad, un asesino despiadado capaz de atacar sin previo aviso y ..."
         ),
@@ -1183,7 +1183,7 @@ object AvatarCatalog {
             title = "El Explorador Veloz",
             region = "Ciudad de Bandle",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Teemo.png",
+            imageUrl = "file:///android_asset/offline_images/3095d2bd315e9c7deca07a5ebe0f7fc9.png",
             borderHex = "#C8AA6E",
             description = "Sin inmutarse siquiera por los obstáculos más peligrosos y amenazantes, Teemo explora el mundo ..."
         ),
@@ -1193,7 +1193,7 @@ object AvatarCatalog {
             title = "El Carcelero Implacable",
             region = "Islas de la Sombra",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Thresh.png",
+            imageUrl = "file:///android_asset/offline_images/411281d43089990dc925e8bba26e2ec2.png",
             borderHex = "#C8AA6E",
             description = "Thresh, un ser sádico y astuto, es un ambicioso y trastornado espíritu de las Islas de la Sombr..."
         ),
@@ -1203,7 +1203,7 @@ object AvatarCatalog {
             title = "La Artillera Yordle",
             region = "Ciudad de Bandle",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tristana.png",
+            imageUrl = "file:///android_asset/offline_images/504f29a1c62500b82bda4a5c0f37dc42.png",
             borderHex = "#C8AA6E",
             description = "Pese a que la mayoría de los yordles canalizan sus energías hacia el descubrimiento, la invenci..."
         ),
@@ -1213,7 +1213,7 @@ object AvatarCatalog {
             title = "El Rey Bárbaro",
             region = "Freljord",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tryndamere.png",
+            imageUrl = "file:///android_asset/offline_images/139453d8c9a9830dbcc301135a643e15.png",
             borderHex = "#C8AA6E",
             description = "Impulsado por una furia y una rabia desenfrenadas, Tryndamere solía abrirse paso por Freljord d..."
         ),
@@ -1223,7 +1223,7 @@ object AvatarCatalog {
             title = "El Maestro de las Cartas",
             region = "Aguas Esturbias",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/TwistedFate.png",
+            imageUrl = "file:///android_asset/offline_images/a2825c525215b5bea0d5e1d5c94973ad.png",
             borderHex = "#C8AA6E",
             description = "Twisted Fate es un tahúr y timador de mala reputación que ha viajado por buena parte del mundo ..."
         ),
@@ -1233,7 +1233,7 @@ object AvatarCatalog {
             title = "La Rata Apestada",
             region = "Zaun",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Twitch.png",
+            imageUrl = "file:///android_asset/offline_images/3ed136895aa7eec6ed1cb576271ef8e2.png",
             borderHex = "#C8AA6E",
             description = "Rata de la peste zaunita por nacimiento y apasionado experto de la suciedad por afición, a Twit..."
         ),
@@ -1243,7 +1243,7 @@ object AvatarCatalog {
             title = "la Pesadilla Mecánica",
             region = "Zaun",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Urgot.png",
+            imageUrl = "file:///android_asset/offline_images/ba36fa6965460827adca160e6b1b3567.png",
             borderHex = "#C8AA6E",
             description = "Urgot, antiguo verdugo noxiano, fue traicionado por el imperio por el que había matado a tantos..."
         ),
@@ -1253,7 +1253,7 @@ object AvatarCatalog {
             title = "La Flecha del Castigo",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Varus.png",
+            imageUrl = "file:///android_asset/offline_images/07ba9634a776ff2b28c245cc7ec0e82e.png",
             borderHex = "#C8AA6E",
             description = "Como uno de los antiguos oscuros Varus era un asesino despiadado al que le encantaba torturar a..."
         ),
@@ -1263,7 +1263,7 @@ object AvatarCatalog {
             title = "La Cazadora Noctívaga",
             region = "Demacia",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vayne.png",
+            imageUrl = "file:///android_asset/offline_images/549a153c918caedb48ec946ce1485db3.png",
             borderHex = "#C8AA6E",
             description = "Shauna Vayne es una cazadora de monstruos demaciana letal y despiadada que ha dedicado su vida ..."
         ),
@@ -1273,7 +1273,7 @@ object AvatarCatalog {
             title = "El Pequeño Maestro del Mal",
             region = "Ciudad de Bandle",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Veigar.png",
+            imageUrl = "file:///android_asset/offline_images/8172049cd9993c3a950274170db1cb27.png",
             borderHex = "#C8AA6E",
             description = "Entusiasta maestro de la magia negra, Veigar ha hecho suyos poderes a los que pocos mortales se..."
         ),
@@ -1283,7 +1283,7 @@ object AvatarCatalog {
             title = "El Ojo del Vacío",
             region = "El Vacío",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Velkoz.png",
+            imageUrl = "file:///android_asset/offline_images/5b2c58997ea363ed9f8ed43ba4744f1d.png",
             borderHex = "#C8AA6E",
             description = "No es seguro que Vel'Koz sea el primer ente del Vacío que ha aparecido en Runaterra, pero no ha..."
         ),
@@ -1293,7 +1293,7 @@ object AvatarCatalog {
             title = "la Lúgubre",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vex.png",
+            imageUrl = "file:///android_asset/offline_images/3491012da74c0b9685fd848f9597faf5.png",
             borderHex = "#C8AA6E",
             description = "En el oscuro corazón de las Islas de la Sombra, una yordle solitaria atraviesa arduamente la br..."
         ),
@@ -1303,7 +1303,7 @@ object AvatarCatalog {
             title = "La Agente de Piltover",
             region = "Piltóver",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vi.png",
+            imageUrl = "file:///android_asset/offline_images/8e4bde0559a69ec88e80b50cd5dd8a45.png",
             borderHex = "#C8AA6E",
             description = "Otrora delincuente en las perversas calles de Zaun, Vi es una mujer impulsiva e imponente con m..."
         ),
@@ -1313,7 +1313,7 @@ object AvatarCatalog {
             title = "el Rey Arruinado",
             region = "Islas de la Sombra",
             rarity = "Mítico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viego.png",
+            imageUrl = "file:///android_asset/offline_images/79bc79b0fdf176f398740812b4801732.png",
             borderHex = "#C8AA6E",
             description = "Viego, soberano de un reino ya olvidado, murió hace más de mil años cuando su intento por devol..."
         ),
@@ -1323,7 +1323,7 @@ object AvatarCatalog {
             title = "El Heraldo de las Máquinas",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viktor.png",
+            imageUrl = "file:///android_asset/offline_images/801ed4178424141325d932f1ff3dc6e0.png",
             borderHex = "#C8AA6E",
             description = "Viktor, el heraldo de una nueva era tecnológica, ha consagrado su vida al progreso de la humani..."
         ),
@@ -1333,7 +1333,7 @@ object AvatarCatalog {
             title = "El Segador Carmesí",
             region = "Noxus",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vladimir.png",
+            imageUrl = "file:///android_asset/offline_images/14c6270127e3f784a380f4877d5367eb.png",
             borderHex = "#C8AA6E",
             description = "Un demonio con sed de sangre mortal, Vladimir ha influido en el destino de Noxus desde los prim..."
         ),
@@ -1343,7 +1343,7 @@ object AvatarCatalog {
             title = "la Tormenta Incesante",
             region = "Freljord",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Volibear.png",
+            imageUrl = "file:///android_asset/offline_images/b81da3c62a4473aa64098ac23a1304a8.png",
             borderHex = "#C8AA6E",
             description = "Para aquellos que aún lo veneran, Volibear es la encarnación de la tormenta. Destructivo, salva..."
         ),
@@ -1353,7 +1353,7 @@ object AvatarCatalog {
             title = "la Ira Descontrolada de Zaun",
             region = "Zaun",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Warwick.png",
+            imageUrl = "file:///android_asset/offline_images/68591482ac88d8a175e3ab7e1b201b1f.png",
             borderHex = "#C8AA6E",
             description = "Warwick es un monstruo que acecha en los oscuros callejones de Zaun. Transformado por atroces e..."
         ),
@@ -1363,7 +1363,7 @@ object AvatarCatalog {
             title = "El Rey Mono",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MonkeyKing.png",
+            imageUrl = "file:///android_asset/offline_images/1d2d9bd46a435c3b016b35225c0e3f86.png",
             borderHex = "#C8AA6E",
             description = "Wukong es un embaucador vastaya que se vale de su fuerza, agilidad e inteligencia para confundi..."
         ),
@@ -1373,7 +1373,7 @@ object AvatarCatalog {
             title = "La Rebelde",
             region = "Jonia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Xayah.png",
+            imageUrl = "file:///android_asset/offline_images/271b4d1a200b5ac8aeaf72894c0808cb.png",
             borderHex = "#C8AA6E",
             description = "Mortal y precisa, Xayah es una vastaya revolucionaria que libra una guerra personal para salvar..."
         ),
@@ -1383,7 +1383,7 @@ object AvatarCatalog {
             title = "El Senescal de Demacia",
             region = "Demacia",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/XinZhao.png",
+            imageUrl = "file:///android_asset/offline_images/a123826c1847acbe3a280bd205ced1e2.png",
             borderHex = "#C8AA6E",
             description = "Xin Zhao es un guerreo decidido y valiente, leal a la dinastía Escudo de Luz. En su momento fue..."
         ),
@@ -1393,7 +1393,7 @@ object AvatarCatalog {
             title = "La Espada sin Honor",
             region = "Jonia",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yasuo.png",
+            imageUrl = "file:///android_asset/offline_images/f10c5ed9ba6615da9f1ef3583be6416c.png",
             borderHex = "#C8AA6E",
             description = "Yasuo, un intrépido jonio con una fuerza de voluntad inquebrantable, es también un hábil espada..."
         ),
@@ -1403,7 +1403,7 @@ object AvatarCatalog {
             title = "el Imperecedero",
             region = "Jonia",
             rarity = "Legendario",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yone.png",
+            imageUrl = "file:///android_asset/offline_images/25e713b861bfb625e10a5f819f218941.png",
             borderHex = "#C8AA6E",
             description = "En vida, fue Yone, hermanastro de Yasuo y pupilo de renombre en la escuela de esgrima de su ald..."
         ),
@@ -1413,7 +1413,7 @@ object AvatarCatalog {
             title = "la Tejedora de Penumbra",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://wr-meta.com/uploads/posts/2025-07/1751894236_yunara-lol-splash-art-8k-wallpaper-uhdpaper_com-4341225g.webp",
+            imageUrl = "file:///android_asset/offline_images/bb9667bedb5e250145dc7830f2e846c1.webp",
             borderHex = "#C8AA6E",
             description = "Yunara es una tiradora letal que enlaza a sus víctimas con hilos invisibles de daño verdadero y..."
         ),
@@ -1423,7 +1423,7 @@ object AvatarCatalog {
             title = "la Gata Mágica",
             region = "Ciudad de Bandle",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yuumi.png",
+            imageUrl = "file:///android_asset/offline_images/9a80147a202f1a7523900113aa3d8776.png",
             borderHex = "#C8AA6E",
             description = "Yuumi, una gata mágica de Ciudad de Bandle, fue antaño la compañera de una hechicera yordle, No..."
         ),
@@ -1433,7 +1433,7 @@ object AvatarCatalog {
             title = "El Maestro de las Sombras",
             region = "Jonia",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zed.png",
+            imageUrl = "file:///android_asset/offline_images/18290a248c9c38919a1311aa14879183.png",
             borderHex = "#C8AA6E",
             description = "Zed, despiadado y nada compasivo, es el líder de la Orden de la Sombra, una organización que él..."
         ),
@@ -1443,7 +1443,7 @@ object AvatarCatalog {
             title = "La Chispa de Zaun",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zeri.png",
+            imageUrl = "file:///android_asset/offline_images/4f008030ab631d03b9db604992f80887.png",
             borderHex = "#C8AA6E",
             description = "Una joven testaruda y llena de vida de la clase trabajadora de Zaun. Zeri canaliza su magia elé..."
         ),
@@ -1453,7 +1453,7 @@ object AvatarCatalog {
             title = "El Experto en Hexplosivos",
             region = "Zaun",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ziggs.png",
+            imageUrl = "file:///android_asset/offline_images/3b4ac08ff690f7f869b4b2af871eda25.png",
             borderHex = "#C8AA6E",
             description = "Gran amante de las bombas grandes y las mechas cortas, el yordle Ziggs es una explosiva fuerza ..."
         ),
@@ -1463,7 +1463,7 @@ object AvatarCatalog {
             title = "El Guardián del Tiempo",
             region = "Runaterra",
             rarity = "Raro",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zilean.png",
+            imageUrl = "file:///android_asset/offline_images/52ac66039ef1de2a85c378e507496af5.png",
             borderHex = "#C8AA6E",
             description = "Zilean, el que un día fuera un poderoso mago de Icathia, se obsesionó con el paso del tiempo tr..."
         ),
@@ -1473,7 +1473,7 @@ object AvatarCatalog {
             title = "el Aspecto del Crepúsculo",
             region = "Targon",
             rarity = "Épico",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zoe.png",
+            imageUrl = "file:///android_asset/offline_images/f3e7bdd678c04d68fb07bed8be363525.png",
             borderHex = "#C8AA6E",
             description = "Como personificación de la travesura, de la imaginación y del cambio, Zoe es la mensajera cósmi..."
         ),
@@ -1483,7 +1483,7 @@ object AvatarCatalog {
             title = "La Dama de Espinas",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zyra.png",
+            imageUrl = "file:///android_asset/offline_images/a54a5e81aa09439f78a0c4a1ffdd2841.png",
             borderHex = "#C8AA6E",
             description = "Nacida gracias a un fenómeno sobrenatural hace mucho tiempo, Zyra encarna la ira de la naturale..."
         ),

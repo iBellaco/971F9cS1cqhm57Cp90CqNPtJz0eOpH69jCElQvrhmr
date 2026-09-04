@@ -788,9 +788,7 @@ fun OfflineResourceDownloadCard() {
     val downloadedMB by OfflineResourceManager.downloadedMB.collectAsState()
     val totalMB by OfflineResourceManager.totalMB.collectAsState()
 
-    val isAlreadyCompleted = remember(context, downloadState) {
-        OfflineResourceManager.isCompleted(context) || downloadState == DownloadState.COMPLETED
-    }
+    val isAlreadyCompleted = true // Forced to true since resources are now local
 
     if (isAlreadyCompleted) {
         return
