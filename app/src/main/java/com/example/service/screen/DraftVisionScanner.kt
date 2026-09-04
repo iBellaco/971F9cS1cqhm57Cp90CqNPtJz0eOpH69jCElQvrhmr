@@ -148,8 +148,12 @@ object DraftVisionScanner {
         "ban", "bans", "maestria", "maestría", "nivel", "level", "jugador", "player", "miembro", "member",
         "wild", "rift", "ranked", "clasificatoria", "normal", "aram", "pvp", "victoria", "derrota",
         "equipo", "team", "azul", "rojo", "blue", "red", "chat", "mute", "op", "fps", "ms", "ping",
-        "calle", "del", "baron", "barón", "central", "jungla", "jungle", "duo", "dúo", "dragon",
-        "dragón", "soporte", "support", "apoyo", "tirador", "beta", "fps:", "ms:"
+        "calle", "del", "carril", "baron", "barón", "central", "jungla", "jungle", "duo", "dúo", "dragon",
+        "dragón", "soporte", "support", "apoyo", "tirador", "beta", "fps:", "ms:", "solo", "superior",
+        "medio", "cambiar", "intercambio", "esperando", "eligiendo", "intercambiar", "orden", "turno",
+        "bloqueando", "bloqueado", "tiempo", "restante", "smite", "aplastar", "destello", "flash",
+        "ignite", "ignición", "curar", "heal", "exhaust", "extenuación", "barrera", "barrier", "fantasma",
+        "ghost", "elije", "elige", "campeon", "campeón", "preparate", "prepárate"
     )
 
     /**
@@ -233,14 +237,14 @@ object DraftVisionScanner {
                             // Detección de Rol/Línea por texto en la ranura
                             if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
                                 allySlotRoles[slotIdx] = LaneRole.MID
-                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                allySlotRoles[4] = LaneRole.TOP
-                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
-                                allySlotRoles[1] = LaneRole.JUNGLE
-                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                allySlotRoles[0] = LaneRole.ADC
-                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
-                                allySlotRoles[3] = LaneRole.SUPPORT
+                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
+                                allySlotRoles[slotIdx] = LaneRole.TOP
+                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva")) {
+                                allySlotRoles[slotIdx] = LaneRole.JUNGLE
+                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
+                                allySlotRoles[slotIdx] = LaneRole.ADC
+                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte")) {
+                                allySlotRoles[slotIdx] = LaneRole.SUPPORT
                             }
 
                             // Detección de Campeón Aliado por nombre explícito (excluyendo roles e invocadores)
@@ -287,14 +291,14 @@ object DraftVisionScanner {
 
                             if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
                                 enemySlotRoles[slotIdx] = LaneRole.MID
-                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                enemySlotRoles[4] = LaneRole.TOP
-                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg")) {
-                                enemySlotRoles[1] = LaneRole.JUNGLE
-                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                enemySlotRoles[0] = LaneRole.ADC
-                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup")) {
-                                enemySlotRoles[3] = LaneRole.SUPPORT
+                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
+                                enemySlotRoles[slotIdx] = LaneRole.TOP
+                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva")) {
+                                enemySlotRoles[slotIdx] = LaneRole.JUNGLE
+                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
+                                enemySlotRoles[slotIdx] = LaneRole.ADC
+                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte")) {
+                                enemySlotRoles[slotIdx] = LaneRole.SUPPORT
                             }
 
                             // Detección de Campeón Enemigo por nombre explícito
@@ -434,7 +438,8 @@ object DraftVisionScanner {
                     AppLogger.d(TAG, "Marco dorado con gema rubí detectado en slot $i (+4500)")
                 }
 
-                // Detección del Blasón Dorado Alado de Rol
+                // Detección del Blasón Dorado Alado de Rol (Posición Protegida / Preferencia de Rol)
+                // Puede tenerlo cualquier compañero con protección de comodín, por lo que aporta un bono moderado
                 var goldRoleBadgeCount = 0
                 val bYMin = (yCenter - screenHeight * 0.025f).toInt().coerceAtLeast(0)
                 val bYMax = (yCenter + screenHeight * 0.025f).toInt().coerceAtMost(screenHeight - 1)
@@ -450,8 +455,8 @@ object DraftVisionScanner {
                     }
                 }
                 if (goldRoleBadgeCount >= 14) {
-                    slotScores[i] += 8500
-                    AppLogger.d(TAG, "Blasón dorado alado de posición detectado en slot $i (count=$goldRoleBadgeCount) -> ¡Jugador Local!")
+                    slotScores[i] += 250
+                    AppLogger.d(TAG, "Blasón dorado de rol detectado en slot $i (count=$goldRoleBadgeCount)")
                 }
 
                 // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.098)
@@ -510,6 +515,43 @@ object DraftVisionScanner {
                 if (hasUserHint) {
                     slotScores[i] += 6000
                     AppLogger.d(TAG, "Bonus de invocador local detectado (chicho) en ranura $i (+6000)")
+                }
+            }
+
+            // Señal D: Detección de Botones de Intercambio de Turno (Flechas ⇄)
+            // En Wild Rift, los compañeros aliados tienen el botón de swap en X ≈ 0.242f..0.275f.
+            // La ranura del jugador local NUNCA tiene el botón ⇄ (espacio vacío).
+            val swapXMin = (screenWidth * 0.242f).toInt().coerceAtLeast(0)
+            val swapXMax = (screenWidth * 0.275f).toInt().coerceAtMost(screenWidth - 1)
+            val hasSwapButton = BooleanArray(5)
+
+            for (i in 0 until 5) {
+                val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
+                val swapYMin = (yCenter - screenHeight * 0.022f).toInt().coerceAtLeast(0)
+                val swapYMax = (yCenter + screenHeight * 0.022f).toInt().coerceAtMost(screenHeight - 1)
+                var swapSilverCount = 0
+                for (sy in swapYMin..swapYMax step 2) {
+                    for (sx in swapXMin..swapXMax step 2) {
+                        val p = processBitmap.getPixel(sx, sy)
+                        val r = (p shr 16) and 0xFF
+                        val g = (p shr 8) and 0xFF
+                        val b = p and 0xFF
+                        // Flechas plateadas/blancas de intercambio ⇄
+                        if (r in 130..255 && g in 130..255 && b in 130..255 && kotlin.math.abs(r - g) <= 24 && kotlin.math.abs(r - b) <= 24) {
+                            swapSilverCount++
+                        }
+                    }
+                }
+                if (swapSilverCount >= 10) {
+                    hasSwapButton[i] = true
+                }
+            }
+            val swapCount = hasSwapButton.count { it }
+            if (swapCount in 3..4) {
+                val userSwapCandidate = (0 until 5).firstOrNull { !hasSwapButton[it] }
+                if (userSwapCandidate != null) {
+                    slotScores[userSwapCandidate] += 7500
+                    AppLogger.d(TAG, "Jugador local identificado por ausencia de botón de swap en ranura $userSwapCandidate (+7500)")
                 }
             }
 
@@ -670,7 +712,42 @@ object DraftVisionScanner {
         if (slotIdx !in slotYCenters.indices) return null
 
         val yCenter = (height * slotYCenters[slotIdx]).toInt()
-        val xCenter = (width * if (isAlly) 0.125f else 0.875f).toInt()
+
+        // En Wild Rift, según la fase de draft:
+        // - Si no hay hechizos visibles (fase de bans/primera selección), el avatar aliado está en X ≈ 0.108f.
+        // - Si hay hechizos visibles a la izquierda, el avatar aliado está en X ≈ 0.124f.
+        // Muestreamos en ambas coordenadas para máxima compatibilidad.
+        val candidateXRatios = if (isAlly) floatArrayOf(0.108f, 0.124f) else floatArrayOf(0.875f, 0.890f)
+
+        for (xRatio in candidateXRatios) {
+            val champ = sampleAvatarAt(
+                bitmap = bitmap,
+                isAlly = isAlly,
+                slotIdx = slotIdx,
+                expectedRole = expectedRole,
+                allChamps = allChamps,
+                alreadyDetectedIds = alreadyDetectedIds,
+                xCenter = (width * xRatio).toInt(),
+                yCenter = yCenter,
+                height = height
+            )
+            if (champ != null) return champ
+        }
+        return null
+    }
+
+    private fun sampleAvatarAt(
+        bitmap: Bitmap,
+        isAlly: Boolean,
+        slotIdx: Int,
+        expectedRole: LaneRole?,
+        allChamps: List<Champion>,
+        alreadyDetectedIds: Set<String>,
+        xCenter: Int,
+        yCenter: Int,
+        height: Int
+    ): Champion? {
+        val width = bitmap.width
         val radius = (height * 0.042f).toInt()
 
         val xMin = (xCenter - radius).coerceAtLeast(0)
@@ -692,6 +769,7 @@ object DraftVisionScanner {
         var vividMagentaCount = 0
         var whitePolarFurCount = 0
         var silverHairCount = 0
+        var darkinToneCount = 0
         var darkNightBlueCount = 0
         var gladiatorHelmetCount = 0
         var totalSampled = 0
@@ -720,25 +798,30 @@ object DraftVisionScanner {
                 }
 
                 // Pelaje blanco polar níveo / Tormenta de hielo (Volibear)
-                if (r in 160..255 && g in 165..255 && b in 175..255 && kotlin.math.abs(r - g) <= 25 && kotlin.math.abs(r - b) <= 30) {
+                if (r in 148..255 && g in 150..255 && b in 160..255 && kotlin.math.abs(r - g) <= 28 && kotlin.math.abs(r - b) <= 32) {
                     whitePolarFurCount++
                 }
 
                 // Cabello plateado / blanco ceniza (Varus)
-                if (r in 150..230 && g in 145..225 && b in 155..240 && kotlin.math.abs(r - b) <= 22) {
+                if (r in 125..235 && g in 120..230 && b in 135..245 && kotlin.math.abs(r - b) <= 30) {
                     silverHairCount++
                 }
 
+                // Rasgos Darkin / bufanda púrpura oscura (Varus)
+                if (r in 75..170 && g in 35..95 && b in 65..150) {
+                    darkinToneCount++
+                }
+
                 // Cuernos curvados oscuros de carnero (Ornn)
-                if (r < 45 && g < 40 && b < 40) {
+                if (r < 55 && g < 50 && b < 50) {
                     ramHornsCount++
                 }
                 // Barba ardiente de la forja (Ornn)
-                else if (r in 140..255 && g in 25..95 && b < 65 && r >= g + 45 && r >= b + 50) {
+                else if (r in 110..255 && g in 18..110 && b < 85 && r >= g + 28 && r >= b + 28) {
                     ornnRedBeardCount++
                 }
                 // Ascuas vivas de la forja (Ornn)
-                else if (r > 165 && g in 60..135 && b < 55) {
+                else if (r > 135 && g in 40..140 && b < 70) {
                     forgeEmberCount++
                 }
                 // Violeta / Púrpura del Vacío (Cho'Gath)
@@ -776,54 +859,40 @@ object DraftVisionScanner {
             }
         }
 
-        AppLogger.d(TAG, "Avatar slot $slotIdx (isAlly=$isAlly, role=$expectedRole): total=$totalSampled, nightBlue=$darkNightBlueCount, gladiator=$gladiatorHelmetCount, whiteFur=$whitePolarFurCount, ornnBeard=$ornnRedBeardCount")
-
-        // REGLA CRÍTICA: Descartar de inmediato avatares vacíos para NO inventar selecciones
-        // 1. Icono de rol aliado vacío (fondo azul noche plano)
-        if (isAlly && darkNightBlueCount >= (totalSampled * 0.65f)) {
-            AppLogger.d(TAG, "Ranura aliada $slotIdx contiene icono de rol vacío (sin campeón)")
-            return null
-        }
-        // 2. Casco de gladiador rival vacío (fondo rojo oscuro y casco gris)
-        if (!isAlly && gladiatorHelmetCount >= (totalSampled * 0.55f)) {
-            AppLogger.d(TAG, "Ranura rival $slotIdx contiene casco de gladiador vacío (sin campeón)")
-            return null
-        }
-
         val isTopLane = expectedRole == LaneRole.TOP || slotIdx == 4
         val isDuoLane = expectedRole == LaneRole.ADC || slotIdx == 0
 
         // 1. Volibear (Gran oso blanco polar con pelaje de tormenta freljordiana en Top)
-        if (isTopLane && !alreadyDetectedIds.contains("volibear") && whitePolarFurCount >= 45) {
+        if (isTopLane && !alreadyDetectedIds.contains("volibear") && whitePolarFurCount >= 25) {
             val voli = allChamps.firstOrNull { it.id == "volibear" }
             if (voli != null) {
-                AppLogger.d(TAG, "Volibear identificado con éxito en slot $slotIdx por pelaje blanco polar")
+                AppLogger.d(TAG, "Volibear identificado con éxito en slot $slotIdx por pelaje blanco polar (count=$whitePolarFurCount, x=$xCenter)")
                 return voli
             }
         }
 
         // 2. Varus (Flecha del Castigo en carril Dúo con cabello plateado y rasgos Darkin)
-        if (isDuoLane && !alreadyDetectedIds.contains("varus") && silverHairCount >= 40) {
+        if (isDuoLane && !alreadyDetectedIds.contains("varus") && (silverHairCount >= 20 || darkinToneCount >= 25)) {
             val varus = allChamps.firstOrNull { it.id == "varus" }
             if (varus != null) {
-                AppLogger.d(TAG, "Varus identificado con éxito en slot $slotIdx por visión de avatar")
+                AppLogger.d(TAG, "Varus identificado con éxito en slot $slotIdx por visión de avatar (silver=$silverHairCount, darkin=$darkinToneCount, x=$xCenter)")
                 return varus
             }
         }
 
-        // 3. Ornn (Cuernos de carnero gigantes oscuros + barba ardiente de la forja + ascuas de lava)
+        // 3. Ornn (Cuernos de carnero oscuros + barba ardiente de la forja + ascuas de lava)
         if (isTopLane && !alreadyDetectedIds.contains("ornn") &&
-            ornnRedBeardCount >= 22 && ramHornsCount >= 25 && forgeEmberCount >= 4) {
+            ((ornnRedBeardCount >= 6 && (ramHornsCount >= 8 || forgeEmberCount >= 2)) || ornnRedBeardCount >= 14)) {
             val ornn = allChamps.firstOrNull { it.id == "ornn" }
             if (ornn != null) {
-                AppLogger.d(TAG, "Ornn identificado con éxito en slot $slotIdx por firma visual de forja/cuernos")
+                AppLogger.d(TAG, "Ornn identificado con éxito en slot $slotIdx por firma visual de forja/cuernos (beard=$ornnRedBeardCount, horns=$ramHornsCount, x=$xCenter)")
                 return ornn
             }
         }
 
         // 4. Cho'Gath (Top / Calle del Barón con Vacío predominante y fauces)
         if (isTopLane && !alreadyDetectedIds.contains("cho_gath") &&
-            voidPurpleCount >= 85 && crimsonMouthCount >= 22 && boneTeethCount >= 8) {
+            voidPurpleCount >= 60 && crimsonMouthCount >= 15) {
             val cho = allChamps.firstOrNull { it.id == "cho_gath" }
             if (cho != null) {
                 AppLogger.d(TAG, "Cho'Gath identificado con éxito en slot $slotIdx por visión de avatar")
@@ -831,34 +900,42 @@ object DraftVisionScanner {
             }
         }
 
-        // 5. Malphite (Exige densidad masiva de granito gris)
-        if (rockGrayCount >= 380 && isTopLane && !alreadyDetectedIds.contains("malphite")) {
+        // 5. Malphite (Granito gris masivo)
+        if (rockGrayCount >= 320 && isTopLane && !alreadyDetectedIds.contains("malphite")) {
             val malph = allChamps.firstOrNull { it.id == "malphite" }
             if (malph != null) return malph
         }
 
         // 6. Aatrox
-        if (darkRedCount >= 180 && isTopLane && !alreadyDetectedIds.contains("aatrox")) {
+        if (darkRedCount >= 160 && isTopLane && !alreadyDetectedIds.contains("aatrox")) {
             val aatrox = allChamps.firstOrNull { it.id == "aatrox" }
             if (aatrox != null) return aatrox
         }
 
         // 7. Teemo
-        if (greenHatCount >= 140 && isTopLane && !alreadyDetectedIds.contains("teemo")) {
+        if (greenHatCount >= 110 && isTopLane && !alreadyDetectedIds.contains("teemo")) {
             val teemo = allChamps.firstOrNull { it.id == "teemo" }
             if (teemo != null) return teemo
         }
 
         // 8. Mordekaiser
-        if (tealGlowCount >= 240 && isTopLane && !alreadyDetectedIds.contains("mordekaiser")) {
+        if (tealGlowCount >= 180 && isTopLane && !alreadyDetectedIds.contains("mordekaiser")) {
             val morde = allChamps.firstOrNull { it.id == "mordekaiser" }
             if (morde != null) return morde
         }
 
         // 9. Dr. Mundo
-        if (vividMagentaCount >= 160 && isTopLane && !alreadyDetectedIds.contains("dr_mundo")) {
+        if (vividMagentaCount >= 120 && isTopLane && !alreadyDetectedIds.contains("dr_mundo")) {
             val mundo = allChamps.firstOrNull { it.id == "dr_mundo" }
             if (mundo != null) return mundo
+        }
+
+        // REGLA: Descartar ranuras confirmadas vacías si no hubo coincidencia
+        if (isAlly && darkNightBlueCount >= (totalSampled * 0.65f)) {
+            return null
+        }
+        if (!isAlly && gladiatorHelmetCount >= (totalSampled * 0.55f)) {
+            return null
         }
 
         return null
