@@ -109,6 +109,34 @@ fun WildRiftVersionBanner(
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Alerta / Recomendación de Descarga Offline en un costado
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(HextechGold.copy(alpha = 0.12f))
+                    .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("⭐", fontSize = 12.sp)
+                Spacer(modifier = Modifier.width(6.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = tr("RECOMENDADO: Descarga de Recursos Offline"),
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = tr("Garantiza velocidad instantánea sin latencia y funcionamiento sin conexión descargando los datos localmente."),
+                        color = com.example.ui.theme.TextSecondary,
+                        fontSize = 10.sp,
+                        lineHeight = 13.sp
+                    )
+                }
+            }
         }
     }
 }

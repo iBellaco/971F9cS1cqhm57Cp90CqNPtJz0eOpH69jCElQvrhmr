@@ -1,25 +1,21 @@
 package com.example.ui.components
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -37,49 +33,100 @@ import com.example.ui.theme.HextechGold
 import com.example.ui.theme.TierAColor
 import com.example.ui.theme.TierSColor
 import com.example.ui.theme.TierSPlusColor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 
 @Composable
 fun ChampionAvatar(
     champion: Champion,
-    modifier: Modifier = Modifier,
-    size: Dp = 64.dp,
-    showTierBadge: Boolean = false,
-    borderColor: Color = HextechGold
+    size: Dp = 56.dp,
+    showTierBadge: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier) {
-        AppAssetImage(
-            url = champion.avatarUrl,
-            contentDescription = champion.name,
-            fallbackText = champion.name,
-            modifier = Modifier.size(size),
-            shape = CircleShape,
-            borderColor = borderColor
-        )
-        // Add tier badge logic if it used to exist, but since it's just visual I'll omit complex logic if I don't remember it
+    val avatarBrush = when (champion.id) {
+        "morgana" -> Brush.radialGradient(listOf(Color(0xFF8B5CF6), Color(0xFF2E1065), Color(0xFF0F051D)))
+        "viego" -> Brush.radialGradient(listOf(Color(0xFF00F2FE), Color(0xFF005A82), Color(0xFF071426)))
+        "nautilus" -> Brush.radialGradient(listOf(Color(0xFFD97706), Color(0xFF78350F), Color(0xFF1E1B18)))
+        else -> Brush.radialGradient(listOf(Color(0xFF3A4B5C), Color(0xFF1E2A38), Color(0xFF0F1722)))
+    }
+
+    Box(contentAlignment = Alignment.BottomEnd, modifier = modifier.size(size)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .background(HextechDarkBg)
+                .border(2.dp, HextechGold, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(avatarBrush),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = champion.name.take(2).uppercase(),
+                    color = Color.White,
+                    fontSize = (size.value * 0.32).sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            if (champion.avatarUrl.isNotBlank()) {
+                val parsedUrl = champion.avatarUrl.trim()
+                val modelData: Any = if (parsedUrl.startsWith("file://")) {
+                    java.io.File(parsedUrl.removePrefix("file://"))
+                } else {
+                    parsedUrl
+                }
+                
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(modelData)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                        
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .listener(
+                            onError = { request, result -> 
+                                com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
+                            }
+                        )
+                        .build(),
+                    imageLoader = LocalContext.current.imageLoader,
+                    contentDescription = champion.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(size - 4.dp)
+                        .clip(CircleShape)
+                )
+            }
+        }
+        
         if (showTierBadge && champion.tier.isNotBlank()) {
-            val badgeColor = when (champion.tier) {
+            val tierColor = when (champion.tier) {
                 "S+" -> TierSPlusColor
                 "S" -> TierSColor
                 "A" -> TierAColor
-                else -> HextechCyan
+                "B" -> Color(0xFF4CAF50)
+                "C" -> Color(0xFF8BC34A)
+                else -> Color.Gray
             }
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 4.dp, y = 4.dp)
-                    .size(20.dp)
+                    .size(size * 0.35f)
                     .clip(CircleShape)
-                    .background(badgeColor)
-                    .border(1.dp, HextechDarkBg, CircleShape),
+                    .background(HextechDarkBg)
+                    .border(1.dp, HextechGold, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = champion.tier,
-                    color = HextechDarkBg,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
+                    color = tierColor,
+                    fontSize = (size.value * 0.16).sp,
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
         }
@@ -96,7 +143,15 @@ fun AppAssetImage(
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(8.dp)
 ) {
     val context = LocalContext.current
-    var loadFailed by remember(url) { mutableStateOf(false) }
+    val parsedUrl = url.trim()
+    
+    val modelData: Any? = if (parsedUrl.startsWith("file://")) {
+        java.io.File(parsedUrl.removePrefix("file://"))
+    } else if (parsedUrl.isNotBlank()) {
+        parsedUrl
+    } else {
+        null
+    }
 
     Box(
         modifier = modifier
@@ -112,17 +167,20 @@ fun AppAssetImage(
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold
         )
-        
-        if (url.isNotBlank()) {
+        if (modelData != null && parsedUrl.isNotBlank()) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(url)
-                    .crossfade(true)
-                    .listener(
-                        onError = { _, _ -> loadFailed = true }
-                    )
+                    .data(modelData)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                    
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
+                    .listener(
+                        onError = { request, result -> 
+                            com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
+                        }
+                    )
                     .build(),
                 imageLoader = context.imageLoader,
                 contentDescription = contentDescription ?: fallbackText,

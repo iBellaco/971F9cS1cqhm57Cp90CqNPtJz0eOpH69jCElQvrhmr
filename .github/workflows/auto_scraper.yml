@@ -1,0 +1,57 @@
+name: Wild Rift Auto Scraper
+
+on:
+  schedule:
+    # Se ejecuta automáticamente todos los días a la medianoche (UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # Permite también ejecutarlo manualmente desde la pestaña "Actions" si se desea
+
+jobs:
+  scrape-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias del scraper
+        run: |
+          cd wildrift_na_scraper
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Instalar navegadores para Playwright (Chromium)
+        run: |
+          cd wildrift_na_scraper
+          playwright install chromium
+          playwright install-deps
+
+      - name: Ejecutar Scraper - Región NA
+        run: |
+          cd wildrift_na_scraper
+          python scraper_na.py --region NA
+        continue-on-error: true
+
+      - name: Ejecutar Scraper - Región CN
+        run: |
+          cd wildrift_na_scraper
+          python scraper_na.py --region CN
+        continue-on-error: true
+
+      - name: Guardar y subir los datos automáticamente
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add wildrift_na_scraper/data/ || true
+          git add wildrift_na_scraper/wildrift_na.db || true
+          git add wildrift_na_scraper/checkpoint.json || true
+          git commit -m "🤖 auto-update: actualización autónoma de estadísticas de Wild Rift (NA/CN)" || echo "No hay cambios nuevos para guardar"
+          git push
