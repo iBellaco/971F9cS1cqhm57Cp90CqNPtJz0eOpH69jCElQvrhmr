@@ -240,6 +240,46 @@ fun FAQScreen(
             Pair(
                 "¿Cómo reporto si veo una estadística claramente equivocada?",
                 "En el menú principal tienes un botón de 'Reporte de Bugs'. Escríbenos ahí qué campeón o estadística crees que está mal y nuestro equipo lo validará con la base de datos oficial."
+            ),
+            Pair(
+                "¿Si mi Yasuo tiene maestría 7, la app puede evitar que se vaya 0/10?",
+                "Lamentablemente, el pico de poder de Yasuo al 0/10 es un evento canónico del universo que ninguna inteligencia artificial puede detener. Solo reza."
+            ),
+            Pair(
+                "¿La aplicación puede rastrear la dirección IP del Teemo enemigo para ir a buscarlo en la vida real?",
+                "No apoyamos la violencia fuera del juego, por más que ese Teemo te haya hecho pisar tres hongos seguidos. Respira hondo y compra un Lente del Oráculo."
+            ),
+            Pair(
+                "¿Qué hago si mi gato pisa el celular y me elige a Yuumi con Castigo (Smite)?",
+                "Disfruta de la experiencia inmersiva. Yuumi es un gato, tu gato la eligió. Es el destino. Además, robar el Barón con Yuumi es la máxima humillación."
+            ),
+            Pair(
+                "¿Puedo usar la burbuja del asistente como escudo contra la definitiva de Garen?",
+                "Nuestra burbuja flotante está hecha de código indestructible, pero lamentablemente solo bloquea tus dudas existenciales, no espadazos gigantes de justicia demaciana de 1000 de daño verdadero."
+            ),
+            Pair(
+                "¿Por qué la app no me dice cómo convencer a mi equipo de hacer el Dragón?",
+                "Ni la Inteligencia Artificial más potente del mundo ha logrado descifrar la psicología de un equipo de Solo Queue que prefiere ir a farmear los lobos en vez de hacer el Dragón Anciano. Es un misterio de la humanidad."
+            ),
+            Pair(
+                "¿Si me pongo la skin de Lee Sin Puño de Dios, la app me da más winrate automáticamente?",
+                "Visualmente intimidarás más, pero el algoritmo sabe que seguirás fallando la Onda Sónica (Q). Las skins dan +10 de facha, pero no apuntan por ti."
+            ),
+            Pair(
+                "¿La app incluye un botón de 'rendición automática' al minuto 5?",
+                "No, ¡nunca te rindas! Bueno, a menos que el Nexo enemigo tenga 10 de vida y tu equipo esté peleando por el escurridizo del río. Ahí te damos permiso moral de llorar."
+            ),
+            Pair(
+                "¿Por qué el asistente no flamea a mi Jungla por mí para ahorrarme tiempo?",
+                "Mantenemos un ambiente libre de toxicidad. Si quieres decirle algo a tu jungla, dile que aprecias sus intentos. Sorpréndelo. Rompe la Matrix."
+            ),
+            Pair(
+                "¿Si meto el celular en el microondas cargarán más rápido los recursos offline?",
+                "Solo si quieres jugar Wild Rift en calidad de cenizas. Por favor, usa el cargador normal. El modo 'Hextech' de la app no requiere fisión nuclear."
+            ),
+            Pair(
+                "¿Esta app me ayudará a conseguir pareja?",
+                "Si te acercas a alguien y le dices 'hey, mi asistente me dijo que nuestras sinergias son Tier S+', puede que funcione. Si no, al menos ganarás tus Rankeds. Es un ganar-ganar."
             )
         )
     }
