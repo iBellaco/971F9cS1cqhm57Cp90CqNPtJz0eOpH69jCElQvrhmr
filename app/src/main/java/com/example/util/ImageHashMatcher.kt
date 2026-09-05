@@ -3,6 +3,13 @@ package com.example.util
 import android.graphics.Bitmap
 import android.graphics.Color
 import com.example.model.Champion
+import com.example.model.LaneRole
+
+data class RoleMatchResult(
+    val role: LaneRole,
+    val distance: Int,
+    val confidence: Float
+)
 
 object ImageHashMatcher {
     
@@ -39,20 +46,31 @@ object ImageHashMatcher {
         return hash
     }
     
-    // Calcula el hash para un icono de rol
-    fun findRoleMatch(bitmap: Bitmap): com.example.model.LaneRole? {
+    // Calcula el hash y busca la mejor coincidencia para un icono de rol con métricas de confianza
+    fun findRoleMatchDetailed(bitmap: Bitmap, maxDistance: Int = 26): RoleMatchResult? {
         val targetHash = calculateHash(bitmap)
-        var bestMatch: com.example.model.LaneRole? = null
-        var minDistance = 25 // Aumentamos la tolerancia para iconos porque su tamaño es más variable en el recorte
+        var bestRole: LaneRole? = null
+        var minDistance = maxDistance
         
-        RoleHashes.map.forEach { (role, hash) ->
-            val dist = hammingDistance(targetHash, hash)
-            if (dist < minDistance) {
-                minDistance = dist
-                bestMatch = role
+        RoleHashes.map.forEach { (role, hashList) ->
+            hashList.forEach { hash ->
+                val dist = hammingDistance(targetHash, hash)
+                if (dist < minDistance) {
+                    minDistance = dist
+                    bestRole = role
+                }
             }
         }
-        return bestMatch
+        
+        return bestRole?.let {
+            val confidence = (64 - minDistance) / 64.0f
+            RoleMatchResult(role = it, distance = minDistance, confidence = confidence)
+        }
+    }
+
+    // Retorna el LaneRole directamente
+    fun findRoleMatch(bitmap: Bitmap): LaneRole? {
+        return findRoleMatchDetailed(bitmap)?.role
     }
 
     // Distancia de Hamming
@@ -80,3 +98,4 @@ object ImageHashMatcher {
         return bestMatch
     }
 }
+
