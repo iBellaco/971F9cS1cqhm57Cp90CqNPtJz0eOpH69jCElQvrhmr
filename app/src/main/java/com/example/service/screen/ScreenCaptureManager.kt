@@ -133,7 +133,7 @@ class ScreenCaptureManager(private val context: Context) {
                             mediaProjection = null
                         }
                     }, handler)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     AppLogger.w(TAG, "No se pudo registrar callback en MediaProjection: ${e.message}")
                 }
 
@@ -183,7 +183,7 @@ class ScreenCaptureManager(private val context: Context) {
 
                 AppLogger.d(TAG, "MediaProjection y VirtualDisplay inicializados exitosamente ($captureWidth x $captureHeight).")
                 return true
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 AppLogger.e(TAG, "Fallo al inicializar captura de pantalla", e)
                 return false
             }
@@ -239,7 +239,7 @@ class ScreenCaptureManager(private val context: Context) {
                         currentVirtualDisplay.surface = newImageReader.surface
                         currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
                         AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente a ($captureWidth x $captureHeight).")
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
                         AppLogger.w(TAG, "Error al redimensionar VirtualDisplay: ${e.message}")
                     }
                 } else {
@@ -261,7 +261,7 @@ class ScreenCaptureManager(private val context: Context) {
                     oldReader?.close()
                 } catch (_: Throwable) {}
 
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 AppLogger.e(TAG, "Error al redimensionar proyección de pantalla", e)
             }
         }
@@ -312,7 +312,7 @@ class ScreenCaptureManager(private val context: Context) {
                         return cleanBitmap
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
             } finally {
                 try {
@@ -345,7 +345,7 @@ class ScreenCaptureManager(private val context: Context) {
             mediaProjection = null
             captureThread.quitSafely()
             AppLogger.d(TAG, "Recursos de MediaProjection y HandlerThread liberados.")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             AppLogger.e(TAG, "Error liberando MediaProjection", e)
         }
     }

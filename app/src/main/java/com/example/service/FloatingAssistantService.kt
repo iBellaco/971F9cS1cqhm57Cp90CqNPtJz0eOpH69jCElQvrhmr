@@ -391,6 +391,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this@FloatingAssistantService))
 
             setContent {
                 FloatingCloseTarget(
@@ -421,6 +422,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this@FloatingAssistantService))
 
             setContent {
                 val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
@@ -602,7 +604,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     windowManager?.updateViewLayout(view, params)
                 } catch (_: Exception) {}
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
         }
     }
