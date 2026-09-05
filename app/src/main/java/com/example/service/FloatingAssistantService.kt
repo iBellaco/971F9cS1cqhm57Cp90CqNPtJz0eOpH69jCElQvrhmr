@@ -362,9 +362,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         val marginPx = (8 * density).toInt()
         val cardWidthPx = (330 * density).toInt()
         val cardHeightPx = (520 * density).toInt()
-        var bubbleSizePx = (46 * density).toInt()
+        var bubbleSizePx = (46 * density).toInt() // local
 
-        var isOverlayExpanded = false
+        isOverlayExpanded = false
 
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY

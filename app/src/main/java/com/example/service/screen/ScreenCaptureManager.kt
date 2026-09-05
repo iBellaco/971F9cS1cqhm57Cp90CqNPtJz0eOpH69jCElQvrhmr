@@ -240,7 +240,25 @@ class ScreenCaptureManager(private val context: Context) {
                         currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
                         AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente a ($captureWidth x $captureHeight).")
                     } catch (e: Throwable) {
-                        AppLogger.w(TAG, "Error al redimensionar VirtualDisplay: ${e.message}")
+                        AppLogger.w(TAG, "Error al redimensionar VirtualDisplay, recreando: ${e.message}")
+                        try {
+                            currentVirtualDisplay.release()
+                        } catch (_: Throwable) {}
+                        
+                        try {
+                            virtualDisplay = proj.createVirtualDisplay(
+                                VIRTUAL_DISPLAY_NAME,
+                                captureWidth,
+                                captureHeight,
+                                screenDensity,
+                                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                                newImageReader.surface,
+                                null,
+                                handler
+                            )
+                        } catch (e2: Throwable) {
+                            AppLogger.e(TAG, "No se pudo recrear el VirtualDisplay: ${e2.message}")
+                        }
                     }
                 } else {
                     virtualDisplay = proj.createVirtualDisplay(
