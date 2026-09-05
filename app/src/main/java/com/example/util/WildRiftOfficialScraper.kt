@@ -495,6 +495,47 @@ object WildRiftOfficialScraper {
     }
 
     /**
+     * Descarga los bytes de una imagen con máxima resiliencia:
+     * 1. HttpURLConnection con headers de navegador y streaming directo.
+     * 2. Fallback a Jsoup con ignoreContentType y maxBodySize de 25MB.
+     */
+    private fun descargarBytesImagen(url: String): ByteArray? {
+        // Intento 1: HttpURLConnection estándar con follow redirects
+        try {
+            val connection = (URL(url).openConnection() as java.net.HttpURLConnection).apply {
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", USER_AGENT)
+                setRequestProperty("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
+                connectTimeout = TIMEOUT_MS
+                readTimeout = TIMEOUT_MS * 2
+                instanceFollowRedirects = true
+            }
+            connection.connect()
+            val code = connection.responseCode
+            if (code in 200..299) {
+                val bytes = connection.inputStream.use { it.readBytes() }
+                if (bytes.isNotEmpty()) return bytes
+            }
+        } catch (_: Exception) {}
+
+        // Intento 2: Jsoup connect
+        try {
+            val response = Jsoup.connect(url)
+                .userAgent(USER_AGENT)
+                .header("Accept", "image/avif,image/webp,image/apng,image/*,*/*;q=0.8")
+                .timeout(TIMEOUT_MS * 2)
+                .ignoreContentType(true)
+                .maxBodySize(25 * 1024 * 1024)
+                .followRedirects(true)
+                .execute()
+            val bytes = response.bodyAsBytes()
+            if (bytes.isNotEmpty()) return bytes
+        } catch (_: Exception) {}
+
+        return null
+    }
+
+    /**
      * Descarga la imagen en binario y la guarda en la carpeta "WildRift_Imagenes" dentro de Descargas.
      * Soporta Android 10+ (Scoped Storage / MediaStore) y versiones anteriores / fallback local.
      * Realiza limpieza proactiva de archivos corruptos previos (banners de 22.34 kB).
@@ -513,8 +554,8 @@ object WildRiftOfficialScraper {
             }
 
             // LIMPIEZA ACTIVA:
-            // Elimina banners/iconos corruptos (< 3 KB como el thumbnail de 128x128)
-            // o Splash arts horizontales anteriores si estamos descargando el nuevo retrato oficial
+            // Elimina banners/iconos corruptos (< 4 KB como el thumbnail de 128x128)
+            // o imágenes discordantes anteriores si estamos descargando el nuevo retrato oficial
             val posiblesArchivos = listOf(
                 File(outputFolder, "$seguro.png"),
                 File(outputFolder, "$seguro.jpg"),
@@ -524,7 +565,6 @@ object WildRiftOfficialScraper {
             for (f in posiblesArchivos) {
                 if (f.exists()) {
                     val len = f.length()
-                    // Si mide menos de 4 KB (es un thumbnail/logo 128x128 corrupto) o si tiene extensión discordante
                     if (len < 4000L || (f.name.endsWith(".png") && extension != ".png")) {
                         try {
                             f.delete()
@@ -540,23 +580,19 @@ object WildRiftOfficialScraper {
             }
 
             // Descargar bytes de la imagen
-            val response = Jsoup.connect(url)
-                .userAgent(USER_AGENT)
-                .timeout(TIMEOUT_MS * 2)
-                .ignoreContentType(true)
-                .maxBodySize(20 * 1024 * 1024) // 20 MB max
-                .execute()
-
-            val bytes = response.bodyAsBytes()
-            if (bytes.isEmpty()) return null
+            val bytes = descargarBytesImagen(url) ?: return null
 
             // Si tenemos acceso directo de escritura en carpeta pública
             if (outputFolder.canWrite()) {
-                FileOutputStream(localTargetFile).use { fos ->
-                    fos.write(bytes)
-                    fos.flush()
-                }
-                return localTargetFile.absolutePath
+                try {
+                    FileOutputStream(localTargetFile).use { fos ->
+                        fos.write(bytes)
+                        fos.flush()
+                    }
+                    if (localTargetFile.exists() && localTargetFile.length() > 0) {
+                        return localTargetFile.absolutePath
+                    }
+                } catch (_: Exception) {}
             }
 
             // En Android 10+ utilizar MediaStore para escribir en Download/WildRift_Imagenes
@@ -568,6 +604,24 @@ object WildRiftOfficialScraper {
                 else -> "image/jpeg"
             }
 
+            // Limpiar registro previo en MediaStore si existía con el mismo nombre
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                    val projection = arrayOf(MediaStore.MediaColumns._ID)
+                    val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
+                    val selectionArgs = arrayOf(fileName, "%$OUTPUT_DIR_NAME%")
+                    resolver.query(collection, projection, selection, selectionArgs, null)?.use { cursor ->
+                        val idCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                        while (cursor.moveToNext()) {
+                            val rowId = cursor.getLong(idCol)
+                            val itemUri = android.content.ContentUris.withAppendedId(collection, rowId)
+                            try { resolver.delete(itemUri, null, null) } catch (_: Exception) {}
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
@@ -576,18 +630,26 @@ object WildRiftOfficialScraper {
                 }
             }
 
-            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-            } else {
-                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            val uri = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                } else {
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                }
+            } catch (e: Exception) {
+                null
             }
 
             if (uri != null) {
-                resolver.openOutputStream(uri)?.use { os ->
-                    os.write(bytes)
-                    os.flush()
+                try {
+                    resolver.openOutputStream(uri)?.use { os ->
+                        os.write(bytes)
+                        os.flush()
+                    }
+                    return "$relativeSubDir/$fileName"
+                } catch (e: Exception) {
+                    try { resolver.delete(uri, null, null) } catch (_: Exception) {}
                 }
-                return "$relativeSubDir/$fileName"
             }
 
             // Fallback interno si no se pudo con MediaStore
@@ -806,14 +868,35 @@ object WildRiftOfficialScraper {
 
             val targetFile = File(targetDir, fileName)
             if (targetDir.canWrite()) {
-                FileOutputStream(targetFile).use { fos ->
-                    fos.write(data)
-                    fos.flush()
-                }
-                return
+                try {
+                    FileOutputStream(targetFile).use { fos ->
+                        fos.write(data)
+                        fos.flush()
+                    }
+                    return
+                } catch (_: Exception) {}
             }
 
             val resolver = context.contentResolver
+
+            // Limpiar registro previo si existía en MediaStore
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                    val projection = arrayOf(MediaStore.MediaColumns._ID)
+                    val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
+                    val selectionArgs = arrayOf(fileName, "%$OUTPUT_DIR_NAME%")
+                    resolver.query(collection, projection, selection, selectionArgs, null)?.use { cursor ->
+                        val idCol = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                        while (cursor.moveToNext()) {
+                            val rowId = cursor.getLong(idCol)
+                            val itemUri = android.content.ContentUris.withAppendedId(collection, rowId)
+                            try { resolver.delete(itemUri, null, null) } catch (_: Exception) {}
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
@@ -821,16 +904,34 @@ object WildRiftOfficialScraper {
                     put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
                 }
             }
-            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-            } else {
-                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            }
-            if (uri != null) {
-                resolver.openOutputStream(uri)?.use { os ->
-                    os.write(data)
-                    os.flush()
+            val uri = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                } else {
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 }
+            } catch (_: Exception) {
+                null
+            }
+
+            if (uri != null) {
+                try {
+                    resolver.openOutputStream(uri)?.use { os ->
+                        os.write(data)
+                        os.flush()
+                    }
+                    return
+                } catch (e: Exception) {
+                    try { resolver.delete(uri, null, null) } catch (_: Exception) {}
+                }
+            }
+
+            // Fallback interno si falla MediaStore
+            val internalImagesDir = File(context.filesDir, OUTPUT_DIR_NAME).apply { mkdirs() }
+            val fallbackFile = File(internalImagesDir, fileName)
+            FileOutputStream(fallbackFile).use { fos ->
+                fos.write(data)
+                fos.flush()
             }
         } catch (e: Exception) {
             e.printStackTrace()
