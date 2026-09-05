@@ -554,10 +554,10 @@ object WildRiftOfficialScraper {
         val seguro = nombreSeguro(nombre)
         val extension = extensionImagen(url)
         val fileName = "$seguro$extension"
-        val relativeSubDir = "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR_NAME"
+        val relativeSubDir = "${Environment.DIRECTORY_PICTURES}/$OUTPUT_DIR_NAME"
 
         try {
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             val outputFolder = File(downloadsDir, OUTPUT_DIR_NAME)
             if (!outputFolder.exists()) {
                 outputFolder.mkdirs()
@@ -610,7 +610,7 @@ object WildRiftOfficialScraper {
                 } catch (_: Exception) {}
             }
 
-            // En Android 10+ utilizar MediaStore para escribir en Download/WildRift_Imagenes
+            // En Android 10+ utilizar MediaStore para escribir en Pictures/WildRift_Imagenes
             val resolver = context.contentResolver
             val mimeType = when (extension) {
                 ".png" -> "image/png"
@@ -622,7 +622,7 @@ object WildRiftOfficialScraper {
             // Limpiar registro previo en MediaStore si existía con el mismo nombre
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                    val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     val projection = arrayOf(MediaStore.MediaColumns._ID)
                     val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
                     val selectionArgs = arrayOf(fileName, "%$OUTPUT_DIR_NAME%")
@@ -641,7 +641,7 @@ object WildRiftOfficialScraper {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR_NAME/")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/$OUTPUT_DIR_NAME/")
                     put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
             }
@@ -649,8 +649,8 @@ object WildRiftOfficialScraper {
             var mediaStoreError: String? = null
             val uri = try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    resolver.insert(MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues)
-                        ?: resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                    resolver.insert(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues)
+                        ?: resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 } else {
                     resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 }
@@ -799,7 +799,7 @@ object WildRiftOfficialScraper {
                 delay(DELAY_MS)
             }
 
-            // Guardar archivos auxiliares en Download/WildRift_Imagenes
+            // Guardar archivos auxiliares en Pictures/WildRift_Imagenes
             onProgress("Guardando reportes: resultado.csv, urls_imagenes.txt, resumen.txt...")
             guardarCsv(context, resultados)
             guardarTxt(context, resultados)
@@ -895,8 +895,8 @@ object WildRiftOfficialScraper {
 
     private fun writeToOutputDir(context: Context, fileName: String, mimeType: String, data: ByteArray) {
         try {
-            val relativePath = "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR_NAME"
-            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val relativePath = "${Environment.DIRECTORY_PICTURES}/$OUTPUT_DIR_NAME"
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             val targetDir = File(downloadsDir, OUTPUT_DIR_NAME)
             if (!targetDir.exists()) targetDir.mkdirs()
 
@@ -916,7 +916,7 @@ object WildRiftOfficialScraper {
             // Limpiar registro previo si existía en MediaStore
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                    val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     val projection = arrayOf(MediaStore.MediaColumns._ID)
                     val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} = ? AND ${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
                     val selectionArgs = arrayOf(fileName, "%$OUTPUT_DIR_NAME%")
@@ -935,14 +935,14 @@ object WildRiftOfficialScraper {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR_NAME/")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/$OUTPUT_DIR_NAME/")
                     put(MediaStore.MediaColumns.IS_PENDING, 1)
                 }
             }
             val uri = try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    resolver.insert(MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues)
-                        ?: resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+                    resolver.insert(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues)
+                        ?: resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 } else {
                     resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 }

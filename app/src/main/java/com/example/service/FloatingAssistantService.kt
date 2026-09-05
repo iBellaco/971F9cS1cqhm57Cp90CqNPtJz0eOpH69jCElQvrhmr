@@ -576,10 +576,18 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         } catch (_: Exception) {}
     }
 
+    private var lastScreenWidth = 0
+    private var lastScreenHeight = 0
+
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
         try {
-            screenCaptureManager?.refreshProjection()
+            val metrics = resources.displayMetrics
+            if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
+                lastScreenWidth = metrics.widthPixels
+                lastScreenHeight = metrics.heightPixels
+                screenCaptureManager?.refreshProjection()
+            }
             
             // Reajustar coordenadas de la vista flotante para la nueva orientación de pantalla
             val params = floatingParams
@@ -1385,7 +1393,10 @@ private fun FloatingOverlayContent(
                                             analysis = analysis,
                                             selectedChampionDetail = selectedChampionDetail,
                                             onSelectChampion = { selectedChampionDetail = it },
-                                            onOpenChampionPicker = { isAlly, idx -> showChampionPickerForSlot = Pair(isAlly, idx) },
+                                            onOpenChampionPicker = { isAlly, idx -> 
+                                                autoScanEnabled = false
+                                                showChampionPickerForSlot = Pair(isAlly, idx) 
+                                            },
                                             onSaveDraftClick = { showSaveDraftDialog = true },
                                             isSavedRecently = isSavedRecently,
                                             onClearAll = { 
@@ -1395,7 +1406,7 @@ private fun FloatingOverlayContent(
                                                 }
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
-                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }
+                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
                                         )
                                     }
                                     OverlayHubTab.TIER_LIST -> {
@@ -2100,7 +2111,8 @@ private fun FloatingDraftCoachView(
     onSaveDraftClick: () -> Unit,
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
-    onGoToTierList: () -> Unit
+    onGoToTierList: () -> Unit,
+    onManualEdit: () -> Unit
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
@@ -2146,6 +2158,7 @@ private fun FloatingDraftCoachView(
                 val roleIndex = defaultRoles.indexOf(role)
                 if (roleIndex in 0 until 5) {
                     allies[roleIndex] = null
+                    onManualEdit()
                 }
             },
             onChampionClick = onSelectChampion
@@ -2167,6 +2180,7 @@ private fun FloatingDraftCoachView(
                 val roleIndex = defaultRoles.indexOf(role)
                 if (roleIndex in 0 until 5) {
                     enemies[roleIndex] = null
+                    onManualEdit()
                 }
             },
             onChampionClick = onSelectChampion
