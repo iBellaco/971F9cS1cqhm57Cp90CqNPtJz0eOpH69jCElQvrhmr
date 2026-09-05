@@ -13,22 +13,13 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
-data class DetectedChampionSlot(
-    val champion: Champion,
-    val isAlly: Boolean,
-    val boundingBox: Rect?,
-    val confidence: Float = 0.95f
-)
-
 data class ScannedSlotInfo(
     val slotIndex: Int,
     val isAlly: Boolean,
-    val champion: Champion?,
-    val iconRole: LaneRole?,
-    val ocrRole: LaneRole?,
-    val confidencePercent: Int = 90,
+    var champion: Champion? = null,
+    var explicitRole: LaneRole? = null,
     var assignedRole: LaneRole? = null,
-    var isDiscrepancy: Boolean = false,
+    var confidencePercent: Int = 0,
     var auditLog: String? = null
 )
 
@@ -55,65 +46,121 @@ object DraftVisionScanner {
             try {
                 recognizerInstance = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             } catch (e: Throwable) {
-                AppLogger.e(TAG, "ML Kit TextRecognizer initialization warning", e)
+                AppLogger.e(TAG, "ML Kit TextRecognizer init warning", e)
             }
         }
         return recognizerInstance
     }
 
-    suspend fun scanDraftFromBitmap(bitmap: Bitmap, preferredSummonerName: String? = null): DraftScanResult {
+    suspend fun scanDraftFromBitmap(bitmap: Bitmap): DraftScanResult {
         if (bitmap.isRecycled || bitmap.width < bitmap.height) {
-            return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Esperando orientación horizontal...")
+            return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Orientación no horizontal")
         }
 
         val recognizer = getRecognizer() ?: return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "OCR no disponible")
 
         val width = bitmap.width
         val height = bitmap.height
-        val discrepancyAuditList = mutableListOf<String>()
+        val allChamps = WildRiftRepository.champions
+        val auditList = mutableListOf<String>()
 
-        // -----------------------------------------------------------------------------------------
-        // 1. OCR PASO A: Detección de texto de carriles explícitos
-        // -----------------------------------------------------------------------------------------
-        val image = InputImage.fromBitmap(bitmap, 0)
-        val allySlotOcrRoles = arrayOfNulls<LaneRole>(5)
-        val enemySlotOcrRoles = arrayOfNulls<LaneRole>(5)
+        // 5 slots para aliados y 5 slots para enemigos
+        val allySlots = (0..4).map { ScannedSlotInfo(slotIndex = it, isAlly = true) }
+        val enemySlots = (0..4).map { ScannedSlotInfo(slotIndex = it, isAlly = false) }
         val detectedWords = mutableListOf<String>()
+        var userDetectedLane: LaneRole? = null
 
+        // -----------------------------------------------------------------------------------------
+        // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
+        // -----------------------------------------------------------------------------------------
         try {
-            val visionText = recognizer.process(image).await()
+            val inputImage = InputImage.fromBitmap(bitmap, 0)
+            val visionText = recognizer.process(inputImage).await()
+
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
-                    val lineText = line.text.trim()
-                    if (lineText.isBlank()) continue
-                    detectedWords.add(lineText)
+                    val text = line.text.trim()
+                    if (text.isBlank()) continue
+                    detectedWords.add(text)
 
-                    val lower = lineText.lowercase(Locale.ROOT)
                     val box = line.boundingBox
                     val centerY = box?.centerY() ?: 0
                     val centerX = box?.centerX() ?: 0
                     val yRatio = centerY.toFloat() / height.toFloat()
                     val xRatio = centerX.toFloat() / width.toFloat()
 
-                    if (yRatio < 0.02f || yRatio > 0.98f) continue
-
-                    val role = when {
-                        lower.contains("central") || lower.contains("mid") || lower.contains("medio") -> LaneRole.MID
-                        lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top") -> LaneRole.TOP
-                        lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva") -> LaneRole.JUNGLE
-                        lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador") -> LaneRole.ADC
-                        lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") -> LaneRole.SUPPORT
-                        else -> null
+                    // 1.1 PARSING DEL CHAT IN-GAME (Y > 0.80 y X < 0.40)
+                    // Formato típico en Wild Rift: "Summoner (ChampionName): Mensaje"
+                    if (yRatio in 0.80f..0.94f && xRatio < 0.40f) {
+                        val chatChamp = ChampionNameResolver.findChampionInText(text, allChamps)
+                        if (chatChamp != null) {
+                            AppLogger.d(TAG, "OCR Chat detectó campeón: ${chatChamp.name} en línea '$text'")
+                            // Si aún no está asignado a aliados, registrar como respaldo de pick
+                            if (allySlots.none { it.champion?.id == chatChamp.id }) {
+                                val emptySlot = allySlots.firstOrNull { it.champion == null }
+                                if (emptySlot != null) {
+                                    emptySlot.champion = chatChamp
+                                    emptySlot.confidencePercent = 95
+                                }
+                            }
+                        }
+                        continue
                     }
 
-                    if (role != null) {
-                        val bucket = (yRatio * 5).toInt().coerceIn(0, 4)
-                        if (xRatio < 0.5f) {
-                            allySlotOcrRoles[bucket] = role
-                        } else {
-                            enemySlotOcrRoles[bucket] = role
+                    // Ignorar la barra de bans superior (Y < 0.12) y botones del fondo (Y > 0.85)
+                    if (yRatio < 0.12f || yRatio > 0.85f) continue
+
+                    // Determinar el índice de slot vertical (0..4)
+                    val slotIndex = when {
+                        yRatio < 0.26f -> 0
+                        yRatio < 0.40f -> 1
+                        yRatio < 0.54f -> 2
+                        yRatio < 0.68f -> 3
+                        else -> 4
+                    }
+
+                    // 1.2 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.02 y 0.28)
+                    if (xRatio in 0.02f..0.28f) {
+                        val slot = allySlots[slotIndex]
+
+                        // Buscar nombre de campeón en el texto del slot
+                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
+                        if (matchedChamp != null) {
+                            slot.champion = matchedChamp
+                            slot.confidencePercent = 99
+                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                        }
+
+                        // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", etc.)
+                        val lower = text.lowercase(Locale.ROOT)
+                        val role = parseRoleFromText(lower)
+                        if (role != null) {
+                            slot.explicitRole = role
+                            if (lower.contains("carril") || lower.contains("baron") || lower.contains("barón") || lower.contains("solo")) {
+                                userDetectedLane = role
+                            }
+                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito: ${role.shortName}")
                         }
                     }
+
+                    // 1.3 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.72 y 0.98)
+                    else if (xRatio in 0.72f..0.98f) {
+                        val slot = enemySlots[slotIndex]
+
+                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
+                        if (matchedChamp != null) {
+                            slot.champion = matchedChamp
+                            slot.confidencePercent = 95
+                            AppLogger.d(TAG, "OCR Enemigo Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                        }
+
+                        val lower = text.lowercase(Locale.ROOT)
+                        val role = parseRoleFromText(lower)
+                        if (role != null) {
+                            slot.explicitRole = role
+                        }
+                    }
+                    // NOTA: Toda la franja central (X entre 0.28 y 0.72) donde reside el Overlay flotante es TOTALMENTE IGNORADA
                 }
             }
         } catch (e: Exception) {
@@ -121,249 +168,20 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // 2. IMAGE MATCHING PASO B: Recorte y escaneo de Campeón + Icono de Rol
+        // PASO 2: ASIGNACIÓN DETERMINISTA DE ROLES (ZERO-GUESSING)
         // -----------------------------------------------------------------------------------------
-        val allChamps = WildRiftRepository.champions
-        val allySlotInfos = mutableListOf<ScannedSlotInfo>()
-        val enemySlotInfos = mutableListOf<ScannedSlotInfo>()
+        val alliesMap = assignTeamRoles(allySlots, isAlly = true, auditList)
+        val enemiesMap = assignTeamRoles(enemySlots, isAlly = false, auditList)
 
-        val avatarWidth = (width * 0.15f).toInt()
-        val avatarHeight = (height * 0.15f).toInt()
-        val iconSize = (height * 0.08f).toInt().coerceAtLeast(16)
-        
-        val allyAvatarX = (width * 0.04f).toInt().coerceIn(0, width - avatarWidth)
-        val enemyAvatarX = (width * 0.81f).toInt().coerceIn(0, width - avatarWidth)
-
-        // Escaneo slots aliados (0..4)
-        for (i in 0..4) {
-            val yCenter = height * (0.10f + (i * 0.19f))
-            val startY = (yCenter - avatarHeight / 2).toInt().coerceIn(0, height - avatarHeight)
-            
-            var matchedChamp: Champion? = null
-            var matchedIconRole: LaneRole? = null
-
-            // A) Avatar Match
-            try {
-                val allyCrop = Bitmap.createBitmap(bitmap, allyAvatarX, startY, avatarWidth, avatarHeight)
-                matchedChamp = ImageHashMatcher.findBestMatch(allyCrop, allChamps)
-                allyCrop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando avatar aliado slot $i: ${e.message}")
-            }
-
-            // B) Role Icon Match (Esquina superior izquierda del slot de selección)
-            try {
-                val iconX = (allyAvatarX - (width * 0.015f).toInt()).coerceIn(0, width - iconSize)
-                val iconY = startY.coerceIn(0, height - iconSize)
-                val roleCrop = Bitmap.createBitmap(bitmap, iconX, iconY, iconSize, iconSize)
-                matchedIconRole = ImageHashMatcher.findRoleMatch(roleCrop)
-                roleCrop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando icono rol aliado slot $i: ${e.message}")
-            }
-
-            allySlotInfos.add(
-                ScannedSlotInfo(
-                    slotIndex = i,
-                    isAlly = true,
-                    champion = matchedChamp,
-                    iconRole = matchedIconRole,
-                    ocrRole = allySlotOcrRoles[i]
-                )
-            )
-        }
-
-        // Escaneo slots enemigos (0..4)
-        for (i in 0..4) {
-            val yCenter = height * (0.10f + (i * 0.19f))
-            val startY = (yCenter - avatarHeight / 2).toInt().coerceIn(0, height - avatarHeight)
-            
-            var matchedChamp: Champion? = null
-            var matchedConfidence = 85
-            var matchedIconRole: LaneRole? = null
-
-            try {
-                val enemyCrop = Bitmap.createBitmap(bitmap, enemyAvatarX, startY, avatarWidth, avatarHeight)
-                val matchResult = ImageHashMatcher.findBestMatchDetailed(enemyCrop, allChamps)
-                matchedChamp = matchResult?.champion
-                if (matchResult != null) {
-                    matchedConfidence = matchResult.confidencePercent
-                }
-                enemyCrop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando avatar enemigo slot $i: ${e.message}")
-            }
-
-            try {
-                val iconX = (enemyAvatarX + avatarWidth - (iconSize * 0.8f).toInt()).coerceIn(0, width - iconSize)
-                val iconY = startY.coerceIn(0, height - iconSize)
-                val roleCrop = Bitmap.createBitmap(bitmap, iconX, iconY, iconSize, iconSize)
-                matchedIconRole = ImageHashMatcher.findRoleMatch(roleCrop)
-                roleCrop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando icono rol enemigo slot $i: ${e.message}")
-            }
-
-            enemySlotInfos.add(
-                ScannedSlotInfo(
-                    slotIndex = i,
-                    isAlly = false,
-                    champion = matchedChamp,
-                    iconRole = matchedIconRole,
-                    ocrRole = enemySlotOcrRoles[i],
-                    confidencePercent = matchedConfidence
-                )
-            )
-        }
-
-        // -----------------------------------------------------------------------------------------
-        // 3. CRUCE DE DATOS Y MOTOR DE ASIGNACIÓN CON SOBRESCRITURA POR ICONO (PASO C)
-        // -----------------------------------------------------------------------------------------
-        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
-        val alliesMap = mutableMapOf<LaneRole, Champion>()
-        val enemiesMap = mutableMapOf<LaneRole, Champion>()
-
-        // 3.1 Procesamiento de Aliados:
-        val availableAllyRoles = standardRoles.toMutableList()
-
-        // Fase 1: Asignación por Icono de Rol Detectado (Prioridad Máxima y Sobrescritura de Metadata)
-        for (slot in allySlotInfos) {
-            val champ = slot.champion ?: continue
-            val detectedIconRole = slot.iconRole
-            if (detectedIconRole != null && availableAllyRoles.contains(detectedIconRole) && !alliesMap.containsKey(detectedIconRole)) {
-                alliesMap[detectedIconRole] = champ
-                availableAllyRoles.remove(detectedIconRole)
-                slot.assignedRole = detectedIconRole
-                
-                // Comprobación de discrepancia entre rol detectado por icono y metadata por defecto del campeón
-                if (champ.primaryRole != detectedIconRole) {
-                    slot.isDiscrepancy = true
-                    val logMsg = "⚡ [DISCREPANCIA ALIADO Slot ${slot.slotIndex + 1}]: Campeón '${champ.name}' (Metadata Base: ${champ.primaryRole.shortName}) reasignado a '${detectedIconRole.shortName}' mediante coincidencia visual del ICONO de Rol."
-                    slot.auditLog = logMsg
-                    discrepancyAuditList.add(logMsg)
-                    AppLogger.i(TAG, logMsg)
-                } else {
-                    AppLogger.d(TAG, "Aliado Slot ${slot.slotIndex + 1}: ${champ.name} asignado a ${detectedIconRole.shortName} por icono visual.")
-                }
-            }
-        }
-
-        // Fase 2: Asignación por OCR de Rol Detectado (Prioridad Secundaria)
-        for (slot in allySlotInfos) {
-            val champ = slot.champion ?: continue
-            if (slot.assignedRole != null) continue // Ya asignado por icono
-
-            val detectedOcrRole = slot.ocrRole
-            if (detectedOcrRole != null && availableAllyRoles.contains(detectedOcrRole) && !alliesMap.containsKey(detectedOcrRole)) {
-                alliesMap[detectedOcrRole] = champ
-                availableAllyRoles.remove(detectedOcrRole)
-                slot.assignedRole = detectedOcrRole
-
-                if (champ.primaryRole != detectedOcrRole) {
-                    slot.isDiscrepancy = true
-                    val logMsg = "📝 [DISCREPANCIA ALIADO Slot ${slot.slotIndex + 1}]: Campeón '${champ.name}' (Metadata Base: ${champ.primaryRole.shortName}) reasignado a '${detectedOcrRole.shortName}' mediante OCR de carril."
-                    slot.auditLog = logMsg
-                    discrepancyAuditList.add(logMsg)
-                    AppLogger.i(TAG, logMsg)
-                }
-            }
-        }
-
-        // Fase 3: Asignación por Metadata de Campeón (Fallback para slots sin icono ni OCR)
-        for (slot in allySlotInfos) {
-            val champ = slot.champion ?: continue
-            if (slot.assignedRole != null || alliesMap.containsValue(champ)) continue
-
-            val assigned = when {
-                availableAllyRoles.contains(champ.primaryRole) -> champ.primaryRole
-                else -> champ.secondaryRoles.firstOrNull { availableAllyRoles.contains(it) } ?: availableAllyRoles.firstOrNull()
-            }
-
-            if (assigned != null) {
-                alliesMap[assigned] = champ
-                availableAllyRoles.remove(assigned)
-                slot.assignedRole = assigned
-                AppLogger.d(TAG, "Aliado Slot ${slot.slotIndex + 1}: ${champ.name} asignado a ${assigned.shortName} por fallback de pool/metadata.")
-            }
-        }
-
-        // 3.2 Procesamiento de Enemigos:
-        val availableEnemyRoles = standardRoles.toMutableList()
-
-        // Fase 1 Enemigos: Icono de Rol Detectado
-        for (slot in enemySlotInfos) {
-            val champ = slot.champion ?: continue
-            val detectedIconRole = slot.iconRole
-            if (detectedIconRole != null && availableEnemyRoles.contains(detectedIconRole) && !enemiesMap.containsKey(detectedIconRole)) {
-                enemiesMap[detectedIconRole] = champ
-                availableEnemyRoles.remove(detectedIconRole)
-                slot.assignedRole = detectedIconRole
-
-                if (champ.primaryRole != detectedIconRole) {
-                    slot.isDiscrepancy = true
-                    val logMsg = "⚡ [DISCREPANCIA ENEMIGO Slot ${slot.slotIndex + 1}]: Campeón '${champ.name}' (Metadata Base: ${champ.primaryRole.shortName}) reasignado a '${detectedIconRole.shortName}' mediante coincidencia visual del ICONO de Rol."
-                    slot.auditLog = logMsg
-                    discrepancyAuditList.add(logMsg)
-                    AppLogger.i(TAG, logMsg)
-                }
-            }
-        }
-
-        // Fase 2 Enemigos: OCR de Rol Detectado
-        for (slot in enemySlotInfos) {
-            val champ = slot.champion ?: continue
-            if (slot.assignedRole != null) continue
-
-            val detectedOcrRole = slot.ocrRole
-            if (detectedOcrRole != null && availableEnemyRoles.contains(detectedOcrRole) && !enemiesMap.containsKey(detectedOcrRole)) {
-                enemiesMap[detectedOcrRole] = champ
-                availableEnemyRoles.remove(detectedOcrRole)
-                slot.assignedRole = detectedOcrRole
-
-                if (champ.primaryRole != detectedOcrRole) {
-                    slot.isDiscrepancy = true
-                    val logMsg = "📝 [DISCREPANCIA ENEMIGO Slot ${slot.slotIndex + 1}]: Campeón '${champ.name}' (Metadata Base: ${champ.primaryRole.shortName}) reasignado a '${detectedOcrRole.shortName}' mediante OCR de carril."
-                    slot.auditLog = logMsg
-                    discrepancyAuditList.add(logMsg)
-                    AppLogger.i(TAG, logMsg)
-                }
-            }
-        }
-
-        // Fase 3 Enemigos: Fallback Metadata
-        for (slot in enemySlotInfos) {
-            val champ = slot.champion ?: continue
-            if (slot.assignedRole != null || enemiesMap.containsValue(champ)) continue
-
-            val assigned = when {
-                availableEnemyRoles.contains(champ.primaryRole) -> champ.primaryRole
-                else -> champ.secondaryRoles.firstOrNull { availableEnemyRoles.contains(it) } ?: availableEnemyRoles.firstOrNull()
-            }
-
-            if (assigned != null) {
-                enemiesMap[assigned] = champ
-                availableEnemyRoles.remove(assigned)
-                slot.assignedRole = assigned
-            }
-        }
-
-        // -----------------------------------------------------------------------------------------
-        // 4. Deduplicación global y formateo del resultado final
-        // -----------------------------------------------------------------------------------------
+        // Deduplicación: Un campeón aliado jamás puede aparecer en el equipo enemigo
         val allyChampIds = alliesMap.values.map { it.id }.toSet()
-        val finalEnemiesMap = enemiesMap.filterNot { entry -> allyChampIds.contains(entry.value.id) }
+        val finalEnemiesMap = enemiesMap.filterNot { allyChampIds.contains(it.value.id) }
 
-        // Mapear el nivel de certeza/confianza por rol del equipo rival
         val enemyConfidences = mutableMapOf<LaneRole, Int>()
-        enemySlotInfos.forEach { slot ->
+        enemySlots.forEach { slot ->
             val assigned = slot.assignedRole
             if (assigned != null && finalEnemiesMap.containsKey(assigned)) {
-                val finalConf = when {
-                    slot.iconRole != null -> (slot.confidencePercent + 6).coerceAtMost(98)
-                    slot.ocrRole != null -> (slot.confidencePercent + 3).coerceAtMost(95)
-                    else -> (slot.confidencePercent - 4).coerceAtLeast(65)
-                }
-                enemyConfidences[assigned] = finalConf
+                enemyConfidences[assigned] = slot.confidencePercent.coerceIn(80, 98)
             }
         }
 
@@ -372,9 +190,9 @@ object DraftVisionScanner {
         val total = allyChampsList.size + enemyChampsList.size
 
         val statusMsg = when {
-            total == 0 -> "Esperando campeones..."
-            discrepancyAuditList.isNotEmpty() -> "Escaneo Híbrido: $total picks (${discrepancyAuditList.size} roles adaptados por icono)"
-            else -> "Escaneo Híbrido: $total detectados"
+            total == 0 -> "Esperando selección en directo..."
+            auditList.isNotEmpty() -> "Detectados: $total picks (${auditList.size} adaptaciones)"
+            else -> "Detectados: $total picks con certeza"
         }
 
         return DraftScanResult(
@@ -383,12 +201,88 @@ object DraftVisionScanner {
             alliesByRole = alliesMap,
             enemiesByRole = finalEnemiesMap,
             enemyConfidencesByRole = enemyConfidences,
-            detectedRole = null,
+            detectedRole = userDetectedLane,
             detectedRawWords = detectedWords,
-            discrepancies = discrepancyAuditList,
+            discrepancies = auditList,
             isSuccessful = total > 0,
             statusMessage = statusMsg
         )
     }
-}
 
+    private fun parseRoleFromText(lower: String): LaneRole? {
+        return when {
+            lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top") -> LaneRole.TOP
+            lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva") -> LaneRole.JUNGLE
+            lower.contains("central") || lower.contains("mid") || lower.contains("medio") -> LaneRole.MID
+            lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador") -> LaneRole.ADC
+            lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") -> LaneRole.SUPPORT
+            else -> null
+        }
+    }
+
+    private fun assignTeamRoles(
+        slots: List<ScannedSlotInfo>,
+        isAlly: Boolean,
+        auditList: MutableList<String>
+    ): Map<LaneRole, Champion> {
+        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+        val assignedMap = mutableMapOf<LaneRole, Champion>()
+        val availableRoles = standardRoles.toMutableList()
+        val pendingSlots = mutableListOf<ScannedSlotInfo>()
+
+        // 1. Asignar slots que tienen un rol explícito detectado por texto en pantalla
+        for (slot in slots) {
+            val champ = slot.champion ?: continue
+            val expRole = slot.explicitRole
+            if (expRole != null && availableRoles.contains(expRole) && !assignedMap.containsKey(expRole)) {
+                assignedMap[expRole] = champ
+                availableRoles.remove(expRole)
+                slot.assignedRole = expRole
+                if (champ.primaryRole != expRole) {
+                    auditList.add("Rol explícito: ${champ.name} -> ${expRole.shortName}")
+                }
+            } else {
+                pendingSlots.add(slot)
+            }
+        }
+
+        // 2. Asignar por rol primario del campeón
+        val remainingAfterPrimary = mutableListOf<ScannedSlotInfo>()
+        for (slot in pendingSlots) {
+            val champ = slot.champion ?: continue
+            val primary = champ.primaryRole
+            if (availableRoles.contains(primary) && !assignedMap.containsKey(primary)) {
+                assignedMap[primary] = champ
+                availableRoles.remove(primary)
+                slot.assignedRole = primary
+            } else {
+                remainingAfterPrimary.add(slot)
+            }
+        }
+
+        // 3. Asignar por rol secundario si hubo colisión (Flex picks)
+        val remainingAfterSecondary = mutableListOf<ScannedSlotInfo>()
+        for (slot in remainingAfterPrimary) {
+            val champ = slot.champion ?: continue
+            val secMatch = champ.secondaryRoles.firstOrNull { availableRoles.contains(it) }
+            if (secMatch != null) {
+                assignedMap[secMatch] = champ
+                availableRoles.remove(secMatch)
+                slot.assignedRole = secMatch
+            } else {
+                remainingAfterSecondary.add(slot)
+            }
+        }
+
+        // 4. Asignar roles restantes a campeones no asignados
+        for (slot in remainingAfterSecondary) {
+            val champ = slot.champion ?: continue
+            val fallback = availableRoles.firstOrNull() ?: continue
+            assignedMap[fallback] = champ
+            availableRoles.remove(fallback)
+            slot.assignedRole = fallback
+        }
+
+        return assignedMap
+    }
+}
