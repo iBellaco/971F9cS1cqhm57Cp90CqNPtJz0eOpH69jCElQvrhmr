@@ -315,6 +315,7 @@ fun AdminDashboardDialog(
     var isLoading by remember { mutableStateOf(true) }
     var showReportsPanel by remember { mutableStateOf(false) }
     var showSupportReportsPanel by remember { mutableStateOf(false) }
+    var showTerminalScraper by remember { mutableStateOf(false) }
 
     // Search and filter states
     var searchQuery by remember { mutableStateOf("") }
@@ -423,6 +424,12 @@ fun AdminDashboardDialog(
     if (showSupportReportsPanel) {
         AdminSupportReportsDialog(
             onDismiss = { showSupportReportsPanel = false }
+        )
+    }
+
+    if (showTerminalScraper) {
+        AdminTerminalScraperDialog(
+            onDismiss = { showTerminalScraper = false }
         )
     }
 
@@ -622,10 +629,10 @@ fun AdminDashboardDialog(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Action Buttons Row (Support Tickets + Reports Box + Refresh)
+                        // Action Buttons Row (Support Tickets + Reports Box + Scrappers Terminal + Refresh)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Button(
                                 onClick = { showSupportReportsPanel = true },
@@ -640,19 +647,19 @@ fun AdminDashboardDialog(
                                     )
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 6.dp)
+                                contentPadding = PaddingValues(horizontal = 4.dp)
                             ) {
                                 Icon(
                                     Icons.Default.SupportAgent,
                                     contentDescription = null,
                                     tint = LolHextechCyan,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
-                                Spacer(modifier = Modifier.width(5.dp))
+                                Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    "Tickets Soporte",
+                                    "Soporte",
                                     color = LolHextechCyan,
-                                    fontSize = 11.sp,
+                                    fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 0.2.sp
                                 )
@@ -671,19 +678,50 @@ fun AdminDashboardDialog(
                                     )
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 6.dp)
+                                contentPadding = PaddingValues(horizontal = 4.dp)
                             ) {
                                 Icon(
                                     Icons.Default.BugReport,
                                     contentDescription = null,
                                     tint = LolBorderGold,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(15.dp)
                                 )
-                                Spacer(modifier = Modifier.width(5.dp))
+                                Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    "Buzón Bugs",
+                                    "Bugs",
                                     color = LolGoldLight,
-                                    fontSize = 11.sp,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.2.sp
+                                )
+                            }
+
+                            Button(
+                                onClick = { showTerminalScraper = true },
+                                modifier = Modifier
+                                    .weight(1.15f)
+                                    .height(42.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = LolCardBg),
+                                border = BorderStroke(
+                                    1.dp,
+                                    Brush.horizontalGradient(
+                                        listOf(HextechGold, HextechCyan)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                contentPadding = PaddingValues(horizontal = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Terminal,
+                                    contentDescription = null,
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    "Scrappers",
+                                    color = HextechCyan,
+                                    fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 0.2.sp
                                 )

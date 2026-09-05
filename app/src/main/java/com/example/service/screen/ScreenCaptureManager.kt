@@ -300,36 +300,17 @@ class ScreenCaptureManager(private val context: Context) {
             try {
                 image = reader.acquireLatestImage() ?: reader.acquireNextImage()
                 if (image != null) {
-                    val planes = image.planes
-                    val buffer: ByteBuffer = planes[0].buffer
-                    val pixelStride = planes[0].pixelStride
-                    val rowStride = planes[0].rowStride
-                    val rowPadding = rowStride - pixelStride * image.width
-
-                    val bitmap = Bitmap.createBitmap(
-                        image.width + rowPadding / pixelStride,
-                        image.height,
-                        Bitmap.Config.ARGB_8888
-                    )
-                    bitmap.copyPixelsFromBuffer(buffer)
-
-                    val cleanBitmap = if (rowPadding != 0) {
-                        val cropped = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-                        bitmap.recycle()
-                        cropped
-                    } else {
-                        bitmap
+                    val cleanBitmap = processImageToBitmap(image)
+                    if (cleanBitmap != null) {
+                        synchronized(frameLock) {
+                            val old = lastFrame
+                            try {
+                                lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
+                            } catch (_: Throwable) {}
+                            old?.recycle()
+                        }
+                        return cleanBitmap
                     }
-
-                    synchronized(frameLock) {
-                        val old = lastFrame
-                        try {
-                            lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
-                        } catch (_: Throwable) {}
-                        old?.recycle()
-                    }
-
-                    return cleanBitmap
                 }
             } catch (e: Exception) {
                 AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)

@@ -307,9 +307,8 @@ object DraftVisionScanner {
                             enemySlotTexts[slotIdx].add(lineText)
                             val lower = lineText.lowercase(Locale.ROOT)
 
-                            // Regla Estricta: Si dice "Jugador 1/2/3/4/5" o "Player", el rival NO ha elegido campeón
+                            // Si dice "Jugador 1/2/3/4/5" o "Player", ignorar la línea (nombre genérico) y continuar buscando el campeón
                             if (lower.contains("jugador") || lower.contains("player")) {
-                                enemySlotEmpty[slotIdx] = true
                                 continue
                             }
 
@@ -374,16 +373,27 @@ object DraftVisionScanner {
             val slotScores = IntArray(5)
             val slotHasSmite = BooleanArray(5)
 
-            // Señal A: Marco Dorado Alado y Gema Rubí en el lateral izquierdo extremo (X: 0.038f a 0.058f)
-            // En Wild Rift, los aliados tienen una simple línea cian/azul en este rango (X: ~0.045..0.055).
-            // El jugador local ("TÚ") tiene alas de dragón doradas prominentes con un núcleo de gema rubí/fuego.
-            val sampleXMin = (screenWidth * 0.038f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.058f).toInt().coerceAtMost(screenWidth - 1)
-
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val yMin = (yCenter - screenHeight * 0.045f).toInt().coerceAtLeast(0)
-                val yMax = (yCenter + screenHeight * 0.045f).toInt().coerceAtMost(screenHeight - 1)
+
+                // Señal A: Detección de texto de Maestría o 'Marca Estelar Eterna' (exclusivo de la tarjeta del jugador local)
+                val hasEternalOrBadge = allySlotTexts[i].any { txt ->
+                    val low = txt.lowercase(Locale.ROOT)
+                    low.contains("marca") || low.contains("estelar") || low.contains("eterna") ||
+                    low.contains("maestria") || low.contains("maestría") || low.contains("eterno")
+                }
+                if (hasEternalOrBadge) {
+                    slotScores[i] += 12000
+                    AppLogger.d(TAG, "Texto exclusivo de tarjeta local (Marca Estelar/Eterna) en slot $i (+12000)")
+                }
+
+                // Señal B: Marco Dorado Alado, Blasón y Gema Rubí en el lateral izquierdo y marco del avatar (X: 0.030f a 0.150f)
+                // En Wild Rift, los aliados tienen un borde cian/azul neutro sin elementos dorados/ámbar.
+                // El jugador local ("TÚ") tiene alas de dragón doradas prominentes y aro dorado con núcleo de gema rubí/fuego.
+                val sampleXMin = (screenWidth * 0.030f).toInt().coerceAtLeast(0)
+                val sampleXMax = (screenWidth * 0.150f).toInt().coerceAtMost(screenWidth - 1)
+                val yMin = (yCenter - screenHeight * 0.055f).toInt().coerceAtLeast(0)
+                val yMax = (yCenter + screenHeight * 0.055f).toInt().coerceAtMost(screenHeight - 1)
 
                 var goldWingPixels = 0
                 var rubyCorePixels = 0
@@ -396,28 +406,28 @@ object DraftVisionScanner {
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
 
-                        // Dorado brillante (alas del marco de jugador local en Wild Rift)
-                        if (r in 150..255 && g in 95..225 && b < 105 && r > b + 40) {
+                        // Dorado brillante / ámbar (alas del marco y aro dorado de jugador local en Wild Rift)
+                        if (r in 140..255 && g in 85..220 && b < 120 && r > b + 30) {
                             goldWingPixels++
                         }
                         // Gema Roja / Rubí (núcleo del blasón del jugador)
-                        else if (r in 140..255 && g < 80 && b < 80 && r > g + 50) {
+                        else if (r in 130..255 && g < 85 && b < 85 && r > g + 40) {
                             rubyCorePixels++
                         }
                         // Naranja fuego / transición de ala
-                        else if (r in 170..255 && g in 75..155 && b < 70) {
+                        else if (r in 160..255 && g in 70..160 && b < 80) {
                             orangeWingPixels++
                         }
                     }
                 }
-                val wingScore = (goldWingPixels * 8 + rubyCorePixels * 12 + orangeWingPixels * 6)
+                val wingScore = (goldWingPixels * 8 + rubyCorePixels * 14 + orangeWingPixels * 6)
                 slotScores[i] += wingScore
                 if (rubyCorePixels >= 2 || (goldWingPixels >= 6 && (orangeWingPixels >= 2 || rubyCorePixels >= 1))) {
                     slotScores[i] += 8000
                     AppLogger.d(TAG, "Marco dorado con gema rubí de jugador local detectado en slot $i (+8000, ruby=$rubyCorePixels, gold=$goldWingPixels)")
                 }
 
-                // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.090)
+                // Señal C: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.090)
                 val spellsXMin = (screenWidth * 0.065f).toInt().coerceAtLeast(0)
                 val spellsXMax = (screenWidth * 0.090f).toInt().coerceAtMost(screenWidth - 1)
                 val spellsYMin = (yCenter - screenHeight * 0.035f).toInt().coerceAtLeast(0)
@@ -443,60 +453,16 @@ object DraftVisionScanner {
                     }
                     AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount) -> Asignado a JUNGLE")
                 }
-
-                // Señal C: Detección de texto de Maestría o 'Marca Estelar Eterna' (exclusivo de la tarjeta del jugador local)
-                val hasEternalOrBadge = allySlotTexts[i].any { txt ->
-                    val low = txt.lowercase(Locale.ROOT)
-                    low.contains("marca") || low.contains("estelar") || low.contains("eterna") || low.contains("maestria") || low.contains("maestría")
-                }
-                if (hasEternalOrBadge) {
-                    slotScores[i] += 6000
-                    AppLogger.d(TAG, "Texto exclusivo de tarjeta local (Marca Estelar/Eterna) en slot $i (+6000)")
-                }
-            }
-
-            // Señal D: Detección de Botones de Intercambio de Turno (Flechas ⇄)
-            val swapXMin = (screenWidth * 0.235f).toInt().coerceAtLeast(0)
-            val swapXMax = (screenWidth * 0.280f).toInt().coerceAtMost(screenWidth - 1)
-            val swapButtonPixelCounts = IntArray(5)
-
-            for (i in 0 until 5) {
-                val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val swapYMin = (yCenter - screenHeight * 0.024f).toInt().coerceAtLeast(0)
-                val swapYMax = (yCenter + screenHeight * 0.024f).toInt().coerceAtMost(screenHeight - 1)
-                var count = 0
-                for (sy in swapYMin..swapYMax step 2) {
-                    for (sx in swapXMin..swapXMax step 2) {
-                        val p = bitmap.getPixel(sx, sy)
-                        val r = (p shr 16) and 0xFF
-                        val g = (p shr 8) and 0xFF
-                        val b = p and 0xFF
-                        // Flechas plateadas/blancas o grises azuladas translúcidas de intercambio ⇄
-                        if ((r in 115..255 && g in 115..255 && b in 115..255 && kotlin.math.abs(r - g) <= 25 && kotlin.math.abs(r - b) <= 25) ||
-                            (r in 85..155 && g in 90..165 && b in 95..180 && kotlin.math.abs(r - g) <= 25 && kotlin.math.abs(r - b) <= 30)) {
-                            count++
-                        }
-                    }
-                }
-                swapButtonPixelCounts[i] = count
-            }
-
-            val slotsWithSwap = (0 until 5).filter { swapButtonPixelCounts[it] >= 5 }
-            val slotsWithoutSwap = (0 until 5).filter { swapButtonPixelCounts[it] < 4 }
-            if (slotsWithSwap.size in 2..4 && slotsWithoutSwap.size == 1) {
-                val userSwapCandidate = slotsWithoutSwap.first()
-                slotScores[userSwapCandidate] += 7500
-                AppLogger.d(TAG, "Jugador local identificado por ausencia de botón de swap en ranura $userSwapCandidate (+7500)")
             }
 
             var userSlotIndex: Int? = null
             val maxScoreSlot = slotScores.indices.maxByOrNull { slotScores[it] } ?: -1
-            if (maxScoreSlot != -1 && slotScores[maxScoreSlot] >= 20) {
+            if (maxScoreSlot != -1 && slotScores[maxScoreSlot] >= 100) {
                 userSlotIndex = maxScoreSlot
-                AppLogger.d(TAG, "Jugador local identificado en ranura $userSlotIndex con score: ${slotScores[userSlotIndex]}")
+                AppLogger.d(TAG, "Jugador local identificado con alta confianza en ranura $userSlotIndex con score: ${slotScores[userSlotIndex]}")
             }
 
-            // 3. Determinar el rol/línea del jugador local
+            // 3. Determinar el rol/línea del jugador local de forma 100% autónoma
             val detectedRole: LaneRole? = if (userSlotIndex != null) {
                 allySlotRoles[userSlotIndex]
                     ?: (if (slotHasSmite[userSlotIndex]) LaneRole.JUNGLE else null)
@@ -511,42 +477,21 @@ object DraftVisionScanner {
             val enemiesByRole = mutableMapOf<LaneRole, Champion>()
             val standardOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
 
-            // ANCLA CRÍTICA: El campeón del usuario local ("TÚ") SIEMPRE se asigna a su línea detectada
-            if (userSlotIndex != null && detectedRole != null) {
-                val userChamp = allySlots[userSlotIndex]
-                if (userChamp != null) {
-                    alliesByRole[detectedRole] = userChamp
-                    AppLogger.d(TAG, "ANCLA USUARIO: Asignando campeón local ${userChamp.name} a su carril $detectedRole")
-                }
-            }
-
-            // ASIGNACIÓN DE ALIADOS RESTANTES
-            // Prioridad 1: Rol explícito leído por OCR en la ranura (ej. 'CALLE CENTRAL', 'APOYO', 'JUNGLA')
+            // ASIGNACIÓN INTELIGENTE DE ALIADOS:
+            // Cada ranura aliada se asigna a su carril correspondiente según OCR explícito, Smite o rol primario del campeón
             for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
                 val explicitRole = allySlotRoles[i]
-                if (explicitRole != null && !alliesByRole.containsKey(explicitRole)) {
+                    ?: (if (slotHasSmite[i]) LaneRole.JUNGLE else null)
+                    ?: champ.primaryRole
+
+                if (!alliesByRole.containsKey(explicitRole)) {
                     alliesByRole[explicitRole] = champ
                 }
             }
 
-            // Prioridad 2: Rol primario natural del campeón (ej. Caitlyn -> ADC, Jarvan IV -> JUNGLE, Thresh -> SUPPORT)
+            // Asignar los campeones aliados restantes que hayan tenido colisión
             for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
-                if (!alliesByRole.containsKey(champ.primaryRole)) {
-                    alliesByRole[champ.primaryRole] = champ
-                }
-            }
-
-            // Prioridad 3: Rol secundario o primer rol libre disponible
-            for (i in 0 until 5) {
-                if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
                 if (alliesByRole.containsValue(champ)) continue
 
@@ -554,6 +499,14 @@ object DraftVisionScanner {
                     ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
                 if (freeRole != null) {
                     alliesByRole[freeRole] = champ
+                }
+            }
+
+            // Si el jugador local tiene un campeón y rol conocido, asegurar su anclaje
+            if (userSlotIndex != null && detectedRole != null) {
+                val userChamp = allySlots[userSlotIndex]
+                if (userChamp != null && alliesByRole[detectedRole] != userChamp) {
+                    alliesByRole[detectedRole] = userChamp
                 }
             }
 

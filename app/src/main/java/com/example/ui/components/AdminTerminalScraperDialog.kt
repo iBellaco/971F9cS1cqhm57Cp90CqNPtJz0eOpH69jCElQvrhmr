@@ -34,16 +34,33 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.ui.theme.*
 import com.example.util.BestBuildScraper
+import com.example.util.WildRiftOfficialScraper
 import com.example.util.tr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+enum class ScraperSource(val title: String, val targetDesc: String, val badge: String) {
+    WILD_RIFT_OFFICIAL(
+        title = "Wild Rift Oficial (Imágenes & Campeones)",
+        targetDesc = "https://wildrift.leagueoflegends.com/es-es/champions/",
+        badge = "RIOT OFFICIAL WEB"
+    ),
+    BEST_BUILD_WR(
+        title = "BestBuildWR (Meta Pro Builds)",
+        targetDesc = "https://bestbuildwr.com",
+        badge = "BESTBUILDWR SPA"
+    )
+}
+
 /**
- * Terminal de Administración e Integración BestBuildWR
- * Permite ejecutar el script/crawler de extracción directa de https://bestbuildwr.com,
- * visualizar los logs de ejecución en tiempo real en consola interactiva estilo CLI Hacker / Hextech,
- * y descargar automáticamente los archivos generados (.csv, .json, .txt) a la carpeta de Descargas del dispositivo.
+ * Terminal de Administración e Integración de Scrapers
+ * Permite ejecutar:
+ * 1. Scraper Oficial de Wild Rift (https://wildrift.leagueoflegends.com/es-es/champions/):
+ *    Extrae lista de campeones oficiales, analiza su HTML/OG/imágenes, y genera archivos JSON, CSV y TXT.
+ * 2. Crawler BestBuildWR (https://bestbuildwr.com):
+ *    Extrae builds profesionales de meta global con exportación a Descargas.
+ * Incluye visor de consola en tiempo real estilo Hacker / Hextech CLI y acceso a código Python reproducible.
  */
 @Composable
 fun AdminTerminalScraperDialog(
@@ -54,6 +71,7 @@ fun AdminTerminalScraperDialog(
     val clipboard = LocalClipboardManager.current
     val listState = rememberLazyListState()
 
+    var selectedSource by remember { mutableStateOf(ScraperSource.WILD_RIFT_OFFICIAL) }
     var isRunning by remember { mutableStateOf(false) }
     val logs = remember { mutableStateListOf<TerminalLogEntry>() }
     var executionFinished by remember { mutableStateOf(false) }
@@ -73,13 +91,21 @@ fun AdminTerminalScraperDialog(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(selectedSource) {
+        logs.clear()
         addLog("======================================================================", LogType.CYAN)
-        addLog(" ⚔️ TERMINAL ADMINISTRADOR - META PRO CRAWLER & SCRAPER", LogType.GOLD)
+        addLog(" ⚔️ TERMINAL ADMINISTRADOR - CRAWLER & SCRAPER ENGINE", LogType.GOLD)
         addLog("======================================================================", LogType.CYAN)
-        addLog("Target: Meta Pro Global Endpoints & Repositories", LogType.INFO)
-        addLog("Headers: User-Agent Mobile Android 13 • Chrome/130.0.0.0", LogType.INFO)
-        addLog("Salidas: meta_pro_builds.json • meta_pro_builds.csv • meta_pro_builds.txt", LogType.INFO)
+        addLog("Módulo Activo: ${selectedSource.title}", LogType.GOLD)
+        addLog("Target: ${selectedSource.targetDesc}", LogType.INFO)
+        addLog("Headers: User-Agent Mobile Android 14 • Chrome/140.0.0.0", LogType.INFO)
+        if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) {
+            addLog("Carpeta de destino: /Download/WildRift_Imagenes/", LogType.GOLD)
+            addLog("Archivos generados: resultado.csv • urls_imagenes.txt • resumen.txt • resultado.json", LogType.INFO)
+            addLog("Extracción: Algoritmo de scoring (Splash +90, Portrait +80, Nombre +100) y descarga binaria directa.", LogType.INFO)
+        } else {
+            addLog("Salidas: meta_pro_builds.json • meta_pro_builds.csv • meta_pro_builds.txt", LogType.INFO)
+        }
         addLog("Presiona 'Ejecutar Scraper y Descargar' para iniciar la extracción en vivo.", LogType.WARNING)
     }
 
@@ -90,21 +116,43 @@ fun AdminTerminalScraperDialog(
         successStatus = null
         totalChampsProcessed = 0
 
-        addLog("\n>>> INICIANDO PROCESO DE EXTRACCIÓN...", LogType.GOLD)
-        addLog("[1] Conectando con los repositorios del Meta Global Pro...", LogType.INFO)
+        addLog("\n>>> INICIANDO PROCESO DE EXTRACCIÓN [${selectedSource.badge}]...", LogType.GOLD)
+        addLog("[1] Conectando con ${selectedSource.targetDesc}...", LogType.INFO)
 
         scope.launch {
-            val result = BestBuildScraper.runScraper(context) { progressMsg ->
-                currentStepText = progressMsg
-                if (progressMsg.startsWith("[") && progressMsg.contains("Procesando")) {
-                    totalChampsProcessed++
-                    addLog("  [OK] $progressMsg", LogType.SUCCESS)
-                } else if (progressMsg.startsWith("Error") || progressMsg.startsWith("Fallo")) {
-                    addLog("  [ERROR] $progressMsg", LogType.ERROR)
-                } else if (progressMsg.contains("Guardando") || progressMsg.contains("Completado") || progressMsg.contains("Total")) {
-                    addLog("  [FILE] $progressMsg", LogType.GOLD)
-                } else {
-                    addLog("  [*] $progressMsg", LogType.INFO)
+            val result = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) {
+                WildRiftOfficialScraper.runScraper(context) { progressMsg ->
+                    currentStepText = progressMsg
+                    if (progressMsg.startsWith("[") && progressMsg.contains("/")) {
+                        totalChampsProcessed++
+                        addLog(progressMsg, LogType.GOLD)
+                    } else if (progressMsg.contains("Guardada:")) {
+                        addLog("  [OK] $progressMsg", LogType.SUCCESS)
+                    } else if (progressMsg.startsWith("   ERROR") || progressMsg.startsWith("ERROR")) {
+                        addLog("  [ERROR] $progressMsg", LogType.ERROR)
+                    } else if (progressMsg.contains("RESULTADO FINAL") || progressMsg.contains("Guardando reportes") || progressMsg.contains("WILD RIFT - RESUMEN")) {
+                        addLog(progressMsg, LogType.GOLD)
+                    } else if (progressMsg.startsWith("===") || progressMsg.startsWith("---")) {
+                        addLog(progressMsg, LogType.CYAN)
+                    } else if (progressMsg.contains("Imagen seleccionada:")) {
+                        addLog("  $progressMsg", LogType.CYAN)
+                    } else {
+                        addLog("  $progressMsg", LogType.INFO)
+                    }
+                }
+            } else {
+                BestBuildScraper.runScraper(context) { progressMsg ->
+                    currentStepText = progressMsg
+                    if (progressMsg.startsWith("[") && progressMsg.contains("Procesando")) {
+                        totalChampsProcessed++
+                        addLog("  [OK] $progressMsg", LogType.SUCCESS)
+                    } else if (progressMsg.startsWith("Error") || progressMsg.startsWith("Fallo")) {
+                        addLog("  [ERROR] $progressMsg", LogType.ERROR)
+                    } else if (progressMsg.contains("Guardando") || progressMsg.contains("Completado") || progressMsg.contains("Total")) {
+                        addLog("  [FILE] $progressMsg", LogType.GOLD)
+                    } else {
+                        addLog("  [*] $progressMsg", LogType.INFO)
+                    }
                 }
             }
 
@@ -114,13 +162,22 @@ fun AdminTerminalScraperDialog(
 
             if (result) {
                 addLog("\n======================================================================", LogType.CYAN)
-                addLog(" 🎉 PROCESO COMPLETADO SATISFACTORIAMENTE", LogType.SUCCESS)
-                addLog(" Archivos guardados en: /Almacenamiento interno/Download/", LogType.GOLD)
-                addLog(" 1. meta_pro_builds.json (Dataset completo JSON)", LogType.INFO)
-                addLog(" 2. meta_pro_builds.csv (CSV con champion, build_name, build_url)", LogType.INFO)
-                addLog(" 3. meta_pro_builds.txt (Formato champion | build_url)", LogType.INFO)
+                addLog(" 🎉 EXTRACCIÓN COMPLETADA SATISFACTORIAMENTE", LogType.SUCCESS)
+                addLog(" Archivos guardados en: /Almacenamiento interno/Download/WildRift_Imagenes/", LogType.GOLD)
+                if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) {
+                    addLog(" • resultado.csv (Listado de campeones, slug, imagen y estado)", LogType.INFO)
+                    addLog(" • urls_imagenes.txt (Mapeo de Campeón | URL)", LogType.INFO)
+                    addLog(" • resumen.txt (Estadísticas y recuento de descargas)", LogType.INFO)
+                    addLog(" • resultado.json (Dataset en formato JSON)", LogType.INFO)
+                    addLog(" • [Imágenes individuales descargadas por cada campeón]", LogType.SUCCESS)
+                    Toast.makeText(context, "✅ Imágenes descargadas en Download/WildRift_Imagenes", Toast.LENGTH_LONG).show()
+                } else {
+                    addLog(" 1. bestbuildwr_builds.json (Dataset completo JSON)", LogType.INFO)
+                    addLog(" 2. bestbuildwr_builds.csv (CSV con champion, build_name, build_url)", LogType.INFO)
+                    addLog(" 3. bestbuildwr_builds.txt (Formato champion | build_url)", LogType.INFO)
+                    Toast.makeText(context, "✅ Builds descargadas en la carpeta Descargas", Toast.LENGTH_LONG).show()
+                }
                 addLog("======================================================================", LogType.CYAN)
-                Toast.makeText(context, "✅ Builds descargadas en la carpeta Descargas", Toast.LENGTH_LONG).show()
             } else {
                 addLog("\n❌ Error durante la ejecución del Scraper. Revisa tu conexión de red.", LogType.ERROR)
             }
@@ -136,7 +193,7 @@ fun AdminTerminalScraperDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.96f)
-                .fillMaxHeight(0.92f)
+                .fillMaxHeight(0.94f)
                 .clip(RoundedCornerShape(16.dp))
                 .border(1.5.dp, HextechGold, RoundedCornerShape(16.dp)),
             colors = CardDefaults.cardColors(containerColor = Color(0xFF080D14))
@@ -174,7 +231,7 @@ fun AdminTerminalScraperDialog(
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(
-                                    text = "Terminal de Administrador",
+                                    text = "Terminal de Scrappers",
                                     color = HextechGold,
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold
@@ -187,7 +244,7 @@ fun AdminTerminalScraperDialog(
                                         .padding(horizontal = 5.dp, vertical = 1.dp)
                                 ) {
                                     Text(
-                                        text = if (isRunning) "BUSY (CRAWLER ACTIVO)" else "PYTHON / CRAWLER",
+                                        text = if (isRunning) "BUSY (CRAWLER ACTIVO)" else selectedSource.badge,
                                         color = if (isRunning) HextechGold else HextechCyan,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.ExtraBold
@@ -195,7 +252,7 @@ fun AdminTerminalScraperDialog(
                                 }
                             }
                             Text(
-                                text = "meta_crawler.py • Extractor & Exportador",
+                                text = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) "wildrift_images_scraper.py • Riot Games Web" else "bestbuildwr_crawler.py • Pro Builds Extractor",
                                 color = TextMuted,
                                 fontSize = 11.sp
                             )
@@ -246,7 +303,49 @@ fun AdminTerminalScraperDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Selector de Scrapper (Pestañas Wild Rift Oficial vs BestBuildWR)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF0C1420))
+                        .border(1.dp, HextechCardBorder, RoundedCornerShape(8.dp))
+                        .padding(3.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ScraperSource.values().forEach { source ->
+                        val isSelected = selectedSource == source
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (isSelected) HextechGold.copy(alpha = 0.2f) else Color.Transparent)
+                                .border(
+                                    1.dp,
+                                    if (isSelected) HextechGold else Color.Transparent,
+                                    RoundedCornerShape(6.dp)
+                                )
+                                .clickable(enabled = !isRunning) {
+                                    if (selectedSource != source) {
+                                        selectedSource = source
+                                    }
+                                }
+                                .padding(vertical = 7.dp, horizontal = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = if (source == ScraperSource.WILD_RIFT_OFFICIAL) "🌐 Wild Rift Oficial (Imágenes)" else "⚡ BestBuildWR (Builds)",
+                                color = if (isSelected) HextechGoldLight else TextMuted,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Action Controls Panel
                 Row(
@@ -275,7 +374,7 @@ fun AdminTerminalScraperDialog(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Descargando builds...",
+                                text = "Extrayendo datos...",
                                 color = HextechGold,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
@@ -289,7 +388,7 @@ fun AdminTerminalScraperDialog(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Ejecutar Scraper y Descargar",
+                                text = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) "Scrapear Imágenes & Descargar" else "Scrapear Builds & Descargar",
                                 color = HextechDarkBg,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
@@ -402,7 +501,11 @@ fun AdminTerminalScraperDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Destino: Downloads/meta_pro_builds.json/.csv/.txt",
+                        text = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) {
+                            "Destino: Downloads/WildRift_Imagenes/ (Imágenes + CSV + TXT + JSON)"
+                        } else {
+                            "Destino: Downloads/bestbuildwr_builds.json/.csv/.txt"
+                        },
                         color = TextMuted,
                         fontSize = 10.sp
                     )
@@ -419,6 +522,7 @@ fun AdminTerminalScraperDialog(
 
     if (showRawPythonDialog) {
         RawPythonCodeViewerDialog(
+            selectedSource = selectedSource,
             onDismiss = { showRawPythonDialog = false }
         )
     }
@@ -436,12 +540,327 @@ private data class TerminalLogEntry(
 
 @Composable
 private fun RawPythonCodeViewerDialog(
+    selectedSource: ScraperSource,
     onDismiss: () -> Unit
 ) {
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
 
-    val pythonCode = """
+    val officialPythonCode = """#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import re
+import csv
+import time
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse, unquote
+
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
+
+BASE_URL = "https://wildrift.leagueoflegends.com"
+CHAMPIONS_URL = BASE_URL + "/es-es/champions/"
+
+# UNA SOLA CARPETA PARA TODAS LAS IMÁGENES
+OUTPUT_DIR = "WildRift_Imagenes"
+
+DELAY = 0.5
+TIMEOUT = 30
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Linux; Android 14; Mobile) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/140.0.0.0 Mobile Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,"
+              "application/xml;q=0.9,image/avif,"
+              "image/webp,*/*;q=0.8",
+    "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+}
+
+session = requests.Session()
+session.headers.update(HEADERS)
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+# ============================================================
+# UTILIDADES
+# ============================================================
+
+def limpiar_url(url):
+    if not url:
+        return None
+
+    url = url.strip()
+
+    if url.startswith("//"):
+        url = "https:" + url
+
+    return urljoin(BASE_URL, url)
+
+
+def descargar_html(url):
+    try:
+        response = session.get(
+            url,
+            timeout=TIMEOUT,
+            allow_redirects=True
+        )
+
+        response.raise_for_status()
+
+        return response.text
+
+    except requests.RequestException as e:
+        print(f"   ERROR: {e}")
+        return None
+
+
+def nombre_seguro(nombre):
+    nombre = re.sub(r'[\\/:*?"<>|]', "", nombre)
+    nombre = re.sub(r"\s+", " ", nombre)
+    return nombre.strip()
+
+
+def es_imagen(url):
+    if not url:
+        return False
+
+    url = unquote(url).lower()
+
+    extensiones = (
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".avif"
+    )
+
+    return any(extension in url for extension in extensiones)
+
+
+def extension_imagen(url):
+    path = urlparse(url).path.lower()
+    if path.endswith(".jpeg"):
+        return ".jpeg"
+    if path.endswith(".png"):
+        return ".png"
+    if path.endswith(".webp"):
+        return ".webp"
+    if path.endswith(".avif"):
+        return ".avif"
+    return ".jpg"
+
+
+# ============================================================
+# DESCUBRIR CAMPEONES
+# ============================================================
+
+def obtener_campeones():
+    print()
+    print("=" * 70)
+    print("OBTENIENDO CAMPEONES")
+    print("=" * 70)
+
+    html = descargar_html(CHAMPIONS_URL)
+    if not html:
+        return []
+
+    soup = BeautifulSoup(html, "lxml")
+    campeones = {}
+
+    for enlace in soup.find_all("a", href=True):
+        href = limpiar_url(enlace.get("href"))
+        if not href:
+            continue
+
+        path = urlparse(href).path
+        match = re.match(r"^/es-es/champions/([^/]+)/?$", path)
+        if not match:
+            continue
+
+        slug = match.group(1).lower()
+        if not slug:
+            continue
+
+        nombre = enlace.get_text(" ", strip=True)
+        if not nombre:
+            nombre = slug.replace("-", " ").title()
+
+        campeones[slug] = {
+            "nombre": nombre,
+            "slug": slug,
+            "pagina": href
+        }
+
+    # Método alternativo por regex
+    patrones = re.findall(r"/es-es/champions/([a-zA-Z0-9_-]+)/?", html)
+    for slug in patrones:
+        slug = slug.strip("/").lower()
+        if not slug:
+            continue
+        if slug not in campeones:
+            campeones[slug] = {
+                "nombre": slug.replace("-", " ").title(),
+                "slug": slug,
+                "pagina": f"{BASE_URL}/es-es/champions/{slug}/"
+            }
+
+    resultado = list(campeones.values())
+    resultado.sort(key=lambda x: x["slug"])
+    print(f"\nCampeones encontrados: {len(resultado)}")
+    return resultado
+
+
+# ============================================================
+# EXTRAER POSIBLES IMÁGENES
+# ============================================================
+
+def extraer_imagenes(html):
+    soup = BeautifulSoup(html, "lxml")
+    candidatos = []
+
+    for meta in soup.find_all("meta"):
+        propiedad = (meta.get("property") or meta.get("name") or "").lower()
+        if propiedad in ("og:image", "og:image:url", "twitter:image", "twitter:image:src"):
+            contenido = meta.get("content")
+            if contenido:
+                candidatos.append(contenido)
+
+    for img in soup.find_all("img"):
+        for atributo in ("src", "data-src", "data-original", "data-lazy-src", "data-image", "data-url"):
+            valor = img.get(atributo)
+            if valor:
+                candidatos.append(valor)
+        srcset = img.get("srcset")
+        if srcset:
+            for elemento in srcset.split(","):
+                el = elemento.strip()
+                if el:
+                    candidatos.append(el.split()[0])
+
+    for source in soup.find_all("source"):
+        for atributo in ("src", "data-src", "data-original"):
+            valor = source.get(atributo)
+            if valor:
+                candidatos.append(valor)
+        srcset = source.get("srcset")
+        if srcset:
+            for elemento in srcset.split(","):
+                el = elemento.strip()
+                if el:
+                    candidatos.append(el.split()[0])
+
+    for elemento in soup.find_all(style=True):
+        encontrados = re.findall(r'url\(["\']?([^"\')]+)', elemento.get("style", ""), re.IGNORECASE)
+        candidatos.extend(encontrados)
+
+    for script in soup.find_all("script"):
+        texto = script.get_text()
+        if not texto:
+            continue
+        urls = re.findall(r'https?://[^"\'<>\s\\]+', texto)
+        candidatos.extend(urls)
+        relativas = re.findall(r'["\']([^"\']+\.(?:jpg|jpeg|png|webp|avif)(?:\?[^"\']*)?)["\']', texto, re.IGNORECASE)
+        candidatos.extend(relativas)
+
+    resultado = []
+    vistos = set()
+    for cand in candidatos:
+        cand = cand.strip()
+        if not cand:
+            continue
+        url = limpiar_url(cand)
+        if not url or not es_imagen(url):
+            continue
+        url = url.split("#")[0]
+        if url not in vistos:
+            vistos.add(url)
+            resultado.append(url)
+    return resultado
+
+
+# ============================================================
+# ELEGIR IMAGEN PRINCIPAL
+# ============================================================
+
+def puntuacion(url, nombre, slug):
+    texto = unquote(url.lower())
+    nombre_norm = re.sub(r"[^a-z0-9]", "", nombre.lower())
+    slug_norm = re.sub(r"[^a-z0-9]", "", slug.lower())
+    texto_norm = re.sub(r"[^a-z0-9]", "", texto)
+
+    puntos = 0
+    if nombre_norm and nombre_norm in texto_norm:
+        puntos += 100
+    if slug_norm and slug_norm in texto_norm:
+        puntos += 100
+
+    if "splash" in texto:
+        puntos += 90
+    if "portrait" in texto:
+        puntos += 80
+    if "champion" in texto:
+        puntos += 50
+    if "tile" in texto:
+        puntos += 40
+    if "loading" in texto:
+        puntos += 30
+
+    if "icon" in texto:
+        puntos -= 80
+    if "spell" in texto or "ability" in texto or "passive" in texto:
+        puntos -= 100
+    if "logo" in texto or "favicon" in texto:
+        puntos -= 150
+
+    return puntos
+
+
+def elegir_imagen(urls, nombre, slug):
+    if not urls:
+        return None
+    return sorted(urls, key=lambda x: puntuacion(x, nombre, slug), reverse=True)[0]
+
+
+def guardar_imagen(nombre, url):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    nombre = nombre_seguro(nombre)
+    extension = extension_imagen(url)
+    archivo = os.path.join(OUTPUT_DIR, nombre + extension)
+
+    if os.path.exists(archivo):
+        return archivo
+
+    try:
+        respuesta = session.get(url, timeout=60, stream=True)
+        respuesta.raise_for_status()
+        with open(archivo, "wb") as f:
+            for bloque in respuesta.iter_content(chunk_size=65536):
+                if bloque:
+                    f.write(bloque)
+        if os.path.getsize(archivo) == 0:
+            os.remove(archivo)
+            return None
+        return archivo
+    except Exception as e:
+        if os.path.exists(archivo):
+            try:
+                os.remove(archivo)
+            except:
+                pass
+        return None
+
+if __name__ == "__main__":
+    main()
+""".trimIndent()
+
+    val bestBuildPythonCode = """
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -455,8 +874,7 @@ CHAMPIONS_URL = "https://bestbuildwr.com/champions"
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Linux; Android 13; Mobile) "
-        "AppleWebKit/537.36 "
-        "(KHTML, like Gecko) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/130.0.0.0 Mobile Safari/537.36"
     )
 }
@@ -466,317 +884,60 @@ session.headers.update(HEADERS)
 
 
 def descargar(url):
-
     try:
-        respuesta = session.get(
-            url,
-            timeout=30
-        )
-
+        respuesta = session.get(url, timeout=30)
         respuesta.raise_for_status()
-
         return respuesta.text
-
     except Exception as e:
-
-        print(f"[ERROR] {url}")
-        print(e)
-
+        print(f"[ERROR] {url}: {e}")
         return None
 
 
 def obtener_campeones():
-
     print("Obteniendo campeones...")
-
     html = descargar(CHAMPIONS_URL)
-
     if not html:
         return []
 
-    soup = BeautifulSoup(
-        html,
-        "html.parser"
-    )
-
+    soup = BeautifulSoup(html, "html.parser")
     campeones = {}
 
-    for enlace in soup.find_all(
-        "a",
-        href=True
-    ):
-
+    for enlace in soup.find_all("a", href=True):
         href = enlace["href"]
-
-        url = urljoin(
-            BASE_URL,
-            href
-        )
-
-        # Solo URLs de campeones
+        url = urljoin(BASE_URL, href)
         if "/champions/" not in url:
             continue
-
-        # Evitar subrutas
         parte = url.split("/champions/")[-1]
-
         if "/" in parte:
             continue
 
-        nombre = enlace.get_text(
-            " ",
-            strip=True
-        )
-
+        nombre = enlace.get_text(" ", strip=True)
         if not nombre:
-            nombre = parte.replace(
-                "-",
-                " "
-            ).title()
+            nombre = parte.replace("-", " ").title()
 
         campeones[url] = {
             "nombre": nombre,
             "url": url
         }
 
-    return list(
-        campeones.values()
-    )
-
-
-def obtener_builds(campeon):
-
-    print()
-    print("=" * 60)
-    print(
-        f"CAMPEÓN: {campeon['nombre']}"
-    )
-    print(
-        campeon["url"]
-    )
-
-    html = descargar(
-        campeon["url"]
-    )
-
-    if not html:
-        return []
-
-    soup = BeautifulSoup(
-        html,
-        "html.parser"
-    )
-
-    builds = {}
-
-    # 1. Extraer de __NEXT_DATA__ (Next.js SPA data)
-    next_data = soup.find("script", id="__NEXT_DATA__")
-    if next_data and next_data.string:
-        try:
-            data = json.loads(next_data.string)
-            c_props = data.get("props", {}).get("pageProps", {}).get("champion", {})
-            builds_list = c_props.get("builds", [])
-            for b in builds_list:
-                b_path = b.get("path") or f"/builds/{b.get('id')}-{b.get('slug')}"
-                b_url = urljoin(BASE_URL, b_path)
-                b_name = b.get("name") or "Build General"
-                builds[b_url] = {
-                    "champion": campeon["nombre"],
-                    "build_url": b_url,
-                    "build_name": b_name
-                }
-        except Exception:
-            pass
-
-    # 2. Buscar enlaces <a> en HTML
-    for enlace in soup.find_all(
-        "a",
-        href=True
-    ):
-
-        href = enlace["href"]
-
-        url = urljoin(
-            BASE_URL,
-            href
-        )
-
-        # Solo queremos: https://bestbuildwr.com/builds/...
-        if not url.startswith(
-            BASE_URL + "/builds/"
-        ):
-            continue
-
-        # Evitar duplicados
-        if url in builds:
-            continue
-
-        nombre = enlace.get_text(
-            " ",
-            strip=True
-        )
-
-        builds[url] = {
-            "champion": campeon["nombre"],
-            "build_url": url,
-            "build_name": nombre if nombre else "Build General"
-        }
-
-    resultado = list(
-        builds.values()
-    )
-
-    print(
-        f"Builds encontradas: "
-        f"{len(resultado)}"
-    )
-
-    for build in resultado:
-
-        print(
-            build["build_url"]
-        )
-
-    return resultado
+    return list(campeones.values())
 
 
 def main():
-
-    print()
-    print("=" * 60)
-    print("BESTBUILDWR SCRAPER")
-    print("=" * 60)
-    print()
-
     campeones = obtener_campeones()
-
-    print(
-        f"\nCampeones encontrados: "
-        f"{len(campeones)}"
-    )
-
-    todas_las_builds = []
-
-    for numero, campeon in enumerate(
-        campeones,
-        start=1
-    ):
-
-        print(
-            f"\n[{numero}/{len(campeones)}]"
-        )
-
-        builds = obtener_builds(
-            campeon
-        )
-
-        todas_las_builds.extend(
-            builds
-        )
-
-        # Pausa para no realizar
-        # demasiadas peticiones seguidas
-        time.sleep(1)
-
-    # Eliminar duplicados
-    unicas = {}
-
-    for build in todas_las_builds:
-
-        unicas[
-            build["build_url"]
-        ] = build
-
-    todas_las_builds = list(
-        unicas.values()
-    )
-
-    print()
-    print("=" * 60)
-    print("RESULTADO")
-    print("=" * 60)
-
-    print(
-        f"Total de builds: "
-        f"{len(todas_las_builds)}"
-    )
-
-    # ------------------------------------------------
-    # JSON
-    # ------------------------------------------------
-
-    with open(
-        "bestbuildwr_builds.json",
-        "w",
-        encoding="utf-8"
-    ) as archivo:
-
-        json.dump(
-            todas_las_builds,
-            archivo,
-            ensure_ascii=False,
-            indent=2
-        )
-
-    # ------------------------------------------------
-    # CSV
-    # ------------------------------------------------
-
-    with open(
-        "bestbuildwr_builds.csv",
-        "w",
-        encoding="utf-8-sig",
-        newline=""
-    ) as archivo:
-
-        escritor = csv.DictWriter(
-            archivo,
-            fieldnames=[
-                "champion",
-                "build_name",
-                "build_url"
-            ]
-        )
-
-        escritor.writeheader()
-
-        escritor.writerows(
-            todas_las_builds
-        )
-
-    # ------------------------------------------------
-    # TXT
-    # ------------------------------------------------
-
-    with open(
-        "bestbuildwr_builds.txt",
-        "w",
-        encoding="utf-8"
-    ) as archivo:
-
-        for build in todas_las_builds:
-
-            archivo.write(
-                f"{build['champion']} | "
-                f"{build['build_url']}\n"
-            )
-
-    print()
-    print("Archivos creados:")
-    print(
-        "  bestbuildwr_builds.json"
-    )
-    print(
-        "  bestbuildwr_builds.csv"
-    )
-    print(
-        "  bestbuildwr_builds.txt"
-    )
+    print(f"Campeones encontrados: {len(campeones)}")
 
 
 if __name__ == "__main__":
     main()
 """.trimIndent()
+
+    val currentCode = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) officialPythonCode else bestBuildPythonCode
+    val titleText = if (selectedSource == ScraperSource.WILD_RIFT_OFFICIAL) {
+        "🐍 Script Python (Wild Rift Oficial Images Scraper)"
+    } else {
+        "🐍 Script Python (BestBuildWR Pro Scraper)"
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -785,7 +946,7 @@ if __name__ == "__main__":
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.88f)
                 .clip(RoundedCornerShape(14.dp))
                 .border(1.2.dp, HextechCyan, RoundedCornerShape(14.dp)),
             colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
@@ -801,9 +962,9 @@ if __name__ == "__main__":
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "🐍 Script Python (Meta Pro Crawler)",
+                        text = titleText,
                         color = HextechCyan,
-                        fontSize = 14.sp,
+                        fontSize = 13.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                     IconButton(onClick = onDismiss, modifier = Modifier.size(30.dp)) {
@@ -825,7 +986,7 @@ if __name__ == "__main__":
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         item {
                             Text(
-                                text = pythonCode,
+                                text = currentCode,
                                 color = HextechGreen,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -839,8 +1000,8 @@ if __name__ == "__main__":
 
                 Button(
                     onClick = {
-                        clipboard.setText(AnnotatedString(pythonCode))
-                        Toast.makeText(context, "Código copiado", Toast.LENGTH_SHORT).show()
+                        clipboard.setText(AnnotatedString(currentCode))
+                        Toast.makeText(context, "Código copiado al portapapeles", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),

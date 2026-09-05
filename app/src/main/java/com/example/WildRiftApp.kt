@@ -52,10 +52,14 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             val isGmsBrokerSecurityException = exception is SecurityException &&
                     (exception.message?.contains("com.google.android.gms") == true ||
                      exception.message?.contains("Unknown calling package") == true)
-            if (!isGmsBrokerSecurityException) {
+            val isCaptureThreadException = (thread.name.contains("ScreenCapture") ||
+                    thread.name.contains("ImageReader") ||
+                    exception.message?.contains("Buffer") == true ||
+                    exception.message?.contains("VirtualDisplay") == true)
+            if (!isGmsBrokerSecurityException && !isCaptureThreadException) {
                 defaultExceptionHandler?.uncaughtException(thread, exception)
             } else {
-                AppLogger.w("APP", "Suppressed non-fatal GMS broker security exception in background thread")
+                AppLogger.w("APP", "Suppressed non-fatal exception in background thread: ${exception.message}")
             }
         }
 

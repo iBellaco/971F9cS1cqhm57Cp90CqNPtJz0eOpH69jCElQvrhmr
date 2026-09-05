@@ -288,7 +288,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             }
             ScreenCaptureManager.pendingMediaProjectionData = null
         }
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -299,6 +299,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         store.clear()
 
         removeFloatingOverlay()
+        try {
+            screenCaptureManager?.release()
+            screenCaptureManager = null
+        } catch (_: Exception) {}
     }
 
     private fun createNotificationChannel() {
@@ -348,6 +352,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     }
 
     private fun createFloatingOverlay() {
+        removeFloatingOverlay()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
         val displayMetrics = resources.displayMetrics
@@ -731,7 +736,6 @@ private fun FloatingOverlayContent(
     var isScanning by remember { mutableStateOf(false) }
     var autoScanEnabled by remember { mutableStateOf(false) }
     var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
-    var lastManualRoleChangeTime by remember { mutableStateOf(0L) }
 
     var isDraggingBubble by remember { mutableStateOf(false) }
     var dragAccumulatedY by remember { mutableFloatStateOf(0f) }
@@ -781,8 +785,6 @@ private fun FloatingOverlayContent(
                                         assignAllySlot(idx, scannedAlly)
                                         newAlliesAdded++
                                     }
-                                } else if (allies[idx] != null && result.detectedRole == role && allies.filterNotNull().size >= 2) {
-                                    allies[idx] = null
                                 }
                                 val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null && enemies[idx]?.id != scannedEnemy.id) {
@@ -838,8 +840,6 @@ private fun FloatingOverlayContent(
                             val scannedAlly = result.alliesByRole[role]
                             if (scannedAlly != null) {
                                 assignAllySlot(idx, scannedAlly)
-                            } else if (result.detectedRole == role) {
-                                allies[idx] = null
                             }
                             val scannedEnemy = result.enemiesByRole[role]
                             if (scannedEnemy != null) {
@@ -1372,7 +1372,6 @@ private fun FloatingOverlayContent(
                                             activeRole = activeRole,
                                             onActiveRoleChange = { 
                                                 activeRole = it 
-                                                lastManualRoleChangeTime = System.currentTimeMillis()
                                                 com.example.util.UserPreferences.setActiveDraftRole(context, it)
                                             },
                                             isFirstPick = isFirstPick,
