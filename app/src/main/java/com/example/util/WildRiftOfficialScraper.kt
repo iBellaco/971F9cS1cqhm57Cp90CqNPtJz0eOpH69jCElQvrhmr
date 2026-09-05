@@ -366,12 +366,12 @@ object WildRiftOfficialScraper {
 
         var puntos = 0
 
-        // Prioridad máxima: Imágenes oficiales de Wild Rift por resolución
-        if (texto.contains("1280x720") || texto.contains("1920x1080") || texto.contains("1600x900")) {
-            puntos += 600 // Splash Art HD de Wild Rift
-        }
+        // Prioridad máxima: Card Portrait oficial (285x323) del catálogo de Wild Rift
         if (texto.contains("285x323") || texto.contains("285x328")) {
-            puntos += 400 // Card Portrait oficial
+            puntos += 1000 // Card Portrait oficial solicitado por el usuario
+        }
+        if (texto.contains("1280x720") || texto.contains("1920x1080") || texto.contains("1600x900")) {
+            puntos += 300 // Splash Art HD secundario
         }
         if (texto.contains("game_data") || texto.contains("game_data_live")) {
             puntos += 150 // Assets de juego oficial vs noticias/artículos
@@ -414,10 +414,11 @@ object WildRiftOfficialScraper {
 
     /**
      * Extrae con precisión milimétrica la imagen oficial del campeón:
-     * 1. Prioriza el Splash Art oficial 1280x720 de landingMediaCarousel en __NEXT_DATA__
-     * 2. Si no, busca cualquier Splash Art oficial 1280x720 en el JSON de Next.js
-     * 3. Fallback al Card Portrait oficial (285x323) del catálogo de campeones
-     * 4. Si aún no hay, examina candidatos válidos descartando iconos y metadatos
+     * 1. PRIORIDAD MÁXIMA: Card Portrait oficial (285x323) del catálogo de campeones
+     *    (formato exacto solicitado: https://cmsassets.rgpub.io/sanity/images/...-285x323.jpg)
+     * 2. Si no viene en el catálogo, busca cualquier imagen 285x323 en __NEXT_DATA__ de la página
+     * 3. Splash Art oficial 1280x720 de landingMediaCarousel en __NEXT_DATA__
+     * 4. Si aún no hay, examina candidatos válidos descartando iconos y banners
      */
     fun extraerMejorImagenDeCampeon(
         html: String,
@@ -425,11 +426,26 @@ object WildRiftOfficialScraper {
         slug: String,
         fallbackCardUrl: String?
     ): String? {
+        // 1. PRIORIDAD ABSOLUTA: El Card Portrait 285x323 oficial del catálogo de Wild Rift
+        if (!fallbackCardUrl.isNullOrBlank() && !esBannerInvalido(fallbackCardUrl)) {
+            return fallbackCardUrl
+        }
+
         try {
             val nextDataPattern = Pattern.compile("<script id=\"__NEXT_DATA__\"[^>]*>(.*?)</script>", Pattern.DOTALL)
             val matcher = nextDataPattern.matcher(html)
             if (matcher.find()) {
                 val jsonStr = matcher.group(1)
+
+                // 2. Buscar si hay una variante 285x323 en la página
+                val cardMatcher = Pattern.compile("https?://cmsassets\\.rgpub\\.io/sanity/images/[^\"'<>\\s\\\\]+285x32[0-9]\\.(?:jpg|jpeg|png|webp)[^\"'<>\\s\\\\]*", Pattern.CASE_INSENSITIVE).matcher(jsonStr)
+                if (cardMatcher.find()) {
+                    val candidateCard = cardMatcher.group(0)
+                    if (!esBannerInvalido(candidateCard)) {
+                        return candidateCard
+                    }
+                }
+
                 val root = JSONObject(jsonStr)
                 val blades = root.optJSONObject("props")
                     ?.optJSONObject("pageProps")
@@ -437,7 +453,7 @@ object WildRiftOfficialScraper {
                     ?.optJSONArray("blades")
 
                 if (blades != null) {
-                    // 1. Buscar landingMediaCarousel: el primer grupo contiene el Splash Art base HD 1280x720
+                    // 3. Buscar landingMediaCarousel: Splash Art 1280x720
                     for (i in 0 until blades.length()) {
                         val blade = blades.optJSONObject(i) ?: continue
                         if (blade.optString("type") == "landingMediaCarousel") {
@@ -454,7 +470,7 @@ object WildRiftOfficialScraper {
                         }
                     }
 
-                    // 2. Buscar cualquier imagen 1280x720 en el JSON
+                    // 4. Buscar cualquier imagen 1280x720 en el JSON
                     val splashMatcher = Pattern.compile("https?://cmsassets\\.rgpub\\.io/sanity/images/[^\"'<>\\s\\\\]+1280x720\\.(?:jpg|jpeg|png|webp)", Pattern.CASE_INSENSITIVE).matcher(jsonStr)
                     if (splashMatcher.find()) {
                         val candidate = splashMatcher.group(0)
@@ -468,12 +484,7 @@ object WildRiftOfficialScraper {
             e.printStackTrace()
         }
 
-        // 3. Fallback prioritario al Card Portrait 285x323 del catálogo de Wild Rift
-        if (!fallbackCardUrl.isNullOrBlank() && !esBannerInvalido(fallbackCardUrl)) {
-            return fallbackCardUrl
-        }
-
-        // 4. Extracción general con filtro estricto
+        // 5. Extracción general con filtro estricto
         val urls = extraerImagenes(html)
         val elegida = elegirImagen(urls, nombre, slug)
         if (elegida != null && puntuacion(elegida, nombre, slug) > 0 && !esBannerInvalido(elegida)) {
@@ -501,19 +512,20 @@ object WildRiftOfficialScraper {
                 outputFolder.mkdirs()
             }
 
-            // LIMPIEZA ACTIVA DE ARCHIVOS CORRUPTOS PREVIOS:
-            // Elimina archivos erróneos de ejecuciones anteriores (banner/icono genérico de ~22.34 kB o thumbnails)
-            val posiblesArchivosCorruptos = listOf(
+            // LIMPIEZA ACTIVA:
+            // Elimina banners/iconos corruptos (< 3 KB como el thumbnail de 128x128)
+            // o Splash arts horizontales anteriores si estamos descargando el nuevo retrato oficial
+            val posiblesArchivos = listOf(
                 File(outputFolder, "$seguro.png"),
                 File(outputFolder, "$seguro.jpg"),
                 File(outputFolder, "$seguro.jpeg"),
                 File(outputFolder, "$seguro.webp")
             )
-            for (f in posiblesArchivosCorruptos) {
+            for (f in posiblesArchivos) {
                 if (f.exists()) {
                     val len = f.length()
-                    // Si mide menos de 28 KB o es un thumbnail erróneo, borrarlo para descargar el arte HD
-                    if (len < 28000L || (f.name.endsWith(".png") && extension != ".png" && len < 35000L)) {
+                    // Si mide menos de 4 KB (es un thumbnail/logo 128x128 corrupto) o si tiene extensión discordante
+                    if (len < 4000L || (f.name.endsWith(".png") && extension != ".png")) {
                         try {
                             f.delete()
                         } catch (_: Exception) {}
@@ -522,8 +534,8 @@ object WildRiftOfficialScraper {
             }
 
             val localTargetFile = File(outputFolder, fileName)
-            if (localTargetFile.exists() && localTargetFile.length() > 28000L) {
-                // Ya existe y es una imagen legítima (> 28KB)
+            if (localTargetFile.exists() && localTargetFile.length() > 5000L) {
+                // Ya existe y es una imagen válida (> 5 KB)
                 return localTargetFile.absolutePath
             }
 

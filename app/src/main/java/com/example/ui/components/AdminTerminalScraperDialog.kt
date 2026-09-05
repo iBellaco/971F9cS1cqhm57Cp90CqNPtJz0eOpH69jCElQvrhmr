@@ -807,11 +807,11 @@ def puntuacion(url, nombre, slug):
     texto_norm = re.sub(r"[^a-z0-9]", "", texto)
 
     puntos = 0
-    # Bonus prioritario por resolución de imagen oficial
-    if "1280x720" in texto or "1920x1080" in texto:
-        puntos += 600
-    if "285x323" in texto:
-        puntos += 400
+    # Bonus prioritario: Card Portrait oficial (285x323)
+    if "285x323" in texto or "285x328" in texto:
+        puntos += 1000
+    if "1280x720" in texto or "1920x1080" in texto or "1600x900" in texto:
+        puntos += 300
     if "game_data" in texto:
         puntos += 150
 
@@ -857,10 +857,20 @@ def elegir_imagen(urls, nombre, slug):
 
 
 def extraer_mejor_imagen(html, nombre, slug, fallback_card):
-    # 1. Extraer Splash Art HD 1280x720 de landingMediaCarousel en __NEXT_DATA__
+    # 1. PRIORIDAD MÁXIMA: Card Portrait oficial (285x323) del catálogo
+    if fallback_card and not es_banner_invalido(fallback_card):
+        return fallback_card
+
+    # 2. Buscar 285x323 en el JSON de Next.js
     try:
         match_next = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
         if match_next:
+            card_match = re.search(r'https?://cmsassets\.rgpub\.io/sanity/images/[^"\'<>\s\\]+285x32[0-9]\.(?:jpg|jpeg|png|webp)[^"\'<>\s\\]*', match_next.group(1), re.IGNORECASE)
+            if card_match:
+                url = card_match.group(0)
+                if not es_banner_invalido(url):
+                    return url
+
             data = json.loads(match_next.group(1))
             blades = data.get("props", {}).get("pageProps", {}).get("page", {}).get("blades", [])
             for blade in blades:
@@ -880,10 +890,6 @@ def extraer_mejor_imagen(html, nombre, slug, fallback_card):
     except Exception:
         pass
 
-    # 2. Fallback prioritario al Card Portrait 285x323 oficial del catálogo
-    if fallback_card and not es_banner_invalido(fallback_card):
-        return fallback_card
-
     # 3. Elegir según scoring descartando iconos/metadatos
     candidatos = extraer_imagenes(html)
     elegida = elegir_imagen(candidatos, nombre, slug)
@@ -899,18 +905,18 @@ def guardar_imagen(nombre, url):
     extension = extension_imagen(url)
     archivo = os.path.join(OUTPUT_DIR, nombre + extension)
 
-    # Limpiar posibles archivos corruptos anteriores (banners/thumbnails < 28 kB)
+    # Limpiar posibles archivos residuales corruptos (< 4 kB como thumbnails 128x128)
     for ext in (".png", ".jpg", ".jpeg", ".webp"):
         posible = os.path.join(OUTPUT_DIR, nombre + ext)
         if os.path.exists(posible):
             tam = os.path.getsize(posible)
-            if tam < 28000 or (ext == ".png" and extension != ".png" and tam < 35000):
+            if tam < 4000 or (ext == ".png" and extension != ".png"):
                 try:
                     os.remove(posible)
                 except Exception:
                     pass
 
-    if os.path.exists(archivo) and os.path.getsize(archivo) > 28000:
+    if os.path.exists(archivo) and os.path.getsize(archivo) > 5000:
         return archivo
 
     try:
