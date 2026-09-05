@@ -223,8 +223,12 @@ object DraftVisionScanner {
             val enemySlotTexts = Array(5) { mutableListOf<String>() }
             val enemySlotEmpty = BooleanArray(5)
 
-            // 1. Procesamiento OCR exclusivo por columnas laterales delimitadas
-            // Excluir zona central de selección de campeones (0.28 a 0.70) para evitar falsos positivos
+            val detectedAllyChamps = mutableListOf<Pair<Champion, Float>>()
+            val detectedAllyRoles = mutableListOf<Pair<LaneRole, Float>>()
+            
+            val detectedEnemyChamps = mutableListOf<Pair<Champion, Float>>()
+            val detectedEnemyRoles = mutableListOf<Pair<LaneRole, Float>>()
+
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val lineText = line.text.trim()
@@ -234,139 +238,88 @@ object DraftVisionScanner {
                     val box = line.boundingBox
                     val centerX = box?.centerX() ?: 0
                     val centerY = box?.centerY() ?: 0
-
                     val xRatio = centerX.toFloat() / ocrWidth.toFloat()
                     val yRatio = centerY.toFloat() / ocrHeight.toFloat()
 
-                    // Descartar barra superior extrema (bans < 7%) y barra inferior (> 89%)
-                    if (yRatio < 0.07f || yRatio > 0.89f) {
-                        continue
-                    }
+                    if (yRatio < 0.07f || yRatio > 0.89f) continue
 
-                    // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
-                    // Acotado estrictamente entre 6% y 33% del ancho de pantalla
+                    val lower = lineText.lowercase(java.util.Locale.ROOT)
+
                     if (xRatio in 0.06f..0.33f) {
-                        val slotIdx = when {
-                            yRatio < 0.255f -> 0
-                            yRatio < 0.395f -> 1
-                            yRatio < 0.535f -> 2
-                            yRatio < 0.675f -> 3
-                            else -> 4
+                        val bucket = (yRatio * 5).toInt().coerceIn(0, 4)
+                        allySlotTexts[bucket].add(lineText)
+
+                        val role = when {
+                            lower.contains("central") || lower.contains("mid") || lower.contains("medio") -> LaneRole.MID
+                            lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top") -> LaneRole.TOP
+                            lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva") -> LaneRole.JUNGLE
+                            lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador") -> LaneRole.ADC
+                            lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte") -> LaneRole.SUPPORT
+                            else -> null
                         }
+                        if (role != null) detectedAllyRoles.add(role to yRatio)
 
-                        if (slotIdx in 0 until 5) {
-                            allySlotTexts[slotIdx].add(lineText)
-                            val lower = lineText.lowercase(Locale.ROOT)
-
-                            // Detección de Rol/Línea por texto en la ranura
-                            if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
-                                allySlotRoles[slotIdx] = LaneRole.MID
-                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                allySlotRoles[slotIdx] = LaneRole.TOP
-                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva")) {
-                                allySlotRoles[slotIdx] = LaneRole.JUNGLE
-                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                allySlotRoles[slotIdx] = LaneRole.ADC
-                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte")) {
-                                allySlotRoles[slotIdx] = LaneRole.SUPPORT
+                        val matchedDirect = matchChampions(lineText, allChamps)
+                        val candidate = matchedDirect.firstOrNull() ?: run {
+                            val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                            words.firstNotNullOfOrNull { w ->
+                                if (!ignoredWords.contains(w.lowercase(java.util.Locale.ROOT))) {
+                                    matchChampions(w, allChamps).firstOrNull()
+                                } else null
                             }
-
-                            // Detección de Campeón Aliado por nombre explícito
-                            if (allySlots[slotIdx] == null) {
-                                val matchedDirect = matchChampions(lineText, allChamps)
-                                val candidate = matchedDirect.firstOrNull() ?: run {
-                                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
-                                    words.firstNotNullOfOrNull { w ->
-                                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
-                                            matchChampions(w, allChamps).firstOrNull()
-                                        } else null
-                                    }
-                                }
-                                if (candidate != null) {
-                                    if (allySlots.none { it?.id == candidate.id }) {
-                                        allySlots[slotIdx] = candidate
-                                        AppLogger.d(TAG, "Aliado detectado por OCR en slot $slotIdx: ${candidate.name}")
-                                    }
-                                }
-                            }
+                        }
+                        if (candidate != null && detectedAllyChamps.none { it.first.id == candidate.id }) {
+                            detectedAllyChamps.add(candidate to yRatio)
                         }
                     }
-
-                    // --- COLUMNA DERECHA: EQUIPO ENEMIGO ---
-                    // Acotado estrictamente entre 67% y 94% del ancho de pantalla
                     else if (xRatio in 0.67f..0.94f) {
-                        val slotIdx = when {
-                            yRatio < 0.255f -> 0
-                            yRatio < 0.395f -> 1
-                            yRatio < 0.535f -> 2
-                            yRatio < 0.675f -> 3
-                            else -> 4
+                        val bucket = (yRatio * 5).toInt().coerceIn(0, 4)
+                        enemySlotTexts[bucket].add(lineText)
+
+                        if (lower.contains("jugador") || lower.contains("player")) continue
+
+                        val role = when {
+                            lower.contains("central") || lower.contains("mid") || lower.contains("medio") -> LaneRole.MID
+                            lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top") -> LaneRole.TOP
+                            lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva") -> LaneRole.JUNGLE
+                            lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador") -> LaneRole.ADC
+                            lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte") -> LaneRole.SUPPORT
+                            else -> null
                         }
+                        if (role != null) detectedEnemyRoles.add(role to yRatio)
 
-                        if (slotIdx in 0 until 5) {
-                            enemySlotTexts[slotIdx].add(lineText)
-                            val lower = lineText.lowercase(Locale.ROOT)
-
-                            // Si dice "Jugador 1/2/3/4/5" o "Player", ignorar la línea (nombre genérico) y continuar buscando el campeón
-                            if (lower.contains("jugador") || lower.contains("player")) {
-                                continue
+                        val matchedDirect = matchChampions(lineText, allChamps)
+                        val candidate = matchedDirect.firstOrNull() ?: run {
+                            val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
+                            words.firstNotNullOfOrNull { w ->
+                                if (!ignoredWords.contains(w.lowercase(java.util.Locale.ROOT))) {
+                                    matchChampions(w, allChamps).firstOrNull()
+                                } else null
                             }
-
-                            // Detección de Rol/Línea enemigo si aparece
-                            if (lower.contains("central") || lower.contains("mid") || lower.contains("medio")) {
-                                enemySlotRoles[slotIdx] = LaneRole.MID
-                            } else if (lower.contains("baron") || lower.contains("barón") || lower.contains("bar0n") || lower.contains("solo") || lower.contains("superior") || lower.contains("top")) {
-                                enemySlotRoles[slotIdx] = LaneRole.TOP
-                            } else if (lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva")) {
-                                enemySlotRoles[slotIdx] = LaneRole.JUNGLE
-                            } else if (lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("drag0n") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador")) {
-                                enemySlotRoles[slotIdx] = LaneRole.ADC
-                            } else if (lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") || lower.contains("suporte")) {
-                                enemySlotRoles[slotIdx] = LaneRole.SUPPORT
-                            }
-
-                            // Detección de Campeón Enemigo por nombre explícito
-                            if (enemySlots[slotIdx] == null && !enemySlotEmpty[slotIdx]) {
-                                val matchedDirect = matchChampions(lineText, allChamps)
-                                val candidate = matchedDirect.firstOrNull() ?: run {
-                                    val words = lineText.split(Regex("[\\s,.:/()_-]+")).filter { it.isNotBlank() }
-                                    words.firstNotNullOfOrNull { w ->
-                                        if (!ignoredWords.contains(w.lowercase(Locale.ROOT))) {
-                                            matchChampions(w, allChamps).firstOrNull()
-                                        } else null
-                                    }
-                                }
-                                if (candidate != null) {
-                                    if (enemySlots.none { it?.id == candidate.id } && allySlots.none { it?.id == candidate.id }) {
-                                        enemySlots[slotIdx] = candidate
-                                        AppLogger.d(TAG, "Enemigo detectado por OCR en slot $slotIdx: ${candidate.name}")
-                                    }
-                                }
-                            }
+                        }
+                        if (candidate != null && detectedEnemyChamps.none { it.first.id == candidate.id } && detectedAllyChamps.none { it.first.id == candidate.id }) {
+                            detectedEnemyChamps.add(candidate to yRatio)
                         }
                     }
                 }
             }
 
-            // 1.5. DEDUPLICACIÓN GLOBAL: Asegurar unicidad total en las ranuras detectadas
-            val seenSlotChampionIds = mutableSetOf<String>()
-            for (i in 0 until 5) {
-                val champ = allySlots[i] ?: continue
-                if (seenSlotChampionIds.contains(champ.id)) {
-                    AppLogger.w(TAG, "Eliminando duplicado aliado de ${champ.name} en slot $i")
-                    allySlots[i] = null
-                } else {
-                    seenSlotChampionIds.add(champ.id)
-                }
+            detectedAllyChamps.sortBy { it.second }
+            detectedEnemyChamps.sortBy { it.second }
+            detectedAllyRoles.sortBy { it.second }
+            detectedEnemyRoles.sortBy { it.second }
+
+            detectedAllyChamps.forEachIndexed { index, pair -> 
+                if (index < 5) allySlots[index] = pair.first 
             }
-            for (i in 0 until 5) {
-                val champ = enemySlots[i] ?: continue
-                if (seenSlotChampionIds.contains(champ.id)) {
-                    AppLogger.w(TAG, "Eliminando duplicado enemigo de ${champ.name} en slot $i (ya existe en la draft)")
-                    enemySlots[i] = null
-                } else {
-                    seenSlotChampionIds.add(champ.id)
-                }
+            detectedEnemyChamps.forEachIndexed { index, pair -> 
+                if (index < 5) enemySlots[index] = pair.first 
+            }
+            detectedAllyRoles.forEachIndexed { index, pair -> 
+                if (index < 5) allySlotRoles[index] = pair.first 
+            }
+            detectedEnemyRoles.forEachIndexed { index, pair -> 
+                if (index < 5) enemySlotRoles[index] = pair.first 
             }
 
             // 2. Detección Multi-Señal de la ranura del jugador local ("Tú / Yo voy")
@@ -511,13 +464,13 @@ object DraftVisionScanner {
             }
 
             // ASIGNACIÓN ÓPTIMA DE ENEMIGOS: Asignar según sus roles naturales sin colisiones
-            val detectedEnemyChamps = enemySlots.filterNotNull()
+            val finalEnemyChamps = enemySlots.filterNotNull()
             val availableEnemyRoles = standardOrder.toMutableList()
 
             // Asignar primero campeones con rol primario unívoco
-            for (champ in detectedEnemyChamps) {
+            for (champ in finalEnemyChamps) {
                 if (availableEnemyRoles.contains(champ.primaryRole) && !enemiesByRole.containsValue(champ)) {
-                    val roleMatches = detectedEnemyChamps.count { it.primaryRole == champ.primaryRole }
+                    val roleMatches = finalEnemyChamps.count { it.primaryRole == champ.primaryRole }
                     if (roleMatches == 1) {
                         enemiesByRole[champ.primaryRole] = champ
                         availableEnemyRoles.remove(champ.primaryRole)
@@ -526,7 +479,7 @@ object DraftVisionScanner {
             }
 
             // Asignar el resto por rol primario / secundario disponible
-            for (champ in detectedEnemyChamps) {
+            for (champ in finalEnemyChamps) {
                 if (!enemiesByRole.containsValue(champ)) {
                     val assignedRole = if (availableEnemyRoles.contains(champ.primaryRole)) {
                         champ.primaryRole

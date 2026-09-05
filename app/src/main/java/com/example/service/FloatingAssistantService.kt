@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -189,6 +190,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     private var windowManager: WindowManager? = null
     private var floatingComposeView: ComposeView? = null
+    
+    // Estado para la orientación de la pantalla real
+    private val isDeviceLandscape = androidx.compose.runtime.mutableStateOf(false)
     private var closeTargetComposeView: ComposeView? = null
     private var floatingParams: WindowManager.LayoutParams? = null
     private var isOverlayExpanded: Boolean = false
@@ -360,8 +364,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         val screenHeight = displayMetrics.heightPixels
         val density = displayMetrics.density
         val marginPx = (8 * density).toInt()
-        val cardWidthPx = (330 * density).toInt()
-        val cardHeightPx = (520 * density).toInt()
+        
+        val isLandscape = displayMetrics.widthPixels > displayMetrics.heightPixels
+        val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
+        val cardHeightPx = ((if (isLandscape) 360 else 520) * density).toInt()
         var bubbleSizePx = (46 * density).toInt() // local
 
         isOverlayExpanded = false
@@ -443,6 +449,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 androidx.compose.runtime.CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
                     MyApplicationTheme {
                         FloatingOverlayContent(
+                            isLandscapeMode = isDeviceLandscape.value,
                             screenCaptureManager = screenCaptureManager,
                             onClose = { stopSelf() },
                             onDragDelta = { dx, dy, isDragging, isEnded ->
@@ -586,6 +593,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
                 lastScreenWidth = metrics.widthPixels
                 lastScreenHeight = metrics.heightPixels
+                isDeviceLandscape.value = lastScreenWidth > lastScreenHeight
                 screenCaptureManager?.refreshProjection()
             }
             
@@ -597,8 +605,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 val density = metrics.density
                 val marginPx = (8 * density).toInt()
                 val currentBubblePx = ((if (isCompactBubbleMode) 36f else 46f) * density).toInt()
-                val cardWidthPx = (330 * density).toInt()
-                val cardHeightPx = (520 * density).toInt()
+                val isLandscape = metrics.widthPixels > metrics.heightPixels
+                val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
+                val cardHeightPx = ((if (isLandscape) 360 else 520) * density).toInt()
 
                 val viewWidth = if (isOverlayExpanded) cardWidthPx else currentBubblePx
                 val viewHeight = if (isOverlayExpanded) cardHeightPx else currentBubblePx
@@ -689,6 +698,7 @@ private fun FloatingCloseTarget(
 
 @Composable
 private fun FloatingOverlayContent(
+    isLandscapeMode: Boolean,
     screenCaptureManager: ScreenCaptureManager?,
     onClose: () -> Unit,
     onDragDelta: (dx: Int, dy: Int, isDragging: Boolean, isEnded: Boolean) -> Unit,
@@ -1379,6 +1389,7 @@ private fun FloatingOverlayContent(
                                 when (overlayHubTab) {
                                     OverlayHubTab.DRAFT -> {
                                         FloatingDraftCoachView(
+                                            isLandscapeMode = isLandscapeMode,
                                             activeRole = activeRole,
                                             onActiveRoleChange = { 
                                                 activeRole = it 
@@ -2096,6 +2107,7 @@ private fun FloatingSaveMatchDialog(
 
 @Composable
 private fun FloatingDraftCoachView(
+    isLandscapeMode: Boolean,
     activeRole: LaneRole,
     onActiveRoleChange: (LaneRole) -> Unit,
     isFirstPick: Boolean,
@@ -2138,53 +2150,107 @@ private fun FloatingDraftCoachView(
         }
     }
 
+    
+
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
         // 1. TABLERO DE DRAFT (EQUIPO ALIADO Y RIVAL) CON EL MODELO EXACTO DE LA APP
-        com.example.ui.components.DraftTeamPositionCard(
-            isOverlay = true,
-            title = tr("Equipo Aliado"),
-            isEnemy = false,
-            slots = allySlots,
-            activeUserRole = activeRole,
-            onPickChampionForRole = { role ->
-                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                onOpenChampionPicker(true, index)
-            },
-            onRemoveChampionForRole = { role ->
-                val roleIndex = defaultRoles.indexOf(role)
-                if (roleIndex in 0 until 5) {
-                    allies[roleIndex] = null
-                    onManualEdit()
+        if (isLandscapeMode) {
+            Row(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                    com.example.ui.components.DraftTeamPositionCard(
+                        isOverlay = true,
+                        title = tr("Equipo Aliado"),
+                        isEnemy = false,
+                        slots = allySlots,
+                        activeUserRole = activeRole,
+                        onPickChampionForRole = { role ->
+                            val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                            onOpenChampionPicker(true, index)
+                        },
+                        onRemoveChampionForRole = { role ->
+                            val roleIndex = defaultRoles.indexOf(role)
+                            if (roleIndex in 0 until 5) {
+                                allies[roleIndex] = null
+                                onManualEdit()
+                            }
+                        },
+                        onChampionClick = onSelectChampion
+                    )
                 }
-            },
-            onChampionClick = onSelectChampion
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        com.example.ui.components.DraftTeamPositionCard(
-            isOverlay = true,
-            title = tr("Equipo Rival"),
-            isEnemy = true,
-            slots = enemySlots,
-            activeUserRole = activeRole,
-            onPickChampionForRole = { role ->
-                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                onOpenChampionPicker(false, index)
-            },
-            onRemoveChampionForRole = { role ->
-                val roleIndex = defaultRoles.indexOf(role)
-                if (roleIndex in 0 until 5) {
-                    enemies[roleIndex] = null
-                    onManualEdit()
+                Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                    com.example.ui.components.DraftTeamPositionCard(
+                        isOverlay = true,
+                        title = tr("Equipo Rival"),
+                        isEnemy = true,
+                        slots = enemySlots,
+                        activeUserRole = activeRole,
+                        onPickChampionForRole = { role ->
+                            val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                            onOpenChampionPicker(false, index)
+                        },
+                        onRemoveChampionForRole = { role ->
+                            val roleIndex = defaultRoles.indexOf(role)
+                            if (roleIndex in 0 until 5) {
+                                enemies[roleIndex] = null
+                                onManualEdit()
+                            }
+                        },
+                        onChampionClick = onSelectChampion
+                    )
                 }
-            },
-            onChampionClick = onSelectChampion
-        )
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())
+            ) {
+                com.example.ui.components.DraftTeamPositionCard(
+                    isOverlay = true,
+                    title = tr("Equipo Aliado"),
+                    isEnemy = false,
+                    slots = allySlots,
+                    activeUserRole = activeRole,
+                    onPickChampionForRole = { role ->
+                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                        onOpenChampionPicker(true, index)
+                    },
+                    onRemoveChampionForRole = { role ->
+                        val roleIndex = defaultRoles.indexOf(role)
+                        if (roleIndex in 0 until 5) {
+                            allies[roleIndex] = null
+                            onManualEdit()
+                        }
+                    },
+                    onChampionClick = onSelectChampion
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                com.example.ui.components.DraftTeamPositionCard(
+                    isOverlay = true,
+                    title = tr("Equipo Rival"),
+                    isEnemy = true,
+                    slots = enemySlots,
+                    activeUserRole = activeRole,
+                    onPickChampionForRole = { role ->
+                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                        onOpenChampionPicker(false, index)
+                    },
+                    onRemoveChampionForRole = { role ->
+                        val roleIndex = defaultRoles.indexOf(role)
+                        if (roleIndex in 0 until 5) {
+                            enemies[roleIndex] = null
+                            onManualEdit()
+                        }
+                    },
+                    onChampionClick = onSelectChampion
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(6.dp))
 
