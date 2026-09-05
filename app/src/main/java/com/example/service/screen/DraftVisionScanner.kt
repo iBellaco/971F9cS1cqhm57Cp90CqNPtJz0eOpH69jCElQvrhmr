@@ -52,23 +52,19 @@ object DraftVisionScanner {
         return recognizerInstance
     }
 
-    // Mapa de alias comunes para campeones de Wild Rift (mapeados tanto por ID canónico como nombre)
+    // Mapa de alias comunes para campeones de Wild Rift (coincidencia EXACTA únicamente)
     private val aliasMap = mapOf(
         "tf" to "twisted_fate",
-        "twisted" to "twisted_fate",
         "twisted fate" to "twisted_fate",
         "mf" to "miss_fortune",
-        "fortune" to "miss_fortune",
         "miss fortune" to "miss_fortune",
         "mundo" to "dr_mundo",
         "dr mundo" to "dr_mundo",
         "dr. mundo" to "dr_mundo",
         "dr.mundo" to "dr_mundo",
         "yi" to "master_yi",
-        "master" to "master_yi",
         "master yi" to "master_yi",
         "aurelion" to "aurelion_sol",
-        "sol" to "aurelion_sol",
         "asol" to "aurelion_sol",
         "aurelion sol" to "aurelion_sol",
         "jarvan" to "jarvan_iv",
@@ -80,20 +76,15 @@ object DraftVisionScanner {
         "nunu & willump" to "nunu_willump",
         "nunu y willump" to "nunu_willump",
         "xin" to "xin_zhao",
-        "zhao" to "xin_zhao",
         "xin zhao" to "xin_zhao",
         "lee" to "lee_sin",
-        "sin" to "lee_sin",
         "lee sin" to "lee_sin",
         "tahm" to "tahm_kench",
-        "kench" to "tahm_kench",
         "tahm kench" to "tahm_kench",
         "tk" to "tahm_kench",
         "renata" to "renata_glasc",
-        "glasc" to "renata_glasc",
         "renata glasc" to "renata_glasc",
         "wukong" to "wukong",
-        "monkey" to "wukong",
         "cait" to "caitlyn",
         "caitlin" to "caitlyn",
         "ez" to "ezreal",
@@ -109,7 +100,6 @@ object DraftVisionScanner {
         "vlad" to "vladimir",
         "voli" to "volibear",
         "yas" to "yasuo",
-        "luc" to "lucian",
         "tris" to "tristana",
         "naut" to "nautilus",
         "ww" to "warwick",
@@ -118,16 +108,9 @@ object DraftVisionScanner {
         "ksante" to "k_sante",
         "k'sante" to "k_sante",
         "chogath" to "cho_gath",
+        "cho'gath" to "cho_gath",
         "orn" to "ornn",
         "ornn" to "ornn",
-        "omn" to "ornn",
-        "onn" to "ornn",
-        "onm" to "ornn",
-        "orm" to "ornn",
-        "las llamas de la forja" to "ornn",
-        "dios de la forja" to "ornn",
-        "forja" to "ornn",
-        "cho'gath" to "cho_gath",
         "velkoz" to "vel_koz",
         "vel'koz" to "vel_koz",
         "kogmaw" to "kog_maw",
@@ -150,10 +133,11 @@ object DraftVisionScanner {
         "equipo", "team", "azul", "rojo", "blue", "red", "chat", "mute", "op", "fps", "ms", "ping",
         "calle", "del", "carril", "baron", "barón", "central", "jungla", "jungle", "duo", "dúo", "dragon",
         "dragón", "soporte", "support", "apoyo", "tirador", "beta", "fps:", "ms:", "solo", "superior",
-        "medio", "cambiar", "intercambio", "esperando", "eligiendo", "intercambiar", "orden", "turno",
+        "medio", "cambiar", "intercambio", "esperando", "eligiendo", "orden", "turno",
         "bloqueando", "bloqueado", "tiempo", "restante", "smite", "aplastar", "destello", "flash",
         "ignite", "ignición", "curar", "heal", "exhaust", "extenuación", "barrera", "barrier", "fantasma",
-        "ghost", "elije", "elige", "campeon", "campeón", "preparate", "prepárate"
+        "ghost", "elije", "elige", "campeon", "campeón", "preparate", "prepárate", "marca", "estelar",
+        "eterna", "tarjeta", "aumento", "combatamos", "juntos", "excelente", "composicion", "composición"
     )
 
     /**
@@ -578,19 +562,30 @@ object DraftVisionScanner {
             }
 
             // ASIGNACIÓN DE ALIADOS RESTANTES
+            // Prioridad 1: Rol explícito leído por OCR en la ranura (ej. 'CALLE CENTRAL', 'APOYO', 'JUNGLA')
             for (i in 0 until 5) {
                 if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
                 if (alliesByRole.containsValue(champ)) continue
 
-                val targetRole = allySlotRoles[i] ?: defaultAllyRoles.getOrNull(i)
-                if (targetRole != null && !alliesByRole.containsKey(targetRole)) {
-                    alliesByRole[targetRole] = champ
-                } else if (!alliesByRole.containsKey(champ.primaryRole)) {
+                val explicitRole = allySlotRoles[i]
+                if (explicitRole != null && !alliesByRole.containsKey(explicitRole)) {
+                    alliesByRole[explicitRole] = champ
+                }
+            }
+
+            // Prioridad 2: Rol primario natural del campeón (ej. Caitlyn -> ADC, Jarvan IV -> JUNGLE, Thresh -> SUPPORT)
+            for (i in 0 until 5) {
+                if (i == userSlotIndex) continue
+                val champ = allySlots[i] ?: continue
+                if (alliesByRole.containsValue(champ)) continue
+
+                if (!alliesByRole.containsKey(champ.primaryRole)) {
                     alliesByRole[champ.primaryRole] = champ
                 }
             }
 
+            // Prioridad 3: Rol secundario o primer rol libre disponible
             for (i in 0 until 5) {
                 if (i == userSlotIndex) continue
                 val champ = allySlots[i] ?: continue
@@ -686,10 +681,10 @@ object DraftVisionScanner {
 
         val found = mutableListOf<Champion>()
 
-        // 1. Coincidencia mediante tabla de alias
+        // 1. Coincidencia EXACTA mediante tabla de alias
         for ((alias, aliasId) in aliasMap) {
             val aliasNorm = normalizeString(alias)
-            if (normalized == aliasNorm || (aliasNorm.length >= 3 && (normalized.startsWith(aliasNorm) || normalized.endsWith(aliasNorm)))) {
+            if (normalized == aliasNorm) {
                 val targetNorm = normalizeString(aliasId)
                 val champ = allChamps.firstOrNull { 
                     normalizeString(it.id) == targetNorm || 
@@ -703,26 +698,18 @@ object DraftVisionScanner {
             }
         }
 
-        // 2. Coincidencia directa, por prefijo/sufijo o subcadena exacta
+        // 2. Coincidencia directa exacta o fuzzy de error tipográfico de OCR (distancia <= 1 únicamente)
         for (champ in allChamps) {
             val champNorm = normalizeString(champ.name)
             val idNorm = normalizeString(champ.id)
             
+            // Coincidencia exacta estricta
             if (normalized == champNorm || normalized == idNorm) {
                 if (!found.contains(champ)) found.add(champ)
-            } else if (champNorm.length >= 3 && (normalized.startsWith(champNorm) || normalized.endsWith(champNorm))) {
-                if (!found.contains(champ)) found.add(champ)
-            } else if (idNorm.length >= 3 && (normalized.startsWith(idNorm) || normalized.endsWith(idNorm))) {
-                if (!found.contains(champ)) found.add(champ)
-            } else if (champNorm.length >= 4 && normalized.contains(champNorm)) {
-                if (!found.contains(champ)) found.add(champ)
-            } else if (idNorm.length >= 4 && normalized.contains(idNorm)) {
-                if (!found.contains(champ)) found.add(champ)
-            } else if (normalized.length >= 4 && champNorm.length >= 4) {
-                // Fuzzy matching por distancia de Levenshtein (tolerar errores de OCR como 5->S, 1->I, V->Y)
+            } else if (normalized.length >= 4 && champNorm.length >= 4 && abs(normalized.length - champNorm.length) <= 1) {
+                // Fuzzy matching por distancia de Levenshtein para errores de OCR (ej. 'ezrea1' -> 'ezreal', 'vladimlr' -> 'vladimir')
                 val distance = calculateLevenshteinDistance(normalized, champNorm)
-                val maxAllowed = if (champNorm.length >= 7) 2 else 1
-                if (distance <= maxAllowed) {
+                if (distance <= 1) {
                     if (!found.contains(champ)) found.add(champ)
                 }
             }
