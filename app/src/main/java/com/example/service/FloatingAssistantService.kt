@@ -2176,94 +2176,46 @@ private fun FloatingDraftCoachView(
         }
     }
 
-    if (isLandscapeMode) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp)
-        ) {
-            // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
-            Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
-                OverlayVersusDraftBoard(
-                    allySlots = allySlots,
-                    enemySlots = enemySlots,
-                    activeUserRole = activeRole,
-                    onPickChampionForRole = { isAlly, role ->
-                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                        onOpenChampionPicker(isAlly, index)
-                    },
-                    onRemoveChampionForRole = { isAlly, role ->
-                        val roleIndex = defaultRoles.indexOf(role)
-                        if (roleIndex in 0 until 5) {
-                            if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
-                            onManualEdit()
-                        }
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
-            Box(modifier = Modifier.weight(1.15f).fillMaxHeight().verticalScroll(rememberScrollState())) {
-                CoachContent(
-                    allies = allies,
-                    enemies = enemies,
-                    activeRole = activeRole,
-                    onActiveRoleChange = onActiveRoleChange,
-                    isFirstPick = isFirstPick,
-                    onFirstPickToggle = onFirstPickToggle,
-                    analysis = analysis,
-                    explicitEnemyOpponent = explicitEnemyOpponent,
-                    onSelectChampion = onSelectChampion,
-                    onSaveDraftClick = onSaveDraftClick,
-                    isSavedRecently = isSavedRecently,
-                    onClearAll = onClearAll,
-                    onGoToTierList = onGoToTierList,
-                    isPremium = isPremium
-                )
-            }
-        }
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
-        ) {
-            // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
-            OverlayVersusDraftBoard(
-                allySlots = allySlots,
-                enemySlots = enemySlots,
-                activeUserRole = activeRole,
-                onPickChampionForRole = { isAlly, role ->
-                    val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                    onOpenChampionPicker(isAlly, index)
-                },
-                onRemoveChampionForRole = { isAlly, role ->
-                    val roleIndex = defaultRoles.indexOf(role)
-                    if (roleIndex in 0 until 5) {
-                        if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
-                        onManualEdit()
-                    }
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
+    ) {
+        // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
+        OverlayVersusDraftBoard(
+            allySlots = allySlots,
+            enemySlots = enemySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = { isAlly, role ->
+                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                onOpenChampionPicker(isAlly, index)
+            },
+            onRemoveChampionForRole = { isAlly, role ->
+                val roleIndex = defaultRoles.indexOf(role)
+                if (roleIndex in 0 until 5) {
+                    if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
+                    onManualEdit()
                 }
-            )
+            }
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
-            CoachContent(
-                allies = allies,
-                enemies = enemies,
-                activeRole = activeRole,
-                onActiveRoleChange = onActiveRoleChange,
-                isFirstPick = isFirstPick,
-                onFirstPickToggle = onFirstPickToggle,
-                analysis = analysis,
-                explicitEnemyOpponent = explicitEnemyOpponent,
-                onSelectChampion = onSelectChampion,
-                onSaveDraftClick = onSaveDraftClick,
-                isSavedRecently = isSavedRecently,
-                onClearAll = onClearAll,
-                onGoToTierList = onGoToTierList,
-                isPremium = isPremium
-            )
-        }
+        // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
+        CoachContent(
+            allies = allies,
+            enemies = enemies,
+            activeRole = activeRole,
+            onActiveRoleChange = onActiveRoleChange,
+            isFirstPick = isFirstPick,
+            onFirstPickToggle = onFirstPickToggle,
+            analysis = analysis,
+            explicitEnemyOpponent = explicitEnemyOpponent,
+            onSelectChampion = onSelectChampion,
+            onSaveDraftClick = onSaveDraftClick,
+            isSavedRecently = isSavedRecently,
+            onClearAll = onClearAll,
+            onGoToTierList = onGoToTierList,
+            isPremium = isPremium
+        )
     }
 }
 
@@ -2307,7 +2259,7 @@ private fun OverlayVersusDraftBoard(
                 val enemySlot = enemySlots.find { it.assignedRole == role }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -2320,11 +2272,15 @@ private fun OverlayVersusDraftBoard(
                         onRemove = { onRemoveChampionForRole(true, role) }
                     )
 
-                    // Center Role
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(40.dp)) {
-                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(label, color = TextSecondary, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    // Center Role (Horizontal layout to save vertical space)
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.width(60.dp)
+                    ) {
+                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(label, color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
                     }
 
                     // Enemy Avatar
@@ -2360,7 +2316,7 @@ private fun DraftAvatarBox(
     
     Box(
         modifier = Modifier
-            .size(38.dp)
+            .size(32.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(when {
                 isMyRole -> HextechCyan.copy(alpha = 0.22f)
