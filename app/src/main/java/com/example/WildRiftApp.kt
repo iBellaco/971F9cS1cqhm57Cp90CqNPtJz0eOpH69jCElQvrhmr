@@ -32,6 +32,7 @@ import okhttp3.OkHttpClient
 class WildRiftApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
+        com.example.util.CrashLogger.init(this)
         
         // --- Firebase App Check (Play Integrity) ---
         try {

@@ -399,7 +399,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
-            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this@FloatingAssistantService))
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
 
             setContent {
                 FloatingCloseTarget(
@@ -430,7 +430,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
-            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnLifecycleDestroyed(this@FloatingAssistantService))
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
 
             setContent {
                 val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
@@ -572,15 +572,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private fun removeFloatingOverlay() {
         try {
             floatingComposeView?.let { view ->
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeView(view)
-                }
+                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
             }
             floatingComposeView = null
             closeTargetComposeView?.let { view ->
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeView(view)
-                }
+                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
             }
             closeTargetComposeView = null
         } catch (_: Exception) {}
@@ -589,12 +585,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private var lastScreenWidth = 0
     private var lastScreenHeight = 0
 
-    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
-        try {
-            floatingComposeView?.dispatchConfigurationChanged(newConfig)
-            closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
-        } catch (_: Throwable) {}
         try {
             val metrics = resources.displayMetrics
             if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
@@ -602,39 +594,34 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 lastScreenHeight = metrics.heightPixels
                 isDeviceLandscape.value = lastScreenWidth > lastScreenHeight
                 screenCaptureManager?.refreshProjection()
-            }
-            
-            // Reajustar coordenadas de la vista flotante para la nueva orientación de pantalla
-            val params = floatingParams
-            val view = floatingComposeView
-            if (params != null && view != null && view.isAttachedToWindow) {
-                val metrics = resources.displayMetrics
-                val density = metrics.density
-                val marginPx = (8 * density).toInt()
-                val currentBubblePx = ((if (overlayState.isCompactBubble) 36f else 46f) * density).toInt()
-                val isLandscape = metrics.widthPixels > metrics.heightPixels
-                val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
-                val cardHeightPx = ((if (isLandscape) 390 else 520) * density).toInt()
-
-                val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
-                val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
-
-                val maxX = (metrics.widthPixels - viewWidth - marginPx).coerceAtLeast(marginPx)
-                val maxY = (metrics.heightPixels - viewHeight - marginPx).coerceAtLeast(marginPx)
                 
-                params.x = params.x.coerceIn(marginPx, maxX)
-                params.y = params.y.coerceIn(marginPx, maxY)
-                try {
-                    windowManager?.updateViewLayout(view, params)
-                } catch (_: Exception) {}
+                val currentX = floatingParams?.x
+                val currentY = floatingParams?.y
                 
-                try {
-                    val closeTargetParams = closeTargetComposeView?.layoutParams as? WindowManager.LayoutParams
-                    if (closeTargetParams != null) {
-                        closeTargetParams.y = (24 * density).toInt()
-                        windowManager?.updateViewLayout(closeTargetComposeView, closeTargetParams)
-                    }
-                } catch (_: Exception) {}
+                // Recrear dinámicamente la ventana al girar para evitar corrupciones de Compose
+                createFloatingOverlay()
+                
+                if (currentX != null && currentY != null && floatingParams != null && floatingComposeView != null) {
+                    val density = metrics.density
+                    val marginPx = (8 * density).toInt()
+                    val currentBubblePx = ((if (overlayState.isCompactBubble) 36f else 46f) * density).toInt()
+                    val isLandscape = lastScreenWidth > lastScreenHeight
+                    val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
+                    val cardHeightPx = ((if (isLandscape) 390 else 520) * density).toInt()
+                    
+                    val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
+                    val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
+                    
+                    val maxX = (lastScreenWidth - viewWidth - marginPx).coerceAtLeast(marginPx)
+                    val maxY = (lastScreenHeight - viewHeight - marginPx).coerceAtLeast(marginPx)
+                    
+                    floatingParams!!.x = currentX.coerceIn(marginPx, maxX)
+                    floatingParams!!.y = currentY.coerceIn(marginPx, maxY)
+                    windowManager?.updateViewLayout(floatingComposeView, floatingParams)
+                }
+            } else {
+                floatingComposeView?.dispatchConfigurationChanged(newConfig)
+                closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
             }
         } catch (e: Throwable) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
@@ -2189,46 +2176,94 @@ private fun FloatingDraftCoachView(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
-    ) {
-        // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
-        OverlayVersusDraftBoard(
-            allySlots = allySlots,
-            enemySlots = enemySlots,
-            activeUserRole = activeRole,
-            onPickChampionForRole = { isAlly, role ->
-                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                onOpenChampionPicker(isAlly, index)
-            },
-            onRemoveChampionForRole = { isAlly, role ->
-                val roleIndex = defaultRoles.indexOf(role)
-                if (roleIndex in 0 until 5) {
-                    if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
-                    onManualEdit()
-                }
+    if (isLandscapeMode) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp)
+        ) {
+            // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
+            Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                OverlayVersusDraftBoard(
+                    allySlots = allySlots,
+                    enemySlots = enemySlots,
+                    activeUserRole = activeRole,
+                    onPickChampionForRole = { isAlly, role ->
+                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                        onOpenChampionPicker(isAlly, index)
+                    },
+                    onRemoveChampionForRole = { isAlly, role ->
+                        val roleIndex = defaultRoles.indexOf(role)
+                        if (roleIndex in 0 until 5) {
+                            if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
+                            onManualEdit()
+                        }
+                    }
+                )
             }
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-        // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
-        CoachContent(
-            allies = allies,
-            enemies = enemies,
-            activeRole = activeRole,
-            onActiveRoleChange = onActiveRoleChange,
-            isFirstPick = isFirstPick,
-            onFirstPickToggle = onFirstPickToggle,
-            analysis = analysis,
-            explicitEnemyOpponent = explicitEnemyOpponent,
-            onSelectChampion = onSelectChampion,
-            onSaveDraftClick = onSaveDraftClick,
-            isSavedRecently = isSavedRecently,
-            onClearAll = onClearAll,
-            onGoToTierList = onGoToTierList,
-            isPremium = isPremium
-        )
+            // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
+            Box(modifier = Modifier.weight(1.15f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                CoachContent(
+                    allies = allies,
+                    enemies = enemies,
+                    activeRole = activeRole,
+                    onActiveRoleChange = onActiveRoleChange,
+                    isFirstPick = isFirstPick,
+                    onFirstPickToggle = onFirstPickToggle,
+                    analysis = analysis,
+                    explicitEnemyOpponent = explicitEnemyOpponent,
+                    onSelectChampion = onSelectChampion,
+                    onSaveDraftClick = onSaveDraftClick,
+                    isSavedRecently = isSavedRecently,
+                    onClearAll = onClearAll,
+                    onGoToTierList = onGoToTierList,
+                    isPremium = isPremium
+                )
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
+        ) {
+            // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
+            OverlayVersusDraftBoard(
+                allySlots = allySlots,
+                enemySlots = enemySlots,
+                activeUserRole = activeRole,
+                onPickChampionForRole = { isAlly, role ->
+                    val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                    onOpenChampionPicker(isAlly, index)
+                },
+                onRemoveChampionForRole = { isAlly, role ->
+                    val roleIndex = defaultRoles.indexOf(role)
+                    if (roleIndex in 0 until 5) {
+                        if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
+                        onManualEdit()
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
+            CoachContent(
+                allies = allies,
+                enemies = enemies,
+                activeRole = activeRole,
+                onActiveRoleChange = onActiveRoleChange,
+                isFirstPick = isFirstPick,
+                onFirstPickToggle = onFirstPickToggle,
+                analysis = analysis,
+                explicitEnemyOpponent = explicitEnemyOpponent,
+                onSelectChampion = onSelectChampion,
+                onSaveDraftClick = onSaveDraftClick,
+                isSavedRecently = isSavedRecently,
+                onClearAll = onClearAll,
+                onGoToTierList = onGoToTierList,
+                isPremium = isPremium
+            )
+        }
     }
 }
 
