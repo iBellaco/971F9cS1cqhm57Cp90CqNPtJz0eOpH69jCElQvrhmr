@@ -191,6 +191,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private var floatingComposeView: ComposeView? = null
     private var closeTargetComposeView: ComposeView? = null
     private var floatingParams: WindowManager.LayoutParams? = null
+    private var isOverlayExpanded: Boolean = false
+    private var isCompactBubbleMode: Boolean = false
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val store = ViewModelStore()
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -530,10 +532,13 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                     }
                                 }
                                 try {
-                                    windowManager?.updateViewLayout(this@apply, params)
+                                    if (this@apply.isAttachedToWindow) {
+                                        windowManager?.updateViewLayout(this@apply, params)
+                                    }
                                 } catch (_: Exception) {}
                             },
                             onCompactModeChange = { isCompact ->
+                                isCompactBubbleMode = isCompact
                                 bubbleSizePx = ((if (isCompact) 36f else 46f) * density).toInt()
                             }
                         )
@@ -549,14 +554,18 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     private fun removeFloatingOverlay() {
         try {
-            if (floatingComposeView != null) {
-                windowManager?.removeView(floatingComposeView)
-                floatingComposeView = null
+            floatingComposeView?.let { view ->
+                if (view.isAttachedToWindow) {
+                    windowManager?.removeView(view)
+                }
             }
-            if (closeTargetComposeView != null) {
-                windowManager?.removeView(closeTargetComposeView)
-                closeTargetComposeView = null
+            floatingComposeView = null
+            closeTargetComposeView?.let { view ->
+                if (view.isAttachedToWindow) {
+                    windowManager?.removeView(view)
+                }
             }
+            closeTargetComposeView = null
         } catch (_: Exception) {}
     }
 
@@ -568,17 +577,25 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             // Reajustar coordenadas de la vista flotante para la nueva orientación de pantalla
             val params = floatingParams
             val view = floatingComposeView
-            if (params != null && view != null) {
+            if (params != null && view != null && view.isAttachedToWindow) {
                 val metrics = resources.displayMetrics
                 val density = metrics.density
                 val marginPx = (8 * density).toInt()
-                val bubbleSizePx = (46 * density).toInt()
-                val maxX = (metrics.widthPixels - bubbleSizePx - marginPx).coerceAtLeast(marginPx)
-                val maxY = (metrics.heightPixels - bubbleSizePx - marginPx).coerceAtLeast(marginPx)
+                val currentBubblePx = ((if (isCompactBubbleMode) 36f else 46f) * density).toInt()
+                val cardWidthPx = (330 * density).toInt()
+                val cardHeightPx = (520 * density).toInt()
+
+                val viewWidth = if (isOverlayExpanded) cardWidthPx else currentBubblePx
+                val viewHeight = if (isOverlayExpanded) cardHeightPx else currentBubblePx
+
+                val maxX = (metrics.widthPixels - viewWidth - marginPx).coerceAtLeast(marginPx)
+                val maxY = (metrics.heightPixels - viewHeight - marginPx).coerceAtLeast(marginPx)
                 
                 params.x = params.x.coerceIn(marginPx, maxX)
                 params.y = params.y.coerceIn(marginPx, maxY)
-                windowManager?.updateViewLayout(view, params)
+                try {
+                    windowManager?.updateViewLayout(view, params)
+                } catch (_: Exception) {}
             }
         } catch (e: Exception) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
@@ -759,9 +776,13 @@ private fun FloatingOverlayContent(
                             // 1. Asignación directa y de alta precisión por rol/carril detectado
                             defaultRoles.forEachIndexed { idx, role ->
                                 val scannedAlly = result.alliesByRole[role]
-                                if (scannedAlly != null && allies[idx]?.id != scannedAlly.id) {
-                                    assignAllySlot(idx, scannedAlly)
-                                    newAlliesAdded++
+                                if (scannedAlly != null) {
+                                    if (allies[idx]?.id != scannedAlly.id) {
+                                        assignAllySlot(idx, scannedAlly)
+                                        newAlliesAdded++
+                                    }
+                                } else if (allies[idx] != null && result.detectedRole == role && allies.filterNotNull().size >= 2) {
+                                    allies[idx] = null
                                 }
                                 val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null && enemies[idx]?.id != scannedEnemy.id) {
@@ -817,6 +838,8 @@ private fun FloatingOverlayContent(
                             val scannedAlly = result.alliesByRole[role]
                             if (scannedAlly != null) {
                                 assignAllySlot(idx, scannedAlly)
+                            } else if (result.detectedRole == role) {
+                                allies[idx] = null
                             }
                             val scannedEnemy = result.enemiesByRole[role]
                             if (scannedEnemy != null) {

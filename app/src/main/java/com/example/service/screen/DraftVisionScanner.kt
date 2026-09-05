@@ -244,13 +244,13 @@ object DraftVisionScanner {
                     }
 
                     // --- COLUMNA IZQUIERDA: EQUIPO ALIADO ---
-                    // Acotado estrictamente entre 9% y 30% del ancho de pantalla
-                    if (xRatio in 0.09f..0.30f) {
+                    // Acotado estrictamente entre 6% y 33% del ancho de pantalla
+                    if (xRatio in 0.06f..0.33f) {
                         val slotIdx = when {
-                            yRatio < 0.245f -> 0
-                            yRatio < 0.385f -> 1
-                            yRatio < 0.525f -> 2
-                            yRatio < 0.665f -> 3
+                            yRatio < 0.255f -> 0
+                            yRatio < 0.395f -> 1
+                            yRatio < 0.535f -> 2
+                            yRatio < 0.675f -> 3
                             else -> 4
                         }
 
@@ -293,13 +293,13 @@ object DraftVisionScanner {
                     }
 
                     // --- COLUMNA DERECHA: EQUIPO ENEMIGO ---
-                    // Acotado estrictamente entre 70% y 93% del ancho de pantalla
-                    else if (xRatio in 0.70f..0.93f) {
+                    // Acotado estrictamente entre 67% y 94% del ancho de pantalla
+                    else if (xRatio in 0.67f..0.94f) {
                         val slotIdx = when {
-                            yRatio < 0.245f -> 0
-                            yRatio < 0.385f -> 1
-                            yRatio < 0.525f -> 2
-                            yRatio < 0.665f -> 3
+                            yRatio < 0.255f -> 0
+                            yRatio < 0.395f -> 1
+                            yRatio < 0.535f -> 2
+                            yRatio < 0.675f -> 3
                             else -> 4
                         }
 
@@ -374,24 +374,20 @@ object DraftVisionScanner {
             val slotScores = IntArray(5)
             val slotHasSmite = BooleanArray(5)
 
-            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (X: 0.015f a 0.065f)
-            val sampleXMin = (screenWidth * 0.015f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.065f).toInt().coerceAtMost(screenWidth - 1)
-
-            // Señal A1: Blasón Dorado Alado / Anillo de Rol del Jugador Local (Wild Rift Marker)
-            // Ubicado en la zona del avatar y badge de carril aliado (X: 0.080f..0.170f)
-            val roleBadgeXMin = (screenWidth * 0.080f).toInt().coerceAtLeast(0)
-            val roleBadgeXMax = (screenWidth * 0.170f).toInt().coerceAtMost(screenWidth - 1)
+            // Señal A: Marco Dorado Alado y Gema Rubí en el lateral izquierdo extremo (X: 0.038f a 0.058f)
+            // En Wild Rift, los aliados tienen una simple línea cian/azul en este rango (X: ~0.045..0.055).
+            // El jugador local ("TÚ") tiene alas de dragón doradas prominentes con un núcleo de gema rubí/fuego.
+            val sampleXMin = (screenWidth * 0.038f).toInt().coerceAtLeast(0)
+            val sampleXMax = (screenWidth * 0.058f).toInt().coerceAtMost(screenWidth - 1)
 
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
-                val yMin = (yCenter - screenHeight * 0.055f).toInt().coerceAtLeast(0)
-                val yMax = (yCenter + screenHeight * 0.055f).toInt().coerceAtMost(screenHeight - 1)
+                val yMin = (yCenter - screenHeight * 0.045f).toInt().coerceAtLeast(0)
+                val yMax = (yCenter + screenHeight * 0.045f).toInt().coerceAtMost(screenHeight - 1)
 
-                var goldCount = 0
-                var rubyCount = 0
-                var orangeCount = 0
-                var cyanCount = 0
+                var goldWingPixels = 0
+                var rubyCorePixels = 0
+                var orangeWingPixels = 0
 
                 for (y in yMin..yMax step 2) {
                     for (x in sampleXMin..sampleXMax step 2) {
@@ -400,56 +396,32 @@ object DraftVisionScanner {
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
 
-                        // Dorado / Ámbar brillante (alas del marco de jugador activo en Wild Rift)
-                        if (r in 150..255 && g in 95..225 && b < 110 && r > b + 35) {
-                            goldCount++
+                        // Dorado brillante (alas del marco de jugador local en Wild Rift)
+                        if (r in 150..255 && g in 95..225 && b < 105 && r > b + 40) {
+                            goldWingPixels++
                         }
                         // Gema Roja / Rubí (núcleo del blasón del jugador)
-                        else if (r in 140..255 && g < 80 && b < 80 && r > g + 55) {
-                            rubyCount++
+                        else if (r in 140..255 && g < 80 && b < 80 && r > g + 50) {
+                            rubyCorePixels++
                         }
                         // Naranja fuego / transición de ala
-                        else if (r in 170..255 && g in 75..150 && b < 65) {
-                            orangeCount++
-                        }
-                        // Resaltado cian alternativo
-                        else if (b > 115 && g > 85 && b > r + 25) {
-                            cyanCount++
+                        else if (r in 170..255 && g in 75..155 && b < 70) {
+                            orangeWingPixels++
                         }
                     }
                 }
-                val wingScore = (goldCount * 5 + rubyCount * 6 + orangeCount * 4 + cyanCount * 2)
+                val wingScore = (goldWingPixels * 8 + rubyCorePixels * 12 + orangeWingPixels * 6)
                 slotScores[i] += wingScore
-                if (rubyCount >= 3 || (goldCount >= 12 && (orangeCount >= 3 || rubyCount >= 1))) {
-                    slotScores[i] += 6000
-                    AppLogger.d(TAG, "Marco dorado con gema rubí de jugador local detectado en slot $i (+6000)")
+                if (rubyCorePixels >= 2 || (goldWingPixels >= 6 && (orangeWingPixels >= 2 || rubyCorePixels >= 1))) {
+                    slotScores[i] += 8000
+                    AppLogger.d(TAG, "Marco dorado con gema rubí de jugador local detectado en slot $i (+8000, ruby=$rubyCorePixels, gold=$goldWingPixels)")
                 }
 
-                // Detección del Blasón / Anillo Dorado de Rol
-                var goldRoleBadgeCount = 0
-                val bYMin = (yCenter - screenHeight * 0.030f).toInt().coerceAtLeast(0)
-                val bYMax = (yCenter + screenHeight * 0.030f).toInt().coerceAtMost(screenHeight - 1)
-                for (by in bYMin..bYMax step 2) {
-                    for (bx in roleBadgeXMin..roleBadgeXMax step 2) {
-                        val bp = bitmap.getPixel(bx, by)
-                        val br = (bp shr 16) and 0xFF
-                        val bg = (bp shr 8) and 0xFF
-                        val bb = bp and 0xFF
-                        if (br in 165..255 && bg in 120..230 && bb in 15..120 && br >= bg + 15) {
-                            goldRoleBadgeCount++
-                        }
-                    }
-                }
-                if (goldRoleBadgeCount >= 12) {
-                    slotScores[i] += 2500
-                    AppLogger.d(TAG, "Anillo/Blasón dorado de rol detectado en slot $i (count=$goldRoleBadgeCount) (+2500)")
-                }
-
-                // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.098)
+                // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.090)
                 val spellsXMin = (screenWidth * 0.065f).toInt().coerceAtLeast(0)
-                val spellsXMax = (screenWidth * 0.098f).toInt().coerceAtMost(screenWidth - 1)
-                val spellsYMin = (yCenter - screenHeight * 0.040f).toInt().coerceAtLeast(0)
-                val spellsYMax = (yCenter + screenHeight * 0.040f).toInt().coerceAtMost(screenHeight - 1)
+                val spellsXMax = (screenWidth * 0.090f).toInt().coerceAtMost(screenWidth - 1)
+                val spellsYMin = (yCenter - screenHeight * 0.035f).toInt().coerceAtLeast(0)
+                val spellsYMax = (yCenter + screenHeight * 0.035f).toInt().coerceAtMost(screenHeight - 1)
 
                 var smiteFlameCount = 0
                 for (sy in spellsYMin..spellsYMax step 2) {
@@ -464,23 +436,22 @@ object DraftVisionScanner {
                         }
                     }
                 }
-                if (smiteFlameCount >= 20) {
+                if (smiteFlameCount >= 15) {
                     slotHasSmite[i] = true
                     if (allySlotRoles[i] == null) {
                         allySlotRoles[i] = LaneRole.JUNGLE
                     }
-                    slotScores[i] += 1500
-                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount) (+1500)")
+                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount) -> Asignado a JUNGLE")
                 }
 
                 // Señal C: Detección de texto de Maestría o 'Marca Estelar Eterna' (exclusivo de la tarjeta del jugador local)
                 val hasEternalOrBadge = allySlotTexts[i].any { txt ->
                     val low = txt.lowercase(Locale.ROOT)
-                    low.contains("marca") || low.contains("estelar") || low.contains("eterna") || low.contains("maestria")
+                    low.contains("marca") || low.contains("estelar") || low.contains("eterna") || low.contains("maestria") || low.contains("maestría")
                 }
                 if (hasEternalOrBadge) {
-                    slotScores[i] += 4000
-                    AppLogger.d(TAG, "Texto exclusivo de tarjeta local (Marca Estelar/Eterna) en slot $i (+4000)")
+                    slotScores[i] += 6000
+                    AppLogger.d(TAG, "Texto exclusivo de tarjeta local (Marca Estelar/Eterna) en slot $i (+6000)")
                 }
             }
 
