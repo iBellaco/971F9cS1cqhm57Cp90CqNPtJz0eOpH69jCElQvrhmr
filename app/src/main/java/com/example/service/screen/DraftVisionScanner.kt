@@ -309,17 +309,42 @@ object DraftVisionScanner {
             detectedAllyRoles.sortBy { it.second }
             detectedEnemyRoles.sortBy { it.second }
 
-            detectedAllyChamps.forEachIndexed { index, pair -> 
-                if (index < 5) allySlots[index] = pair.first 
+            fun getClosestSlotIndex(yRatio: Float, centers: FloatArray): Int {
+                var minDiff = Float.MAX_VALUE
+                var minIndex = -1
+                for (i in centers.indices) {
+                    val diff = kotlin.math.abs(yRatio - centers[i])
+                    if (diff < minDiff) {
+                        minDiff = diff
+                        minIndex = i
+                    }
+                }
+                return minIndex
             }
-            detectedEnemyChamps.forEachIndexed { index, pair -> 
-                if (index < 5) enemySlots[index] = pair.first 
+
+            detectedAllyChamps.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
+                if (slot in 0..4 && allySlots[slot] == null) {
+                    allySlots[slot] = pair.first
+                }
             }
-            detectedAllyRoles.forEachIndexed { index, pair -> 
-                if (index < 5) allySlotRoles[index] = pair.first 
+            detectedEnemyChamps.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
+                if (slot in 0..4 && enemySlots[slot] == null) {
+                    enemySlots[slot] = pair.first
+                }
             }
-            detectedEnemyRoles.forEachIndexed { index, pair -> 
-                if (index < 5) enemySlotRoles[index] = pair.first 
+            detectedAllyRoles.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
+                if (slot in 0..4 && allySlotRoles[slot] == null) {
+                    allySlotRoles[slot] = pair.first
+                }
+            }
+            detectedEnemyRoles.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
+                if (slot in 0..4 && enemySlotRoles[slot] == null) {
+                    enemySlotRoles[slot] = pair.first
+                }
             }
 
             // 2. Detección Multi-Señal de la ranura del jugador local ("Tú / Yo voy")

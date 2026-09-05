@@ -187,6 +187,7 @@ import kotlin.math.roundToInt
 enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+    private val overlayState = OverlayState()
     private var screenCaptureManager: ScreenCaptureManager? = null
 
     private var windowManager: WindowManager? = null
@@ -368,10 +369,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         
         val isLandscape = displayMetrics.widthPixels > displayMetrics.heightPixels
         val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
-        val cardHeightPx = ((if (isLandscape) 360 else 520) * density).toInt()
+        val cardHeightPx = ((if (isLandscape) 390 else 520) * density).toInt()
         var bubbleSizePx = (46 * density).toInt() // local
 
-        isOverlayExpanded = false
+        
 
         val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -450,6 +451,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 androidx.compose.runtime.CompositionLocalProvider(LocalLanguage provides selectedLanguage) {
                     MyApplicationTheme {
                         FloatingOverlayContent(
+                            state = overlayState,
                             isLandscapeMode = isDeviceLandscape.value,
                             screenCaptureManager = screenCaptureManager,
                             onClose = { stopSelf() },
@@ -457,8 +459,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 val currentMetrics = resources.displayMetrics
                                 val currentScreenWidth = currentMetrics.widthPixels
                                 val currentScreenHeight = currentMetrics.heightPixels
-                                val currentWidth = if (isOverlayExpanded) cardWidthPx else bubbleSizePx
-                                val currentHeight = if (isOverlayExpanded) cardHeightPx else bubbleSizePx
+                                val currentWidth = if (overlayState.isExpanded) cardWidthPx else bubbleSizePx
+                                val currentHeight = if (overlayState.isExpanded) cardHeightPx else bubbleSizePx
                                 val maxX = (currentScreenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
                                 val maxY = (currentScreenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
                                 
@@ -590,6 +592,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
         try {
+            floatingComposeView?.dispatchConfigurationChanged(newConfig)
+            closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
+        } catch (_: Throwable) {}
+        try {
             val metrics = resources.displayMetrics
             if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
                 lastScreenWidth = metrics.widthPixels
@@ -605,13 +611,13 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 val metrics = resources.displayMetrics
                 val density = metrics.density
                 val marginPx = (8 * density).toInt()
-                val currentBubblePx = ((if (isCompactBubbleMode) 36f else 46f) * density).toInt()
+                val currentBubblePx = ((if (overlayState.isCompactBubble) 36f else 46f) * density).toInt()
                 val isLandscape = metrics.widthPixels > metrics.heightPixels
                 val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
-                val cardHeightPx = ((if (isLandscape) 360 else 520) * density).toInt()
+                val cardHeightPx = ((if (isLandscape) 390 else 520) * density).toInt()
 
-                val viewWidth = if (isOverlayExpanded) cardWidthPx else currentBubblePx
-                val viewHeight = if (isOverlayExpanded) cardHeightPx else currentBubblePx
+                val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
+                val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
 
                 val maxX = (metrics.widthPixels - viewWidth - marginPx).coerceAtLeast(marginPx)
                 val maxY = (metrics.heightPixels - viewHeight - marginPx).coerceAtLeast(marginPx)
@@ -620,6 +626,14 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 params.y = params.y.coerceIn(marginPx, maxY)
                 try {
                     windowManager?.updateViewLayout(view, params)
+                } catch (_: Exception) {}
+                
+                try {
+                    val closeTargetParams = closeTargetComposeView?.layoutParams as? WindowManager.LayoutParams
+                    if (closeTargetParams != null) {
+                        closeTargetParams.y = (24 * density).toInt()
+                        windowManager?.updateViewLayout(closeTargetComposeView, closeTargetParams)
+                    }
                 } catch (_: Exception) {}
             }
         } catch (e: Throwable) {
@@ -697,8 +711,32 @@ private fun FloatingCloseTarget(
     }
 }
 
+class OverlayState {
+    var isExpanded by androidx.compose.runtime.mutableStateOf(false)
+    var overlayHubTab by androidx.compose.runtime.mutableStateOf(OverlayHubTab.DRAFT)
+    var showSaveDraftDialog by androidx.compose.runtime.mutableStateOf(false)
+    var showRoleChangeDialog by androidx.compose.runtime.mutableStateOf(false)
+    var isSavedRecently by androidx.compose.runtime.mutableStateOf(false)
+    var activeRole by androidx.compose.runtime.mutableStateOf(LaneRole.MID)
+    var isFirstPick by androidx.compose.runtime.mutableStateOf(false)
+    var isCompactBubble by androidx.compose.runtime.mutableStateOf(false)
+    var isScanning by androidx.compose.runtime.mutableStateOf(false)
+    var autoScanEnabled by androidx.compose.runtime.mutableStateOf(false)
+    var scanNoticeMessage by androidx.compose.runtime.mutableStateOf<String?>(null)
+    var isDraggingBubble by androidx.compose.runtime.mutableStateOf(false)
+    var dragAccumulatedY by androidx.compose.runtime.mutableFloatStateOf(0f)
+    var isNearCloseThreshold by androidx.compose.runtime.mutableStateOf(false)
+    var selectedChampionDetail by androidx.compose.runtime.mutableStateOf<com.example.model.Champion?>(null)
+    var showChampionPickerForSlot by androidx.compose.runtime.mutableStateOf<Pair<Boolean, Int>?>(null)
+    var isLoadingScreenMode by androidx.compose.runtime.mutableStateOf(false)
+    var isOverlayTabsMinimized by androidx.compose.runtime.mutableStateOf(false)
+    val allies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
+    val enemies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
+}
+
 @Composable
 private fun FloatingOverlayContent(
+    state: OverlayState,
     isLandscapeMode: Boolean,
     screenCaptureManager: ScreenCaptureManager?,
     onClose: () -> Unit,
@@ -707,11 +745,11 @@ private fun FloatingOverlayContent(
     onCompactModeChange: (Boolean) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var isExpanded by remember { mutableStateOf(false) }
-    var overlayHubTab by remember { mutableStateOf(OverlayHubTab.DRAFT) }
-    var showSaveDraftDialog by remember { mutableStateOf(false) }
-    var showRoleChangeDialog by remember { mutableStateOf(false) }
-    var isSavedRecently by remember { mutableStateOf(false) }
+    var isExpanded by state::isExpanded
+    var overlayHubTab by state::overlayHubTab
+    var showSaveDraftDialog by state::showSaveDraftDialog
+    var showRoleChangeDialog by state::showRoleChangeDialog
+    var isSavedRecently by state::isSavedRecently
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
     val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsStateWithLifecycle()
     val isLoggedInAndPremium = isPremium && activeProfileId != null
@@ -721,13 +759,13 @@ private fun FloatingOverlayContent(
                   userRole == "admin" || 
                   com.example.util.AuthManager.isAdminEmail(currentAuthEmail)
     val context = LocalContext.current
-    var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(context)) }
-    var isFirstPick by remember { mutableStateOf(false) }
-    var isCompactBubble by remember { mutableStateOf(false) }
+    var activeRole by state::activeRole
+    var isFirstPick by state::isFirstPick
+    var isCompactBubble by state::isCompactBubble
 
     val defaultRoles = remember { listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT) }
-    val allies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
-    val enemies = remember { mutableStateListOf<Champion?>().apply { repeat(5) { add(null) } } }
+    val allies = state.allies
+    val enemies = state.enemies
 
     // Funciones de asignación con Regla Estricta MOBA de Unicidad Absoluta (ningún campeón puede duplicarse en ningún bando)
     val assignAllySlot: (Int, Champion) -> Unit = { targetIdx, champ ->
@@ -754,18 +792,18 @@ private fun FloatingOverlayContent(
         }
     }
 
-    var isScanning by remember { mutableStateOf(false) }
-    var autoScanEnabled by remember { mutableStateOf(false) }
-    var scanNoticeMessage by remember { mutableStateOf<String?>(null) }
+    var isScanning by state::isScanning
+    var autoScanEnabled by state::autoScanEnabled
+    var scanNoticeMessage by state::scanNoticeMessage
 
-    var isDraggingBubble by remember { mutableStateOf(false) }
-    var dragAccumulatedY by remember { mutableFloatStateOf(0f) }
-    var isNearCloseThreshold by remember { mutableStateOf(false) }
+    var isDraggingBubble by state::isDraggingBubble
+    var dragAccumulatedY by state::dragAccumulatedY
+    var isNearCloseThreshold by state::isNearCloseThreshold
 
-    var selectedChampionDetail by remember { mutableStateOf<Champion?>(null) }
-    var showChampionPickerForSlot by remember { mutableStateOf<Pair<Boolean, Int>?>(null) } // Pair(isAlly, slotIndex)
-    var isLoadingScreenMode by remember { mutableStateOf(false) }
-    var isOverlayTabsMinimized by remember { mutableStateOf(false) }
+    var selectedChampionDetail by state::selectedChampionDetail
+    var showChampionPickerForSlot by state::showChampionPickerForSlot
+    var isLoadingScreenMode by state::isLoadingScreenMode
+    var isOverlayTabsMinimized by state::isOverlayTabsMinimized
 
     val explicitEnemyOpponent = remember(activeRole, enemies.toList()) {
         val roleIndex = defaultRoles.indexOf(activeRole).coerceIn(0, 4)
@@ -2234,7 +2272,7 @@ private fun OverlayVersusDraftBoard(
                 val enemySlot = enemySlots.find { it.assignedRole == role }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -2287,7 +2325,7 @@ private fun DraftAvatarBox(
     
     Box(
         modifier = Modifier
-            .size(46.dp)
+            .size(38.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(when {
                 isMyRole -> HextechCyan.copy(alpha = 0.22f)

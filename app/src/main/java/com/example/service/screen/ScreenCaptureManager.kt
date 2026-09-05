@@ -236,8 +236,9 @@ class ScreenCaptureManager(private val context: Context) {
                 val currentVirtualDisplay = virtualDisplay
                 if (currentVirtualDisplay != null) {
                     try {
-                        currentVirtualDisplay.surface = newImageReader.surface
+                        currentVirtualDisplay.surface = null
                         currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
+                        currentVirtualDisplay.surface = newImageReader.surface
                         AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente a ($captureWidth x $captureHeight).")
                     } catch (e: Throwable) {
                         AppLogger.w(TAG, "Error al redimensionar VirtualDisplay, recreando: ${e.message}")

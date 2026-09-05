@@ -3,64 +3,62 @@ import re
 with open('app/src/main/java/com/example/service/screen/DraftVisionScanner.kt', 'r') as f:
     text = f.read()
 
-# Replace the ally role assignment block
-old_assign = """            // ASIGNACIÓN INTELIGENTE DE ALIADOS:
-            // Cada ranura aliada se asigna a su carril correspondiente según OCR explícito, Smite o rol primario del campeón
-            for (i in 0 until 5) {
-                val champ = allySlots[i] ?: continue
-                val explicitRole = allySlotRoles[i]
-                    ?: (if (slotHasSmite[i]) LaneRole.JUNGLE else null)
-                    ?: champ.primaryRole
-
-                if (!alliesByRole.containsKey(explicitRole)) {
-                    alliesByRole[explicitRole] = champ
-                }
+target_block = """            detectedAllyChamps.forEachIndexed { index, pair -> 
+                if (index < 5) allySlots[index] = pair.first 
             }
-
-            // Asignar los campeones aliados restantes que hayan tenido colisión
-            for (i in 0 until 5) {
-                val champ = allySlots[i] ?: continue
-                if (alliesByRole.containsValue(champ)) continue
-
-                val freeRole = champ.secondaryRoles.firstOrNull { !alliesByRole.containsKey(it) }
-                    ?: standardOrder.firstOrNull { !alliesByRole.containsKey(it) }
-
-                if (freeRole != null) {
-                    alliesByRole[freeRole] = champ
-                }
+            detectedEnemyChamps.forEachIndexed { index, pair -> 
+                if (index < 5) enemySlots[index] = pair.first 
+            }
+            detectedAllyRoles.forEachIndexed { index, pair -> 
+                if (index < 5) allySlotRoles[index] = pair.first 
+            }
+            detectedEnemyRoles.forEachIndexed { index, pair -> 
+                if (index < 5) enemySlotRoles[index] = pair.first 
             }"""
 
-new_assign = """            // ASIGNACIÓN INTELIGENTE DE ALIADOS:
-            // Simplificado para mayor resiliencia ante pantallas de diferentes proporciones.
-            val detectedAllyChamps = allySlots.filterNotNull().distinctBy { it.id }
-            val availableAllyRoles = standardOrder.toMutableList()
-
-            // 1. Asignar por rol primario explícito
-            for (champ in detectedAllyChamps) {
-                if (availableAllyRoles.contains(champ.primaryRole) && !alliesByRole.containsValue(champ)) {
-                    val roleMatches = detectedAllyChamps.count { it.primaryRole == champ.primaryRole }
-                    if (roleMatches == 1) {
-                        alliesByRole[champ.primaryRole] = champ
-                        availableAllyRoles.remove(champ.primaryRole)
+replacement_block = """            fun getClosestSlotIndex(yRatio: Float, centers: FloatArray): Int {
+                var minDiff = Float.MAX_VALUE
+                var minIndex = -1
+                for (i in centers.indices) {
+                    val diff = kotlin.math.abs(yRatio - centers[i])
+                    if (diff < minDiff) {
+                        minDiff = diff
+                        minIndex = i
                     }
                 }
+                return minIndex
             }
 
-            // 2. Asignar colisiones o roles secundarios
-            for (champ in detectedAllyChamps) {
-                if (alliesByRole.containsValue(champ)) continue
-                val role = champ.primaryRole.takeIf { availableAllyRoles.contains(it) }
-                    ?: champ.secondaryRoles.firstOrNull { availableAllyRoles.contains(it) }
-                    ?: availableAllyRoles.firstOrNull()
-
-                if (role != null) {
-                    alliesByRole[role] = champ
-                    availableAllyRoles.remove(role)
+            detectedAllyChamps.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
+                if (slot in 0..4 && allySlots[slot] == null) {
+                    allySlots[slot] = pair.first
+                }
+            }
+            detectedEnemyChamps.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
+                if (slot in 0..4 && enemySlots[slot] == null) {
+                    enemySlots[slot] = pair.first
+                }
+            }
+            detectedAllyRoles.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
+                if (slot in 0..4 && allySlotRoles[slot] == null) {
+                    allySlotRoles[slot] = pair.first
+                }
+            }
+            detectedEnemyRoles.forEach { pair ->
+                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
+                if (slot in 0..4 && enemySlotRoles[slot] == null) {
+                    enemySlotRoles[slot] = pair.first
                 }
             }"""
 
-text = text.replace(old_assign, new_assign)
+if target_block in text:
+    print("Found target block")
+    text = text.replace(target_block, replacement_block)
+else:
+    print("Could not find target block")
 
-# Also fix the enemy assignment if we can improve it (it's already using a similar logic)
 with open('app/src/main/java/com/example/service/screen/DraftVisionScanner.kt', 'w') as f:
     f.write(text)
