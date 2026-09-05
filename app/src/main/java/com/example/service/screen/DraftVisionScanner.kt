@@ -37,6 +37,70 @@ data class DraftScanResult(
  */
 object DraftVisionScanner {
 
+    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanResult {
+        val allChamps = WildRiftRepository.champions
+        val allySlots = arrayOfNulls<Champion>(5)
+        val enemySlots = arrayOfNulls<Champion>(5)
+        
+        val width = bitmap.width
+        val height = bitmap.height
+        
+        // Coordenadas aproximadas de los avatares circulares en los slots (Landscape)
+        // Aliados: Izquierda (~10% al 25% del ancho)
+        // Enemigos: Derecha (~75% al 90% del ancho)
+        val avatarWidth = (width * 0.12f).toInt()
+        val avatarHeight = (height * 0.12f).toInt() // Ajuste proporcional
+        
+        val allyX = (width * 0.11f).toInt()
+        val enemyX = (width * 0.77f).toInt()
+        
+        for (i in 0..4) {
+            val yCenter = height * (0.1f + (i * 0.2f))
+            val startY = (yCenter).toInt().coerceIn(0, height - avatarHeight)
+            
+            // Recortar aliado
+            try {
+                val allyCrop = Bitmap.createBitmap(bitmap, allyX, startY, avatarWidth, avatarHeight)
+                val allyMatch = com.example.util.ImageHashMatcher.findBestMatch(allyCrop, allChamps)
+                if (allyMatch != null) allySlots[i] = allyMatch
+                allyCrop.recycle()
+            } catch (e: Exception) {
+                AppLogger.e(TAG, "Error recortando aliado $i", e)
+            }
+            
+            // Recortar enemigo
+            try {
+                val enemyCrop = Bitmap.createBitmap(bitmap, enemyX, startY, avatarWidth, avatarHeight)
+                val enemyMatch = com.example.util.ImageHashMatcher.findBestMatch(enemyCrop, allChamps)
+                if (enemyMatch != null) enemySlots[i] = enemyMatch
+                enemyCrop.recycle()
+            } catch (e: Exception) {
+                AppLogger.e(TAG, "Error recortando enemigo $i", e)
+            }
+        }
+        
+        val defaultAllyRoles = arrayOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+        val alliesMap = mutableMapOf<LaneRole, Champion>()
+        val enemiesMap = mutableMapOf<LaneRole, Champion>()
+        
+        for (i in 0..4) {
+            allySlots[i]?.let { alliesMap[defaultAllyRoles[i]] = it }
+            enemySlots[i]?.let { enemiesMap[defaultAllyRoles[i]] = it }
+        }
+        
+        return DraftScanResult(
+            allies = allySlots.filterNotNull(),
+            enemies = enemySlots.filterNotNull(),
+            alliesByRole = alliesMap,
+            enemiesByRole = enemiesMap,
+            detectedRole = null, // Requiere otra lógica visual
+            detectedRawWords = listOf("Image Matching Active"),
+            isSuccessful = true,
+            statusMessage = "Escaneo visual completado"
+        )
+    }
+
+
     private const val TAG = "DraftVisionScanner"
     
     private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
@@ -241,7 +305,7 @@ object DraftVisionScanner {
                     val xRatio = centerX.toFloat() / ocrWidth.toFloat()
                     val yRatio = centerY.toFloat() / ocrHeight.toFloat()
 
-                    if (yRatio < 0.07f || yRatio > 0.89f) continue
+                    if (yRatio < 0.02f || yRatio > 0.98f) continue
 
                     val lower = lineText.lowercase(java.util.Locale.ROOT)
 
@@ -309,40 +373,38 @@ object DraftVisionScanner {
             detectedAllyRoles.sortBy { it.second }
             detectedEnemyRoles.sortBy { it.second }
 
-            fun getClosestSlotIndex(yRatio: Float, centers: FloatArray): Int {
-                var minDiff = Float.MAX_VALUE
-                var minIndex = -1
-                for (i in centers.indices) {
-                    val diff = kotlin.math.abs(yRatio - centers[i])
-                    if (diff < minDiff) {
-                        minDiff = diff
-                        minIndex = i
-                    }
-                }
-                return minIndex
+            // Nueva lógica de asignación proporcional dinámica (elimina el hardcodeo de centros exactos)
+            fun getSlotByProportion(yRatio: Float): Int {
+                // El 100% de la pantalla se divide en 5 franjas de 20% cada una
+                // 0.0 - 0.20 -> Top (0)
+                // 0.20 - 0.40 -> Jg (1)
+                // 0.40 - 0.60 -> Mid (2)
+                // 0.60 - 0.80 -> Duo (3)
+                // 0.80 - 1.00 -> Sup (4)
+                return (yRatio * 5).toInt().coerceIn(0, 4)
             }
 
             detectedAllyChamps.forEach { pair ->
-                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
-                if (slot in 0..4 && allySlots[slot] == null) {
+                val slot = getSlotByProportion(pair.second)
+                if (allySlots[slot] == null) {
                     allySlots[slot] = pair.first
                 }
             }
             detectedEnemyChamps.forEach { pair ->
-                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
-                if (slot in 0..4 && enemySlots[slot] == null) {
+                val slot = getSlotByProportion(pair.second)
+                if (enemySlots[slot] == null) {
                     enemySlots[slot] = pair.first
                 }
             }
             detectedAllyRoles.forEach { pair ->
-                val slot = getClosestSlotIndex(pair.second, allySlotYCenters)
-                if (slot in 0..4 && allySlotRoles[slot] == null) {
+                val slot = getSlotByProportion(pair.second)
+                if (allySlotRoles[slot] == null) {
                     allySlotRoles[slot] = pair.first
                 }
             }
             detectedEnemyRoles.forEach { pair ->
-                val slot = getClosestSlotIndex(pair.second, enemySlotYCenters)
-                if (slot in 0..4 && enemySlotRoles[slot] == null) {
+                val slot = getSlotByProportion(pair.second)
+                if (enemySlotRoles[slot] == null) {
                     enemySlotRoles[slot] = pair.first
                 }
             }
