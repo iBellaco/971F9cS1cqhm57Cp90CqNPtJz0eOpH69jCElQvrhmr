@@ -84,8 +84,8 @@ object ImageHashMatcher {
         return java.lang.Long.bitCount(hash1 xor hash2)
     }
 
-    // Busca el campeón más similar retornando detalles y porcentaje de confianza con umbral estricto (<= 11)
-    fun findBestMatchDetailed(bitmap: Bitmap, allChampions: List<Champion>, maxDistance: Int = 11): MatchResult? {
+    // Busca el campeón más similar retornando detalles y porcentaje de confianza con umbral de tolerancia
+    fun findBestMatchDetailed(bitmap: Bitmap, allChampions: List<Champion>, maxDistance: Int = 20): MatchResult? {
         val targetHash = calculateHash(bitmap)
         var bestMatch: Champion? = null
         var minDistance = maxDistance
@@ -102,7 +102,7 @@ object ImageHashMatcher {
         }
         
         return bestMatch?.let {
-            val confidence = (((64 - minDistance).toFloat() / 64.0f) * 100).toInt().coerceIn(75, 99)
+            val confidence = (((64 - minDistance).toFloat() / 64.0f) * 100).toInt().coerceIn(70, 99)
             MatchResult(champion = it, distance = minDistance, confidencePercent = confidence)
         }
     }

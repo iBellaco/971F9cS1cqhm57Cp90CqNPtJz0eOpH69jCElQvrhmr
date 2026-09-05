@@ -168,6 +168,78 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
+        // PASO 1.5: RECORTE VISUAL DE AVATARES E ICONOS DE ROL (FALLBACK Y MULTIMODAL DETECTION)
+        // -----------------------------------------------------------------------------------------
+        val avatarSize = (height * 0.115f).toInt().coerceAtLeast(24)
+        val allyAvatarCenterX = (width * 0.115f).toInt()
+        val enemyAvatarCenterX = (width * 0.915f).toInt()
+
+        // 1.5.1 Aliados
+        for (i in 0..4) {
+            val slot = allySlots[i]
+            val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
+            val startX = (allyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
+            val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
+
+            try {
+                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
+                
+                // Si aún no tenemos rol explícito, comprobar si el avatar es un icono de carril
+                if (slot.explicitRole == null) {
+                    val roleMatch = ImageHashMatcher.findRoleMatchDetailed(crop, maxDistance = 22)
+                    if (roleMatch != null) {
+                        slot.explicitRole = roleMatch.role
+                        AppLogger.d(TAG, "Avatar Aliado Slot $i -> Icono de rol: ${roleMatch.role.shortName}")
+                    }
+                }
+
+                // Si no se detectó el campeón por texto OCR, recurrir a la comparación visual del avatar
+                if (slot.champion == null) {
+                    val matchResult = ImageHashMatcher.findBestMatchDetailed(crop, allChamps, maxDistance = 20)
+                    if (matchResult != null) {
+                        slot.champion = matchResult.champion
+                        slot.confidencePercent = matchResult.confidencePercent
+                        AppLogger.d(TAG, "Avatar Aliado Slot $i -> Campeón visual: ${matchResult.champion.name} (Conf: ${matchResult.confidencePercent}%)")
+                    }
+                }
+                crop.recycle()
+            } catch (e: Exception) {
+                AppLogger.w(TAG, "Error recortando avatar aliado slot $i: ${e.message}")
+            }
+        }
+
+        // 1.5.2 Enemigos
+        for (i in 0..4) {
+            val slot = enemySlots[i]
+            val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
+            val startX = (enemyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
+            val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
+
+            try {
+                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
+                
+                if (slot.explicitRole == null) {
+                    val roleMatch = ImageHashMatcher.findRoleMatchDetailed(crop, maxDistance = 22)
+                    if (roleMatch != null) {
+                        slot.explicitRole = roleMatch.role
+                    }
+                }
+
+                if (slot.champion == null) {
+                    val matchResult = ImageHashMatcher.findBestMatchDetailed(crop, allChamps, maxDistance = 20)
+                    if (matchResult != null) {
+                        slot.champion = matchResult.champion
+                        slot.confidencePercent = matchResult.confidencePercent
+                        AppLogger.d(TAG, "Avatar Enemigo Slot $i -> Campeón visual: ${matchResult.champion.name} (Conf: ${matchResult.confidencePercent}%)")
+                    }
+                }
+                crop.recycle()
+            } catch (e: Exception) {
+                AppLogger.w(TAG, "Error recortando avatar enemigo slot $i: ${e.message}")
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
         // PASO 2: ASIGNACIÓN DETERMINISTA DE ROLES (ZERO-GUESSING)
         // -----------------------------------------------------------------------------------------
         val alliesMap = assignTeamRoles(allySlots, isAlly = true, auditList)

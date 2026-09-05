@@ -244,8 +244,7 @@ object ChampionNameResolver {
             }
         }
 
-        // 3. Coincidencia por palabra contenida (si la línea contiene el nombre exacto de un campeón)
-        // Ejemplo: "XCS Junior (Jarvan IV)" o "XCS Lucianito (Urgot)" o "CARRIL BARON - URGOT"
+        // 3. Coincidencia por palabra contenida (únicamente si la palabra coincide EXACTAMENTE con el nombre de un campeón)
         val words = clean.split(" ").filter { it.length >= 3 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
@@ -261,8 +260,9 @@ object ChampionNameResolver {
             }
         }
 
-        // 4. Coincidencia difusa estricta (Levenshtein distance <= 1) para corregir errores OCR menores (ej: VLAD1MIR -> VLADIMIR)
-        if (clean.length >= 4) {
+        // 4. Coincidencia difusa estricta (Levenshtein distance <= 1) para corregir errores OCR menores en nombres aislados
+        // Solo si la línea completa es corta (<= 12 caracteres) y no contiene palabras de UI
+        if (clean.length in 4..12 && words.size <= 2) {
             for (champ in allChampions) {
                 val champNorm = normalize(champ.name)
                 if (Math.abs(champNorm.length - clean.length) <= 1) {
