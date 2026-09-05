@@ -52,7 +52,8 @@ object WildRiftOfficialScraper {
     data class ChampionEntry(
         val nombre: String,
         val slug: String,
-        val pagina: String
+        val pagina: String,
+        val cardImageUrl: String? = null
     )
 
     data class ChampionProcessResult(
@@ -108,8 +109,22 @@ object WildRiftOfficialScraper {
         }
     }
 
+    private fun esBannerInvalido(url: String): Boolean {
+        val u = unquote(url).lowercase()
+        return u.contains("5120x480") ||
+               u.contains("76190b66cbd804a79bb1a709498b5af75f36a735") ||
+               u.contains("20aeb6046d11ff197c4eeb93150853ddf2ff14c0") ||
+               u.contains("content_organization") ||
+               u.contains("128x128") ||
+               u.contains("96x96") ||
+               u.contains("riotbar") ||
+               u.contains("footer") ||
+               u.contains("favicon")
+    }
+
     private fun esImagen(url: String?): Boolean {
         if (url.isNullOrBlank()) return false
+        if (esBannerInvalido(url)) return false
         val u = unquote(url).lowercase()
         val extensiones = listOf(".jpg", ".jpeg", ".png", ".webp", ".avif")
         return extensiones.any { u.contains(it) }
@@ -135,6 +150,56 @@ object WildRiftOfficialScraper {
         val soup = Jsoup.parse(html, BASE_URL)
         val campeonesMap = mutableMapOf<String, ChampionEntry>()
 
+        // 1. Extraer directamente desde __NEXT_DATA__ (Next.js Sanity CMS oficial)
+        try {
+            val nextDataPattern = Pattern.compile("<script id=\"__NEXT_DATA__\"[^>]*>(.*?)</script>", Pattern.DOTALL)
+            val matcherNext = nextDataPattern.matcher(html)
+            if (matcherNext.find()) {
+                val jsonStr = matcherNext.group(1)
+                val root = JSONObject(jsonStr)
+                val blades = root.optJSONObject("props")
+                    ?.optJSONObject("pageProps")
+                    ?.optJSONObject("page")
+                    ?.optJSONArray("blades")
+                if (blades != null) {
+                    for (i in 0 until blades.length()) {
+                        val blade = blades.optJSONObject(i) ?: continue
+                        if (blade.optString("type") == "characterCardGrid") {
+                            val items = blade.optJSONArray("items") ?: continue
+                            for (j in 0 until items.length()) {
+                                val item = items.optJSONObject(j) ?: continue
+                                val title = item.optString("title").trim()
+                                val media = item.optJSONObject("media")
+                                val cardImg = media?.optString("url")?.ifBlank { null }
+                                val actionUrl = item.optJSONObject("action")
+                                    ?.optJSONObject("payload")
+                                    ?.optString("url") ?: ""
+                                val cleanAction = actionUrl.trim('/')
+                                val slug = cleanAction.split('/').lastOrNull()?.lowercase() ?: ""
+                                if (slug.isNotBlank() && !slug.equals("champions", ignoreCase = true)) {
+                                    val fullUrl = if (actionUrl.startsWith("http")) actionUrl else "$BASE_URL/$cleanAction/"
+                                    val champName = if (title.isNotBlank()) title else slug.replace("-", " ")
+                                        .split(" ")
+                                        .filter { it.isNotBlank() }
+                                        .joinToString(" ") { part -> part.replaceFirstChar { it.uppercase() } }
+
+                                    campeonesMap[slug] = ChampionEntry(
+                                        nombre = champName,
+                                        slug = slug,
+                                        pagina = fullUrl,
+                                        cardImageUrl = cardImg
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 2. Extraer mediante etiquetas <a> como fallback/complemento
         val slugPattern = Pattern.compile("^/es-es/champions/([^/]+)/?$")
 
         for (enlace in soup.select("a[href]")) {
@@ -168,7 +233,7 @@ object WildRiftOfficialScraper {
             }
         }
 
-        // Método alternativo: Buscar patrones directamente en todo el HTML
+        // 3. Método alternativo: Buscar patrones directamente en todo el HTML
         val patternRegex = Pattern.compile("/es-es/champions/([a-zA-Z0-9_-]+)/?")
         val matcherHtml = patternRegex.matcher(html)
         while (matcherHtml.find()) {
@@ -198,12 +263,12 @@ object WildRiftOfficialScraper {
         val soup = Jsoup.parse(html, BASE_URL)
         val candidatos = mutableListOf<String>()
 
-        // 1. Meta tags
+        // 1. Meta tags (Descartar og:image genéricos del sitio)
         for (meta in soup.select("meta")) {
             val prop = (meta.attr("property").ifEmpty { meta.attr("name") }).lowercase()
             if (prop in listOf("og:image", "og:image:url", "twitter:image", "twitter:image:src")) {
                 val value = meta.attr("content")
-                if (value.isNotBlank()) candidatos.add(value)
+                if (value.isNotBlank() && !esBannerInvalido(value)) candidatos.add(value)
             }
         }
 
@@ -268,7 +333,7 @@ object WildRiftOfficialScraper {
             }
         }
 
-        // Normalizar
+        // Normalizar y filtrar banners no deseados
         val resultado = mutableListOf<String>()
         val vistos = mutableSetOf<String>()
 
@@ -290,12 +355,27 @@ object WildRiftOfficialScraper {
     }
 
     private fun puntuacion(url: String, nombre: String, slug: String): Int {
+        if (esBannerInvalido(url)) {
+            return -10000 // Descarte absoluto para evitar el banner 5120x480 de 22.34 kB
+        }
+
         val texto = unquote(url.lowercase())
         val nombreNorm = nombre.lowercase().replace(Regex("[^a-z0-9]"), "")
         val slugNorm = slug.lowercase().replace(Regex("[^a-z0-9]"), "")
         val textoNorm = texto.replace(Regex("[^a-z0-9]"), "")
 
         var puntos = 0
+
+        // Prioridad máxima: Imágenes oficiales de Wild Rift por resolución
+        if (texto.contains("1280x720") || texto.contains("1920x1080") || texto.contains("1600x900")) {
+            puntos += 600 // Splash Art HD de Wild Rift
+        }
+        if (texto.contains("285x323") || texto.contains("285x328")) {
+            puntos += 400 // Card Portrait oficial
+        }
+        if (texto.contains("game_data") || texto.contains("game_data_live")) {
+            puntos += 150 // Assets de juego oficial vs noticias/artículos
+        }
 
         // Coincidencia con nombre
         if (nombreNorm.isNotEmpty() && textoNorm.contains(nombreNorm)) {
@@ -315,25 +395,98 @@ object WildRiftOfficialScraper {
         if (texto.contains("loading")) puntos += 30
 
         // Penalizaciones
+        if (texto.contains("96x96")) puntos -= 200
+        if (texto.contains("128x128")) puntos -= 250
         if (texto.contains("icon")) puntos -= 80
-        if (texto.contains("spell")) puntos -= 100
-        if (texto.contains("ability")) puntos -= 100
-        if (texto.contains("passive")) puntos -= 100
-        if (texto.contains("logo")) puntos -= 150
-        if (texto.contains("favicon")) puntos -= 150
+        if (texto.contains("spell") || texto.contains("ability") || texto.contains("passive")) puntos -= 120
+        if (texto.contains("logo") || texto.contains("favicon")) puntos -= 200
+        if (texto.contains("banner") || texto.contains("header")) puntos -= 300
 
         return puntos
     }
 
     private fun elegirImagen(urls: List<String>, nombre: String, slug: String): String? {
         if (urls.isEmpty()) return null
-        val ordenadas = urls.sortedByDescending { puntuacion(it, nombre, slug) }
+        val filtradas = urls.filter { !esBannerInvalido(it) }
+        val ordenadas = filtradas.sortedByDescending { puntuacion(it, nombre, slug) }
         return ordenadas.firstOrNull()
+    }
+
+    /**
+     * Extrae con precisión milimétrica la imagen oficial del campeón:
+     * 1. Prioriza el Splash Art oficial 1280x720 de landingMediaCarousel en __NEXT_DATA__
+     * 2. Si no, busca cualquier Splash Art oficial 1280x720 en el JSON de Next.js
+     * 3. Fallback al Card Portrait oficial (285x323) del catálogo de campeones
+     * 4. Si aún no hay, examina candidatos válidos descartando iconos y metadatos
+     */
+    fun extraerMejorImagenDeCampeon(
+        html: String,
+        nombre: String,
+        slug: String,
+        fallbackCardUrl: String?
+    ): String? {
+        try {
+            val nextDataPattern = Pattern.compile("<script id=\"__NEXT_DATA__\"[^>]*>(.*?)</script>", Pattern.DOTALL)
+            val matcher = nextDataPattern.matcher(html)
+            if (matcher.find()) {
+                val jsonStr = matcher.group(1)
+                val root = JSONObject(jsonStr)
+                val blades = root.optJSONObject("props")
+                    ?.optJSONObject("pageProps")
+                    ?.optJSONObject("page")
+                    ?.optJSONArray("blades")
+
+                if (blades != null) {
+                    // 1. Buscar landingMediaCarousel: el primer grupo contiene el Splash Art base HD 1280x720
+                    for (i in 0 until blades.length()) {
+                        val blade = blades.optJSONObject(i) ?: continue
+                        if (blade.optString("type") == "landingMediaCarousel") {
+                            val groups = blade.optJSONArray("groups")
+                            if (groups != null && groups.length() > 0) {
+                                val firstGroup = groups.optJSONObject(0)
+                                val mediaUrl = firstGroup?.optJSONObject("content")
+                                    ?.optJSONObject("media")
+                                    ?.optString("url")
+                                if (!mediaUrl.isNullOrBlank() && !esBannerInvalido(mediaUrl)) {
+                                    return mediaUrl
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. Buscar cualquier imagen 1280x720 en el JSON
+                    val splashMatcher = Pattern.compile("https?://cmsassets\\.rgpub\\.io/sanity/images/[^\"'<>\\s\\\\]+1280x720\\.(?:jpg|jpeg|png|webp)", Pattern.CASE_INSENSITIVE).matcher(jsonStr)
+                    if (splashMatcher.find()) {
+                        val candidate = splashMatcher.group(0)
+                        if (!esBannerInvalido(candidate)) {
+                            return candidate
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // 3. Fallback prioritario al Card Portrait 285x323 del catálogo de Wild Rift
+        if (!fallbackCardUrl.isNullOrBlank() && !esBannerInvalido(fallbackCardUrl)) {
+            return fallbackCardUrl
+        }
+
+        // 4. Extracción general con filtro estricto
+        val urls = extraerImagenes(html)
+        val elegida = elegirImagen(urls, nombre, slug)
+        if (elegida != null && puntuacion(elegida, nombre, slug) > 0 && !esBannerInvalido(elegida)) {
+            return elegida
+        }
+
+        return fallbackCardUrl?.takeIf { !esBannerInvalido(it) } ?: elegida
     }
 
     /**
      * Descarga la imagen en binario y la guarda en la carpeta "WildRift_Imagenes" dentro de Descargas.
      * Soporta Android 10+ (Scoped Storage / MediaStore) y versiones anteriores / fallback local.
+     * Realiza limpieza proactiva de archivos corruptos previos (banners de 22.34 kB).
      */
     private fun guardarImagen(context: Context, nombre: String, url: String): String? {
         val seguro = nombreSeguro(nombre)
@@ -342,14 +495,35 @@ object WildRiftOfficialScraper {
         val relativeSubDir = "${Environment.DIRECTORY_DOWNLOADS}/$OUTPUT_DIR_NAME"
 
         try {
-            // Intentar primero verificar si ya existe en almacenamiento directo
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val outputFolder = File(downloadsDir, OUTPUT_DIR_NAME)
             if (!outputFolder.exists()) {
                 outputFolder.mkdirs()
             }
+
+            // LIMPIEZA ACTIVA DE ARCHIVOS CORRUPTOS PREVIOS:
+            // Elimina archivos erróneos de ejecuciones anteriores (banner/icono genérico de ~22.34 kB o thumbnails)
+            val posiblesArchivosCorruptos = listOf(
+                File(outputFolder, "$seguro.png"),
+                File(outputFolder, "$seguro.jpg"),
+                File(outputFolder, "$seguro.jpeg"),
+                File(outputFolder, "$seguro.webp")
+            )
+            for (f in posiblesArchivosCorruptos) {
+                if (f.exists()) {
+                    val len = f.length()
+                    // Si mide menos de 28 KB o es un thumbnail erróneo, borrarlo para descargar el arte HD
+                    if (len < 28000L || (f.name.endsWith(".png") && extension != ".png" && len < 35000L)) {
+                        try {
+                            f.delete()
+                        } catch (_: Exception) {}
+                    }
+                }
+            }
+
             val localTargetFile = File(outputFolder, fileName)
-            if (localTargetFile.exists() && localTargetFile.length() > 0) {
+            if (localTargetFile.exists() && localTargetFile.length() > 28000L) {
+                // Ya existe y es una imagen legítima (> 28KB)
                 return localTargetFile.absolutePath
             }
 
@@ -471,10 +645,7 @@ object WildRiftOfficialScraper {
                     continue
                 }
 
-                val imagenes = extraerImagenes(html)
-                onProgress("   Imágenes candidatas: ${imagenes.size}")
-
-                val imagen = elegirImagen(imagenes, campeon.nombre, campeon.slug)
+                val imagen = extraerMejorImagenDeCampeon(html, campeon.nombre, campeon.slug, campeon.cardImageUrl)
                 if (imagen == null) {
                     onProgress("   No se encontró imagen adecuada.")
                     resultados.add(

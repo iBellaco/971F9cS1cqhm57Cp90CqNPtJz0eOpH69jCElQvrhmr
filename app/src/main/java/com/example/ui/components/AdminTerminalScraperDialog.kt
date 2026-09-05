@@ -552,6 +552,7 @@ private fun RawPythonCodeViewerDialog(
 import os
 import re
 import csv
+import json
 import time
 import requests
 from bs4 import BeautifulSoup
@@ -564,7 +565,7 @@ from urllib.parse import urljoin, urlparse, unquote
 BASE_URL = "https://wildrift.leagueoflegends.com"
 CHAMPIONS_URL = BASE_URL + "/es-es/champions/"
 
-# UNA SOLA CARPETA PARA TODAS LAS IMÁGENES
+# CARPETA DE SALIDA
 OUTPUT_DIR = "WildRift_Imagenes"
 
 DELAY = 0.5
@@ -595,27 +596,17 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def limpiar_url(url):
     if not url:
         return None
-
     url = url.strip()
-
     if url.startswith("//"):
         url = "https:" + url
-
     return urljoin(BASE_URL, url)
 
 
 def descargar_html(url):
     try:
-        response = session.get(
-            url,
-            timeout=TIMEOUT,
-            allow_redirects=True
-        )
-
+        response = session.get(url, timeout=TIMEOUT, allow_redirects=True)
         response.raise_for_status()
-
         return response.text
-
     except requests.RequestException as e:
         print(f"   ERROR: {e}")
         return None
@@ -627,21 +618,29 @@ def nombre_seguro(nombre):
     return nombre.strip()
 
 
-def es_imagen(url):
+def es_banner_invalido(url):
     if not url:
-        return False
-
-    url = unquote(url).lower()
-
-    extensiones = (
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".webp",
-        ".avif"
+        return True
+    u = unquote(url).lower()
+    return (
+        "5120x480" in u or
+        "76190b66cbd804a79bb1a709498b5af75f36a735" in u or
+        "20aeb6046d11ff197c4eeb93150853ddf2ff14c0" in u or
+        "content_organization" in u or
+        "128x128" in u or
+        "96x96" in u or
+        "riotbar" in u or
+        "footer" in u or
+        "favicon" in u
     )
 
-    return any(extension in url for extension in extensiones)
+
+def es_imagen(url):
+    if not url or es_banner_invalido(url):
+        return False
+    u = unquote(url).lower()
+    extensiones = (".jpg", ".jpeg", ".png", ".webp", ".avif")
+    return any(ext in u for ext in extensiones)
 
 
 def extension_imagen(url):
@@ -658,57 +657,70 @@ def extension_imagen(url):
 
 
 # ============================================================
-# DESCUBRIR CAMPEONES
+# DESCUBRIR CAMPEONES (NEXT_DATA + HTML)
 # ============================================================
 
 def obtener_campeones():
     print()
     print("=" * 70)
-    print("OBTENIENDO CAMPEONES")
+    print("OBTENIENDO CAMPEONES DE WILD RIFT")
     print("=" * 70)
 
     html = descargar_html(CHAMPIONS_URL)
     if not html:
         return []
 
-    soup = BeautifulSoup(html, "lxml")
     campeones = {}
 
+    # 1. Extraer desde __NEXT_DATA__
+    try:
+        match_next = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
+        if match_next:
+            data = json.loads(match_next.group(1))
+            blades = data.get("props", {}).get("pageProps", {}).get("page", {}).get("blades", [])
+            for blade in blades:
+                if blade.get("type") == "characterCardGrid":
+                    for item in blade.get("items", []):
+                        title = item.get("title", "").strip()
+                        media = item.get("media", {})
+                        card_img = media.get("url")
+                        action_url = item.get("action", {}).get("payload", {}).get("url", "")
+                        clean_action = action_url.strip("/")
+                        slug = clean_action.split("/")[-1].lower() if clean_action else ""
+                        if slug and slug != "champions":
+                            full_url = action_url if action_url.startswith("http") else f"{BASE_URL}/{clean_action}/"
+                            name = title if title else slug.replace("-", " ").title()
+                            campeones[slug] = {
+                                "nombre": name,
+                                "slug": slug,
+                                "pagina": full_url,
+                                "card_image_url": card_img
+                            }
+    except Exception as e:
+        print(f"Aviso parseando __NEXT_DATA__: {e}")
+
+    # 2. Fallback por tags <a>
+    soup = BeautifulSoup(html, "lxml")
     for enlace in soup.find_all("a", href=True):
         href = limpiar_url(enlace.get("href"))
         if not href:
             continue
-
         path = urlparse(href).path
         match = re.match(r"^/es-es/champions/([^/]+)/?$", path)
         if not match:
             continue
-
         slug = match.group(1).lower()
-        if not slug:
-            continue
-
-        nombre = enlace.get_text(" ", strip=True)
-        if not nombre:
-            nombre = slug.replace("-", " ").title()
-
-        campeones[slug] = {
-            "nombre": nombre,
-            "slug": slug,
-            "pagina": href
-        }
-
-    # Método alternativo por regex
-    patrones = re.findall(r"/es-es/champions/([a-zA-Z0-9_-]+)/?", html)
-    for slug in patrones:
-        slug = slug.strip("/").lower()
-        if not slug:
+        if not slug or slug == "champions":
             continue
         if slug not in campeones:
+            nombre = enlace.get_text(" ", strip=True)
+            if not nombre:
+                nombre = slug.replace("-", " ").title()
             campeones[slug] = {
-                "nombre": slug.replace("-", " ").title(),
+                "nombre": nombre,
                 "slug": slug,
-                "pagina": f"{BASE_URL}/es-es/champions/{slug}/"
+                "pagina": href,
+                "card_image_url": None
             }
 
     resultado = list(campeones.values())
@@ -718,7 +730,7 @@ def obtener_campeones():
 
 
 # ============================================================
-# EXTRAER POSIBLES IMÁGENES
+# EXTRAER POSIBLES IMÁGENES Y SCORING
 # ============================================================
 
 def extraer_imagenes(html):
@@ -729,7 +741,7 @@ def extraer_imagenes(html):
         propiedad = (meta.get("property") or meta.get("name") or "").lower()
         if propiedad in ("og:image", "og:image:url", "twitter:image", "twitter:image:src"):
             contenido = meta.get("content")
-            if contenido:
+            if contenido and not es_banner_invalido(contenido):
                 candidatos.append(contenido)
 
     for img in soup.find_all("img"):
@@ -785,17 +797,24 @@ def extraer_imagenes(html):
     return resultado
 
 
-# ============================================================
-# ELEGIR IMAGEN PRINCIPAL
-# ============================================================
-
 def puntuacion(url, nombre, slug):
+    if es_banner_invalido(url):
+        return -10000
+
     texto = unquote(url.lower())
     nombre_norm = re.sub(r"[^a-z0-9]", "", nombre.lower())
     slug_norm = re.sub(r"[^a-z0-9]", "", slug.lower())
     texto_norm = re.sub(r"[^a-z0-9]", "", texto)
 
     puntos = 0
+    # Bonus prioritario por resolución de imagen oficial
+    if "1280x720" in texto or "1920x1080" in texto:
+        puntos += 600
+    if "285x323" in texto:
+        puntos += 400
+    if "game_data" in texto:
+        puntos += 150
+
     if nombre_norm and nombre_norm in texto_norm:
         puntos += 100
     if slug_norm and slug_norm in texto_norm:
@@ -812,12 +831,18 @@ def puntuacion(url, nombre, slug):
     if "loading" in texto:
         puntos += 30
 
+    if "96x96" in texto:
+        puntos -= 200
+    if "128x128" in texto:
+        puntos -= 250
     if "icon" in texto:
         puntos -= 80
     if "spell" in texto or "ability" in texto or "passive" in texto:
-        puntos -= 100
+        puntos -= 120
     if "logo" in texto or "favicon" in texto:
-        puntos -= 150
+        puntos -= 200
+    if "banner" in texto or "header" in texto:
+        puntos -= 300
 
     return puntos
 
@@ -825,7 +850,47 @@ def puntuacion(url, nombre, slug):
 def elegir_imagen(urls, nombre, slug):
     if not urls:
         return None
-    return sorted(urls, key=lambda x: puntuacion(x, nombre, slug), reverse=True)[0]
+    validas = [u for u in urls if not es_banner_invalido(u)]
+    if not validas:
+        return None
+    return sorted(validas, key=lambda x: puntuacion(x, nombre, slug), reverse=True)[0]
+
+
+def extraer_mejor_imagen(html, nombre, slug, fallback_card):
+    # 1. Extraer Splash Art HD 1280x720 de landingMediaCarousel en __NEXT_DATA__
+    try:
+        match_next = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
+        if match_next:
+            data = json.loads(match_next.group(1))
+            blades = data.get("props", {}).get("pageProps", {}).get("page", {}).get("blades", [])
+            for blade in blades:
+                if blade.get("type") == "landingMediaCarousel":
+                    groups = blade.get("groups", [])
+                    if groups:
+                        media_url = groups[0].get("content", {}).get("media", {}).get("url")
+                        if media_url and not es_banner_invalido(media_url):
+                            return media_url
+            
+            # Buscar cualquier 1280x720 en el JSON
+            splash_match = re.search(r'https?://cmsassets\.rgpub\.io/sanity/images/[^"\'<>\s\\]+1280x720\.(?:jpg|jpeg|png|webp)', match_next.group(1), re.IGNORECASE)
+            if splash_match:
+                url = splash_match.group(0)
+                if not es_banner_invalido(url):
+                    return url
+    except Exception:
+        pass
+
+    # 2. Fallback prioritario al Card Portrait 285x323 oficial del catálogo
+    if fallback_card and not es_banner_invalido(fallback_card):
+        return fallback_card
+
+    # 3. Elegir según scoring descartando iconos/metadatos
+    candidatos = extraer_imagenes(html)
+    elegida = elegir_imagen(candidatos, nombre, slug)
+    if elegida and puntuacion(elegida, nombre, slug) > 0 and not es_banner_invalido(elegida):
+        return elegida
+
+    return (fallback_card if fallback_card and not es_banner_invalido(fallback_card) else elegida)
 
 
 def guardar_imagen(nombre, url):
@@ -834,7 +899,18 @@ def guardar_imagen(nombre, url):
     extension = extension_imagen(url)
     archivo = os.path.join(OUTPUT_DIR, nombre + extension)
 
-    if os.path.exists(archivo):
+    # Limpiar posibles archivos corruptos anteriores (banners/thumbnails < 28 kB)
+    for ext in (".png", ".jpg", ".jpeg", ".webp"):
+        posible = os.path.join(OUTPUT_DIR, nombre + ext)
+        if os.path.exists(posible):
+            tam = os.path.getsize(posible)
+            if tam < 28000 or (ext == ".png" and extension != ".png" and tam < 35000):
+                try:
+                    os.remove(posible)
+                except Exception:
+                    pass
+
+    if os.path.exists(archivo) and os.path.getsize(archivo) > 28000:
         return archivo
 
     try:
@@ -849,12 +925,131 @@ def guardar_imagen(nombre, url):
             return None
         return archivo
     except Exception as e:
+        print(f"      ERROR descargando: {e}")
         if os.path.exists(archivo):
             try:
                 os.remove(archivo)
-            except:
+            except Exception:
                 pass
         return None
+
+
+# ============================================================
+# FLUJO PRINCIPAL
+# ============================================================
+
+def main():
+    inicio = time.time()
+    print("=" * 70)
+    print(" WILD RIFT - DESCARGADOR DE IMÁGENES OFICIALES")
+    print("=" * 70)
+
+    campeones = obtener_campeones()
+    if not campeones:
+        print("ERROR: No se encontraron campeones.")
+        return
+
+    resultados = []
+
+    for i, c in enumerate(campeones, start=1):
+        nombre = c["nombre"]
+        slug = c["slug"]
+        pagina = c["pagina"]
+        card_img = c.get("card_image_url")
+
+        print("-" * 70)
+        print(f"[{i}/{len(campeones)}] {nombre}")
+        print(f"Página: {pagina}")
+
+        html = descargar_html(pagina)
+        if not html:
+            resultados.append({
+                "campeon": nombre,
+                "slug": slug,
+                "url_imagen": "",
+                "archivo": "",
+                "estado": "ERROR_PAGINA"
+            })
+            time.sleep(DELAY)
+            continue
+
+        imagen = extraer_mejor_imagen(html, nombre, slug, card_img)
+        if not imagen:
+            print("   No se encontró imagen adecuada.")
+            resultados.append({
+                "campeon": nombre,
+                "slug": slug,
+                "url_imagen": "",
+                "archivo": "",
+                "estado": "SIN_IMAGEN"
+            })
+            time.sleep(DELAY)
+            continue
+
+        print(f"   Imagen seleccionada: {imagen}")
+        archivo = guardar_imagen(nombre, imagen)
+
+        if archivo:
+            print(f"   Guardada: {archivo}")
+            resultados.append({
+                "campeon": nombre,
+                "slug": slug,
+                "url_imagen": imagen,
+                "archivo": archivo,
+                "estado": "OK"
+            })
+        else:
+            print("   ERROR al guardar la imagen.")
+            resultados.append({
+                "campeon": nombre,
+                "slug": slug,
+                "url_imagen": imagen,
+                "archivo": "",
+                "estado": "ERROR_DESCARGA"
+            })
+
+        time.sleep(DELAY)
+
+    # Guardar CSV, TXT y JSON
+    csv_file = os.path.join(OUTPUT_DIR, "resultado.csv")
+    with open(csv_file, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["campeon", "slug", "url_imagen", "archivo", "estado"])
+        for r in resultados:
+            writer.writerow([r["campeon"], r["slug"], r["url_imagen"], r["archivo"], r["estado"]])
+
+    txt_file = os.path.join(OUTPUT_DIR, "urls_imagenes.txt")
+    with open(txt_file, "w", encoding="utf-8") as f:
+        for r in resultados:
+            if r["url_imagen"]:
+                f.write(f"{r['campeon']} | {r['url_imagen']}\n")
+
+    json_file = os.path.join(OUTPUT_DIR, "resultado.json")
+    with open(json_file, "w", encoding="utf-8") as f:
+        json.dump(resultados, f, ensure_ascii=False, indent=2)
+
+    descargadas = sum(1 for r in resultados if r["estado"] == "OK")
+    errores = len(campeones) - descargadas
+    duracion = time.time() - inicio
+
+    resumen_file = os.path.join(OUTPUT_DIR, "resumen.txt")
+    with open(resumen_file, "w", encoding="utf-8") as f:
+        f.write(f"WILD RIFT - RESUMEN\n{'=' * 50}\n\n")
+        f.write(f"Campeones encontrados: {len(campeones)}\n")
+        f.write(f"Imágenes descargadas: {descargadas}\n")
+        f.write(f"Errores: {errores}\n")
+        f.write(f"Tiempo: {duracion:.1f} segundos\n")
+        f.write(f"Carpeta: {OUTPUT_DIR}/\n")
+
+    print("=" * 70)
+    print(" RESULTADO FINAL")
+    print("=" * 70)
+    print(f"Campeones encontrados : {len(campeones)}")
+    print(f"Imágenes descargadas  : {descargadas}")
+    print(f"Errores               : {errores}")
+    print(f"Tiempo                : {duracion:.1f} segundos")
+    print(f"Carpeta de imágenes   : {OUTPUT_DIR}/")
+    print("=" * 70)
 
 if __name__ == "__main__":
     main()
