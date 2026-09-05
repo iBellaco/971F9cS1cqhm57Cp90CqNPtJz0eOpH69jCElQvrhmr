@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -206,7 +207,7 @@ fun DraftTeamPositionCard(
                             contentDescription = tr(labelKey),
                             tint = iconTint,
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(if (isOverlay) 20.dp else 28.dp)
                                 .padding(1.dp)
                         )
 
@@ -227,7 +228,8 @@ fun DraftTeamPositionCard(
                         // CASILLA DE SELECCIÓN DE CAMPEÓN (Sustituye la casilla 1 y 2)
                         Box(
                             modifier = Modifier
-                                .size(if (isOverlay) 34.dp else 44.dp)
+                                .fillMaxWidth(0.85f)
+                                .aspectRatio(1f)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
                                     when {

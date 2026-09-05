@@ -1,14 +1,19 @@
 with open('app/src/main/java/com/example/service/FloatingAssistantService.kt', 'r') as f:
     text = f.read()
 
-# 1. Add isLandscapeMode to FloatingOverlayContent
-text = text.replace("private fun FloatingOverlayContent(\n    screenCaptureManager: ScreenCaptureManager?,", "private fun FloatingOverlayContent(\n    isLandscapeMode: Boolean,\n    screenCaptureManager: ScreenCaptureManager?,")
+# Fix 1: Change com.example.ui.components.DraftSlot to com.example.model.DraftSlot
+text = text.replace("com.example.ui.components.DraftSlot", "com.example.model.DraftSlot")
 
-# 2. Pass it from createFloatingOverlay
-text = text.replace("FloatingOverlayContent(\n                            screenCaptureManager = screenCaptureManager,", "FloatingOverlayContent(\n                            isLandscapeMode = isDeviceLandscape.value,\n                            screenCaptureManager = screenCaptureManager,")
-
-# 3. Update the call to FloatingDraftCoachView
-text = text.replace("isLandscapeMode = this@FloatingAssistantService.isDeviceLandscape.value,", "isLandscapeMode = isLandscapeMode,")
+# Fix 2: Remove the extra } at the end of CoachContent.
+# Currently it looks like:
+#     Column(modifier = Modifier.fillMaxWidth()) {
+# ... all the code
+#     }
+# }
+# }
+# Let's find `    }\n}\n}` and replace with `    }\n}`
+text = text.replace("    }\n}\n}", "    }\n}")
 
 with open('app/src/main/java/com/example/service/FloatingAssistantService.kt', 'w') as f:
     f.write(text)
+

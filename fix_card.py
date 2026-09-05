@@ -1,54 +1,21 @@
-import sys
+import re
 
-with open("app/src/main/java/com/example/ui/components/AdminDashboardDialog.kt", "r") as f:
-    content = f.read()
+with open('app/src/main/java/com/example/ui/components/DraftTeamPositionCard.kt', 'r') as f:
+    text = f.read()
 
-target = """        // Inner card body with subtle ambient role gradient
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(
-                            roleColor.copy(alpha = 0.08f),
-                            LolCardBg,
-                            Color(0xFF091428).copy(alpha = 0.95f)
-                        )
-                    )
-                )
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {"""
+# Replace .size(if (isOverlay) 34.dp else 44.dp) with .fillMaxWidth(0.85f).aspectRatio(1f)
+text = text.replace(
+    ".size(if (isOverlay) 34.dp else 44.dp)",
+    ".fillMaxWidth(0.85f)\n                                .aspectRatio(1f)"
+)
 
-replacement = """        // Inner card body with subtle ambient role gradient
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(
-                            roleColor.copy(alpha = 0.08f),
-                            LolCardBg,
-                            Color(0xFF091428).copy(alpha = 0.95f)
-                        )
-                    )
-                )
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {"""
+# Also let's shrink the Role Icon in overlay mode so it doesn't cause overflow.
+# The icon is currently .size(28.dp). Let's make it adaptive or smaller.
+text = text.replace(
+    ".size(28.dp)",
+    ".size(if (isOverlay) 20.dp else 28.dp)"
+)
 
-content = content.replace(target, replacement)
-
-# Make sure we don't have dangling brackets
-# Wait, I already have the Column started, but I need to ensure it closes properly before the Canvas.
+with open('app/src/main/java/com/example/ui/components/DraftTeamPositionCard.kt', 'w') as f:
+    f.write(text)
 

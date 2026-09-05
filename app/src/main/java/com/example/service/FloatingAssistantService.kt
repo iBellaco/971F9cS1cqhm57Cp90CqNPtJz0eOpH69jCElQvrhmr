@@ -120,6 +120,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
@@ -2150,110 +2151,212 @@ private fun FloatingDraftCoachView(
         }
     }
 
-    
-
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 4.dp)
     ) {
-        // 1. TABLERO DE DRAFT (EQUIPO ALIADO Y RIVAL) CON EL MODELO EXACTO DE LA APP
-        if (isLandscapeMode) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    com.example.ui.components.DraftTeamPositionCard(
-                        isOverlay = true,
-                        title = tr("Equipo Aliado"),
-                        isEnemy = false,
-                        slots = allySlots,
-                        activeUserRole = activeRole,
-                        onPickChampionForRole = { role ->
-                            val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                            onOpenChampionPicker(true, index)
-                        },
-                        onRemoveChampionForRole = { role ->
-                            val roleIndex = defaultRoles.indexOf(role)
-                            if (roleIndex in 0 until 5) {
-                                allies[roleIndex] = null
-                                onManualEdit()
-                            }
-                        },
-                        onChampionClick = onSelectChampion
-                    )
-                }
-                Box(modifier = Modifier.weight(1f)) {
-                    com.example.ui.components.DraftTeamPositionCard(
-                        isOverlay = true,
-                        title = tr("Equipo Rival"),
-                        isEnemy = true,
-                        slots = enemySlots,
-                        activeUserRole = activeRole,
-                        onPickChampionForRole = { role ->
-                            val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                            onOpenChampionPicker(false, index)
-                        },
-                        onRemoveChampionForRole = { role ->
-                            val roleIndex = defaultRoles.indexOf(role)
-                            if (roleIndex in 0 until 5) {
-                                enemies[roleIndex] = null
-                                onManualEdit()
-                            }
-                        },
-                        onChampionClick = onSelectChampion
-                    )
+        // TABLERO DE DRAFT VERSUS (ALIADO VS RIVAL POR LÍNEAS)
+        OverlayVersusDraftBoard(
+            allySlots = allySlots,
+            enemySlots = enemySlots,
+            activeUserRole = activeRole,
+            onPickChampionForRole = { isAlly, role ->
+                val index = defaultRoles.indexOf(role).coerceAtLeast(0)
+                onOpenChampionPicker(isAlly, index)
+            },
+            onRemoveChampionForRole = { isAlly, role ->
+                val roleIndex = defaultRoles.indexOf(role)
+                if (roleIndex in 0 until 5) {
+                    if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
+                    onManualEdit()
                 }
             }
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // CONTENIDO DEL COACH (CONTROLES Y ANÁLISIS)
+        CoachContent(
+            allies = allies,
+            enemies = enemies,
+            activeRole = activeRole,
+            onActiveRoleChange = onActiveRoleChange,
+            isFirstPick = isFirstPick,
+            onFirstPickToggle = onFirstPickToggle,
+            analysis = analysis,
+            explicitEnemyOpponent = explicitEnemyOpponent,
+            onSelectChampion = onSelectChampion,
+            onSaveDraftClick = onSaveDraftClick,
+            isSavedRecently = isSavedRecently,
+            onClearAll = onClearAll,
+            onGoToTierList = onGoToTierList,
+            isPremium = isPremium
+        )
+    }
+}
+
+
+@Composable
+private fun OverlayVersusDraftBoard(
+    allySlots: List<DraftSlot>,
+    enemySlots: List<DraftSlot>,
+    activeUserRole: LaneRole?,
+    onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
+    onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
+) {
+    val roles = listOf(
+        Triple(LaneRole.TOP, "TOP", R.drawable.ic_wr_role_solo),
+        Triple(LaneRole.JUNGLE, "JUG", R.drawable.ic_wr_role_jungle),
+        Triple(LaneRole.MID, "MID", R.drawable.ic_wr_role_mid),
+        Triple(LaneRole.ADC, "DÚO", R.drawable.ic_wr_role_duo),
+        Triple(LaneRole.SUPPORT, "SUP", R.drawable.ic_wr_role_support)
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = BorderStroke(1.dp, HextechCardBorder)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp, top = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                com.example.ui.components.DraftTeamPositionCard(
-                    isOverlay = true,
-                    title = tr("Equipo Aliado"),
-                    isEnemy = false,
-                    slots = allySlots,
-                    activeUserRole = activeRole,
-                    onPickChampionForRole = { role ->
-                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                        onOpenChampionPicker(true, index)
-                    },
-                    onRemoveChampionForRole = { role ->
-                        val roleIndex = defaultRoles.indexOf(role)
-                        if (roleIndex in 0 until 5) {
-                            allies[roleIndex] = null
-                            onManualEdit()
-                        }
-                    },
-                    onChampionClick = onSelectChampion
-                )
+                Text(tr("ALIADO"), color = AllyBlue, fontWeight = FontWeight.Black, fontSize = 11.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Start)
+                Text("VS", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+                Text(tr("RIVAL"), color = DangerRed, fontWeight = FontWeight.Black, fontSize = 11.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            roles.forEachIndexed { index, (role, label, iconRes) ->
+                val allySlot = allySlots.find { it.assignedRole == role }
+                val enemySlot = enemySlots.find { it.assignedRole == role }
 
-                com.example.ui.components.DraftTeamPositionCard(
-                    isOverlay = true,
-                    title = tr("Equipo Rival"),
-                    isEnemy = true,
-                    slots = enemySlots,
-                    activeUserRole = activeRole,
-                    onPickChampionForRole = { role ->
-                        val index = defaultRoles.indexOf(role).coerceAtLeast(0)
-                        onOpenChampionPicker(false, index)
-                    },
-                    onRemoveChampionForRole = { role ->
-                        val roleIndex = defaultRoles.indexOf(role)
-                        if (roleIndex in 0 until 5) {
-                            enemies[roleIndex] = null
-                            onManualEdit()
-                        }
-                    },
-                    onChampionClick = onSelectChampion
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Ally Avatar
+                    DraftAvatarBox(
+                        slot = allySlot,
+                        isEnemy = false,
+                        isMyRole = activeUserRole == role,
+                        onClick = { onPickChampionForRole(true, role) },
+                        onRemove = { onRemoveChampionForRole(true, role) }
+                    )
+
+                    // Center Role
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(40.dp)) {
+                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(22.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(label, color = TextSecondary, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                    }
+
+                    // Enemy Avatar
+                    DraftAvatarBox(
+                        slot = enemySlot,
+                        isEnemy = true,
+                        isMyRole = false,
+                        onClick = { onPickChampionForRole(false, role) },
+                        onRemove = { onRemoveChampionForRole(false, role) }
+                    )
+                }
+                
+                if (index < roles.size - 1) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(HextechCardBorder.copy(alpha=0.5f)))
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(6.dp))
+@Composable
+private fun DraftAvatarBox(
+    slot: DraftSlot?,
+    isEnemy: Boolean,
+    isMyRole: Boolean,
+    onClick: () -> Unit,
+    onRemove: () -> Unit
+) {
+    val champ = slot?.champion
+    val borderColor = if (isMyRole) HextechCyan else if (champ != null) (if (isEnemy) DangerRed else HextechGold) else HextechCardBorder
+    
+    Box(
+        modifier = Modifier
+            .size(46.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(when {
+                isMyRole -> HextechCyan.copy(alpha = 0.22f)
+                champ != null -> if (isEnemy) DangerRed.copy(alpha=0.2f) else HextechGold.copy(alpha=0.2f)
+                else -> Color(0xFF070D15)
+            })
+            .border(1.5.dp, borderColor, RoundedCornerShape(8.dp))
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (champ != null) {
+            AppAssetImage(
+                url = champ.avatarUrl,
+                contentDescription = champ.name,
+                fallbackText = champ.name,
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp))
+            )
+            if (isMyRole) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(2.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(HextechCyan)
+                        .padding(horizontal = 3.dp, vertical = 1.dp)
+                ) {
+                    Text(
+                        text = tr("TÚ"),
+                        color = Color.Black,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(16.dp)
+                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(bottomStart = 8.dp))
+                    .clickable { onRemove() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.White, modifier = Modifier.size(12.dp))
+            }
+        } else {
+            Icon(Icons.Default.Add, contentDescription = "Añadir", tint = TextMuted, modifier = Modifier.size(20.dp))
+        }
+    }
+}
 
+
+@Composable
+private fun CoachContent(
+    allies: List<com.example.model.Champion?>,
+    enemies: List<com.example.model.Champion?>,
+    activeRole: LaneRole,
+    onActiveRoleChange: (LaneRole) -> Unit,
+    isFirstPick: Boolean,
+    onFirstPickToggle: () -> Unit,
+    analysis: com.example.model.DraftAnalysisResult,
+    explicitEnemyOpponent: Champion?,
+    onSelectChampion: (Champion?) -> Unit,
+    onSaveDraftClick: () -> Unit,
+    isSavedRecently: Boolean,
+    onClearAll: () -> Unit,
+    onGoToTierList: () -> Unit,
+    isPremium: Boolean
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         // 2. SELECTOR DE MI ROL / LÍNEA
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -2542,802 +2645,6 @@ private fun FloatingDraftCoachView(
                     }
                     
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FloatingTierAndBuildsView(
-    selectedChampion: Champion?,
-    onSelectChampion: (Champion?) -> Unit,
-    activeRoleFilter: LaneRole,
-    onRoleFilterChange: (LaneRole) -> Unit
-) {
-    val context = LocalContext.current
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf<LaneRole?>(activeRoleFilter) }
-
-    if (selectedChampion != null) {
-        val champ = selectedChampion
-        val roleProfile = remember(champ.id, activeRoleFilter) {
-            ChampionRoleAdapter.getProfile(champ, activeRoleFilter)
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Barra de controles de Build
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { onSelectChampion(null) },
-                    modifier = Modifier.height(26.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(12.dp), tint = HextechGold)
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text("Volver", color = HextechGold, fontSize = 9.5.sp)
-                }
-
-                Button(
-                    onClick = {
-                        val intent = Intent(context, com.example.MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            putExtra("OPEN_CHAMPION_DETAIL", champ.id)
-                        }
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.height(26.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                ) {
-                    Text("Abrir en App", color = HextechDarkBg, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Tarjeta de Campeón y Estadísticas Principales
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                border = BorderStroke(1.dp, HextechGold)
-            ) {
-                Row(
-                    modifier = Modifier.padding(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ChampionAvatar(champion = champ, size = 42.dp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Black, fontSize = 13.sp)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(TierSPlusColor)
-                                    .padding(horizontal = 4.dp, vertical = 1.dp)
-                            ) {
-                                Text(champ.tier, color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Black)
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("WR: ${String.format(Locale.US, "%.2f", champ.winrate)}%", color = HextechGold, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                            Text("• ${tr(champ.primaryRole.displayName)}", color = HextechCyan, fontSize = 9.5.sp)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-             // 🎒 OBJETOS (CORE Y SITUACIONALES)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                border = BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(6.dp)) {
-                    Text("🎒 " + tr("Objetos Core (Builds Visuales)"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    val coreItems = if (roleProfile.coreItems.isNotEmpty()) roleProfile.coreItems else champ.coreItems
-                    val coreIcons = if (roleProfile.coreItemsIcons.isNotEmpty()) roleProfile.coreItemsIcons else coreItems.map { WildRiftItemsData.getItemIconByName(it) }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        coreItems.forEachIndexed { idx, itemName ->
-                            val iconUrl = coreIcons.getOrNull(idx) ?: WildRiftItemsData.getItemIconByName(itemName)
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.width(34.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(26.dp)
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(HextechSurface)
-                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(5.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (iconUrl.isNotBlank()) {
-                                        AppAssetImage(
-                                            url = iconUrl,
-                                            contentDescription = itemName,
-                                            fallbackText = itemName.take(2),
-                                            modifier = Modifier.size(22.dp),
-                                            shape = RoundedCornerShape(4.dp)
-                                        )
-                                    } else {
-                                        Text("🛡️", fontSize = 11.sp)
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = itemName,
-                                    color = HextechGoldLight,
-                                    fontSize = 6.5.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-
-                    // 🥾 BOTAS Y ENCANTAMIENTOS
-                    val bootBase = roleProfile.bootBase.ifBlank { "Botas blindadas" }
-                    val bootUpgrade = roleProfile.bootUpgrade.ifBlank { "Avance blindado" }
-                    val activeOpt = roleProfile.buildOptions.firstOrNull()
-                    val sitBoots = activeOpt?.situationalBoots ?: roleProfile.buildOptions.flatMap { it.situationalBoots }.distinct()
-
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text("🥾 " + tr("Botas y Encantamiento:"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "$bootBase  ➔  $bootUpgrade",
-                        color = HextechCyan,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    if (sitBoots.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(3.dp))
-                        Text(
-                            text = tr("Botas situacionales:") + " ${sitBoots.joinToString(", ")}",
-                            color = TextMuted,
-                            fontSize = 8.sp
-                        )
-                    }
-
-                    if (roleProfile.situationalItems.isNotEmpty() || champ.situationalItems.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("🔄 " + tr("Situacionales Clave"), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        val sitItems = if (roleProfile.situationalItems.isNotEmpty()) roleProfile.situationalItems else champ.situationalItems
-                        Text(
-                            text = sitItems.joinToString(", "),
-                            color = TextMuted,
-                            fontSize = 8.5.sp
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // ⚡ RUNAS Y HECHIZOS
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                border = BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(6.dp)) {
-                    Text("⚡ " + tr("Runas Óptimas"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = roleProfile.recommendedRunes.ifBlank { champ.recommendedRunes },
-                        color = TextPrimary,
-                        fontSize = 9.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text("🔥 " + tr("Hechizos de Invocador"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = if (roleProfile.recommendedSpells.isNotEmpty()) roleProfile.recommendedSpells.joinToString(" + ") else champ.recommendedSpells.joinToString(" + "),
-                        color = TextPrimary,
-                        fontSize = 9.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // 📜 ORDEN DE HABILIDADES (TERMINOLOGÍA WILD RIFT)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                border = BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(6.dp)) {
-                    Text("📜 " + tr("Orden de Habilidades"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Priorizar Definitiva (H4) > Habilidad 1 (H1) > Habilidad 3 (H3) > Habilidad 2 (H2)",
-                        color = Color(0xFF00FF7F),
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // 🛡️ COUNTERS Y SINERGIAS
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
-                border = BorderStroke(1.dp, HextechCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(6.dp)) {
-                    val adv = if (roleProfile.advantageAgainst.isNotEmpty()) roleProfile.advantageAgainst else champ.advantageAgainst
-                    if (adv.isNotEmpty()) {
-                        Text("⚔️ " + tr("Fuerte contra") + ": " + adv.take(3).joinToString(", "), color = AllyBlue, fontSize = 8.5.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                    val count = if (roleProfile.counteredBy.isNotEmpty()) roleProfile.counteredBy else champ.counteredBy
-                    if (count.isNotEmpty()) {
-                        Text("⚠️ " + tr("Débil contra (Counters)") + ": " + count.take(3).joinToString(", "), color = DangerRed, fontSize = 8.5.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
-                    }
-                    val syn = if (roleProfile.synergies.isNotEmpty()) {
-                        roleProfile.synergies
-                    } else if (champ.synergies.isNotEmpty()) {
-                        champ.synergies
-                    } else {
-                        com.example.data.SynergyAdvisor.getSynergyProfile(champ, selectedRole ?: champ.primaryRole, "es").bestTeammates.map { it.championName }
-                    }
-                    val synDistinct = syn.distinct()
-                    if (synDistinct.isNotEmpty()) {
-                        Text("🤝 " + tr("Sinergias aliadas") + ": " + synDistinct.take(3).joinToString(", "), color = HextechCyan, fontSize = 8.5.sp)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // 💡 CONSEJO DEL COACH
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
-                border = BorderStroke(1.dp, HextechGold)
-            ) {
-                Column(modifier = Modifier.padding(6.dp)) {
-                    Text("💡 " + tr("Consejo Challenger"), color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = roleProfile.tacticalAdvice.ifBlank { champ.tacticalAdvice },
-                        color = TextMuted,
-                        fontSize = 8.5.sp
-                    )
-                }
-            }
-        }
-    } else {
-        // Vista de lista / búsqueda de campeones
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Buscador Compacto y Proporcionado
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(28.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(HextechSurface)
-                    .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 6.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Box(modifier = Modifier.weight(1f)) {
-                        if (searchQuery.isEmpty()) {
-                            Text(tr("Buscar campeón"), color = TextMuted, fontSize = 10.sp)
-                        }
-                        androidx.compose.foundation.text.BasicTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = androidx.compose.ui.text.TextStyle(color = TextPrimary, fontSize = 10.5.sp),
-                            singleLine = true,
-                            cursorBrush = androidx.compose.ui.graphics.SolidColor(HextechCyan)
-                        )
-                    }
-                    if (searchQuery.isNotEmpty()) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Limpiar",
-                            tint = TextMuted,
-                            modifier = Modifier.size(12.dp).clickable { searchQuery = "" }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Filtros de Rol
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                val isAllSelected = selectedRole == null
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(if (isAllSelected) HextechGold else HextechSurface)
-                        .clickable { selectedRole = null }
-                        .padding(vertical = 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Todos",
-                        fontSize = 8.sp,
-                        fontWeight = if (isAllSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isAllSelected) HextechDarkBg else TextPrimary
-                    )
-                }
-
-                LaneRole.entries.forEach { role ->
-                    val isSelected = selectedRole == role
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (isSelected) HextechCyan else HextechSurface)
-                            .clickable {
-                                selectedRole = if (isSelected) null else role
-                                onRoleFilterChange(role)
-                            }
-                            .padding(vertical = 3.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = tr(role.shortName),
-                            fontSize = 8.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) HextechDarkBg else TextPrimary
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            val filteredChampions = remember(searchQuery, selectedRole) {
-                val trimmedQuery = searchQuery.trim()
-                WildRiftRepository.champions.filter { champ ->
-                    val matchesRole = selectedRole == null || champ.primaryRole == selectedRole || champ.secondaryRoles.contains(selectedRole)
-                    val matchesSearch = trimmedQuery.isBlank() || champ.name.contains(trimmedQuery, ignoreCase = true)
-                    matchesRole && matchesSearch
-                }.sortedWith(compareBy<Champion> {
-                    when (it.tier) {
-                        "S+" -> 0
-                        "S" -> 1
-                        "A" -> 2
-                        "B" -> 3
-                        else -> 4
-                    }
-                }.thenByDescending { it.winrate })
-            }
-
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                items(filteredChampions) { champ ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(HextechSurface)
-                            .clickable { onSelectChampion(champ) }
-                            .padding(horizontal = 6.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ChampionAvatar(champion = champ, size = 28.dp)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(champ.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                            Text(tr(champ.primaryRole.displayName), color = TextMuted, fontSize = 7.5.sp)
-                        }
-                        Text("WR: ${String.format(Locale.US, "%.1f", champ.winrate)}%", color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(
-                                    when (champ.tier) {
-                                        "S+" -> TierSPlusColor
-                                        "S" -> HextechGold
-                                        "A" -> HextechCyan
-                                        else -> HextechCardBorder
-                                    }
-                                )
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        ) {
-                            Text(
-                                text = champ.tier,
-                                color = if (champ.tier == "S+" || champ.tier == "S" || champ.tier == "A") Color.Black else Color.White,
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-                    }
-                    
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun FloatingHistoryView(
-    onSelectChampionDetail: (Champion) -> Unit
-) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val savedDrafts by DraftHistoryRepository.getAllDrafts(context).collectAsStateWithLifecycle(initialValue = emptyList())
-
-    var filterResult by remember { mutableStateOf("ALL") } // "ALL", "VICTORY", "DEFEAT"
-
-    val totalMatches = savedDrafts.size
-    val totalWins = remember(savedDrafts) { savedDrafts.count { it.matchResult == "VICTORY" } }
-    val totalLosses = totalMatches - totalWins
-    val winrate = if (totalMatches > 0) (totalWins.toDouble() / totalMatches) * 100 else 0.0
-
-    val filteredDrafts = remember(savedDrafts, filterResult) {
-        when (filterResult) {
-            "VICTORY" -> savedDrafts.filter { it.matchResult == "VICTORY" }
-            "DEFEAT" -> savedDrafts.filter { it.matchResult == "DEFEAT" }
-            else -> savedDrafts
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Resumen Estadístico Conectado
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "📊 " + tr("Mi Historial de Partidas"),
-                        color = HextechGold,
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "$totalMatches ${tr("Partidas")} • $totalWins V - $totalLosses D",
-                        color = TextMuted,
-                        fontSize = 8.5.sp
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(if (winrate >= 50.0) Color(0xFF00FF7F).copy(alpha = 0.2f) else DangerRed.copy(alpha = 0.2f))
-                        .border(1.dp, if (winrate >= 50.0) Color(0xFF00FF7F) else DangerRed, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = "WR: ${String.format(Locale.US, "%.1f", winrate)}%",
-                        color = if (winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        // Filtros de Historial (Todas / Victorias / Derrotas)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            listOf("ALL" to "Todas", "VICTORY" to "Victorias", "DEFEAT" to "Derrotas").forEach { (key, label) ->
-                val isSelected = filterResult == key
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            if (isSelected) {
-                                when (key) {
-                                    "VICTORY" -> Color(0xFF00FF7F).copy(alpha = 0.3f)
-                                    "DEFEAT" -> DangerRed.copy(alpha = 0.3f)
-                                    else -> HextechGold.copy(alpha = 0.3f)
-                                }
-                            } else HextechSurface
-                        )
-                        .border(
-                            1.dp,
-                            if (isSelected) {
-                                when (key) {
-                                    "VICTORY" -> Color(0xFF00FF7F)
-                                    "DEFEAT" -> DangerRed
-                                    else -> HextechGold
-                                }
-                            } else HextechCardBorder.copy(alpha = 0.5f),
-                            RoundedCornerShape(4.dp)
-                        )
-                        .clickable { filterResult = key }
-                        .padding(vertical = 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = label,
-                        fontSize = 8.5.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) TextPrimary else TextMuted
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        if (filteredDrafts.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.History, contentDescription = null, tint = TextMuted, modifier = Modifier.size(28.dp))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = tr("Sin partidas registradas"),
-                        color = TextMuted,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = tr("Guarda tus drafts para calcular tus estadísticas"),
-                        color = TextMuted.copy(alpha = 0.7f),
-                        fontSize = 8.5.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(filteredDrafts, key = { it.id }) { draft ->
-                    val isVictory = draft.matchResult == "VICTORY"
-                    val dateFormatted = remember(draft.timestamp) {
-                        try {
-                            SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(draft.timestamp))
-                        } catch (_: Exception) {
-                            ""
-                        }
-                    }
-                    val myChamp = remember(draft.myChampionId) {
-                        WildRiftRepository.getChampionById(draft.myChampionId)
-                    }
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(6.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = BorderStroke(1.dp, if (isVictory) Color(0xFF00FF7F).copy(alpha = 0.5f) else DangerRed.copy(alpha = 0.5f))
-                    ) {
-                        Column(modifier = Modifier.padding(6.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (myChamp != null) {
-                                        ChampionAvatar(
-                                            champion = myChamp,
-                                            size = 24.dp,
-                                            modifier = Modifier.clickable { onSelectChampionDetail(myChamp) }
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                    }
-                                    Text(
-                                        text = draft.title,
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 10.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                }
-
-                                Text(
-                                    text = if (isVictory) "👑 " + tr("Victoria") else "💔 " + tr("Derrota"),
-                                    color = if (isVictory) Color(0xFF00FF7F) else DangerRed,
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Black
-                                )
-                            }
-
-                            if (draft.notes.isNotBlank()) {
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "📝 " + draft.notes,
-                                    color = HextechGoldLight,
-                                    fontSize = 8.sp,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(3.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = dateFormatted,
-                                    color = TextMuted,
-                                    fontSize = 7.5.sp
-                                )
-
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    // Alternar Victoria / Derrota
-                                    Text(
-                                        text = if (isVictory) tr("Cambiar a Derrota") else tr("Cambiar a Victoria"),
-                                        color = HextechCyan,
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.clickable {
-                                            coroutineScope.launch {
-                                                DraftHistoryRepository.updateMatchResult(
-                                                    context = context,
-                                                    id = draft.id,
-                                                    result = if (isVictory) "DEFEAT" else "VICTORY"
-                                                )
-                                            }
-                                        }
-                                    )
-
-                                    // Eliminar
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Eliminar",
-                                        tint = DangerRed.copy(alpha = 0.7f),
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clickable {
-                                                coroutineScope.launch {
-                                                    DraftHistoryRepository.deleteDraft(context, draft.id)
-                                                }
-                                            }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DraftSlotItem(
-    slotIndex: Int,
-    champion: Champion?,
-    isAlly: Boolean,
-    explicitRoleName: String? = null,
-    onSlotClick: () -> Unit,
-    onRemoveClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(6.dp))
-            .background(HextechDarkBg)
-            .border(0.5.dp, if (isAlly) AllyBlue.copy(alpha = 0.4f) else DangerRed.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-            .clickable { onSlotClick() }
-            .padding(horizontal = 4.dp, vertical = 3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        if (champion != null) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                ChampionAvatar(champion = champion, size = 22.dp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Column {
-                    Text(
-                        text = champion.name,
-                        color = TextPrimary,
-                        fontSize = 9.5.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    if (!isAlly) {
-                        Text(
-                            text = explicitRoleName ?: "? (Oculto)",
-                            color = if (explicitRoleName != null) Color(0xFF00FF7F) else DangerRed.copy(alpha = 0.8f),
-                            fontSize = 7.5.sp,
-                            fontWeight = if (explicitRoleName != null) FontWeight.Bold else FontWeight.Medium
-                        )
-                    }
-                }
-            }
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Eliminar",
-                tint = TextMuted,
-                modifier = Modifier
-                    .size(14.dp)
-                    .clickable { onRemoveClick() }
-            )
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clip(CircleShape)
-                        .background(HextechSurface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Añadir", tint = TextMuted, modifier = Modifier.size(12.dp))
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = if (explicitRoleName != null) explicitRoleName else (if (isAlly) "${tr("Slot")} $slotIndex" else "${tr("Pick")} $slotIndex"),
-                    color = if (explicitRoleName != null) Color(0xFF00FF7F).copy(alpha = 0.7f) else TextMuted,
-                    fontSize = 9.sp,
-                    fontWeight = if (explicitRoleName != null) FontWeight.Bold else FontWeight.Normal
-                )
             }
         }
     }
