@@ -11,6 +11,12 @@ data class RoleMatchResult(
     val confidence: Float
 )
 
+data class MatchResult(
+    val champion: Champion,
+    val distance: Int,
+    val confidencePercent: Int
+)
+
 object ImageHashMatcher {
     
     // Calcula el aHash (Average Hash) de 64 bits para un Bitmap de recorte
@@ -78,11 +84,11 @@ object ImageHashMatcher {
         return java.lang.Long.bitCount(hash1 xor hash2)
     }
 
-    // Busca el campeón más similar
-    fun findBestMatch(bitmap: Bitmap, allChampions: List<Champion>): Champion? {
+    // Busca el campeón más similar retornando detalles y porcentaje de confianza
+    fun findBestMatchDetailed(bitmap: Bitmap, allChampions: List<Champion>, maxDistance: Int = 20): MatchResult? {
         val targetHash = calculateHash(bitmap)
         var bestMatch: Champion? = null
-        var minDistance = 20 // Umbral máximo de tolerancia (max 64)
+        var minDistance = maxDistance
         
         allChampions.forEach { champ ->
             val champHash = ChampionHashes.map[champ.id]
@@ -95,7 +101,15 @@ object ImageHashMatcher {
             }
         }
         
-        return bestMatch
+        return bestMatch?.let {
+            val confidence = (((64 - minDistance).toFloat() / 64.0f) * 100).toInt().coerceIn(65, 99)
+            MatchResult(champion = it, distance = minDistance, confidencePercent = confidence)
+        }
+    }
+
+    // Busca el campeón más similar
+    fun findBestMatch(bitmap: Bitmap, allChampions: List<Champion>): Champion? {
+        return findBestMatchDetailed(bitmap, allChampions)?.champion
     }
 }
 

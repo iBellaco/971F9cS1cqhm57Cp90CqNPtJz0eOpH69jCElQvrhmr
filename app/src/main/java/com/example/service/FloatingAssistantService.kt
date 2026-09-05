@@ -719,6 +719,7 @@ class OverlayState {
     var isOverlayTabsMinimized by androidx.compose.runtime.mutableStateOf(false)
     val allies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
     val enemies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
+    val enemyConfidences = androidx.compose.runtime.mutableStateMapOf<LaneRole, Int>()
 }
 
 @Composable
@@ -767,15 +768,21 @@ private fun FloatingOverlayContent(
         }
     }
 
-    val assignEnemySlot: (Int, Champion) -> Unit = { targetIdx, champ ->
+    val assignEnemySlot: (Int, Champion, Int?) -> Unit = { targetIdx, champ, conf ->
         for (i in 0 until 5) {
             if (allies[i]?.id == champ.id) allies[i] = null
         }
         for (i in 0 until 5) {
-            if (i != targetIdx && enemies[i]?.id == champ.id) enemies[i] = null
+            if (i != targetIdx && enemies[i]?.id == champ.id) {
+                enemies[i] = null
+                defaultRoles.getOrNull(i)?.let { state.enemyConfidences.remove(it) }
+            }
         }
         if (targetIdx in 0 until 5) {
             enemies[targetIdx] = champ
+            defaultRoles.getOrNull(targetIdx)?.let { role ->
+                state.enemyConfidences[role] = conf ?: 85
+            }
         }
     }
 
@@ -833,8 +840,8 @@ private fun FloatingOverlayContent(
                                     }
                                 }
                                 val scannedEnemy = result.enemiesByRole[role]
-                                if (scannedEnemy != null && enemies[idx]?.id != scannedEnemy.id) {
-                                    assignEnemySlot(idx, scannedEnemy)
+                                if (scannedEnemy != null && (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role])) {
+                                    assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                     newEnemiesAdded++
                                 }
                             }
@@ -891,7 +898,7 @@ private fun FloatingOverlayContent(
                             }
                             val scannedEnemy = result.enemiesByRole[role]
                             if (scannedEnemy != null) {
-                                assignEnemySlot(idx, scannedEnemy)
+                                assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                             }
                         }
 
@@ -1429,6 +1436,7 @@ private fun FloatingOverlayContent(
                                             onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
                                             allies = allies,
                                             enemies = enemies,
+                                            enemyConfidences = state.enemyConfidences,
                                             analysis = analysis,
                                             selectedChampionDetail = selectedChampionDetail,
                                             onSelectChampion = { selectedChampionDetail = it },
@@ -1443,6 +1451,7 @@ private fun FloatingOverlayContent(
                                                     allies[i] = null
                                                     enemies[i] = null
                                                 }
+                                                state.enemyConfidences.clear()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
                                             onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
@@ -2144,6 +2153,7 @@ private fun FloatingDraftCoachView(
     onLoadingScreenModeToggle: () -> Unit,
     allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
     enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
+    enemyConfidences: androidx.compose.runtime.snapshots.SnapshotStateMap<LaneRole, Int>,
     analysis: com.example.model.DraftAnalysisResult,
     selectedChampionDetail: Champion?,
     onSelectChampion: (Champion?) -> Unit,
@@ -2172,9 +2182,12 @@ private fun FloatingDraftCoachView(
             allies.getOrNull(index)?.let { DraftSlot(champion = it, assignedRole = role) }
         }
     }
-    val enemySlots = remember(enemies.toList()) {
+    val enemySlots = remember(enemies.toList(), enemyConfidences.toMap()) {
         defaultRoles.mapIndexedNotNull { index, role ->
-            enemies.getOrNull(index)?.let { DraftSlot(champion = it, assignedRole = role) }
+            enemies.getOrNull(index)?.let {
+                val conf = enemyConfidences[role] ?: 85
+                DraftSlot(champion = it, assignedRole = role, confidence = conf)
+            }
         }
     }
 
@@ -2193,7 +2206,12 @@ private fun FloatingDraftCoachView(
             onRemoveChampionForRole = { isAlly, role ->
                 val roleIndex = defaultRoles.indexOf(role)
                 if (roleIndex in 0 until 5) {
-                    if (isAlly) allies[roleIndex] = null else enemies[roleIndex] = null
+                    if (isAlly) {
+                        allies[roleIndex] = null
+                    } else {
+                        enemies[roleIndex] = null
+                        enemyConfidences.remove(role)
+                    }
                     onManualEdit()
                 }
             }
@@ -2285,14 +2303,37 @@ private fun OverlayVersusDraftBoard(
                         Text(label, color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
                     }
 
-                    // Enemy Avatar
-                    DraftAvatarBox(
-                        slot = enemySlot,
-                        isEnemy = true,
-                        isMyRole = false,
-                        onClick = { onPickChampionForRole(false, role) },
-                        onRemove = { onRemoveChampionForRole(false, role) }
-                    )
+                    // Enemy Avatar + Confidence Tag
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        if (enemySlot?.confidence != null && enemySlot.champion != null) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                                    .background(Color(0xFF0F1923).copy(alpha = 0.9f))
+                                    .border(0.5.dp, if (enemySlot.confidence >= 80) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
+                                    .padding(horizontal = 2.5.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = "${enemySlot.confidence}%",
+                                    color = if (enemySlot.confidence >= 80) HextechCyan else HextechGold,
+                                    fontSize = 7.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        DraftAvatarBox(
+                            slot = enemySlot,
+                            isEnemy = true,
+                            isMyRole = false,
+                            onClick = { onPickChampionForRole(false, role) },
+                            onRemove = { onRemoveChampionForRole(false, role) }
+                        )
+                    }
                 }
                 
                 if (index < roles.size - 1) {

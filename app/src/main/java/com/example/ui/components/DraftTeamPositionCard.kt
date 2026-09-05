@@ -338,6 +338,29 @@ fun DraftTeamPositionCard(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.clickable { onChampionClick(champ) }
                             )
+                            // Indicador de certeza / confianza SOLO para el equipo rival (desconocimiento de línea hasta loading screen)
+                            if (isEnemy && slot?.confidence != null) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(3.dp))
+                                        .background(Color(0xFF0F1923).copy(alpha = 0.9f))
+                                        .border(
+                                            0.5.dp,
+                                            if (slot.confidence >= 80) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f),
+                                            RoundedCornerShape(3.dp)
+                                        )
+                                        .padding(horizontal = 3.dp, vertical = 0.5.dp)
+                                ) {
+                                    Text(
+                                        text = "${slot.confidence}%",
+                                        color = if (slot.confidence >= 80) HextechCyan else HextechGold,
+                                        fontSize = if (isOverlay) 6.sp else 7.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
                         } else {
                             Spacer(modifier = Modifier.height(if (isMyRole) 8.dp else 3.dp))
                             Text(

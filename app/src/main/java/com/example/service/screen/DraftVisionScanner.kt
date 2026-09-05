@@ -26,6 +26,7 @@ data class ScannedSlotInfo(
     val champion: Champion?,
     val iconRole: LaneRole?,
     val ocrRole: LaneRole?,
+    val confidencePercent: Int = 90,
     var assignedRole: LaneRole? = null,
     var isDiscrepancy: Boolean = false,
     var auditLog: String? = null
@@ -36,6 +37,7 @@ data class DraftScanResult(
     val enemies: List<Champion>,
     val alliesByRole: Map<LaneRole, Champion> = emptyMap(),
     val enemiesByRole: Map<LaneRole, Champion> = emptyMap(),
+    val enemyConfidencesByRole: Map<LaneRole, Int> = emptyMap(),
     val detectedRole: LaneRole? = null,
     val detectedRawWords: List<String> = emptyList(),
     val discrepancies: List<String> = emptyList(),
@@ -177,11 +179,16 @@ object DraftVisionScanner {
             val startY = (yCenter - avatarHeight / 2).toInt().coerceIn(0, height - avatarHeight)
             
             var matchedChamp: Champion? = null
+            var matchedConfidence = 85
             var matchedIconRole: LaneRole? = null
 
             try {
                 val enemyCrop = Bitmap.createBitmap(bitmap, enemyAvatarX, startY, avatarWidth, avatarHeight)
-                matchedChamp = ImageHashMatcher.findBestMatch(enemyCrop, allChamps)
+                val matchResult = ImageHashMatcher.findBestMatchDetailed(enemyCrop, allChamps)
+                matchedChamp = matchResult?.champion
+                if (matchResult != null) {
+                    matchedConfidence = matchResult.confidencePercent
+                }
                 enemyCrop.recycle()
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Error recortando avatar enemigo slot $i: ${e.message}")
@@ -203,7 +210,8 @@ object DraftVisionScanner {
                     isAlly = false,
                     champion = matchedChamp,
                     iconRole = matchedIconRole,
-                    ocrRole = enemySlotOcrRoles[i]
+                    ocrRole = enemySlotOcrRoles[i],
+                    confidencePercent = matchedConfidence
                 )
             )
         }
@@ -345,6 +353,20 @@ object DraftVisionScanner {
         val allyChampIds = alliesMap.values.map { it.id }.toSet()
         val finalEnemiesMap = enemiesMap.filterNot { entry -> allyChampIds.contains(entry.value.id) }
 
+        // Mapear el nivel de certeza/confianza por rol del equipo rival
+        val enemyConfidences = mutableMapOf<LaneRole, Int>()
+        enemySlotInfos.forEach { slot ->
+            val assigned = slot.assignedRole
+            if (assigned != null && finalEnemiesMap.containsKey(assigned)) {
+                val finalConf = when {
+                    slot.iconRole != null -> (slot.confidencePercent + 6).coerceAtMost(98)
+                    slot.ocrRole != null -> (slot.confidencePercent + 3).coerceAtMost(95)
+                    else -> (slot.confidencePercent - 4).coerceAtLeast(65)
+                }
+                enemyConfidences[assigned] = finalConf
+            }
+        }
+
         val allyChampsList = alliesMap.values.toList()
         val enemyChampsList = finalEnemiesMap.values.toList()
         val total = allyChampsList.size + enemyChampsList.size
@@ -360,6 +382,7 @@ object DraftVisionScanner {
             enemies = enemyChampsList,
             alliesByRole = alliesMap,
             enemiesByRole = finalEnemiesMap,
+            enemyConfidencesByRole = enemyConfidences,
             detectedRole = null,
             detectedRawWords = detectedWords,
             discrepancies = discrepancyAuditList,

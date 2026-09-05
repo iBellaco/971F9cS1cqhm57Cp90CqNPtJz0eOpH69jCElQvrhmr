@@ -228,7 +228,8 @@ data class MapObjectiveItem(
 @Serializable
 data class DraftSlot(
     val champion: Champion,
-    val assignedRole: LaneRole = champion.primaryRole
+    val assignedRole: LaneRole = champion.primaryRole,
+    val confidence: Int? = null
 )
 
 @Serializable
