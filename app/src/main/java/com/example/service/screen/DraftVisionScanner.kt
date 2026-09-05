@@ -142,6 +142,8 @@ object DraftVisionScanner {
 
     /**
      * Escanea el Bitmap de la pantalla capturada e identifica los campeones en selección y el rol asignado al jugador.
+     * La identificación del jugador local ("TÚ") es 100% VISUAL basada en la UI del juego (marco dorado con gema,
+     * blasón alado de rol y ausencia de botones de intercambio), sin depender de nombres de cuenta ni invocadores.
      */
     suspend fun scanDraftFromBitmap(bitmap: Bitmap, preferredSummonerName: String? = null): DraftScanResult {
         return try {
@@ -372,14 +374,14 @@ object DraftVisionScanner {
             val slotScores = IntArray(5)
             val slotHasSmite = BooleanArray(5)
 
-            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (0.005f a 0.050f)
-            val sampleXMin = (screenWidth * 0.005f).toInt().coerceAtLeast(0)
-            val sampleXMax = (screenWidth * 0.050f).toInt().coerceAtMost(screenWidth - 1)
+            // Señal A: Ornamento de Dragón Alado Dorado / Gema Rubí en el lateral izquierdo extremo (X: 0.015f a 0.065f)
+            val sampleXMin = (screenWidth * 0.015f).toInt().coerceAtLeast(0)
+            val sampleXMax = (screenWidth * 0.065f).toInt().coerceAtMost(screenWidth - 1)
 
-            // Señal A1: Blasón Dorado Alado de Rol del Jugador Local (Wild Rift Marker)
-            // Ubicado justo a la izquierda del texto del carril aliado (X: 0.138f..0.168f)
-            val roleBadgeXMin = (screenWidth * 0.138f).toInt().coerceAtLeast(0)
-            val roleBadgeXMax = (screenWidth * 0.168f).toInt().coerceAtMost(screenWidth - 1)
+            // Señal A1: Blasón Dorado Alado / Anillo de Rol del Jugador Local (Wild Rift Marker)
+            // Ubicado en la zona del avatar y badge de carril aliado (X: 0.080f..0.170f)
+            val roleBadgeXMin = (screenWidth * 0.080f).toInt().coerceAtLeast(0)
+            val roleBadgeXMax = (screenWidth * 0.170f).toInt().coerceAtMost(screenWidth - 1)
 
             for (i in 0 until 5) {
                 val yCenter = (screenHeight * allySlotYCenters[i]).toInt()
@@ -398,16 +400,16 @@ object DraftVisionScanner {
                         val g = (p shr 8) and 0xFF
                         val b = p and 0xFF
 
-                        // Dorado / Ámbar (alas del marco de jugador activo en Wild Rift)
-                        if (r > 135 && g > 80 && b < 100 && r > b + 35) {
+                        // Dorado / Ámbar brillante (alas del marco de jugador activo en Wild Rift)
+                        if (r in 150..255 && g in 95..225 && b < 110 && r > b + 35) {
                             goldCount++
                         }
                         // Gema Roja / Rubí (núcleo del blasón del jugador)
-                        else if (r > 135 && g < 75 && b < 75 && r > g + 50) {
+                        else if (r in 140..255 && g < 80 && b < 80 && r > g + 55) {
                             rubyCount++
                         }
                         // Naranja fuego / transición de ala
-                        else if (r > 165 && g in 70..145 && b < 65) {
+                        else if (r in 170..255 && g in 75..150 && b < 65) {
                             orangeCount++
                         }
                         // Resaltado cian alternativo
@@ -416,31 +418,31 @@ object DraftVisionScanner {
                         }
                     }
                 }
-                val wingScore = (goldCount * 4 + rubyCount * 4 + orangeCount * 3 + cyanCount * 2)
+                val wingScore = (goldCount * 5 + rubyCount * 6 + orangeCount * 4 + cyanCount * 2)
                 slotScores[i] += wingScore
-                if (rubyCount >= 5 || (goldCount >= 14 && orangeCount >= 4)) {
-                    slotScores[i] += 4500
-                    AppLogger.d(TAG, "Marco dorado con gema rubí detectado en slot $i (+4500)")
+                if (rubyCount >= 3 || (goldCount >= 12 && (orangeCount >= 3 || rubyCount >= 1))) {
+                    slotScores[i] += 6000
+                    AppLogger.d(TAG, "Marco dorado con gema rubí de jugador local detectado en slot $i (+6000)")
                 }
 
-                // Detección del Blasón Dorado Alado de Rol
+                // Detección del Blasón / Anillo Dorado de Rol
                 var goldRoleBadgeCount = 0
-                val bYMin = (yCenter - screenHeight * 0.025f).toInt().coerceAtLeast(0)
-                val bYMax = (yCenter + screenHeight * 0.025f).toInt().coerceAtMost(screenHeight - 1)
+                val bYMin = (yCenter - screenHeight * 0.030f).toInt().coerceAtLeast(0)
+                val bYMax = (yCenter + screenHeight * 0.030f).toInt().coerceAtMost(screenHeight - 1)
                 for (by in bYMin..bYMax step 2) {
                     for (bx in roleBadgeXMin..roleBadgeXMax step 2) {
                         val bp = bitmap.getPixel(bx, by)
                         val br = (bp shr 16) and 0xFF
                         val bg = (bp shr 8) and 0xFF
                         val bb = bp and 0xFF
-                        if (br in 170..255 && bg in 125..225 && bb in 20..115 && br >= bg + 20) {
+                        if (br in 165..255 && bg in 120..230 && bb in 15..120 && br >= bg + 15) {
                             goldRoleBadgeCount++
                         }
                     }
                 }
-                if (goldRoleBadgeCount >= 14) {
-                    slotScores[i] += 250
-                    AppLogger.d(TAG, "Blasón dorado de rol detectado en slot $i (count=$goldRoleBadgeCount)")
+                if (goldRoleBadgeCount >= 12) {
+                    slotScores[i] += 2500
+                    AppLogger.d(TAG, "Anillo/Blasón dorado de rol detectado en slot $i (count=$goldRoleBadgeCount) (+2500)")
                 }
 
                 // Señal B: Detección de Hechizo Aplastar (Smite) en el área de hechizos de invocador (X: 0.065 a 0.098)
@@ -467,32 +469,18 @@ object DraftVisionScanner {
                     if (allySlotRoles[i] == null) {
                         allySlotRoles[i] = LaneRole.JUNGLE
                     }
-                    slotScores[i] += 3000
-                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount) (+3000)")
+                    slotScores[i] += 1500
+                    AppLogger.d(TAG, "Aplastar (Smite) detectado en slot $i (smiteFlame=$smiteFlameCount) (+1500)")
                 }
-            }
 
-            // Señal C: Coincidencia por nombre de invocador
-            val normPreferred = preferredSummonerName?.let { normalizeString(it) }
-            for (i in 0 until 5) {
-                val textsInSlot = allySlotTexts[i]
-                if (!normPreferred.isNullOrBlank() && normPreferred.length >= 3) {
-                    val hasName = textsInSlot.any { txt ->
-                        val normTxt = normalizeString(txt)
-                        normTxt.contains(normPreferred) || normPreferred.contains(normTxt)
-                    }
-                    if (hasName) {
-                        slotScores[i] += 6000
-                        AppLogger.d(TAG, "Bonus de nombre de invocador aplicado a ranura $i")
-                    }
-                }
-                val hasUserHint = textsInSlot.any { txt ->
+                // Señal C: Detección de texto de Maestría o 'Marca Estelar Eterna' (exclusivo de la tarjeta del jugador local)
+                val hasEternalOrBadge = allySlotTexts[i].any { txt ->
                     val low = txt.lowercase(Locale.ROOT)
-                    low.contains("elchicho") || low.contains("chicho") || low.contains("chicho7")
+                    low.contains("marca") || low.contains("estelar") || low.contains("eterna") || low.contains("maestria")
                 }
-                if (hasUserHint) {
-                    slotScores[i] += 6000
-                    AppLogger.d(TAG, "Bonus de invocador local detectado (chicho) en ranura $i (+6000)")
+                if (hasEternalOrBadge) {
+                    slotScores[i] += 4000
+                    AppLogger.d(TAG, "Texto exclusivo de tarjeta local (Marca Estelar/Eterna) en slot $i (+4000)")
                 }
             }
 

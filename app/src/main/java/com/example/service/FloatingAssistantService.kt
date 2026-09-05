@@ -751,9 +751,7 @@ private fun FloatingOverlayContent(
                 try {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
                     if (bitmap != null) {
-                        val preferredName = com.example.data.AccountProfileManager.allProfiles.value.firstOrNull()?.name
-                            ?: com.example.util.SubscriptionManager.userName.value
-                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
+                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
                         if (result.isSuccessful) {
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
@@ -811,9 +809,7 @@ private fun FloatingOverlayContent(
         coroutineScope.launch(Dispatchers.IO) {
             val bitmap = screenCaptureManager?.captureCurrentFrame()
             if (bitmap != null) {
-                val preferredName = com.example.data.AccountProfileManager.allProfiles.value.firstOrNull()?.name
-                    ?: com.example.util.SubscriptionManager.userName.value
-                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, preferredName)
+                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         // 1. Asignación directa y de alta precisión por rol/posición
