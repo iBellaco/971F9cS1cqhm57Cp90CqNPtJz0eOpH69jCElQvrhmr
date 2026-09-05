@@ -13,6 +13,7 @@ import org.json.JSONObject
 import org.jsoup.Jsoup
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URL
 import java.net.URLDecoder
 import java.util.regex.Pattern
@@ -499,7 +500,9 @@ object WildRiftOfficialScraper {
      * 1. HttpURLConnection con headers de navegador y streaming directo.
      * 2. Fallback a Jsoup con ignoreContentType y maxBodySize de 25MB.
      */
-    private fun descargarBytesImagen(url: String): ByteArray? {
+    private fun descargarBytesImagen(url: String): Result<ByteArray> {
+        var lastError: Exception? = null
+
         // Intento 1: HttpURLConnection estándar con follow redirects
         try {
             val connection = (URL(url).openConnection() as java.net.HttpURLConnection).apply {
@@ -514,9 +517,13 @@ object WildRiftOfficialScraper {
             val code = connection.responseCode
             if (code in 200..299) {
                 val bytes = connection.inputStream.use { it.readBytes() }
-                if (bytes.isNotEmpty()) return bytes
+                if (bytes.isNotEmpty()) return Result.success(bytes)
+            } else {
+                lastError = IOException("HTTP $code al descargar")
             }
-        } catch (_: Exception) {}
+        } catch (e: Exception) {
+            lastError = e
+        }
 
         // Intento 2: Jsoup connect
         try {
@@ -529,18 +536,21 @@ object WildRiftOfficialScraper {
                 .followRedirects(true)
                 .execute()
             val bytes = response.bodyAsBytes()
-            if (bytes.isNotEmpty()) return bytes
-        } catch (_: Exception) {}
+            if (bytes.isNotEmpty()) return Result.success(bytes)
+        } catch (e: Exception) {
+            lastError = e
+        }
 
-        return null
+        return Result.failure(lastError ?: IOException("Error desconocido descargando imagen"))
     }
 
     /**
      * Descarga la imagen en binario y la guarda en la carpeta "WildRift_Imagenes" dentro de Descargas.
      * Soporta Android 10+ (Scoped Storage / MediaStore) y versiones anteriores / fallback local.
      * Realiza limpieza proactiva de archivos corruptos previos (banners de 22.34 kB).
+     * Retorna Pair(ruta_o_null, error_diagnostico_o_null).
      */
-    private fun guardarImagen(context: Context, nombre: String, url: String): String? {
+    private fun guardarImagenConDetalle(context: Context, nombre: String, url: String): Pair<String?, String?> {
         val seguro = nombreSeguro(nombre)
         val extension = extensionImagen(url)
         val fileName = "$seguro$extension"
@@ -576,11 +586,16 @@ object WildRiftOfficialScraper {
             val localTargetFile = File(outputFolder, fileName)
             if (localTargetFile.exists() && localTargetFile.length() > 5000L) {
                 // Ya existe y es una imagen válida (> 5 KB)
-                return localTargetFile.absolutePath
+                return Pair(localTargetFile.absolutePath, null)
             }
 
             // Descargar bytes de la imagen
-            val bytes = descargarBytesImagen(url) ?: return null
+            val bytesResult = descargarBytesImagen(url)
+            if (bytesResult.isFailure) {
+                val ex = bytesResult.exceptionOrNull()
+                return Pair(null, "Error de Red: ${ex?.javaClass?.simpleName} (${ex?.message})")
+            }
+            val bytes = bytesResult.getOrThrow()
 
             // Si tenemos acceso directo de escritura en carpeta pública
             if (outputFolder.canWrite()) {
@@ -590,7 +605,7 @@ object WildRiftOfficialScraper {
                         fos.flush()
                     }
                     if (localTargetFile.exists() && localTargetFile.length() > 0) {
-                        return localTargetFile.absolutePath
+                        return Pair(localTargetFile.absolutePath, null)
                     }
                 } catch (_: Exception) {}
             }
@@ -630,6 +645,7 @@ object WildRiftOfficialScraper {
                 }
             }
 
+            var mediaStoreError: String? = null
             val uri = try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
@@ -637,6 +653,7 @@ object WildRiftOfficialScraper {
                     resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
                 }
             } catch (e: Exception) {
+                mediaStoreError = "insert: ${e.message}"
                 null
             }
 
@@ -646,8 +663,9 @@ object WildRiftOfficialScraper {
                         os.write(bytes)
                         os.flush()
                     }
-                    return "$relativeSubDir/$fileName"
+                    return Pair("$relativeSubDir/$fileName", null)
                 } catch (e: Exception) {
+                    mediaStoreError = "openOutputStream: ${e.message}"
                     try { resolver.delete(uri, null, null) } catch (_: Exception) {}
                 }
             }
@@ -655,16 +673,24 @@ object WildRiftOfficialScraper {
             // Fallback interno si no se pudo con MediaStore
             val internalImagesDir = File(context.filesDir, OUTPUT_DIR_NAME).apply { mkdirs() }
             val fallbackFile = File(internalImagesDir, fileName)
-            FileOutputStream(fallbackFile).use { fos ->
-                fos.write(bytes)
-                fos.flush()
+            return try {
+                FileOutputStream(fallbackFile).use { fos ->
+                    fos.write(bytes)
+                    fos.flush()
+                }
+                Pair(fallbackFile.absolutePath, null)
+            } catch (e: Exception) {
+                Pair(null, "MediaStore: $mediaStoreError | Fallback: ${e.message}")
             }
-            return fallbackFile.absolutePath
 
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            return Pair(null, "Excepción guardar: ${e.javaClass.simpleName} (${e.message})")
         }
+    }
+
+    private fun guardarImagen(context: Context, nombre: String, url: String): String? {
+        return guardarImagenConDetalle(context, nombre, url).first
     }
 
     /**
@@ -736,7 +762,7 @@ object WildRiftOfficialScraper {
                 }
 
                 onProgress("   Imagen seleccionada: $imagen")
-                val archivoGuardado = guardarImagen(context, campeon.nombre, imagen)
+                val (archivoGuardado, detalleError) = guardarImagenConDetalle(context, campeon.nombre, imagen)
 
                 if (archivoGuardado != null) {
                     onProgress("   Guardada: $archivoGuardado")
@@ -750,7 +776,8 @@ object WildRiftOfficialScraper {
                         )
                     )
                 } else {
-                    onProgress("   ERROR al guardar la imagen.")
+                    val msgError = if (!detalleError.isNullOrBlank()) "   ERROR al guardar la imagen: $detalleError" else "   ERROR al guardar la imagen."
+                    onProgress(msgError)
                     resultados.add(
                         ChampionProcessResult(
                             campeon = campeon.nombre,
