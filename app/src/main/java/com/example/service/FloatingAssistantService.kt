@@ -991,8 +991,8 @@ private fun FloatingOverlayContent(
 
                 Card(
                     modifier = Modifier
-                        .widthIn(min = 300.dp, max = 340.dp)
-                        .height(530.dp)
+                        .widthIn(min = if (isLandscapeMode) 520.dp else 300.dp, max = if (isLandscapeMode) 560.dp else 340.dp)
+                        .height(if (isLandscapeMode) 380.dp else 530.dp)
                         .clip(RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
@@ -2153,15 +2153,15 @@ private fun FloatingDraftCoachView(
     
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
     ) {
         // 1. TABLERO DE DRAFT (EQUIPO ALIADO Y RIVAL) CON EL MODELO EXACTO DE LA APP
         if (isLandscapeMode) {
             Row(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                Box(modifier = Modifier.weight(1f)) {
                     com.example.ui.components.DraftTeamPositionCard(
                         isOverlay = true,
                         title = tr("Equipo Aliado"),
@@ -2182,7 +2182,7 @@ private fun FloatingDraftCoachView(
                         onChampionClick = onSelectChampion
                     )
                 }
-                Box(modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState())) {
+                Box(modifier = Modifier.weight(1f)) {
                     com.example.ui.components.DraftTeamPositionCard(
                         isOverlay = true,
                         title = tr("Equipo Rival"),
@@ -2206,7 +2206,7 @@ private fun FloatingDraftCoachView(
             }
         } else {
             Column(
-                modifier = Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxWidth()
             ) {
                 com.example.ui.components.DraftTeamPositionCard(
                     isOverlay = true,
