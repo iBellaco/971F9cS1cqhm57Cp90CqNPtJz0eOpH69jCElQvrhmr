@@ -39,6 +39,22 @@ object ImageHashMatcher {
         return hash
     }
     
+    // Calcula el hash para un icono de rol
+    fun findRoleMatch(bitmap: Bitmap): com.example.model.LaneRole? {
+        val targetHash = calculateHash(bitmap)
+        var bestMatch: com.example.model.LaneRole? = null
+        var minDistance = 25 // Aumentamos la tolerancia para iconos porque su tamaño es más variable en el recorte
+        
+        RoleHashes.map.forEach { (role, hash) ->
+            val dist = hammingDistance(targetHash, hash)
+            if (dist < minDistance) {
+                minDistance = dist
+                bestMatch = role
+            }
+        }
+        return bestMatch
+    }
+
     // Distancia de Hamming
     fun hammingDistance(hash1: Long, hash2: Long): Int {
         return java.lang.Long.bitCount(hash1 xor hash2)

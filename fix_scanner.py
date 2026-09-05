@@ -3,28 +3,9 @@ import re
 with open('app/src/main/java/com/example/service/screen/DraftVisionScanner.kt', 'r') as f:
     text = f.read()
 
-target = """            val visionText = try {
-                recognizer.process(image).await()
-            } catch (e: Exception) {
-                AppLogger.e(TAG, "Excepción al procesar imagen OCR: ${e.message}")
-                return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Error interno de lectura")
-            }"""
+target = """    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanResult {"""
 
-replacement = """            val useImageMatching = true
-            if (useImageMatching) {
-                return scanWithImageMatching(scaledBitmap)
-            }
-
-            val visionText = try {
-                recognizer.process(image).await()
-            } catch (e: Exception) {
-                AppLogger.e(TAG, "Excepción al procesar imagen OCR: ${e.message}")
-                return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Error interno de lectura")
-            }"""
-
-text = text.replace(target, replacement)
-
-new_func = """    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanResult {
+replacement = """    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanResult {
         val allChamps = WildRiftRepository.champions
         val allySlots = arrayOfNulls<Champion>(5)
         val enemySlots = arrayOfNulls<Champion>(5)
@@ -32,18 +13,24 @@ new_func = """    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanRe
         val width = bitmap.width
         val height = bitmap.height
         
-        // Coordenadas aproximadas de los avatares circulares en los slots (Landscape)
-        // Aliados: Izquierda (~10% al 25% del ancho)
-        // Enemigos: Derecha (~75% al 90% del ancho)
-        val avatarWidth = (width * 0.12f).toInt()
-        val avatarHeight = (height * 0.12f).toInt() // Ajuste proporcional
+        // El banner en la selección tiene una relación de aspecto muy diferente a un cuadrado.
+        // Aliados: Izquierda (~3% al 25% del ancho)
+        // Enemigos: Derecha (~75% al 97% del ancho)
+        // Tomaremos un recorte que atrape el rostro del campeón dentro de ese banner horizontal.
         
-        val allyX = (width * 0.11f).toInt()
-        val enemyX = (width * 0.77f).toInt()
+        // Haremos un recorte más estrecho, solo de la zona donde suele estar el rostro dentro del banner.
+        // Usualmente el rostro está del lado exterior (izquierdo para aliados, derecho para enemigos)
+        val avatarWidth = (width * 0.08f).toInt() 
+        val avatarHeight = (height * 0.12f).toInt()
+        
+        // Coordenada X para aliados (asumiendo que el retrato está pegado a la izquierda del banner)
+        val allyX = (width * 0.04f).toInt()
+        // Coordenada X para enemigos (asumiendo que el retrato está pegado a la derecha del banner)
+        val enemyX = (width * 0.88f).toInt()
         
         for (i in 0..4) {
             val yCenter = height * (0.1f + (i * 0.2f))
-            val startY = (yCenter).toInt().coerceIn(0, height - avatarHeight)
+            val startY = (yCenter - avatarHeight / 2).toInt().coerceIn(0, height - avatarHeight)
             
             // Recortar aliado
             try {
@@ -80,15 +67,32 @@ new_func = """    private fun scanWithImageMatching(bitmap: Bitmap): DraftScanRe
             enemies = enemySlots.filterNotNull(),
             alliesByRole = alliesMap,
             enemiesByRole = enemiesMap,
-            detectedRole = null, // Requiere otra lógica visual
+            detectedRole = null,
             detectedRawWords = listOf("Image Matching Active"),
             isSuccessful = true,
-            statusMessage = "Escaneo visual completado"
+            statusMessage = "Escaneo visual de banners completado"
         )
     }
-"""
 
-text = text.replace("object DraftVisionScanner {", "object DraftVisionScanner {\n\n" + new_func)
+    private fun _scanWithImageMatchingOld(bitmap: Bitmap): DraftScanResult {"""
+
+text = text.replace(target, replacement)
+
+# Re-enable the call to scanWithImageMatching
+target2 = """            val visionText = try {
+                recognizer.process(ocrImage).await()
+            } catch (e: Exception) {"""
+
+replacement2 = """            val useImageMatching = true
+            if (useImageMatching) {
+                return scanWithImageMatching(scaledOcrBmp ?: bitmap)
+            }
+            
+            val visionText = try {
+                recognizer.process(ocrImage).await()
+            } catch (e: Exception) {"""
+
+text = text.replace(target2, replacement2)
 
 with open('app/src/main/java/com/example/service/screen/DraftVisionScanner.kt', 'w') as f:
     f.write(text)
