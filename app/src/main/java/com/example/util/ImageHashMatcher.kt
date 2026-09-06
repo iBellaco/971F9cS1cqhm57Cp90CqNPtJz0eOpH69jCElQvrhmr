@@ -14,7 +14,25 @@ data class RoleMatchResult(
 data class MatchResult(
     val champion: Champion,
     val distance: Int,
-    val confidencePercent: Int
+    val confidencePercent: Int,
+    val topScore: Float = 0f,
+    val secondChampion: Champion? = null,
+    val secondScore: Float = 0f,
+    val margin: Float = 0f,
+    val isConfirmed: Boolean = true,
+    val status: String = "CONFIRMADO",
+    val reason: String = ""
+)
+
+data class VisualEvaluation(
+    val candidate1: Champion?,
+    val score1: Float,
+    val candidate2: Champion?,
+    val score2: Float,
+    val margin: Float,
+    val isConfirmed: Boolean,
+    val status: String, // "CONFIRMADO", "RECHAZADO", "AMBIGUO", "VACIO"
+    val reason: String
 )
 
 object ImageHashMatcher {
@@ -92,23 +110,27 @@ object ImageHashMatcher {
     }
 
     /**
-     * Compara un recorte de avatar en tiempo real contra los 141 recursos de campeones locales
-     * utilizando Correlación Cruzada Normalizada (NCC) de 1024 puntos estructurales y Similitud
-     * Coseno de Histograma de Color (RGB 64 bins).
+     * Evalúa visualmente un recorte de avatar contra los 141 recursos de campeones locales.
+     * Utiliza Correlación Cruzada Normalizada (NCC) de 1024 puntos estructurales sobre máscara circular
+     * y Similitud Coseno de Histograma de Color (RGB 64 bins).
      *
-     * Incluye detección y descarte estricto de slots vacíos (icono de casco espartano / sin selección en enemigos),
-     * y ecualización de rango dinámico para avatares aliados atenuados en preselección.
+     * Reglas estrictas:
+     * 1. El rol NO interviene en la puntuación visual (identificación puramente basada en píxeles).
+     * 2. Rastrea Top 1 y Top 2 candidatos y calcula margen de discriminación.
+     * 3. Si no hay coincidencia suficientemente segura o hay ambigüedad, devuelve isConfirmed = false.
+     * 4. Sin valores artificiales inflados.
      */
-    fun findBestVisualMatch(
+    fun evaluateVisualMatch(
         bitmap: Bitmap,
         allChampions: List<Champion>,
-        preferredRole: LaneRole? = null,
         isAlly: Boolean = false
-    ): MatchResult? {
-        if (bitmap.width < 16 || bitmap.height < 16) return null
+    ): VisualEvaluation {
+        if (bitmap.width < 16 || bitmap.height < 16) {
+            return VisualEvaluation(null, 0f, null, 0f, 0f, false, "RECHAZADO", "Dimensiones de bitmap inválidas (<16px)")
+        }
 
         val cropInner = try { getInnerCrop(bitmap, 0.85f) } catch (e: Exception) { bitmap }
-        
+
         // 1. Extraer píxeles de 32x32 para el recorte actual
         val scaled = Bitmap.createScaledBitmap(cropInner, 32, 32, true)
         val pixels = IntArray(1024)
@@ -181,27 +203,30 @@ object ImageHashMatcher {
             try { cropInner.recycle() } catch (ignored: Exception) {}
         }
 
-        // 2. FILTRADO DE SLOT VACÍO / CASCO ESPARTANO:
-        // Los slots aliados NUNCA son vacíos (siempre hay 5 compañeros).
-        // En el equipo enemigo, si un slot no ha elegido, muestra el casco espartano metálico gris
-        // sobre fondo rojo carmesí. Tiene muy baja varianza estructural central o saturación muy baja.
+        // 2. FILTRADO ESTRICTO DE SLOT VACÍO / CASCO ESPARTANO / RUIDO:
         if (!isAlly) {
             val isSpartanHelmetOrEmpty = (avgSaturation < 0.14f && (avgLuminance < 80f || stdDev < 22f)) ||
                     (stdDev < 16f) || (avgLuminance < 35f)
             if (isSpartanHelmetOrEmpty) {
-                // El rival aún no ha seleccionado ningún campeón (casco espartano/vacío)
-                return null
+                return VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Casco espartano o slot rival sin selección activa")
+            }
+        } else {
+            val isAllyEmptyOrFlat = (stdDev < 13f) || (avgLuminance < 25f)
+            if (isAllyEmptyOrFlat) {
+                return VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Slot aliado vacío o plano sin avatar")
             }
         }
 
-        // 3. COMPARACIÓN CONTRA TODAS LAS FIRMAS PRECARGADAS
+        // 3. COMPARACIÓN VISUAL CONTRA TODAS LAS FIRMAS LOCALES (100% PUREZA DE IMAGEN)
         val signatures = ChampionHashes.getAllSignatures()
         var bestChamp: Champion? = null
-        var maxScore = 0f
+        var bestScore = 0f
+        var secondChamp: Champion? = null
+        var secondScore = 0f
 
         if (signatures.isNotEmpty()) {
             for (sig in signatures) {
-                // A) Correlación Cruzada Normalizada (NCC) estructural sobre la máscara circular:
+                // A) Correlación Cruzada Normalizada (NCC) estructural
                 var dotProduct = 0f
                 for (i in 0 until 1024) {
                     if (mask[i]) {
@@ -210,15 +235,15 @@ object ImageHashMatcher {
                 }
                 val structuralScore = (dotProduct / pixelCount).coerceIn(0f, 1f)
 
-                // B) Similitud cromática (Bhattacharyya de histogramas de color):
+                // B) Similitud cromática (Bhattacharyya)
                 var colorScore = 0f
                 for (b in 0 until 64) {
                     colorScore += Math.sqrt((cropColorHist[b] * sig.colorHistogram[b]).toDouble()).toFloat()
                 }
                 colorScore = colorScore.coerceIn(0f, 1f)
 
-                // C) Puntuación compuesta (estructural + cromática)
-                var totalScore = if (isAlly) {
+                // C) Puntuación visual pura (sin sesgo de rol)
+                val totalScore = if (isAlly) {
                     (0.55f * structuralScore) + (0.45f * colorScore)
                 } else {
                     (0.50f * structuralScore) + (0.50f * colorScore)
@@ -226,38 +251,105 @@ object ImageHashMatcher {
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 
-                // Bonificación sutil por rol preferido (solo 0.012 para resolver empates sin distorsionar)
-                if (preferredRole != null) {
-                    if (champ.primaryRole == preferredRole) {
-                        totalScore += 0.012f
-                    } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        totalScore += 0.006f
-                    }
-                }
-
-                if (totalScore > maxScore) {
-                    maxScore = totalScore
+                if (totalScore > bestScore) {
+                    secondScore = bestScore
+                    secondChamp = bestChamp
+                    bestScore = totalScore
                     bestChamp = champ
+                } else if (totalScore > secondScore) {
+                    secondScore = totalScore
+                    secondChamp = champ
                 }
             }
-        } else {
-            // Fallback a hash clásico si aún no se han cargado las firmas completas
-            return findBestMatchDetailed(bitmap, allChampions, maxDistance = 22, preferredRole = preferredRole)
         }
 
-        // Umbral adaptativo calibrado
-        val requiredThreshold = if (isAlly) {
-            if (preferredRole != null) 0.50f else 0.52f
-        } else {
-            0.54f
-        }
+        val margin = (bestScore - secondScore).coerceAtLeast(0f)
 
-        if (maxScore >= requiredThreshold && bestChamp != null) {
-            val confidence = ((maxScore * 100).toInt()).coerceIn(75, 99)
-            val distance = ((1.0f - maxScore) * 100).toInt()
-            return MatchResult(champion = bestChamp, distance = distance, confidencePercent = confidence)
-        }
+        // 4. CLASIFICACIÓN ESTRICTA: CONFIRMADO vs RECHAZADO vs AMBIGUO
+        val minThreshold = if (isAlly) 0.52f else 0.54f
 
+        return when {
+            bestChamp == null || bestScore < minThreshold -> {
+                VisualEvaluation(
+                    candidate1 = bestChamp,
+                    score1 = bestScore,
+                    candidate2 = secondChamp,
+                    score2 = secondScore,
+                    margin = margin,
+                    isConfirmed = false,
+                    status = "RECHAZADO",
+                    reason = "Puntuación insuficiente (score ${"%.2f".format(java.util.Locale.US, bestScore)} < $minThreshold)"
+                )
+            }
+            bestScore >= 0.80f -> {
+                // Coincidencia visual de muy alta fidelidad
+                VisualEvaluation(
+                    candidate1 = bestChamp,
+                    score1 = bestScore,
+                    candidate2 = secondChamp,
+                    score2 = secondScore,
+                    margin = margin,
+                    isConfirmed = true,
+                    status = "CONFIRMADO",
+                    reason = "Coincidencia de alta fidelidad (score ${"%.2f".format(java.util.Locale.US, bestScore)}, margen ${"%.2f".format(java.util.Locale.US, margin)})"
+                )
+            }
+            margin < 0.018f -> {
+                // Ambigüedad entre dos campeones con puntuación casi idéntica
+                VisualEvaluation(
+                    candidate1 = bestChamp,
+                    score1 = bestScore,
+                    candidate2 = secondChamp,
+                    score2 = secondScore,
+                    margin = margin,
+                    isConfirmed = false,
+                    status = "AMBIGUO",
+                    reason = "Coincidencia ambigua entre ${bestChamp.name} (${"%.2f".format(java.util.Locale.US, bestScore)}) y ${secondChamp?.name ?: "segundo"} (${"%.2f".format(java.util.Locale.US, secondScore)}) margen ${"%.2f".format(java.util.Locale.US, margin)} < 0.02"
+                )
+            }
+            else -> {
+                // Coincidencia clara con margen suficiente
+                VisualEvaluation(
+                    candidate1 = bestChamp,
+                    score1 = bestScore,
+                    candidate2 = secondChamp,
+                    score2 = secondScore,
+                    margin = margin,
+                    isConfirmed = true,
+                    status = "CONFIRMADO",
+                    reason = "Coincidencia confirmada (score ${"%.2f".format(java.util.Locale.US, bestScore)}, margen ${"%.2f".format(java.util.Locale.US, margin)})"
+                )
+            }
+        }
+    }
+
+    /**
+     * Compara un recorte de avatar en tiempo real contra los 141 recursos de campeones locales.
+     * Devuelve null si no existe una coincidencia suficientemente buena o si es ambigua.
+     */
+    fun findBestVisualMatch(
+        bitmap: Bitmap,
+        allChampions: List<Champion>,
+        preferredRole: LaneRole? = null,
+        isAlly: Boolean = false
+    ): MatchResult? {
+        val eval = evaluateVisualMatch(bitmap, allChampions, isAlly)
+        if (eval.isConfirmed && eval.candidate1 != null) {
+            val confidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+            val distance = ((1.0f - eval.score1) * 100).toInt()
+            return MatchResult(
+                champion = eval.candidate1,
+                distance = distance,
+                confidencePercent = confidence,
+                topScore = eval.score1,
+                secondChampion = eval.candidate2,
+                secondScore = eval.score2,
+                margin = eval.margin,
+                isConfirmed = true,
+                status = eval.status,
+                reason = eval.reason
+            )
+        }
         return null
     }
 
@@ -310,15 +402,7 @@ object ImageHashMatcher {
         allChampions.forEach { champ ->
             val hashes = ChampionHashes.getHashesForChampion(champ.id)
             for (champHash in hashes) {
-                var dist = hammingDistance(targetHash, champHash)
-                
-                if (preferredRole != null) {
-                    if (champ.primaryRole == preferredRole) {
-                        dist -= 4
-                    } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        dist -= 2
-                    }
-                }
+                val dist = hammingDistance(targetHash, champHash)
 
                 if (dist <= minDistance) {
                     minDistance = dist
@@ -328,7 +412,7 @@ object ImageHashMatcher {
         }
         
         return bestMatch?.let {
-            val confidence = (((64 - minDistance.coerceAtLeast(0)).toFloat() / 64.0f) * 100).toInt().coerceIn(70, 99)
+            val confidence = (((64 - minDistance.coerceAtLeast(0)).toFloat() / 64.0f) * 100).toInt().coerceIn(1, 100)
             MatchResult(champion = it, distance = minDistance, confidencePercent = confidence)
         }
     }

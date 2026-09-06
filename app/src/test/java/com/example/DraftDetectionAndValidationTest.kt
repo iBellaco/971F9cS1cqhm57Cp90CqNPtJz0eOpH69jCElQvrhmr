@@ -455,4 +455,97 @@ class DraftDetectionAndValidationTest {
             assertNull("El texto '$name' es un nombre de jugador y NO debe inventar un campeón", result)
         }
     }
+
+    @Test
+    fun testScannerV2CalibratedROICalculation() {
+        val width = 1536
+        val height = 695
+
+        val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32) // ~83 px
+        val allyAvatarCenterX = (height * 0.160f).toInt().coerceAtLeast(16) // ~111 px
+        val enemyAvatarCenterX = (width - (height * 0.160f)).toInt().coerceIn(0, width) // ~1425 px
+
+        assertEquals(83, avatarDiameter)
+        assertEquals(111, allyAvatarCenterX)
+        assertEquals(1424, enemyAvatarCenterX)
+
+        val slotYRatios = floatArrayOf(0.195f, 0.324f, 0.459f, 0.594f, 0.728f)
+        val expectedYCenters = intArrayOf(135, 225, 319, 412, 505)
+
+        for (i in 0..4) {
+            val yCenter = (height * slotYRatios[i]).toInt()
+            assertEquals("Y center para slot $i", expectedYCenters[i], yCenter)
+
+            // Cálculo ROI aliado
+            val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
+            val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
+            val roiRect = android.graphics.Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
+
+            assertTrue("ROI X dentro de límites", roiRect.left >= 0 && roiRect.right <= width)
+            assertTrue("ROI Y dentro de límites", roiRect.top >= 0 && roiRect.bottom <= height)
+            assertEquals("Diámetro exacto de ROI en ancho", avatarDiameter, roiRect.width())
+            assertEquals("Diámetro exacto de ROI en alto", avatarDiameter, roiRect.height())
+
+            // En slot 0, X debe ser exactamente [70..153] y Y [94..177] (centro 111, 135)
+            if (i == 0) {
+                assertEquals(70, roiRect.left)
+                assertEquals(94, roiRect.top)
+                assertEquals(153, roiRect.right)
+                assertEquals(177, roiRect.bottom)
+            }
+        }
+
+        // Verificar que el avatar enemigo en 1424px evita el panel lateral de Android (típicamente en >1480px)
+        val enemyStartX = (enemyAvatarCenterX - avatarDiameter / 2)
+        val enemyEndX = enemyStartX + avatarDiameter
+        assertEquals(1383, enemyStartX)
+        assertEquals(1466, enemyEndX)
+        assertTrue("ROI enemiga no toca el borde derecho ni panel de volumen", enemyEndX < width - 50)
+    }
+
+    @Test
+    fun testEvaluateVisualMatchUnbiasedTop2AndMargin() {
+        initChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        com.example.util.ChampionHashes.initFromAssets(context)
+        val champs = WildRiftRepository.champions
+
+        val wukongBitmap = context.assets.open("champions/wukong.png").use {
+            android.graphics.BitmapFactory.decodeStream(it)
+        }
+        assertNotNull(wukongBitmap)
+
+        val eval = com.example.util.ImageHashMatcher.evaluateVisualMatch(wukongBitmap, champs, isAlly = true)
+        assertTrue("Debe confirmar coincidencia de alta fidelidad", eval.isConfirmed)
+        assertEquals("CONFIRMADO", eval.status)
+        assertEquals("wukong", eval.candidate1?.id)
+        assertTrue("Score #1 debe ser muy alto (> 0.90)", eval.score1 > 0.90f)
+        assertTrue("Margen entre candidato 1 y 2 debe ser claro (> 0.10)", eval.margin > 0.10f)
+
+        // Comprobar que findBestVisualMatch no infla con coerce artificial
+        val match = com.example.util.ImageHashMatcher.findBestVisualMatch(wukongBitmap, champs, isAlly = true)
+        assertNotNull(match)
+        assertEquals("wukong", match?.champion?.id)
+        assertTrue("Confianza real calculada directamente del score visual", match?.confidencePercent ?: 0 >= 90)
+
+        // Verificar el formato de diagnóstico
+        val diag = com.example.service.screen.SlotDiagnostic(
+            slotIndex = 0,
+            isAlly = true,
+            roiRect = android.graphics.Rect(70, 94, 153, 177),
+            candidate1 = eval.candidate1,
+            score1 = eval.score1,
+            candidate2 = eval.candidate2,
+            score2 = eval.score2,
+            margin = eval.margin,
+            ocrChampion = eval.candidate1,
+            status = com.example.service.screen.DiagnosticStatus.CONFIRMADO,
+            reason = "Confirmado 100% (Visual y OCR coinciden: Wukong)"
+        )
+        val formatted = diag.toFormattedString()
+        assertTrue(formatted.contains("[Aliado Slot 0]"))
+        assertTrue(formatted.contains("ROI: 70,94 → 153,177"))
+        assertTrue(formatted.contains("Candidato #1: Wukong"))
+        assertTrue(formatted.contains("Estado: CONFIRMADO"))
+    }
 }

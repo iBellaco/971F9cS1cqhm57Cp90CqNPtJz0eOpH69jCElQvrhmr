@@ -7,11 +7,47 @@ import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.util.AppLogger
 import com.example.util.ImageHashMatcher
+import com.example.util.VisualEvaluation
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
+
+enum class DiagnosticStatus {
+    CONFIRMADO,
+    RECHAZADO,
+    AMBIGUO,
+    VACIO
+}
+
+data class SlotDiagnostic(
+    val slotIndex: Int,
+    val isAlly: Boolean,
+    val roiRect: Rect,
+    val candidate1: Champion?,
+    val score1: Float,
+    val candidate2: Champion?,
+    val score2: Float,
+    val margin: Float,
+    val ocrChampion: Champion?,
+    val status: DiagnosticStatus,
+    val reason: String
+) {
+    fun toFormattedString(): String {
+        val team = if (isAlly) "Aliado" else "Enemigo"
+        return """
+            [$team Slot $slotIndex]
+            ROI: ${roiRect.left},${roiRect.top} → ${roiRect.right},${roiRect.bottom}
+            Candidato #1: ${candidate1?.name ?: "Ninguno"} (Score: ${"%.2f".format(Locale.US, score1)})
+            Candidato #2: ${candidate2?.name ?: "Ninguno"} (Score: ${"%.2f".format(Locale.US, score2)})
+            Margen: ${"%.2f".format(Locale.US, margin)}
+            OCR: ${ocrChampion?.name ?: "Ninguno"}
+            Estado: $status
+            Razón: $reason
+        """.trimIndent()
+    }
+}
 
 data class ScannedSlotInfo(
     val slotIndex: Int,
@@ -33,6 +69,7 @@ data class DraftScanResult(
     val detectedRole: LaneRole? = null,
     val detectedRawWords: List<String> = emptyList(),
     val discrepancies: List<String> = emptyList(),
+    val diagnostics: List<SlotDiagnostic> = emptyList(),
     val isSuccessful: Boolean,
     val statusMessage: String
 )
@@ -112,12 +149,12 @@ object DraftVisionScanner {
                     // Ignorar la barra de bans superior (Y < 0.075) y botones del fondo (Y > 0.85)
                     if (yRatio < 0.075f || yRatio > 0.85f) continue
 
-                    // Determinar el índice de slot vertical (0..4) con precisión equidistante
+                    // Determinar el índice de slot vertical (0..4) calibrado a los 5 slots HUD
                     val slotIndex = when {
-                        yRatio < 0.250f -> 0
-                        yRatio < 0.395f -> 1
-                        yRatio < 0.540f -> 2
-                        yRatio < 0.685f -> 3
+                        yRatio < 0.260f -> 0
+                        yRatio < 0.392f -> 1
+                        yRatio < 0.527f -> 2
+                        yRatio < 0.661f -> 3
                         else -> 4
                     }
 
@@ -226,92 +263,203 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 3: RECONOCIMIENTO VISUAL PRIORITARIO CONTRA LOS 141 AVATARES LOCALES (100% PRECISIÓN)
+        // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
         // -----------------------------------------------------------------------------------------
+        // Calibración geométrica de precisión HUD Wild Rift:
+        // En 695 de alto: allyAvatarCenterX = 111 px (ratio 0.160f)
+        // Diámetro avatar: 83 px (ratio 0.120f)
         val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
-        val allyAvatarCenterX = (height * 0.131f).toInt().coerceAtLeast(16)
-        val enemyAvatarCenterX = (width - (height * 0.074f)).toInt().coerceIn(0, width)
+        val allyAvatarCenterX = (height * 0.160f).toInt().coerceAtLeast(16)
+        // En 1536x695: enemyAvatarCenterX = 1425 px (evita panel lateral Android y barra gestos)
+        val enemyAvatarCenterX = (width - (height * 0.160f)).toInt().coerceIn(0, width)
+
+        // Ratios verticales calibrados de los 5 slots HUD:
+        // Slot 0: ~135px (0.195), Slot 1: ~225px (0.324), Slot 2: ~319px (0.459),
+        // Slot 3: ~413px (0.594), Slot 4: ~506px (0.728)
+        val slotYRatios = floatArrayOf(0.195f, 0.324f, 0.459f, 0.594f, 0.728f)
+        val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
         // 3.1 Aliados
         for (i in 0..4) {
             val slot = allySlots[i]
-            val yCenter = (height * (0.178f + (i * 0.145f))).toInt()
+            val yCenter = (height * slotYRatios[i]).toInt()
             val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
+            val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
 
-            var visualMatched = false
+            val ocrChamp = allyOcrChampions[i]
+            var eval = VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Error al procesar")
+
             try {
                 val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
-                val visualMatch = ImageHashMatcher.findBestVisualMatch(
-                    crop,
-                    allChamps,
-                    preferredRole = slot.explicitRole,
-                    isAlly = true
-                )
-
-                if (visualMatch != null) {
-                    slot.champion = visualMatch.champion
-                    slot.confidencePercent = visualMatch.confidencePercent
-                    visualMatched = true
-                    AppLogger.d(TAG, "Avatar Aliado Slot $i -> ${visualMatch.champion.name} (Confianza: ${slot.confidencePercent}%)")
-                }
+                eval = ImageHashMatcher.evaluateVisualMatch(crop, allChamps, isAlly = true)
                 crop.recycle()
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Error comparando avatar aliado slot $i: ${e.message}")
             }
 
-            // Cross-validación con OCR: si ambos coinciden -> 100% de confianza
-            val ocrChamp = allyOcrChampions[i]
-            if (ocrChamp != null) {
-                if (visualMatched && slot.champion?.id == ocrChamp.id) {
-                    slot.confidencePercent = 100
-                } else if (!visualMatched) {
-                    slot.champion = ocrChamp
-                    slot.confidencePercent = 85
+            var finalChamp: Champion? = null
+            var finalConfidence = 0
+            var diagStatus = when (eval.status) {
+                "CONFIRMADO" -> DiagnosticStatus.CONFIRMADO
+                "AMBIGUO" -> DiagnosticStatus.AMBIGUO
+                "VACIO" -> DiagnosticStatus.VACIO
+                else -> DiagnosticStatus.RECHAZADO
+            }
+            var diagReason = eval.reason
+
+            if (eval.isConfirmed && eval.candidate1 != null) {
+                if (ocrChamp == null) {
+                    finalChamp = eval.candidate1
+                    finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado por imagen (score ${"%.2f".format(Locale.US, eval.score1)}, margen ${"%.2f".format(Locale.US, eval.margin)})"
+                } else if (ocrChamp.id == eval.candidate1.id) {
+                    finalChamp = eval.candidate1
+                    finalConfidence = 100
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
+                } else {
+                    // Conflicto visual vs OCR
+                    if (eval.score1 >= 0.85f) {
+                        finalChamp = eval.candidate1
+                        finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+                        diagStatus = DiagnosticStatus.CONFIRMADO
+                        diagReason = "Visual contundente (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)}) supera texto OCR (${ocrChamp.name})"
+                    } else if (eval.score1 < 0.68f) {
+                        finalChamp = ocrChamp
+                        finalConfidence = 80
+                        diagStatus = DiagnosticStatus.CONFIRMADO
+                        diagReason = "Conflicto resuelto por OCR (${ocrChamp.name}) ante baja certeza visual (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)})"
+                    } else {
+                        finalChamp = null
+                        finalConfidence = 0
+                        diagStatus = DiagnosticStatus.AMBIGUO
+                        diagReason = "Conflicto irreconciliable: Visual=${eval.candidate1.name} (${"%.2f".format(Locale.US, eval.score1)}) vs OCR=${ocrChamp.name}. NO ASIGNAR."
+                    }
+                }
+            } else {
+                if (ocrChamp != null) {
+                    finalChamp = ocrChamp
+                    finalConfidence = 80
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Recuperado por texto OCR exacto (${ocrChamp.name})"
+                } else {
+                    finalChamp = null
+                    finalConfidence = 0
+                    diagReason = eval.reason
                 }
             }
+
+            slot.champion = finalChamp
+            slot.confidencePercent = finalConfidence
+
+            val diagnostic = SlotDiagnostic(
+                slotIndex = i,
+                isAlly = true,
+                roiRect = roiRect,
+                candidate1 = eval.candidate1,
+                score1 = eval.score1,
+                candidate2 = eval.candidate2,
+                score2 = eval.score2,
+                margin = eval.margin,
+                ocrChampion = ocrChamp,
+                status = diagStatus,
+                reason = diagReason
+            )
+            diagnosticsList.add(diagnostic)
+            AppLogger.d(TAG, diagnostic.toFormattedString())
         }
 
-        // 3.2 Enemigos (analizar avatares locales; cascos espartanos vacíos se descartan automáticamente)
+        // 3.2 Enemigos
         for (i in 0..4) {
             val slot = enemySlots[i]
-            val yCenter = (height * (0.178f + (i * 0.145f))).toInt()
+            val yCenter = (height * slotYRatios[i]).toInt()
             val startX = (enemyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
+            val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
 
-            var visualMatched = false
+            val ocrChamp = enemyOcrChampions[i]
+            var eval = VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Error al procesar")
+
             try {
                 val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
-                val visualMatch = ImageHashMatcher.findBestVisualMatch(
-                    crop,
-                    allChamps,
-                    preferredRole = slot.explicitRole,
-                    isAlly = false
-                )
-
-                if (visualMatch != null) {
-                    slot.champion = visualMatch.champion
-                    slot.confidencePercent = visualMatch.confidencePercent
-                    visualMatched = true
-                    AppLogger.d(TAG, "Avatar Enemigo Slot $i -> ${visualMatch.champion.name} (Confianza: ${slot.confidencePercent}%)")
-                } else {
-                    slot.champion = null
-                }
+                eval = ImageHashMatcher.evaluateVisualMatch(crop, allChamps, isAlly = false)
                 crop.recycle()
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Error comparando avatar enemigo slot $i: ${e.message}")
             }
 
-            // Cross-validación con OCR para enemigos (solo si el slot no está vacío/unpicked)
-            val ocrChamp = enemyOcrChampions[i]
-            if (ocrChamp != null && !slot.isLikelyUnpicked) {
-                if (visualMatched && slot.champion?.id == ocrChamp.id) {
-                    slot.confidencePercent = 100
-                } else if (!visualMatched) {
-                    slot.champion = ocrChamp
-                    slot.confidencePercent = 85
+            var finalChamp: Champion? = null
+            var finalConfidence = 0
+            var diagStatus = when (eval.status) {
+                "CONFIRMADO" -> DiagnosticStatus.CONFIRMADO
+                "AMBIGUO" -> DiagnosticStatus.AMBIGUO
+                "VACIO" -> DiagnosticStatus.VACIO
+                else -> DiagnosticStatus.RECHAZADO
+            }
+            var diagReason = eval.reason
+
+            if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
+                if (ocrChamp == null) {
+                    finalChamp = eval.candidate1
+                    finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado por imagen (score ${"%.2f".format(Locale.US, eval.score1)}, margen ${"%.2f".format(Locale.US, eval.margin)})"
+                } else if (ocrChamp.id == eval.candidate1.id) {
+                    finalChamp = eval.candidate1
+                    finalConfidence = 100
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
+                } else {
+                    if (eval.score1 >= 0.85f) {
+                        finalChamp = eval.candidate1
+                        finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+                        diagStatus = DiagnosticStatus.CONFIRMADO
+                        diagReason = "Visual contundente (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)}) supera texto OCR (${ocrChamp.name})"
+                    } else if (eval.score1 < 0.68f) {
+                        finalChamp = ocrChamp
+                        finalConfidence = 80
+                        diagStatus = DiagnosticStatus.CONFIRMADO
+                        diagReason = "Conflicto resuelto por OCR (${ocrChamp.name}) ante baja certeza visual (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)})"
+                    } else {
+                        finalChamp = null
+                        finalConfidence = 0
+                        diagStatus = DiagnosticStatus.AMBIGUO
+                        diagReason = "Conflicto irreconciliable: Visual=${eval.candidate1.name} vs OCR=${ocrChamp.name}. NO ASIGNAR."
+                    }
+                }
+            } else {
+                if (ocrChamp != null && !slot.isLikelyUnpicked) {
+                    finalChamp = ocrChamp
+                    finalConfidence = 80
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Recuperado por texto OCR exacto (${ocrChamp.name})"
+                } else {
+                    finalChamp = null
+                    finalConfidence = 0
+                    diagReason = if (slot.isLikelyUnpicked) "Slot sin selección (unpicked)" else eval.reason
                 }
             }
+
+            slot.champion = finalChamp
+            slot.confidencePercent = finalConfidence
+
+            val diagnostic = SlotDiagnostic(
+                slotIndex = i,
+                isAlly = false,
+                roiRect = roiRect,
+                candidate1 = eval.candidate1,
+                score1 = eval.score1,
+                candidate2 = eval.candidate2,
+                score2 = eval.score2,
+                margin = eval.margin,
+                ocrChampion = ocrChamp,
+                status = diagStatus,
+                reason = diagReason
+            )
+            diagnosticsList.add(diagnostic)
+            AppLogger.d(TAG, diagnostic.toFormattedString())
         }
 
         // -----------------------------------------------------------------------------------------
@@ -351,6 +499,7 @@ object DraftVisionScanner {
             detectedRole = userDetectedLane,
             detectedRawWords = detectedWords,
             discrepancies = auditList,
+            diagnostics = diagnosticsList,
             isSuccessful = total > 0,
             statusMessage = statusMsg
         )
