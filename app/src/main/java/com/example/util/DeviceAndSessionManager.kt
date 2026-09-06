@@ -140,8 +140,7 @@ object DeviceAndSessionManager {
 
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
-        val userEmail = user.email ?: ""
-        val isAdmin = AuthManager.isAdminEmail(userEmail) || AuthManager.isCurrentUserAdmin()
+        val isAdmin = AuthManager.isCurrentUserAdmin()
 
         userRef.get().addOnSuccessListener { snapshot ->
             val registeredDevices = (snapshot.get("registeredDevices") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
@@ -159,7 +158,8 @@ object DeviceAndSessionManager {
             val updatePayload = hashMapOf<String, Any>(
                 "sessionToken" to sessionToken,
                 "lastDeviceId" to deviceId,
-                "lastActiveTimestamp" to loginTimestamp,
+                "last_active" to loginTimestamp,
+                "is_online" to true,
                 "registeredDevices" to mutableDevices
             )
 
@@ -168,23 +168,18 @@ object DeviceAndSessionManager {
                     onSuccess()
                 }
                 .addOnFailureListener { e ->
-                    Log.w(TAG, "Non-blocking warning saving session: ${e.message}")
-                    // No bloquear la sesión local por permisos menores de Firestore
-                    onSuccess()
+                    Log.e(TAG, "Error saving session: ${e.message}")
+                    onError("Error guardando sesión: ${e.message}")
                 }
         }.addOnFailureListener { e ->
-            Log.w(TAG, "Non-blocking warning getting user doc: ${e.message}")
-            // Si no se pudo leer el doc por red, permitir seguir la sesión
-            onSuccess()
+            Log.e(TAG, "Error getting user doc: ${e.message}")
+            onError("Error leyendo sesión: ${e.message}")
         }
     }
 
     fun handleSessionChanged(remoteSessionToken: String?, remoteDeviceId: String?, remoteTimestamp: Long = 0L, context: Context) {
         val user = AuthManager.getAuth()?.currentUser ?: return
-        val userEmail = user.email ?: ""
-        val isAdmin = AuthManager.isAdminEmail(userEmail) || 
-                      AuthManager.isCurrentUserAdmin() ||
-                      SubscriptionManager.userRole.value == "admin"
+        val isAdmin = AuthManager.isCurrentUserAdmin()
         
         // Administradores nunca se desconectan por concurrencia
         if (isAdmin) return

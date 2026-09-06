@@ -381,12 +381,6 @@ fun AdminFeedbackBottomSheet(
                     .background(HextechSurface.copy(alpha = 0.9f))
                     .border(0.5.dp, HextechCardBorder.copy(alpha = 0.5f))
             ) {
-                // Glowing runic particle animation in header background
-                RunicHeaderParticleAnimation(
-                    modifier = Modifier.matchParentSize(),
-                    particleCount = 14
-                )
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

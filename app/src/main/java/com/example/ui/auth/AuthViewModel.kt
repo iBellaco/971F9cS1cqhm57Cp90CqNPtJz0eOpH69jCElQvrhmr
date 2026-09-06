@@ -120,8 +120,12 @@ class AuthViewModel : ViewModel() {
             _uiState.update { it.copy(error = "Las contraseñas no coinciden.") }
             return
         }
-        if (_passwordStrength.value == PasswordStrength.WEAK) {
-            _uiState.update { it.copy(error = "La contraseña es demasiado débil.") }
+        if (_password.value.length < 8) {
+            _uiState.update { it.copy(error = "La contraseña debe tener mínimo 8 caracteres.") }
+            return
+        }
+        if (calculatePasswordStrength(_password.value) != PasswordStrength.STRONG) {
+            _uiState.update { it.copy(error = "Contraseña débil. Debe contener al menos 3 de: mayúsculas, minúsculas, números, caracteres especiales.") }
             return
         }
 
@@ -138,9 +142,16 @@ class AuthViewModel : ViewModel() {
                     .setDisplayName(_username.value)
                     .build()
                 result.user?.updateProfile(profileUpdates)?.await()
+                result.user?.sendEmailVerification()?.await()
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
-                val errorMsg = e.localizedMessage ?: "Error al registrar la cuenta."
+                val rawMsg = e.localizedMessage ?: ""
+                val errorMsg = when {
+                    rawMsg.contains("email address is already in use", ignoreCase = true) -> "El correo electrónico ya está registrado."
+                    rawMsg.contains("badly formatted", ignoreCase = true) -> "El formato del correo es inválido."
+                    rawMsg.contains("network", ignoreCase = true) -> "Error de red. Verifica tu conexión."
+                    else -> "Error al registrar la cuenta. Inténtalo más tarde."
+                }
                 _uiState.update { it.copy(isLoading = false, error = errorMsg) }
             }
         }

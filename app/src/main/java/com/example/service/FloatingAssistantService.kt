@@ -743,9 +743,7 @@ private fun FloatingOverlayContent(
     val isLoggedInAndPremium = isPremium && activeProfileId != null
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
     val currentAuthEmail = remember { com.example.util.AuthManager.getAuth()?.currentUser?.email }
-    val isAdmin = com.example.util.AuthManager.isCurrentUserAdmin() || 
-                  userRole == "admin" || 
-                  com.example.util.AuthManager.isAdminEmail(currentAuthEmail)
+    val isAdmin = com.example.util.AuthManager.isCurrentUserAdmin()
     val context = LocalContext.current
     var activeRole by state::activeRole
     var isFirstPick by state::isFirstPick

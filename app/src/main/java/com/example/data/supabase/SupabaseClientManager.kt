@@ -10,6 +10,9 @@ import kotlinx.serialization.json.Json
 import io.github.jan.supabase.serializer.KotlinXSerializer
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -33,9 +36,22 @@ object SupabaseClientManager {
     private var cachedClient: SupabaseClient? = null
 
     fun init(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getEncryptedPrefs(context)
         customUrl = prefs.getString(KEY_CUSTOM_URL, null)
         customKey = prefs.getString(KEY_CUSTOM_KEY, null)
+    }
+
+    private fun getEncryptedPrefs(context: Context): SharedPreferences {
+        val masterKey = androidx.security.crypto.MasterKey.Builder(context)
+            .setKeyScheme(androidx.security.crypto.MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        return androidx.security.crypto.EncryptedSharedPreferences.create(
+            context,
+            PREFS_NAME,
+            masterKey,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
     }
 
     fun getActiveUrl(): String {
@@ -57,7 +73,13 @@ object SupabaseClientManager {
     fun saveCustomCredentials(context: Context, url: String, key: String) {
         val cleanUrl = url.trim().removeSuffix("/")
         val cleanKey = key.trim()
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        
+        if (cleanKey.contains("service_role") || cleanKey.contains("secret") || (!cleanKey.startsWith("eyJ") && !cleanKey.startsWith("sb_publishable_"))) {
+            Log.e(TAG, "Rechazada service_role key en el cliente.")
+            return
+        }
+
+        val prefs = getEncryptedPrefs(context)
         prefs.edit()
             .putString(KEY_CUSTOM_URL, cleanUrl)
             .putString(KEY_CUSTOM_KEY, cleanKey)
@@ -68,7 +90,7 @@ object SupabaseClientManager {
     }
 
     fun resetToDefaultCredentials(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val prefs = getEncryptedPrefs(context)
         prefs.edit().clear().apply()
         customUrl = null
         customKey = null

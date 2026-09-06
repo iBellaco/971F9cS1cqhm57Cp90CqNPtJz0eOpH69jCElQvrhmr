@@ -1,1 +1,1 @@
-git commit -m "refactor(admin): rediseña UI de la tarjeta de usuario en el panel y añade vista de hardware (dispositivos registrados)"
+git commit -m "fix(security): corrige vulnerabilidades críticas (Broken Access Control en roles de usuario, validación de contraseñas y exposición de datos sensibles con EncryptedSharedPreferences)"

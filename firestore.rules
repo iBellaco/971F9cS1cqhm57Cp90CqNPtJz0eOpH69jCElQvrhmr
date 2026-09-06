@@ -1,29 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Reglas para la colección "users"
     match /users/{userId} {
-      // 1. Lectura: Un usuario solo puede leer su propio documento, o un Admin puede leer todos.
-      // (Para simplificar, permitimos lectura si está autenticado. Si quieres estricto: allow read: if request.auth != null && request.auth.uid == userId)
-      allow read: if request.auth != null;
-      
-      // 2. Creación: Un usuario puede crear su documento inicial
-      allow create: if request.auth != null && request.auth.uid == userId;
-
-      // 3. Actualización (El núcleo de la seguridad)
-      allow update: if request.auth != null 
-                    // a) El usuario solo edita su propio documento
-                    && request.auth.uid == userId
-                    
-                    // b) PRIVILEGE ESCALATION PREVENTION: El cliente NUNCA puede modificar su propio 'role', 'premiumUntil' ni 'banned'
-                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'premiumUntil', 'banned'])
-                    
-                    // c) DEVICE BINDING LIMIT: Si están actualizando 'registeredDevices', la nueva lista NO puede tener más de 2 elementos
-                    && (
-                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
-                      || request.resource.data.registeredDevices.size() <= 2
-                    );
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.role == "free"
+        && !request.resource.data.keys().hasAny(['banned','premiumUntil'])
+        && request.resource.data.registeredDevices.size() <= 2;
+      allow update: if request.auth != null && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys()
+             .hasAny(['role','premiumUntil','banned','registeredDevices']);
+      allow delete: if false;
+    }
+    match /users/{userId}/subscription_history/{id} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // solo Admin SDK
     }
   }
 }

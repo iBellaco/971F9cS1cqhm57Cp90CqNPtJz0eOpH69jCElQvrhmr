@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 97
-    versionName = "1.2.4"
+    versionCode = 98
+    versionName = "1.2.5"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 

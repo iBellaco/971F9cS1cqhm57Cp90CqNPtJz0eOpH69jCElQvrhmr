@@ -76,7 +76,7 @@ object SubscriptionManager {
                 } catch (e: Exception) {
                     Log.w("SubscriptionManager", "Heartbeat update failed: ${e.message}")
                 }
-                kotlinx.coroutines.delay(30_000L) // Ping every 30 seconds
+                kotlinx.coroutines.delay(300_000L) // Ping every 5 minutes
             }
         }
     }
@@ -175,7 +175,8 @@ object SubscriptionManager {
 
                 if (listenSnapshot != null && listenSnapshot.exists()) {
                     var role = listenSnapshot.getString("role") ?: "free"
-                    if (AuthManager.isAdminEmail(user.email)) {
+                    val isAdminClaim = AuthManager.isCurrentUserAdmin()
+                    if (isAdminClaim) {
                         role = "admin"
                     }
                     val sessionToken = listenSnapshot.getString("sessionToken")
@@ -198,7 +199,7 @@ object SubscriptionManager {
                     _premiumUntil.value = until
                     
                     val isPrem = when {
-                        role == "admin" || AuthManager.isAdminEmail(user.email) -> true
+                        isAdminClaim -> true
                         role == "premium" -> {
                             until == null || until == 0L || until > System.currentTimeMillis()
                         }
@@ -209,7 +210,7 @@ object SubscriptionManager {
                     
                     _unlockedAvatars.value = unlocked
                 } else {
-                    val isEmailAdmin = AuthManager.isAdminEmail(user.email)
+                    val isEmailAdmin = AuthManager.isCurrentUserAdmin()
                     _userName.value = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""
                     _userRole.value = if (isEmailAdmin) "admin" else "free"
                     _isPremium.value = isEmailAdmin
@@ -276,79 +277,10 @@ object SubscriptionManager {
             .addOnFailureListener { onError("Error al actualizar el marco: ${it.message}") }
     }
 
-    fun upgradeToPremium(durationMillis: Long? = null) {
-        val user = AuthManager.getAuth()?.currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
-        
-        val updateMap = hashMapOf<String, Any>(
-            "role" to "premium"
-        )
-        if (durationMillis != null && durationMillis > 0) {
-            val expireTime = System.currentTimeMillis() + durationMillis
-            updateMap["premiumUntil"] = expireTime
-        } else {
-            updateMap["premiumUntil"] = 0L // Permanente / Vitalicio
-        }
-        
-        userRef.set(updateMap, SetOptions.merge())
-            .addOnSuccessListener {
-                Log.d("SubscriptionManager", "Successfully upgraded to premium with duration: $durationMillis")
-            }
-            .addOnFailureListener {
-                Log.e("SubscriptionManager", "Failed to upgrade", it)
-            }
-    }
-
     fun purchaseSubscription(durationMillis: Long, planName: String, price: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val user = AuthManager.getAuth()?.currentUser
-        if (user == null) {
-            onError("Debes iniciar sesión.")
-            return
-        }
-        val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
-        
-        val baseTime = if (_premiumUntil.value != null && _premiumUntil.value!! > System.currentTimeMillis()) {
-            _premiumUntil.value!!
-        } else {
-            System.currentTimeMillis()
-        }
-        val newUntil = baseTime + durationMillis
-
-        val updateMap = hashMapOf<String, Any>(
-            "role" to "premium",
-            "premiumUntil" to newUntil
-        )
-
-        /* 
-         * 🔴 DEVSECOPS CRITICAL WARNING: BROKEN ACCESS CONTROL (OWASP API1:2023)
-         * Escribir `role` y `premiumUntil` directamente desde el cliente hacia Firestore es un riesgo 
-         * crítico. Un atacante puede interceptar y modificar esta petición o recompilar el APK 
-         * para inyectar su propio `updateMap` y escalar privilegios (Privilege Escalation).
-         * 
-         * MITIGACIÓN (Ver firestore.rules):
-         * 1. La escritura debe bloquearse para estos campos en Firebase Security Rules.
-         * 2. Este bloque debe ser reemplazado por una llamada a una Cloud Function HTTPS Invocable:
-         *    `FirebaseFunctions.getInstance().getHttpsCallable("processPayment").call(...)`
-         *    La función validará el comprobante de Google Play/Stripe y actualizará el documento.
-         */
-        userRef.set(updateMap, SetOptions.merge())
-            .addOnSuccessListener {
-                CoroutineScope(Dispatchers.IO).launch {
-                    SubscriptionHistoryManager.addRecordForUser(
-                        uid = user.uid,
-                        durationMillis = durationMillis,
-                        planName = planName,
-                        status = "Completado",
-                        amount = price
-                    )
-                }
-                onSuccess()
-            }
-            .addOnFailureListener {
-                onError(it.message ?: "Error desconocido")
-            }
+        // Pagos in-app desactivados temporalmente. 
+        // El cliente NUNCA debe escribir `role` o `premiumUntil`.
+        onError("Pagos desactivados hasta integración con Google Play Billing.")
     }
 
     fun formatDuration(until: Long?): String {
