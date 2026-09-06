@@ -2283,31 +2283,62 @@ private fun OverlayVersusDraftBoard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Ally Avatar
-                    DraftAvatarBox(
-                        slot = allySlot,
-                        isEnemy = false,
-                        isMyRole = activeUserRole == role,
-                        onClick = { onPickChampionForRole(true, role) },
-                        onRemove = { onRemoveChampionForRole(true, role) }
-                    )
+                    // Ally Avatar + Champion Name
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        DraftAvatarBox(
+                            slot = allySlot,
+                            isEnemy = false,
+                            isMyRole = activeUserRole == role,
+                            onClick = { onPickChampionForRole(true, role) },
+                            onRemove = { onRemoveChampionForRole(true, role) }
+                        )
+
+                        Spacer(modifier = Modifier.width(5.dp))
+
+                        Text(
+                            text = allySlot?.champion?.name ?: "-",
+                            color = if (activeUserRole == role) HextechCyan else if (allySlot?.champion != null) TextPrimary else TextMuted,
+                            fontSize = 9.sp,
+                            fontWeight = if (allySlot?.champion != null) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
 
                     // Center Role (Horizontal layout to save vertical space)
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.width(60.dp)
+                        modifier = Modifier.width(48.dp)
                     ) {
-                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(label, color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(label, color = TextSecondary, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold)
                     }
 
-                    // Enemy Avatar + Confidence Tag
+                    // Enemy Champion Name + Confidence Tag + Avatar
                     Row(
+                        modifier = Modifier.weight(1f),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
                     ) {
+                        Text(
+                            text = enemySlot?.champion?.name ?: "-",
+                            color = if (enemySlot?.champion != null) DangerRed.copy(alpha = 0.95f) else TextMuted,
+                            fontSize = 9.sp,
+                            fontWeight = if (enemySlot?.champion != null) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+
+                        Spacer(modifier = Modifier.width(5.dp))
+
                         if (enemySlot?.confidence != null && enemySlot.champion != null) {
                             Box(
                                 modifier = Modifier

@@ -7,6 +7,7 @@ import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.util.AppLogger
 import com.example.util.ImageHashMatcher
+import com.example.util.ImagePreprocessor
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -71,12 +72,9 @@ object DraftVisionScanner {
         var userDetectedLane: LaneRole? = null
 
         // -----------------------------------------------------------------------------------------
-        // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
+        // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS Y PRE-PROCESAMIENTO DE ILUMINACIÓN
         // -----------------------------------------------------------------------------------------
-        try {
-            val inputImage = InputImage.fromBitmap(bitmap, 0)
-            val visionText = recognizer.process(inputImage).await()
-
+        fun parseVisionBlocks(visionText: com.google.mlkit.vision.text.Text) {
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val text = line.text.trim()
@@ -90,7 +88,6 @@ object DraftVisionScanner {
                     val xRatio = centerX.toFloat() / width.toFloat()
 
                     // 1.1 PARSING DEL CHAT IN-GAME (Y > 0.80 y X < 0.40)
-                    // El chat se analiza exclusivamente como información contextual; jamás debe sobreescribir slots directos
                     if (yRatio in 0.80f..0.94f && xRatio < 0.40f) {
                         val chatChamp = ChampionNameResolver.findChampionInText(text, allChamps)
                         if (chatChamp != null) {
@@ -115,22 +112,24 @@ object DraftVisionScanner {
                     if (xRatio in 0.02f..0.28f) {
                         val slot = allySlots[slotIndex]
 
-                        // Buscar nombre de campeón en el texto del slot
-                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
-                        if (matchedChamp != null) {
-                            slot.champion = matchedChamp
-                            slot.confidencePercent = 99
-                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                        if (slot.champion == null) {
+                            val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
+                            if (matchedChamp != null) {
+                                slot.champion = matchedChamp
+                                slot.confidencePercent = 99
+                                AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                            }
                         }
 
-                        // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", etc.)
-                        val role = DraftValidationLayer.parseRoleFromText(text)
-                        if (role != null) {
-                            slot.explicitRole = role
-                            if (slotIndex == 4 || userDetectedLane == null) {
-                                userDetectedLane = role
+                        if (slot.explicitRole == null) {
+                            val role = DraftValidationLayer.parseRoleFromText(text)
+                            if (role != null) {
+                                slot.explicitRole = role
+                                if (slotIndex == 4 || userDetectedLane == null) {
+                                    userDetectedLane = role
+                                }
+                                AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito: ${role.shortName}")
                             }
-                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito: ${role.shortName}")
                         }
                     }
 
@@ -138,19 +137,43 @@ object DraftVisionScanner {
                     else if (xRatio in 0.72f..0.98f) {
                         val slot = enemySlots[slotIndex]
 
-                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
-                        if (matchedChamp != null) {
-                            slot.champion = matchedChamp
-                            slot.confidencePercent = 95
-                            AppLogger.d(TAG, "OCR Enemigo Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                        if (slot.champion == null) {
+                            val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
+                            if (matchedChamp != null) {
+                                slot.champion = matchedChamp
+                                slot.confidencePercent = 95
+                                AppLogger.d(TAG, "OCR Enemigo Slot $slotIndex -> Campeón: ${matchedChamp.name}")
+                            }
                         }
 
-                        val role = DraftValidationLayer.parseRoleFromText(text)
-                        if (role != null) {
-                            slot.explicitRole = role
+                        if (slot.explicitRole == null) {
+                            val role = DraftValidationLayer.parseRoleFromText(text)
+                            if (role != null) {
+                                slot.explicitRole = role
+                            }
                         }
                     }
-                    // NOTA: Toda la franja central (X entre 0.28 y 0.72) donde reside el Overlay flotante es TOTALMENTE IGNORADA
+                }
+            }
+        }
+
+        try {
+            // Pase 1: OCR Estándar
+            val inputImage = InputImage.fromBitmap(bitmap, 0)
+            val visionText = recognizer.process(inputImage).await()
+            parseVisionBlocks(visionText)
+
+            // Pase 2: Si hay slots sin identificar (por iluminación tenue, partículas de aura o bajo contraste), aplicar pre-procesamiento optimizado
+            val missingSlots = allySlots.any { it.champion == null } || enemySlots.any { it.champion == null }
+            if (missingSlots) {
+                try {
+                    val enhancedBitmap = ImagePreprocessor.enhanceForOcr(bitmap)
+                    val enhancedInput = InputImage.fromBitmap(enhancedBitmap, 0)
+                    val enhancedVisionText = recognizer.process(enhancedInput).await()
+                    parseVisionBlocks(enhancedVisionText)
+                    enhancedBitmap.recycle()
+                } catch (e: Exception) {
+                    AppLogger.w(TAG, "Aviso durante pase OCR secundario con mejora de contraste: ${e.message}")
                 }
             }
         } catch (e: Exception) {
@@ -160,14 +183,14 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 1.5: RECORTE VISUAL DE AVATARES E ICONOS DE ROL (FALLBACK Y MULTIMODAL DETECTION)
         // -----------------------------------------------------------------------------------------
-        val avatarSize = (height * 0.115f).toInt().coerceAtLeast(24)
-        val allyAvatarCenterX = (width * 0.115f).toInt()
-        val enemyAvatarCenterX = (width * 0.915f).toInt()
+        val avatarSize = (height * 0.125f).toInt().coerceAtLeast(32)
+        val allyAvatarCenterX = (width * 0.118f).toInt()
+        val enemyAvatarCenterX = (width * 0.908f).toInt()
 
         // 1.5.1 Aliados
         for (i in 0..4) {
             val slot = allySlots[i]
-            val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
+            val yCenter = (height * (0.185f + (i * 0.138f))).toInt()
             val startX = (allyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
             val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
 
@@ -176,12 +199,28 @@ object DraftVisionScanner {
 
                 // Si no se detectó el campeón por texto OCR, recurrir a la comparación visual del avatar con prioridad por rol
                 if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
+                    var matchResult = ImageHashMatcher.findBestMatchDetailed(
                         crop,
                         allChamps,
-                        maxDistance = 22,
+                        maxDistance = 26,
                         preferredRole = slot.explicitRole
                     )
+                    
+                    // Si no hubo coincidencia con tamaño estándar (ej: slot activo con marco agrandado), probar con recorte expandido
+                    if (matchResult == null) {
+                        val expandedSize = (avatarSize * 1.25f).toInt().coerceAtMost(height - yCenter + avatarSize / 2)
+                        val expStartX = (allyAvatarCenterX - expandedSize / 2).coerceIn(0, width - expandedSize)
+                        val expStartY = (yCenter - expandedSize / 2).coerceIn(0, height - expandedSize)
+                        val expCrop = Bitmap.createBitmap(bitmap, expStartX, expStartY, expandedSize, expandedSize)
+                        matchResult = ImageHashMatcher.findBestMatchDetailed(
+                            expCrop,
+                            allChamps,
+                            maxDistance = 26,
+                            preferredRole = slot.explicitRole
+                        )
+                        expCrop.recycle()
+                    }
+
                     if (matchResult != null) {
                         slot.champion = matchResult.champion
                         slot.confidencePercent = matchResult.confidencePercent
@@ -197,7 +236,7 @@ object DraftVisionScanner {
         // 1.5.2 Enemigos
         for (i in 0..4) {
             val slot = enemySlots[i]
-            val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
+            val yCenter = (height * (0.185f + (i * 0.138f))).toInt()
             val startX = (enemyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
             val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
 
@@ -205,12 +244,28 @@ object DraftVisionScanner {
                 val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
 
                 if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
+                    var matchResult = ImageHashMatcher.findBestMatchDetailed(
                         crop,
                         allChamps,
-                        maxDistance = 22,
+                        maxDistance = 26,
                         preferredRole = slot.explicitRole
                     )
+                    
+                    // Si no hubo coincidencia con tamaño estándar (ej: rival en picking activo con marco agrandado), probar con recorte expandido
+                    if (matchResult == null) {
+                        val expandedSize = (avatarSize * 1.25f).toInt().coerceAtMost(height - yCenter + avatarSize / 2)
+                        val expStartX = (enemyAvatarCenterX - expandedSize / 2).coerceIn(0, width - expandedSize)
+                        val expStartY = (yCenter - expandedSize / 2).coerceIn(0, height - expandedSize)
+                        val expCrop = Bitmap.createBitmap(bitmap, expStartX, expStartY, expandedSize, expandedSize)
+                        matchResult = ImageHashMatcher.findBestMatchDetailed(
+                            expCrop,
+                            allChamps,
+                            maxDistance = 26,
+                            preferredRole = slot.explicitRole
+                        )
+                        expCrop.recycle()
+                    }
+
                     if (matchResult != null) {
                         slot.champion = matchResult.champion
                         slot.confidencePercent = matchResult.confidencePercent
