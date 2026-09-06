@@ -233,34 +233,15 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 2: ASIGNACIÓN DE ROLES ESTÁNDAR POR SLOT (TOP=0, JUNGLE=1, MID=2, ADC=3, SUP=4)
+        // PASO 2: ASIGNACIÓN DE ROLES EXPLÍCITOS (Solo cuando hay texto comprobado)
         // -----------------------------------------------------------------------------------------
         for (i in 0..4) {
             val slot = allySlots[i]
             if (slot.explicitRole == null) {
-                slot.explicitRole = allySlotRolesCache[i] ?: when (i) {
-                    0 -> LaneRole.TOP
-                    1 -> LaneRole.JUNGLE
-                    2 -> LaneRole.MID
-                    3 -> LaneRole.ADC
-                    4 -> LaneRole.SUPPORT
-                    else -> null
-                }
+                slot.explicitRole = allySlotRolesCache[i]
             }
         }
-        for (i in 0..4) {
-            val slot = enemySlots[i]
-            if (slot.explicitRole == null) {
-                slot.explicitRole = when (i) {
-                    0 -> LaneRole.TOP
-                    1 -> LaneRole.JUNGLE
-                    2 -> LaneRole.MID
-                    3 -> LaneRole.ADC
-                    4 -> LaneRole.SUPPORT
-                    else -> null
-                }
-            }
-        }
+        // No forzamos roles naturales aquí, DraftValidationLayer se encarga de usar el índice del slot si hace falta.
 
         // -----------------------------------------------------------------------------------------
         // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
@@ -269,7 +250,7 @@ object DraftVisionScanner {
         // En 695 de alto: allyAvatarCenterX = 111 px (ratio 0.160f)
         // Diámetro avatar: 83 px (ratio 0.120f)
         val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
-        val allyAvatarCenterX = (height * 0.160f).toInt().coerceAtLeast(16)
+        val allyAvatarCenterX = (height * 0.155f).toInt().coerceAtLeast(16)
         // En 1536x695: enemyAvatarCenterX = 1425 px (evita panel lateral Android y barra gestos)
         val enemyAvatarCenterX = (width - (height * 0.160f)).toInt().coerceIn(0, width)
 

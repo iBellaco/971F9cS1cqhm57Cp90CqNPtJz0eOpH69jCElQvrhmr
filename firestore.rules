@@ -8,8 +8,12 @@ service cloud.firestore {
         && !request.resource.data.keys().hasAny(['banned','premiumUntil'])
         && request.resource.data.registeredDevices.size() <= 2;
       allow update: if request.auth != null && request.auth.uid == userId
-        && !request.resource.data.diff(resource.data).affectedKeys()
-             .hasAny(['role','premiumUntil','banned','registeredDevices']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role','premiumUntil','banned'])
+        && (
+             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
+             || request.resource.data.registeredDevices.size() <= 2
+             || request.auth.token.admin == true
+        );
       allow delete: if false;
     }
     match /users/{userId}/subscription_history/{id} {

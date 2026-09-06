@@ -1,1 +1,1 @@
-git commit -m "fix(security): corrige vulnerabilidades críticas (Broken Access Control en roles de usuario, validación de contraseñas y exposición de datos sensibles con EncryptedSharedPreferences)"
+git commit -m "fix(scanner): corrige bugs de reconocimiento (Wukong ignorado, falsos positivos por ROI amplio) y asignación errónea de roles; restaura límite infinito de slots para admin"
