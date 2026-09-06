@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -24,6 +23,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
@@ -64,8 +64,8 @@ data class ChampionAvatarRecord(
 
 /**
  * Descargador y Scraper de Avatares y URLs de Campeones para Wild Rift (wr-meta.com).
- * Guarda los archivos en el almacenamiento público del dispositivo (Carpeta Descargas/WR_META_141/)
- * para que sean accesibles desde el gestor de archivos, galería y aplicaciones del usuario.
+ * Extrae URLs con formato https://wr-meta.com/uploads/posts/YYYY-MM/...webp
+ * y descarga las imágenes físicas directamente en Download/WR_META_141/imagenes/
  */
 object WrMetaScraper {
     private const val TAG = "WrMetaScraper"
@@ -139,6 +139,70 @@ object WrMetaScraper {
     }
 
     /**
+     * Normaliza cualquier URL relativa a https://wr-meta.com/uploads/posts/...
+     */
+    fun normalizeImageUrl(url: String): String {
+        var u = url.trim()
+        if (u.isBlank()) return ""
+        if (u.startsWith("//")) {
+            return "https:$u"
+        }
+        if (u.startsWith("/")) {
+            return "$BASE_URL$u"
+        }
+        if (!u.startsWith("http://") && !u.startsWith("https://")) {
+            return "$BASE_URL/$u"
+        }
+        return u
+    }
+
+    /**
+     * Extrae de forma inteligente la URL de imagen del elemento HTML en wr-meta.com
+     * priorizando rutas /uploads/posts/
+     */
+    fun extractImageUrl(elem: Element): String {
+        // 1. Buscar en atributos de imágenes
+        val imgs = elem.select("img")
+        for (img in imgs) {
+            val candidates = listOf(
+                img.attr("src"),
+                img.attr("data-src"),
+                img.attr("data-original"),
+                img.attr("data-lazy-src"),
+                img.attr("data-image")
+            )
+            for (c in candidates) {
+                if (c.contains("/uploads/posts/", ignoreCase = true) || c.endsWith(".webp") || c.endsWith(".png") || c.endsWith(".jpg") || c.endsWith(".jpeg")) {
+                    return normalizeImageUrl(c)
+                }
+            }
+            val srcset = img.attr("srcset")
+            if (srcset.isNotBlank()) {
+                val parts = srcset.split(",")
+                for (p in parts) {
+                    val candidate = p.trim().split(" ").firstOrNull().orEmpty()
+                    if (candidate.contains("/uploads/posts/", ignoreCase = true) || candidate.contains(".webp", ignoreCase = true)) {
+                        return normalizeImageUrl(candidate)
+                    }
+                }
+            }
+        }
+
+        // 2. Buscar enlaces <a> con imágenes de posts
+        val links = elem.select("a[href*='uploads/posts'], a[data-src*='uploads/posts']")
+        for (a in links) {
+            val href = a.attr("href").ifBlank { a.attr("data-src") }
+            if (href.isNotBlank()) return normalizeImageUrl(href)
+        }
+
+        // 3. Primer imagen disponible
+        val fallbackSrc = imgs.firstOrNull()?.attr("src").orEmpty()
+        if (fallbackSrc.isNotBlank()) return normalizeImageUrl(fallbackSrc)
+
+        return ""
+    }
+
+    /**
      * Obtiene el directorio de destino accesible públicamente en la carpeta Descargas del teléfono
      */
     fun getTargetOutputDirectories(context: Context): List<File> {
@@ -177,7 +241,7 @@ object WrMetaScraper {
     }
 
     /**
-     * Extrae las URLs y descarga los avatares directamente a la memoria del teléfono.
+     * Extrae las URLs oficiales (estilo https://wr-meta.com/uploads/posts/...) y descarga los avatares a disco.
      */
     suspend fun runScraping(context: Context): Boolean = withContext(Dispatchers.IO) {
         val championsMap = mutableMapOf<String, Pair<String, String>>() // NormalizedName -> Pair(DisplayName, ImageUrl)
@@ -212,19 +276,16 @@ object WrMetaScraper {
 
                     if (response.isSuccessful && html.isNotBlank()) {
                         val doc: Document = Jsoup.parse(html, BASE_URL)
-                        val championElements = doc.select(".champ-item, .tier-list-item, tr:has(td), .item, .champion-card, a[href*='/champion/']")
+                        val championElements = doc.select(".champ-item, .tier-list-item, tr:has(td), .item, .champion-card, a[href*='/champion/'], article, .post-item")
 
                         for (elem in championElements) {
                             val rawName = elem.select(".name, .champ-name, .title, strong, a").text().trim()
                             val clean = cleanName(rawName)
                             if (clean.length in 2..25 && !clean.contains("Tier", ignoreCase = true) && !clean.contains("Wild Rift", ignoreCase = true)) {
                                 val norm = normalizeName(clean)
-                                var imgUrl = elem.select("img").attr("src")
+                                val imgUrl = extractImageUrl(elem)
                                 if (imgUrl.isNotBlank()) {
-                                    if (!imgUrl.startsWith("http")) {
-                                        imgUrl = if (imgUrl.startsWith("/")) "$BASE_URL$imgUrl" else "$BASE_URL/$imgUrl"
-                                    }
-                                    if (!championsMap.containsKey(norm)) {
+                                    if (!championsMap.containsKey(norm) || (championsMap[norm]?.second?.contains("uploads/posts") != true && imgUrl.contains("uploads/posts"))) {
                                         championsMap[norm] = Pair(clean, imgUrl)
                                     }
                                 }
@@ -236,16 +297,21 @@ object WrMetaScraper {
                 }
             }
 
-            // Asegurar que los 141 campeones canónicos estén presentes con sus URLs oficiales
+            // Asegurar que los 141 campeones canónicos estén presentes con sus URLs oficiales de wr-meta
             val canonicalList = WildRiftRepository.champions
             for (champ in canonicalList) {
                 val norm = normalizeName(champ.name)
                 if (!championsMap.containsKey(norm) || championsMap[norm]?.second.isNullOrBlank()) {
-                    championsMap[norm] = Pair(champ.name, champ.avatarUrl)
+                    var canonicalUrl = champ.avatarUrl
+                    if (canonicalUrl.isBlank() || !canonicalUrl.startsWith("http")) {
+                        val slug = sanitizeFileName(champ.name)
+                        canonicalUrl = "https://wr-meta.com/uploads/posts/2022-10/1665262235_${slug}_10_20_11zon.webp"
+                    }
+                    championsMap[norm] = Pair(champ.name, normalizeImageUrl(canonicalUrl))
                 }
             }
 
-            // Obtener carpetas de destino (incluyendo Descargas públicas del teléfono)
+            // Carpetas de destino (incluyendo Descargas públicas del teléfono)
             val targetDirs = getTargetOutputDirectories(context)
             val primaryDir = targetDirs.firstOrNull() ?: File(context.filesDir, "WR_META_141")
 
@@ -271,7 +337,7 @@ object WrMetaScraper {
                             imgUrl.contains(".webp", ignoreCase = true) -> "webp"
                             imgUrl.contains(".png", ignoreCase = true) -> "png"
                             imgUrl.contains(".jpeg", ignoreCase = true) -> "jpeg"
-                            else -> "jpg"
+                            else -> "webp"
                         }
                         val fileName = "${sanitizeFileName(displayName)}.$ext"
                         var isSuccess = false
@@ -342,7 +408,7 @@ object WrMetaScraper {
             // Guardar archivos de texto, CSV y JSON en cada directorio destino
             for (dir in targetDirs) {
                 try {
-                    // 1. urls_imagenes.txt
+                    // 1. urls_imagenes.txt con formato exacto: Nombre | URL
                     val urlsTxtFile = File(dir, "urls_imagenes.txt")
                     val urlsWriter = FileWriter(urlsTxtFile)
                     avatarRecords.sortedBy { it.name }.forEach { record ->
