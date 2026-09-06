@@ -2283,35 +2283,72 @@ private fun OverlayVersusDraftBoard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Ally Avatar
-                    DraftAvatarBox(
-                        slot = allySlot,
-                        isEnemy = false,
-                        isMyRole = activeUserRole == role,
-                        onClick = { onPickChampionForRole(true, role) },
-                        onRemove = { onRemoveChampionForRole(true, role) }
-                    )
+                    // Ally Avatar + Name
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onPickChampionForRole(true, role) },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        DraftAvatarBox(
+                            slot = allySlot,
+                            isEnemy = false,
+                            isMyRole = activeUserRole == role,
+                            onClick = { onPickChampionForRole(true, role) },
+                            onRemove = { onRemoveChampionForRole(true, role) }
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        if (allySlot?.champion != null) {
+                            Column(modifier = Modifier.weight(1f, fill = false)) {
+                                Text(
+                                    text = allySlot.champion.name,
+                                    color = if (activeUserRole == role) HextechCyan else TextPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = allySlot.champion.tier,
+                                    color = HextechGold,
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = tr("Elegir"),
+                                color = TextMuted.copy(alpha = 0.6f),
+                                fontSize = 8.5.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
 
                     // Center Role (Horizontal layout to save vertical space)
                     Row(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.width(60.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp)
                     ) {
-                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(label, color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(label, color = TextSecondary, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                     }
 
-                    // Enemy Avatar + Confidence Tag
+                    // Enemy Name + Confidence Tag + Enemy Avatar
                     Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { onPickChampionForRole(false, role) },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
                     ) {
                         if (enemySlot?.confidence != null && enemySlot.champion != null) {
                             Box(
                                 modifier = Modifier
-                                    .padding(end = 4.dp)
+                                    .padding(end = 3.dp)
                                     .clip(RoundedCornerShape(3.dp))
                                     .background(Color(0xFF0F1923).copy(alpha = 0.9f))
                                     .border(0.5.dp, if (enemySlot.confidence >= 80) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
@@ -2324,6 +2361,39 @@ private fun OverlayVersusDraftBoard(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
+                        }
+
+                        if (enemySlot?.champion != null) {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                modifier = Modifier.weight(1f, fill = false).padding(end = 5.dp)
+                            ) {
+                                Text(
+                                    text = enemySlot.champion.name,
+                                    color = DangerRed,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.End
+                                )
+                                Text(
+                                    text = enemySlot.champion.tier,
+                                    color = HextechGold,
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                        } else {
+                            Text(
+                                text = tr("Elegir"),
+                                color = TextMuted.copy(alpha = 0.6f),
+                                fontSize = 8.5.sp,
+                                maxLines = 1,
+                                textAlign = TextAlign.End,
+                                modifier = Modifier.padding(end = 5.dp)
+                            )
                         }
 
                         DraftAvatarBox(
