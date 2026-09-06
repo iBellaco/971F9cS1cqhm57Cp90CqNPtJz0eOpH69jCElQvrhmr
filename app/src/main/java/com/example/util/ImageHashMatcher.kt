@@ -136,16 +136,16 @@ object ImageHashMatcher {
         var minDistance = maxDistance
         
         allChampions.forEach { champ ->
-            val champHash = ChampionHashes.map[champ.id]
-            if (champHash != null) {
+            val hashes = ChampionHashes.map.filter { it.key == champ.id || it.key.startsWith("${champ.id}_") }.values
+            for (champHash in hashes) {
                 var dist = hammingDistance(targetHash, champHash)
                 
                 // Si el slot tiene un rol preferido explícito (ej: TOP para Urgot), aplicar bonificación de distancia
                 if (preferredRole != null) {
                     if (champ.primaryRole == preferredRole) {
-                        dist -= 3 // Bonificación de rol primario
+                        dist -= 4 // Bonificación de rol primario
                     } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        dist -= 1 // Bonificación de rol secundario
+                        dist -= 2 // Bonificación de rol secundario
                     }
                 }
 

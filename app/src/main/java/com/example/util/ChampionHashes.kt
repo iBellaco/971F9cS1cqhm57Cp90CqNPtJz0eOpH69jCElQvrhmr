@@ -116,7 +116,10 @@ object ChampionHashes {
         "tryndamere" to -5154305758176068496L,
         "twisted_fate" to 6111930808794642275L,
         "twitch" to 513140437269040958L,
-        "urgot" to 4070194207285127960L,
+        "urgot" to 4070194207285127960L, // Hash principal e in-game mask
+        "urgot_alt1" to 0x3C7EFFFFFFFF7E3CL,
+        "urgot_alt2" to 0x183C7EFFFF7E3C18L,
+        "urgot_alt3" to 0x003C7E7E7E7E3C00L,
         "varus" to 1109956231239113472L,
         "vayne" to 6261939898301964L,
         "veigar" to 4485585535527928642L,
