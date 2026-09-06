@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -7,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,9 +23,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import coil.imageLoader
 import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.example.model.Champion
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
@@ -35,10 +36,6 @@ import com.example.ui.theme.TierSPlusColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 
-/**
- * Avatar circular de Campeón enfocado exclusivamente en el rostro (primer plano).
- * Utiliza Alignment.TopCenter y ContentScale.Crop para encuadrar perfectamente la cara del campeón.
- */
 @Composable
 fun ChampionAvatar(
     champion: Champion,
@@ -87,8 +84,9 @@ fun ChampionAvatar(
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(modelData)
-                        .crossfade(true)
-                        .placeholder(com.example.R.drawable.ic_placeholder_loading)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                        
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .listener(
@@ -100,7 +98,6 @@ fun ChampionAvatar(
                     imageLoader = LocalContext.current.imageLoader,
                     contentDescription = champion.name,
                     contentScale = ContentScale.Crop,
-                    alignment = Alignment.TopCenter,
                     modifier = Modifier
                         .size(size - 4.dp)
                         .clip(CircleShape)
@@ -163,31 +160,32 @@ fun AppAssetImage(
             .border(1.dp, borderColor, shape),
         contentAlignment = Alignment.Center
     ) {
-        if (modelData != null) {
+        // Fallback initials underneath
+        Text(
+            text = fallbackText.take(2).uppercase(),
+            color = borderColor.copy(alpha = 0.7f),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold
+        )
+        if (modelData != null && parsedUrl.isNotBlank()) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
-                    .crossfade(true)
+.crossfade(true)
+.placeholder(com.example.R.drawable.ic_placeholder_loading)
+                    
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .listener(
-                        onError = { _, result ->
-                            com.example.util.AppLogger.e("AppAssetImage", "Failed to load $url: ${result.throwable.message}")
+                        onError = { request, result -> 
+                            com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
                         }
                     )
                     .build(),
                 imageLoader = context.imageLoader,
-                contentDescription = contentDescription,
+                contentDescription = contentDescription ?: fallbackText,
                 contentScale = ContentScale.Crop,
-                alignment = Alignment.TopCenter,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            Text(
-                text = fallbackText.take(2).uppercase(),
-                color = HextechGold,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold
+                modifier = Modifier.fillMaxSize().clip(shape)
             )
         }
     }

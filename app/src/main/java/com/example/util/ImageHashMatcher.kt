@@ -108,12 +108,12 @@ object ImageHashMatcher {
         return hash
     }
 
-    // Recorta un porcentaje central del avatar para eliminar marcos decorativos o anillos de selección
+    // Recorta el 75% central del avatar para eliminar marcos dorados decorativos
     fun getInnerCrop(bitmap: Bitmap, scale: Float = 0.75f): Bitmap {
         val w = bitmap.width
         val h = bitmap.height
-        val targetW = (w * scale).toInt().coerceAtLeast(8)
-        val targetH = (h * scale).toInt().coerceAtLeast(8)
+        val targetW = (w * scale).toInt().coerceAtLeast(16)
+        val targetH = (h * scale).toInt().coerceAtLeast(16)
         val startX = ((w - targetW) / 2).coerceIn(0, w - targetW)
         val startY = ((h - targetH) / 2).coerceIn(0, h - targetH)
         return Bitmap.createBitmap(bitmap, startX, startY, targetW, targetH)
@@ -123,91 +123,42 @@ object ImageHashMatcher {
     fun findBestMatchDetailed(
         bitmap: Bitmap,
         allChampions: List<Champion>,
-        maxDistance: Int = 26,
+        maxDistance: Int = 22,
         preferredRole: LaneRole? = null
     ): MatchResult? {
-        val candidateHashes = mutableListOf<Long>()
-        
-        // 1. Hash de la imagen completa
-        candidateHashes.add(calculateHash(bitmap))
-        
-        // 2. Hash con normalización de iluminación (Auto-levels / Min-Max stretching)
-        try {
-            val normBitmap = ImagePreprocessor.normalizeLighting(bitmap)
-            candidateHashes.add(calculateHash(normBitmap))
-            if (normBitmap != bitmap) normBitmap.recycle()
-        } catch (ignored: Exception) {}
-
-        // 3. Hash con ecualización de histograma (resuelve fondos oscuros / resplandores intensos)
-        try {
-            val eqBitmap = ImagePreprocessor.equalizeHistogram(bitmap)
-            candidateHashes.add(calculateHash(eqBitmap))
-            if (eqBitmap != bitmap) eqBitmap.recycle()
-        } catch (ignored: Exception) {}
-
-        // 4. Hash con recorte al 85% (elimina bordes mínimos)
-        try {
-            val crop85 = getInnerCrop(bitmap, 0.85f)
-            candidateHashes.add(calculateHash(crop85))
-            val normCrop85 = ImagePreprocessor.normalizeLighting(crop85)
-            candidateHashes.add(calculateHash(normCrop85))
-            if (normCrop85 != crop85) normCrop85.recycle()
-            if (crop85 != bitmap) crop85.recycle()
-        } catch (ignored: Exception) {}
-
-        // 5. Hash con recorte al 70% (elimina anillos dorados o auras rojas de selección activa)
-        try {
-            val crop70 = getInnerCrop(bitmap, 0.70f)
-            candidateHashes.add(calculateHash(crop70))
-            val normCrop70 = ImagePreprocessor.normalizeLighting(crop70)
-            candidateHashes.add(calculateHash(normCrop70))
-            if (normCrop70 != crop70) normCrop70.recycle()
-            if (crop70 != bitmap) crop70.recycle()
-        } catch (ignored: Exception) {}
-
-        // 6. Hash con recorte al 55% (enfoque directo al rostro / elemento central)
-        try {
-            val crop55 = getInnerCrop(bitmap, 0.55f)
-            candidateHashes.add(calculateHash(crop55))
-            val normCrop55 = ImagePreprocessor.normalizeLighting(crop55)
-            candidateHashes.add(calculateHash(normCrop55))
-            if (normCrop55 != crop55) normCrop55.recycle()
-            if (crop55 != bitmap) crop55.recycle()
-        } catch (ignored: Exception) {}
+        val innerCrop = try { getInnerCrop(bitmap) } catch (e: Exception) { bitmap }
+        val targetHash = calculateHash(innerCrop)
+        if (innerCrop != bitmap) {
+            try { innerCrop.recycle() } catch (ignored: Exception) {}
+        }
 
         var bestMatch: Champion? = null
-        var minEffectiveDistance = maxDistance
-        var bestRawDistance = 64
+        var minDistance = maxDistance
         
         allChampions.forEach { champ ->
             val hashes = ChampionHashes.map.filter { it.key == champ.id || it.key.startsWith("${champ.id}_") }.values
-            
             for (champHash in hashes) {
-                for (targetHash in candidateHashes) {
-                    val rawDist = hammingDistance(targetHash, champHash)
-                    var effectiveDist = rawDist
-                    
-                    // Si el slot tiene un rol preferido explícito (ej: TOP para Urgot, SUP para Lux), aplicar bonificación de distancia
-                    if (preferredRole != null) {
-                        if (champ.primaryRole == preferredRole) {
-                            effectiveDist -= 5 // Bonificación por rol primario
-                        } else if (champ.secondaryRoles.contains(preferredRole)) {
-                            effectiveDist -= 3 // Bonificación por rol secundario
-                        }
+                var dist = hammingDistance(targetHash, champHash)
+                
+                // Si el slot tiene un rol preferido explícito (ej: TOP para Urgot), aplicar bonificación de distancia
+                if (preferredRole != null) {
+                    if (champ.primaryRole == preferredRole) {
+                        dist -= 4 // Bonificación de rol primario
+                    } else if (champ.secondaryRoles.contains(preferredRole)) {
+                        dist -= 2 // Bonificación de rol secundario
                     }
+                }
 
-                    if (effectiveDist < minEffectiveDistance) {
-                        minEffectiveDistance = effectiveDist
-                        bestRawDistance = rawDist
-                        bestMatch = champ
-                    }
+                if (dist <= minDistance) {
+                    minDistance = dist
+                    bestMatch = champ
                 }
             }
         }
         
         return bestMatch?.let {
-            val confidence = (((64 - bestRawDistance.coerceAtLeast(0)).toFloat() / 64.0f) * 100).toInt().coerceIn(65, 99)
-            MatchResult(champion = it, distance = minEffectiveDistance, confidencePercent = confidence)
+            val confidence = (((64 - minDistance.coerceAtLeast(0)).toFloat() / 64.0f) * 100).toInt().coerceIn(70, 99)
+            MatchResult(champion = it, distance = minDistance, confidencePercent = confidence)
         }
     }
 

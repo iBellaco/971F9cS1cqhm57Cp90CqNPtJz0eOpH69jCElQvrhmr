@@ -82,1414 +82,1414 @@ object AvatarCatalog {
             name = "Aatrox",
             title = "la Espada de los Oscuros",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/dbb1d55dfccc9e9ddb8fa1a7915e3a544332958f-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Aatrox.png",
             borderHex = "#C8AA6E",
-            description = "Aatrox"
+            description = "Aatrox y sus hermanos, otrora respetados defensores de Shurima contra el Vacío, acabarían convi..."
         ),
         AvatarItem(
             id = "ahri",
             name = "Ahri",
             title = "La Mujer Zorro de nueve Colas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3a7ecf6f50c441a1bfe93f2a835b070c6c0ac639-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ahri.png",
             borderHex = "#C8AA6E",
-            description = "Ahri"
+            description = "Ahri es una raposa vastaya conectada de forma innata a la magia del reino de los espíritus. Es ..."
         ),
         AvatarItem(
             id = "akali",
             name = "Akali",
             title = "la Asesina Sigilosa",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/80443e3cfae7d2425d05d6e9fec5debf0c8a4f08-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Akali.png",
             borderHex = "#C8AA6E",
-            description = "Akali"
+            description = "Tras abandonar la Orden Kinkou y su título de Puño de la Sombra, Akali actúa ahora en solitario..."
         ),
         AvatarItem(
             id = "akshan",
             name = "Akshan",
             title = "el Centinela Rebelde",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/aec46f6adf185797577a47809893ad6e6089a24e-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Akshan.png",
             borderHex = "#C8AA6E",
-            description = "Akshan"
+            description = "Impávido ante el peligro, Akshan combate el mal con gran carisma, ganas de impartir justa venga..."
         ),
         AvatarItem(
             id = "alistar",
             name = "Alistar",
             title = "El Minotauro",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c886fb547e17fef8514bd27c97411d382fa02655-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Alistar.png",
             borderHex = "#C8AA6E",
-            description = "Alistar"
+            description = "Alistar, un poderoso guerrero con una reputación temible, busca venganza por la muerte de su cl..."
         ),
         AvatarItem(
             id = "ambessa",
             name = "Ambessa",
             title = "la Matriarca de la Guerra",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/141dbd483d6e489961620962386a034417879430-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://wr-meta.com/uploads/posts/2024-10/1729619132_gacsdslw8a11au11q0i_11zon.webp",
             borderHex = "#C8AA6E",
-            description = "Ambessa"
+            description = "Ambessa Medarda comanda el campo de batalla con implacable disciplina militar. Sus cadenas y ho..."
         ),
         AvatarItem(
             id = "amumu",
             name = "Amumu",
             title = "La Momia Triste",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/25044199d797ae84edbf5809966fd33b5a9df8d9-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Amumu.png",
             borderHex = "#C8AA6E",
-            description = "Amumu"
+            description = "Cuenta la leyenda que Amumu es un alma solitaria y melancólica de la vieja Shurima que vaga por..."
         ),
         AvatarItem(
             id = "annie",
             name = "Annie",
             title = "La Hija de la Oscuridad",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/761e0840a97e1dbbf620579dce12b8ad3aef85fd-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Annie.png",
             borderHex = "#C8AA6E",
-            description = "Annie"
+            description = "Peligrosa pero encantadoramente precoz, Annie es una pequeña maga con un inmenso poder pirománt..."
         ),
         AvatarItem(
             id = "ashe",
             name = "Ashe",
             title = "La Arquera de Hielo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/418813f2226d924771dd24aadaebe0624f39e5fb-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ashe.png",
             borderHex = "#C8AA6E",
-            description = "Ashe"
+            description = "Ashe, comandante hija del hielo de la tribu de Avarosa, lidera las hordas más numerosas del nor..."
         ),
         AvatarItem(
             id = "aurelion_sol",
             name = "Aurelion Sol",
             title = "El Forjador de Estrellas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d1ccccc13d3ac4b911e9879c3dedc088c4729210-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/AurelionSol.png",
             borderHex = "#C8AA6E",
-            description = "Aurelion Sol"
+            description = "Aurelion Sol solía agraciar al vasto vacío del cosmos con las maravillas celestiales que él mis..."
         ),
         AvatarItem(
             id = "aurora",
             name = "Aurora",
             title = "la Bruja entre Mundos",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d15f85326d86dc268de2ffc2f0a0f4ecd7ba37ba-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Aurora.png",
             borderHex = "#C8AA6E",
-            description = "Aurora"
+            description = "Desde que nació, Aurora ha tenido una visión única de la vida gracias a su capacidad para mover..."
         ),
         AvatarItem(
             id = "bard",
             name = "Bardo",
             title = "El Guardián Errante",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e72bcd4a5b671afa7c07c60d25757c5397b7ad44-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Bard.png",
             borderHex = "#C8AA6E",
-            description = "Bardo"
+            description = "Bardo, un viajero de más allá de las estrellas, es un agente de la serendipia que lucha para ma..."
         ),
         AvatarItem(
             id = "blitzcrank",
             name = "Blitzcrank",
             title = "El Gran Gólem de Vapor",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53aa63cbf9950ad1c45c73c372dc085f5e4167d7-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Blitzcrank.png",
             borderHex = "#C8AA6E",
-            description = "Blitzcrank"
+            description = "Blitzcrank es un autómata enorme, casi indestructible, creado originalmente para el tratamiento..."
         ),
         AvatarItem(
             id = "brand",
             name = "Brand",
             title = "La Venganza Ardiente",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/bb7ad76655cc1190dd0dd9a457486f7360e533a3-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Brand.png",
             borderHex = "#C8AA6E",
-            description = "Brand"
+            description = "Brand, antiguo miembro de la tribu Kegan Rodhe del helado Freljord, es una lección sobre la ten..."
         ),
         AvatarItem(
             id = "braum",
             name = "Braum",
             title = "El Corazón de Freljord",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2a483e1895f43d972a483694cf654d334d05e82f-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Braum.png",
             borderHex = "#C8AA6E",
-            description = "Braum"
+            description = "Bendecido con bíceps enormes y un corazón aún más grande, Braum es un héroe muy apreciado en Fr..."
         ),
         AvatarItem(
             id = "caitlyn",
             name = "Caitlyn",
             title = "La Sheriff de Piltover",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e4d985575acb029e19d8a4f02d0f2fe777b13154-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Caitlyn.png",
             borderHex = "#C8AA6E",
-            description = "Caitlyn"
+            description = "Reconocida como su mejor pacificadora, Caitlyn es también la mejor arma de Piltover para librar..."
         ),
         AvatarItem(
             id = "camille",
             name = "Camille",
             title = "la Sombra de Acero",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/18946b90e4865c3581fa2f0fd54c8d664828f875-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Camille.png",
             borderHex = "#C8AA6E",
-            description = "Camille"
+            description = "Convertida en un arma viviente diseñada para operar fuera de la ley, Camille es la jefa de espí..."
         ),
         AvatarItem(
             id = "cho_gath",
             name = "Cho'Gath",
             title = "El Terror del Vacío",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d532b61341e7297740f08996d458d589d5ab4c91-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Chogath.png",
             borderHex = "#C8AA6E",
-            description = "Cho'Gath"
+            description = "Desde el momento en que Cho'Gath emergió por primera vez a la dura luz solar de Runaterra, a la..."
         ),
         AvatarItem(
             id = "corki",
             name = "Corki",
             title = "El Bombardero Osado",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/faf41847d99731c5853a08f417bbb9fd87edc4ce-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Corki.png",
             borderHex = "#C8AA6E",
-            description = "Corki"
+            description = "El piloto yordle Corki adora dos cosas por encima de todas las demás: volar y su glamuroso bigo..."
         ),
         AvatarItem(
             id = "darius",
             name = "Darius",
             title = "La Mano de Noxus",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/64d4b577a35cf68bbd13841bb603de28fe14473b-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Darius.png",
             borderHex = "#C8AA6E",
-            description = "Darius"
+            description = "No hay mayor símbolo del poder de Noxus que Darius, el comandante más temido y más curtido en b..."
         ),
         AvatarItem(
             id = "diana",
             name = "Diana",
             title = "El Desdén de la Luna",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/925b9cb2ee9c84e26cc4aa55287ca03cb3175c28-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Diana.png",
             borderHex = "#C8AA6E",
-            description = "Diana"
+            description = "Portadora de una espada en forma de media luna, Diana es una guerrera de los Lunari, una fe rec..."
         ),
         AvatarItem(
             id = "dr_mundo",
             name = "Dr. Mundo",
             title = "El Loco de Zaun",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/65dd94a5af9279fdd97563d5a0cf86f332fe2afb-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/DrMundo.png",
             borderHex = "#C8AA6E",
-            description = "Dr. Mundo"
+            description = "Loco de remate, trágicamente homicida, terriblemente morado: el Dr. Mundo es lo que mantiene en..."
         ),
         AvatarItem(
             id = "draven",
             name = "Draven",
             title = "El Ejecutor Glorioso",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0b1f50021fca8e0960f226067d3433d533e72a38-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Draven.png",
             borderHex = "#C8AA6E",
-            description = "Draven"
+            description = "En Noxus, los guerreros conocidos como 'justicieros' se enfrentan en recintos donde corre la sa..."
         ),
         AvatarItem(
             id = "ekko",
             name = "Ekko",
             title = "El Chico que Quebró el Tiempo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d4c506aac1c10418d3f40334ebb0bf747fd150f1-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ekko.png",
             borderHex = "#C8AA6E",
-            description = "Ekko"
+            description = "Ekko, un prodigio surgido de las implacables calles de Zaun, manipula el tiempo para sacar vent..."
         ),
         AvatarItem(
             id = "evelynn",
             name = "Evelynn",
             title = "El Abrazo Agónico",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/52a3a7705f18a74c1ae56f6224e9742705e5404e-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Evelynn.png",
             borderHex = "#C8AA6E",
-            description = "Evelynn"
+            description = "En los oscuros adentros de Runaterra, el súcubo Evelynn deambula en busca de su siguiente vícti..."
         ),
         AvatarItem(
             id = "ezreal",
             name = "Ezreal",
             title = "El Explorador Pródigo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/d5193795e3f4c81acb122de52c25243e2ab2f76e-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ezreal.png",
             borderHex = "#C8AA6E",
-            description = "Ezreal"
+            description = "Ezreal, un aventurero aficionado a deslizarse y dotado de artes mágicas sin saberlo, saquea cat..."
         ),
         AvatarItem(
             id = "fiddlesticks",
             name = "Fiddlesticks",
             title = "el Terror Ancestral",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/106cd3a8f9da82ca3533b908d68bf3f303373c14-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fiddlesticks.png",
             borderHex = "#C8AA6E",
-            description = "Fiddlesticks"
+            description = "Algo ha despertado en Runaterra. Algo ancestral. Algo terrible. El horror conocido como Fiddles..."
         ),
         AvatarItem(
             id = "fiora",
             name = "Fiora",
             title = "La Estocada Excelsa",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2dafcddd5b1dfdf4e127464abf3f84b690bac5ec-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fiora.png",
             borderHex = "#C8AA6E",
-            description = "Fiora"
+            description = "Fiora, la duelista más temida de Valoran, ha alcanzado renombre por su estilo brusco y su mente..."
         ),
         AvatarItem(
             id = "fizz",
             name = "Fizz",
             title = "El Gamberro de las Mareas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9127f3d8365daf1b686d540feee14606304db886-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Fizz.png",
             borderHex = "#C8AA6E",
-            description = "Fizz"
+            description = "Fizz es un yordle anfibio que habita entre los arrecifes de alrededor de Aguas Estancadas. Suel..."
         ),
         AvatarItem(
             id = "galio",
             name = "Galio",
             title = "el Coloso",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3ce641181c33067ab130026356bb66b9c72a7de7-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Galio.png",
             borderHex = "#C8AA6E",
-            description = "Galio"
+            description = "Fuera de la reluciente ciudad de Demacia, el coloso de piedra Galio se mantiene vigilante. Cons..."
         ),
         AvatarItem(
             id = "garen",
             name = "Garen",
             title = "El Poder de Demacia",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e22e0b14ddfdf70087c47f795ebabfc180055bc7-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Garen.png",
             borderHex = "#C8AA6E",
-            description = "Garen"
+            description = "Garen, un orgulloso y noble guerrero, lucha en las filas de la Vanguardia Impertérrita. Es quer..."
         ),
         AvatarItem(
             id = "gnar",
             name = "Gnar",
             title = "El Eslabón Perdido",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/2b74cce5203bed8c192ff5c017b01a5231497430-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gnar.png",
             borderHex = "#C8AA6E",
-            description = "Gnar"
+            description = "Gnar es un yordle primitivo cuyas payasadas lúdicas pueden estallar en la ira de un niño pequeñ..."
         ),
         AvatarItem(
             id = "gragas",
             name = "Gragas",
             title = "El Camorrista",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/91eb41547dbcb8e4765559984b8765d8b93cf9c5-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gragas.png",
             borderHex = "#C8AA6E",
-            description = "Gragas"
+            description = "Alegre e imponente por partes iguales, Gragas es un cervecero enorme y provocador en su propia ..."
         ),
         AvatarItem(
             id = "graves",
             name = "Graves",
             title = "El Forajido",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1a9925c47327dd6899c2a180335ca28abb52431e-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Graves.png",
             borderHex = "#C8AA6E",
-            description = "Graves"
+            description = "Malcolm Graves es un famoso mercenario, jugador y ladrón. Un hombre buscado en todas las ciudad..."
         ),
         AvatarItem(
             id = "gwen",
             name = "Gwen",
             title = "La Costurera Consagrada",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/791a08cd7a00bd8875c9aee470289697d55792a6-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Gwen.png",
             borderHex = "#C8AA6E",
-            description = "Gwen"
+            description = "Gwen, una muñeca a la que la magia confirió vida, va armada con los mismos utensilios que en su..."
         ),
         AvatarItem(
             id = "hecarim",
             name = "Hecarim",
             title = "La Sombra de la Guerra",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/33f7d1c081f03ea787f203f15e0819ba0ef2db3a-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Hecarim.png",
             borderHex = "#C8AA6E",
-            description = "Hecarim"
+            description = "Hecarim es una fusión espectral de hombre y bestia, condenado a arrollar las almas de los vivos..."
         ),
         AvatarItem(
             id = "heimerdinger",
             name = "Heimerdinger",
             title = "El Inventor Venerado",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/05d7e6408668133c58b09564f97f40b9af70ec8c-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Heimerdinger.png",
             borderHex = "#C8AA6E",
-            description = "Heimerdinger"
+            description = "El profesor Cecil B. Heimerdinger, un científico yordle excéntrico pero brillante, es considera..."
         ),
         AvatarItem(
             id = "irelia",
             name = "Irelia",
             title = "la Danza de las Cuchillas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c80c9488be046cd2a0bde8e4791aaf0bc6d2996e-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Irelia.png",
             borderHex = "#C8AA6E",
-            description = "Irelia"
+            description = "La ocupación noxiana de Jonia produjo mucho héroes, pero ninguno más improbable que la joven Ir..."
         ),
         AvatarItem(
             id = "janna",
             name = "Janna",
             title = "La Furia de la Tormenta",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/81c7653646f1a6a039675c0765cf541fdf7d5d48-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Janna.png",
             borderHex = "#C8AA6E",
-            description = "Janna"
+            description = "Janna, armada con el poder de los vendavales de Runaterra, es un misterioso espíritu elemental ..."
         ),
         AvatarItem(
             id = "jarvan_iv",
             name = "Jarvan IV",
             title = "El Ejemplo de Demacia",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/486df69cef429e122f31d04852a607e622de1184-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/JarvanIV.png",
             borderHex = "#C8AA6E",
-            description = "Jarvan IV"
+            description = "El príncipe Jarvan, descendiente de la dinastía Escudo de Luz, es heredero al trono de Demacia...."
         ),
         AvatarItem(
             id = "jax",
             name = "Jax",
             title = "El Maestro de Armas",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/fd521c42d56ebd2d3a043e01040fca2fb91cc5b0-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jax.png",
             borderHex = "#C8AA6E",
-            description = "Jax"
+            description = "Incomparable en su habilidad con armas especiales y su mordaz sarcasmo, Jax es el último maestr..."
         ),
         AvatarItem(
             id = "jayce",
             name = "Jayce",
             title = "El Defensor del Mañana",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/12b847ec19834e8653a7e297618b2ed41047708c-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jayce.png",
             borderHex = "#C8AA6E",
-            description = "Jayce"
+            description = "Jayce es un brillante inventor que ha jurado defender con su vida a Piltover y a su irreductibl..."
         ),
         AvatarItem(
             id = "jhin",
             name = "Jhin",
             title = "El Virtuoso",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c51637d437c6309d4d0f1e7ecfa4052bf33095f4-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jhin.png",
             borderHex = "#C8AA6E",
-            description = "Jhin"
+            description = "Jhin es un meticuloso criminal psicópata que ve el asesinato como arte. Otrora prisionero jonio..."
         ),
         AvatarItem(
             id = "jinx",
             name = "Jinx",
             title = "La Bala Perdida",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2ba338ed3f34e991bb7c678170c27fc42c25b2a0-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Jinx.png",
             borderHex = "#C8AA6E",
-            description = "Jinx"
+            description = "Jinx, una criminal perturbada e impulsiva de Zaun, vive para sembrar el caos sin importarle las..."
         ),
         AvatarItem(
             id = "k_sante",
             name = "K'Sante",
             title = "el Orgullo de Nazumah",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3a7df03714afd695c4558b8aba7986ec797c6efd-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/KSante.png",
             borderHex = "#C8AA6E",
-            description = "K'Sante"
+            description = "K'Sante, un guerrero desafiante y valiente, lucha contra gigantescas bestias y despiadados Asce..."
         ),
         AvatarItem(
             id = "kai_sa",
             name = "Kai'Sa",
             title = "La Hija del Vacío",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/df1ed639ce9c00d8231f73d22da704227204cf4d-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kaisa.png",
             borderHex = "#C8AA6E",
-            description = "Kai'Sa"
+            description = "Reclamada por el Vacío cuando era solo una niña, Kai'Sa logró sobrevivir por pura tenacidad y f..."
         ),
         AvatarItem(
             id = "kalista",
             name = "Kalista",
             title = "El Espíritu de la Venganza",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3b9790d6e8580e611e6531f431d3dc321abf0ccc-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kalista.png",
             borderHex = "#C8AA6E",
-            description = "Kalista"
+            description = "Kalista, un espectro de cólera y castigo, es el inmortal espíritu de la venganza, una pesadilla..."
         ),
         AvatarItem(
             id = "karma",
             name = "Karma",
             title = "La Iluminada",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e3926a6c4a4f6d5bb224005ef6cbc3a29d5fd952-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Karma.png",
             borderHex = "#C8AA6E",
-            description = "Karma"
+            description = "No hay mortal que ejemplifique las tradiciones espirituales de Jonia mejor que Karma. Es la per..."
         ),
         AvatarItem(
             id = "kassadin",
             name = "Kassadin",
             title = "El Caminante del Vacío",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/92644f2ada40c4b6a699d621bab44d7f0cd157af-285x323.jpg?accountingTag=WR",
+            region = "El Vacío",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kassadin.png",
             borderHex = "#C8AA6E",
-            description = "Kassadin"
+            description = "Dejando tras sí una huella ardiente por los lugares más oscuros del mundo, Kassadin sabe que su..."
         ),
         AvatarItem(
             id = "katarina",
             name = "Katarina",
             title = "La Cuchilla Siniestra",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ef0534c53287ade5eb971270788d0928a704cdc5-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Katarina.png",
             borderHex = "#C8AA6E",
-            description = "Katarina"
+            description = "Con un juicio decisivo y letal en el combate, Katarina es una de las mejores asesinas noxianas...."
         ),
         AvatarItem(
             id = "kayle",
             name = "Kayle",
             title = "la Justa",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/62d46f0ab099e7f96521a905db1283fa626dc99a-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kayle.png",
             borderHex = "#C8AA6E",
-            description = "Kayle"
+            description = "Kayle, nacida de un Aspecto de Targon en el punto álgido de las Guerras Rúnicas, honró el legad..."
         ),
         AvatarItem(
             id = "kayn",
             name = "Kayn",
             title = "la Guadaña de las Sombras",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/711546f158fc71185f8a6dc701c0dbe3aa9d866e-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kayn.png",
             borderHex = "#C8AA6E",
-            description = "Kayn"
+            description = "Shieda Kayn, un practicante sin par de la mortífera magia sombría, lucha por alcanzar su verdad..."
         ),
         AvatarItem(
             id = "kennen",
             name = "Kennen",
             title = "El Corazón de la Tempestad",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/a60e3051d8b0a87287a149fefd565794c3604441-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kennen.png",
             borderHex = "#C8AA6E",
-            description = "Kennen"
+            description = "Más allá de ser el rápido encargado de mantener el equilibrio en Jonia, Kennen es también el ún..."
         ),
         AvatarItem(
             id = "kha_zix",
             name = "Kha'Zix",
             title = "El Saqueador del Vacío",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/23399fc627a7f13e21d57cc7e618c859e1203980-285x323.jpg?accountingTag=WR",
+            region = "El Vacío",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Khazix.png",
             borderHex = "#C8AA6E",
-            description = "Kha'Zix"
+            description = "El Vacío crece y el Vacío se adapta; verdades que son más evidentes en Kha'Zix que en ningún ot..."
         ),
         AvatarItem(
             id = "kindred",
             name = "Kindred",
             title = "Los Cazadores Eternos",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/61da72c43e45e119868f3616293c0ea4c950e44d-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Kindred.png",
             borderHex = "#C8AA6E",
-            description = "Kindred"
+            description = "Divididos, pero nunca separados, Kindred representan las dos esencias de la muerte. El arco de ..."
         ),
         AvatarItem(
             id = "kog_maw",
             name = "Kog'Maw",
             title = "La Boca del Abismo",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/4b94917c3fd10e913256106dcb536aae8f3922e7-285x323.jpg?accountingTag=WR",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/KogMaw.png",
             borderHex = "#C8AA6E",
-            description = "Kog'Maw"
+            description = "Escupido de una incursión deteriorada del Vacío en los yermos de Icathia, Kog'Maw es una criatu..."
         ),
         AvatarItem(
             id = "lee_sin",
             name = "Lee Sin",
             title = "El Monje Ciego",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c9f11b9fbdeec59ed58ead8fb232f41bb17d9ac3-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/LeeSin.png",
             borderHex = "#C8AA6E",
-            description = "Lee Sin"
+            description = "Lee Sin, maestro de las artes marciales ancestrales de Jonia, es un luchador con principios que..."
         ),
         AvatarItem(
             id = "leona",
             name = "Leona",
             title = "El Amanecer Radiante",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8a1915cfa8e5454697c0a5914f15cc71830fbf4f-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Leona.png",
             borderHex = "#C8AA6E",
-            description = "Leona"
+            description = "Imbuida del fuego del sol, Leona es una guerrera sagrada de los Solari que defiende el Monte Ta..."
         ),
         AvatarItem(
             id = "lillia",
             name = "Lillia",
             title = "el Tímido Florecer",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/2c2411d61886497c29b3874d81ddd1a844a35d79-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lillia.png",
             borderHex = "#C8AA6E",
-            description = "Lillia"
+            description = "Lillia es una tímida cervatilla feérica que merodea a su antojo por los bosques jonios. Se ocul..."
         ),
         AvatarItem(
             id = "lissandra",
             name = "Lissandra",
             title = "La Bruja de Hielo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/345aaf7c4860326ca2df1d76e1d66337cb4de472-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lissandra.png",
             borderHex = "#C8AA6E",
-            description = "Lissandra"
+            description = "La magia de Lissandra convierte el poder del hielo en algo oscuro y terrible. Con la fuerza de ..."
         ),
         AvatarItem(
             id = "lucian",
             name = "Lucian",
             title = "El Destello Purificador",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ffac1a7d5718cf25d9f57d2cdc099be1951d606a-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lucian.png",
             borderHex = "#C8AA6E",
-            description = "Lucian"
+            description = "Lucian, antiguo Centinela de la Luz, es un sombrío cazador de espíritus eternos a los que persi..."
         ),
         AvatarItem(
             id = "lulu",
             name = "Lulu",
             title = "El Hada Hechicera",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/037e014fe9e10822a0cc156561bae2b31a3803a1-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lulu.png",
             borderHex = "#C8AA6E",
-            description = "Lulu"
+            description = "Lulu, la yordle maga, es conocida por invocar ilusiones oníricas y criaturas imaginarias en sus..."
         ),
         AvatarItem(
             id = "lux",
             name = "Lux",
             title = "La Dama Luminosa",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e22157610b3f8a197cbc45d28d1a0d0ff7cb7378-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Lux.png",
             borderHex = "#C8AA6E",
-            description = "Lux"
+            description = "Luxanna Crownguard procede de Demacia, un reino insular en el que las habilidades mágicas se ob..."
         ),
         AvatarItem(
             id = "malphite",
             name = "Malphite",
             title = "El Fragmento del Monolito",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4ccb2b985e326ea4d8793f8647797f97739fe22b-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Malphite.png",
             borderHex = "#C8AA6E",
-            description = "Malphite"
+            description = "Como una criatura enorme de piedra viviente, a Malphite le cuesta imponer el orden en un mundo ..."
         ),
         AvatarItem(
             id = "maokai",
             name = "Maokai",
             title = "El Treant Retorcido",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1163376dc1c8bfe91f5b3658b0837e6487a34a0a-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Maokai.png",
             borderHex = "#C8AA6E",
-            description = "Maokai"
+            description = "Maokai es un imponente y feroz treant que lucha contra los horrores antinaturales de las Islas ..."
         ),
         AvatarItem(
             id = "master_yi",
             name = "Maestro Yi",
             title = "El Espadachín Wuju",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/8e0e462641e47b86e9e10e8f27f08dbb87dffaf8-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MasterYi.png",
             borderHex = "#C8AA6E",
-            description = "Maestro Yi"
+            description = "Maestro Yi ha atemperado su cuerpo y agudizado su mente, de modo que el pensamiento y la acción..."
         ),
         AvatarItem(
             id = "mel",
             name = "Mel",
             title = "la Consejera Dorada",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/759c5501dda9a39525061225e0024b3742a0f382-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://wr-meta.com/uploads/posts/2025-01/1737748919_mel_0.webp",
             borderHex = "#C8AA6E",
-            description = "Mel"
+            description = "Mel domina las líneas con magia solar áurea, proveyendo daño a distancia, escudos reflectantes ..."
         ),
         AvatarItem(
             id = "milio",
             name = "Milio",
             title = "la Llama Serena",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/49db0ecb0ee7c82470b4c468062b056632c548bd-285x323.jpg?accountingTag=WR",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Milio.png",
             borderHex = "#C8AA6E",
-            description = "Milio"
+            description = "Milio es un jovencito amable de Ixtal que, a pesar de su corta edad, ha conseguido dominar el a..."
         ),
         AvatarItem(
             id = "miss_fortune",
             name = "Miss Fortune",
             title = "La Cazarrecompensas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/ec2feb5bc10ae2fb645d240bf291f62049380856-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MissFortune.png",
             borderHex = "#C8AA6E",
-            description = "Miss Fortune"
+            description = "Sarah Fortune se cuenta sin duda entre los capitanes más conocidos de Aguas Estancadas y es tan..."
         ),
         AvatarItem(
             id = "mordekaiser",
             name = "Mordekaiser",
             title = "La Pesadilla de Hierro",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/8515e3f6f0955eeab611bb8434556a031a970644-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Mordekaiser.png",
             borderHex = "#C8AA6E",
-            description = "Mordekaiser"
+            description = "Mordekaiser es un sanguinario señor de la guerra proveniente de tiempos olvidados al que los si..."
         ),
         AvatarItem(
             id = "morgana",
             name = "Morgana",
             title = "la Caída",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/eccecc05caf593d9125e54cec2af8418eb891d07-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Morgana.png",
             borderHex = "#C8AA6E",
-            description = "Morgana"
+            description = "En vistas del conflicto entre su naturaleza celestial y su naturaleza mortal, Morgana decidió a..."
         ),
         AvatarItem(
             id = "nami",
             name = "Nami",
             title = "La Invocadora de Mareas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/356d557a4c38e27a001e6498ec6cb58a97814739-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nami.png",
             borderHex = "#C8AA6E",
-            description = "Nami"
+            description = "Nami, una joven y testaruda vastaya marina, fue la primera de la tribu marai en abandonar las o..."
         ),
         AvatarItem(
             id = "nasus",
             name = "Nasus",
             title = "El Guardián de las Arenas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/11c5035096b35403af6d6fc19a4c9e474c6ce658-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nasus.png",
             borderHex = "#C8AA6E",
-            description = "Nasus"
+            description = "Nasus es un imponente ser Ascendido con cabeza de chacal procedente de la antigua Shurima; una ..."
         ),
         AvatarItem(
             id = "nautilus",
             name = "Nautilus",
             title = "El Titán Abisal",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b8ba22659d0bcd44b659c63eed609852ce334693-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nautilus.png",
             borderHex = "#C8AA6E",
-            description = "Nautilus"
+            description = "El gigante acorazado Nautilus, una leyenda solitaria tan antigua como los pecios de Aguas Estan..."
         ),
         AvatarItem(
             id = "nidalee",
             name = "Nidalee",
             title = "La Cazadora Bestial",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/55aff8863fe623be889c1754518fa21bf5a2ec33-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nidalee.png",
             borderHex = "#C8AA6E",
-            description = "Nidalee"
+            description = "Criada en lo más profundo de la jungla, Nidalee es una rastreadora maestra que puede convertirs..."
         ),
         AvatarItem(
             id = "nilah",
             name = "Nilah",
             title = "la Alegría Desatada",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ab18652f86c0d9840b79d9e1eeabdf3e780b9db2-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nilah.png",
             borderHex = "#C8AA6E",
-            description = "Nilah"
+            description = "Nilah es una guerrera ascética proveniente de tierras lejanas que busca a los adversarios más m..."
         ),
         AvatarItem(
             id = "nocturne",
             name = "Nocturne",
             title = "La Pesadilla Eterna",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/401c6039075be773174cc07a447fe37ede3f6edb-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nocturne.png",
             borderHex = "#C8AA6E",
-            description = "Nocturne"
+            description = "El ser conocido como Nocturne es una fusión demoníaca extraída de las pesadillas que acechan a ..."
         ),
         AvatarItem(
             id = "norra",
             name = "Norra",
             title = "la Maestra de los Portales",
             region = "Runaterra",
-            rarity = "Clásico",
+            rarity = "Mítico",
             imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a1ba2f0d1178b81cf869741e94e9453ffd3e69f-285x323.jpg?accountingTag=WR",
             borderHex = "#C8AA6E",
-            description = "Norra"
+            description = "Norra abre fisuras hacia la Ciudad de Bandle para dotar de hipermovilidad a su equipo y desorie..."
         ),
         AvatarItem(
             id = "nunu_willump",
             name = "Nunu y Willump",
             title = "Un Niño y su Yeti",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b62121686dbb3602f85a5184f2793e643a764fbb-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nunu.png",
             borderHex = "#C8AA6E",
-            description = "Nunu y Willump"
+            description = "Había una vez un niño que quería acabar con un temible monstruo para demostrar que era un héroe..."
         ),
         AvatarItem(
             id = "olaf",
             name = "Olaf",
             title = "El Berserker",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c7218ca3fa28cd4b2d8cbafb7f712c44b2c342a3-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Olaf.png",
             borderHex = "#C8AA6E",
-            description = "Olaf"
+            description = "Olaf porta sus hachas de forma que es una fuerza imparable de destrucción que no quiere nada, s..."
         ),
         AvatarItem(
             id = "orianna",
             name = "Orianna",
             title = "La Dama Mecánica",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1f897c1d72ffd15041c1a014bf4ed244bede5dbe-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Orianna.png",
             borderHex = "#C8AA6E",
-            description = "Orianna"
+            description = "Orianna, antaño una chica curiosa de carne y hueso, es ahora una maravilla tecnológica compuest..."
         ),
         AvatarItem(
             id = "ornn",
             name = "Ornn",
             title = "Las Llamas de la Forja",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/be99d24fc00bc88a562e1fe0c1a0cfc2eb82a57d-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ornn.png",
             borderHex = "#C8AA6E",
-            description = "Ornn"
+            description = "Ornn es el espíritu de Freljord de la forja y la artesanía. Trabaja en la soledad de una enorme..."
         ),
         AvatarItem(
             id = "pantheon",
             name = "Pantheon",
             title = "la Lanza Inquebrantable",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/269fda31aef7eb1c73466c4690cc08f9e4c04e37-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pantheon.png",
             borderHex = "#C8AA6E",
-            description = "Pantheon"
+            description = "Tiempo atrás, Atreus había albergado al Aspecto de la Guerra en su interior contra su voluntad,..."
         ),
         AvatarItem(
             id = "poppy",
             name = "Poppy",
             title = "La Guardiana del Martillo",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/f7d42547737f5b3df01743ae5e99f6f37193a45b-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Poppy.png",
             borderHex = "#C8AA6E",
-            description = "Poppy"
+            description = "En Runaterra hay un gran número de campeones valerosos, pero muy pocos son tan tenaces como Pop..."
         ),
         AvatarItem(
             id = "pyke",
             name = "Pyke",
             title = "el Destripador de los Puertos",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c3f5603716698795f749be1658cbd8296491f7a8-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pyke.png",
             borderHex = "#C8AA6E",
-            description = "Pyke"
+            description = "A Pyke, un conocido arponero de los muelles del matadero de Aguas Estancadas, le esperaba la mu..."
         ),
         AvatarItem(
             id = "rakan",
             name = "Rakan",
             title = "El Encantador",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/e2505693c2fa65dfa3ac5865f448666683759b5e-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rakan.png",
             borderHex = "#C8AA6E",
-            description = "Rakan"
+            description = "Con un carácter tan impulsivo como encantador, Rakan es un infame alborotador vastaya y el mejo..."
         ),
         AvatarItem(
             id = "rammus",
             name = "Rammus",
             title = "El Armadurillo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2ac50d528c0505db1a35ab5663bb1783c977c72d-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rammus.png",
             borderHex = "#C8AA6E",
-            description = "Rammus"
+            description = "Idealizado por muchos, ignorado por otros, inexplicable para todos, Rammus, el extraño ser, es ..."
         ),
         AvatarItem(
             id = "rell",
             name = "Rell",
             title = "la Dama de Hierro",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0b00075ef09190e496e780436963b3dcb2d35b68-285x323.jpg?accountingTag=WR",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rell.png",
             borderHex = "#C8AA6E",
-            description = "Rell"
+            description = "Rell, producto de crueles experimentos a manos de la Rosa Negra, es ahora una intrépida arma vi..."
         ),
         AvatarItem(
             id = "renekton",
             name = "Renekton",
             title = "El Carnicero de las Arenas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d71da849a00e19983454e03e157ed91b55afb8e2-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Renekton.png",
             borderHex = "#C8AA6E",
-            description = "Renekton"
+            description = "Renekton es una terrorífica criatura Ascendida movida por la ira y procedente de los desiertos ..."
         ),
         AvatarItem(
             id = "rengar",
             name = "Rengar",
             title = "El Acechador Orgulloso",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ab6887e69775c18bac138dbad45bc427ca111f6e-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rengar.png",
             borderHex = "#C8AA6E",
-            description = "Rengar"
+            description = "Rengar es un feroz cazador de trofeos vastaya que vive por el placer de perseguir y asesinar cr..."
         ),
         AvatarItem(
             id = "riven",
             name = "Riven",
             title = "La Exiliada",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/155ccc38a8bae3bbe20e50878b7c8c038d468b80-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Riven.png",
             borderHex = "#C8AA6E",
-            description = "Riven"
+            description = "Antaño maestra de la espada de las huestes de Noxus, Riven es una expatriada en la tierra que p..."
         ),
         AvatarItem(
             id = "rumble",
             name = "Rumble",
             title = "La Amenaza Mecánica",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/82ce17611af10fd53bd213ee25a95938b587a421-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rumble.png",
             borderHex = "#C8AA6E",
-            description = "Rumble"
+            description = "Rumble es un joven inventor con temperamento. Utilizando nada más que sus propias manos y un mo..."
         ),
         AvatarItem(
             id = "ryze",
             name = "Ryze",
             title = "El Hechicero Rúnico",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/db6eed107ed96045dd1b7f83087493806b93c349-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ryze.png",
             borderHex = "#C8AA6E",
-            description = "Ryze"
+            description = "Ryze es considerado uno de los hechiceros con más experiencia de Runaterra. El archimago ancest..."
         ),
         AvatarItem(
             id = "samira",
             name = "Samira",
             title = "la Rosa del Desierto",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/b9ce1da2229255f5dc81bee1b5cecee3ed39e035-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Samira.png",
             borderHex = "#C8AA6E",
-            description = "Samira"
+            description = "Samira mira de cara a la muerte con una confianza férrea y busca emociones extremas allá donde ..."
         ),
         AvatarItem(
             id = "senna",
             name = "Senna",
             title = "la Redentora",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/61ec8874d20f8d60a2d2a0021af82bad225d10d1-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Senna.png",
             borderHex = "#C8AA6E",
-            description = "Senna"
+            description = "Maldita desde que era apenas una niña y perseguida por la Niebla Negra, Senna se unió a una ord..."
         ),
         AvatarItem(
             id = "seraphine",
             name = "Seraphine",
             title = "la Cantante Soñadora",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/115574cabea3c98bffd4fc47378c8cd4edbb3340-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Seraphine.png",
             borderHex = "#C8AA6E",
-            description = "Seraphine"
+            description = "Seraphine, de padres zaunitas, nació en Piltover y es capaz de escuchar las almas de los demás...."
         ),
         AvatarItem(
             id = "sett",
             name = "Sett",
             title = "el Jefe",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1a8806fa26c29d3cf363480f91e7af339a59e0f2-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sett.png",
             borderHex = "#C8AA6E",
-            description = "Sett"
+            description = "Sett es una prominente figura en los emergentes círculos criminales jonios, que aseguró su posi..."
         ),
         AvatarItem(
             id = "shen",
             name = "Shen",
             title = "El Ojo del Crepúsculo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/71e3d7ca7d26158874a567f8a2d9d8bb5c11b1db-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shen.png",
             borderHex = "#C8AA6E",
-            description = "Shen"
+            description = "Shen, el Ojo del Crepúsculo, es el cabecilla de los sigilosos guerreros de Jonia conocidos como..."
         ),
         AvatarItem(
             id = "shyvana",
             name = "Shyvana",
             title = "La Medio Dragón",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/2da9174190af1472ce49266702e17d113ce7697a-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shyvana.png",
             borderHex = "#C8AA6E",
-            description = "Shyvana"
+            description = "Shyvana es una criatura con la magia de un fragmento de runa incandescente alojada en lo más pr..."
         ),
         AvatarItem(
             id = "singed",
             name = "Singed",
             title = "El Químico Loco",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0acabb2aef28c1cdabcfa1cc97a3c55b946fa5aa-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Singed.png",
             borderHex = "#C8AA6E",
-            description = "Singed"
+            description = "Singed es un alquimista zaunita de intelecto sin igual que se ha entregado en cuerpo y alma a s..."
         ),
         AvatarItem(
             id = "sion",
             name = "Sion",
             title = "El Coloso no Muerto",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4307bbb9f9bc476daf3fc9452a929f5200cc9174-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sion.png",
             borderHex = "#C8AA6E",
-            description = "Sion"
+            description = "Sion fue un héroe de guerra en el pasado y los noxianos lo veneraban porque había arrebatado la..."
         ),
         AvatarItem(
             id = "sivir",
             name = "Sivir",
             title = "La Señora de la Batalla",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/d427ef3a36baeabb16d24e702e0a66a7a89f4db8-285x323.jpg?accountingTag=WR",
+            region = "Shurima",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sivir.png",
             borderHex = "#C8AA6E",
-            description = "Sivir"
+            description = "Sivir es una afamada buscadora de tesoros y capitana mercenaria que se gana la vida en el desie..."
         ),
         AvatarItem(
             id = "skarner",
             name = "Skarner",
             title = "el Soberano Primigenio",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7829853403818fecfe447864e5359624a379c26d-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Skarner.png",
             borderHex = "#C8AA6E",
-            description = "Skarner"
+            description = "A Skarner, el colosal brackern ancestral, se le rinde culto en Ixtal como uno de los fundadores..."
         ),
         AvatarItem(
             id = "smolder",
             name = "Smolder",
             title = "el Heredero de las Llamas",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/471870cc28273c1a64bc9ace981133492225081c-285x323.jpg?accountingTag=WR",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Smolder.png",
             borderHex = "#C8AA6E",
-            description = "Smolder"
+            description = "Oculto entre los escarpados acantilados de la frontera noxiana y bajo la atenta mirada de su ma..."
         ),
         AvatarItem(
             id = "sona",
             name = "Sona",
             title = "La Virtuosa de las Cuerdas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/30d7e7b516c26e695678bf138cda3d27aceb8dbd-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sona.png",
             borderHex = "#C8AA6E",
-            description = "Sona"
+            description = "Sona es la artista más virtuosa de Demacia con el etwahl de cuerda y solo se comunica a través ..."
         ),
         AvatarItem(
             id = "soraka",
             name = "Soraka",
             title = "La Hija de las Estrellas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1cae735dc336de0b27054053760eb5bb69f5296f-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Soraka.png",
             borderHex = "#C8AA6E",
-            description = "Soraka"
+            description = "Soraka, una nómada proveniente de las dimensiones celestiales más allá del monte Targon, dejó a..."
         ),
         AvatarItem(
             id = "swain",
             name = "Swain",
             title = "el Gran General de Noxus",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/343896be8966bbdfbaef4bb71fb9a956ea7e813a-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Swain.png",
             borderHex = "#C8AA6E",
-            description = "Swain"
+            description = "Jericho Swain es el visionario líder de Noxus, una nación expansionista que solo venera la fuer..."
         ),
         AvatarItem(
             id = "syndra",
             name = "Syndra",
             title = "La Soberana Oscura",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/afe2af12bc4093a1339e42253c60bb0abf54d5f3-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Syndra.png",
             borderHex = "#C8AA6E",
-            description = "Syndra"
+            description = "Syndra es una temible maga jonia con un poder increíble a su disposición. De niña, inquietó a l..."
         ),
         AvatarItem(
             id = "taliyah",
             name = "Taliyah",
             title = "La Tejedora de Piedra",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/18126e948c466734781770a100bbaecba8526702-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Taliyah.png",
             borderHex = "#C8AA6E",
-            description = "Taliyah"
+            description = "Taliyah es una hechicera nómada de Shurima desgarrada entre la curiosidad de una adolescente y ..."
         ),
         AvatarItem(
             id = "talon",
             name = "Talon",
             title = "La Sombra de la Espada",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e35b396a540cd65db0b5f1a86d81662c74be4ddf-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Talon.png",
             borderHex = "#C8AA6E",
-            description = "Talon"
+            description = "Talon es el cuchillo de la oscuridad, un asesino despiadado capaz de atacar sin previo aviso y ..."
         ),
         AvatarItem(
             id = "teemo",
             name = "Teemo",
             title = "El Explorador Veloz",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/1a32e31a330157f441f3b007a28eea49036a7dd3-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Teemo.png",
             borderHex = "#C8AA6E",
-            description = "Teemo"
+            description = "Sin inmutarse siquiera por los obstáculos más peligrosos y amenazantes, Teemo explora el mundo ..."
         ),
         AvatarItem(
             id = "thresh",
             name = "Thresh",
             title = "El Carcelero Implacable",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6d56721ba65a6740d8696205c2b0d4b60181330e-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Thresh.png",
             borderHex = "#C8AA6E",
-            description = "Thresh"
+            description = "Thresh, un ser sádico y astuto, es un ambicioso y trastornado espíritu de las Islas de la Sombr..."
         ),
         AvatarItem(
             id = "tristana",
             name = "Tristana",
             title = "La Artillera Yordle",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/17b80232bc951c5feefdfb43eb03abab8f3420fd-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tristana.png",
             borderHex = "#C8AA6E",
-            description = "Tristana"
+            description = "Pese a que la mayoría de los yordles canalizan sus energías hacia el descubrimiento, la invenci..."
         ),
         AvatarItem(
             id = "tryndamere",
             name = "Tryndamere",
             title = "El Rey Bárbaro",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/24c0c376e074f21b43184372f0aae7fa04defd63-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tryndamere.png",
             borderHex = "#C8AA6E",
-            description = "Tryndamere"
+            description = "Impulsado por una furia y una rabia desenfrenadas, Tryndamere solía abrirse paso por Freljord d..."
         ),
         AvatarItem(
             id = "twisted_fate",
             name = "Twisted Fate",
             title = "El Maestro de las Cartas",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fc7e88a5c33bcc95df95189b80f32a644bb08208-285x323.jpg?accountingTag=WR",
+            region = "Aguas Esturbias",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/TwistedFate.png",
             borderHex = "#C8AA6E",
-            description = "Twisted Fate"
+            description = "Twisted Fate es un tahúr y timador de mala reputación que ha viajado por buena parte del mundo ..."
         ),
         AvatarItem(
             id = "twitch",
             name = "Twitch",
             title = "La Rata Apestada",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4657f1ab80489515a2534b9fbe87b93e1a755533-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Twitch.png",
             borderHex = "#C8AA6E",
-            description = "Twitch"
+            description = "Rata de la peste zaunita por nacimiento y apasionado experto de la suciedad por afición, a Twit..."
         ),
         AvatarItem(
             id = "urgot",
             name = "Urgot",
             title = "la Pesadilla Mecánica",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7b5459e9b96913e08af78bba1323387f02bf712e-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Urgot.png",
             borderHex = "#C8AA6E",
-            description = "Urgot"
+            description = "Urgot, antiguo verdugo noxiano, fue traicionado por el imperio por el que había matado a tantos..."
         ),
         AvatarItem(
             id = "varus",
             name = "Varus",
             title = "La Flecha del Castigo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/306929e43330e836c567b237f622e8372f2b0fb8-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Varus.png",
             borderHex = "#C8AA6E",
-            description = "Varus"
+            description = "Como uno de los antiguos oscuros Varus era un asesino despiadado al que le encantaba torturar a..."
         ),
         AvatarItem(
             id = "vayne",
             name = "Vayne",
             title = "La Cazadora Noctívaga",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/9353f647f42e40569934d15dc5b8d3fe77faaa48-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vayne.png",
             borderHex = "#C8AA6E",
-            description = "Vayne"
+            description = "Shauna Vayne es una cazadora de monstruos demaciana letal y despiadada que ha dedicado su vida ..."
         ),
         AvatarItem(
             id = "veigar",
             name = "Veigar",
             title = "El Pequeño Maestro del Mal",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/a4070b89b69159d6aef2b2bbc517c7f87ac4e5b7-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Veigar.png",
             borderHex = "#C8AA6E",
-            description = "Veigar"
+            description = "Entusiasta maestro de la magia negra, Veigar ha hecho suyos poderes a los que pocos mortales se..."
         ),
         AvatarItem(
             id = "vel_koz",
             name = "Vel'Koz",
             title = "El Ojo del Vacío",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7883ed4bc84dadddf1208b55e3c1327870f22e5e-285x323.jpg?accountingTag=WR",
+            region = "El Vacío",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Velkoz.png",
             borderHex = "#C8AA6E",
-            description = "Vel'Koz"
+            description = "No es seguro que Vel'Koz sea el primer ente del Vacío que ha aparecido en Runaterra, pero no ha..."
         ),
         AvatarItem(
             id = "vex",
             name = "Vex",
             title = "la Lúgubre",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/dd071cb9c5d0c57224fe26cd7d303bbb5342e5bb-285x323.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vex.png",
             borderHex = "#C8AA6E",
-            description = "Vex"
+            description = "En el oscuro corazón de las Islas de la Sombra, una yordle solitaria atraviesa arduamente la br..."
         ),
         AvatarItem(
             id = "vi",
             name = "Vi",
             title = "La Agente de Piltover",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/a78c07fec8238af98971b5de942e77cb1c600922-285x323.jpg?accountingTag=WR",
+            region = "Piltóver",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vi.png",
             borderHex = "#C8AA6E",
-            description = "Vi"
+            description = "Otrora delincuente en las perversas calles de Zaun, Vi es una mujer impulsiva e imponente con m..."
         ),
         AvatarItem(
             id = "viego",
             name = "Viego",
             title = "el Rey Arruinado",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/9d87fe0b943dabe1c3a5d0b42fa1b38961d5395b-285x323.jpg?accountingTag=WR",
+            region = "Islas de la Sombra",
+            rarity = "Mítico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viego.png",
             borderHex = "#C8AA6E",
-            description = "Viego"
+            description = "Viego, soberano de un reino ya olvidado, murió hace más de mil años cuando su intento por devol..."
         ),
         AvatarItem(
             id = "viktor",
             name = "Viktor",
             title = "El Heraldo de las Máquinas",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data/a181fcb11c7f7c423b3156f0482398ea7ef24379-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viktor.png",
             borderHex = "#C8AA6E",
-            description = "Viktor"
+            description = "Viktor, el heraldo de una nueva era tecnológica, ha consagrado su vida al progreso de la humani..."
         ),
         AvatarItem(
             id = "vladimir",
             name = "Vladimir",
             title = "El Segador Carmesí",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5b947e2d2b2c618c669a6d87ac1248d4611c67f2-285x323.jpg?accountingTag=WR",
+            region = "Noxus",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vladimir.png",
             borderHex = "#C8AA6E",
-            description = "Vladimir"
+            description = "Un demonio con sed de sangre mortal, Vladimir ha influido en el destino de Noxus desde los prim..."
         ),
         AvatarItem(
             id = "volibear",
             name = "Volibear",
             title = "la Tormenta Incesante",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/717020ebeb667da0a0061c55015d175d0d5a88d5-285x323.jpg?accountingTag=WR",
+            region = "Freljord",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Volibear.png",
             borderHex = "#C8AA6E",
-            description = "Volibear"
+            description = "Para aquellos que aún lo veneran, Volibear es la encarnación de la tormenta. Destructivo, salva..."
         ),
         AvatarItem(
             id = "warwick",
             name = "Warwick",
             title = "la Ira Descontrolada de Zaun",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3877115ff2db8522cc9e9c87ed554c02dcd774c6-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Warwick.png",
             borderHex = "#C8AA6E",
-            description = "Warwick"
+            description = "Warwick es un monstruo que acecha en los oscuros callejones de Zaun. Transformado por atroces e..."
         ),
         AvatarItem(
             id = "wukong",
             name = "Wukong",
             title = "El Rey Mono",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/10d97ab0a3d1852eca0803ebb8ad063fb923c76b-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MonkeyKing.png",
             borderHex = "#C8AA6E",
-            description = "Wukong"
+            description = "Wukong es un embaucador vastaya que se vale de su fuerza, agilidad e inteligencia para confundi..."
         ),
         AvatarItem(
             id = "xayah",
             name = "Xayah",
             title = "La Rebelde",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/e215e85898f1f9a52924136d1c6dab0dcf782ed6-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Xayah.png",
             borderHex = "#C8AA6E",
-            description = "Xayah"
+            description = "Mortal y precisa, Xayah es una vastaya revolucionaria que libra una guerra personal para salvar..."
         ),
         AvatarItem(
             id = "xin_zhao",
             name = "Xin Zhao",
             title = "El Senescal de Demacia",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5335eb9ededf36af430339ae00d178508f163e3c-285x323.jpg?accountingTag=WR",
+            region = "Demacia",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/XinZhao.png",
             borderHex = "#C8AA6E",
-            description = "Xin Zhao"
+            description = "Xin Zhao es un guerreo decidido y valiente, leal a la dinastía Escudo de Luz. En su momento fue..."
         ),
         AvatarItem(
             id = "yasuo",
             name = "Yasuo",
             title = "La Espada sin Honor",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4bb74e4eced7ff33fff5853da95aa4ae8044e417-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yasuo.png",
             borderHex = "#C8AA6E",
-            description = "Yasuo"
+            description = "Yasuo, un intrépido jonio con una fuerza de voluntad inquebrantable, es también un hábil espada..."
         ),
         AvatarItem(
             id = "yone",
             name = "Yone",
             title = "el Imperecedero",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/2acc4e225bed2896719dc80233f9dec80b490748-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Legendario",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yone.png",
             borderHex = "#C8AA6E",
-            description = "Yone"
+            description = "En vida, fue Yone, hermanastro de Yasuo y pupilo de renombre en la escuela de esgrima de su ald..."
         ),
         AvatarItem(
             id = "yunara",
             name = "Yunara",
             title = "la Tejedora de Penumbra",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/50157a1e1a9597825b3bcfac15b87c0cbac94450-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://wr-meta.com/uploads/posts/2025-07/1751894236_yunara-lol-splash-art-8k-wallpaper-uhdpaper_com-4341225g.webp",
             borderHex = "#C8AA6E",
-            description = "Yunara"
+            description = "Yunara es una tiradora letal que enlaza a sus víctimas con hilos invisibles de daño verdadero y..."
         ),
         AvatarItem(
             id = "yuumi",
             name = "Yuumi",
             title = "la Gata Mágica",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/97c4e293f961cade702300981a4f2f80e8a844af-285x323.jpg?accountingTag=WR",
+            region = "Ciudad de Bandle",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yuumi.png",
             borderHex = "#C8AA6E",
-            description = "Yuumi"
+            description = "Yuumi, una gata mágica de Ciudad de Bandle, fue antaño la compañera de una hechicera yordle, No..."
         ),
         AvatarItem(
             id = "zed",
             name = "Zed",
             title = "El Maestro de las Sombras",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5aec4f6c69c30415dfa03c58c3e7bcee36992649-285x323.jpg?accountingTag=WR",
+            region = "Jonia",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zed.png",
             borderHex = "#C8AA6E",
-            description = "Zed"
+            description = "Zed, despiadado y nada compasivo, es el líder de la Orden de la Sombra, una organización que él..."
         ),
         AvatarItem(
             id = "zeri",
             name = "Zeri",
             title = "La Chispa de Zaun",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ded1acb06a88316f32c54be24083209440fa19c2-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zeri.png",
             borderHex = "#C8AA6E",
-            description = "Zeri"
+            description = "Una joven testaruda y llena de vida de la clase trabajadora de Zaun. Zeri canaliza su magia elé..."
         ),
         AvatarItem(
             id = "ziggs",
             name = "Ziggs",
             title = "El Experto en Hexplosivos",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/12dfd0ae9fa0de33d5c617dc69fab205e5a5733f-285x323.jpg?accountingTag=WR",
+            region = "Zaun",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ziggs.png",
             borderHex = "#C8AA6E",
-            description = "Ziggs"
+            description = "Gran amante de las bombas grandes y las mechas cortas, el yordle Ziggs es una explosiva fuerza ..."
         ),
         AvatarItem(
             id = "zilean",
             name = "Zilean",
             title = "El Guardián del Tiempo",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/968798e27ba225183db6ca6edfaa92def0acd74e-285x328.jpg?accountingTag=WR",
+            rarity = "Raro",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zilean.png",
             borderHex = "#C8AA6E",
-            description = "Zilean"
+            description = "Zilean, el que un día fuera un poderoso mago de Icathia, se obsesionó con el paso del tiempo tr..."
         ),
         AvatarItem(
             id = "zoe",
             name = "Zoe",
             title = "el Aspecto del Crepúsculo",
-            region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/2d29638a3813e14c520f8de5d7275caea925c934-285x323.jpg?accountingTag=WR",
+            region = "Targon",
+            rarity = "Épico",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zoe.png",
             borderHex = "#C8AA6E",
-            description = "Zoe"
+            description = "Como personificación de la travesura, de la imaginación y del cambio, Zoe es la mensajera cósmi..."
         ),
         AvatarItem(
             id = "zyra",
             name = "Zyra",
             title = "La Dama de Espinas",
             region = "Runaterra",
-            rarity = "Clásico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/cce39159a887f0405d9ed13750b16f8bccdb417f-285x323.jpg?accountingTag=WR",
+            rarity = "Común",
+            imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zyra.png",
             borderHex = "#C8AA6E",
-            description = "Zyra"
-        )
+            description = "Nacida gracias a un fenómeno sobrenatural hace mucho tiempo, Zyra encarna la ira de la naturale..."
+        ),
     )
 
     fun getAvatarById(id: String): AvatarItem {
-        return avatars.find { it.id == id } ?: DEFAULT_AVATAR
+        return avatars.find { it.id.equals(id, ignoreCase = true) } ?: DEFAULT_AVATAR
     }
 }
