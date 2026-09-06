@@ -96,12 +96,14 @@ object ImageHashMatcher {
      * utilizando Correlación Cruzada Normalizada (NCC) de 1024 puntos estructurales y Similitud
      * Coseno de Histograma de Color (RGB 64 bins).
      *
-     * Incluye detección y descarte estricto de slots vacíos (icono de casco espartano / sin selección).
+     * Incluye detección y descarte estricto de slots vacíos (icono de casco espartano / sin selección en enemigos),
+     * y ecualización de rango dinámico para avatares aliados atenuados en preselección.
      */
     fun findBestVisualMatch(
         bitmap: Bitmap,
         allChampions: List<Champion>,
-        preferredRole: LaneRole? = null
+        preferredRole: LaneRole? = null,
+        isAlly: Boolean = false
     ): MatchResult? {
         if (bitmap.width < 16 || bitmap.height < 16) return null
 
@@ -115,6 +117,8 @@ object ImageHashMatcher {
         var sumGray = 0f
         var sumLum = 0f
         var sumSat = 0f
+        var maxLuminance = 0f
+        var minLuminance = 255f
         val grays = FloatArray(1024)
         val cropColorHist = FloatArray(64)
 
@@ -128,6 +132,8 @@ object ImageHashMatcher {
             grays[i] = lum
             sumGray += lum
             sumLum += lum
+            if (lum > maxLuminance) maxLuminance = lum
+            if (lum < minLuminance) minLuminance = lum
 
             val max = maxOf(r, maxOf(g, b)).toFloat()
             val min = minOf(r, minOf(g, b)).toFloat()
@@ -168,8 +174,16 @@ object ImageHashMatcher {
         }
 
         // 2. FILTRADO DE SLOT VACÍO / CASCO ESPARTANO:
-        // Los slots no seleccionados tienen saturación < 0.12 y luminancia oscura/grisácea uniforme
-        val isPotentiallyEmpty = avgSaturation < 0.11f && (avgLuminance < 65f || stdDev < 15f)
+        // Los slots aliados NUNCA son vacíos (siempre hay 5 compañeros).
+        // En el equipo enemigo, si un slot no ha elegido, muestra el casco espartano metálico gris
+        // con saturación nula (< 0.10) y luminancia gris uniforme.
+        if (!isAlly) {
+            val isSpartanHelmetOrEmpty = (avgSaturation < 0.10f && (avgLuminance < 85f || stdDev < 20f))
+            if (isSpartanHelmetOrEmpty) {
+                // El rival aún no ha seleccionado ningún campeón
+                return null
+            }
+        }
 
         // 3. COMPARACIÓN CONTRA TODAS LAS FIRMAS PRECARGADAS
         val signatures = ChampionHashes.getAllSignatures()
@@ -192,17 +206,21 @@ object ImageHashMatcher {
                 }
                 colorScore = colorScore.coerceIn(0f, 1f)
 
-                // C) Puntuación compuesta
-                var totalScore = (0.55f * structuralScore) + (0.45f * colorScore)
+                // C) Puntuación compuesta (más peso estructural para resistir tintes oscuros de preselección)
+                var totalScore = if (isAlly) {
+                    (0.65f * structuralScore) + (0.35f * colorScore)
+                } else {
+                    (0.55f * structuralScore) + (0.45f * colorScore)
+                }
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 
                 // Bonificación si coincide con el rol preferido
                 if (preferredRole != null) {
                     if (champ.primaryRole == preferredRole) {
-                        totalScore += 0.04f
+                        totalScore += 0.05f
                     } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        totalScore += 0.02f
+                        totalScore += 0.03f
                     }
                 }
 
@@ -216,8 +234,13 @@ object ImageHashMatcher {
             return findBestMatchDetailed(bitmap, allChampions, maxDistance = 22, preferredRole = preferredRole)
         }
 
-        // Umbral estricto para evitar falsos positivos
-        val requiredThreshold = if (isPotentiallyEmpty) 0.78f else 0.64f
+        // Umbral adaptativo: en aliados permitimos campeones en preselección atenuados (>= 0.58),
+        // en enemigos requerimos mayor solidez visual (>= 0.65) para no confundir animaciones.
+        val requiredThreshold = if (isAlly) {
+            if (preferredRole != null) 0.54f else 0.58f
+        } else {
+            0.65f
+        }
 
         if (maxScore >= requiredThreshold && bestChamp != null) {
             val confidence = ((maxScore * 100).toInt()).coerceIn(75, 99)
@@ -226,6 +249,34 @@ object ImageHashMatcher {
         }
 
         return null
+    }
+
+    /**
+     * Detecta si el recorte de hechizos de invocador de un slot contiene el hechizo Castigo (Smite).
+     * En Wild Rift, Castigo posee un color rojo/naranja llameante característico con chispas doradas.
+     * Si está presente, el jugador pertenece con certeza absoluta al carril de JUNGLA.
+     */
+    fun detectSmiteSpell(spellBitmap: Bitmap): Boolean {
+        if (spellBitmap.width < 10 || spellBitmap.height < 10) return false
+        val w = spellBitmap.width
+        val h = spellBitmap.height
+        val pixels = IntArray(w * h)
+        spellBitmap.getPixels(pixels, 0, w, 0, 0, w, h)
+
+        var smitePixelCount = 0
+        for (color in pixels) {
+            val r = Color.red(color)
+            val g = Color.green(color)
+            val b = Color.blue(color)
+
+            // Tonalidad roja-anaranjada intensa con poco azul (fuego de Smite)
+            if (r > 165 && g in 65..175 && b < 65 && (r - b) > 100) {
+                smitePixelCount++
+            }
+        }
+
+        val fraction = smitePixelCount.toFloat() / pixels.size.toFloat()
+        return fraction >= 0.045f // Mayor a 4.5% de píxeles ígneos
     }
 
     // Fallback de comparación por aHash con umbral de tolerancia y prioridad por rol

@@ -1160,6 +1160,7 @@ private fun FloatingOverlayContent(
                                             enemies[i] = null
                                         }
                                         selectedChampionDetail = null
+                                        com.example.service.screen.DraftVisionScanner.resetSlotMemory()
                                     },
                                     modifier = Modifier.size(28.dp)
                                 ) {
