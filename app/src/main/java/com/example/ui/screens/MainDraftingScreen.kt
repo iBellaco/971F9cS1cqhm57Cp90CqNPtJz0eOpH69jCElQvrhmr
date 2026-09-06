@@ -937,7 +937,7 @@ fun OfflineResourceDownloadCard() {
                 Spacer(modifier = Modifier.height(10.dp))
                 
                 Text(
-                    text = tr("141 avatares de campeones ya están integrados en la app. Descarga opcional de habilidades HD y avatares de perfil adicionales para uso offline."),
+                    text = tr("Descarga de habilidades en alta definición y avatares de perfil adicionales para uso offline sin conexión."),
                     color = TextSecondary,
                     fontSize = 12.sp,
                     lineHeight = 16.sp

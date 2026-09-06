@@ -26,7 +26,7 @@ data class SavedDraftEntity(
     val myChampionName: String = "",
     val enemyLaneOpponentName: String = "",
     val estimatedWinrate: Double = 50.0,
-    val matchResult: String = "VICTORY", // "VICTORY", "DEFEAT"
+    val matchResult: String = "PENDING", // "PENDING", "VICTORY", "DEFEAT"
     val allyDamagePhysical: Int = 0,
     val allyDamageMagic: Int = 0,
     val allyDamageTrue: Int = 0,

@@ -331,7 +331,13 @@ fun DraftHistoryScreen(
                     draft.notes.contains(searchQuery, ignoreCase = true) ||
                     draft.accountProfileName.contains(searchQuery, ignoreCase = true)
 
-            val matchesResult = selectedResultFilter == null || draft.matchResult.equals(selectedResultFilter, ignoreCase = true)
+            val matchesResult = when (selectedResultFilter) {
+                null -> true
+                "PENDING" -> !draft.matchResult.equals("VICTORY", ignoreCase = true) && !draft.matchResult.equals("DEFEAT", ignoreCase = true)
+                "VICTORY" -> draft.matchResult.equals("VICTORY", ignoreCase = true)
+                "DEFEAT" -> draft.matchResult.equals("DEFEAT", ignoreCase = true)
+                else -> draft.matchResult.equals(selectedResultFilter, ignoreCase = true)
+            }
 
             val matchesRole = selectedRoleFilter == null || draft.userRole.equals(selectedRoleFilter?.name, ignoreCase = true)
 
@@ -340,6 +346,7 @@ fun DraftHistoryScreen(
     }
 
     val totalCount = currentScopeDrafts.size
+    val pendingCount = currentScopeDrafts.count { !it.matchResult.equals("VICTORY", ignoreCase = true) && !it.matchResult.equals("DEFEAT", ignoreCase = true) }
     val victoriesCount = currentScopeDrafts.count { it.matchResult.equals("VICTORY", ignoreCase = true) }
     val defeatsCount = currentScopeDrafts.count { it.matchResult.equals("DEFEAT", ignoreCase = true) }
     val totalFinished = victoriesCount + defeatsCount
@@ -983,9 +990,18 @@ fun DraftHistoryScreen(
                             )
                         )
                         FilterChip(
+                            selected = selectedResultFilter == "PENDING",
+                            onClick = { selectedResultFilter = if (selectedResultFilter == "PENDING") null else "PENDING" },
+                            label = { Text("⏳ " + tr("En espera") + " ($pendingCount)", fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechGold,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                        FilterChip(
                             selected = selectedResultFilter == "VICTORY",
                             onClick = { selectedResultFilter = if (selectedResultFilter == "VICTORY") null else "VICTORY" },
-                            label = { Text(" " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
+                            label = { Text("👑 " + tr("Victorias") + " ($victoriesCount)", fontSize = 11.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF81C784),
                                 selectedLabelColor = Color.Black
@@ -994,7 +1010,7 @@ fun DraftHistoryScreen(
                         FilterChip(
                             selected = selectedResultFilter == "DEFEAT",
                             onClick = { selectedResultFilter = if (selectedResultFilter == "DEFEAT") null else "DEFEAT" },
-                            label = { Text(" " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
+                            label = { Text("💔 " + tr("Derrotas") + " ($defeatsCount)", fontSize = 11.sp) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = DangerRed,
                                 selectedLabelColor = Color.White
@@ -1674,9 +1690,9 @@ private fun SavedDraftCard(
         else -> HextechGold
     }
     val resultLabel = when (draft.matchResult.uppercase()) {
-        "VICTORY" -> " " + tr("Victoria")
-        "DEFEAT" -> " " + tr("Derrota")
-        else -> "⏳ " + tr("Pendiente")
+        "VICTORY" -> "👑 " + tr("Victoria")
+        "DEFEAT" -> "💔 " + tr("Derrota")
+        else -> "⏳ " + tr("En espera")
     }
 
     Card(
@@ -1756,14 +1772,21 @@ private fun SavedDraftCard(
                         modifier = Modifier.background(HextechSurface)
                     ) {
                         DropdownMenuItem(
-                            text = { Text(" " + tr("Victoria"), color = Color(0xFF81C784), fontWeight = FontWeight.Bold) },
+                            text = { Text("⏳ " + tr("En espera"), color = HextechGold, fontWeight = FontWeight.Bold) },
+                            onClick = {
+                                onUpdateResult("PENDING")
+                                resultMenuExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("👑 " + tr("Victoria"), color = Color(0xFF81C784), fontWeight = FontWeight.Bold) },
                             onClick = {
                                 onUpdateResult("VICTORY")
                                 resultMenuExpanded = false
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text(" " + tr("Derrota"), color = DangerRed, fontWeight = FontWeight.Bold) },
+                            text = { Text("💔 " + tr("Derrota"), color = DangerRed, fontWeight = FontWeight.Bold) },
                             onClick = {
                                 onUpdateResult("DEFEAT")
                                 resultMenuExpanded = false

@@ -91,7 +91,7 @@ fun SaveDraftDialog(
     var selectedProfile by remember { mutableStateOf(activeProfile) }
     var profileDropdownExpanded by remember { mutableStateOf(false) }
 
-    var selectedResult by remember { mutableStateOf("VICTORY") } // "VICTORY", "DEFEAT"
+    var selectedResult by remember { mutableStateOf("PENDING") } // "PENDING", "VICTORY", "DEFEAT"
     var notes by remember { mutableStateOf("") }
 
     val dialogContent = @Composable {
@@ -342,15 +342,57 @@ fun SaveDraftDialog(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Result Buttons / Cards
+                // Result Buttons / Cards (3 Options: En espera, Victoria, Derrota)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Option 1: Victoria
+                    // Option 1: En espera (Default)
+                    val isPendingSelected = selectedResult == "PENDING"
+                    val pendingScale by animateFloatAsState(
+                        targetValue = if (isPendingSelected) 1.03f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "pending_scale"
+                    )
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .scale(pendingScale)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                width = if (isPendingSelected) 1.5.dp else 1.dp,
+                                color = if (isPendingSelected) HextechGold else HextechCardBorder,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clickable { selectedResult = "PENDING" }
+                            .testTag("save_result_pending"),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isPendingSelected) HextechGold.copy(alpha = 0.22f) else HextechSurface
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "⏳", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = tr("En espera"),
+                                color = if (isPendingSelected) HextechGold else TextSecondary,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isPendingSelected) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
+                            )
+                        }
+                    }
+
+                    // Option 2: Victoria
                     val isVictorySelected = selectedResult == "VICTORY"
                     val victoryScale by animateFloatAsState(
-                        targetValue = if (isVictorySelected) 1.04f else 1.0f,
+                        targetValue = if (isVictorySelected) 1.03f else 1.0f,
                         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
                         label = "victory_scale"
                     )
@@ -373,25 +415,33 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "👑", fontSize = 20.sp)
+                            Text(text = "👑", fontSize = 18.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Victoria"),
                                 color = if (isVictorySelected) Color(0xFF81C784) else TextSecondary,
-                                fontSize = 12.5.sp,
-                                fontWeight = if (isVictorySelected) FontWeight.Bold else FontWeight.Medium
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isVictorySelected) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
                             )
                         }
                     }
 
-                    // Option 2: Derrota
+                    // Option 3: Derrota
                     val isDefeatSelected = selectedResult == "DEFEAT"
+                    val defeatScale by animateFloatAsState(
+                        targetValue = if (isDefeatSelected) 1.03f else 1.0f,
+                        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                        label = "defeat_scale"
+                    )
                     Card(
                         modifier = Modifier
                             .weight(1f)
+                            .scale(defeatScale)
                             .clip(RoundedCornerShape(10.dp))
                             .border(
                                 width = if (isDefeatSelected) 1.5.dp else 1.dp,
@@ -407,16 +457,18 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "💔", fontSize = 20.sp)
+                            Text(text = "💔", fontSize = 18.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Derrota"),
                                 color = if (isDefeatSelected) DangerRed else TextSecondary,
-                                fontSize = 12.5.sp,
-                                fontWeight = if (isDefeatSelected) FontWeight.Bold else FontWeight.Medium
+                                fontSize = 11.5.sp,
+                                fontWeight = if (isDefeatSelected) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1
                             )
                         }
                     }
@@ -479,9 +531,14 @@ fun SaveDraftDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = when (selectedResult) {
                                 "VICTORY" -> Color(0xFF2E7D32)
-                                else -> DangerRed.copy(alpha = 0.85f)
+                                "DEFEAT" -> DangerRed.copy(alpha = 0.85f)
+                                else -> HextechGold
                             },
-                            contentColor = Color.White
+                            contentColor = when (selectedResult) {
+                                "VICTORY" -> Color.White
+                                "DEFEAT" -> Color.White
+                                else -> HextechDarkBg
+                            }
                         )
                     ) {
                         Icon(

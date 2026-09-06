@@ -47,7 +47,7 @@ object DraftHistoryRepository {
         analysis: DraftAnalysisResult,
         title: String? = null,
         notes: String = "",
-        matchResult: String = "VICTORY",
+        matchResult: String = "PENDING",
         accountProfileId: String? = null,
         accountProfileName: String? = null
     ): Long {

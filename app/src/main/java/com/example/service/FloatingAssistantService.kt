@@ -1856,7 +1856,7 @@ private fun FloatingSaveMatchDialog(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var selectedResult by remember { mutableStateOf("VICTORY") }
+    var selectedResult by remember { mutableStateOf("PENDING") }
     var notesText by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
 
@@ -2001,6 +2001,25 @@ private fun FloatingSaveMatchDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    val isPending = selectedResult == "PENDING" || selectedResult == "IN_PROGRESS"
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isPending) HextechGold.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.5.dp, if (isPending) HextechGold else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { selectedResult = "PENDING" }
+                            .padding(vertical = 5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⏳ " + tr("En espera"),
+                            color = if (isPending) HextechGold else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.5.sp
+                        )
+                    }
+
                     val isVic = selectedResult == "VICTORY"
                     Box(
                         modifier = Modifier
@@ -2034,25 +2053,6 @@ private fun FloatingSaveMatchDialog(
                         Text(
                             text = "💔 " + tr("Derrota"),
                             color = if (isDef) DangerRed else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.5.sp
-                        )
-                    }
-
-                    val isProg = selectedResult == "IN_PROGRESS"
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isProg) HextechGold.copy(alpha = 0.25f) else HextechSurface)
-                            .border(1.5.dp, if (isProg) HextechGold else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { selectedResult = "IN_PROGRESS" }
-                            .padding(vertical = 5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "⏳ " + tr("En Curso"),
-                            color = if (isProg) HextechGold else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.5.sp
                         )
