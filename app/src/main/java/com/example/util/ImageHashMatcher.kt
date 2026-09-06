@@ -84,16 +84,71 @@ object ImageHashMatcher {
         return java.lang.Long.bitCount(hash1 xor hash2)
     }
 
-    // Busca el campeón más similar retornando detalles y porcentaje de confianza con umbral de tolerancia
-    fun findBestMatchDetailed(bitmap: Bitmap, allChampions: List<Champion>, maxDistance: Int = 20): MatchResult? {
-        val targetHash = calculateHash(bitmap)
+    // Calcula el dHash (Difference Hash) de 64 bits para un Bitmap de recorte
+    fun calculateDHash(bitmap: Bitmap): Long {
+        val scaled = Bitmap.createScaledBitmap(bitmap, 9, 8, true)
+        val pixels = IntArray(72)
+        scaled.getPixels(pixels, 0, 9, 0, 0, 9, 8)
+        
+        var hash = 0L
+        var bitIndex = 0
+        for (y in 0 until 8) {
+            for (x in 0 until 8) {
+                val left = pixels[y * 9 + x]
+                val right = pixels[y * 9 + (x + 1)]
+                val leftLum = (Color.red(left) * 299 + Color.green(left) * 587 + Color.blue(left) * 114) / 1000
+                val rightLum = (Color.red(right) * 299 + Color.green(right) * 587 + Color.blue(right) * 114) / 1000
+                if (leftLum > rightLum) {
+                    hash = hash or (1L shl (63 - bitIndex))
+                }
+                bitIndex++
+            }
+        }
+        scaled.recycle()
+        return hash
+    }
+
+    // Recorta el 75% central del avatar para eliminar marcos dorados decorativos
+    fun getInnerCrop(bitmap: Bitmap, scale: Float = 0.75f): Bitmap {
+        val w = bitmap.width
+        val h = bitmap.height
+        val targetW = (w * scale).toInt().coerceAtLeast(16)
+        val targetH = (h * scale).toInt().coerceAtLeast(16)
+        val startX = ((w - targetW) / 2).coerceIn(0, w - targetW)
+        val startY = ((h - targetH) / 2).coerceIn(0, h - targetH)
+        return Bitmap.createBitmap(bitmap, startX, startY, targetW, targetH)
+    }
+
+    // Busca el campeón más similar retornando detalles y porcentaje de confianza con umbral de tolerancia y prioridad por rol
+    fun findBestMatchDetailed(
+        bitmap: Bitmap,
+        allChampions: List<Champion>,
+        maxDistance: Int = 22,
+        preferredRole: LaneRole? = null
+    ): MatchResult? {
+        val innerCrop = try { getInnerCrop(bitmap) } catch (e: Exception) { bitmap }
+        val targetHash = calculateHash(innerCrop)
+        if (innerCrop != bitmap) {
+            try { innerCrop.recycle() } catch (ignored: Exception) {}
+        }
+
         var bestMatch: Champion? = null
         var minDistance = maxDistance
         
         allChampions.forEach { champ ->
             val champHash = ChampionHashes.map[champ.id]
             if (champHash != null) {
-                val dist = hammingDistance(targetHash, champHash)
+                var dist = hammingDistance(targetHash, champHash)
+                
+                // Si el slot tiene un rol preferido explícito (ej: TOP para Urgot), aplicar bonificación de distancia
+                if (preferredRole != null) {
+                    if (champ.primaryRole == preferredRole) {
+                        dist -= 3 // Bonificación de rol primario
+                    } else if (champ.secondaryRoles.contains(preferredRole)) {
+                        dist -= 1 // Bonificación de rol secundario
+                    }
+                }
+
                 if (dist <= minDistance) {
                     minDistance = dist
                     bestMatch = champ
@@ -102,14 +157,14 @@ object ImageHashMatcher {
         }
         
         return bestMatch?.let {
-            val confidence = (((64 - minDistance).toFloat() / 64.0f) * 100).toInt().coerceIn(70, 99)
+            val confidence = (((64 - minDistance.coerceAtLeast(0)).toFloat() / 64.0f) * 100).toInt().coerceIn(70, 99)
             MatchResult(champion = it, distance = minDistance, confidencePercent = confidence)
         }
     }
 
     // Busca el campeón más similar
-    fun findBestMatch(bitmap: Bitmap, allChampions: List<Champion>): Champion? {
-        return findBestMatchDetailed(bitmap, allChampions)?.champion
+    fun findBestMatch(bitmap: Bitmap, allChampions: List<Champion>, preferredRole: LaneRole? = null): Champion? {
+        return findBestMatchDetailed(bitmap, allChampions, preferredRole = preferredRole)?.champion
     }
 }
 

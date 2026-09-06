@@ -90,19 +90,11 @@ object DraftVisionScanner {
                     val xRatio = centerX.toFloat() / width.toFloat()
 
                     // 1.1 PARSING DEL CHAT IN-GAME (Y > 0.80 y X < 0.40)
-                    // Formato típico en Wild Rift: "Summoner (ChampionName): Mensaje"
+                    // El chat se analiza exclusivamente como información contextual; jamás debe sobreescribir slots directos
                     if (yRatio in 0.80f..0.94f && xRatio < 0.40f) {
                         val chatChamp = ChampionNameResolver.findChampionInText(text, allChamps)
                         if (chatChamp != null) {
-                            AppLogger.d(TAG, "OCR Chat detectó campeón: ${chatChamp.name} en línea '$text'")
-                            // Si aún no está asignado a aliados, registrar como respaldo de pick
-                            if (allySlots.none { it.champion?.id == chatChamp.id }) {
-                                val emptySlot = allySlots.firstOrNull { it.champion == null }
-                                if (emptySlot != null) {
-                                    emptySlot.champion = chatChamp
-                                    emptySlot.confidencePercent = 95
-                                }
-                            }
+                            AppLogger.d(TAG, "OCR Chat detectó mención de campeón: ${chatChamp.name} en línea '$text'")
                         }
                         continue
                     }
@@ -132,11 +124,10 @@ object DraftVisionScanner {
                         }
 
                         // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", etc.)
-                        val lower = text.lowercase(Locale.ROOT)
-                        val role = parseRoleFromText(lower)
+                        val role = DraftValidationLayer.parseRoleFromText(text)
                         if (role != null) {
                             slot.explicitRole = role
-                            if (lower.contains("carril") || lower.contains("baron") || lower.contains("barón") || lower.contains("solo")) {
+                            if (slotIndex == 4 || userDetectedLane == null) {
                                 userDetectedLane = role
                             }
                             AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito: ${role.shortName}")
@@ -154,8 +145,7 @@ object DraftVisionScanner {
                             AppLogger.d(TAG, "OCR Enemigo Slot $slotIndex -> Campeón: ${matchedChamp.name}")
                         }
 
-                        val lower = text.lowercase(Locale.ROOT)
-                        val role = parseRoleFromText(lower)
+                        val role = DraftValidationLayer.parseRoleFromText(text)
                         if (role != null) {
                             slot.explicitRole = role
                         }
@@ -183,19 +173,15 @@ object DraftVisionScanner {
 
             try {
                 val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
-                
-                // Si aún no tenemos rol explícito, comprobar si el avatar es un icono de carril
-                if (slot.explicitRole == null) {
-                    val roleMatch = ImageHashMatcher.findRoleMatchDetailed(crop, maxDistance = 22)
-                    if (roleMatch != null) {
-                        slot.explicitRole = roleMatch.role
-                        AppLogger.d(TAG, "Avatar Aliado Slot $i -> Icono de rol: ${roleMatch.role.shortName}")
-                    }
-                }
 
-                // Si no se detectó el campeón por texto OCR, recurrir a la comparación visual del avatar
+                // Si no se detectó el campeón por texto OCR, recurrir a la comparación visual del avatar con prioridad por rol
                 if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(crop, allChamps, maxDistance = 20)
+                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
+                        crop,
+                        allChamps,
+                        maxDistance = 22,
+                        preferredRole = slot.explicitRole
+                    )
                     if (matchResult != null) {
                         slot.champion = matchResult.champion
                         slot.confidencePercent = matchResult.confidencePercent
@@ -217,16 +203,14 @@ object DraftVisionScanner {
 
             try {
                 val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
-                
-                if (slot.explicitRole == null) {
-                    val roleMatch = ImageHashMatcher.findRoleMatchDetailed(crop, maxDistance = 22)
-                    if (roleMatch != null) {
-                        slot.explicitRole = roleMatch.role
-                    }
-                }
 
                 if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(crop, allChamps, maxDistance = 20)
+                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
+                        crop,
+                        allChamps,
+                        maxDistance = 22,
+                        preferredRole = slot.explicitRole
+                    )
                     if (matchResult != null) {
                         slot.champion = matchResult.champion
                         slot.confidencePercent = matchResult.confidencePercent
@@ -240,22 +224,19 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 2: ASIGNACIÓN DETERMINISTA DE ROLES (ZERO-GUESSING)
+        // PASO 2: ASIGNACIÓN DETERMINISTA DE ROLES CON CAPA DE VALIDACIÓN (ZERO-GUESSING)
         // -----------------------------------------------------------------------------------------
-        val alliesMap = assignTeamRoles(allySlots, isAlly = true, auditList)
-        val enemiesMap = assignTeamRoles(enemySlots, isAlly = false, auditList)
+        val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(allySlots, allChamps, auditList)
+        val alliesMap = allyResolved.assignments
+
+        val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(enemySlots, allChamps, auditList)
+        val enemiesMap = enemyResolved.assignments
 
         // Deduplicación: Un campeón aliado jamás puede aparecer en el equipo enemigo
         val allyChampIds = alliesMap.values.map { it.id }.toSet()
         val finalEnemiesMap = enemiesMap.filterNot { allyChampIds.contains(it.value.id) }
 
-        val enemyConfidences = mutableMapOf<LaneRole, Int>()
-        enemySlots.forEach { slot ->
-            val assigned = slot.assignedRole
-            if (assigned != null && finalEnemiesMap.containsKey(assigned)) {
-                enemyConfidences[assigned] = slot.confidencePercent.coerceIn(80, 98)
-            }
-        }
+        val enemyConfidences = enemyResolved.confidences.filterKeys { finalEnemiesMap.containsKey(it) }
 
         val allyChampsList = alliesMap.values.toList()
         val enemyChampsList = finalEnemiesMap.values.toList()
@@ -279,82 +260,5 @@ object DraftVisionScanner {
             isSuccessful = total > 0,
             statusMessage = statusMsg
         )
-    }
-
-    private fun parseRoleFromText(lower: String): LaneRole? {
-        return when {
-            lower.contains("baron") || lower.contains("barón") || lower.contains("solo") || lower.contains("superior") || lower.contains("top") -> LaneRole.TOP
-            lower.contains("jungle") || lower.contains("jungla") || lower.contains("jg") || lower.contains("selva") -> LaneRole.JUNGLE
-            lower.contains("central") || lower.contains("mid") || lower.contains("medio") -> LaneRole.MID
-            lower.contains("duo") || lower.contains("dúo") || lower.contains("dragon") || lower.contains("dragón") || lower.contains("bot") || lower.contains("adc") || lower.contains("tirador") -> LaneRole.ADC
-            lower.contains("support") || lower.contains("soporte") || lower.contains("apoyo") || lower.contains("sup") -> LaneRole.SUPPORT
-            else -> null
-        }
-    }
-
-    private fun assignTeamRoles(
-        slots: List<ScannedSlotInfo>,
-        isAlly: Boolean,
-        auditList: MutableList<String>
-    ): Map<LaneRole, Champion> {
-        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
-        val assignedMap = mutableMapOf<LaneRole, Champion>()
-        val availableRoles = standardRoles.toMutableList()
-        val pendingSlots = mutableListOf<ScannedSlotInfo>()
-
-        // 1. Asignar slots que tienen un rol explícito detectado por texto en pantalla
-        for (slot in slots) {
-            val champ = slot.champion ?: continue
-            val expRole = slot.explicitRole
-            if (expRole != null && availableRoles.contains(expRole) && !assignedMap.containsKey(expRole)) {
-                assignedMap[expRole] = champ
-                availableRoles.remove(expRole)
-                slot.assignedRole = expRole
-                if (champ.primaryRole != expRole) {
-                    auditList.add("Rol explícito: ${champ.name} -> ${expRole.shortName}")
-                }
-            } else {
-                pendingSlots.add(slot)
-            }
-        }
-
-        // 2. Asignar por rol primario del campeón
-        val remainingAfterPrimary = mutableListOf<ScannedSlotInfo>()
-        for (slot in pendingSlots) {
-            val champ = slot.champion ?: continue
-            val primary = champ.primaryRole
-            if (availableRoles.contains(primary) && !assignedMap.containsKey(primary)) {
-                assignedMap[primary] = champ
-                availableRoles.remove(primary)
-                slot.assignedRole = primary
-            } else {
-                remainingAfterPrimary.add(slot)
-            }
-        }
-
-        // 3. Asignar por rol secundario si hubo colisión (Flex picks)
-        val remainingAfterSecondary = mutableListOf<ScannedSlotInfo>()
-        for (slot in remainingAfterPrimary) {
-            val champ = slot.champion ?: continue
-            val secMatch = champ.secondaryRoles.firstOrNull { availableRoles.contains(it) }
-            if (secMatch != null) {
-                assignedMap[secMatch] = champ
-                availableRoles.remove(secMatch)
-                slot.assignedRole = secMatch
-            } else {
-                remainingAfterSecondary.add(slot)
-            }
-        }
-
-        // 4. Asignar roles restantes a campeones no asignados
-        for (slot in remainingAfterSecondary) {
-            val champ = slot.champion ?: continue
-            val fallback = availableRoles.firstOrNull() ?: continue
-            assignedMap[fallback] = champ
-            availableRoles.remove(fallback)
-            slot.assignedRole = fallback
-        }
-
-        return assignedMap
     }
 }

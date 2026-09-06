@@ -215,22 +215,38 @@ object ChampionNameResolver {
             .lowercase(Locale.ROOT)
     }
 
-    // Encuentra el campeón correspondiente a una línea de texto OCR
+    // Encuentra el campeón correspondiente a una línea de texto OCR con validación anti-falsos positivos
     fun findChampionInText(text: String, allChampions: List<Champion>): Champion? {
-        val clean = normalize(text)
+        val trimmed = text.trim()
+        if (trimmed.isBlank()) return null
+
+        // Si la línea contiene paréntesis (ej: "XCS Junior (Jarvan IV): ¡Combatamos!"), extraer el contenido de los paréntesis
+        val parenthesisMatch = Regex("\\(([^)]+)\\)").find(trimmed)
+        if (parenthesisMatch != null) {
+            val insideText = parenthesisMatch.groupValues[1]
+            val insideChamp = findChampionInText(insideText, allChampions)
+            if (insideChamp != null) return insideChamp
+        }
+
+        // Si la línea es claramente un nombre de invocador (ej: "XCS Lucianito", "martincho137", "Gaby11anos") y no contiene campeón explícito, descartar
+        if (DraftValidationLayer.isLikelySummonerName(trimmed) && parenthesisMatch == null) {
+            return null
+        }
+
+        val clean = normalize(trimmed)
         if (clean.isBlank()) return null
         if (UI_IGNORE_WORDS.contains(clean)) return null
 
-        val compact = normalizeCompact(text)
+        val compact = normalizeCompact(trimmed)
 
         // 1. Coincidencia directa por mapa de nombres canónicos
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
             val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
+            if (found != null && DraftValidationLayer.isValidChampionToken(clean, found.id)) return found
         }
         KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
             val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
+            if (found != null && DraftValidationLayer.isValidChampionToken(compact, found.id)) return found
         }
 
         // 2. Coincidencia exacta por lista de campeones en memoria
@@ -244,30 +260,36 @@ object ChampionNameResolver {
             }
         }
 
-        // 3. Coincidencia por palabra contenida (únicamente si la palabra coincide EXACTAMENTE con el nombre de un campeón)
+        // 3. Coincidencia por palabra contenida (únicamente si el token es válido y no un diminutivo)
         val words = clean.split(" ").filter { it.length >= 3 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
                 val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-                if (found != null) return found
+                if (found != null && DraftValidationLayer.isValidChampionToken(word, found.id)) {
+                    return found
+                }
             }
             for (champ in allChampions) {
                 val champNorm = normalize(champ.name)
                 val champCompact = normalizeCompact(champ.name)
                 if (champNorm == word || champCompact == word) {
-                    return champ
+                    if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
+                        return champ
+                    }
                 }
             }
         }
 
         // 4. Coincidencia difusa estricta (Levenshtein distance <= 1) para corregir errores OCR menores en nombres aislados
-        // Solo si la línea completa es corta (<= 12 caracteres) y no contiene palabras de UI
-        if (clean.length in 4..12 && words.size <= 2) {
+        // Solo si la palabra es corta y es una palabra única (para evitar nombres de invocador)
+        if (clean.length in 4..12 && words.size == 1) {
             for (champ in allChampions) {
                 val champNorm = normalize(champ.name)
                 if (Math.abs(champNorm.length - clean.length) <= 1) {
                     if (levenshteinDistance(clean, champNorm) <= 1) {
-                        return champ
+                        if (DraftValidationLayer.isValidChampionToken(clean, champ.id)) {
+                            return champ
+                        }
                     }
                 }
             }
