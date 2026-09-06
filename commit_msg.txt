@@ -1,1 +1,1 @@
-git commit -m "fix(scanner): corrige bugs de reconocimiento (Wukong ignorado, falsos positivos por ROI amplio) y asignación errónea de roles; restaura límite infinito de slots para admin"
+git commit -m "fix(auth): permite al admin saltar el límite de dispositivos en el login obteniendo los claims del token en tiempo real"
