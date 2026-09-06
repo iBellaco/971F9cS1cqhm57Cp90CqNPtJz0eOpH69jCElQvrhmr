@@ -1,14 +1,36 @@
 package com.example.util
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import com.example.model.Champion
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Descriptor vectorial de alta precisión para avatares de campeones de Wild Rift.
+ * Contiene el mapa de intensidades estructurales (32x32 = 1024 puntos normalizados)
+ * y el histograma cromático RGB (4x4x4 = 64 bins) para comparación visual 100% certera.
+ */
+data class ChampionVisualSignature(
+    val championId: String,
+    val normalizedGray: FloatArray, // 1024 floats (media 0, varianza 1)
+    val colorHistogram: FloatArray, // 64 bins (suma 1.0)
+    val avgLuminance: Float,
+    val avgSaturation: Float,
+    val aHash: Long
+)
+
 object ChampionHashes {
+    private const val TAG = "ChampionHashes"
+    
+    // Firmas visuales completas de los 141 campeones precargadas desde assets
+    private val signatures = ConcurrentHashMap<String, ChampionVisualSignature>()
     private val dynamicMap = ConcurrentHashMap<String, Long>()
 
+    // Inicializa y precarga los descriptores visuales de todos los campeones locales desde assets/champions/
     fun initFromAssets(context: Context) {
-        if (dynamicMap.isNotEmpty()) return
+        if (signatures.isNotEmpty()) return
         try {
             val assetManager = context.assets
             val list = assetManager.list("champions") ?: emptyArray()
@@ -19,10 +41,11 @@ object ChampionHashes {
                         assetManager.open("champions/$filename").use { stream ->
                             val bitmap = BitmapFactory.decodeStream(stream)
                             if (bitmap != null) {
-                                val fullHash = ImageHashMatcher.calculateHash(bitmap)
-                                dynamicMap[championId] = fullHash
+                                val sig = createSignature(championId, bitmap)
+                                signatures[championId] = sig
+                                dynamicMap[championId] = sig.aHash
                                 
-                                val crop = try { ImageHashMatcher.getInnerCrop(bitmap) } catch (e: Exception) { null }
+                                val crop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { null }
                                 if (crop != null && crop != bitmap) {
                                     val cropHash = ImageHashMatcher.calculateHash(crop)
                                     dynamicMap["${championId}_crop"] = cropHash
@@ -32,14 +55,96 @@ object ChampionHashes {
                             }
                         }
                     } catch (e: Exception) {
-                        AppLogger.w("ChampionHashes", "Failed to load asset for $championId: ${e.message}")
+                        AppLogger.w(TAG, "Error cargando asset de $championId: ${e.message}")
                     }
                 }
             }
-            AppLogger.d("ChampionHashes", "Loaded ${dynamicMap.size} dynamic hashes from local assets")
+            AppLogger.d(TAG, "Cargadas ${signatures.size} firmas visuales de alta precisión desde assets")
         } catch (e: Exception) {
-            AppLogger.e("ChampionHashes", "Error loading asset hashes", e)
+            AppLogger.e(TAG, "Error inicializando firmas visuales", e)
         }
+    }
+
+    // Genera la firma visual a partir de un Bitmap (32x32 estructural + 64-bin color)
+    fun createSignature(championId: String, bitmap: Bitmap): ChampionVisualSignature {
+        val innerCrop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { bitmap }
+        val scaled = Bitmap.createScaledBitmap(innerCrop, 32, 32, true)
+        val pixels = IntArray(1024)
+        scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)
+        
+        val grays = FloatArray(1024)
+        val colorHist = FloatArray(64)
+        var sumGray = 0f
+        var sumLuminance = 0f
+        var sumSaturation = 0f
+        
+        for (i in 0 until 1024) {
+            val color = pixels[i]
+            val r = Color.red(color)
+            val g = Color.green(color)
+            val b = Color.blue(color)
+            
+            // Luminancia perceptual
+            val lum = 0.299f * r + 0.587f * g + 0.114f * b
+            grays[i] = lum
+            sumGray += lum
+            sumLuminance += lum
+            
+            // Saturación en espacio HSV aproximada
+            val max = maxOf(r, maxOf(g, b)).toFloat()
+            val min = minOf(r, minOf(g, b)).toFloat()
+            val sat = if (max > 0f) (max - min) / max else 0f
+            sumSaturation += sat
+            
+            // Histograma cromático 4x4x4 RGB
+            val rBin = (r / 64).coerceIn(0, 3)
+            val gBin = (g / 64).coerceIn(0, 3)
+            val bBin = (b / 64).coerceIn(0, 3)
+            val binIndex = (rBin shl 4) or (gBin shl 2) or bBin
+            colorHist[binIndex] += 1f
+        }
+        
+        // Normalizar grays a media 0 y desviación estándar 1 para correlación cruzada normalizada (NCC)
+        val mean = sumGray / 1024f
+        var sumVar = 0f
+        for (i in 0 until 1024) {
+            val diff = grays[i] - mean
+            sumVar += diff * diff
+        }
+        val stdDev = Math.sqrt((sumVar / 1024.0)).toFloat().coerceAtLeast(0.001f)
+        val normalizedGray = FloatArray(1024)
+        for (i in 0 until 1024) {
+            normalizedGray[i] = (grays[i] - mean) / stdDev
+        }
+        
+        // Normalizar histograma de color (suma = 1.0)
+        for (b in 0 until 64) {
+            colorHist[b] /= 1024f
+        }
+        
+        val aHash = ImageHashMatcher.calculateHash(innerCrop)
+        
+        scaled.recycle()
+        if (innerCrop != bitmap) {
+            try { innerCrop.recycle() } catch (ignored: Exception) {}
+        }
+        
+        return ChampionVisualSignature(
+            championId = championId,
+            normalizedGray = normalizedGray,
+            colorHistogram = colorHist,
+            avgLuminance = sumLuminance / 1024f,
+            avgSaturation = sumSaturation / 1024f,
+            aHash = aHash
+        )
+    }
+
+    fun getAllSignatures(): Collection<ChampionVisualSignature> {
+        return signatures.values
+    }
+
+    fun getSignature(championId: String): ChampionVisualSignature? {
+        return signatures[championId]
     }
 
     fun getHashesForChampion(championId: String): List<Long> {
@@ -47,7 +152,7 @@ object ChampionHashes {
         dynamicMap[championId]?.let { list.add(it) }
         dynamicMap["${championId}_crop"]?.let { list.add(it) }
 
-        // Also check static fallback map
+        // Fallback al mapa estático si la carga dinámica no hubiese completado
         map[championId]?.let { if (!list.contains(it)) list.add(it) }
         map["${championId}_crop"]?.let { if (!list.contains(it)) list.add(it) }
         map["${championId}_alt1"]?.let { if (!list.contains(it)) list.add(it) }
@@ -172,7 +277,7 @@ object ChampionHashes {
         "tryndamere" to -5154305758176068496L,
         "twisted_fate" to 6111930808794642275L,
         "twitch" to 513140437269040958L,
-        "urgot" to 4070194207285127960L, // Hash principal e in-game mask
+        "urgot" to 4070194207285127960L,
         "urgot_alt1" to 0x3C7EFFFFFFFF7E3CL,
         "urgot_alt2" to 0x183C7EFFFF7E3C18L,
         "urgot_alt3" to 0x003C7E7E7E7E3C00L,
@@ -198,6 +303,6 @@ object ChampionHashes {
         "ziggs" to 2369035840647912697L,
         "zilean" to 31382532508626434L,
         "zoe" to 4408812032342429954L,
-        "zyra" to 25034493498513592L,
+        "zyra" to 25034493498513592L
     )
 }

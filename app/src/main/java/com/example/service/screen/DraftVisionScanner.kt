@@ -89,16 +89,6 @@ object DraftVisionScanner {
                     val yRatio = centerY.toFloat() / height.toFloat()
                     val xRatio = centerX.toFloat() / width.toFloat()
 
-                    // 1.1 PARSING DEL CHAT IN-GAME (Y > 0.80 y X < 0.40)
-                    // El chat se analiza exclusivamente como información contextual; jamás debe sobreescribir slots directos
-                    if (yRatio in 0.80f..0.94f && xRatio < 0.40f) {
-                        val chatChamp = ChampionNameResolver.findChampionInText(text, allChamps)
-                        if (chatChamp != null) {
-                            AppLogger.d(TAG, "OCR Chat detectó mención de campeón: ${chatChamp.name} en línea '$text'")
-                        }
-                        continue
-                    }
-
                     // Ignorar la barra de bans superior (Y < 0.12) y botones del fondo (Y > 0.85)
                     if (yRatio < 0.12f || yRatio > 0.85f) continue
 
@@ -111,7 +101,7 @@ object DraftVisionScanner {
                         else -> 4
                     }
 
-                    // 1.2 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.02 y 0.28)
+                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.02 y 0.28)
                     if (xRatio in 0.02f..0.28f) {
                         val slot = allySlots[slotIndex]
 
@@ -119,22 +109,22 @@ object DraftVisionScanner {
                         val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
                         if (matchedChamp != null) {
                             slot.champion = matchedChamp
-                            slot.confidencePercent = 99
+                            slot.confidencePercent = 95
                             AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Campeón: ${matchedChamp.name}")
                         }
 
-                        // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", etc.)
+                        // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", "APOYO", etc.)
                         val role = DraftValidationLayer.parseRoleFromText(text)
                         if (role != null) {
                             slot.explicitRole = role
-                            if (slotIndex == 4 || userDetectedLane == null) {
+                            if (userDetectedLane == null) {
                                 userDetectedLane = role
                             }
                             AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito: ${role.shortName}")
                         }
                     }
 
-                    // 1.3 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.72 y 0.98)
+                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.72 y 0.98)
                     else if (xRatio in 0.72f..0.98f) {
                         val slot = enemySlots[slotIndex]
 
@@ -150,7 +140,6 @@ object DraftVisionScanner {
                             slot.explicitRole = role
                         }
                     }
-                    // NOTA: Toda la franja central (X entre 0.28 y 0.72) donde reside el Overlay flotante es TOTALMENTE IGNORADA
                 }
             }
         } catch (e: Exception) {
@@ -158,73 +147,83 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 1.5: RECORTE VISUAL DE AVATARES E ICONOS DE ROL (FALLBACK Y MULTIMODAL DETECTION)
+        // PASO 2: COMPARACIÓN VISUAL DE ALTA PRECISIÓN CONTRA LOS 141 AVATARES DE ASSETS
         // -----------------------------------------------------------------------------------------
-        val avatarSize = (height * 0.115f).toInt().coerceAtLeast(24)
-        val allyAvatarCenterX = (width * 0.115f).toInt()
-        val enemyAvatarCenterX = (width * 0.915f).toInt()
+        val avatarDiameter = (height * 0.118f).toInt().coerceAtLeast(32)
+        // Posición X precisa del centro de los avatares circulares en Wild Rift
+        val allyAvatarCenterX = (width * 0.072f).toInt()
+        val enemyAvatarCenterX = (width * 0.928f).toInt()
 
-        // 1.5.1 Aliados
+        // 2.1 Aliados
         for (i in 0..4) {
             val slot = allySlots[i]
             val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
-            val startX = (allyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
-            val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
+            val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
+            val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
 
             try {
-                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
+                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
+                val visualMatch = ImageHashMatcher.findBestVisualMatch(
+                    crop,
+                    allChamps,
+                    preferredRole = slot.explicitRole
+                )
 
-                // Si no se detectó el campeón por texto OCR, recurrir a la comparación visual del avatar con prioridad por rol
-                if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
-                        crop,
-                        allChamps,
-                        maxDistance = 22,
-                        preferredRole = slot.explicitRole
-                    )
-                    if (matchResult != null) {
-                        slot.champion = matchResult.champion
-                        slot.confidencePercent = matchResult.confidencePercent
-                        AppLogger.d(TAG, "Avatar Aliado Slot $i -> Campeón visual: ${matchResult.champion.name} (Conf: ${matchResult.confidencePercent}%)")
+                if (visualMatch != null) {
+                    // Si el OCR ya había detectado y coincide, certeza 100%
+                    if (slot.champion != null && slot.champion?.id == visualMatch.champion.id) {
+                        slot.confidencePercent = 100
+                    } else if (slot.champion == null || visualMatch.confidencePercent >= 85) {
+                        // Si no había OCR o el visual tiene altísima confianza, el visual es la verdad canónica
+                        slot.champion = visualMatch.champion
+                        slot.confidencePercent = visualMatch.confidencePercent
                     }
+                    AppLogger.d(TAG, "Avatar Aliado Slot $i -> ${visualMatch.champion.name} (Confianza: ${slot.confidencePercent}%)")
+                } else if (slot.champion == null) {
+                    // Si visual es null (slot vacío/sin selección), asegurar que quede limpio
+                    slot.champion = null
                 }
                 crop.recycle()
             } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando avatar aliado slot $i: ${e.message}")
+                AppLogger.w(TAG, "Error comparando avatar aliado slot $i: ${e.message}")
             }
         }
 
-        // 1.5.2 Enemigos
+        // 2.2 Enemigos
         for (i in 0..4) {
             val slot = enemySlots[i]
             val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
-            val startX = (enemyAvatarCenterX - avatarSize / 2).coerceIn(0, width - avatarSize)
-            val startY = (yCenter - avatarSize / 2).coerceIn(0, height - avatarSize)
+            val startX = (enemyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
+            val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
 
             try {
-                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarSize, avatarSize)
+                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
+                val visualMatch = ImageHashMatcher.findBestVisualMatch(
+                    crop,
+                    allChamps,
+                    preferredRole = slot.explicitRole
+                )
 
-                if (slot.champion == null) {
-                    val matchResult = ImageHashMatcher.findBestMatchDetailed(
-                        crop,
-                        allChamps,
-                        maxDistance = 22,
-                        preferredRole = slot.explicitRole
-                    )
-                    if (matchResult != null) {
-                        slot.champion = matchResult.champion
-                        slot.confidencePercent = matchResult.confidencePercent
-                        AppLogger.d(TAG, "Avatar Enemigo Slot $i -> Campeón visual: ${matchResult.champion.name} (Conf: ${matchResult.confidencePercent}%)")
+                if (visualMatch != null) {
+                    if (slot.champion != null && slot.champion?.id == visualMatch.champion.id) {
+                        slot.confidencePercent = 100
+                    } else if (slot.champion == null || visualMatch.confidencePercent >= 85) {
+                        slot.champion = visualMatch.champion
+                        slot.confidencePercent = visualMatch.confidencePercent
                     }
+                    AppLogger.d(TAG, "Avatar Enemigo Slot $i -> ${visualMatch.champion.name} (Confianza: ${slot.confidencePercent}%)")
+                } else {
+                    // Descartar falsos positivos en slots vacíos (casco espartano / 'Jugador X')
+                    slot.champion = null
                 }
                 crop.recycle()
             } catch (e: Exception) {
-                AppLogger.w(TAG, "Error recortando avatar enemigo slot $i: ${e.message}")
+                AppLogger.w(TAG, "Error comparando avatar enemigo slot $i: ${e.message}")
             }
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 2: ASIGNACIÓN DETERMINISTA DE ROLES CON CAPA DE VALIDACIÓN (ZERO-GUESSING)
+        // PASO 3: ASIGNACIÓN DETERMINISTA DE ROLES CON CAPA DE VALIDACIÓN (ZERO-GUESSING)
         // -----------------------------------------------------------------------------------------
         val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(allySlots, allChamps, auditList)
         val alliesMap = allyResolved.assignments
