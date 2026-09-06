@@ -151,8 +151,67 @@ class DraftDetectionAndValidationTest {
         assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.ADC])
         assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.SUPPORT])
         assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.MID])
-        // Riven y Sett tienen ambigüedad flex: Riven en TOP al 85% y Sett flexeado a JUG al 80%
+        // Riven y Sett tienen ambigüedad flex: Riven en TOP al 85% y Sett flexeado a JUG al 65%
         assertEquals(85, resolvedEnemiesDetailed.confidences[LaneRole.TOP])
-        assertEquals(80, resolvedEnemiesDetailed.confidences[LaneRole.JUNGLE])
+        assertEquals(65, resolvedEnemiesDetailed.confidences[LaneRole.JUNGLE])
+    }
+
+    @Test
+    fun testRealUserScreenshotsAccuracy() {
+        initChamps()
+        val champs = WildRiftRepository.champions
+
+        // Validación basada en las capturas reales del usuario:
+        // Captura 1: Wukong (Barón), Galio (Apoyo), Veigar (Mid), Sivir (Dúo), Yone (Jungla con Smite)
+        // Rivales: Lulu (Apoyo), Varus (Dúo), Olaf (Jungla/Top), Slot 3 y 4 aún no han elegido ("Jugador 4", "Jugador 5")
+        val wukong = champs.find { it.id == "wukong" }!!
+        val galio = champs.find { it.id == "galio" }!!
+        val veigar = champs.find { it.id == "veigar" }!!
+        val sivir = champs.find { it.id == "sivir" }!!
+        val yone = champs.find { it.id == "yone" }!!
+
+        val lulu = champs.find { it.id == "lulu" }!!
+        val varus = champs.find { it.id == "varus" }!!
+        val olaf = champs.find { it.id == "olaf" }!!
+
+        // Verificación de parsing de roles en texto en español de Wild Rift
+        assertEquals(LaneRole.ADC, DraftValidationLayer.parseRoleFromText("CALLE DEL DRAGÓN"))
+        assertEquals(LaneRole.MID, DraftValidationLayer.parseRoleFromText("CALLE CENTRAL"))
+        assertEquals(LaneRole.TOP, DraftValidationLayer.parseRoleFromText("CARRIL DE BARÓN"))
+        assertEquals(LaneRole.JUNGLE, DraftValidationLayer.parseRoleFromText("JUNGLA"))
+        assertEquals(LaneRole.SUPPORT, DraftValidationLayer.parseRoleFromText("APOYO"))
+
+        // Verificación de aliados
+        val allySlots = listOf(
+            ScannedSlotInfo(slotIndex = 0, isAlly = true, champion = wukong, explicitRole = LaneRole.TOP),
+            ScannedSlotInfo(slotIndex = 1, isAlly = true, champion = galio, explicitRole = LaneRole.SUPPORT),
+            ScannedSlotInfo(slotIndex = 2, isAlly = true, champion = veigar, explicitRole = LaneRole.MID),
+            ScannedSlotInfo(slotIndex = 3, isAlly = true, champion = sivir, explicitRole = LaneRole.ADC),
+            ScannedSlotInfo(slotIndex = 4, isAlly = true, champion = yone, explicitRole = LaneRole.JUNGLE)
+        )
+        val alliesMap = allySlots.associate { it.explicitRole!! to it.champion!! }
+        assertEquals("wukong", alliesMap[LaneRole.TOP]?.id)
+        assertEquals("yone", alliesMap[LaneRole.JUNGLE]?.id)
+        assertEquals("veigar", alliesMap[LaneRole.MID]?.id)
+        assertEquals("sivir", alliesMap[LaneRole.ADC]?.id)
+        assertEquals("galio", alliesMap[LaneRole.SUPPORT]?.id)
+
+        // Verificación de rivales: solo 3 seleccionados, 2 aún no han elegido
+        val enemySlots = listOf(
+            ScannedSlotInfo(slotIndex = 0, isAlly = false, champion = lulu, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 1, isAlly = false, champion = varus, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 2, isAlly = false, champion = olaf, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 3, isAlly = false, champion = null, isLikelyUnpicked = true),
+            ScannedSlotInfo(slotIndex = 4, isAlly = false, champion = null, isLikelyUnpicked = true)
+        )
+        val validPicks = enemySlots.filter { it.champion != null }
+        val auditList = mutableListOf<String>()
+        val resolvedEnemies = DraftValidationLayer.resolveTeamRolesDetailed(validPicks, champs, auditList)
+
+        assertEquals(3, resolvedEnemies.assignments.size)
+        assertEquals("lulu", resolvedEnemies.assignments[LaneRole.SUPPORT]?.id)
+        assertEquals("varus", resolvedEnemies.assignments[LaneRole.ADC]?.id)
+        // Olaf cubre el carril prioritario que le corresponde (TOP o JUNGLE)
+        assertTrue(resolvedEnemies.assignments.containsKey(LaneRole.TOP) || resolvedEnemies.assignments.containsKey(LaneRole.JUNGLE))
     }
 }

@@ -56,6 +56,15 @@ object DraftValidationLayer {
         val isMixedCase = trimmed.any { it.isUpperCase() } && trimmed.any { it.isLowerCase() }
         val hasSpaces = trimmed.contains(" ")
 
+        // Excluir nombres canónicos de campeones con espacios
+        val lower = trimmed.lowercase(Locale.ROOT)
+        if (lower.startsWith("dr") || lower.startsWith("jarvan") || lower.startsWith("twisted") ||
+            lower.startsWith("xin") || lower.startsWith("aurelion") || lower.startsWith("lee") ||
+            lower.startsWith("miss") || lower.startsWith("master") || lower.startsWith("tahm") ||
+            lower.startsWith("nunu")) {
+            return false
+        }
+
         if (isMixedCase && hasSpaces) {
             return true
         }
@@ -106,34 +115,44 @@ object DraftValidationLayer {
             return null
         }
 
-        // Frases completas de carril
-        if (lower.contains("carril de baron") || lower.contains("carril de barón") ||
-            lower.contains("carril superior") || lower.contains("baron lane") ||
-            lower.contains("rota de barao") || lower.contains("rota de barão") ||
-            lower.contains("solo lane")) {
+        // 1. Frases completas de carril (Español, Inglés, Portugués)
+        // TOP
+        if (lower.contains("calle de baron") || lower.contains("calle de baron") ||
+            lower.contains("carril de baron") || lower.contains("carril de barón") ||
+            lower.contains("carril superior") || lower.contains("calle superior") ||
+            lower.contains("baron lane") || lower.contains("rota de barao") ||
+            lower.contains("rota de barão") || lower.contains("solo lane")) {
             return LaneRole.TOP
         }
-        if (lower.contains("carril central") || lower.contains("mid lane") ||
-            lower.contains("rota do meio") || lower.contains("carril medio") ||
+
+        // MID
+        if (lower.contains("calle central") || lower.contains("carril central") ||
+            lower.contains("calle medio") || lower.contains("carril medio") ||
+            lower.contains("mid lane") || lower.contains("rota do meio") ||
             lower.contains("middle lane")) {
             return LaneRole.MID
         }
-        if (lower.contains("carril del dragon") || lower.contains("carril del dragón") ||
-            lower.contains("duo lane") || lower.contains("dragon lane") ||
+
+        // ADC / DÚO
+        if (lower.contains("calle del dragon") || lower.contains("calle del dragón") ||
+            lower.contains("carril del dragon") || lower.contains("carril del dragón") ||
+            lower.contains("calle duo") || lower.contains("calle dúo") ||
             lower.contains("carril duo") || lower.contains("carril dúo") ||
+            lower.contains("duo lane") || lower.contains("dragon lane") ||
             lower.contains("rota do dragao") || lower.contains("rota do dragão") ||
-            lower.contains("carril bot") || lower.contains("bot lane")) {
+            lower.contains("carril bot") || lower.contains("calle bot") ||
+            lower.contains("bot lane")) {
             return LaneRole.ADC
         }
 
-        // Tokens individuales delimitados exactamente
+        // 2. Tokens individuales delimitados exactamente
         val tokens = lower.split(Regex("[\\s,.:;\\-_/()]+")).filter { it.isNotBlank() }
         for (token in tokens) {
             when (token) {
-                "baron", "barao", "top", "solo" -> return LaneRole.TOP
+                "baron", "barao", "barão", "top", "solo" -> return LaneRole.TOP
                 "jungla", "jungle", "cacador", "caçador", "selva", "jg" -> return LaneRole.JUNGLE
                 "mid", "medio", "meio", "central" -> return LaneRole.MID
-                "adc", "duo", "dragon", "dragao", "tirador", "atirador", "bot" -> return LaneRole.ADC
+                "adc", "duo", "dúo", "dragon", "dragón", "dragao", "dragão", "tirador", "atirador", "bot" -> return LaneRole.ADC
                 "soporte", "support", "suporte", "sup", "supp", "apoyo" -> return LaneRole.SUPPORT
             }
         }

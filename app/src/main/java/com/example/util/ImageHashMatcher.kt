@@ -176,11 +176,12 @@ object ImageHashMatcher {
         // 2. FILTRADO DE SLOT VACÍO / CASCO ESPARTANO:
         // Los slots aliados NUNCA son vacíos (siempre hay 5 compañeros).
         // En el equipo enemigo, si un slot no ha elegido, muestra el casco espartano metálico gris
-        // con saturación nula (< 0.10) y luminancia gris uniforme.
+        // sobre fondo rojo carmesí. Tiene muy baja varianza estructural central o saturación muy baja.
         if (!isAlly) {
-            val isSpartanHelmetOrEmpty = (avgSaturation < 0.10f && (avgLuminance < 85f || stdDev < 20f))
+            val isSpartanHelmetOrEmpty = (avgSaturation < 0.15f && (avgLuminance < 85f || stdDev < 25f)) ||
+                    (stdDev < 18f) || (avgLuminance < 40f)
             if (isSpartanHelmetOrEmpty) {
-                // El rival aún no ha seleccionado ningún campeón
+                // El rival aún no ha seleccionado ningún campeón (casco espartano/vacío)
                 return null
             }
         }
@@ -235,11 +236,11 @@ object ImageHashMatcher {
         }
 
         // Umbral adaptativo: en aliados permitimos campeones en preselección atenuados (>= 0.58),
-        // en enemigos requerimos mayor solidez visual (>= 0.65) para no confundir animaciones.
+        // en enemigos requerimos extrema certeza (>= 0.78) para nunca confundir un casco espartano con Zed u otro campeón.
         val requiredThreshold = if (isAlly) {
             if (preferredRole != null) 0.54f else 0.58f
         } else {
-            0.65f
+            0.78f
         }
 
         if (maxScore >= requiredThreshold && bestChamp != null) {

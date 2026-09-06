@@ -15,7 +15,7 @@ import java.util.Locale
 
 data class ScannedSlotInfo(
     val slotIndex: Int,
-    val isAlly: Boolean,
+    val isAlly: Boolean = true,
     var champion: Champion? = null,
     var explicitRole: LaneRole? = null,
     var assignedRole: LaneRole? = null,
@@ -80,6 +80,9 @@ object DraftVisionScanner {
         val detectedWords = mutableListOf<String>()
         var userDetectedLane: LaneRole? = null
 
+        val allySlotTexts = Array(5) { mutableListOf<String>() }
+        val enemySlotTexts = Array(5) { mutableListOf<String>() }
+
         // -----------------------------------------------------------------------------------------
         // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
         // -----------------------------------------------------------------------------------------
@@ -111,50 +114,77 @@ object DraftVisionScanner {
                         else -> 4
                     }
 
-                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.02 y 0.28)
-                    if (xRatio in 0.02f..0.28f) {
-                        val slot = allySlots[slotIndex]
+                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.02 y 0.32)
+                    if (xRatio in 0.02f..0.32f) {
+                        allySlotTexts[slotIndex].add(text)
+                    }
+                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.70 y 0.98)
+                    else if (xRatio in 0.70f..0.98f) {
+                        enemySlotTexts[slotIndex].add(text)
+                    }
+                }
+            }
 
-                        // Buscar nombre de campeón en el texto del slot (cuando ya está bloqueado)
-                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
-                        if (matchedChamp != null) {
-                            slot.champion = matchedChamp
-                            slot.confidencePercent = 100
-                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Campeón bloqueado: ${matchedChamp.name}")
+            // Procesar textos aliados
+            for (i in 0..4) {
+                val slot = allySlots[i]
+                val lines = allySlotTexts[i]
+
+                for (line in lines) {
+                    // A) Rol explícito
+                    val role = DraftValidationLayer.parseRoleFromText(line)
+                    if (role != null) {
+                        slot.explicitRole = role
+                        allySlotRolesCache[i] = role
+                        AppLogger.d(TAG, "OCR Aliado Slot $i -> Rol explícito: ${role.shortName}")
+
+                        // Detección precisa de slot del usuario por palabras clave del jugador
+                        val containsUserClues = lines.any { l ->
+                            val low = l.lowercase(Locale.ROOT)
+                            low.contains("diego") || low.contains("porcentaje") || low.contains("victoria") || low.contains("tasa")
                         }
-
-                        // Buscar texto de rol explícito (ej: "CARRIL DE BARÓN", "JUNGLA", "APOYO", etc.)
-                        val role = DraftValidationLayer.parseRoleFromText(text)
-                        if (role != null) {
-                            slot.explicitRole = role
-                            allySlotRolesCache[slotIndex] = role
-                            if (userDetectedLane == null) {
-                                userDetectedLane = role
-                            }
-                            AppLogger.d(TAG, "OCR Aliado Slot $slotIndex -> Rol explícito detectado: ${role.shortName}")
+                        if (containsUserClues) {
+                            userDetectedLane = role
+                            AppLogger.d(TAG, "Slot del usuario confirmado en $i -> ${role.shortName}")
                         }
                     }
 
-                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.72 y 0.98)
-                    else if (xRatio in 0.72f..0.98f) {
-                        val slot = enemySlots[slotIndex]
-
-                        val matchedChamp = ChampionNameResolver.findChampionInText(text, allChamps)
-                        if (matchedChamp != null) {
-                            slot.champion = matchedChamp
+                    // B) Campeón bloqueado por OCR
+                    if (slot.champion == null) {
+                        val matched = ChampionNameResolver.findChampionInText(line, allChamps)
+                        if (matched != null) {
+                            slot.champion = matched
                             slot.confidencePercent = 100
-                            AppLogger.d(TAG, "OCR Enemigo Slot $slotIndex -> Campeón: ${matchedChamp.name}")
-                        } else {
-                            val lower = text.lowercase(Locale.ROOT)
-                            if (lower.contains("jugador") || lower.contains("player") || lower.contains("jogador")) {
-                                slot.isLikelyUnpicked = true
-                            }
+                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón bloqueado: ${matched.name}")
                         }
+                    }
+                }
+            }
 
-                        val role = DraftValidationLayer.parseRoleFromText(text)
-                        if (role != null) {
-                            slot.explicitRole = role
+            // Procesar textos enemigos
+            for (i in 0..4) {
+                val slot = enemySlots[i]
+                val lines = enemySlotTexts[i]
+
+                for (line in lines) {
+                    if (slot.champion == null) {
+                        val matched = ChampionNameResolver.findChampionInText(line, allChamps)
+                        if (matched != null) {
+                            slot.champion = matched
+                            slot.confidencePercent = 100
+                            AppLogger.d(TAG, "OCR Enemigo Slot $i -> Campeón: ${matched.name}")
                         }
+                    }
+                }
+
+                // Si no hay campeón y solo hay textos genéricos ("Jugador X"), marcar como unpicked
+                if (slot.champion == null) {
+                    val isGeneric = lines.isEmpty() || lines.all { l ->
+                        val low = l.lowercase(Locale.ROOT)
+                        low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador") || low.isBlank()
+                    }
+                    if (isGeneric) {
+                        slot.isLikelyUnpicked = true
                     }
                 }
             }
@@ -230,11 +260,28 @@ object DraftVisionScanner {
             }
         }
 
-        // D) Resolución de roles restantes para el equipo aliado (1 a 1 sin colisiones)
+        // B) Si aún quedan slots aliados sin rol determinado, resolverlos por afinidad con los campeones presentes
         val allRolesList = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
         val assignedRoles = allySlots.mapNotNull { it.explicitRole }.toSet()
         val missingRoles = allRolesList.filterNot { assignedRoles.contains(it) }.toMutableList()
 
+        val unassignedSlotsWithChamp = allySlots.filter { it.explicitRole == null && it.champion != null }
+        for (slot in unassignedSlotsWithChamp) {
+            val champ = slot.champion ?: continue
+            val preferredRole = when {
+                missingRoles.contains(champ.primaryRole) -> champ.primaryRole
+                champ.secondaryRoles.any { missingRoles.contains(it) } -> champ.secondaryRoles.first { missingRoles.contains(it) }
+                else -> null
+            }
+            if (preferredRole != null) {
+                slot.explicitRole = preferredRole
+                allySlotRolesCache[slot.slotIndex] = preferredRole
+                missingRoles.remove(preferredRole)
+                AppLogger.d(TAG, "Slot aliado ${slot.slotIndex} con ${champ.name} asignado por afinidad a ${preferredRole.shortName}")
+            }
+        }
+
+        // C) Asignación residual para cualquier slot restante
         for (slot in allySlots) {
             if (slot.explicitRole == null && missingRoles.isNotEmpty()) {
                 val assigned = missingRoles.removeAt(0)
@@ -245,11 +292,14 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
-        // PASO 3: RECONOCIMIENTO VISUAL DE ALTA PRECISIÓN (PRESELECCIÓN Y CONFIRMACIÓN)
+        // PASO 3: RECONOCIMIENTO VISUAL DE ALTA PRECISIÓN (SOLO SI OCR NO DETECTÓ EL CAMPEÓN)
         // -----------------------------------------------------------------------------------------
-        // 3.1 Aliados (incluye soporte para avatares atenuados en preselección)
+        // 3.1 Aliados (preselección cuando el jugador aún no bloqueó su campeón)
         for (i in 0..4) {
             val slot = allySlots[i]
+            // Si ya fue detectado por OCR, NO TOCAR (100% de certeza)
+            if (slot.champion != null) continue
+
             val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
             val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
@@ -264,13 +314,9 @@ object DraftVisionScanner {
                 )
 
                 if (visualMatch != null) {
-                    if (slot.champion != null && slot.champion?.id == visualMatch.champion.id) {
-                        slot.confidencePercent = 100
-                    } else if (slot.champion == null || visualMatch.confidencePercent >= 85) {
-                        slot.champion = visualMatch.champion
-                        slot.confidencePercent = visualMatch.confidencePercent
-                    }
-                    AppLogger.d(TAG, "Avatar Aliado Slot $i -> ${visualMatch.champion.name} en ${slot.explicitRole?.shortName} (Confianza: ${slot.confidencePercent}%)")
+                    slot.champion = visualMatch.champion
+                    slot.confidencePercent = visualMatch.confidencePercent
+                    AppLogger.d(TAG, "Avatar Aliado Preselección Slot $i -> ${visualMatch.champion.name} en ${slot.explicitRole?.shortName} (Confianza: ${slot.confidencePercent}%)")
                 }
                 crop.recycle()
             } catch (e: Exception) {
@@ -278,9 +324,18 @@ object DraftVisionScanner {
             }
         }
 
-        // 3.2 Enemigos (filtrando estrictamente slots vacíos y cascos espartanos)
+        // 3.2 Enemigos (estricto: si no hay nombre en OCR y es unpicked/casco espartano, NO inventar campeón)
         for (i in 0..4) {
             val slot = enemySlots[i]
+            // Si ya fue detectado por OCR (ej: Lulu, Varus, Olaf), NO TOCAR (100% de certeza)
+            if (slot.champion != null) continue
+
+            // Si el slot solo decía "Jugador X" o estaba vacío, es un casco espartano: mantener en null
+            if (slot.isLikelyUnpicked) {
+                slot.champion = null
+                continue
+            }
+
             val yCenter = (height * (0.185f + (i * 0.140f))).toInt()
             val startX = (enemyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
@@ -294,16 +349,11 @@ object DraftVisionScanner {
                     isAlly = false
                 )
 
-                if (visualMatch != null) {
-                    if (slot.champion != null && slot.champion?.id == visualMatch.champion.id) {
-                        slot.confidencePercent = 100
-                    } else if (slot.champion == null || visualMatch.confidencePercent >= 85) {
-                        slot.champion = visualMatch.champion
-                        slot.confidencePercent = visualMatch.confidencePercent
-                    }
+                if (visualMatch != null && visualMatch.confidencePercent >= 80) {
+                    slot.champion = visualMatch.champion
+                    slot.confidencePercent = visualMatch.confidencePercent
                     AppLogger.d(TAG, "Avatar Enemigo Slot $i -> ${visualMatch.champion.name} (Confianza: ${slot.confidencePercent}%)")
-                } else if (slot.champion != null && slot.isLikelyUnpicked) {
-                    // Si el OCR pensó que vio un nombre pero el avatar es un casco espartano vacío, descartar
+                } else {
                     slot.champion = null
                 }
                 crop.recycle()

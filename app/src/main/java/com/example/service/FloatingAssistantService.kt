@@ -893,12 +893,15 @@ private fun FloatingOverlayContent(
                             val scannedAlly = result.alliesByRole[role]
                             if (scannedAlly != null) {
                                 assignAllySlot(idx, scannedAlly)
-                            } else if (result.isSuccessful && !result.allies.contains(allies[idx])) {
-                                // Si el escáner fue exitoso pero no vio al campeón que estaba aquí, y ese campeón tampoco se movió a otro lado, podríamos considerar limpiar, pero por seguridad conservamos el estado manual.
+                            } else if (result.allies.isNotEmpty() && !result.allies.contains(allies[idx])) {
+                                allies[idx] = null
                             }
                             val scannedEnemy = result.enemiesByRole[role]
                             if (scannedEnemy != null) {
                                 assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                            } else {
+                                enemies[idx] = null
+                                state.enemyConfidences.remove(role)
                             }
                         }
 
@@ -1453,6 +1456,7 @@ private fun FloatingOverlayContent(
                                                     enemies[i] = null
                                                 }
                                                 state.enemyConfidences.clear()
+                                                DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
                                             onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
