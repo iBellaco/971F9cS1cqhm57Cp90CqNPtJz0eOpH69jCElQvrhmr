@@ -1,6 +1,13 @@
 package com.example.data.sync
 
 import android.content.Context
+import android.content.Intent
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.example.data.WildRiftRepository
 import com.example.util.AppLogger
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +48,7 @@ sealed class WrMetaScrapingState {
         val championsCount: Int,
         val downloadedImagesCount: Int,
         val timestamp: String,
-        val outputDirectory: String,
+        val publicDirectoryPath: String,
         val urlsFilePath: String
     ) : WrMetaScrapingState()
     data class Error(val message: String) : WrMetaScrapingState()
@@ -57,8 +64,8 @@ data class ChampionAvatarRecord(
 
 /**
  * Descargador y Scraper de Avatares y URLs de Campeones para Wild Rift (wr-meta.com).
- * Extrae las URLs oficiales de cada campeón y descarga físicamente los archivos de imagen
- * en la carpeta WR_META_141/imagenes/ y genera urls_imagenes.txt, campeones.json y campeones.csv.
+ * Guarda los archivos en el almacenamiento público del dispositivo (Carpeta Descargas/WR_META_141/)
+ * para que sean accesibles desde el gestor de archivos, galería y aplicaciones del usuario.
  */
 object WrMetaScraper {
     private const val TAG = "WrMetaScraper"
@@ -88,12 +95,15 @@ object WrMetaScraper {
     private const val PREFS_NAME = "wr_meta_avatar_scraper_prefs"
     private const val KEY_LAST_SCRAPE_TIME = "last_avatar_scrape_time"
     private const val KEY_LAST_CHAMPS_COUNT = "last_avatar_champs_count"
+    private const val KEY_LAST_FOLDER_PATH = "last_avatar_folder_path"
+    private const val KEY_LAST_URLS_PATH = "last_avatar_urls_path"
 
-    fun getLastScrapeInfo(context: Context): Pair<Int, String> {
+    fun getLastScrapeInfo(context: Context): Triple<Int, String, String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val count = prefs.getInt(KEY_LAST_CHAMPS_COUNT, 0)
         val time = prefs.getString(KEY_LAST_SCRAPE_TIME, "Nunca descargado") ?: "Nunca descargado"
-        return Pair(count, time)
+        val folder = prefs.getString(KEY_LAST_FOLDER_PATH, "") ?: ""
+        return Triple(count, time, folder)
     }
 
     fun cleanName(name: String?): String {
@@ -129,7 +139,45 @@ object WrMetaScraper {
     }
 
     /**
-     * Extrae las URLs y descarga los avatares directamente a disco.
+     * Obtiene el directorio de destino accesible públicamente en la carpeta Descargas del teléfono
+     */
+    fun getTargetOutputDirectories(context: Context): List<File> {
+        val dirs = mutableListOf<File>()
+        
+        // 1. Directorio público de Descargas (/Download/WR_META_141)
+        try {
+            val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val publicWrDir = File(publicDownloads, "WR_META_141")
+            if (!publicWrDir.exists()) publicWrDir.mkdirs()
+            if (publicWrDir.exists() && publicWrDir.canWrite()) {
+                dirs.add(publicWrDir)
+            }
+        } catch (e: Exception) {
+            AppLogger.w(TAG, "No se pudo acceder a public Downloads: ${e.message}")
+        }
+
+        // 2. Directorio externo específico de la app (Android/data/.../files/Download/WR_META_141)
+        try {
+            val appExtDownload = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            if (appExtDownload != null) {
+                val appWrDir = File(appExtDownload, "WR_META_141")
+                if (!appWrDir.exists()) appWrDir.mkdirs()
+                if (appWrDir.exists()) dirs.add(appWrDir)
+            }
+        } catch (e: Exception) {
+            AppLogger.w(TAG, "No se pudo acceder a app external files: ${e.message}")
+        }
+
+        // 3. Respaldo interno
+        val internalDir = File(context.filesDir, "WR_META_141")
+        if (!internalDir.exists()) internalDir.mkdirs()
+        dirs.add(internalDir)
+
+        return dirs
+    }
+
+    /**
+     * Extrae las URLs y descarga los avatares directamente a la memoria del teléfono.
      */
     suspend fun runScraping(context: Context): Boolean = withContext(Dispatchers.IO) {
         val championsMap = mutableMapOf<String, Pair<String, String>>() // NormalizedName -> Pair(DisplayName, ImageUrl)
@@ -144,7 +192,7 @@ object WrMetaScraper {
             var catIdx = 0
             for ((categoryName, categoryUrl) in CATEGORIES) {
                 catIdx++
-                val p = (catIdx.toFloat() / CATEGORIES.size.toFloat()) * 0.35f
+                val p = (catIdx.toFloat() / CATEGORIES.size.toFloat()) * 0.30f
                 _scrapingState.value = WrMetaScrapingState.ExtractingUrls(
                     category = "$categoryName ($catIdx/${CATEGORIES.size})",
                     progressPercent = p
@@ -197,14 +245,19 @@ object WrMetaScraper {
                 }
             }
 
-            // Preparar carpetas de salida: WR_META_141 e imagenes/
-            val outputDir = File(context.filesDir, "WR_META_141")
-            val imagesDir = File(outputDir, "imagenes")
-            if (!imagesDir.exists()) imagesDir.mkdirs()
+            // Obtener carpetas de destino (incluyendo Descargas públicas del teléfono)
+            val targetDirs = getTargetOutputDirectories(context)
+            val primaryDir = targetDirs.firstOrNull() ?: File(context.filesDir, "WR_META_141")
+
+            for (dir in targetDirs) {
+                val imgDir = File(dir, "imagenes")
+                if (!imgDir.exists()) imgDir.mkdirs()
+            }
 
             val totalChamps = championsMap.size
             var downloadedCount = 0
             val avatarRecords = mutableListOf<ChampionAvatarRecord>()
+            val filesToScan = mutableListOf<String>()
 
             // Descarga concurrente controlada (Semaphore de 6 conexiones simultáneas)
             val semaphore = Semaphore(6)
@@ -221,11 +274,10 @@ object WrMetaScraper {
                             else -> "jpg"
                         }
                         val fileName = "${sanitizeFileName(displayName)}.$ext"
-                        val targetFile = File(imagesDir, fileName)
+                        var isSuccess = false
+                        var imageBytes: ByteArray? = null
 
-                        var isSuccess = targetFile.exists() && targetFile.length() > 500
-
-                        if (!isSuccess && imgUrl.startsWith("http")) {
+                        if (imgUrl.startsWith("http")) {
                             semaphore.withPermit {
                                 try {
                                     val imgRequest = Request.Builder()
@@ -236,12 +288,7 @@ object WrMetaScraper {
 
                                     val imgResponse = httpClient.newCall(imgRequest).execute()
                                     if (imgResponse.isSuccessful) {
-                                        imgResponse.body?.byteStream()?.use { input ->
-                                            FileOutputStream(targetFile).use { output ->
-                                                input.copyTo(output)
-                                            }
-                                        }
-                                        isSuccess = targetFile.exists() && targetFile.length() > 500
+                                        imageBytes = imgResponse.body?.bytes()
                                     }
                                 } catch (err: Exception) {
                                     AppLogger.w(TAG, "Error al descargar avatar de $displayName ($imgUrl): ${err.message}")
@@ -249,9 +296,28 @@ object WrMetaScraper {
                             }
                         }
 
+                        // Guardar en todas las carpetas destino (Descargas públicas, App ext, interna)
+                        if (imageBytes != null && imageBytes.isNotEmpty()) {
+                            for (dir in targetDirs) {
+                                try {
+                                    val imgDir = File(dir, "imagenes")
+                                    val targetFile = File(imgDir, fileName)
+                                    FileOutputStream(targetFile).use { it.write(imageBytes) }
+                                    if (targetFile.exists() && targetFile.length() > 500) {
+                                        isSuccess = true
+                                        synchronized(filesToScan) {
+                                            filesToScan.add(targetFile.absolutePath)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    AppLogger.w(TAG, "Error guardando en ${dir.path}: ${e.message}")
+                                }
+                            }
+                        }
+
                         synchronized(avatarRecords) {
                             downloadedCount++
-                            val progress = 0.35f + ((downloadedCount.toFloat() / totalChamps.toFloat()) * 0.65f)
+                            val progress = 0.30f + ((downloadedCount.toFloat() / totalChamps.toFloat()) * 0.70f)
                             _scrapingState.value = WrMetaScrapingState.DownloadingImages(
                                 downloadedCount = downloadedCount,
                                 totalCount = totalChamps,
@@ -273,59 +339,128 @@ object WrMetaScraper {
                 downloadJobs.awaitAll()
             }
 
-            // 1. Guardar urls_imagenes.txt
-            val urlsTxtFile = File(outputDir, "urls_imagenes.txt")
-            val urlsWriter = FileWriter(urlsTxtFile)
-            avatarRecords.sortedBy { it.name }.forEach { record ->
-                urlsWriter.append("${record.name} | ${record.avatarUrl}\n")
-            }
-            urlsWriter.flush()
-            urlsWriter.close()
+            // Guardar archivos de texto, CSV y JSON en cada directorio destino
+            for (dir in targetDirs) {
+                try {
+                    // 1. urls_imagenes.txt
+                    val urlsTxtFile = File(dir, "urls_imagenes.txt")
+                    val urlsWriter = FileWriter(urlsTxtFile)
+                    avatarRecords.sortedBy { it.name }.forEach { record ->
+                        urlsWriter.append("${record.name} | ${record.avatarUrl}\n")
+                    }
+                    urlsWriter.flush()
+                    urlsWriter.close()
+                    filesToScan.add(urlsTxtFile.absolutePath)
 
-            // 2. Guardar campeones.json
-            val jsonFile = File(outputDir, "campeones.json")
-            val jsonArray = org.json.JSONArray()
-            avatarRecords.sortedBy { it.name }.forEach { record ->
-                val obj = org.json.JSONObject()
-                obj.put("name", record.name)
-                obj.put("avatar_url", record.avatarUrl)
-                obj.put("image_file", record.localFileName)
-                obj.put("downloaded", record.isDownloaded)
-                jsonArray.put(obj)
-            }
-            jsonFile.writeText(jsonArray.toString(2))
+                    // 2. campeones.json
+                    val jsonFile = File(dir, "campeones.json")
+                    val jsonArray = org.json.JSONArray()
+                    avatarRecords.sortedBy { it.name }.forEach { record ->
+                        val obj = org.json.JSONObject()
+                        obj.put("name", record.name)
+                        obj.put("avatar_url", record.avatarUrl)
+                        obj.put("image_file", record.localFileName)
+                        obj.put("downloaded", record.isDownloaded)
+                        jsonArray.put(obj)
+                    }
+                    jsonFile.writeText(jsonArray.toString(2))
+                    filesToScan.add(jsonFile.absolutePath)
 
-            // 3. Guardar campeones.csv
-            val csvFile = File(outputDir, "campeones.csv")
-            val csvWriter = FileWriter(csvFile)
-            csvWriter.append("name,avatar_url,local_file,downloaded\n")
-            avatarRecords.sortedBy { it.name }.forEach { record ->
-                csvWriter.append("\"${record.name}\",\"${record.avatarUrl}\",\"${record.localFileName}\",${record.isDownloaded}\n")
+                    // 3. campeones.csv
+                    val csvFile = File(dir, "campeones.csv")
+                    val csvWriter = FileWriter(csvFile)
+                    csvWriter.append("name,avatar_url,local_file,downloaded\n")
+                    avatarRecords.sortedBy { it.name }.forEach { record ->
+                        csvWriter.append("\"${record.name}\",\"${record.avatarUrl}\",\"${record.localFileName}\",${record.isDownloaded}\n")
+                    }
+                    csvWriter.flush()
+                    csvWriter.close()
+                    filesToScan.add(csvFile.absolutePath)
+                } catch (e: Exception) {
+                    AppLogger.w(TAG, "Error guardando meta-archivos en ${dir.path}: ${e.message}")
+                }
             }
-            csvWriter.flush()
-            csvWriter.close()
 
+            // Notificar al indexador del sistema Android (MediaScanner) para que aparezcan en Galería y Gestor de Archivos
+            try {
+                if (filesToScan.isNotEmpty()) {
+                    MediaScannerConnection.scanFile(
+                        context,
+                        filesToScan.toTypedArray(),
+                        null
+                    ) { path, uri ->
+                        AppLogger.d(TAG, "Archivo escaneado por el sistema: $path -> $uri")
+                    }
+                }
+            } catch (e: Exception) {
+                AppLogger.w(TAG, "Error invocando MediaScanner: ${e.message}")
+            }
+
+            val urlsTxtPrimary = File(primaryDir, "urls_imagenes.txt")
             val nowTime = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+            
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putString(KEY_LAST_SCRAPE_TIME, nowTime)
                 .putInt(KEY_LAST_CHAMPS_COUNT, avatarRecords.size)
+                .putString(KEY_LAST_FOLDER_PATH, primaryDir.absolutePath)
+                .putString(KEY_LAST_URLS_PATH, urlsTxtPrimary.absolutePath)
                 .apply()
 
             _scrapingState.value = WrMetaScrapingState.Success(
                 championsCount = avatarRecords.size,
                 downloadedImagesCount = avatarRecords.count { it.isDownloaded },
                 timestamp = nowTime,
-                outputDirectory = outputDir.absolutePath,
-                urlsFilePath = urlsTxtFile.absolutePath
+                publicDirectoryPath = primaryDir.absolutePath,
+                urlsFilePath = urlsTxtPrimary.absolutePath
             )
 
-            AppLogger.d(TAG, "Descarga completada: ${avatarRecords.size} avatares y urls_imagenes.txt generados en $outputDir")
+            AppLogger.d(TAG, "Descarga completada en teléfono: ${avatarRecords.size} avatares guardados en $primaryDir")
             true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error fatal en descarga de avatares: ${e.message}", e)
-            _scrapingState.value = WrMetaScrapingState.Error("Fallo al descargar avatares: ${e.localizedMessage ?: "Error de red"}")
+            _scrapingState.value = WrMetaScrapingState.Error("Fallo al guardar en celular: ${e.localizedMessage ?: "Error de almacenamiento"}")
             false
+        }
+    }
+
+    /**
+     * Permite compartir o abrir el archivo urls_imagenes.txt con cualquier aplicación (WhatsApp, Drive, Bloc de Notas)
+     */
+    fun shareUrlsFile(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val path = prefs.getString(KEY_LAST_URLS_PATH, "")
+        val file = if (!path.isNullOrBlank()) File(path) else {
+            val publicDownloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            File(File(publicDownloads, "WR_META_141"), "urls_imagenes.txt")
+        }
+
+        if (!file.exists()) {
+            Toast.makeText(context, "El archivo urls_imagenes.txt aún no ha sido descargado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            val uri: Uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, "Wild Rift - URLs de Avatares (141 Campeones)")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+
+            context.startActivity(Intent.createChooser(shareIntent, "Compartir urls_imagenes.txt").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        } catch (e: Exception) {
+            AppLogger.e(TAG, "Error al compartir archivo: ${e.message}", e)
+            Toast.makeText(context, "Error al compartir: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import android.content.Intent
+import android.os.Environment
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -10,7 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +31,7 @@ import com.example.data.sync.WrMetaScraper
 import com.example.data.sync.WrMetaScrapingState
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun WrMetaScrapingCard(
@@ -99,9 +105,9 @@ fun WrMetaScrapingCard(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Descargador de Avatares y URLs",
+                                text = "Descargador de Avatares a Celular",
                                 color = HextechGoldLight,
-                                fontSize = 13.5.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 letterSpacing = 0.3.sp
                             )
@@ -114,7 +120,7 @@ fun WrMetaScrapingCard(
                                     .padding(horizontal = 5.dp, vertical = 1.dp)
                             ) {
                                 Text(
-                                    text = "141 Avatares",
+                                    text = "141 Picks",
                                     color = HextechCyan,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold
@@ -123,9 +129,9 @@ fun WrMetaScrapingCard(
                         }
 
                         Text(
-                            text = "https://wr-meta.com • urls_imagenes.txt y carpeta imagenes/",
+                            text = "Carpeta: Almacenamiento/Download/WR_META_141/",
                             color = TextSecondary,
-                            fontSize = 10.5.sp
+                            fontSize = 10.sp
                         )
                     }
                 }
@@ -134,7 +140,7 @@ fun WrMetaScrapingCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Descarga físicamente las imágenes de avatar de cada campeón a 'WR_META_141/imagenes/' y genera el archivo 'urls_imagenes.txt' con el formato 'Nombre | URL'.",
+                text = "Guarda los avatares en formato JPG/WEBP en la carpeta pública 'Download/WR_META_141/imagenes/' y genera el archivo 'urls_imagenes.txt' con Nombre y URL de cada campeón.",
                 color = TextMuted,
                 fontSize = 11.sp,
                 lineHeight = 15.sp
@@ -145,26 +151,38 @@ fun WrMetaScrapingCard(
             // Estado reactivo y barra de progreso
             when (val state = scrapingState) {
                 is WrMetaScrapingState.Idle -> {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
                             .background(HextechDarkBg.copy(alpha = 0.6f))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(horizontal = 10.dp, vertical = 8.dp)
                     ) {
-                        Text(
-                            text = "Última descarga:",
-                            color = TextSecondary,
-                            fontSize = 10.5.sp
-                        )
-                        Text(
-                            text = if (lastScrapeInfo.first > 0) "${lastScrapeInfo.first} avatares (${lastScrapeInfo.second})" else lastScrapeInfo.second,
-                            color = if (lastScrapeInfo.first > 0) HextechCyan else TextMuted,
-                            fontSize = 10.5.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Estado de guardado:",
+                                color = TextSecondary,
+                                fontSize = 10.5.sp
+                            )
+                            Text(
+                                text = if (lastScrapeInfo.first > 0) "${lastScrapeInfo.first} avatares guardados" else lastScrapeInfo.second,
+                                color = if (lastScrapeInfo.first > 0) HextechCyan else TextMuted,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        if (lastScrapeInfo.first > 0) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Ruta: ${lastScrapeInfo.third.ifEmpty { "Download/WR_META_141/" }}",
+                                color = TextMuted,
+                                fontSize = 9.sp
+                            )
+                        }
                     }
                 }
 
@@ -224,7 +242,7 @@ fun WrMetaScrapingCard(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Descargando: ${state.currentChampion}",
+                                text = "Guardando: ${state.currentChampion}",
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -253,7 +271,7 @@ fun WrMetaScrapingCard(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "Guardando archivo en WR_META_141/imagenes/...",
+                            text = "Escribiendo en carpeta Download/WR_META_141/imagenes/...",
                             color = TextMuted,
                             fontSize = 9.5.sp
                         )
@@ -278,20 +296,21 @@ fun WrMetaScrapingCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "¡Descarga Completa! ${state.championsCount} Avatares y URLs",
+                                text = "¡Guardado con Éxito en tu Celular!",
                                 color = TierSColor,
-                                fontSize = 11.5.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "📁 Guardado en WR_META_141/ (imagenes/, urls_imagenes.txt, campeones.json)",
+                            text = "📁 Ubicación: ${state.publicDirectoryPath}",
                             color = TextPrimary,
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "Fecha: ${state.timestamp}",
+                            text = "📄 ${state.downloadedImagesCount} imágenes en 'imagenes/' y 'urls_imagenes.txt'",
                             color = TextSecondary,
                             fontSize = 9.5.sp
                         )
@@ -316,7 +335,7 @@ fun WrMetaScrapingCard(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Error en la descarga",
+                                text = "Aviso de almacenamiento",
                                 color = DangerRed,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -362,7 +381,7 @@ fun WrMetaScrapingCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Descargando avatares y URLs...",
+                        text = "Guardando en almacenamiento...",
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
@@ -376,11 +395,43 @@ fun WrMetaScrapingCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Descargar Avatares y URLs (141 Campeones)",
+                        text = "Descargar Avatares y URLs a Celular",
                         color = HextechGoldLight,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.3.sp
+                    )
+                }
+            }
+
+            // Botón secundario para Compartir / Abrir urls_imagenes.txt
+            if (lastScrapeInfo.first > 0 || scrapingState is WrMetaScrapingState.Success) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = {
+                        WrMetaScraper.shareUrlsFile(context)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(38.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = HextechCyan
+                    ),
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = null,
+                        tint = HextechCyan,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Abrir / Compartir 'urls_imagenes.txt'",
+                        color = HextechCyan,
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
