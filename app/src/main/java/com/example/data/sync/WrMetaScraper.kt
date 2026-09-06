@@ -63,9 +63,9 @@ data class ChampionAvatarRecord(
 )
 
 /**
- * Descargador y Scraper de Avatares y URLs de Campeones para Wild Rift (wr-meta.com).
- * Extrae URLs con formato https://wr-meta.com/uploads/posts/YYYY-MM/...webp
- * y descarga las imágenes físicas directamente en Download/WR_META_141/imagenes/
+ * Descargador y Scraper de Avatares (Rostros de Campeones) para Wild Rift.
+ * Garantiza la extracción exclusiva de iconos/rostros de campeones (avatares cuadrados en primer plano)
+ * y descarta terminantemente fondos de pantalla o splash arts horizontales.
  */
 object WrMetaScraper {
     private const val TAG = "WrMetaScraper"
@@ -139,7 +139,7 @@ object WrMetaScraper {
     }
 
     /**
-     * Normaliza cualquier URL relativa a https://wr-meta.com/uploads/posts/...
+     * Normaliza cualquier URL relativa a absoluta
      */
     fun normalizeImageUrl(url: String): String {
         var u = url.trim()
@@ -157,12 +157,26 @@ object WrMetaScraper {
     }
 
     /**
-     * Extrae de forma inteligente la URL de imagen del elemento HTML en wr-meta.com
-     * priorizando rutas /uploads/posts/
+     * Valida que la URL corresponda a un icono o rostro de avatar (primer plano)
+     * y NO a un Splash Art, Wallpaper horizontal o banner de fondo.
+     */
+    private fun isFaceAvatarUrl(url: String): Boolean {
+        if (url.isBlank()) return false
+        val lower = url.lowercase(Locale.ROOT)
+        // Descartar fondos de pantalla y splash arts horizontales
+        val forbiddenKeywords = listOf("wallpaper", "splash-art", "splash_art", "splash", "background", "banner", "uhdpaper", "8k", "1920x1080", "horizontal")
+        for (kw in forbiddenKeywords) {
+            if (lower.contains(kw)) return false
+        }
+        return true
+    }
+
+    /**
+     * Extrae de forma inteligente únicamente el icono o rostro del campeón
      */
     fun extractImageUrl(elem: Element): String {
-        // 1. Buscar en atributos de imágenes
-        val imgs = elem.select("img")
+        // 1. Buscar en imágenes de miniaturas / avatares
+        val imgs = elem.select(".champ-item img, .avatar img, .thumb img, .tier-list-item img, img.champ-icon, img")
         for (img in imgs) {
             val candidates = listOf(
                 img.attr("src"),
@@ -172,33 +186,11 @@ object WrMetaScraper {
                 img.attr("data-image")
             )
             for (c in candidates) {
-                if (c.contains("/uploads/posts/", ignoreCase = true) || c.endsWith(".webp") || c.endsWith(".png") || c.endsWith(".jpg") || c.endsWith(".jpeg")) {
+                if (c.isNotBlank() && isFaceAvatarUrl(c)) {
                     return normalizeImageUrl(c)
                 }
             }
-            val srcset = img.attr("srcset")
-            if (srcset.isNotBlank()) {
-                val parts = srcset.split(",")
-                for (p in parts) {
-                    val candidate = p.trim().split(" ").firstOrNull().orEmpty()
-                    if (candidate.contains("/uploads/posts/", ignoreCase = true) || candidate.contains(".webp", ignoreCase = true)) {
-                        return normalizeImageUrl(candidate)
-                    }
-                }
-            }
         }
-
-        // 2. Buscar enlaces <a> con imágenes de posts
-        val links = elem.select("a[href*='uploads/posts'], a[data-src*='uploads/posts']")
-        for (a in links) {
-            val href = a.attr("href").ifBlank { a.attr("data-src") }
-            if (href.isNotBlank()) return normalizeImageUrl(href)
-        }
-
-        // 3. Primer imagen disponible
-        val fallbackSrc = imgs.firstOrNull()?.attr("src").orEmpty()
-        if (fallbackSrc.isNotBlank()) return normalizeImageUrl(fallbackSrc)
-
         return ""
     }
 
@@ -241,7 +233,7 @@ object WrMetaScraper {
     }
 
     /**
-     * Extrae las URLs oficiales (estilo https://wr-meta.com/uploads/posts/...) y descarga los avatares a disco.
+     * Extrae y descarga los avatares (rostros de los campeones) a disco y genera urls_imagenes.txt.
      */
     suspend fun runScraping(context: Context): Boolean = withContext(Dispatchers.IO) {
         val championsMap = mutableMapOf<String, Pair<String, String>>() // NormalizedName -> Pair(DisplayName, ImageUrl)
@@ -276,7 +268,7 @@ object WrMetaScraper {
 
                     if (response.isSuccessful && html.isNotBlank()) {
                         val doc: Document = Jsoup.parse(html, BASE_URL)
-                        val championElements = doc.select(".champ-item, .tier-list-item, tr:has(td), .item, .champion-card, a[href*='/champion/'], article, .post-item")
+                        val championElements = doc.select(".champ-item, .tier-list-item, tr:has(td), .item, .champion-card, a[href*='/champion/']")
 
                         for (elem in championElements) {
                             val rawName = elem.select(".name, .champ-name, .title, strong, a").text().trim()
@@ -284,10 +276,8 @@ object WrMetaScraper {
                             if (clean.length in 2..25 && !clean.contains("Tier", ignoreCase = true) && !clean.contains("Wild Rift", ignoreCase = true)) {
                                 val norm = normalizeName(clean)
                                 val imgUrl = extractImageUrl(elem)
-                                if (imgUrl.isNotBlank()) {
-                                    if (!championsMap.containsKey(norm) || (championsMap[norm]?.second?.contains("uploads/posts") != true && imgUrl.contains("uploads/posts"))) {
-                                        championsMap[norm] = Pair(clean, imgUrl)
-                                    }
+                                if (imgUrl.isNotBlank() && isFaceAvatarUrl(imgUrl)) {
+                                    championsMap[norm] = Pair(clean, imgUrl)
                                 }
                             }
                         }
@@ -297,17 +287,13 @@ object WrMetaScraper {
                 }
             }
 
-            // Asegurar que los 141 campeones canónicos estén presentes con sus URLs oficiales de wr-meta
+            // Los 141 campeones canónicos SIEMPRE usan sus rostros/avatares oficiales de Riot Games / Wild Rift (285x323)
             val canonicalList = WildRiftRepository.champions
             for (champ in canonicalList) {
                 val norm = normalizeName(champ.name)
-                if (!championsMap.containsKey(norm) || championsMap[norm]?.second.isNullOrBlank()) {
-                    var canonicalUrl = champ.avatarUrl
-                    if (canonicalUrl.isBlank() || !canonicalUrl.startsWith("http")) {
-                        val slug = sanitizeFileName(champ.name)
-                        canonicalUrl = "https://wr-meta.com/uploads/posts/2022-10/1665262235_${slug}_10_20_11zon.webp"
-                    }
-                    championsMap[norm] = Pair(champ.name, normalizeImageUrl(canonicalUrl))
+                val currentUrl = championsMap[norm]?.second
+                if (currentUrl.isNullOrBlank() || !isFaceAvatarUrl(currentUrl)) {
+                    championsMap[norm] = Pair(champ.name, champ.avatarUrl)
                 }
             }
 
@@ -337,7 +323,7 @@ object WrMetaScraper {
                             imgUrl.contains(".webp", ignoreCase = true) -> "webp"
                             imgUrl.contains(".png", ignoreCase = true) -> "png"
                             imgUrl.contains(".jpeg", ignoreCase = true) -> "jpeg"
-                            else -> "webp"
+                            else -> "jpg"
                         }
                         val fileName = "${sanitizeFileName(displayName)}.$ext"
                         var isSuccess = false
@@ -357,7 +343,7 @@ object WrMetaScraper {
                                         imageBytes = imgResponse.body?.bytes()
                                     }
                                 } catch (err: Exception) {
-                                    AppLogger.w(TAG, "Error al descargar avatar de $displayName ($imgUrl): ${err.message}")
+                                    AppLogger.w(TAG, "Error al descargar avatar rostro de $displayName ($imgUrl): ${err.message}")
                                 }
                             }
                         }
@@ -481,7 +467,7 @@ object WrMetaScraper {
                 urlsFilePath = urlsTxtPrimary.absolutePath
             )
 
-            AppLogger.d(TAG, "Descarga completada en teléfono: ${avatarRecords.size} avatares guardados en $primaryDir")
+            AppLogger.d(TAG, "Descarga de rostros de campeones completada en teléfono: ${avatarRecords.size} avatares guardados en $primaryDir")
             true
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error fatal en descarga de avatares: ${e.message}", e)
