@@ -12,7 +12,7 @@ service cloud.firestore {
         && (
              !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
              || request.resource.data.registeredDevices.size() <= 2
-             || request.auth.token.admin == true
+             || request.auth.token.admin == true || resource.data.role == 'admin'
         );
       allow delete: if false;
     }

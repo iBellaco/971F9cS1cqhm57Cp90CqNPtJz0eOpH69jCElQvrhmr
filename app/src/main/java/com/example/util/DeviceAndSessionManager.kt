@@ -140,9 +140,10 @@ object DeviceAndSessionManager {
 
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
-        val isAdmin = AuthManager.isCurrentUserAdmin()
 
         userRef.get().addOnSuccessListener { snapshot ->
+            val dbRole = snapshot.getString("role") ?: "free"
+            val isAdmin = dbRole == "admin" || AuthManager.isCurrentUserAdmin()
             val registeredDevices = (snapshot.get("registeredDevices") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
             val mutableDevices = registeredDevices.toMutableList()
 

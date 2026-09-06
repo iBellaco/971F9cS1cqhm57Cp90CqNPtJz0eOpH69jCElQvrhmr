@@ -1,1 +1,1 @@
-git commit -m "fix(auth): permite al admin saltar el límite de dispositivos en el login obteniendo los claims del token en tiempo real"
+git commit -a -m "fix(auth): permite al admin saltar el límite de dispositivos verificando el rol directamente desde su documento Firestore en caso de que no haya custom claims desplegadas"
