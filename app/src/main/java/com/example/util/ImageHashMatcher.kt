@@ -107,7 +107,7 @@ object ImageHashMatcher {
     ): MatchResult? {
         if (bitmap.width < 16 || bitmap.height < 16) return null
 
-        val cropInner = try { getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { bitmap }
+        val cropInner = try { getInnerCrop(bitmap, 0.82f) } catch (e: Exception) { bitmap }
         
         // 1. Extraer píxeles de 32x32 para el recorte actual
         val scaled = Bitmap.createScaledBitmap(cropInner, 32, 32, true)
@@ -209,19 +209,19 @@ object ImageHashMatcher {
 
                 // C) Puntuación compuesta (más peso estructural para resistir tintes oscuros de preselección)
                 var totalScore = if (isAlly) {
-                    (0.65f * structuralScore) + (0.35f * colorScore)
+                    (0.60f * structuralScore) + (0.40f * colorScore)
                 } else {
                     (0.55f * structuralScore) + (0.45f * colorScore)
                 }
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 
-                // Bonificación si coincide con el rol preferido
+                // Bonificación sutil por rol preferido (solo 0.015 para evitar falsos positivos)
                 if (preferredRole != null) {
                     if (champ.primaryRole == preferredRole) {
-                        totalScore += 0.05f
+                        totalScore += 0.015f
                     } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        totalScore += 0.03f
+                        totalScore += 0.008f
                     }
                 }
 
@@ -235,12 +235,11 @@ object ImageHashMatcher {
             return findBestMatchDetailed(bitmap, allChampions, maxDistance = 22, preferredRole = preferredRole)
         }
 
-        // Umbral adaptativo: en aliados permitimos campeones en preselección atenuados (>= 0.58),
-        // en enemigos requerimos extrema certeza (>= 0.78) para nunca confundir un casco espartano con Zed u otro campeón.
+        // Umbral adaptativo calibrado
         val requiredThreshold = if (isAlly) {
-            if (preferredRole != null) 0.54f else 0.58f
+            if (preferredRole != null) 0.52f else 0.55f
         } else {
-            0.78f
+            0.58f
         }
 
         if (maxScore >= requiredThreshold && bestChamp != null) {
@@ -270,14 +269,16 @@ object ImageHashMatcher {
             val g = Color.green(color)
             val b = Color.blue(color)
 
-            // Tonalidad roja-anaranjada intensa con poco azul (fuego de Smite)
-            if (r > 165 && g in 65..175 && b < 65 && (r - b) > 100) {
+            // Tonalidad roja-anaranjada-dorada llameante de Castigo (Smite)
+            val isFlame = (r > 155 && g in 50..185 && b < 80 && (r - b) > 80) ||
+                          (r > 190 && g in 100..210 && b < 85 && (r - b) > 90)
+            if (isFlame) {
                 smitePixelCount++
             }
         }
 
         val fraction = smitePixelCount.toFloat() / pixels.size.toFloat()
-        return fraction >= 0.045f // Mayor a 4.5% de píxeles ígneos
+        return fraction >= 0.035f // Mayor a 3.5% de píxeles ígneos de Castigo
     }
 
     // Fallback de comparación por aHash con umbral de tolerancia y prioridad por rol

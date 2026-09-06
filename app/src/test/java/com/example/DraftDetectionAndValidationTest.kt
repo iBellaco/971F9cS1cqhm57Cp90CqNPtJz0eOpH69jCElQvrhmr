@@ -6,6 +6,7 @@ import com.example.service.screen.ChampionNameResolver
 import com.example.service.screen.DraftValidationLayer
 import com.example.service.screen.ScannedSlotInfo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -213,5 +214,51 @@ class DraftDetectionAndValidationTest {
         assertEquals("varus", resolvedEnemies.assignments[LaneRole.ADC]?.id)
         // Olaf cubre el carril prioritario que le corresponde (TOP o JUNGLE)
         assertTrue(resolvedEnemies.assignments.containsKey(LaneRole.TOP) || resolvedEnemies.assignments.containsKey(LaneRole.JUNGLE))
+    }
+
+    @Test
+    fun testAssetLoadingAndVisualMatching() {
+        initChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        com.example.util.ChampionHashes.initFromAssets(context)
+        val signatures = com.example.util.ChampionHashes.getAllSignatures()
+        assertTrue("Debe cargar firmas desde assets", signatures.isNotEmpty())
+
+        val yoneBitmap = context.assets.open("champions/yone.png").use {
+            android.graphics.BitmapFactory.decodeStream(it)
+        }
+        assertNotNull(yoneBitmap)
+
+        val champs = WildRiftRepository.champions
+        val match = com.example.util.ImageHashMatcher.findBestVisualMatch(yoneBitmap, champs, isAlly = true)
+        assertNotNull("Debe encontrar coincidencia para Yone", match)
+        assertEquals("El asset de Yone debe coincidir con Yone", "yone", match?.champion?.id)
+
+        val matchJungle = com.example.util.ImageHashMatcher.findBestVisualMatch(yoneBitmap, champs, preferredRole = LaneRole.JUNGLE, isAlly = true)
+        assertNotNull("Debe encontrar coincidencia para Yone con preferredRole JUNGLE", matchJungle)
+        assertEquals("Aun con preferredRole JUNGLE debe seguir siendo Yone", "yone", matchJungle?.champion?.id)
+    }
+
+    @Test
+    fun testSmiteSpellDetectionAndRoleResolution() {
+        // Crear un bitmap sintético con colores de fuego / Smite (naranja/rojo/oro brillante)
+        val smiteBitmap = android.graphics.Bitmap.createBitmap(40, 40, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(smiteBitmap)
+        val paint = android.graphics.Paint()
+        paint.color = android.graphics.Color.rgb(240, 120, 20) // Naranja brillante
+        canvas.drawRect(0f, 0f, 40f, 40f, paint)
+
+        val isSmite = com.example.util.ImageHashMatcher.detectSmiteSpell(smiteBitmap)
+        assertTrue("El bitmap de prueba con colores de Castigo/Smite debe ser detectado", isSmite)
+
+        // Crear un bitmap de color neutro (gris/azul oscuro de fondo)
+        val nonSmiteBitmap = android.graphics.Bitmap.createBitmap(40, 40, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas2 = android.graphics.Canvas(nonSmiteBitmap)
+        val paint2 = android.graphics.Paint()
+        paint2.color = android.graphics.Color.rgb(30, 40, 60)
+        canvas2.drawRect(0f, 0f, 40f, 40f, paint2)
+
+        val isNotSmite = com.example.util.ImageHashMatcher.detectSmiteSpell(nonSmiteBitmap)
+        assertFalse("Un fondo azul/gris oscuro no debe ser detectado como Smite", isNotSmite)
     }
 }
