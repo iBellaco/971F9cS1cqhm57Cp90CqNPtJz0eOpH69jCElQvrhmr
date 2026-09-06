@@ -99,6 +99,7 @@ import com.example.ui.components.AdminFeedbackBottomSheet
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.LaneDisplaySettingCard
 import com.example.ui.components.WildRiftVersionBanner
+import com.example.ui.components.WrMetaScrapingCard
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
@@ -577,7 +578,11 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                
+                // Módulo de Scraping de wr-meta.com (141 campeones, 6 categorías)
+                WrMetaScrapingCard()
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 OfflineResourceDownloadCard()
                 Spacer(modifier = Modifier.height(16.dp))
 
