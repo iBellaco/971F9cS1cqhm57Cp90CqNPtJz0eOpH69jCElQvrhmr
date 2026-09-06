@@ -24,6 +24,15 @@ data class ChampionVisualSignature(
 object ChampionHashes {
     private const val TAG = "ChampionHashes"
     
+    // Máscara circular (radio 13.5 en matriz 32x32 con centro en 15.5, 15.5)
+    // Aísla el rostro del campeón y descarta esquinas cuadradas y bordes decorativos
+    val CIRCLE_MASK = BooleanArray(1024) { idx ->
+        val x = (idx % 32) - 15.5f
+        val y = (idx / 32) - 15.5f
+        (x * x + y * y) <= 182.25f
+    }
+    val CIRCLE_PIXEL_COUNT = CIRCLE_MASK.count { it }.toFloat()
+
     // Firmas visuales completas de los 141 campeones precargadas desde assets
     private val signatures = ConcurrentHashMap<String, ChampionVisualSignature>()
     private val dynamicMap = ConcurrentHashMap<String, Long>()
@@ -73,9 +82,9 @@ object ChampionHashes {
         }
     }
 
-    // Genera la firma visual a partir de un Bitmap (32x32 estructural + 64-bin color)
+    // Genera la firma visual a partir de un Bitmap (32x32 estructural con máscara circular + 64-bin color)
     fun createSignature(championId: String, bitmap: Bitmap): ChampionVisualSignature {
-        val innerCrop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.88f) } catch (e: Exception) { bitmap }
+        val innerCrop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.85f) } catch (e: Exception) { bitmap }
         val scaled = Bitmap.createScaledBitmap(innerCrop, 32, 32, true)
         val pixels = IntArray(1024)
         scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)
@@ -87,6 +96,7 @@ object ChampionHashes {
         var sumSaturation = 0f
         
         for (i in 0 until 1024) {
+            if (!CIRCLE_MASK[i]) continue
             val color = pixels[i]
             val r = Color.red(color)
             val g = Color.green(color)
@@ -112,22 +122,26 @@ object ChampionHashes {
             colorHist[binIndex] += 1f
         }
         
-        // Normalizar grays a media 0 y desviación estándar 1 para correlación cruzada normalizada (NCC)
-        val mean = sumGray / 1024f
+        // Normalizar grays sobre los píxeles interiores al círculo (media 0, varianza 1)
+        val mean = sumGray / CIRCLE_PIXEL_COUNT
         var sumVar = 0f
         for (i in 0 until 1024) {
-            val diff = grays[i] - mean
-            sumVar += diff * diff
+            if (CIRCLE_MASK[i]) {
+                val diff = grays[i] - mean
+                sumVar += diff * diff
+            }
         }
-        val stdDev = Math.sqrt((sumVar / 1024.0)).toFloat().coerceAtLeast(0.001f)
+        val stdDev = Math.sqrt((sumVar / CIRCLE_PIXEL_COUNT.toDouble())).toFloat().coerceAtLeast(0.001f)
         val normalizedGray = FloatArray(1024)
         for (i in 0 until 1024) {
-            normalizedGray[i] = (grays[i] - mean) / stdDev
+            if (CIRCLE_MASK[i]) {
+                normalizedGray[i] = (grays[i] - mean) / stdDev
+            }
         }
         
-        // Normalizar histograma de color (suma = 1.0)
+        // Normalizar histograma de color sobre los píxeles interiores al círculo (suma = 1.0)
         for (b in 0 until 64) {
-            colorHist[b] /= 1024f
+            colorHist[b] /= CIRCLE_PIXEL_COUNT
         }
         
         val aHash = ImageHashMatcher.calculateHash(innerCrop)
@@ -141,8 +155,8 @@ object ChampionHashes {
             championId = championId,
             normalizedGray = normalizedGray,
             colorHistogram = colorHist,
-            avgLuminance = sumLuminance / 1024f,
-            avgSaturation = sumSaturation / 1024f,
+            avgLuminance = sumLuminance / CIRCLE_PIXEL_COUNT,
+            avgSaturation = sumSaturation / CIRCLE_PIXEL_COUNT,
             aHash = aHash
         )
     }

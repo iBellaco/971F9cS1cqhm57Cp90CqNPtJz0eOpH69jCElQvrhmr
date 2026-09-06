@@ -112,10 +112,10 @@ object DraftVisionScanner {
 
                     // Determinar el índice de slot vertical (0..4) con precisión equidistante
                     val slotIndex = when {
-                        yRatio < 0.23f -> 0
-                        yRatio < 0.37f -> 1
-                        yRatio < 0.51f -> 2
-                        yRatio < 0.65f -> 3
+                        yRatio < 0.250f -> 0
+                        yRatio < 0.395f -> 1
+                        yRatio < 0.540f -> 2
+                        yRatio < 0.685f -> 3
                         else -> 4
                     }
 
@@ -200,25 +200,22 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 2: ANÁLISIS DE ICONOS DE LÍNEA Y HECHIZOS (SMITE) PARA EL EQUIPO ALIADO
         // -----------------------------------------------------------------------------------------
-        val avatarDiameter = (height * 0.118f).toInt().coerceAtLeast(32)
-        val allyAvatarCenterX = (width * 0.072f).toInt()
-        val enemyAvatarCenterX = (width * 0.928f).toInt()
+        val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
+        // El centro horizontal de los avatares aliados está anclado a la izquierda con respecto al alto de pantalla
+        val allyAvatarCenterX = (height * 0.131f).toInt().coerceAtLeast(16)
+        // El centro horizontal de los avatares enemigos está anclado al borde derecho
+        val enemyAvatarCenterX = (width - (height * 0.074f)).toInt().coerceIn(0, width)
 
         for (i in 0..4) {
             val slot = allySlots[i]
-            val yCenter = (height * (0.165f + (i * 0.140f))).toInt()
-
-            // Si el rol de este slot no se ha determinado aún:
-            if (slot.explicitRole == null && allySlotRolesCache[i] != null) {
-                slot.explicitRole = allySlotRolesCache[i]
-            }
+            val yCenter = (height * (0.178f + (i * 0.145f))).toInt()
 
             if (slot.explicitRole == null) {
-                // A) Detección de Hechizo Castigo (Smite) en el extremo izquierdo (X 0.005..0.040)
+                // A) Detección de Hechizo Castigo (Smite) en el extremo izquierdo
                 try {
-                    val spellW = (width * 0.035f).toInt().coerceAtLeast(16)
-                    val spellH = (height * 0.080f).toInt().coerceAtLeast(16)
-                    val spellX = (width * 0.005f).toInt().coerceIn(0, width - spellW)
+                    val spellW = (height * 0.065f).toInt().coerceAtLeast(16)
+                    val spellH = (height * 0.110f).toInt().coerceAtLeast(16)
+                    val spellX = (height * 0.010f).toInt().coerceIn(0, width - spellW)
                     val spellY = (yCenter - spellH / 2).coerceIn(0, height - spellH)
                     val spellCrop = Bitmap.createBitmap(bitmap, spellX, spellY, spellW, spellH)
                     if (ImageHashMatcher.detectSmiteSpell(spellCrop)) {
@@ -240,7 +237,7 @@ object DraftVisionScanner {
             // Si ya fue detectado por OCR, NO TOCAR (100% de certeza)
             if (slot.champion != null) continue
 
-            val yCenter = (height * (0.165f + (i * 0.140f))).toInt()
+            val yCenter = (height * (0.178f + (i * 0.145f))).toInt()
             val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
 
@@ -264,19 +261,13 @@ object DraftVisionScanner {
             }
         }
 
-        // 3.2 Enemigos (estricto: si no hay nombre en OCR y es unpicked/casco espartano, NO inventar campeón)
+        // 3.2 Enemigos (analizar avatares si no fueron detectados por OCR; cascos espartanos se descartan en findBestVisualMatch)
         for (i in 0..4) {
             val slot = enemySlots[i]
             // Si ya fue detectado por OCR (ej: Lulu, Varus, Olaf), NO TOCAR (100% de certeza)
             if (slot.champion != null) continue
 
-            // Si el slot solo decía "Jugador X" o estaba vacío, es un casco espartano: mantener en null
-            if (slot.isLikelyUnpicked) {
-                slot.champion = null
-                continue
-            }
-
-            val yCenter = (height * (0.165f + (i * 0.140f))).toInt()
+            val yCenter = (height * (0.178f + (i * 0.145f))).toInt()
             val startX = (enemyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
 
@@ -305,48 +296,10 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 4: RESOLUCIÓN Y ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
         // -----------------------------------------------------------------------------------------
-        // 4.1 Resolver roles en aliados combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados
-        val allRolesList = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
-        val assignedRoles = allySlots.mapNotNull { it.explicitRole }.toSet()
-        val missingRoles = allRolesList.filterNot { assignedRoles.contains(it) }.toMutableList()
-
-        val unassignedSlotsWithChamp = allySlots.filter { it.explicitRole == null && it.champion != null }
-        for (slot in unassignedSlotsWithChamp) {
-            val champ = slot.champion ?: continue
-            val preferredRole = when {
-                missingRoles.contains(champ.primaryRole) -> champ.primaryRole
-                champ.secondaryRoles.any { missingRoles.contains(it) } -> champ.secondaryRoles.first { missingRoles.contains(it) }
-                else -> null
-            }
-            if (preferredRole != null) {
-                slot.explicitRole = preferredRole
-                allySlotRolesCache[slot.slotIndex] = preferredRole
-                missingRoles.remove(preferredRole)
-                AppLogger.d(TAG, "Slot aliado ${slot.slotIndex} con ${champ.name} asignado por afinidad a ${preferredRole.shortName}")
-            }
-        }
-
-        // Asignación residual para cualquier slot aliado restante
-        for (slot in allySlots) {
-            if (slot.explicitRole == null && missingRoles.isNotEmpty()) {
-                val assigned = missingRoles.removeAt(0)
-                slot.explicitRole = assigned
-                allySlotRolesCache[slot.slotIndex] = assigned
-                AppLogger.d(TAG, "Slot aliado ${slot.slotIndex} asignado por descarte -> ${assigned.shortName}")
-            }
-        }
-
-        // -----------------------------------------------------------------------------------------
-        // PASO 4: ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
-        // -----------------------------------------------------------------------------------------
-        // 4.1 Aliados: Mapeo directo y autoritativo 1 a 1 por slot detectado
-        val alliesMap = mutableMapOf<LaneRole, Champion>()
-        for (slot in allySlots) {
-            val champ = slot.champion ?: continue
-            val role = slot.explicitRole ?: continue
-            alliesMap[role] = champ
-            slot.assignedRole = role
-        }
+        // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados
+        val validAllySlots = allySlots.filter { it.champion != null }
+        val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, auditList)
+        val alliesMap = allyResolved.assignments.toMutableMap()
 
         // 4.2 Enemigos: Asignación validada por roles primarios y secundarios de los picks seleccionados
         val validEnemySlots = enemySlots.filter { it.champion != null }

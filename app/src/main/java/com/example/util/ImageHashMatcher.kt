@@ -107,12 +107,15 @@ object ImageHashMatcher {
     ): MatchResult? {
         if (bitmap.width < 16 || bitmap.height < 16) return null
 
-        val cropInner = try { getInnerCrop(bitmap, 0.82f) } catch (e: Exception) { bitmap }
+        val cropInner = try { getInnerCrop(bitmap, 0.85f) } catch (e: Exception) { bitmap }
         
         // 1. Extraer píxeles de 32x32 para el recorte actual
         val scaled = Bitmap.createScaledBitmap(cropInner, 32, 32, true)
         val pixels = IntArray(1024)
         scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)
+
+        val mask = ChampionHashes.CIRCLE_MASK
+        val pixelCount = ChampionHashes.CIRCLE_PIXEL_COUNT
 
         var sumGray = 0f
         var sumLum = 0f
@@ -123,6 +126,7 @@ object ImageHashMatcher {
         val cropColorHist = FloatArray(64)
 
         for (i in 0 until 1024) {
+            if (!mask[i]) continue
             val color = pixels[i]
             val r = Color.red(color)
             val g = Color.green(color)
@@ -147,25 +151,29 @@ object ImageHashMatcher {
             cropColorHist[binIndex] += 1f
         }
 
-        val avgSaturation = sumSat / 1024f
-        val avgLuminance = sumLum / 1024f
+        val avgSaturation = sumSat / pixelCount
+        val avgLuminance = sumLum / pixelCount
 
-        // Normalizar histograma de color
+        // Normalizar histograma de color sobre píxeles del círculo
         for (b in 0 until 64) {
-            cropColorHist[b] /= 1024f
+            cropColorHist[b] /= pixelCount
         }
 
-        // Normalizar grays a media 0 y varianza 1 para NCC
-        val mean = sumGray / 1024f
+        // Normalizar grays a media 0 y varianza 1 para NCC sobre píxeles del círculo
+        val mean = sumGray / pixelCount
         var sumVar = 0f
         for (i in 0 until 1024) {
-            val diff = grays[i] - mean
-            sumVar += diff * diff
+            if (mask[i]) {
+                val diff = grays[i] - mean
+                sumVar += diff * diff
+            }
         }
-        val stdDev = Math.sqrt((sumVar / 1024.0)).toFloat().coerceAtLeast(0.001f)
+        val stdDev = Math.sqrt((sumVar / pixelCount.toDouble())).toFloat().coerceAtLeast(0.001f)
         val cropNormGray = FloatArray(1024)
         for (i in 0 until 1024) {
-            cropNormGray[i] = (grays[i] - mean) / stdDev
+            if (mask[i]) {
+                cropNormGray[i] = (grays[i] - mean) / stdDev
+            }
         }
 
         scaled.recycle()
@@ -178,8 +186,8 @@ object ImageHashMatcher {
         // En el equipo enemigo, si un slot no ha elegido, muestra el casco espartano metálico gris
         // sobre fondo rojo carmesí. Tiene muy baja varianza estructural central o saturación muy baja.
         if (!isAlly) {
-            val isSpartanHelmetOrEmpty = (avgSaturation < 0.15f && (avgLuminance < 85f || stdDev < 25f)) ||
-                    (stdDev < 18f) || (avgLuminance < 40f)
+            val isSpartanHelmetOrEmpty = (avgSaturation < 0.14f && (avgLuminance < 80f || stdDev < 22f)) ||
+                    (stdDev < 16f) || (avgLuminance < 35f)
             if (isSpartanHelmetOrEmpty) {
                 // El rival aún no ha seleccionado ningún campeón (casco espartano/vacío)
                 return null
@@ -193,35 +201,37 @@ object ImageHashMatcher {
 
         if (signatures.isNotEmpty()) {
             for (sig in signatures) {
-                // A) Correlación Cruzada Normalizada (NCC) estructural:
+                // A) Correlación Cruzada Normalizada (NCC) estructural sobre la máscara circular:
                 var dotProduct = 0f
                 for (i in 0 until 1024) {
-                    dotProduct += cropNormGray[i] * sig.normalizedGray[i]
+                    if (mask[i]) {
+                        dotProduct += cropNormGray[i] * sig.normalizedGray[i]
+                    }
                 }
-                val structuralScore = (dotProduct / 1024f).coerceIn(0f, 1f)
+                val structuralScore = (dotProduct / pixelCount).coerceIn(0f, 1f)
 
-                // B) Similitud cromática (Bhattacharyya / Cosine de histogramas de color):
+                // B) Similitud cromática (Bhattacharyya de histogramas de color):
                 var colorScore = 0f
                 for (b in 0 until 64) {
                     colorScore += Math.sqrt((cropColorHist[b] * sig.colorHistogram[b]).toDouble()).toFloat()
                 }
                 colorScore = colorScore.coerceIn(0f, 1f)
 
-                // C) Puntuación compuesta (más peso estructural para resistir tintes oscuros de preselección)
+                // C) Puntuación compuesta (estructural + cromática)
                 var totalScore = if (isAlly) {
-                    (0.60f * structuralScore) + (0.40f * colorScore)
-                } else {
                     (0.55f * structuralScore) + (0.45f * colorScore)
+                } else {
+                    (0.50f * structuralScore) + (0.50f * colorScore)
                 }
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 
-                // Bonificación sutil por rol preferido (solo 0.015 para evitar falsos positivos)
+                // Bonificación sutil por rol preferido (solo 0.012 para resolver empates sin distorsionar)
                 if (preferredRole != null) {
                     if (champ.primaryRole == preferredRole) {
-                        totalScore += 0.015f
+                        totalScore += 0.012f
                     } else if (champ.secondaryRoles.contains(preferredRole)) {
-                        totalScore += 0.008f
+                        totalScore += 0.006f
                     }
                 }
 
@@ -237,9 +247,9 @@ object ImageHashMatcher {
 
         // Umbral adaptativo calibrado
         val requiredThreshold = if (isAlly) {
-            if (preferredRole != null) 0.52f else 0.55f
+            if (preferredRole != null) 0.50f else 0.52f
         } else {
-            0.58f
+            0.54f
         }
 
         if (maxScore >= requiredThreshold && bestChamp != null) {

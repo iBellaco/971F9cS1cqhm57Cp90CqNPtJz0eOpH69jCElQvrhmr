@@ -228,11 +228,6 @@ object ChampionNameResolver {
             if (insideChamp != null) return insideChamp
         }
 
-        // Si la línea es claramente un nombre de invocador (ej: "XCS Lucianito", "martincho137", "Gaby11anos") y no contiene campeón explícito, descartar
-        if (DraftValidationLayer.isLikelySummonerName(trimmed) && parenthesisMatch == null) {
-            return null
-        }
-
         val clean = normalize(trimmed)
         if (clean.isBlank()) return null
         if (UI_IGNORE_WORDS.contains(clean)) return null
@@ -260,7 +255,7 @@ object ChampionNameResolver {
             }
         }
 
-        // 3. Coincidencia por palabra contenida (únicamente si el token es válido y no un diminutivo)
+        // 3. Coincidencia por palabra contenida (ej: "WUKONG XCS Alee22" -> detecta "WUKONG")
         val words = clean.split(" ").filter { it.length >= 3 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
@@ -278,6 +273,11 @@ object ChampionNameResolver {
                     }
                 }
             }
+        }
+
+        // 4. Si la línea no contiene ningún campeón pero es claramente un apodo de invocador, descartar
+        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
+            return null
         }
 
         // 4. Coincidencia difusa estricta (Levenshtein distance <= 1) para corregir errores OCR menores en nombres aislados

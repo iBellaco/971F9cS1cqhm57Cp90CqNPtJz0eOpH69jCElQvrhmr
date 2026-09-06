@@ -261,4 +261,44 @@ class DraftDetectionAndValidationTest {
         val isNotSmite = com.example.util.ImageHashMatcher.detectSmiteSpell(nonSmiteBitmap)
         assertFalse("Un fondo azul/gris oscuro no debe ser detectado como Smite", isNotSmite)
     }
+
+    @Test
+    fun testChampionNameWithSummonerNameExtraction() {
+        initChamps()
+        val champs = WildRiftRepository.champions
+
+        // Casos reales donde el OCR detecta el nombre del campeón junto al nombre de invocador
+        val wukong = ChampionNameResolver.findChampionInText("WUKONG XCS Alee22", champs)
+        assertNotNull("Debe extraer a Wukong incluso si está acompañado del nombre de invocador con clan", wukong)
+        assertEquals("wukong", wukong?.id)
+
+        val galio = ChampionNameResolver.findChampionInText("GALIO XCS Elchicho7", champs)
+        assertNotNull("Debe extraer a Galio incluso si está acompañado del nombre de invocador con números", galio)
+        assertEquals("galio", galio?.id)
+
+        val veigar = ChampionNameResolver.findChampionInText("VEIGAR Gustavo GG", champs)
+        assertNotNull("Debe extraer a Veigar incluso con nombre de invocador con espacios", veigar)
+        assertEquals("veigar", veigar?.id)
+
+        // Casos donde solo es un nombre de invocador y NO hay campeón: debe descartarse
+        val summonerOnly = ChampionNameResolver.findChampionInText("XCS Alee22", champs)
+        assertNull("Un invocador aislado sin campeón no debe confundirse", summonerOnly)
+
+        val diego = ChampionNameResolver.findChampionInText("D I E G O", champs)
+        assertNull("El apodo Diego no debe confundirse con ningún campeón", diego)
+    }
+
+    @Test
+    fun testCircularMaskProperties() {
+        // Verificar que la máscara circular tiene aproximadamente ~570-580 píxeles activos de 1024
+        val maskCount = com.example.util.ChampionHashes.CIRCLE_MASK.count { it }
+        assertTrue("La máscara circular debe tener entre 550 y 600 píxeles", maskCount in 550..600)
+        // Las 4 esquinas deben estar desactivadas (máscara false)
+        assertFalse("Esquina superior izquierda debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[0])
+        assertFalse("Esquina superior derecha debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[31])
+        assertFalse("Esquina inferior izquierda debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[32 * 31])
+        assertFalse("Esquina inferior derecha debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[1023])
+        // El centro (15, 15) o (16, 16) debe estar activo
+        assertTrue("El centro debe estar activo", com.example.util.ChampionHashes.CIRCLE_MASK[16 * 32 + 16])
+    }
 }
