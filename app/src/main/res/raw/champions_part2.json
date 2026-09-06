@@ -4,7 +4,7 @@
     "name": "Nami",
     "title": "La Invocadora de Mareas",
     "ddragonId": "Nami",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nami.png",
+    "avatarUrl": "file:///android_asset/champions/nami.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "D",
@@ -132,7 +132,7 @@
     "name": "Nasus",
     "title": "El Guardián de las Arenas",
     "ddragonId": "Nasus",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nasus.png",
+    "avatarUrl": "file:///android_asset/champions/nasus.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "C",
@@ -264,7 +264,7 @@
     "name": "Nautilus",
     "title": "El Titán Abisal",
     "ddragonId": "Nautilus",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nautilus.png",
+    "avatarUrl": "file:///android_asset/champions/nautilus.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "TOP",
@@ -432,7 +432,7 @@
     "name": "Nidalee",
     "title": "La Cazadora Bestial",
     "ddragonId": "Nidalee",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nidalee.png",
+    "avatarUrl": "file:///android_asset/champions/nidalee.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "D",
@@ -562,7 +562,7 @@
     "name": "Nilah",
     "title": "la Alegría Desatada",
     "ddragonId": "Nilah",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nilah.png",
+    "avatarUrl": "file:///android_asset/champions/nilah.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "S+",
@@ -692,7 +692,7 @@
     "name": "Nocturne",
     "title": "La Pesadilla Eterna",
     "ddragonId": "Nocturne",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nocturne.png",
+    "avatarUrl": "file:///android_asset/champions/nocturne.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "C",
@@ -822,7 +822,7 @@
     "name": "Norra",
     "title": "la Maestra de los Portales",
     "ddragonId": "norra",
-    "avatarUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a1ba2f0d1178b81cf869741e94e9453ffd3e69f-285x323.jpg?accountingTag=WR",
+    "avatarUrl": "file:///android_asset/champions/norra.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT"
@@ -983,7 +983,7 @@
     "name": "Nunu y Willump",
     "title": "Un Niño y su Yeti",
     "ddragonId": "Nunu",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Nunu.png",
+    "avatarUrl": "file:///android_asset/champions/nunu_willump.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "A",
@@ -1111,7 +1111,7 @@
     "name": "Olaf",
     "title": "El Berserker",
     "ddragonId": "Olaf",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Olaf.png",
+    "avatarUrl": "file:///android_asset/champions/olaf.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -1243,7 +1243,7 @@
     "name": "Orianna",
     "title": "La Dama Mecánica",
     "ddragonId": "Orianna",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Orianna.png",
+    "avatarUrl": "file:///android_asset/champions/orianna.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "C",
@@ -1373,7 +1373,7 @@
     "name": "Ornn",
     "title": "Las Llamas de la Forja",
     "ddragonId": "Ornn",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ornn.png",
+    "avatarUrl": "file:///android_asset/champions/ornn.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "C",
@@ -1505,7 +1505,7 @@
     "name": "Pantheon",
     "title": "la Lanza Inquebrantable",
     "ddragonId": "Pantheon",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pantheon.png",
+    "avatarUrl": "file:///android_asset/champions/pantheon.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "MID",
@@ -1642,7 +1642,7 @@
     "name": "Poppy",
     "title": "La Guardiana del Martillo",
     "ddragonId": "Poppy",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Poppy.png",
+    "avatarUrl": "file:///android_asset/champions/poppy.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE",
@@ -1810,7 +1810,7 @@
     "name": "Pyke",
     "title": "el Destripador de los Puertos",
     "ddragonId": "Pyke",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Pyke.png",
+    "avatarUrl": "file:///android_asset/champions/pyke.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "MID"
@@ -1940,7 +1940,7 @@
     "name": "Rakan",
     "title": "El Encantador",
     "ddragonId": "Rakan",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rakan.png",
+    "avatarUrl": "file:///android_asset/champions/rakan.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "D",
@@ -2101,7 +2101,7 @@
     "name": "Rammus",
     "title": "El Armadurillo",
     "ddragonId": "Rammus",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rammus.png",
+    "avatarUrl": "file:///android_asset/champions/rammus.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "D",
@@ -2229,7 +2229,7 @@
     "name": "Rell",
     "title": "la Dama de Hierro",
     "ddragonId": "Rell",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rell.png",
+    "avatarUrl": "file:///android_asset/champions/rell.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "JUNGLE"
@@ -2361,7 +2361,7 @@
     "name": "Renekton",
     "title": "El Carnicero de las Arenas",
     "ddragonId": "Renekton",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Renekton.png",
+    "avatarUrl": "file:///android_asset/champions/renekton.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "C",
@@ -2491,7 +2491,7 @@
     "name": "Rengar",
     "title": "El Acechador Orgulloso",
     "ddragonId": "Rengar",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rengar.png",
+    "avatarUrl": "file:///android_asset/champions/rengar.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "TOP"
@@ -2623,7 +2623,7 @@
     "name": "Riven",
     "title": "La Exiliada",
     "ddragonId": "Riven",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Riven.png",
+    "avatarUrl": "file:///android_asset/champions/riven.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "D",
@@ -2786,7 +2786,7 @@
     "name": "Rumble",
     "title": "La Amenaza Mecánica",
     "ddragonId": "Rumble",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Rumble.png",
+    "avatarUrl": "file:///android_asset/champions/rumble.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "MID",
@@ -2954,7 +2954,7 @@
     "name": "Ryze",
     "title": "El Hechicero Rúnico",
     "ddragonId": "Ryze",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ryze.png",
+    "avatarUrl": "file:///android_asset/champions/ryze.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "TOP"
@@ -3084,7 +3084,7 @@
     "name": "Samira",
     "title": "la Rosa del Desierto",
     "ddragonId": "Samira",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Samira.png",
+    "avatarUrl": "file:///android_asset/champions/samira.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "S",
@@ -3216,7 +3216,7 @@
     "name": "Senna",
     "title": "la Redentora",
     "ddragonId": "Senna",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Senna.png",
+    "avatarUrl": "file:///android_asset/champions/senna.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "SUPPORT"
@@ -3348,7 +3348,7 @@
     "name": "Seraphine",
     "title": "la Cantante Soñadora",
     "ddragonId": "Seraphine",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Seraphine.png",
+    "avatarUrl": "file:///android_asset/champions/seraphine.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "MID",
@@ -3512,7 +3512,7 @@
     "name": "Sett",
     "title": "el Jefe",
     "ddragonId": "Sett",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sett.png",
+    "avatarUrl": "file:///android_asset/champions/sett.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "SUPPORT"
@@ -3644,7 +3644,7 @@
     "name": "Shen",
     "title": "El Ojo del Crepúsculo",
     "ddragonId": "Shen",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shen.png",
+    "avatarUrl": "file:///android_asset/champions/shen.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "SUPPORT"
@@ -3776,7 +3776,7 @@
     "name": "Shyvana",
     "title": "La Medio Dragón",
     "ddragonId": "Shyvana",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Shyvana.png",
+    "avatarUrl": "file:///android_asset/champions/shyvana.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "A",
@@ -3906,7 +3906,7 @@
     "name": "Singed",
     "title": "El Químico Loco",
     "ddragonId": "Singed",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Singed.png",
+    "avatarUrl": "file:///android_asset/champions/singed.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "A+",
@@ -4036,7 +4036,7 @@
     "name": "Sion",
     "title": "El Coloso no Muerto",
     "ddragonId": "Sion",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sion.png",
+    "avatarUrl": "file:///android_asset/champions/sion.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "B",
@@ -4169,7 +4169,7 @@
     "name": "Sivir",
     "title": "La Señora de la Batalla",
     "ddragonId": "Sivir",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sivir.png",
+    "avatarUrl": "file:///android_asset/champions/sivir.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "B",
@@ -4297,7 +4297,7 @@
     "name": "Skarner",
     "title": "el Soberano Primigenio",
     "ddragonId": "Skarner",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Skarner.png",
+    "avatarUrl": "file:///android_asset/champions/skarner.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "TOP"
@@ -4462,7 +4462,7 @@
     "name": "Smolder",
     "title": "el Heredero de las Llamas",
     "ddragonId": "Smolder",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Smolder.png",
+    "avatarUrl": "file:///android_asset/champions/smolder.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "MID"
@@ -4587,7 +4587,7 @@
     "name": "Sona",
     "title": "La Virtuosa de las Cuerdas",
     "ddragonId": "Sona",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Sona.png",
+    "avatarUrl": "file:///android_asset/champions/sona.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "D",
@@ -4715,7 +4715,7 @@
     "name": "Soraka",
     "title": "La Hija de las Estrellas",
     "ddragonId": "Soraka",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Soraka.png",
+    "avatarUrl": "file:///android_asset/champions/soraka.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "D",
@@ -4843,7 +4843,7 @@
     "name": "Swain",
     "title": "el Gran General de Noxus",
     "ddragonId": "Swain",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Swain.png",
+    "avatarUrl": "file:///android_asset/champions/swain.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT",
@@ -4976,7 +4976,7 @@
     "name": "Syndra",
     "title": "La Soberana Oscura",
     "ddragonId": "Syndra",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Syndra.png",
+    "avatarUrl": "file:///android_asset/champions/syndra.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "D",
@@ -5107,7 +5107,7 @@
     "name": "Taliyah",
     "title": "La Tejedora de Piedra",
     "ddragonId": "Taliyah",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Taliyah.png",
+    "avatarUrl": "file:///android_asset/champions/taliyah.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "MID"
@@ -5268,7 +5268,7 @@
     "name": "Talon",
     "title": "La Sombra de la Espada",
     "ddragonId": "Talon",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Talon.png",
+    "avatarUrl": "file:///android_asset/champions/talon.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "MID"
@@ -5435,7 +5435,7 @@
     "name": "Teemo",
     "title": "El Explorador Veloz",
     "ddragonId": "Teemo",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Teemo.png",
+    "avatarUrl": "file:///android_asset/champions/teemo.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "MID"
@@ -5565,7 +5565,7 @@
     "name": "Thresh",
     "title": "El Carcelero Implacable",
     "ddragonId": "Thresh",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Thresh.png",
+    "avatarUrl": "file:///android_asset/champions/thresh.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "S",
@@ -5695,7 +5695,7 @@
     "name": "Tristana",
     "title": "La Artillera Yordle",
     "ddragonId": "Tristana",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tristana.png",
+    "avatarUrl": "file:///android_asset/champions/tristana.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "MID"
@@ -5828,7 +5828,7 @@
     "name": "Tryndamere",
     "title": "El Rey Bárbaro",
     "ddragonId": "Tryndamere",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Tryndamere.png",
+    "avatarUrl": "file:///android_asset/champions/tryndamere.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -5960,7 +5960,7 @@
     "name": "Twisted Fate",
     "title": "El Maestro de las Cartas",
     "ddragonId": "TwistedFate",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/TwistedFate.png",
+    "avatarUrl": "file:///android_asset/champions/twisted_fate.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "S+",
@@ -6088,7 +6088,7 @@
     "name": "Twitch",
     "title": "La Rata Apestada",
     "ddragonId": "Twitch",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Twitch.png",
+    "avatarUrl": "file:///android_asset/champions/twitch.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "JUNGLE"
@@ -6218,7 +6218,7 @@
     "name": "Urgot",
     "title": "la Pesadilla Mecánica",
     "ddragonId": "Urgot",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Urgot.png",
+    "avatarUrl": "file:///android_asset/champions/urgot.png",
     "primaryRole": "TOP",
     "secondaryRoles": [],
     "tier": "C",
@@ -6348,7 +6348,7 @@
     "name": "Varus",
     "title": "La Flecha del Castigo",
     "ddragonId": "Varus",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Varus.png",
+    "avatarUrl": "file:///android_asset/champions/varus.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "MID"
@@ -6547,7 +6547,7 @@
     "name": "Vayne",
     "title": "La Cazadora Noctívaga",
     "ddragonId": "Vayne",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vayne.png",
+    "avatarUrl": "file:///android_asset/champions/vayne.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "TOP"
@@ -6677,7 +6677,7 @@
     "name": "Veigar",
     "title": "El Pequeño Maestro del Mal",
     "ddragonId": "Veigar",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Veigar.png",
+    "avatarUrl": "file:///android_asset/champions/veigar.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "ADC"
@@ -6809,7 +6809,7 @@
     "name": "Vel'Koz",
     "title": "El Ojo del Vacío",
     "ddragonId": "Velkoz",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Velkoz.png",
+    "avatarUrl": "file:///android_asset/champions/vel_koz.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "SUPPORT"
@@ -6939,7 +6939,7 @@
     "name": "Vex",
     "title": "la Lúgubre",
     "ddragonId": "Vex",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vex.png",
+    "avatarUrl": "file:///android_asset/champions/vex.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "D",
@@ -7069,7 +7069,7 @@
     "name": "Vi",
     "title": "La Agente de Piltover",
     "ddragonId": "Vi",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vi.png",
+    "avatarUrl": "file:///android_asset/champions/vi.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [],
     "tier": "B",
@@ -7234,7 +7234,7 @@
     "name": "Viego",
     "title": "el Rey Arruinado",
     "ddragonId": "Viego",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viego.png",
+    "avatarUrl": "file:///android_asset/champions/viego.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "MID"
@@ -7374,7 +7374,7 @@
     "name": "Viktor",
     "title": "El Heraldo de las Máquinas",
     "ddragonId": "Viktor",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Viktor.png",
+    "avatarUrl": "file:///android_asset/champions/viktor.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "C",
@@ -7502,7 +7502,7 @@
     "name": "Vladimir",
     "title": "El Segador Carmesí",
     "ddragonId": "Vladimir",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Vladimir.png",
+    "avatarUrl": "file:///android_asset/champions/vladimir.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "TOP"
@@ -7632,7 +7632,7 @@
     "name": "Volibear",
     "title": "la Tormenta Incesante",
     "ddragonId": "Volibear",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Volibear.png",
+    "avatarUrl": "file:///android_asset/champions/volibear.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -7866,7 +7866,7 @@
     "name": "Warwick",
     "title": "la Ira Descontrolada de Zaun",
     "ddragonId": "Warwick",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Warwick.png",
+    "avatarUrl": "file:///android_asset/champions/warwick.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -7996,7 +7996,7 @@
     "name": "Wukong",
     "title": "El Rey Mono",
     "ddragonId": "MonkeyKing",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/MonkeyKing.png",
+    "avatarUrl": "file:///android_asset/champions/wukong.png",
     "primaryRole": "TOP",
     "secondaryRoles": [
       "JUNGLE"
@@ -8233,7 +8233,7 @@
     "name": "Xayah",
     "title": "La Rebelde",
     "ddragonId": "Xayah",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Xayah.png",
+    "avatarUrl": "file:///android_asset/champions/xayah.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "B",
@@ -8361,7 +8361,7 @@
     "name": "Xin Zhao",
     "title": "El Senescal de Demacia",
     "ddragonId": "XinZhao",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/XinZhao.png",
+    "avatarUrl": "file:///android_asset/champions/xin_zhao.png",
     "primaryRole": "JUNGLE",
     "secondaryRoles": [
       "TOP"
@@ -8493,7 +8493,7 @@
     "name": "Yasuo",
     "title": "La Espada sin Honor",
     "ddragonId": "Yasuo",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yasuo.png",
+    "avatarUrl": "file:///android_asset/champions/yasuo.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "TOP",
@@ -8626,7 +8626,7 @@
     "name": "Yone",
     "title": "el Imperecedero",
     "ddragonId": "Yone",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yone.png",
+    "avatarUrl": "file:///android_asset/champions/yone.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "TOP"
@@ -8766,7 +8766,7 @@
     "name": "Yunara",
     "title": "la Tejedora de Penumbra",
     "ddragonId": "yunara",
-    "avatarUrl": "https://wr-meta.com/uploads/posts/2025-07/1751894236_yunara-lol-splash-art-8k-wallpaper-uhdpaper_com-4341225g.webp",
+    "avatarUrl": "file:///android_asset/champions/yunara.png",
     "primaryRole": "ADC",
     "secondaryRoles": [
       "MID"
@@ -8896,7 +8896,7 @@
     "name": "Yuumi",
     "title": "la Gata Mágica",
     "ddragonId": "Yuumi",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Yuumi.png",
+    "avatarUrl": "file:///android_asset/champions/yuumi.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [],
     "tier": "B",
@@ -9027,7 +9027,7 @@
     "name": "Zed",
     "title": "El Maestro de las Sombras",
     "ddragonId": "Zed",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zed.png",
+    "avatarUrl": "file:///android_asset/champions/zed.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "JUNGLE"
@@ -9204,7 +9204,7 @@
     "name": "Zeri",
     "title": "La Chispa de Zaun",
     "ddragonId": "Zeri",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zeri.png",
+    "avatarUrl": "file:///android_asset/champions/zeri.png",
     "primaryRole": "ADC",
     "secondaryRoles": [],
     "tier": "C",
@@ -9335,7 +9335,7 @@
     "name": "Ziggs",
     "title": "El Experto en Hexplosivos",
     "ddragonId": "Ziggs",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Ziggs.png",
+    "avatarUrl": "file:///android_asset/champions/ziggs.png",
     "primaryRole": "MID",
     "secondaryRoles": [
       "ADC"
@@ -9465,7 +9465,7 @@
     "name": "Zilean",
     "title": "El Guardián del Tiempo",
     "ddragonId": "Zilean",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zilean.png",
+    "avatarUrl": "file:///android_asset/champions/zilean.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "MID"
@@ -9595,7 +9595,7 @@
     "name": "Zoe",
     "title": "el Aspecto del Crepúsculo",
     "ddragonId": "Zoe",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zoe.png",
+    "avatarUrl": "file:///android_asset/champions/zoe.png",
     "primaryRole": "MID",
     "secondaryRoles": [],
     "tier": "D",
@@ -9725,7 +9725,7 @@
     "name": "Zyra",
     "title": "La Dama de Espinas",
     "ddragonId": "Zyra",
-    "avatarUrl": "https://ddragon.leagueoflegends.com/cdn/14.16.1/img/champion/Zyra.png",
+    "avatarUrl": "file:///android_asset/champions/zyra.png",
     "primaryRole": "SUPPORT",
     "secondaryRoles": [
       "MID",

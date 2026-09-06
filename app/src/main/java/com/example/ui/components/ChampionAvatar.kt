@@ -73,20 +73,32 @@ fun ChampionAvatar(
                 )
             }
 
-            if (champion.avatarUrl.isNotBlank()) {
+            val modelData: Any = if (champion.avatarUrl.isNotBlank()) {
                 val parsedUrl = champion.avatarUrl.trim()
-                val modelData: Any = if (parsedUrl.startsWith("file://")) {
-                    java.io.File(parsedUrl.removePrefix("file://"))
-                } else {
-                    parsedUrl
+                when {
+                    parsedUrl.startsWith("file:///android_asset/") -> android.net.Uri.parse(parsedUrl)
+                    parsedUrl.startsWith("file://") -> java.io.File(parsedUrl.removePrefix("file://"))
+                    parsedUrl.startsWith("http://") || parsedUrl.startsWith("https://") -> {
+                        if (champion.id.isNotBlank()) {
+                            android.net.Uri.parse("file:///android_asset/champions/${champion.id}.png")
+                        } else {
+                            parsedUrl
+                        }
+                    }
+                    else -> parsedUrl
                 }
-                
+            } else if (champion.id.isNotBlank()) {
+                android.net.Uri.parse("file:///android_asset/champions/${champion.id}.png")
+            } else {
+                ""
+            }
+            
+            if (modelData != "") {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(modelData)
-.crossfade(true)
-.placeholder(com.example.R.drawable.ic_placeholder_loading)
-                        
+                        .crossfade(true)
+                        .placeholder(com.example.R.drawable.ic_placeholder_loading)
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .listener(
@@ -145,12 +157,11 @@ fun AppAssetImage(
     val context = LocalContext.current
     val parsedUrl = url.trim()
     
-    val modelData: Any? = if (parsedUrl.startsWith("file://")) {
-        java.io.File(parsedUrl.removePrefix("file://"))
-    } else if (parsedUrl.isNotBlank()) {
-        parsedUrl
-    } else {
-        null
+    val modelData: Any? = when {
+        parsedUrl.startsWith("file:///android_asset/") -> android.net.Uri.parse(parsedUrl)
+        parsedUrl.startsWith("file://") -> java.io.File(parsedUrl.removePrefix("file://"))
+        parsedUrl.isNotBlank() -> parsedUrl
+        else -> null
     }
 
     Box(

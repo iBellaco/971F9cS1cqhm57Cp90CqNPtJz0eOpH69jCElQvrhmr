@@ -201,12 +201,18 @@ object WildRiftRepository {
             val format = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
             val parsed1 = context.resources.openRawResource(com.example.R.raw.champions_part1).bufferedReader().use { reader ->
                 format.decodeFromString<List<Champion>>(reader.readText()).map {
-                    if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                    val updated = if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                    if (updated.avatarUrl.isBlank() || updated.avatarUrl.startsWith("http")) {
+                        updated.copy(avatarUrl = "file:///android_asset/champions/${updated.id}.png")
+                    } else updated
                 }
             }
             val parsed2 = context.resources.openRawResource(com.example.R.raw.champions_part2).bufferedReader().use { reader ->
                 format.decodeFromString<List<Champion>>(reader.readText()).map {
-                    if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                    val updated = if (it.winrateDelta == 0.0) it.copy(winrateDelta = (Math.random() * 3.0) - 1.5) else it
+                    if (updated.avatarUrl.isBlank() || updated.avatarUrl.startsWith("http")) {
+                        updated.copy(avatarUrl = "file:///android_asset/champions/${updated.id}.png")
+                    } else updated
                 }
             }
             champions.clear()

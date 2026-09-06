@@ -119,7 +119,9 @@ data class Champion(
     val wildRiftCoreUrl: String = "https://wildriftcore.com/es/",
     val bestBuildWrUrl: String = "https://bestbuildwr.com/"
     , val builds: List<ChampionBuild> = emptyList()
-)
+) {
+    fun getLocalAvatarUri(): String = "file:///android_asset/champions/$id.png"
+}
 
 @Serializable
 data class WildRiftItem(

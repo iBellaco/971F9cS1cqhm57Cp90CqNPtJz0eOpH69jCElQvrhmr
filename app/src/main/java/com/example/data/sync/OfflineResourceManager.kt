@@ -71,11 +71,12 @@ object OfflineResourceManager {
     fun initUrls(context: Context? = null) {
         val urls = mutableSetOf<String>()
         
-        // 1. Champions avatars & ability icons
+        // 1. Champions skills (Los 141 avatares de campeones están integrados localmente en la app)
         WildRiftRepository.champions.forEach { champ ->
-            if (champ.avatarUrl.isNotBlank()) urls.add(champ.avatarUrl.trim())
             champ.skills.forEach { skill ->
-                if (skill.iconUrl.isNotBlank()) urls.add(skill.iconUrl.trim())
+                if (skill.iconUrl.isNotBlank() && !skill.iconUrl.startsWith("file://")) {
+                    urls.add(skill.iconUrl.trim())
+                }
             }
         }
         

@@ -136,7 +136,7 @@ object ImageHashMatcher {
         var minDistance = maxDistance
         
         allChampions.forEach { champ ->
-            val hashes = ChampionHashes.map.filter { it.key == champ.id || it.key.startsWith("${champ.id}_") }.values
+            val hashes = ChampionHashes.getHashesForChampion(champ.id)
             for (champHash in hashes) {
                 var dist = hammingDistance(targetHash, champHash)
                 

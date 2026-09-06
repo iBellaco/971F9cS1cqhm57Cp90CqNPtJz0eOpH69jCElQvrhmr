@@ -97,13 +97,10 @@ object ImagePrefetcher {
             data class PrefetchItem(val name: String, val category: String, val url: String)
             val itemsToPrefetch = mutableListOf<PrefetchItem>()
             
-            // Collect Champion and Skill images
+            // Collect Skill images (Los 141 avatares de campeones ya están integrados en assets locales)
             WildRiftRepository.champions.forEach { champ ->
-                if (champ.avatarUrl.isNotBlank()) {
-                    itemsToPrefetch.add(PrefetchItem(champ.name, "Campeón", champ.avatarUrl))
-                }
                 champ.skills.forEach { skill ->
-                    if (skill.iconUrl.isNotBlank()) {
+                    if (skill.iconUrl.isNotBlank() && !skill.iconUrl.startsWith("file://")) {
                         itemsToPrefetch.add(PrefetchItem("${champ.name} (${skill.name})", "Habilidad", skill.iconUrl))
                     }
                 }

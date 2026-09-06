@@ -1,6 +1,62 @@
 package com.example.util
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import java.util.concurrent.ConcurrentHashMap
+
 object ChampionHashes {
+    private val dynamicMap = ConcurrentHashMap<String, Long>()
+
+    fun initFromAssets(context: Context) {
+        if (dynamicMap.isNotEmpty()) return
+        try {
+            val assetManager = context.assets
+            val list = assetManager.list("champions") ?: emptyArray()
+            for (filename in list) {
+                if (filename.endsWith(".png")) {
+                    val championId = filename.removeSuffix(".png")
+                    try {
+                        assetManager.open("champions/$filename").use { stream ->
+                            val bitmap = BitmapFactory.decodeStream(stream)
+                            if (bitmap != null) {
+                                val fullHash = ImageHashMatcher.calculateHash(bitmap)
+                                dynamicMap[championId] = fullHash
+                                
+                                val crop = try { ImageHashMatcher.getInnerCrop(bitmap) } catch (e: Exception) { null }
+                                if (crop != null && crop != bitmap) {
+                                    val cropHash = ImageHashMatcher.calculateHash(crop)
+                                    dynamicMap["${championId}_crop"] = cropHash
+                                    crop.recycle()
+                                }
+                                bitmap.recycle()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        AppLogger.w("ChampionHashes", "Failed to load asset for $championId: ${e.message}")
+                    }
+                }
+            }
+            AppLogger.d("ChampionHashes", "Loaded ${dynamicMap.size} dynamic hashes from local assets")
+        } catch (e: Exception) {
+            AppLogger.e("ChampionHashes", "Error loading asset hashes", e)
+        }
+    }
+
+    fun getHashesForChampion(championId: String): List<Long> {
+        val list = mutableListOf<Long>()
+        dynamicMap[championId]?.let { list.add(it) }
+        dynamicMap["${championId}_crop"]?.let { list.add(it) }
+
+        // Also check static fallback map
+        map[championId]?.let { if (!list.contains(it)) list.add(it) }
+        map["${championId}_crop"]?.let { if (!list.contains(it)) list.add(it) }
+        map["${championId}_alt1"]?.let { if (!list.contains(it)) list.add(it) }
+        map["${championId}_alt2"]?.let { if (!list.contains(it)) list.add(it) }
+        map["${championId}_alt3"]?.let { if (!list.contains(it)) list.add(it) }
+
+        return list
+    }
+
     val map = mapOf<String, Long>(
         "aatrox" to 16904193607940991L,
         "ahri" to 7033847026762172658L,

@@ -112,7 +112,15 @@ object WildRiftLocalCache {
                 try {
                     val loadedChamps = json.decodeFromString<List<Champion>>(championsJson)
                     if (loadedChamps.isNotEmpty()) {
-                        WildRiftRepository.champions.clear(); WildRiftRepository.champions.addAll(loadedChamps)
+                        val normalizedChamps = loadedChamps.map { champ ->
+                            if (champ.avatarUrl.isBlank() || champ.avatarUrl.startsWith("http")) {
+                                champ.copy(avatarUrl = "file:///android_asset/champions/${champ.id}.png")
+                            } else {
+                                champ
+                            }
+                        }
+                        WildRiftRepository.champions.clear()
+                        WildRiftRepository.champions.addAll(normalizedChamps)
                         hasLoadedAny = true
                     }
                 } catch (e: Exception) {
