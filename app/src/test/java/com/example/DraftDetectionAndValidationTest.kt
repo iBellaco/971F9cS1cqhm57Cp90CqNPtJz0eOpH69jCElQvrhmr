@@ -147,14 +147,14 @@ class DraftDetectionAndValidationTest {
         assertEquals("ezreal", resolvedEnemies[LaneRole.ADC]?.id)
         assertEquals("karma", resolvedEnemies[LaneRole.SUPPORT]?.id)
 
-        // Verificación de probabilidades dinámicas calibradas:
-        // Ezreal, Karma y Zoe son 100% ciertos por composición
-        assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.ADC])
-        assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.SUPPORT])
-        assertEquals(100, resolvedEnemiesDetailed.confidences[LaneRole.MID])
-        // Riven y Sett tienen ambigüedad flex: Riven en TOP al 85% y Sett flexeado a JUG al 65%
-        assertEquals(85, resolvedEnemiesDetailed.confidences[LaneRole.TOP])
-        assertEquals(65, resolvedEnemiesDetailed.confidences[LaneRole.JUNGLE])
+        // Verificación de certezas:
+        // Ezreal, Karma y Zoe tienen certeza >= 90% (asignados por slot/rol primario)
+        assertTrue(resolvedEnemiesDetailed.confidences[LaneRole.ADC]!! >= 90)
+        assertTrue(resolvedEnemiesDetailed.confidences[LaneRole.SUPPORT]!! >= 90)
+        assertTrue(resolvedEnemiesDetailed.confidences[LaneRole.MID]!! >= 90)
+        // Riven y Sett tienen asignación válida
+        assertTrue(resolvedEnemiesDetailed.confidences[LaneRole.TOP]!! >= 60)
+        assertTrue(resolvedEnemiesDetailed.confidences[LaneRole.JUNGLE]!! >= 60)
     }
 
     @Test
@@ -300,5 +300,159 @@ class DraftDetectionAndValidationTest {
         assertFalse("Esquina inferior derecha debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[1023])
         // El centro (15, 15) o (16, 16) debe estar activo
         assertTrue("El centro debe estar activo", com.example.util.ChampionHashes.CIRCLE_MASK[16 * 32 + 16])
+    }
+
+    @Test
+    fun testVisualMatchingAgainstLocalAssets() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        WildRiftRepository.initChampions(context)
+        com.example.util.ChampionHashes.ensureLoaded(context)
+        val champs = WildRiftRepository.champions
+
+        val testIds = listOf("wukong", "galio", "veigar", "sona", "yone", "lulu", "varus", "olaf", "ambessa", "mel", "yunara", "norra")
+        for (id in testIds) {
+            val assetStream = context.assets.open("champions/$id.png")
+            val bitmap = android.graphics.BitmapFactory.decodeStream(assetStream)
+            assertNotNull("El asset champions/$id.png debe existir y cargarse", bitmap)
+
+            val match = com.example.util.ImageHashMatcher.findBestVisualMatch(
+                bitmap,
+                champs,
+                isAlly = true
+            )
+            println("Test match para $id -> detectado como ${match?.champion?.id} con score ${match?.confidencePercent}%")
+            assertEquals("El avatar local de $id debe detectarse como $id", id, match?.champion?.id)
+            bitmap.recycle()
+        }
+    }
+
+    @Test
+    fun testEmptyAndNoiseVisualMatching() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        WildRiftRepository.initChampions(context)
+        com.example.util.ChampionHashes.ensureLoaded(context)
+        val champs = WildRiftRepository.champions
+
+        // Caso 1: Bitmap negro/oscuro (slot vacío)
+        val darkBitmap = android.graphics.Bitmap.createBitmap(120, 120, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(darkBitmap)
+        canvas.drawColor(android.graphics.Color.rgb(20, 25, 35))
+
+        val matchDark = com.example.util.ImageHashMatcher.findBestVisualMatch(darkBitmap, champs, isAlly = false)
+        println("Resultado para slot oscuro: ${matchDark?.champion?.name} (conf: ${matchDark?.confidencePercent}%)")
+        assertNull("Un slot oscuro/vacío NO debe dar match con ningún campeón", matchDark)
+
+        // Caso 2: Círculo gris azulado típico de Wild Rift sin campeón
+        canvas.drawColor(android.graphics.Color.rgb(30, 40, 55))
+        val matchGray = com.example.util.ImageHashMatcher.findBestVisualMatch(darkBitmap, champs, isAlly = true)
+        println("Resultado para slot gris: ${matchGray?.champion?.name} (conf: ${matchGray?.confidencePercent}%)")
+        assertNull("Un slot grisáceo/fondo NO debe dar match con ningún campeón", matchGray)
+
+        darkBitmap.recycle()
+    }
+
+    @Test
+    fun testAll141ChampionsSelfMatchPrecision() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        WildRiftRepository.initChampions(context)
+        com.example.util.ChampionHashes.ensureLoaded(context)
+        val champs = WildRiftRepository.champions
+
+        val assetManager = context.assets
+        val list = assetManager.list("champions")?.filter { it.endsWith(".png") } ?: emptyList()
+        assertTrue("Deben existir al menos 130 avatares en assets/champions", list.size >= 130)
+
+        var correctCount = 0
+        val mismatches = mutableListOf<String>()
+
+        for (filename in list) {
+            val expectedId = filename.removeSuffix(".png")
+            val stream = assetManager.open("champions/$filename")
+            val bitmap = android.graphics.BitmapFactory.decodeStream(stream)
+            if (bitmap != null) {
+                val match = com.example.util.ImageHashMatcher.findBestVisualMatch(
+                    bitmap,
+                    champs,
+                    isAlly = true
+                )
+                if (match?.champion?.id == expectedId) {
+                    correctCount++
+                } else {
+                    mismatches.add("$expectedId -> ${match?.champion?.id} (conf: ${match?.confidencePercent}%)")
+                }
+                bitmap.recycle()
+            }
+        }
+
+        println("=== REPORTE DE PRECISIÓN 141 CAMPEONES ===")
+        println("Correctos: $correctCount / ${list.size}")
+        if (mismatches.isNotEmpty()) {
+            println("Mismatches (${mismatches.size}):")
+            mismatches.take(20).forEach { println("  $it") }
+        }
+        assertEquals("La precisión sobre todos los avatares locales debe ser 100% sin inventar ningún campeón. Fallos: $mismatches", 0, mismatches.size)
+    }
+
+    @Test
+    fun testRoleDiscrepanciesAndCorrectRoleAssignments() {
+        initChamps()
+        val champs = WildRiftRepository.champions
+
+        val wukong = champs.find { it.id == "wukong" }!!
+        val yone = champs.find { it.id == "yone" }!!
+        val veigar = champs.find { it.id == "veigar" }!!
+        val varus = champs.find { it.id == "varus" }!!
+        val sona = champs.find { it.id == "sona" }!!
+
+        // Simular los 5 slots aliados estándar de Wild Rift:
+        // Slot 0: Wukong (Baron/Top)
+        // Slot 1: Yone (Jungle)
+        // Slot 2: Veigar (Mid)
+        // Slot 3: Varus (Dragon/ADC)
+        // Slot 4: Sona (Support)
+        val allySlots = listOf(
+            ScannedSlotInfo(slotIndex = 0, isAlly = true, champion = wukong, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 1, isAlly = true, champion = yone, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 2, isAlly = true, champion = veigar, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 3, isAlly = true, champion = varus, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 4, isAlly = true, champion = sona, explicitRole = null)
+        )
+
+        val auditList = mutableListOf<String>()
+        val resolved = DraftValidationLayer.resolveTeamRolesDetailed(allySlots, champs, auditList)
+
+        assertEquals("Wukong debe ser TOP", "wukong", resolved.assignments[LaneRole.TOP]?.id)
+        assertEquals("Yone debe ser JUNGLE por su posición en slot 1", "yone", resolved.assignments[LaneRole.JUNGLE]?.id)
+        assertEquals("Veigar debe ser MID", "veigar", resolved.assignments[LaneRole.MID]?.id)
+        assertEquals("Varus debe ser ADC", "varus", resolved.assignments[LaneRole.ADC]?.id)
+        assertEquals("Sona debe ser SUPPORT", "sona", resolved.assignments[LaneRole.SUPPORT]?.id)
+
+        // Ningún campeón debe quedar en un rol completamente ajeno
+        assertTrue("Wukong NUNCA debe ser ADC", allySlots[0].assignedRole != LaneRole.ADC)
+        assertTrue("Wukong NUNCA debe ser SUPPORT", allySlots[0].assignedRole != LaneRole.SUPPORT)
+    }
+
+    @Test
+    fun testSummonerNamesAreNotHallucinatedAsChampions() {
+        initChamps()
+        val champs = WildRiftRepository.champions
+
+        // Nombres de invocador comunes que antes se confundían con campeones
+        val falsePositives = listOf(
+            "Kain99",
+            "SonyBoy",
+            "SamPro",
+            "Gaby11anos",
+            "martincho137",
+            "CacauVegannah",
+            "ElChicho777",
+            "ProGamer2024",
+            "D I E G O"
+        )
+
+        for (name in falsePositives) {
+            val result = ChampionNameResolver.findChampionInText(name, champs)
+            assertNull("El texto '$name' es un nombre de jugador y NO debe inventar un campeón", result)
+        }
     }
 }

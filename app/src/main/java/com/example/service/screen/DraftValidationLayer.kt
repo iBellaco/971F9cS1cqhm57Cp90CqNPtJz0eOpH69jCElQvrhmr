@@ -184,7 +184,7 @@ object DraftValidationLayer {
         val primaryRoleCounts = validSlots.groupBy { it.champion!!.primaryRole }.mapValues { it.value.size }
 
         // 1. ASIGNACIÓN POR ROL EXPLÍCITO DETECTADO EN EL SLOT (Certeza 100%)
-        for (slot in scannedSlots) {
+        for (slot in validSlots) {
             val champ = slot.champion ?: continue
             val expRole = slot.explicitRole
 
@@ -200,18 +200,44 @@ object DraftValidationLayer {
             }
         }
 
-        // 2. ASIGNACIÓN POR ROL PRIMARIO DEL CAMPEÓN
-        for (slot in scannedSlots) {
+        // 2. ASIGNACIÓN POR POSICIÓN ESTÁNDAR DEL SLOT SI EL CAMPEÓN PUEDE JUGARLA (Certeza 95%)
+        // En Wild Rift los slots 0..4 corresponden de forma fija a: TOP, JUNGLE, MID, ADC, SUPPORT
+        for (slot in validSlots) {
+            val champ = slot.champion ?: continue
+            if (assignedChampionIds.contains(champ.id)) continue
+
+            val naturalSlotRole = when (slot.slotIndex) {
+                0 -> LaneRole.TOP
+                1 -> LaneRole.JUNGLE
+                2 -> LaneRole.MID
+                3 -> LaneRole.ADC
+                4 -> LaneRole.SUPPORT
+                else -> null
+            }
+
+            if (naturalSlotRole != null && availableRoles.contains(naturalSlotRole)) {
+                val canPlayNaturalRole = champ.primaryRole == naturalSlotRole || champ.secondaryRoles.contains(naturalSlotRole)
+                if (canPlayNaturalRole) {
+                    finalMap[naturalSlotRole] = champ
+                    confidences[naturalSlotRole] = if (champ.primaryRole == naturalSlotRole) 100 else 90
+                    availableRoles.remove(naturalSlotRole)
+                    assignedChampionIds.add(champ.id)
+                    slot.assignedRole = naturalSlotRole
+                    auditList.add("Posición de slot: ${champ.name} en ${naturalSlotRole.shortName}")
+                }
+            }
+        }
+
+        // 3. ASIGNACIÓN POR ROL PRIMARIO DEL CAMPEÓN
+        for (slot in validSlots) {
             val champ = slot.champion ?: continue
             if (assignedChampionIds.contains(champ.id)) continue
 
             val primary = champ.primaryRole
             if (availableRoles.contains(primary)) {
                 finalMap[primary] = champ
-                // Si otro campeón del equipo también tiene este rol primario (ej. Riven y Sett en TOP),
-                // la probabilidad baja a 85% para reflejar la ambigüedad flex.
                 val sharedPrimary = (primaryRoleCounts[primary] ?: 1) > 1
-                confidences[primary] = if (sharedPrimary) 85 else 100
+                confidences[primary] = if (sharedPrimary) 85 else 95
 
                 availableRoles.remove(primary)
                 assignedChampionIds.add(champ.id)
@@ -219,8 +245,8 @@ object DraftValidationLayer {
             }
         }
 
-        // 3. ASIGNACIÓN POR ROLES SECUNDARIOS (FLEX PICKS: Certeza 80%)
-        for (slot in scannedSlots) {
+        // 4. ASIGNACIÓN POR ROLES SECUNDARIOS (FLEX PICKS: Certeza 80%)
+        for (slot in validSlots) {
             val champ = slot.champion ?: continue
             if (assignedChampionIds.contains(champ.id)) continue
 
@@ -235,17 +261,33 @@ object DraftValidationLayer {
             }
         }
 
-        // 4. ASIGNACIÓN DE ROLES RESTANTES PARA CAMPEONES SIN ROL ASIGNADO (Fallback: Certeza 65%)
-        for (slot in scannedSlots) {
+        // 5. ASIGNACIÓN DE ROLES RESTANTES CON PRIORIDAD A LA POSICIÓN DEL SLOT
+        for (slot in validSlots) {
             val champ = slot.champion ?: continue
             if (assignedChampionIds.contains(champ.id)) continue
 
-            val fallback = availableRoles.firstOrNull() ?: continue
-            finalMap[fallback] = champ
-            confidences[fallback] = 65
-            availableRoles.remove(fallback)
-            assignedChampionIds.add(champ.id)
-            slot.assignedRole = fallback
+            val naturalSlotRole = when (slot.slotIndex) {
+                0 -> LaneRole.TOP
+                1 -> LaneRole.JUNGLE
+                2 -> LaneRole.MID
+                3 -> LaneRole.ADC
+                4 -> LaneRole.SUPPORT
+                else -> null
+            }
+            if (naturalSlotRole != null && availableRoles.contains(naturalSlotRole)) {
+                finalMap[naturalSlotRole] = champ
+                confidences[naturalSlotRole] = 70
+                availableRoles.remove(naturalSlotRole)
+                assignedChampionIds.add(champ.id)
+                slot.assignedRole = naturalSlotRole
+            } else {
+                val fallback = availableRoles.firstOrNull() ?: continue
+                finalMap[fallback] = champ
+                confidences[fallback] = 60
+                availableRoles.remove(fallback)
+                assignedChampionIds.add(champ.id)
+                slot.assignedRole = fallback
+            }
         }
 
         return ResolvedTeam(finalMap, confidences)

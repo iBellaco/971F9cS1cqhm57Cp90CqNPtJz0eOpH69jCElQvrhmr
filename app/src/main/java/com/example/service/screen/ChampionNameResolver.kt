@@ -280,12 +280,12 @@ object ChampionNameResolver {
             return null
         }
 
-        // 4. Coincidencia difusa estricta (Levenshtein distance <= 1) para corregir errores OCR menores en nombres aislados
-        // Solo si la palabra es corta y es una palabra única (para evitar nombres de invocador)
-        if (clean.length in 4..12 && words.size == 1) {
+        // 5. Coincidencia difusa ultrarrestringida (Levenshtein distance <= 1) para errores OCR menores en nombres aislados largos (>= 5 letras)
+        // Se descartan palabras cortas (para evitar que nombres de invocador como "sam", "kain", "sony" se confundan con campeones)
+        if (clean.length in 5..12 && words.size == 1 && !DraftValidationLayer.isLikelySummonerName(trimmed)) {
             for (champ in allChampions) {
                 val champNorm = normalize(champ.name)
-                if (Math.abs(champNorm.length - clean.length) <= 1) {
+                if (champNorm.length >= 5 && Math.abs(champNorm.length - clean.length) <= 1) {
                     if (levenshteinDistance(clean, champNorm) <= 1) {
                         if (DraftValidationLayer.isValidChampionToken(clean, champ.id)) {
                             return champ
