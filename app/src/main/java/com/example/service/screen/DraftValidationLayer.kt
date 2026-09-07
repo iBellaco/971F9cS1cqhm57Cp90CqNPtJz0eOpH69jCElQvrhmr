@@ -77,8 +77,8 @@ object DraftValidationLayer {
      * descartando variaciones o diminutivos de invocadores (ej: "lucianito" NO es "lucian").
      */
     fun isValidChampionToken(token: String, championId: String): Boolean {
-        val cleanToken = normalize(token)
-        val cleanChamp = normalize(championId).replace("_", "")
+        val cleanToken = normalize(token).replace(Regex("[^a-z0-9]"), "")
+        val cleanChamp = normalize(championId).replace(Regex("[^a-z0-9]"), "")
 
         // Coincidencia exacta estricta
         if (cleanToken == cleanChamp) return true

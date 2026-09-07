@@ -197,6 +197,17 @@ object DraftVisionScanner {
                         }
                     }
                 }
+                
+                val isGeneric = lines.isEmpty() || lines.all { l ->
+                    val low = l.lowercase(java.util.Locale.ROOT)
+                    low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador") || low.isBlank() ||
+                    low.contains("carril") || low.contains("jungla") || low.contains("central") || low.contains("dúo") || low.contains("soporte") ||
+                    low.contains("top") || low.contains("jug") || low.contains("mid") || low.contains("adc") || low.contains("sup") || low.contains("eligiendo") ||
+                    low.contains("buscando")
+                }
+                if (isGeneric) {
+                    slot.isLikelyUnpicked = true
+                }
             }
 
             // Procesar textos enemigos

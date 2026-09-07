@@ -1,8 +1,6 @@
-fix(scanner): ajustes de sensibilidad visual y posicionamiento lateral
+fix(scanner): corregir validación de textos de campeones (OCR) y umbrales visuales
 
-- Geometría V11: Se ajustó el centro X de avatares enemigos 1 píxel hacia la izquierda (0.091f) según lo solicitado por el usuario para alinearse perfectamente con el marco rojo del enemigo.
-- Motor Visual (Sensibilidad vs Ruido): El intento anterior (V10) que daba 85% de peso a la Estructura (NCC) generó que el ruido de fondo teñido de rojo creara falsos positivos (como confundir a Ashe con Teemo).
-- Solución V11: 
-  1. Se restauró un balance visual de 60% Estructura y 40% Color, para obligar al motor a discriminar campeones por su paleta.
-  2. Se ajustó el enmascarado circular (`radius * 0.75f`) interno del análisis OpenCV para cortar aún más las esquinas y fondos del avatar, enfocando el cálculo estrictamente en el centro del rostro, mitigando casi por completo el efecto de los tintes rojo/azul externos.
-- Se incrementó la versión a versionCode 123 y versionName 1.3.11.
+- El OCR fallaba al validar campeones con espacios o apóstrofes (ej. Miss Fortune, Lee Sin, Kha'Zix) porque el normalizador eliminaba los espacios en el OCR, pero mantenía los espacios y signos en el ID del campeón (generando un falso negativo). Se ha modificado `isValidChampionToken` para ignorar espacios y puntuación en ambos lados (`Regex("[^a-z0-9]")`), lo que permite que el OCR confirme al 100% las detecciones.
+- Se ajustó el umbral de `isConfirmed` en `ImageHashMatcher.kt`. Anteriormente, si la puntuación visual era muy baja (ej. 0.45) pero el margen con el segundo candidato era > 0.018f, el sistema marcaba la detección como CONFIRMADA, lo que hacía que una mala lectura visual (por la diferencia de recorte circular del juego frente al cuadrado original) ignorara al texto OCR correcto. Ahora, si el score visual es < 0.65f, se marca como `isConfirmed = false` ("DUDOSO"), forzando al sistema a utilizar la lectura del texto OCR como fuente de verdad.
+- Se agregó lógica de `isLikelyUnpicked` para la columna aliada (evitando alucinaciones en los primeros segundos del draft).
+- La geometría lateral (los cuadros) ya está perfectamente alineada con los parches anteriores.
