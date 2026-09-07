@@ -1,1 +1,1 @@
-feat(scanner): añade capa de depuración visual de cajas delimitadoras (bounding boxes) e incrementa el umbral mínimo de confianza al 90% para evitar reconocimientos fantasma
+fix(scanner): optimiza heurística de asignación de roles para flex picks y ajusta el umbral de detección a 0.75 para no perder campeones (ADC)
