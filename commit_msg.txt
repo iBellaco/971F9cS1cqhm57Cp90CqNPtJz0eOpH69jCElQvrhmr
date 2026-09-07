@@ -1,6 +1,8 @@
-fix(scanner, admin): ajustes micrométricos de geometría y exportador de recursos
+fix(scanner): ajustes de sensibilidad visual y posicionamiento lateral
 
-- Geometría V10: Se ajustó el centro X de avatares aliados 1 píxel más a la izquierda, el X de enemigos ~5 píxeles a la izquierda, y se elevaron todas las coordenadas Y ~4 píxeles para alinear perfectamente con el layout de la versión final.
-- Motor Visual (Color Weights): El `ImageHashMatcher` redujo drásticamente el peso del color de 45% a 15%, y subió la evaluación estructural (NCC) a 85%. Esto es fundamental para sobreponerse al tinte agresivo ROJO/AZUL que el juego aplica a la pantalla durante la fase de selección, lo que arruinaba los histogramas de color y reducía las precisiones visuales artificialmente.
-- Admin Exporter: Se agregó `AssetExporter.kt` y un nuevo botón en el panel offline que empaqueta localmente todas las imágenes de avatares, hechizos, runas y metadata (.json) en un archivo `.zip` en la carpeta Descargas del dispositivo para facilitar la creación independiente del panel de administración.
-- Se incrementó versionCode a 121 y versionName a 1.3.9.
+- Geometría V11: Se ajustó el centro X de avatares enemigos 1 píxel hacia la izquierda (0.091f) según lo solicitado por el usuario para alinearse perfectamente con el marco rojo del enemigo.
+- Motor Visual (Sensibilidad vs Ruido): El intento anterior (V10) que daba 85% de peso a la Estructura (NCC) generó que el ruido de fondo teñido de rojo creara falsos positivos (como confundir a Ashe con Teemo).
+- Solución V11: 
+  1. Se restauró un balance visual de 60% Estructura y 40% Color, para obligar al motor a discriminar campeones por su paleta.
+  2. Se ajustó el enmascarado circular (`radius * 0.75f`) interno del análisis OpenCV para cortar aún más las esquinas y fondos del avatar, enfocando el cálculo estrictamente en el centro del rostro, mitigando casi por completo el efecto de los tintes rojo/azul externos.
+- Se incrementó la versión a versionCode 123 y versionName 1.3.11.

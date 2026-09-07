@@ -258,7 +258,8 @@ object DraftVisionScanner {
         // para que no corten los iconos de hechizos/nombres y centren mejor el rostro
         // Ajustes del usuario: Izquierda 1 pixel más a la izq. Derecha más a la izq y más arriba.
         val allyAvatarCenterX = if (isUltraWide) (height * 0.162f).toInt() else (height * 0.155f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.088f)).toInt() else (width - (height * 0.160f)).toInt()
+        // Enemigos 1 píxel más a la izquierda (de 0.088f a 0.091f)
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.091f)).toInt() else (width - (height * 0.160f)).toInt()
 
         // Ratios verticales (eje Y): Subimos un poco (~4 pixeles)
         val slotYRatios = floatArrayOf(0.196f, 0.328f, 0.463f, 0.596f, 0.733f)

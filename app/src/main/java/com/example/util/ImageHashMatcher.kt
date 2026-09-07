@@ -243,10 +243,11 @@ object ImageHashMatcher {
                 colorScore = colorScore.coerceIn(0f, 1f)
 
                 // C) Puntuación visual pura
-                // Damos un 85% de peso a la ESTRUCTURA y solo 15% al COLOR.
-                // Esto es crítico porque durante los turnos de selección, Wild Rift aplica un tinte ROJO
-                // fuerte a la pantalla enemiga y AZUL a la aliada, destruyendo los histogramas de color.
-                val totalScore = (0.85f * structuralScore) + (0.15f * colorScore)
+                // Restauramos un balance 60/40. El problema real no era el peso, sino que
+                // el NCC estaba encontrando falsos positivos en el ruido de fondo rojo (scores < 0.40).
+                // Al darle peso al color, obligamos al motor a rechazar campeones verdes/azules 
+                // (como Teemo) cuando está viendo un retrato rojo (Katarina/Vlad).
+                val totalScore = (0.60f * structuralScore) + (0.40f * colorScore)
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 
