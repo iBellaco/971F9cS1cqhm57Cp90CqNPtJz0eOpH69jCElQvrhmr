@@ -1,5 +1,6 @@
-fix(scanner): corrige posicionamiento geométrico X y alucinación de OCR
+fix(scanner, admin): ajustes micrométricos de geometría y exportador de recursos
 
-- Geometría: Se desplazó el área de captura visual `allyAvatarCenterX` (de 0.140f a 0.165f) y `enemyAvatarCenterX` (de 0.100f a 0.075f desde el borde derecho). Esto centra perfectamente el bounding box en los rostros de los avatares, que previamente estaban cortando los iconos de hechizos a la izquierda (aliados) y los nombres a la izquierda (enemigos).
-- OCR: Se ajustaron estrictamente los límites de escaneo del OCR (X < 0.22 para aliados, X > 0.78 para enemigos) para ignorar completamente el centro de la pantalla. Esto soluciona un error crítico de "alucinación" donde el OCR leía los nombres recomendados de la propia ventana flotante de la app y los forzaba como detecciones confirmadas sobreescribiendo el motor visual.
-- Se incrementó la versión a 1.3.8.
+- Geometría V10: Se ajustó el centro X de avatares aliados 1 píxel más a la izquierda, el X de enemigos ~5 píxeles a la izquierda, y se elevaron todas las coordenadas Y ~4 píxeles para alinear perfectamente con el layout de la versión final.
+- Motor Visual (Color Weights): El `ImageHashMatcher` redujo drásticamente el peso del color de 45% a 15%, y subió la evaluación estructural (NCC) a 85%. Esto es fundamental para sobreponerse al tinte agresivo ROJO/AZUL que el juego aplica a la pantalla durante la fase de selección, lo que arruinaba los histogramas de color y reducía las precisiones visuales artificialmente.
+- Admin Exporter: Se agregó `AssetExporter.kt` y un nuevo botón en el panel offline que empaqueta localmente todas las imágenes de avatares, hechizos, runas y metadata (.json) en un archivo `.zip` en la carpeta Descargas del dispositivo para facilitar la creación independiente del panel de administración.
+- Se incrementó versionCode a 121 y versionName a 1.3.9.

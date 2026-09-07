@@ -242,12 +242,11 @@ object ImageHashMatcher {
                 }
                 colorScore = colorScore.coerceIn(0f, 1f)
 
-                // C) Puntuación visual pura (sin sesgo de rol)
-                val totalScore = if (isAlly) {
-                    (0.55f * structuralScore) + (0.45f * colorScore)
-                } else {
-                    (0.50f * structuralScore) + (0.50f * colorScore)
-                }
+                // C) Puntuación visual pura
+                // Damos un 85% de peso a la ESTRUCTURA y solo 15% al COLOR.
+                // Esto es crítico porque durante los turnos de selección, Wild Rift aplica un tinte ROJO
+                // fuerte a la pantalla enemiga y AZUL a la aliada, destruyendo los histogramas de color.
+                val totalScore = (0.85f * structuralScore) + (0.15f * colorScore)
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 

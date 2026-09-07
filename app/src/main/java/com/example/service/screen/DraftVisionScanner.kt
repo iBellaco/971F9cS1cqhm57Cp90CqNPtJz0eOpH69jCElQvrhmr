@@ -161,13 +161,12 @@ object DraftVisionScanner {
                         else -> 4
                     }
 
-                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo estricto: X entre 0.01 y 0.22)
-                    // Evitamos > 0.22 porque podríamos leer el overlay de nuestra propia app
-                    if (xRatio in 0.01f..0.22f) {
+                    // 1.1 COLUMNA ALIADA (Extremos ampliados para capturar los nombres, pero evitando el centro >0.33)
+                    if (xRatio in 0.01f..0.34f) {
                         allySlotTexts[slotIndex].add(text)
                     }
-                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho estricto: X entre 0.78 y 0.99)
-                    else if (xRatio in 0.78f..0.99f) {
+                    // 1.2 COLUMNA ENEMIGA (X entre 0.66 y 0.99)
+                    else if (xRatio in 0.66f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
                 }
@@ -257,11 +256,12 @@ object DraftVisionScanner {
         
         // Ajuste milimétrico de la X: Se desplazan un poco hacia el centro de la pantalla
         // para que no corten los iconos de hechizos/nombres y centren mejor el rostro
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.165f).toInt() else (height * 0.155f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.075f)).toInt() else (width - (height * 0.160f)).toInt()
+        // Ajustes del usuario: Izquierda 1 pixel más a la izq. Derecha más a la izq y más arriba.
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.162f).toInt() else (height * 0.155f).toInt()
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.088f)).toInt() else (width - (height * 0.160f)).toInt()
 
-        // Ratios verticales (eje Y): El pitch actual es excelente, bajamos todos apenas 1 pixel relativo
-        val slotYRatios = floatArrayOf(0.201f, 0.333f, 0.468f, 0.601f, 0.738f)
+        // Ratios verticales (eje Y): Subimos un poco (~4 pixeles)
+        val slotYRatios = floatArrayOf(0.196f, 0.328f, 0.463f, 0.596f, 0.733f)
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
         // 3.1 Aliados
