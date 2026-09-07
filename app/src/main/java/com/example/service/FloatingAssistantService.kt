@@ -2840,14 +2840,14 @@ private fun CoachContent(
 
 @Composable
 fun VisionDebugOverlay() {
-    val bitmap = com.example.service.screen.DraftVisionScanner.lastDebugBitmap
-    val diagnostics = com.example.service.screen.DraftVisionScanner.lastDiagnostics
+    val bitmap by com.example.service.screen.DraftVisionScanner.lastDebugBitmap.collectAsStateWithLifecycle()
+    val diagnostics by com.example.service.screen.DraftVisionScanner.lastDiagnostics.collectAsStateWithLifecycle()
 
-    if (bitmap == null) return
+    val currentBitmap = bitmap ?: return
 
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val scaleX = size.width / bitmap.width.toFloat()
-        val scaleY = size.height / bitmap.height.toFloat()
+        val scaleX = size.width / currentBitmap.width.toFloat()
+        val scaleY = size.height / currentBitmap.height.toFloat()
 
         for (diag in diagnostics) {
             val rect = diag.roiRect ?: continue

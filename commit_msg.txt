@@ -1,1 +1,5 @@
-fix(ui): reubica botón de depuración visual (🐛) a la cabecera principal del asistente flotante para garantizar visibilidad sin necesidad de scroll
+fix(scanner): corrige detección del jugador local (TÚ) mediante carril explícito y repara el visor de depuración (🐛)
+
+- **Detección del Jugador:** En Wild Rift solo el jugador local tiene su rol escrito explícitamente ("CALLE CENTRAL", etc.) en el HUD. Se actualizó la heurística para detectar instantáneamente el rol del jugador y auto-seleccionar su línea.
+- **Visión Enemiga:** Se calibró el centro geométrico de los avatares para pantallas ultra-anchas (21:9) donde los márgenes de seguridad desplazan el HUD hacia el centro.
+- **Modo Debug (🐛):** Se integró estado reactivo (StateFlow) a la captura de depuración. Al presionar el botón 🐛, el overlay ahora se pintará dinámicamente con cada escaneo mostrando las cajas de recorte en rojo.

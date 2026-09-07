@@ -77,8 +77,8 @@ data class DraftScanResult(
 object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
     
-    var lastDebugBitmap: android.graphics.Bitmap? = null
-    var lastDiagnostics: List<SlotDiagnostic> = emptyList()
+    var lastDebugBitmap = kotlinx.coroutines.flow.MutableStateFlow<android.graphics.Bitmap?>(null)
+    var lastDiagnostics = kotlinx.coroutines.flow.MutableStateFlow<List<SlotDiagnostic>>(emptyList())
     
     private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
 
@@ -183,17 +183,9 @@ object DraftVisionScanner {
                     if (role != null) {
                         slot.explicitRole = role
                         allySlotRolesCache[i] = role
-                        AppLogger.d(TAG, "OCR Aliado Slot $i -> Rol explícito: ${role.shortName}")
-
-                        // Detección precisa de slot del usuario por palabras clave del jugador
-                        val containsUserClues = lines.any { l ->
-                            val low = l.lowercase(Locale.ROOT)
-                            low.contains("diego") || low.contains("porcentaje") || low.contains("victoria") || low.contains("tasa")
-                        }
-                        if (containsUserClues) {
-                            userDetectedLane = role
-                            AppLogger.d(TAG, "Slot del usuario confirmado en $i -> ${role.shortName}")
-                        }
+                        // En Wild Rift, solo el jugador local tiene su carril escrito explícitamente en el HUD
+                        userDetectedLane = role
+                        AppLogger.d(TAG, "OCR Aliado Slot $i -> Rol explícito: ${role.shortName} -> User Detected Lane!")
                     }
 
                     // B) Texto de campeón detectado por OCR (secundario)
@@ -250,12 +242,12 @@ object DraftVisionScanner {
         // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
         // -----------------------------------------------------------------------------------------
         // Calibración geométrica de precisión HUD Wild Rift:
-        // En 695 de alto: allyAvatarCenterX = 111 px (ratio 0.160f)
-        // Diámetro avatar: 83 px (ratio 0.120f)
-        val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
-        val allyAvatarCenterX = (height * 0.155f).toInt().coerceAtLeast(16)
-        // En 1536x695: enemyAvatarCenterX = 1425 px (evita panel lateral Android y barra gestos)
-        val enemyAvatarCenterX = (width - (height * 0.160f)).toInt().coerceIn(0, width)
+        // El HUD suele estar enclavado a los bordes, pero en pantallas ultra anchas (21:9)
+        // puede estar limitado por zonas seguras. Utilizamos anclas relativas híbridas (basadas en la altura) 
+        // pero relajamos el recorte para atrapar el centro sin importar la deformación leve.
+        val avatarDiameter = (height * 0.135f).toInt().coerceAtLeast(32)
+        val allyAvatarCenterX = (height * 0.170f).toInt().coerceAtLeast(16) // ~11-12% en pantallas anchas
+        val enemyAvatarCenterX = (width - (height * 0.185f)).toInt().coerceIn(0, width) // Evita pisar los hechizos enemigos
 
         // Ratios verticales calibrados de los 5 slots HUD:
         // Slot 0: ~135px (0.195), Slot 1: ~225px (0.324), Slot 2: ~319px (0.459),
@@ -495,5 +487,8 @@ object DraftVisionScanner {
             isSuccessful = total > 0,
             statusMessage = statusMsg
         )
+        
+        lastDebugBitmap.value = bitmap.copy(Bitmap.Config.ARGB_8888, false)
+        lastDiagnostics.value = diagnosticsList
     }
 }
