@@ -1,5 +1,4 @@
-fix(scanner): aplica prioridad absoluta de OCR a la columna aliada y estabiliza el canvas de depuración
+chore(release): bump version to 1.3.0
 
-- **Tu Pick (Akshan):** Me di cuenta de que apliqué el arreglo de prioridad OCR solo al equipo enemigo en la versión anterior. He extendido la misma lógica de "OCR = Verdad Absoluta" + "60% umbral visual" a la columna aliada. Ahora, aunque el escáner geométrico batalle con el borde de selección, tu Akshan será detectado gracias a la mayor tolerancia.
-- **Bug del Gusano (🐛) Parte 2:** El canvas reactivo no se estaba renderizando porque la vista transparente carecía de una "Estrategia de Composición" que le dijera a Jetpack Compose cómo administrar su ciclo de vida. Le he inyectado el `ViewCompositionStrategy.DisposeOnDetachedFromWindow`.
-- Además, he engrosado los marcos rojos a 12px y agregado un tinte rojo súper sutil a la pantalla completa cuando el modo gusano está activo, para que sea 100% obvio si está funcionando o no.
+- Incrementa versión de la aplicación de 1.2.x a 1.3.0
+- Se actualizó `versionCode` a 112 y `versionName` a "1.3.0"
