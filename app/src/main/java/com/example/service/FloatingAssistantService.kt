@@ -626,8 +626,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 val currentX = floatingParams?.x
                 val currentY = floatingParams?.y
                 
-                // Recrear dinámicamente la ventana al girar para evitar corrupciones de Compose
-                createFloatingOverlay()
+                // Ya no recreamos toda la ventana para evitar crashes (BadTokenException/WindowManager)
+                // updateViewLayout será suficiente porque el ComposeView es responsive
+                // createFloatingOverlay()
                 
                 if (currentX != null && currentY != null && floatingParams != null && floatingComposeView != null) {
                     val density = metrics.density
@@ -2878,10 +2879,17 @@ fun VisionDebugOverlay() {
                 else -> androidx.compose.ui.graphics.Color.Red
             }
 
+            val insetX = (right - left) * 0.075f
+            val insetY = (bottom - top) * 0.075f
+            val drawLeft = left + insetX
+            val drawTop = top + insetY
+            val drawWidth = (right - left) - (insetX * 2)
+            val drawHeight = (bottom - top) - (insetY * 2)
+
             drawRect(
                 color = color,
-                topLeft = androidx.compose.ui.geometry.Offset(left, top),
-                size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
+                topLeft = androidx.compose.ui.geometry.Offset(drawLeft, drawTop),
+                size = androidx.compose.ui.geometry.Size(drawWidth, drawHeight),
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f)
             )
 

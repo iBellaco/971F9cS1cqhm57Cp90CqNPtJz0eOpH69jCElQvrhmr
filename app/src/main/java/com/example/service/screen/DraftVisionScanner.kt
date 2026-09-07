@@ -247,15 +247,15 @@ object DraftVisionScanner {
         // En pantallas ultra-anchas (21:9), hay un margen de zona segura (Safe Area).
         // Los avatares aliados están desplazados hacia la derecha (superando los hechizos).
         // Los avatares enemigos están desplazados hacia la izquierda desde el borde derecho.
-        // Reducimos el tamaño de la caja para enfocar el rostro y descartar el anillo exterior
-        val avatarDiameter = (height * 0.098f).toInt().coerceAtLeast(32)
+        // Volvems al tamaño geométrico correcto para que el ImageHashMatcher pueda hacer su crop interno (0.70f) sin destrozar la escala.
+        val avatarDiameter = (height * 0.115f).toInt().coerceAtLeast(32)
         
         // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y 21:9
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        // Ajuste milimétrico de la X: Aliados un poco más a la derecha, enemigos un poco más a la derecha
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.145f).toInt() else (height * 0.155f).toInt()
+        // Ajuste milimétrico de la X:
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.140f).toInt() else (height * 0.155f).toInt()
         val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.100f)).toInt() else (width - (height * 0.160f)).toInt()
 
         // Ratios verticales (eje Y): El pitch actual es excelente, bajamos todos apenas 1 pixel relativo

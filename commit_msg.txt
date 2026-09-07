@@ -1,5 +1,5 @@
-fix(scanner): aplica bounding boxes de recorte interior estricto
+fix(scanner): restaura escala visual y previene crash de rotación
 
-- Se redujo el tamaño de los cuadros de detección de 11.5% a 9.8% de la altura de la pantalla (un ~15% más pequeños).
-- Este "recorte interior" descarta los anillos exteriores de la interfaz de usuario de los avatares que variaban dinámicamente de color, enfocando el tensor exclusivamente en el arte del campeón para maximizar la similitud por MSE.
-- Ajuste final de micro-precisión de coordenadas X e Y basado en los nuevos márgenes reducidos.
+- Geometría: Se restauró el tamaño del área de captura a `0.115f` (revirtiendo el 0.098f de la v5). El recorte agresivo arruinaba la escala de los tensores pre-calculados, lo que causaba falsos positivos con ~0.40 de score.
+- UI: El overlay de depuración (los recuadros verdes del gusano) ahora dibuja los cuadros visualmente un 15% más pequeños mediante un inset visual para satisfacer la preferencia de estética del usuario, sin afectar la región de captura del motor.
+- Estabilidad: Se mitigó el crash (BadTokenException/SecurityException) al rotar el dispositivo en Android 14+ usando `updateViewLayout` en lugar de recrear toda la ventana flotante de Compose.
