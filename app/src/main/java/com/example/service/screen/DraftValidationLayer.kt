@@ -57,11 +57,11 @@ object DraftValidationLayer {
         val hasSpaces = trimmed.contains(" ")
 
         // Excluir nombres canónicos de campeones con espacios
-        val lower = trimmed.lowercase(Locale.ROOT)
+        val lower = trimmed.lowercase(java.util.Locale.ROOT)
         if (lower.startsWith("dr") || lower.startsWith("jarvan") || lower.startsWith("twisted") ||
             lower.startsWith("xin") || lower.startsWith("aurelion") || lower.startsWith("lee") ||
             lower.startsWith("miss") || lower.startsWith("master") || lower.startsWith("tahm") ||
-            lower.startsWith("nunu")) {
+            lower.startsWith("nunu") || lower.startsWith("kha")) {
             return false
         }
 

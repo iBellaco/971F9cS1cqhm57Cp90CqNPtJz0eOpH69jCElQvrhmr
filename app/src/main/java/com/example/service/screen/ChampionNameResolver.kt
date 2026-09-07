@@ -287,9 +287,7 @@ object ChampionNameResolver {
                 val champNorm = normalize(champ.name)
                 if (champNorm.length >= 5 && Math.abs(champNorm.length - clean.length) <= 1) {
                     if (levenshteinDistance(clean, champNorm) <= 1) {
-                        if (DraftValidationLayer.isValidChampionToken(clean, champ.id)) {
-                            return champ
-                        }
+                        return champ
                     }
                 }
             }

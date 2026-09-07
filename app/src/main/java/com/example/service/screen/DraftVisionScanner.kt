@@ -205,8 +205,10 @@ object DraftVisionScanner {
                     low.contains("top") || low.contains("jug") || low.contains("mid") || low.contains("adc") || low.contains("sup") || low.contains("eligiendo") ||
                     low.contains("buscando")
                 }
-                if (isGeneric) {
+                if (isGeneric && allyOcrChampions[i] == null) {
                     slot.isLikelyUnpicked = true
+                } else if (allyOcrChampions[i] != null) {
+                    slot.isLikelyUnpicked = false
                 }
             }
 
@@ -227,13 +229,15 @@ object DraftVisionScanner {
 
                 // Si no hay campeón y solo hay textos genéricos ("Jugador X"), marcar como unpicked
                 val isGeneric = lines.isEmpty() || lines.all { l ->
-                    val low = l.lowercase(Locale.ROOT)
+                    val low = l.lowercase(java.util.Locale.ROOT)
                     low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador") || low.isBlank() ||
                     low.contains("carril") || low.contains("jungla") || low.contains("central") || low.contains("dúo") || low.contains("soporte") ||
-                    low.contains("top") || low.contains("jug") || low.contains("mid") || low.contains("adc") || low.contains("sup") || low.contains("eligiendo")
+                    low.contains("top") || low.contains("jug") || low.contains("mid") || low.contains("adc") || low.contains("sup") || low.contains("eligiendo") || low.contains("buscando")
                 }
-                if (isGeneric) {
+                if (isGeneric && enemyOcrChampions[i] == null) {
                     slot.isLikelyUnpicked = true
+                } else if (enemyOcrChampions[i] != null) {
+                    slot.isLikelyUnpicked = false
                 }
             }
         } catch (e: Exception) {
@@ -305,18 +309,17 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (ocrChamp != null && !slot.isLikelyUnpicked && (eval.isConfirmed || eval.score1 >= 0.55f)) {
-                // OCR ayuda a desempatar o confirmar si la imagen tiene un score mínimamente decente (>0.55)
-                // Evitamos que OCR fuerce un campeón basándose en leer nuestro propio overlay (alucinación)
+            // NUEVA LÓGICA V13: TEXTO > IMAGEN SIEMPRE.
+            // Si el OCR leyó un nombre, es LEY (porque el nombre solo sale cuando el campeón está seleccionado/preseleccionado).
+            // Ignoramos la puntuación de la imagen porque los tintes rojos/azules la arruinan.
+            if (ocrChamp != null && !slot.isLikelyUnpicked) {
                 finalChamp = ocrChamp
+                finalConfidence = 100
+                diagStatus = DiagnosticStatus.CONFIRMADO
                 if (eval.candidate1?.id == ocrChamp.id) {
-                    finalConfidence = 100
-                    diagStatus = DiagnosticStatus.CONFIRMADO
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
-                    finalConfidence = 85
-                    diagStatus = DiagnosticStatus.CONFIRMADO
-                    diagReason = "Asignado por OCR (${ocrChamp.name}), con base visual aceptable."
+                    diagReason = "Asignado por TEXTO OCR (${ocrChamp.name}) ignorando visión errónea (${eval.candidate1?.name ?: "Nada"})"
                 }
             } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
@@ -410,18 +413,17 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (ocrChamp != null && !slot.isLikelyUnpicked && (eval.isConfirmed || eval.score1 >= 0.55f)) {
-                // OCR ayuda a desempatar o confirmar si la imagen tiene un score mínimamente decente (>0.55)
-                // Evitamos que OCR fuerce un campeón basándose en leer nuestro propio overlay (alucinación)
+            // NUEVA LÓGICA V13: TEXTO > IMAGEN SIEMPRE.
+            // Si el OCR leyó un nombre, es LEY (porque el nombre solo sale cuando el campeón está seleccionado/preseleccionado).
+            // Ignoramos la puntuación de la imagen porque los tintes rojos/azules la arruinan.
+            if (ocrChamp != null && !slot.isLikelyUnpicked) {
                 finalChamp = ocrChamp
+                finalConfidence = 100
+                diagStatus = DiagnosticStatus.CONFIRMADO
                 if (eval.candidate1?.id == ocrChamp.id) {
-                    finalConfidence = 100
-                    diagStatus = DiagnosticStatus.CONFIRMADO
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
-                    finalConfidence = 85
-                    diagStatus = DiagnosticStatus.CONFIRMADO
-                    diagReason = "Asignado por OCR (${ocrChamp.name}), con base visual aceptable."
+                    diagReason = "Asignado por TEXTO OCR (${ocrChamp.name}) ignorando visión errónea (${eval.candidate1?.name ?: "Nada"})"
                 }
             } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
