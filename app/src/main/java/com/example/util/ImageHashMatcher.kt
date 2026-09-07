@@ -129,7 +129,7 @@ object ImageHashMatcher {
             return VisualEvaluation(null, 0f, null, 0f, 0f, false, "RECHAZADO", "Dimensiones de bitmap inválidas (<16px)")
         }
 
-        val cropInner = try { getInnerCrop(bitmap, 0.60f) } catch (e: Exception) { bitmap }
+        val cropInner = try { getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { bitmap }
 
         // 1. Extraer píxeles de 32x32 para el recorte actual
         val scaled = Bitmap.createScaledBitmap(cropInner, 32, 32, true)

@@ -1,1 +1,1 @@
-git commit -a -m "fix(auth): asegura que el estado premium esté habilitado por defecto para usuarios con el rol 'admin' local en la base de datos sin depender de los custom claims"
+git commit -a -m "fix(scanner): mejora drásticamente el pipeline visual sincronizando los recortes de hash, previene sobreescrituras OCR en slots inactivos y corrige la asignación de rol natural en enemigos"

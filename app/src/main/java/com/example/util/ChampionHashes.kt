@@ -62,7 +62,7 @@ object ChampionHashes {
                                 signatures[championId] = sig
                                 dynamicMap[championId] = sig.aHash
                                 
-                                val crop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.85f) } catch (e: Exception) { null }
+                                val crop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { null }
                                 if (crop != null && crop != bitmap) {
                                     val cropHash = ImageHashMatcher.calculateHash(crop)
                                     dynamicMap["${championId}_crop"] = cropHash
@@ -84,7 +84,7 @@ object ChampionHashes {
 
     // Genera la firma visual a partir de un Bitmap (32x32 estructural con máscara circular + 64-bin color)
     fun createSignature(championId: String, bitmap: Bitmap): ChampionVisualSignature {
-        val innerCrop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.85f) } catch (e: Exception) { bitmap }
+        val innerCrop = try { ImageHashMatcher.getInnerCrop(bitmap, 0.70f) } catch (e: Exception) { bitmap }
         val scaled = Bitmap.createScaledBitmap(innerCrop, 32, 32, true)
         val pixels = IntArray(1024)
         scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)

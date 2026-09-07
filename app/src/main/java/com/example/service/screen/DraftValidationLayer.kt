@@ -172,7 +172,8 @@ object DraftValidationLayer {
     fun resolveTeamRolesDetailed(
         scannedSlots: List<ScannedSlotInfo>,
         allChampions: List<Champion>,
-        auditList: MutableList<String>
+        auditList: MutableList<String>,
+        isAllyTeam: Boolean = true
     ): ResolvedTeam {
         val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
         val finalMap = mutableMapOf<LaneRole, Champion>()
@@ -202,7 +203,9 @@ object DraftValidationLayer {
 
         // 2. ASIGNACIÓN POR POSICIÓN ESTÁNDAR DEL SLOT SI EL CAMPEÓN PUEDE JUGARLA (Certeza 95%)
         // En Wild Rift los slots 0..4 corresponden de forma fija a: TOP, JUNGLE, MID, ADC, SUPPORT
-        for (slot in validSlots) {
+        // ESTO SOLO APLICA PARA EL EQUIPO ALIADO (El enemigo se ordena por orden de pick, no por rol)
+        if (isAllyTeam) {
+            for (slot in validSlots) {
             val champ = slot.champion ?: continue
             if (assignedChampionIds.contains(champ.id)) continue
 
@@ -226,6 +229,7 @@ object DraftValidationLayer {
                     auditList.add("Posición de slot: ${champ.name} en ${naturalSlotRole.shortName}")
                 }
             }
+        }
         }
 
         // 3. ASIGNACIÓN POR ROL PRIMARIO DEL CAMPEÓN

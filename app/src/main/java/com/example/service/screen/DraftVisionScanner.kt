@@ -289,7 +289,11 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (eval.isConfirmed && eval.candidate1 != null) {
+            if (eval.status == "VACIO") {
+                finalChamp = null
+                finalConfidence = 0
+                diagStatus = DiagnosticStatus.VACIO
+            } else if (eval.isConfirmed && eval.candidate1 != null) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
                     finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
@@ -381,7 +385,11 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
+            if (eval.status == "VACIO") {
+                finalChamp = null
+                finalConfidence = 0
+                diagStatus = DiagnosticStatus.VACIO
+            } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
                     finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
@@ -453,7 +461,7 @@ object DraftVisionScanner {
 
         // 4.2 Enemigos: Asignación validada por roles primarios y secundarios de los picks seleccionados
         val validEnemySlots = enemySlots.filter { it.champion != null }
-        val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, auditList)
+        val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, auditList, isAllyTeam = false)
         val enemiesMap = enemyResolved.assignments
 
         // Deduplicación: Un campeón aliado jamás puede aparecer en el equipo enemigo
