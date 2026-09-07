@@ -1,4 +1,6 @@
 package com.example.service
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.foundation.Canvas
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.collectAsState
@@ -196,6 +198,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     // Estado para la orientación de la pantalla real
     private val isDeviceLandscape = androidx.compose.runtime.mutableStateOf(false)
     private var closeTargetComposeView: ComposeView? = null
+    private var debugBoxesComposeView: ComposeView? = null
     private var floatingParams: WindowManager.LayoutParams? = null
     private var isOverlayExpanded: Boolean = false
     private var isCompactBubbleMode: Boolean = false
@@ -409,8 +412,31 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             }
         }
 
+        val debugParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            layoutType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+        }
+
+        debugBoxesComposeView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@FloatingAssistantService)
+            setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
+            setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+            setContent {
+                val showDebug by showVisionDebugger.collectAsState()
+                if (showDebug) {
+                    VisionDebugOverlay()
+                }
+            }
+        }
+
         try {
             windowManager?.addView(closeTargetComposeView, closeTargetParams)
+            windowManager?.addView(debugBoxesComposeView, debugParams)
         } catch (_: Exception) {}
 
         val params = WindowManager.LayoutParams(
@@ -1457,7 +1483,8 @@ private fun FloatingOverlayContent(
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
-                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
+                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false },
+                                            onToggleDebug = { showVisionDebugger.value = !showVisionDebugger.value }
                                         )
                                     }
                                     OverlayHubTab.TIER_LIST -> {
@@ -2165,7 +2192,8 @@ private fun FloatingDraftCoachView(
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
     onGoToTierList: () -> Unit,
-    onManualEdit: () -> Unit
+    onManualEdit: () -> Unit,
+    onToggleDebug: () -> Unit
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
@@ -2237,7 +2265,8 @@ private fun FloatingDraftCoachView(
             isSavedRecently = isSavedRecently,
             onClearAll = onClearAll,
             onGoToTierList = onGoToTierList,
-            isPremium = isPremium
+            isPremium = isPremium,
+            onToggleDebug = onToggleDebug
         )
     }
 }
@@ -2499,7 +2528,8 @@ private fun CoachContent(
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
     onGoToTierList: () -> Unit,
-    isPremium: Boolean
+    isPremium: Boolean,
+    onToggleDebug: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         // 2. SELECTOR DE MI ROL / LÍNEA
@@ -2720,6 +2750,16 @@ private fun CoachContent(
             }
 
             Button(
+                onClick = onToggleDebug,
+                modifier = Modifier.weight(0.7f).height(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
+                border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f)),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+            ) {
+                Text("🐛", fontSize = 10.sp)
+            }
+            
+            Button(
                 onClick = onClearAll,
                 modifier = Modifier.weight(0.9f).height(28.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.15f)),
@@ -2794,3 +2834,57 @@ private fun CoachContent(
         }
     }
 }
+
+
+@Composable
+fun VisionDebugOverlay() {
+    val bitmap = com.example.service.screen.DraftVisionScanner.lastDebugBitmap
+    val diagnostics = com.example.service.screen.DraftVisionScanner.lastDiagnostics
+
+    if (bitmap == null) return
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val scaleX = size.width / bitmap.width.toFloat()
+        val scaleY = size.height / bitmap.height.toFloat()
+
+        for (diag in diagnostics) {
+            val rect = diag.roiRect ?: continue
+            val isAlly = diag.isAlly
+
+            val left = rect.left * scaleX
+            val top = rect.top * scaleY
+            val right = rect.right * scaleX
+            val bottom = rect.bottom * scaleY
+
+            val color = when (diag.status) {
+                com.example.service.screen.DiagnosticStatus.CONFIRMADO -> androidx.compose.ui.graphics.Color.Green
+                com.example.service.screen.DiagnosticStatus.VACIO -> androidx.compose.ui.graphics.Color.Gray
+                else -> androidx.compose.ui.graphics.Color.Red
+            }
+
+            drawRect(
+                color = color,
+                topLeft = androidx.compose.ui.geometry.Offset(left, top),
+                size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+            )
+
+            // Draw score
+            val champName = diag.candidate1?.name ?: "Unknown"
+            val text = "${champName}\n%.2f".format(diag.score1)
+            // It's a bit complicated to draw text on raw Canvas without text measurer, so we'll just draw colored boxes.
+            // But we can use native canvas to draw text:
+            drawContext.canvas.nativeCanvas.drawText(
+                "${champName} (%.2f)".format(diag.score1),
+                left,
+                top - 10f,
+                android.graphics.Paint().apply {
+                    this.color = android.graphics.Color.YELLOW
+                    this.textSize = 30f
+                    this.isAntiAlias = true
+                }
+            )
+        }
+    }
+}
+val showVisionDebugger = kotlinx.coroutines.flow.MutableStateFlow(false)

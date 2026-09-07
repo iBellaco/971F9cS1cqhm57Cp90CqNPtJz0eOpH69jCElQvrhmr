@@ -77,6 +77,9 @@ data class DraftScanResult(
 object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
     
+    var lastDebugBitmap: android.graphics.Bitmap? = null
+    var lastDiagnostics: List<SlotDiagnostic> = emptyList()
+    
     private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
 
     // Memoria persistente de los carriles asignados a cada slot aliado (0..4)

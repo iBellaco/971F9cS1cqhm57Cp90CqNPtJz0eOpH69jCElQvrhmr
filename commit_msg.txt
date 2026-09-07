@@ -1,1 +1,1 @@
-git commit -a -m "fix(scanner): mejora drásticamente el pipeline visual sincronizando los recortes de hash, previene sobreescrituras OCR en slots inactivos y corrige la asignación de rol natural en enemigos"
+feat(scanner): añade capa de depuración visual de cajas delimitadoras (bounding boxes) e incrementa el umbral mínimo de confianza al 90% para evitar reconocimientos fantasma
