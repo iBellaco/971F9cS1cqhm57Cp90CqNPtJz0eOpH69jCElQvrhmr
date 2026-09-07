@@ -1,4 +1,3 @@
-chore(release): bump version to 1.3.0
+feat(scanner): mejora el filtro de slots vacíos detectando texto de líneas
 
-- Incrementa versión de la aplicación de 1.2.x a 1.3.0
-- Se actualizó `versionCode` a 112 y `versionName` a "1.3.0"
+- Se añadió detección de palabras clave de roles ("carril", "jungla", "central", "dúo", "soporte", etc.) para marcar explícitamente un slot como "Vacío" (isLikelyUnpicked) antes de que el jugador seleccione un campeón.
