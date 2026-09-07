@@ -1,5 +1,6 @@
 package com.example.service
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.Canvas
 
 import androidx.compose.material.icons.Icons
@@ -1179,6 +1180,21 @@ private fun FloatingOverlayContent(
                                     }
                                 }
 
+                                // Botón Debug Visual
+                                IconButton(
+                                    onClick = {
+                                        showVisionDebugger.value = !showVisionDebugger.value
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    val isDebug = showVisionDebugger.collectAsStateWithLifecycle().value
+                                    Text(
+                                        text = "🐛",
+                                        fontSize = 14.sp,
+                                        modifier = Modifier.alpha(if (isDebug) 1f else 0.5f)
+                                    )
+                                }
+
                                 // Botón Limpiar Draft
                                 IconButton(
                                     onClick = {
@@ -1483,8 +1499,7 @@ private fun FloatingOverlayContent(
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
-                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false },
-                                            onToggleDebug = { showVisionDebugger.value = !showVisionDebugger.value }
+                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
                                         )
                                     }
                                     OverlayHubTab.TIER_LIST -> {
@@ -2192,8 +2207,7 @@ private fun FloatingDraftCoachView(
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
     onGoToTierList: () -> Unit,
-    onManualEdit: () -> Unit,
-    onToggleDebug: () -> Unit
+    onManualEdit: () -> Unit
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
@@ -2265,8 +2279,7 @@ private fun FloatingDraftCoachView(
             isSavedRecently = isSavedRecently,
             onClearAll = onClearAll,
             onGoToTierList = onGoToTierList,
-            isPremium = isPremium,
-            onToggleDebug = onToggleDebug
+            isPremium = isPremium
         )
     }
 }
@@ -2528,8 +2541,7 @@ private fun CoachContent(
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
     onGoToTierList: () -> Unit,
-    isPremium: Boolean,
-    onToggleDebug: () -> Unit
+    isPremium: Boolean
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         // 2. SELECTOR DE MI ROL / LÍNEA
@@ -2749,16 +2761,6 @@ private fun CoachContent(
                 }
             }
 
-            Button(
-                onClick = onToggleDebug,
-                modifier = Modifier.weight(0.7f).height(28.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f)),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-            ) {
-                Text("🐛", fontSize = 10.sp)
-            }
-            
             Button(
                 onClick = onClearAll,
                 modifier = Modifier.weight(0.9f).height(28.dp),

@@ -1,1 +1,1 @@
-fix(scanner): optimiza heurística de asignación de roles para flex picks y ajusta el umbral de detección a 0.75 para no perder campeones (ADC)
+fix(ui): reubica botón de depuración visual (🐛) a la cabecera principal del asistente flotante para garantizar visibilidad sin necesidad de scroll
