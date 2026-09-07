@@ -1,5 +1,5 @@
-fix(scanner): restaura escala visual y previene crash de rotación
+fix(scanner): corrige posicionamiento geométrico X y alucinación de OCR
 
-- Geometría: Se restauró el tamaño del área de captura a `0.115f` (revirtiendo el 0.098f de la v5). El recorte agresivo arruinaba la escala de los tensores pre-calculados, lo que causaba falsos positivos con ~0.40 de score.
-- UI: El overlay de depuración (los recuadros verdes del gusano) ahora dibuja los cuadros visualmente un 15% más pequeños mediante un inset visual para satisfacer la preferencia de estética del usuario, sin afectar la región de captura del motor.
-- Estabilidad: Se mitigó el crash (BadTokenException/SecurityException) al rotar el dispositivo en Android 14+ usando `updateViewLayout` en lugar de recrear toda la ventana flotante de Compose.
+- Geometría: Se desplazó el área de captura visual `allyAvatarCenterX` (de 0.140f a 0.165f) y `enemyAvatarCenterX` (de 0.100f a 0.075f desde el borde derecho). Esto centra perfectamente el bounding box en los rostros de los avatares, que previamente estaban cortando los iconos de hechizos a la izquierda (aliados) y los nombres a la izquierda (enemigos).
+- OCR: Se ajustaron estrictamente los límites de escaneo del OCR (X < 0.22 para aliados, X > 0.78 para enemigos) para ignorar completamente el centro de la pantalla. Esto soluciona un error crítico de "alucinación" donde el OCR leía los nombres recomendados de la propia ventana flotante de la app y los forzaba como detecciones confirmadas sobreescribiendo el motor visual.
+- Se incrementó la versión a 1.3.8.

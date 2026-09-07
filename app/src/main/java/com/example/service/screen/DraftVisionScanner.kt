@@ -161,12 +161,13 @@ object DraftVisionScanner {
                         else -> 4
                     }
 
-                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo: X entre 0.01 y 0.35)
-                    if (xRatio in 0.01f..0.35f) {
+                    // 1.1 COLUMNA ALIADA (Extremo Izquierdo estricto: X entre 0.01 y 0.22)
+                    // Evitamos > 0.22 porque podríamos leer el overlay de nuestra propia app
+                    if (xRatio in 0.01f..0.22f) {
                         allySlotTexts[slotIndex].add(text)
                     }
-                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho: X entre 0.65 y 0.99)
-                    else if (xRatio in 0.65f..0.99f) {
+                    // 1.2 COLUMNA ENEMIGA (Extremo Derecho estricto: X entre 0.78 y 0.99)
+                    else if (xRatio in 0.78f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
                 }
@@ -254,9 +255,10 @@ object DraftVisionScanner {
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        // Ajuste milimétrico de la X:
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.140f).toInt() else (height * 0.155f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.100f)).toInt() else (width - (height * 0.160f)).toInt()
+        // Ajuste milimétrico de la X: Se desplazan un poco hacia el centro de la pantalla
+        // para que no corten los iconos de hechizos/nombres y centren mejor el rostro
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.165f).toInt() else (height * 0.155f).toInt()
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.075f)).toInt() else (width - (height * 0.160f)).toInt()
 
         // Ratios verticales (eje Y): El pitch actual es excelente, bajamos todos apenas 1 pixel relativo
         val slotYRatios = floatArrayOf(0.201f, 0.333f, 0.468f, 0.601f, 0.738f)
@@ -291,17 +293,18 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (ocrChamp != null && !slot.isLikelyUnpicked) {
-                // OCR es la fuente de la verdad para el campeón si está presente
+            if (ocrChamp != null && !slot.isLikelyUnpicked && (eval.isConfirmed || eval.score1 >= 0.55f)) {
+                // OCR ayuda a desempatar o confirmar si la imagen tiene un score mínimamente decente (>0.55)
+                // Evitamos que OCR fuerce un campeón basándose en leer nuestro propio overlay (alucinación)
                 finalChamp = ocrChamp
-                if (eval.isConfirmed && eval.candidate1?.id == ocrChamp.id) {
+                if (eval.candidate1?.id == ocrChamp.id) {
                     finalConfidence = 100
                     diagStatus = DiagnosticStatus.CONFIRMADO
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
-                    finalConfidence = 90
+                    finalConfidence = 85
                     diagStatus = DiagnosticStatus.CONFIRMADO
-                    diagReason = "Asignado por OCR exacto (${ocrChamp.name}), visual no coincidió o estaba vacío."
+                    diagReason = "Asignado por OCR (${ocrChamp.name}), con base visual aceptable."
                 }
             } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
@@ -395,17 +398,18 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (ocrChamp != null && !slot.isLikelyUnpicked) {
-                // OCR es la fuente de la verdad para el campeón si está presente
+            if (ocrChamp != null && !slot.isLikelyUnpicked && (eval.isConfirmed || eval.score1 >= 0.55f)) {
+                // OCR ayuda a desempatar o confirmar si la imagen tiene un score mínimamente decente (>0.55)
+                // Evitamos que OCR fuerce un campeón basándose en leer nuestro propio overlay (alucinación)
                 finalChamp = ocrChamp
-                if (eval.isConfirmed && eval.candidate1?.id == ocrChamp.id) {
+                if (eval.candidate1?.id == ocrChamp.id) {
                     finalConfidence = 100
                     diagStatus = DiagnosticStatus.CONFIRMADO
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
-                    finalConfidence = 90
+                    finalConfidence = 85
                     diagStatus = DiagnosticStatus.CONFIRMADO
-                    diagReason = "Asignado por OCR exacto (${ocrChamp.name}), visual no coincidió o estaba vacío."
+                    diagReason = "Asignado por OCR (${ocrChamp.name}), con base visual aceptable."
                 }
             } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
