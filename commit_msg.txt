@@ -1,1 +1,1 @@
-git commit -a -m "fix(auth): permite al admin saltar el límite de dispositivos verificando el rol directamente desde su documento Firestore en caso de que no haya custom claims desplegadas"
+git commit -m "fix(ui): arregla la visualización del panel de administración omitiendo la verificación de custom claims del token si el rol local ya está cargado como admin"

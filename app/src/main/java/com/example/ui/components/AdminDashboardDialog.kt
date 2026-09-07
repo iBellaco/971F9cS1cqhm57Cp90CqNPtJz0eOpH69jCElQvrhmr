@@ -22,7 +22,9 @@ import com.example.util.AuthManager
 fun AdminDashboardDialog(
     onDismiss: () -> Unit
 ) {
-    val isAdmin = AuthManager.isCurrentUserAdmin()
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
+    val isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+    
     if (!isAdmin) {
         LaunchedEffect(Unit) { onDismiss() }
         return
