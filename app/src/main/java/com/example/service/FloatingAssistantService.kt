@@ -2894,12 +2894,11 @@ fun VisionDebugOverlay() {
             )
 
             // Draw score
-            val champName = diag.candidate1?.name ?: "Unknown"
-            val text = "${champName}\n%.2f".format(diag.score1)
-            // It's a bit complicated to draw text on raw Canvas without text measurer, so we'll just draw colored boxes.
-            // But we can use native canvas to draw text:
+            val finalChampName = diag.finalChampion?.name ?: (diag.ocrChampion?.name ?: diag.candidate1?.name ?: "Unknown")
+            val method = if (diag.finalChampion?.id == diag.ocrChampion?.id && diag.ocrChampion != null) "OCR" else "VISUAL"
+            
             drawContext.canvas.nativeCanvas.drawText(
-                "${champName} (%.2f)".format(diag.score1),
+                "${finalChampName} [$method]",
                 left,
                 top - 10f,
                 android.graphics.Paint().apply {

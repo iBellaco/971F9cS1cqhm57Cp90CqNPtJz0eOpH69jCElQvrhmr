@@ -276,9 +276,7 @@ object ChampionNameResolver {
         }
 
         // 4. Si la línea no contiene ningún campeón pero es claramente un apodo de invocador, descartar
-        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
-            return null
-        }
+        // REMOVIDO porque también daba falsos positivos en nombres legítimos concatenados.
 
         // 5. Coincidencia difusa ultrarrestringida (Levenshtein distance <= 1) para errores OCR menores en nombres aislados largos (>= 5 letras)
         // Se descartan palabras cortas (para evitar que nombres de invocador como "sam", "kain", "sony" se confundan con campeones)

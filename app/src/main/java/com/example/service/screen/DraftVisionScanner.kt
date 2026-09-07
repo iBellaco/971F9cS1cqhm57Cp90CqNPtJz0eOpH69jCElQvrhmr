@@ -31,6 +31,7 @@ data class SlotDiagnostic(
     val score2: Float,
     val margin: Float,
     val ocrChampion: Champion?,
+    val finalChampion: Champion?,
     val status: DiagnosticStatus,
     val reason: String
 ) {
@@ -124,6 +125,8 @@ object DraftVisionScanner {
         val enemySlots = (0..4).map { ScannedSlotInfo(slotIndex = it, isAlly = false) }
         val detectedWords = mutableListOf<String>()
         var userDetectedLane: LaneRole? = null
+        var userSlotIndex: Int? = null
+        val centerTexts = mutableListOf<String>()
 
         val allySlotTexts = Array(5) { mutableListOf<String>() }
         val enemySlotTexts = Array(5) { mutableListOf<String>() }
@@ -169,6 +172,10 @@ object DraftVisionScanner {
                     else if (xRatio in 0.66f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
+                    // 1.3 CENTRO
+                    else {
+                        centerTexts.add(text)
+                    }
                 }
             }
 
@@ -185,6 +192,7 @@ object DraftVisionScanner {
                         allySlotRolesCache[i] = role
                         // En Wild Rift, solo el jugador local tiene su carril escrito explícitamente en el HUD
                         userDetectedLane = role
+                        userSlotIndex = i
                         AppLogger.d(TAG, "OCR Aliado Slot $i -> Rol explícito: ${role.shortName} -> User Detected Lane!")
                     }
 
@@ -377,6 +385,7 @@ object DraftVisionScanner {
                 score2 = eval.score2,
                 margin = eval.margin,
                 ocrChampion = ocrChamp,
+                finalChampion = finalChamp,
                 status = diagStatus,
                 reason = diagReason
             )
@@ -480,6 +489,7 @@ object DraftVisionScanner {
                 score2 = eval.score2,
                 margin = eval.margin,
                 ocrChampion = ocrChamp,
+                finalChampion = finalChamp,
                 status = diagStatus,
                 reason = diagReason
             )
