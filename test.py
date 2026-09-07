@@ -1,5 +1,6 @@
-import sys
-with open("app/src/main/java/com/example/service/screen/DraftVisionScanner.kt", "r") as f:
+with open("app/build.gradle.kts", "r") as f:
     content = f.read()
-if "lastDebugBitmap.value" in content:
-    print("Yes")
+
+start = content.find("secrets {")
+end = content.find("}", start)
+print(content[start:end+1])
