@@ -253,11 +253,14 @@ object DraftVisionScanner {
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.195f).toInt() else (height * 0.155f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.210f)).toInt() else (width - (height * 0.160f)).toInt()
+        // En base a la captura 21:9 exacta, las coordenadas correctas son:
+        // Altura de la caja (avatarDiameter): Mantenemos 0.115f
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.125f).toInt() else (height * 0.155f).toInt()
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.125f)).toInt() else (width - (height * 0.160f)).toInt()
 
-        // Ratios verticales calibrados de los 5 slots HUD (pitch exacto de 0.140f):
-        val slotYRatios = floatArrayOf(0.207f, 0.347f, 0.487f, 0.627f, 0.767f)
+        // Ratios verticales (eje Y) corregidos milimétricamente hacia arriba.
+        // En la última imagen, las cajas estaban demasiado abajo.
+        val slotYRatios = floatArrayOf(0.185f, 0.315f, 0.445f, 0.575f, 0.705f)
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
         // 3.1 Aliados

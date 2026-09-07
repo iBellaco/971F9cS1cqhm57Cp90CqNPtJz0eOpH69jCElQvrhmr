@@ -1,3 +1,4 @@
-feat(scanner): mejora el filtro de slots vacíos detectando texto de líneas
+fix(scanner): recalibra posiciones geométricas para pantallas 21:9
 
-- Se añadió detección de palabras clave de roles ("carril", "jungla", "central", "dúo", "soporte", etc.) para marcar explícitamente un slot como "Vacío" (isLikelyUnpicked) antes de que el jugador seleccione un campeón.
+- Ajuste del eje Y: Se elevaron los 5 slots ya que estaban desfasados hacia abajo.
+- Ajuste del eje X: Se acercaron las cajas de detección a los bordes exteriores, revirtiendo el sobre-desplazamiento hacia el centro.
