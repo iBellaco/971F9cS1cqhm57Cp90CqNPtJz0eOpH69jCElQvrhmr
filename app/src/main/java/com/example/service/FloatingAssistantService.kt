@@ -427,6 +427,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
             setContent {
                 val showDebug by showVisionDebugger.collectAsState()
                 if (showDebug) {
@@ -2842,6 +2843,9 @@ private fun CoachContent(
 fun VisionDebugOverlay() {
     val bitmap by com.example.service.screen.DraftVisionScanner.lastDebugBitmap.collectAsStateWithLifecycle()
     val diagnostics by com.example.service.screen.DraftVisionScanner.lastDiagnostics.collectAsStateWithLifecycle()
+    
+    // Test box to see if overlay works at all
+    androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize().background(Color.Red.copy(alpha=0.3f)))
 
     val currentBitmap = bitmap ?: return
 
@@ -2868,7 +2872,7 @@ fun VisionDebugOverlay() {
                 color = color,
                 topLeft = androidx.compose.ui.geometry.Offset(left, top),
                 size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f)
             )
 
             // Draw score

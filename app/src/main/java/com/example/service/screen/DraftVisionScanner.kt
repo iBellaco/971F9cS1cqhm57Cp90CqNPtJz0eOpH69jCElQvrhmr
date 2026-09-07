@@ -284,11 +284,19 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (eval.status == "VACIO") {
-                finalChamp = null
-                finalConfidence = 0
-                diagStatus = DiagnosticStatus.VACIO
-            } else if (eval.isConfirmed && eval.candidate1 != null) {
+            if (ocrChamp != null && !slot.isLikelyUnpicked) {
+                // OCR es la fuente de la verdad para el campeón si está presente
+                finalChamp = ocrChamp
+                if (eval.isConfirmed && eval.candidate1?.id == ocrChamp.id) {
+                    finalConfidence = 100
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
+                } else {
+                    finalConfidence = 90
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Asignado por OCR exacto (${ocrChamp.name}), visual no coincidió o estaba vacío."
+                }
+            } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
                     finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
@@ -380,10 +388,18 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            if (eval.status == "VACIO") {
-                finalChamp = null
-                finalConfidence = 0
-                diagStatus = DiagnosticStatus.VACIO
+            if (ocrChamp != null && !slot.isLikelyUnpicked) {
+                // OCR es la fuente de la verdad para el campeón si está presente
+                finalChamp = ocrChamp
+                if (eval.isConfirmed && eval.candidate1?.id == ocrChamp.id) {
+                    finalConfidence = 100
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
+                } else {
+                    finalConfidence = 90
+                    diagStatus = DiagnosticStatus.CONFIRMADO
+                    diagReason = "Asignado por OCR exacto (${ocrChamp.name}), visual no coincidió o estaba vacío."
+                }
             } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
@@ -474,6 +490,9 @@ object DraftVisionScanner {
             else -> "Detectados: $total picks con certeza"
         }
 
+        lastDebugBitmap.value = bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+        lastDiagnostics.value = diagnosticsList
+
         return DraftScanResult(
             allies = allyChampsList,
             enemies = enemyChampsList,
@@ -487,8 +506,5 @@ object DraftVisionScanner {
             isSuccessful = total > 0,
             statusMessage = statusMsg
         )
-        
-        lastDebugBitmap.value = bitmap.copy(Bitmap.Config.ARGB_8888, false)
-        lastDiagnostics.value = diagnosticsList
     }
 }

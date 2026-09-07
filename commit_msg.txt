@@ -1,5 +1,5 @@
-fix(scanner): corrige detección del jugador local (TÚ) mediante carril explícito y repara el visor de depuración (🐛)
+fix(scanner): aplica prioridad absoluta de OCR a la columna aliada y estabiliza el canvas de depuración
 
-- **Detección del Jugador:** En Wild Rift solo el jugador local tiene su rol escrito explícitamente ("CALLE CENTRAL", etc.) en el HUD. Se actualizó la heurística para detectar instantáneamente el rol del jugador y auto-seleccionar su línea.
-- **Visión Enemiga:** Se calibró el centro geométrico de los avatares para pantallas ultra-anchas (21:9) donde los márgenes de seguridad desplazan el HUD hacia el centro.
-- **Modo Debug (🐛):** Se integró estado reactivo (StateFlow) a la captura de depuración. Al presionar el botón 🐛, el overlay ahora se pintará dinámicamente con cada escaneo mostrando las cajas de recorte en rojo.
+- **Tu Pick (Akshan):** Me di cuenta de que apliqué el arreglo de prioridad OCR solo al equipo enemigo en la versión anterior. He extendido la misma lógica de "OCR = Verdad Absoluta" + "60% umbral visual" a la columna aliada. Ahora, aunque el escáner geométrico batalle con el borde de selección, tu Akshan será detectado gracias a la mayor tolerancia.
+- **Bug del Gusano (🐛) Parte 2:** El canvas reactivo no se estaba renderizando porque la vista transparente carecía de una "Estrategia de Composición" que le dijera a Jetpack Compose cómo administrar su ciclo de vida. Le he inyectado el `ViewCompositionStrategy.DisposeOnDetachedFromWindow`.
+- Además, he engrosado los marcos rojos a 12px y agregado un tinte rojo súper sutil a la pantalla completa cuando el modo gusano está activo, para que sea 100% obvio si está funcionando o no.
