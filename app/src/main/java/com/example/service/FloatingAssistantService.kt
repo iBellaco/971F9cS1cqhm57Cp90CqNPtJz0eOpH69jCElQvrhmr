@@ -301,6 +301,17 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         return START_NOT_STICKY
     }
 
+    private fun updateOverlayRect(params: WindowManager.LayoutParams, isExpanded: Boolean) {
+        try {
+            val density = resources.displayMetrics.density
+            val isLandscape = resources.displayMetrics.widthPixels > resources.displayMetrics.heightPixels
+            val cWidth = if (isExpanded) ((if (isLandscape) 560 else 330) * density).toInt() else (46 * density).toInt()
+            val cHeight = if (isExpanded) ((if (isLandscape) 390 else 520) * density).toInt() else (46 * density).toInt()
+            val margin = (16 * density).toInt()
+            DraftVisionScanner.overlayRect = android.graphics.Rect(params.x - margin, params.y - margin, params.x + cWidth + margin, params.y + cHeight + margin)
+        } catch (_: Exception) {}
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -579,6 +590,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 try {
                                     if (this@apply.isAttachedToWindow) {
                                         windowManager?.updateViewLayout(this@apply, params)
+                                        this@FloatingAssistantService.updateOverlayRect(params, isOverlayExpanded)
                                     }
                                 } catch (_: Exception) {}
                             },
@@ -647,6 +659,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     floatingParams!!.x = currentX.coerceIn(marginPx, maxX)
                     floatingParams!!.y = currentY.coerceIn(marginPx, maxY)
                     windowManager?.updateViewLayout(floatingComposeView, floatingParams)
+                    updateOverlayRect(floatingParams!!, isOverlayExpanded)
                 }
             } else {
                 floatingComposeView?.dispatchConfigurationChanged(newConfig)

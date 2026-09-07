@@ -256,7 +256,7 @@ object ChampionNameResolver {
         }
 
         // 3. Coincidencia por palabra contenida (ej: "WUKONG XCS Alee22" -> detecta "WUKONG")
-        val words = clean.split(" ").filter { it.length >= 3 && !UI_IGNORE_WORDS.contains(it) }
+        val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
                 val found = allChampions.find { it.id.equals(id, ignoreCase = true) }

@@ -77,6 +77,7 @@ data class DraftScanResult(
 
 object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
+    var overlayRect: android.graphics.Rect? = null
     
     var lastDebugBitmap = kotlinx.coroutines.flow.MutableStateFlow<android.graphics.Bitmap?>(null)
     var lastDiagnostics = kotlinx.coroutines.flow.MutableStateFlow<List<SlotDiagnostic>>(emptyList())
@@ -144,9 +145,15 @@ object DraftVisionScanner {
                 for (line in block.lines) {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
-                    detectedWords.add(text)
-
+                    
                     val box = line.boundingBox
+                    if (box != null && overlayRect != null) {
+                        if (android.graphics.Rect.intersects(box, overlayRect!!)) {
+                            continue // Ignorar texto que cae dentro de la ventana flotante
+                        }
+                    }
+                    
+                    detectedWords.add(text)
                     val centerY = box?.centerY() ?: 0
                     val centerX = box?.centerX() ?: 0
                     val yRatio = centerY.toFloat() / height.toFloat()
@@ -165,11 +172,11 @@ object DraftVisionScanner {
                     }
 
                     // 1.1 COLUMNA ALIADA (Extremos ampliados para capturar los nombres, pero evitando el centro >0.33)
-                    if (xRatio in 0.01f..0.34f) {
+                    if (xRatio in 0.01f..0.24f) {
                         allySlotTexts[slotIndex].add(text)
                     }
                     // 1.2 COLUMNA ENEMIGA (X entre 0.66 y 0.99)
-                    else if (xRatio in 0.66f..0.99f) {
+                    else if (xRatio in 0.76f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
                     // 1.3 CENTRO
@@ -202,6 +209,18 @@ object DraftVisionScanner {
                         if (matched != null) {
                             allyOcrChampions[i] = matched
                             AppLogger.d(TAG, "OCR Aliado Slot $i -> Texto detectado: ${matched.name}")
+                        }
+                    }
+                }
+                
+                // C) Fallback al texto central si es el slot del jugador y no tiene campeón (ej: Pre-selección)
+                if (allyOcrChampions[i] == null && userSlotIndex == i) {
+                    for (centerLine in centerTexts) {
+                        val matched = ChampionNameResolver.findChampionInText(centerLine, allChamps)
+                        if (matched != null) {
+                            allyOcrChampions[i] = matched
+                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Texto CENTRAL detectado: ${matched.name}")
+                            break
                         }
                     }
                 }
