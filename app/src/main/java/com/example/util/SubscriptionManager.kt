@@ -176,7 +176,7 @@ object SubscriptionManager {
                 if (listenSnapshot != null && listenSnapshot.exists()) {
                     var role = listenSnapshot.getString("role") ?: "free"
                     val isAdminClaim = AuthManager.isCurrentUserAdmin()
-                    if (isAdminClaim) {
+                    if (isAdminClaim || role == "admin") {
                         role = "admin"
                     }
                     val sessionToken = listenSnapshot.getString("sessionToken")
@@ -199,7 +199,7 @@ object SubscriptionManager {
                     _premiumUntil.value = until
                     
                     val isPrem = when {
-                        isAdminClaim -> true
+                        isAdminClaim || role == "admin" -> true
                         role == "premium" -> {
                             until == null || until == 0L || until > System.currentTimeMillis()
                         }

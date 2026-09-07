@@ -1,1 +1,1 @@
-git commit -m "fix(ui): arregla la visualización del panel de administración omitiendo la verificación de custom claims del token si el rol local ya está cargado como admin"
+git commit -a -m "fix(auth): asegura que el estado premium esté habilitado por defecto para usuarios con el rol 'admin' local en la base de datos sin depender de los custom claims"
