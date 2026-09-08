@@ -231,7 +231,9 @@ data class MapObjectiveItem(
 data class DraftSlot(
     val champion: Champion,
     val assignedRole: LaneRole = champion.primaryRole,
-    val confidence: Int? = null
+    val confidence: Int? = null,
+    val summonerName: String? = null,
+    val spells: List<String> = emptyList()
 )
 
 @Serializable

@@ -794,6 +794,9 @@ class OverlayState {
     val enemyConfidences = androidx.compose.runtime.mutableStateMapOf<LaneRole, Int>()
     val manualLockedAllySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
     val manualLockedEnemySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
+    val allySummonerNames = androidx.compose.runtime.mutableStateMapOf<Int, String>()
+    val allySpells = androidx.compose.runtime.mutableStateMapOf<Int, List<String>>()
+    val enemySpells = androidx.compose.runtime.mutableStateMapOf<Int, List<String>>()
 }
 
 @Composable
@@ -924,6 +927,17 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
+                            // Sincronizar nombres de invocador aliados y hechizos detectados
+                            result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
+                                state.allySummonerNames[slotIdx] = name
+                            }
+                            result.allySpellsBySlot.forEach { (slotIdx, spells) ->
+                                state.allySpells[slotIdx] = spells
+                            }
+                            result.enemySpellsBySlot.forEach { (slotIdx, spells) ->
+                                state.enemySpells[slotIdx] = spells
+                            }
+
                             if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
                                 com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
@@ -985,6 +999,17 @@ private fun FloatingOverlayContent(
                                     state.enemyConfidences.remove(role)
                                 }
                             }
+                        }
+
+                        // Sincronizar nombres de invocador aliados y hechizos detectados
+                        result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
+                            state.allySummonerNames[slotIdx] = name
+                        }
+                        result.allySpellsBySlot.forEach { (slotIdx, spells) ->
+                            state.allySpells[slotIdx] = spells
+                        }
+                        result.enemySpellsBySlot.forEach { (slotIdx, spells) ->
+                            state.enemySpells[slotIdx] = spells
                         }
 
                         if (result.detectedRole != null) {
@@ -1271,6 +1296,9 @@ private fun FloatingOverlayContent(
                                         }
                                         manualLockedAllySlots.clear()
                                         manualLockedEnemySlots.clear()
+                                        state.allySummonerNames.clear()
+                                        state.allySpells.clear()
+                                        state.enemySpells.clear()
                                         selectedChampionDetail = null
                                         com.example.service.screen.DraftVisionScanner.resetSlotMemory()
                                     },
@@ -1550,6 +1578,9 @@ private fun FloatingOverlayContent(
                                             allies = allies,
                                             enemies = enemies,
                                             enemyConfidences = state.enemyConfidences,
+                                            allySummonerNames = state.allySummonerNames,
+                                            allySpells = state.allySpells,
+                                            enemySpells = state.enemySpells,
                                             analysis = analysis,
                                             selectedChampionDetail = selectedChampionDetail,
                                             onSelectChampion = { selectedChampionDetail = it },
@@ -1567,6 +1598,9 @@ private fun FloatingOverlayContent(
                                                 manualLockedAllySlots.clear()
                                                 manualLockedEnemySlots.clear()
                                                 state.enemyConfidences.clear()
+                                                state.allySummonerNames.clear()
+                                                state.allySpells.clear()
+                                                state.enemySpells.clear()
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
@@ -2272,6 +2306,9 @@ private fun FloatingDraftCoachView(
     allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
     enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
     enemyConfidences: androidx.compose.runtime.snapshots.SnapshotStateMap<LaneRole, Int>,
+    allySummonerNames: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, String> = remember { androidx.compose.runtime.mutableStateMapOf() },
+    allySpells: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, List<String>> = remember { androidx.compose.runtime.mutableStateMapOf() },
+    enemySpells: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, List<String>> = remember { androidx.compose.runtime.mutableStateMapOf() },
     analysis: com.example.model.DraftAnalysisResult,
     selectedChampionDetail: Champion?,
     onSelectChampion: (Champion?) -> Unit,
@@ -2295,16 +2332,28 @@ private fun FloatingDraftCoachView(
         }
     }
 
-    val allySlots = remember(allies.toList()) {
+    val allySlots = remember(allies.toList(), allySummonerNames.toMap(), allySpells.toMap()) {
         defaultRoles.mapIndexedNotNull { index, role ->
-            allies.getOrNull(index)?.let { DraftSlot(champion = it, assignedRole = role) }
+            allies.getOrNull(index)?.let {
+                DraftSlot(
+                    champion = it,
+                    assignedRole = role,
+                    summonerName = allySummonerNames[index],
+                    spells = allySpells[index] ?: emptyList()
+                )
+            }
         }
     }
-    val enemySlots = remember(enemies.toList(), enemyConfidences.toMap()) {
+    val enemySlots = remember(enemies.toList(), enemyConfidences.toMap(), enemySpells.toMap()) {
         defaultRoles.mapIndexedNotNull { index, role ->
             enemies.getOrNull(index)?.let {
                 val conf = enemyConfidences[role] ?: 85
-                DraftSlot(champion = it, assignedRole = role, confidence = conf)
+                DraftSlot(
+                    champion = it,
+                    assignedRole = role,
+                    confidence = conf,
+                    spells = enemySpells[index] ?: emptyList()
+                )
             }
         }
     }
@@ -2316,6 +2365,9 @@ private fun FloatingDraftCoachView(
         OverlayVersusDraftBoard(
             allySlots = allySlots,
             enemySlots = enemySlots,
+            allySummonerNames = allySummonerNames.toMap(),
+            allySpells = allySpells.toMap(),
+            enemySpells = enemySpells.toMap(),
             activeUserRole = activeRole,
             onPickChampionForRole = { isAlly, role ->
                 val index = defaultRoles.indexOf(role).coerceAtLeast(0)
@@ -2362,6 +2414,9 @@ private fun FloatingDraftCoachView(
 private fun OverlayVersusDraftBoard(
     allySlots: List<DraftSlot>,
     enemySlots: List<DraftSlot>,
+    allySummonerNames: Map<Int, String> = emptyMap(),
+    allySpells: Map<Int, List<String>> = emptyMap(),
+    enemySpells: Map<Int, List<String>> = emptyMap(),
     activeUserRole: LaneRole?,
     onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
     onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
@@ -2395,6 +2450,9 @@ private fun OverlayVersusDraftBoard(
             roles.forEachIndexed { index, (role, label, iconRes) ->
                 val allySlot = allySlots.find { it.assignedRole == role }
                 val enemySlot = enemySlots.find { it.assignedRole == role }
+                val summonerName = allySlot?.summonerName ?: allySummonerNames[index]
+                val spellsAlly = if (!allySlot?.spells.isNullOrEmpty()) allySlot.spells else (allySpells[index] ?: emptyList())
+                val spellsEnemy = if (!enemySlot?.spells.isNullOrEmpty()) enemySlot.spells else (enemySpells[index] ?: emptyList())
 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp),
@@ -2411,6 +2469,7 @@ private fun OverlayVersusDraftBoard(
                     ) {
                         DraftAvatarBox(
                             slot = allySlot,
+                            placeholderInitial = summonerName?.take(2)?.uppercase(),
                             isEnemy = false,
                             isMyRole = activeUserRole == role,
                             onClick = { onPickChampionForRole(true, role) },
@@ -2427,11 +2486,39 @@ private fun OverlayVersusDraftBoard(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = allySlot.champion.tier,
+                                        color = HextechGold,
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    if (!summonerName.isNullOrBlank()) {
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "• $summonerName",
+                                            color = TextMuted,
+                                            fontSize = 7.5.sp,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                        } else if (!summonerName.isNullOrBlank()) {
+                            Column(modifier = Modifier.weight(1f, fill = false)) {
                                 Text(
-                                    text = allySlot.champion.tier,
-                                    color = HextechGold,
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold
+                                    text = summonerName,
+                                    color = HextechCyan,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 9.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = tr("Preselección"),
+                                    color = TextMuted,
+                                    fontSize = 7.5.sp
                                 )
                             }
                         } else {
@@ -2441,6 +2528,25 @@ private fun OverlayVersusDraftBoard(
                                 fontSize = 8.5.sp,
                                 maxLines = 1
                             )
+                        }
+
+                        // Hechizos de invocador del aliado
+                        if (spellsAlly.isNotEmpty()) {
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                spellsAlly.take(2).forEach { spellName ->
+                                    val iconUrl = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(spellName)
+                                    AppAssetImage(
+                                        url = iconUrl,
+                                        contentDescription = spellName,
+                                        fallbackText = spellName.take(1),
+                                        modifier = Modifier
+                                            .size(13.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .border(0.5.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -2463,6 +2569,25 @@ private fun OverlayVersusDraftBoard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.End
                     ) {
+                        // Hechizos de invocador del rival
+                        if (spellsEnemy.isNotEmpty()) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                spellsEnemy.take(2).forEach { spellName ->
+                                    val iconUrl = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(spellName)
+                                    AppAssetImage(
+                                        url = iconUrl,
+                                        contentDescription = spellName,
+                                        fallbackText = spellName.take(1),
+                                        modifier = Modifier
+                                            .size(13.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .border(0.5.dp, DangerRed.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(3.dp))
+                        }
+
                         if (enemySlot?.confidence != null && enemySlot.champion != null) {
                             Box(
                                 modifier = Modifier
@@ -2516,6 +2641,7 @@ private fun OverlayVersusDraftBoard(
 
                         DraftAvatarBox(
                             slot = enemySlot,
+                            placeholderInitial = null,
                             isEnemy = true,
                             isMyRole = false,
                             onClick = { onPickChampionForRole(false, role) },
@@ -2537,6 +2663,7 @@ private fun OverlayVersusDraftBoard(
 @Composable
 private fun DraftAvatarBox(
     slot: DraftSlot?,
+    placeholderInitial: String? = null,
     isEnemy: Boolean,
     isMyRole: Boolean,
     onClick: () -> Unit,
@@ -2591,6 +2718,18 @@ private fun DraftAvatarBox(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.White, modifier = Modifier.size(12.dp))
+            }
+        } else if (!placeholderInitial.isNullOrBlank()) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(HextechSurface.copy(alpha = 0.85f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = placeholderInitial,
+                    color = HextechCyan,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Black
+                )
             }
         } else {
             Icon(Icons.Default.Add, contentDescription = "Añadir", tint = TextMuted, modifier = Modifier.size(20.dp))
@@ -2915,59 +3054,143 @@ private fun CoachContent(
 fun VisionDebugOverlay() {
     val bitmap by com.example.service.screen.DraftVisionScanner.lastDebugBitmap.collectAsStateWithLifecycle()
     val diagnostics by com.example.service.screen.DraftVisionScanner.lastDiagnostics.collectAsStateWithLifecycle()
-    
-    // Test box to see if overlay works at all
-    androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize().background(Color.Red.copy(alpha=0.3f)))
+    val detectedTexts by com.example.service.screen.DraftVisionScanner.lastDetectedTexts.collectAsStateWithLifecycle()
+    val detectedSpells by com.example.service.screen.DraftVisionScanner.lastDetectedSpells.collectAsStateWithLifecycle()
 
-    val currentBitmap = bitmap ?: return
+    val currentBitmap = bitmap
 
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        val scaleX = size.width / currentBitmap.width.toFloat()
-        val scaleY = size.height / currentBitmap.height.toFloat()
-
-        for (diag in diagnostics) {
-            val rect = diag.roiRect ?: continue
-            val isAlly = diag.isAlly
-
-            val left = rect.left * scaleX
-            val top = rect.top * scaleY
-            val right = rect.right * scaleX
-            val bottom = rect.bottom * scaleY
-
-            val color = when (diag.status) {
-                com.example.service.screen.DiagnosticStatus.CONFIRMADO -> androidx.compose.ui.graphics.Color.Green
-                com.example.service.screen.DiagnosticStatus.VACIO -> androidx.compose.ui.graphics.Color.Gray
-                else -> androidx.compose.ui.graphics.Color.Red
-            }
-
-            val insetX = (right - left) * 0.075f
-            val insetY = (bottom - top) * 0.075f
-            val drawLeft = left + insetX
-            val drawTop = top + insetY
-            val drawWidth = (right - left) - (insetX * 2)
-            val drawHeight = (bottom - top) - (insetY * 2)
-
-            drawRect(
-                color = color,
-                topLeft = androidx.compose.ui.geometry.Offset(drawLeft, drawTop),
-                size = androidx.compose.ui.geometry.Size(drawWidth, drawHeight),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f)
+    androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
+        // Indicador HUD superior
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 10.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xE60A1428))
+                .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "🐛 Visión en Vivo: ${detectedTexts.size} textos • ${detectedSpells.size} hechizos • ${diagnostics.size} avatares",
+                color = HextechGold,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
             )
+        }
 
-            // Draw score
-            val finalChampName = diag.finalChampion?.name ?: (diag.ocrChampion?.name ?: "Unknown")
-            val method = if (diag.finalChampion?.id == diag.ocrChampion?.id && diag.ocrChampion != null) "OCR" else "VISUAL"
-            
-            drawContext.canvas.nativeCanvas.drawText(
-                "${finalChampName} [$method] VIS:${diag.candidate1?.name ?: "-"} (${"%.2f".format(diag.score1)})",
-                left,
-                top - 10f,
-                android.graphics.Paint().apply {
-                    this.color = android.graphics.Color.YELLOW
-                    this.textSize = 30f
+        if (currentBitmap != null && currentBitmap.width > 0 && currentBitmap.height > 0) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val scaleX = size.width / currentBitmap.width.toFloat()
+                val scaleY = size.height / currentBitmap.height.toFloat()
+
+                val textPaint = android.graphics.Paint().apply {
+                    this.textSize = 28f
                     this.isAntiAlias = true
+                    this.style = android.graphics.Paint.Style.FILL
+                    this.setShadowLayer(4f, 2f, 2f, android.graphics.Color.BLACK)
                 }
-            )
+
+                // 1. Dibujar cajas de texto OCR detectadas
+                for (tDiag in detectedTexts) {
+                    val rect = tDiag.rect
+                    val left = rect.left * scaleX
+                    val top = rect.top * scaleY
+                    val right = rect.right * scaleX
+                    val bottom = rect.bottom * scaleY
+
+                    val boxColor = when (tDiag.tag) {
+                        "CAMPEÓN" -> Color(0xFF00E5FF)
+                        "ROL" -> Color(0xFFFFD700)
+                        "INVOCADOR" -> Color(0xFF00FF7F)
+                        else -> Color(0xFFE040FB)
+                    }
+
+                    drawRect(
+                        color = boxColor,
+                        topLeft = androidx.compose.ui.geometry.Offset(left, top),
+                        size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+                    )
+
+                    textPaint.color = when (tDiag.tag) {
+                        "CAMPEÓN" -> android.graphics.Color.CYAN
+                        "ROL" -> android.graphics.Color.YELLOW
+                        "INVOCADOR" -> android.graphics.Color.GREEN
+                        else -> android.graphics.Color.MAGENTA
+                    }
+
+                    drawContext.canvas.nativeCanvas.drawText(
+                        "${tDiag.text} [${tDiag.tag}]",
+                        left,
+                        (top - 6f).coerceAtLeast(24f),
+                        textPaint
+                    )
+                }
+
+                // 2. Dibujar cajas de hechizos de invocador detectados
+                for (sDiag in detectedSpells) {
+                    val rect = sDiag.rect
+                    val left = rect.left * scaleX
+                    val top = rect.top * scaleY
+                    val right = rect.right * scaleX
+                    val bottom = rect.bottom * scaleY
+
+                    drawRect(
+                        color = Color(0xFFFF9100),
+                        topLeft = androidx.compose.ui.geometry.Offset(left, top),
+                        size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+                    )
+
+                    textPaint.color = android.graphics.Color.rgb(255, 145, 0)
+                    drawContext.canvas.nativeCanvas.drawText(
+                        "⚡ ${sDiag.spellName}",
+                        left,
+                        (bottom + 22f).coerceAtMost(size.height - 10f),
+                        textPaint
+                    )
+                }
+
+                // 3. Dibujar ROIs de Avatares y Diagnósticos
+                for (diag in diagnostics) {
+                    val rect = diag.roiRect
+                    val left = rect.left * scaleX
+                    val top = rect.top * scaleY
+                    val right = rect.right * scaleX
+                    val bottom = rect.bottom * scaleY
+
+                    val color = when (diag.status) {
+                        com.example.service.screen.DiagnosticStatus.CONFIRMADO -> androidx.compose.ui.graphics.Color.Green
+                        com.example.service.screen.DiagnosticStatus.VACIO -> androidx.compose.ui.graphics.Color.Gray
+                        else -> androidx.compose.ui.graphics.Color.Red
+                    }
+
+                    val insetX = (right - left) * 0.05f
+                    val insetY = (bottom - top) * 0.05f
+                    val drawLeft = left + insetX
+                    val drawTop = top + insetY
+                    val drawWidth = (right - left) - (insetX * 2)
+                    val drawHeight = (bottom - top) - (insetY * 2)
+
+                    drawRect(
+                        color = color,
+                        topLeft = androidx.compose.ui.geometry.Offset(drawLeft, drawTop),
+                        size = androidx.compose.ui.geometry.Size(drawWidth, drawHeight),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
+                    )
+
+                    val finalChampName = diag.finalChampion?.name ?: (diag.ocrChampion?.name ?: "Vacío")
+                    val method = if (diag.finalChampion?.id == diag.ocrChampion?.id && diag.ocrChampion != null) "OCR" else "VISUAL"
+
+                    textPaint.color = if (diag.status == com.example.service.screen.DiagnosticStatus.CONFIRMADO) android.graphics.Color.GREEN else android.graphics.Color.RED
+                    drawContext.canvas.nativeCanvas.drawText(
+                        "${finalChampName} [$method] (${"%.2f".format(diag.score1)})",
+                        left,
+                        (top - 10f).coerceAtLeast(24f),
+                        textPaint
+                    )
+                }
+            }
         }
     }
 }
