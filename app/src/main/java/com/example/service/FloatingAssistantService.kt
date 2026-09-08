@@ -927,16 +927,26 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Sincronizar nombres de invocador aliados y hechizos detectados
+                            // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
+                            defaultRoles.forEachIndexed { idx, role ->
+                                result.allySummonerNamesByRole[role]?.let { name ->
+                                    state.allySummonerNames[idx] = name
+                                }
+                                result.allySpellsByRole[role]?.let { spells ->
+                                    state.allySpells[idx] = spells
+                                }
+                            }
                             result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
-                                state.allySummonerNames[slotIdx] = name
+                                if (state.allySummonerNames[slotIdx] == null) {
+                                    state.allySummonerNames[slotIdx] = name
+                                }
                             }
                             result.allySpellsBySlot.forEach { (slotIdx, spells) ->
-                                state.allySpells[slotIdx] = spells
+                                if (state.allySpells[slotIdx].isNullOrEmpty()) {
+                                    state.allySpells[slotIdx] = spells
+                                }
                             }
-                            result.enemySpellsBySlot.forEach { (slotIdx, spells) ->
-                                state.enemySpells[slotIdx] = spells
-                            }
+                            state.enemySpells.clear()
 
                             if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
@@ -1001,16 +1011,26 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        // Sincronizar nombres de invocador aliados y hechizos detectados
+                        // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
+                        defaultRoles.forEachIndexed { idx, role ->
+                            result.allySummonerNamesByRole[role]?.let { name ->
+                                state.allySummonerNames[idx] = name
+                            }
+                            result.allySpellsByRole[role]?.let { spells ->
+                                state.allySpells[idx] = spells
+                            }
+                        }
                         result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
-                            state.allySummonerNames[slotIdx] = name
+                            if (state.allySummonerNames[slotIdx] == null) {
+                                state.allySummonerNames[slotIdx] = name
+                            }
                         }
                         result.allySpellsBySlot.forEach { (slotIdx, spells) ->
-                            state.allySpells[slotIdx] = spells
+                            if (state.allySpells[slotIdx].isNullOrEmpty()) {
+                                state.allySpells[slotIdx] = spells
+                            }
                         }
-                        result.enemySpellsBySlot.forEach { (slotIdx, spells) ->
-                            state.enemySpells[slotIdx] = spells
-                        }
+                        state.enemySpells.clear()
 
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole

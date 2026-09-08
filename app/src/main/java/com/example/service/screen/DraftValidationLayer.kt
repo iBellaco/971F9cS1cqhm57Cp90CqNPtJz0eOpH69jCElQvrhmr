@@ -20,8 +20,16 @@ object DraftValidationLayer {
         "marca", "estelar", "eterna", "beta", "primera", "segunda", "seleccion", "selección",
         "auto-scan", "autoscan", "activo", "detener", "asistente", "ajustes",
         "bloquear", "elegir", "jugador", "player", "tarjeta", "aumento", "usó", "uso",
-        "combatamos", "juntos", "excelente", "composicion", "composición"
+        "combatamos", "juntos", "excelente", "composicion", "composición", "oponentes",
+        "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando"
     )
+
+    fun isNoiseText(text: String): Boolean {
+        val norm = normalize(text)
+        if (norm.length < 2) return true
+        return NOISE_WORDS.any { norm.contains(it) } ||
+                norm.startsWith("jugador") || norm.startsWith("player") || norm.startsWith("jogador")
+    }
 
     // Prefijos o etiquetas comunes de clanes/equipos en nombres de invocador
     private val SUMMONER_PREFIX_REGEX = Regex("^(xcs|tag|fnc|t1|g2|wr|clan|team|pro|tv|ttv|yt|god)\\s+", RegexOption.IGNORE_CASE)
@@ -40,7 +48,9 @@ object DraftValidationLayer {
      */
     fun isLikelySummonerName(rawText: String): Boolean {
         val trimmed = rawText.trim()
-        if (trimmed.isBlank()) return false
+        if (trimmed.isBlank() || trimmed.length < 2) return false
+        if (isNoiseText(trimmed)) return false
+        if (parseRoleFromText(trimmed) != null) return false
 
         // Si contiene prefijo de clan conocido
         if (SUMMONER_PREFIX_REGEX.containsMatchIn(trimmed)) {
@@ -65,11 +75,11 @@ object DraftValidationLayer {
             return false
         }
 
-        if (isMixedCase && hasSpaces) {
+        if (isMixedCase || hasSpaces) {
             return true
         }
 
-        return false
+        return true
     }
 
     /**
@@ -183,6 +193,7 @@ object DraftValidationLayer {
 
         val validSlots = scannedSlots.filter { it.champion != null }
         val primaryRoleCounts = validSlots.groupBy { it.champion!!.primaryRole }.mapValues { it.value.size }
+        val explicitlyAssignedRoles = mutableSetOf<LaneRole>()
 
         // 1. ASIGNACIÓN POR ROL EXPLÍCITO DETECTADO EN EL SLOT (Certeza 100%)
         for (slot in validSlots) {
@@ -195,41 +206,33 @@ object DraftValidationLayer {
                 availableRoles.remove(expRole)
                 assignedChampionIds.add(champ.id)
                 slot.assignedRole = expRole
+                explicitlyAssignedRoles.add(expRole)
                 if (champ.primaryRole != expRole) {
                     auditList.add("Rol explícito: ${champ.name} -> ${expRole.shortName} (100% certeza)")
                 }
             }
         }
 
-        // 2. ASIGNACIÓN POR POSICIÓN ESTÁNDAR DEL SLOT SI EL CAMPEÓN PUEDE JUGARLA (Certeza 95%)
-        // En Wild Rift los slots 0..4 corresponden de forma fija a: TOP, JUNGLE, MID, ADC, SUPPORT
-        // ESTO SOLO APLICA PARA EL EQUIPO ALIADO (El enemigo se ordena por orden de pick, no por rol)
-        if (isAllyTeam) {
+        // 2. ASIGNACIÓN POR HECHIZO CASTIGO (SMITE) -> ROL JUNGLA INEQUÍVOCO (Certeza 100%)
+        if (isAllyTeam && availableRoles.contains(LaneRole.JUNGLE)) {
             for (slot in validSlots) {
-            val champ = slot.champion ?: continue
-            if (assignedChampionIds.contains(champ.id)) continue
+                val champ = slot.champion ?: continue
+                if (assignedChampionIds.contains(champ.id)) continue
 
-            val naturalSlotRole = when (slot.slotIndex) {
-                0 -> LaneRole.TOP
-                1 -> LaneRole.JUNGLE
-                2 -> LaneRole.MID
-                3 -> LaneRole.ADC
-                4 -> LaneRole.SUPPORT
-                else -> null
-            }
-
-            if (naturalSlotRole != null && availableRoles.contains(naturalSlotRole)) {
-                val canPlayNaturalRole = champ.primaryRole == naturalSlotRole || champ.secondaryRoles.contains(naturalSlotRole)
-                if (canPlayNaturalRole) {
-                    finalMap[naturalSlotRole] = champ
-                    confidences[naturalSlotRole] = if (champ.primaryRole == naturalSlotRole) 100 else 90
-                    availableRoles.remove(naturalSlotRole)
+                val hasSmite = slot.summonerSpells.any {
+                    it.equals("Castigo", ignoreCase = true) || it.equals("Smite", ignoreCase = true)
+                }
+                if (hasSmite) {
+                    finalMap[LaneRole.JUNGLE] = champ
+                    confidences[LaneRole.JUNGLE] = 100
+                    availableRoles.remove(LaneRole.JUNGLE)
                     assignedChampionIds.add(champ.id)
-                    slot.assignedRole = naturalSlotRole
-                    auditList.add("Posición de slot: ${champ.name} en ${naturalSlotRole.shortName}")
+                    slot.assignedRole = LaneRole.JUNGLE
+                    explicitlyAssignedRoles.add(LaneRole.JUNGLE)
+                    auditList.add("Hechizo Castigo detectado: ${champ.name} -> JUNGLA (100% certeza)")
+                    break
                 }
             }
-        }
         }
 
         // 3. ASIGNACIÓN POR ROL PRIMARIO DEL CAMPEÓN
@@ -265,36 +268,25 @@ object DraftValidationLayer {
             }
         }
 
-        // 5. ASIGNACIÓN DE ROLES RESTANTES CON PRIORIDAD A LA POSICIÓN DEL SLOT
+        // 5. ASIGNACIÓN DE ROLES RESTANTES POR MEJOR AFINIDAD
         for (slot in validSlots) {
             val champ = slot.champion ?: continue
             if (assignedChampionIds.contains(champ.id)) continue
 
-            val naturalSlotRole = when (slot.slotIndex) {
-                0 -> LaneRole.TOP
-                1 -> LaneRole.JUNGLE
-                2 -> LaneRole.MID
-                3 -> LaneRole.ADC
-                4 -> LaneRole.SUPPORT
-                else -> null
-            }
-            if (naturalSlotRole != null && availableRoles.contains(naturalSlotRole)) {
-                finalMap[naturalSlotRole] = champ
-                confidences[naturalSlotRole] = 70
-                availableRoles.remove(naturalSlotRole)
+            // Si el rol primario o alguno secundario ya fue tomado pero hay uno compatible disponible
+            val bestRole = availableRoles.firstOrNull { r -> champ.primaryRole == r || champ.secondaryRoles.contains(r) }
+                ?: availableRoles.firstOrNull()
+
+            if (bestRole != null) {
+                finalMap[bestRole] = champ
+                confidences[bestRole] = 65
+                availableRoles.remove(bestRole)
                 assignedChampionIds.add(champ.id)
-                slot.assignedRole = naturalSlotRole
-            } else {
-                val fallback = availableRoles.firstOrNull() ?: continue
-                finalMap[fallback] = champ
-                confidences[fallback] = 60
-                availableRoles.remove(fallback)
-                assignedChampionIds.add(champ.id)
-                slot.assignedRole = fallback
+                slot.assignedRole = bestRole
             }
         }
 
-        // 6. OPTIMIZACIÓN POST-ASIGNACIÓN (Maximizar afinidad de roles)
+        // 6. OPTIMIZACIÓN POST-ASIGNACIÓN (Maximizar afinidad sin tocar roles explícitos ni Castigo)
         var changed = true
         while (changed) {
             changed = false
@@ -303,6 +295,12 @@ object DraftValidationLayer {
                 for (j in i + 1 until assignedRoles.size) {
                     val roleA = assignedRoles[i]
                     val roleB = assignedRoles[j]
+
+                    // No intercambiar roles que fueron detectados explícitamente por texto o Castigo
+                    if (explicitlyAssignedRoles.contains(roleA) || explicitlyAssignedRoles.contains(roleB)) {
+                        continue
+                    }
+
                     val champA = finalMap[roleA]!!
                     val champB = finalMap[roleB]!!
                     
