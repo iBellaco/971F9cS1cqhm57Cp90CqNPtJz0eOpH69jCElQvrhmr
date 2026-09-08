@@ -1,4 +1,0 @@
-fix(scanner): evitar sobreescritura de unpicked cuando OCR sí detecta
-
-- Si el OCR detectaba un campeón (ej. Kha'Zix) pero en la misma región también leía un texto genérico (como "Jugador 3"), el sistema lo marcaba como "Unpicked" por tener una línea genérica.
-- Se ha modificado la lógica de `isLikelyUnpicked` para que sea `false` incondicionalmente si el OCR detectó al menos un nombre de campeón válido en esa ranura.

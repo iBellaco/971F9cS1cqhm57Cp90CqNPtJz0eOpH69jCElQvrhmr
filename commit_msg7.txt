@@ -1,4 +1,0 @@
-fix(scanner): ignorar restricciones de OCR anti-nombres y ajustar bandera unpicked
-
-- Se han quitado las reglas excesivamente celosas del OCR que rechazaban "Kha'Zix", "Miss Fortune", etc.
-- Se agregó el parche para que si en un mismo bloque de texto la app lee un nombre genérico (como "Jugador 1") pero TAMBIÉN detecta un campeón real (como "Kha'Zix"), el sistema no sobrescriba la lectura marcando la ranura como vacía (unpicked).

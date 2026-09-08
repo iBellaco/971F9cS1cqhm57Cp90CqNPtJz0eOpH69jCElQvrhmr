@@ -1,8 +1,6 @@
 {
-  "name": "Wild Rift Coach",
-  "description": "Una aplicación de coaching y tier list para Wild Rift con overlay dinámico.",
+  "name": "Drafting Coach",
+  "description": "Wild Rift Drafting Coach",
   "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

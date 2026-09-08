@@ -1,4 +1,0 @@
-fix(scanner): ignorar Kha'zix como nombre de invocador
-
-- El filtro heurístico `isLikelySummonerName` estaba bloqueando nombres con mayúsculas mezcladas como "Kha'Zix", pensando que era el apodo de un jugador.
-- Se ha agregado la excepción "kha" a la lista blanca de nombres permitidos en el detector de invocadores.

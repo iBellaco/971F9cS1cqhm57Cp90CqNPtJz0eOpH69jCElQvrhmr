@@ -1,5 +1,0 @@
-fix(scanner): remover validación estricta de OCR para mejorar detección
-
-- El `ChampionNameResolver` utilizaba `DraftValidationLayer.isValidChampionToken` para confirmar las palabras leídas por el OCR.
-- Si el OCR leía "Kha'Zix" pero internamente el sistema lo normalizaba o cortaba, `isValidChampionToken` devolvía falso por sus reglas anti-apodos, tirando a la basura la lectura correcta y cayendo en el fallback visual.
-- Ahora, si una palabra leída por el OCR coincide (incluso de manera tokenizada o compacta) con un campeón conocido en el mapa canónico, se confía inmediatamente en esa palabra y se devuelve, maximizando la precisión del texto.

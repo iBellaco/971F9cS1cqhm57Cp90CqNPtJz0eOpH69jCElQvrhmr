@@ -1,5 +1,0 @@
-fix(scanner): dar prioridad absoluta al texto OCR sobre la imagen
-
-- Cuando un jugador selecciona (o preselecciona) un campeón, el nombre del campeón aparece en texto.
-- Anteriormente, si el escáner visual fallaba por completo al identificar el avatar (score muy bajo debido al tintado rojo oscuro), la aplicación descartaba también la lectura de texto por no tener una "base visual aceptable".
-- Se ha modificado `DraftVisionScanner.kt` para que, si el OCR detecta un nombre de campeón válido en la línea de texto que le corresponde, este nombre sea LEY (100% de confianza) y sobrescriba por completo cualquier alucinación o fallo del escáner de imagen.
