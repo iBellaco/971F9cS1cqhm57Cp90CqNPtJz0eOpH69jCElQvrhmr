@@ -205,8 +205,8 @@ object ImageHashMatcher {
 
         // 2. FILTRADO ESTRICTO DE SLOT VACÍO / CASCO ESPARTANO / RUIDO:
         if (!isAlly) {
-            val isSpartanHelmetOrEmpty = (avgSaturation < 0.14f && (avgLuminance < 80f || stdDev < 22f)) ||
-                    (stdDev < 10f) || (avgLuminance < 25f)
+            val isSpartanHelmetOrEmpty = (avgSaturation < 0.22f && (avgLuminance < 65f || stdDev < 20f)) ||
+                    (stdDev < 12f) || (avgLuminance < 35f)
             if (isSpartanHelmetOrEmpty) {
                 return VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Casco espartano o slot rival sin selección activa")
             }
@@ -270,7 +270,8 @@ object ImageHashMatcher {
         val margin = (bestScore - secondScore).coerceAtLeast(0f)
 
         // 4. CLASIFICACIÓN ESTRICTA: CONFIRMADO vs RECHAZADO vs AMBIGUO
-        val minThreshold = 0.40f
+        val minThreshold = if (isAlly) 0.52f else 0.58f
+        val minMargin = if (isAlly) 0.020f else 0.030f
 
         return when {
             bestChamp == null || bestScore < minThreshold -> {
@@ -285,7 +286,7 @@ object ImageHashMatcher {
                     reason = "Puntuación insuficiente (score ${"%.2f".format(java.util.Locale.US, bestScore)} < $minThreshold)"
                 )
             }
-            bestScore >= 0.80f -> {
+            bestScore >= 0.78f -> {
                 // Coincidencia visual de muy alta fidelidad
                 VisualEvaluation(
                     candidate1 = bestChamp,
@@ -298,7 +299,7 @@ object ImageHashMatcher {
                     reason = "Coincidencia de alta fidelidad (score ${"%.2f".format(java.util.Locale.US, bestScore)}, margen ${"%.2f".format(java.util.Locale.US, margin)})"
                 )
             }
-            margin < 0.018f -> {
+            margin < minMargin -> {
                 // Ambigüedad entre dos campeones con puntuación casi idéntica
                 VisualEvaluation(
                     candidate1 = bestChamp,
@@ -308,7 +309,7 @@ object ImageHashMatcher {
                     margin = margin,
                     isConfirmed = false,
                     status = "AMBIGUO",
-                    reason = "Coincidencia ambigua entre ${bestChamp.name} (${"%.2f".format(java.util.Locale.US, bestScore)}) y ${secondChamp?.name ?: "segundo"} (${"%.2f".format(java.util.Locale.US, secondScore)}) margen ${"%.2f".format(java.util.Locale.US, margin)} < 0.02"
+                    reason = "Coincidencia ambigua entre ${bestChamp.name} (${"%.2f".format(java.util.Locale.US, bestScore)}) y ${secondChamp?.name ?: "segundo"} (${"%.2f".format(java.util.Locale.US, secondScore)}) margen ${"%.2f".format(java.util.Locale.US, margin)} < $minMargin"
                 )
             }
             else -> {

@@ -167,7 +167,11 @@ object DraftVisionScanner {
                 for (line in block.lines) {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
-                    if (text.contains("[OCR]") || text.contains("VIS:") || text.contains("[VISUAL]")) continue
+                    if (text.contains("[OCR]") || text.contains("VIS:") || text.contains("[VISUAL]") ||
+                        text.contains("[INVOCADOR]") || text.contains("LÍNEA") || text.contains("CAMPEÓN") ||
+                        text.contains("🐛") || text.contains("⚡") || text.contains("Destello") ||
+                        text.contains("Barrera") || text.contains("Castigo") || text.contains("Prender") ||
+                        text.contains("Curar") || text.contains("Fantasmal") || text.contains("Extenuación")) continue
                     
                     val box = line.boundingBox
                     if (box != null && overlayRect != null) {
@@ -182,8 +186,8 @@ object DraftVisionScanner {
                     val yRatio = centerY.toFloat() / height.toFloat()
                     val xRatio = centerX.toFloat() / width.toFloat()
 
-                    // Ignorar la barra de bans superior (Y < 0.075) y botones del fondo (Y > 0.785)
-                    if (yRatio < 0.075f || yRatio > 0.785f) continue
+                    // Ignorar la barra de bans superior (Y < 0.120) y botones del fondo (Y > 0.810)
+                    if (yRatio < 0.120f || yRatio > 0.810f) continue
 
                     // Determinar el índice de slot vertical (0..4) calibrado a los 5 slots HUD
                     val slotIndex = when {
@@ -381,17 +385,21 @@ object DraftVisionScanner {
         // Los avatares aliados están desplazados hacia la derecha (superando los hechizos).
         // Los avatares enemigos están desplazados hacia la izquierda desde el borde derecho.
         // Volvems al tamaño geométrico correcto para que el ImageHashMatcher pueda hacer su crop interno (0.70f) sin destrozar la escala.
-        val avatarDiameter = (height * 0.115f).toInt().coerceAtLeast(32)
+        // Calibración geométrica precisa del HUD de Wild Rift:
+        // En pantallas ultra-anchas (>= 19:9 o 20:9), hay un margen de zona segura (Safe Area).
+        // Los avatares aliados se sitúan inmediatamente a la derecha de los hechizos de invocador.
+        // Los avatares enemigos se sitúan en el borde derecho antes del margen de pantalla.
+        val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
         
-        // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y 21:9
+        // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y >= 19:9
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        // Ajuste milimétrico de la X: Centrado exacto sobre los avatares circulares del HUD
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.133f).toInt() else (height * 0.140f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.075f)).toInt() else (width - (height * 0.130f)).toInt()
+        // Posición horizontal calibrada de los avatares:
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.188f).toInt() else (height * 0.160f).toInt()
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.128f)).toInt() else (width - (height * 0.118f)).toInt()
 
-        // Ratios verticales (eje Y): Subimos un poco (~4 pixeles)
+        // Ratios verticales (eje Y) para los 5 slots
         val slotYRatios = floatArrayOf(0.196f, 0.328f, 0.463f, 0.596f, 0.733f)
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
@@ -436,7 +444,7 @@ object DraftVisionScanner {
                 } else {
                     diagReason = "100% Certeza: Nombre OCR detectado (${ocrChamp.name})"
                 }
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.38f) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.54f) {
                 finalChamp = eval.candidate1
                 finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(60, 90)
                 diagStatus = DiagnosticStatus.CONFIRMADO
@@ -499,13 +507,13 @@ object DraftVisionScanner {
             var diagReason = eval.reason
 
             // LADO RIVAL: Prioridad 100% OCR si el nombre del campeón fue detectado en texto (fijado o seleccionado).
-            // Si aún no hay texto de campeón (ej: "Jugador 4" preseleccionando), se recurre al reconocimiento visual del avatar.
+            // Si aún no hay texto de campeón (ej: rival preseleccionando), requiere coincidencia visual rigurosa (score >= 0.60 y margen >= 0.035).
             if (ocrChamp != null) {
                 finalChamp = ocrChamp
                 finalConfidence = 100
                 diagStatus = DiagnosticStatus.CONFIRMADO
                 diagReason = "Confirmado 100% por nombre OCR (${ocrChamp.name})"
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.38f) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.60f && eval.margin >= 0.035f) {
                 finalChamp = eval.candidate1
                 finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(60, 95)
                 diagStatus = DiagnosticStatus.CONFIRMADO
@@ -541,7 +549,7 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3.3: ESCANEO DE HECHIZOS DE INVOCADOR ALIADOS (SUMMONER SPELLS)
         // -----------------------------------------------------------------------------------------
-        // En Wild Rift, los hechizos aliados se ubican en el borde izquierdo extremo de la pantalla.
+        // En Wild Rift, los hechizos aliados están anclados inmediatamente a la izquierda del avatar.
         // En el equipo rival los hechizos NO son observables durante el draft.
         val spellSize = (height * 0.040f).toInt().coerceAtLeast(18)
         val allySpellsMap = mutableMapOf<Int, MutableList<String>>()
@@ -549,24 +557,20 @@ object DraftVisionScanner {
 
         for (i in 0..4) {
             val yCenter = (height * slotYRatios[i]).toInt()
-            val spellLeft = (height * 0.020f).toInt().coerceAtLeast(8)
-            val spellRight = (spellLeft + spellSize).coerceIn(spellSize, width)
+            val avatarLeft = (allyAvatarCenterX - avatarDiameter / 2).coerceAtLeast(0)
+            val spellRight = (avatarLeft - (height * 0.007f).toInt()).coerceIn(spellSize, width)
+            val spellLeft = (spellRight - spellSize).coerceAtLeast(0)
+
+            val spell1Top = (yCenter - spellSize - (height * 0.004f).toInt()).coerceIn(0, height - spellSize)
+            val spell1Bottom = spell1Top + spellSize
+            val spell2Top = (yCenter + (height * 0.004f).toInt()).coerceIn(0, height - spellSize)
+            val spell2Bottom = spell2Top + spellSize
 
             val allyCandidateRects = listOf(
                 // Hechizo 1 (arriba)
-                Rect(
-                    spellLeft,
-                    (yCenter - spellSize - 2).coerceIn(0, height - spellSize),
-                    spellRight,
-                    (yCenter - 2).coerceIn(0, height)
-                ),
+                Rect(spellLeft, spell1Top, spellRight, spell1Bottom),
                 // Hechizo 2 (abajo)
-                Rect(
-                    spellLeft,
-                    (yCenter + 2).coerceIn(0, height - spellSize),
-                    spellRight,
-                    (yCenter + spellSize + 2).coerceIn(0, height)
-                )
+                Rect(spellLeft, spell2Top, spellRight, spell2Bottom)
             )
 
             val allySlotSpells = mutableListOf<String>()
@@ -596,6 +600,16 @@ object DraftVisionScanner {
         val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, auditList)
         val alliesMap = allyResolved.assignments.toMutableMap()
 
+        // Asignar cualquier campeón en slot explícito que no haya entrado en validAllySlots o haya quedado sin rol
+        for (i in 0..4) {
+            val slot = allySlots[i]
+            val champ = slot.champion
+            val explicit = slot.explicitRole
+            if (champ != null && explicit != null && !alliesMap.containsKey(explicit)) {
+                alliesMap[explicit] = champ
+            }
+        }
+
         // 4.2 Enemigos: Asignación validada por roles primarios y secundarios de los picks seleccionados
         val validEnemySlots = enemySlots.filter { it.champion != null }
         val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, auditList, isAllyTeam = false)
@@ -606,16 +620,18 @@ object DraftVisionScanner {
         val finalEnemiesMap = enemiesMap.filterNot { allyChampIds.contains(it.value.id) }
         val enemyConfidences = enemyResolved.confidences.filterKeys { finalEnemiesMap.containsKey(it) }
 
-        // Mapear nombres de invocador y hechizos al rol final asignado
+        // Mapear nombres de invocador y hechizos al rol final asignado (o rol por defecto del slot)
+        val defaultRolesList = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
         val allySummonerNamesByRole = mutableMapOf<LaneRole, String>()
         val allySpellsByRole = mutableMapOf<LaneRole, List<String>>()
 
         for (i in 0..4) {
             val slot = allySlots[i]
-            val role = slot.assignedRole ?: slot.explicitRole
+            val role = slot.assignedRole ?: slot.explicitRole ?: defaultRolesList.getOrNull(i)
             if (role != null) {
-                allySummonerNamesCache[i]?.let { name ->
-                    allySummonerNamesByRole[role] = name
+                val sName = allySummonerNamesCache[i]
+                if (!sName.isNullOrBlank()) {
+                    allySummonerNamesByRole[role] = sName
                 }
                 val sp = allySpellsMap[i]
                 if (!sp.isNullOrEmpty()) {

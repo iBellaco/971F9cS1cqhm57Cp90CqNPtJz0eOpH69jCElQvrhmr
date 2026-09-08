@@ -55,24 +55,24 @@ object SummonerSpellDetector {
 
                 // 1. Castigo (Smite): En Wild Rift el Castigo presenta destello y filo púrpura/violeta/magenta
                 // característico de la daga mágica (r y b altos, g notablemente menor). Ningún otro hechizo tiene este matiz.
-                if ((r > 110 && b > 110 && g < 115 && (r + b) > (2 * g + 40) && kotlin.math.abs(r - b) < 65) ||
-                    (b > 125 && r > 95 && g < 95 && b > g + 30)) {
+                if ((r > 105 && b > 105 && g < 115 && (r + b) > (2 * g + 30)) ||
+                    (b > 115 && r > 90 && g < 95 && b > g + 25)) {
                     purpleCount++
                 }
                 // 2. Curar (Heal): Verde esmeralda vivo predominante
-                else if (g > 125 && g > r + 30 && g > b + 30) {
+                else if (g > 120 && g > r + 25 && g > b + 25) {
                     greenCount++
                 }
                 // 3. Fantasmal (Ghost): Cyan / Azul claro brillante
-                else if (b > 135 && g > 115 && r < 125 && (b - r) > 30) {
+                else if (b > 130 && g > 110 && r < 120 && (b - r) > 25) {
                     cyanCount++
                 }
                 // 4. Prender (Ignite): Rojo intenso llameante
-                else if (r > 160 && g < 95 && b < 70 && (r - g) > 60) {
+                else if (r > 155 && g < 95 && b < 70 && (r - g) > 55) {
                     redFireCount++
                 }
                 // 5. Destello (Flash): Amarillo eléctrico puro (r y g muy altos y parejos)
-                else if (r > 175 && g > 150 && b < 115 && kotlin.math.abs(r - g) < 38) {
+                else if (r > 170 && g > 145 && b < 120 && kotlin.math.abs(r - g) < 40) {
                     yellowCount++
                 }
                 // 6. Barrera (Barrier): Ámbar / Dorado esférico (r claramente superior a g)
@@ -88,8 +88,8 @@ object SummonerSpellDetector {
 
         if (totalValid == 0) return null
         val avgLum = totalLum.toFloat() / totalValid.toFloat()
-        // Si el área es muy oscura (< 20 lum), se descarta (slot vacío o sin pick)
-        if (avgLum < 20f) return null
+        // Si el área es muy oscura (< 25 lum), se descarta (slot vacío o sin pick)
+        if (avgLum < 25f) return null
 
         val purpleRatio = purpleCount.toFloat() / totalValid.toFloat()
         val greenRatio = greenCount.toFloat() / totalValid.toFloat()
@@ -101,22 +101,24 @@ object SummonerSpellDetector {
 
         val (spellId, name) = when {
             // 1. Castigo (Smite): Único hechizo con energía púrpura/violeta en la daga
-            purpleRatio > 0.020f -> "smite" to "Castigo"
+            purpleRatio > 0.015f -> "smite" to "Castigo"
             // 2. Curar: Verde vivo
-            greenRatio > 0.07f -> "heal" to "Curar"
+            greenRatio > 0.06f -> "heal" to "Curar"
             // 3. Fantasmal: Cyan vivo
-            cyanRatio > 0.07f -> "ghost" to "Fantasmal"
+            cyanRatio > 0.06f -> "ghost" to "Fantasmal"
             // 4. Prender: Fuego rojo vivo
-            redRatio > 0.08f -> "ignite" to "Prender"
+            redRatio > 0.06f -> "ignite" to "Prender"
             // 5. Extenuación: Bronce / marrón
-            brownRatio > 0.12f -> "exhaust" to "Extenuación"
+            brownRatio > 0.10f -> "exhaust" to "Extenuación"
             // 6. Barrera: Escudo ámbar (r claramente mayor a g)
-            amberRatio > 0.12f && yellowRatio < 0.12f -> "barrier" to "Barrera"
+            amberRatio > 0.10f && yellowRatio < 0.10f -> "barrier" to "Barrera"
             // 7. Destello: Amarillo puro (r y g muy cercanos)
-            yellowRatio > 0.06f -> "flash" to "Destello"
+            yellowRatio > 0.05f -> "flash" to "Destello"
             // 8. Barrera fallback si hay tono ámbar
-            amberRatio > 0.08f -> "barrier" to "Barrera"
-            else -> "flash" to "Destello"
+            amberRatio > 0.06f -> "barrier" to "Barrera"
+            // 9. Destello fallback
+            yellowRatio > 0.03f -> "flash" to "Destello"
+            else -> return null // Evitar inventar Destello si no hay coincidencia cromática real
         }
 
         val item = WildRiftSpellsAndRunes.getSpellByName(spellId)

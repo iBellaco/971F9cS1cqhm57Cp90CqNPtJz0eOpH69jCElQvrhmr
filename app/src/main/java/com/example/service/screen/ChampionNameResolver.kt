@@ -197,7 +197,18 @@ object ChampionNameResolver {
         "ziggs" to "ziggs",
         "zilean" to "zilean",
         "zoe" to "zoe",
-        "zyra" to "zyra"
+        "zyra" to "zyra",
+        // Errores comunes de OCR por proximidad o fusión con icono de rol en Wild Rift
+        "alio" to "galio",
+        "eigar" to "veigar",
+        "ukong" to "wukong",
+        "resh" to "thresh",
+        "nnie" to "annie",
+        "af" to "olaf",
+        "laf" to "olaf",
+        "arus" to "varus",
+        "iana" to "diana",
+        "elia" to "irelia"
     )
 
     fun normalize(input: String): String {
@@ -270,6 +281,12 @@ object ChampionNameResolver {
                 val champCompact = normalizeCompact(champ.name)
                 if (champNorm == word || champCompact == word) {
                     if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
+                        return champ
+                    }
+                }
+                // Si el icono de carril recortó la 1era letra (ej: GALIO -> ALIO, VEIGAR -> EIGAR)
+                if (word.length >= 4 && champNorm.length == word.length + 1 && champNorm.endsWith(word)) {
+                    if (!DraftValidationLayer.isLikelySummonerName(trimmed)) {
                         return champ
                     }
                 }
