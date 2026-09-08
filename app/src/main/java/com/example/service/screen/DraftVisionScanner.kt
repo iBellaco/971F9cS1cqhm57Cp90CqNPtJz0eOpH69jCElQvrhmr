@@ -362,21 +362,12 @@ object DraftVisionScanner {
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
                     // Conflicto visual vs OCR
-                    if (eval.score1 >= 0.85f) {
-                        finalChamp = eval.candidate1
-                        finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
-                        diagStatus = DiagnosticStatus.CONFIRMADO
-                        diagReason = "Visual contundente (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)}) supera texto OCR (${ocrChamp.name})"
-                    } else if (eval.score1 < 0.68f) {
+                    // NUNCA sobreescribir el OCR con visión si hay conflicto (porque el OCR detecta el texto real y las skins arruinan la visión)
+                    if (true) {
                         finalChamp = ocrChamp
-                        finalConfidence = 80
+                        finalConfidence = 100
                         diagStatus = DiagnosticStatus.CONFIRMADO
-                        diagReason = "Conflicto resuelto por OCR (${ocrChamp.name}) ante baja certeza visual (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)})"
-                    } else {
-                        finalChamp = null
-                        finalConfidence = 0
-                        diagStatus = DiagnosticStatus.AMBIGUO
-                        diagReason = "Conflicto irreconciliable: Visual=${eval.candidate1.name} (${"%.2f".format(Locale.US, eval.score1)}) vs OCR=${ocrChamp.name}. NO ASIGNAR."
+                        diagReason = "Texto OCR (${ocrChamp.name}) SIEMPRE domina a la visión (${eval.candidate1.name}) para evitar problemas con skins."
                     }
                 }
             } else {
@@ -466,12 +457,8 @@ object DraftVisionScanner {
                     diagStatus = DiagnosticStatus.CONFIRMADO
                     diagReason = "Confirmado 100% (Visual y OCR coinciden: ${ocrChamp.name})"
                 } else {
-                    if (eval.score1 >= 0.85f) {
-                        finalChamp = eval.candidate1
-                        finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
-                        diagStatus = DiagnosticStatus.CONFIRMADO
-                        diagReason = "Visual contundente (${eval.candidate1.name} score ${"%.2f".format(Locale.US, eval.score1)}) supera texto OCR (${ocrChamp.name})"
-                    } else if (eval.score1 < 0.68f) {
+                    // NUNCA sobreescribir el OCR con visión si hay conflicto (porque el OCR detecta el texto real y las skins arruinan la visión)
+                    if (true) {
                         finalChamp = ocrChamp
                         finalConfidence = 80
                         diagStatus = DiagnosticStatus.CONFIRMADO
