@@ -173,11 +173,11 @@ object DraftVisionScanner {
                     }
 
                     // 1.1 COLUMNA ALIADA (Extremos ampliados para capturar los nombres, pero evitando el centro >0.33)
-                    if (xRatio in 0.01f..0.24f) {
+                    if (xRatio in 0.01f..0.28f) {
                         allySlotTexts[slotIndex].add(text)
                     }
                     // 1.2 COLUMNA ENEMIGA (X entre 0.66 y 0.99)
-                    else if (xRatio in 0.76f..0.99f) {
+                    else if (xRatio in 0.69f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
                     // 1.3 CENTRO (Sólo el verdadero centro horizontal para evitar la ventana flotante)

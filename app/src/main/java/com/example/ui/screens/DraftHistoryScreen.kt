@@ -2218,7 +2218,7 @@ private fun DraftDetailInnerContent(
                                     Text(slot.champion.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                     if (slot.assignedRole == roleObj) {
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("(TÚ)", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Black)
+                                        Text("(Mío)", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Black)
                                     }
                                 }
                                 Text(

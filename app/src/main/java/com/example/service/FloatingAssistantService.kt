@@ -2534,7 +2534,7 @@ private fun DraftAvatarBox(
                         .padding(horizontal = 3.dp, vertical = 1.dp)
                 ) {
                     Text(
-                        text = tr("TÚ"),
+                        text = "Mío",
                         color = Color.Black,
                         fontSize = 8.sp,
                         fontWeight = FontWeight.Black

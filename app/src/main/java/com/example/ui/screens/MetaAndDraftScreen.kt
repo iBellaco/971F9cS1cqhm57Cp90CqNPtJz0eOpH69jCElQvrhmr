@@ -4498,7 +4498,7 @@ private fun TeamChampionSlot(
                         if (isMyPick) {
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = " TÚ",
+                                text = " Mío",
                                 color = HextechGold,
                                 fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Black

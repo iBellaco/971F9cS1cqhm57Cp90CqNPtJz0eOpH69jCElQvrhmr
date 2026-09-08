@@ -274,7 +274,7 @@ fun DraftTeamPositionCard(
                                             .padding(horizontal = 3.dp, vertical = 1.dp)
                                     ) {
                                         Text(
-                                            text = tr("TÚ"),
+                                            text = "Mío",
                                             color = Color.Black,
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.Black
@@ -315,7 +315,7 @@ fun DraftTeamPositionCard(
                                     )
                                     if (isMyRole) {
                                         Text(
-                                            text = tr("TÚ"),
+                                            text = "Mío",
                                             color = HextechCyan,
                                             fontSize = if (isOverlay) 5.sp else 7.5.sp,
                                             fontWeight = FontWeight.Black
