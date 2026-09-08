@@ -127,8 +127,6 @@ object DraftVisionScanner {
         val detectedWords = mutableListOf<String>()
         var userDetectedLane: LaneRole? = null
         var userSlotIndex: Int? = null
-        val centerTexts = mutableListOf<String>()
-
         val allySlotTexts = Array(5) { mutableListOf<String>() }
         val enemySlotTexts = Array(5) { mutableListOf<String>() }
         val allyOcrChampions = Array<Champion?>(5) { null }
@@ -165,24 +163,20 @@ object DraftVisionScanner {
 
                     // Determinar el índice de slot vertical (0..4) calibrado a los 5 slots HUD
                     val slotIndex = when {
-                        yRatio < 0.260f -> 0
-                        yRatio < 0.392f -> 1
-                        yRatio < 0.527f -> 2
-                        yRatio < 0.661f -> 3
+                        yRatio < 0.262f -> 0
+                        yRatio < 0.396f -> 1
+                        yRatio < 0.530f -> 2
+                        yRatio < 0.675f -> 3
                         else -> 4
                     }
 
-                    // 1.1 COLUMNA ALIADA (Extremos ampliados para capturar los nombres, pero evitando el centro >0.33)
+                    // 1.1 COLUMNA ALIADA (Extremos para capturar nombres y roles, evitando el centro)
                     if (xRatio in 0.01f..0.28f) {
                         allySlotTexts[slotIndex].add(text)
                     }
-                    // 1.2 COLUMNA ENEMIGA (X entre 0.66 y 0.99)
+                    // 1.2 COLUMNA ENEMIGA (X entre 0.69 y 0.99)
                     else if (xRatio in 0.69f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
-                    }
-                    // 1.3 CENTRO (Sólo el verdadero centro horizontal para evitar la ventana flotante)
-                    else if (xRatio in 0.35f..0.65f) {
-                        centerTexts.add(text)
                     }
                 }
             }
@@ -210,18 +204,6 @@ object DraftVisionScanner {
                         if (matched != null) {
                             allyOcrChampions[i] = matched
                             AppLogger.d(TAG, "OCR Aliado Slot $i -> Texto detectado: ${matched.name}")
-                        }
-                    }
-                }
-                
-                // C) Fallback al texto central si es el slot del jugador y no tiene campeón (ej: Pre-selección)
-                if (allyOcrChampions[i] == null && userSlotIndex == i) {
-                    for (centerLine in centerTexts) {
-                        val matched = ChampionNameResolver.findChampionInText(centerLine, allChamps)
-                        if (matched != null) {
-                            allyOcrChampions[i] = matched
-                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Texto CENTRAL detectado: ${matched.name}")
-                            break
                         }
                     }
                 }
@@ -532,7 +514,9 @@ object DraftVisionScanner {
             else -> "Detectados: $total picks con certeza"
         }
 
-        lastDebugBitmap.value = bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+        try {
+            lastDebugBitmap.value = bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+        } catch (_: Throwable) {}
         lastDiagnostics.value = diagnosticsList
 
         return DraftScanResult(

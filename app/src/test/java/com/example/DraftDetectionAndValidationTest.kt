@@ -539,6 +539,7 @@ class DraftDetectionAndValidationTest {
             score2 = eval.score2,
             margin = eval.margin,
             ocrChampion = eval.candidate1,
+            finalChampion = eval.candidate1,
             status = com.example.service.screen.DiagnosticStatus.CONFIRMADO,
             reason = "Confirmado 100% (Visual y OCR coinciden: Wukong)"
         )

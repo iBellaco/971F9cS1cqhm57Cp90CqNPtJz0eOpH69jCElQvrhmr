@@ -1,5 +1,5 @@
 {
-  "name": "Drafting Coach",
+  "name": "Wild Rift Coach",
   "description": "Wild Rift Drafting Coach",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -320,16 +320,35 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        store.clear()
-
+        // 1. Desconectar todas las vistas del WindowManager ANTES de destruir el ciclo de vida
         removeFloatingOverlay()
+
+        // 2. Liberar recursos de captura y referencias de debug
         try {
             screenCaptureManager?.release()
             screenCaptureManager = null
+        } catch (_: Exception) {}
+
+        try {
+            DraftVisionScanner.lastDebugBitmap.value = null
+            DraftVisionScanner.lastDiagnostics.value = emptyList()
+        } catch (_: Exception) {}
+
+        // 3. Notificar fin de ciclo de vida y limpiar ViewModelStore de forma segura
+        try {
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+            lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            store.clear()
+        } catch (_: Exception) {}
+
+        super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        try {
+            stopSelf()
         } catch (_: Exception) {}
     }
 
@@ -626,6 +645,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
             }
             closeTargetComposeView = null
+            debugBoxesComposeView?.let { view ->
+                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
+            }
+            debugBoxesComposeView = null
         } catch (_: Exception) {}
     }
 
@@ -769,6 +792,8 @@ class OverlayState {
     val allies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
     val enemies = androidx.compose.runtime.mutableStateListOf<com.example.model.Champion?>().apply { repeat(5) { add(null) } }
     val enemyConfidences = androidx.compose.runtime.mutableStateMapOf<LaneRole, Int>()
+    val manualLockedAllySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
+    val manualLockedEnemySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
 }
 
 @Composable
@@ -801,6 +826,8 @@ private fun FloatingOverlayContent(
     val defaultRoles = remember { listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT) }
     val allies = state.allies
     val enemies = state.enemies
+    val manualLockedAllySlots = state.manualLockedAllySlots
+    val manualLockedEnemySlots = state.manualLockedEnemySlots
 
     // Funciones de asignación con Regla Estricta MOBA de Unicidad Absoluta (ningún campeón puede duplicarse en ningún bando)
     val assignAllySlot: (Int, Champion) -> Unit = { targetIdx, champ ->
@@ -877,19 +904,23 @@ private fun FloatingOverlayContent(
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
-                            // 1. Asignación directa y de alta precisión por rol/carril detectado
+                            // 1. Asignación directa y de alta precisión por rol/carril detectado (respetando selecciones manuales)
                             defaultRoles.forEachIndexed { idx, role ->
-                                val scannedAlly = result.alliesByRole[role]
-                                if (scannedAlly != null) {
-                                    if (allies[idx]?.id != scannedAlly.id) {
-                                        assignAllySlot(idx, scannedAlly)
-                                        newAlliesAdded++
+                                if (manualLockedAllySlots[idx] != true) {
+                                    val scannedAlly = result.alliesByRole[role]
+                                    if (scannedAlly != null) {
+                                        if (allies[idx]?.id != scannedAlly.id) {
+                                            assignAllySlot(idx, scannedAlly)
+                                            newAlliesAdded++
+                                        }
                                     }
                                 }
-                                val scannedEnemy = result.enemiesByRole[role]
-                                if (scannedEnemy != null && (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role])) {
-                                    assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                    newEnemiesAdded++
+                                if (manualLockedEnemySlots[idx] != true) {
+                                    val scannedEnemy = result.enemiesByRole[role]
+                                    if (scannedEnemy != null && (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role])) {
+                                        assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                        newEnemiesAdded++
+                                    }
                                 }
                             }
 
@@ -935,20 +966,24 @@ private fun FloatingOverlayContent(
                 val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
-                        // 1. Asignación directa y de alta precisión por rol/posición
+                        // 1. Asignación directa y de alta precisión por rol/posición (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
-                            val scannedAlly = result.alliesByRole[role]
-                            if (scannedAlly != null) {
-                                assignAllySlot(idx, scannedAlly)
-                            } else if (result.allies.isNotEmpty() && !result.allies.contains(allies[idx])) {
-                                allies[idx] = null
+                            if (manualLockedAllySlots[idx] != true) {
+                                val scannedAlly = result.alliesByRole[role]
+                                if (scannedAlly != null) {
+                                    assignAllySlot(idx, scannedAlly)
+                                } else if (result.allies.isNotEmpty() && !result.allies.contains(allies[idx])) {
+                                    allies[idx] = null
+                                }
                             }
-                            val scannedEnemy = result.enemiesByRole[role]
-                            if (scannedEnemy != null) {
-                                assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                            } else {
-                                enemies[idx] = null
-                                state.enemyConfidences.remove(role)
+                            if (manualLockedEnemySlots[idx] != true) {
+                                val scannedEnemy = result.enemiesByRole[role]
+                                if (scannedEnemy != null) {
+                                    assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                } else {
+                                    enemies[idx] = null
+                                    state.enemyConfidences.remove(role)
+                                }
                             }
                         }
 
@@ -1234,6 +1269,8 @@ private fun FloatingOverlayContent(
                                             allies[i] = null
                                             enemies[i] = null
                                         }
+                                        manualLockedAllySlots.clear()
+                                        manualLockedEnemySlots.clear()
                                         selectedChampionDetail = null
                                         com.example.service.screen.DraftVisionScanner.resetSlotMemory()
                                     },
@@ -1527,6 +1564,8 @@ private fun FloatingOverlayContent(
                                                     allies[i] = null
                                                     enemies[i] = null
                                                 }
+                                                manualLockedAllySlots.clear()
+                                                manualLockedEnemySlots.clear()
                                                 state.enemyConfidences.clear()
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
@@ -1871,6 +1910,7 @@ private fun FloatingOverlayContent(
                                     .background(HextechSurface)
                                     .clickable {
                                         if (isAllySlot) {
+                                            manualLockedAllySlots[slotIndex] = true
                                             for (i in 0 until 5) {
                                                 if (allies[i]?.id == champ.id) allies[i] = null
                                                 if (enemies[i]?.id == champ.id) enemies[i] = null
@@ -1879,6 +1919,7 @@ private fun FloatingOverlayContent(
                                                 allies[slotIndex] = champ
                                             }
                                         } else {
+                                            manualLockedEnemySlots[slotIndex] = true
                                             for (i in 0 until 5) {
                                                 if (allies[i]?.id == champ.id) allies[i] = null
                                                 if (enemies[i]?.id == champ.id) enemies[i] = null

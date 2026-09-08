@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class ChampionVisualSignature(
     val championId: String,
     val normalizedGray: FloatArray, // 1024 floats (media 0, varianza 1)
-    val colorHistogram: FloatArray, // 512 bins (suma 1.0)
+    val colorHistogram: FloatArray, // 64 bins (suma 1.0)
     val avgLuminance: Float,
     val avgSaturation: Float,
     val aHash: Long
@@ -90,7 +90,7 @@ object ChampionHashes {
         scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)
         
         val grays = FloatArray(1024)
-        val colorHist = FloatArray(512)
+        val colorHist = FloatArray(64)
         var sumGray = 0f
         var sumLuminance = 0f
         var sumSaturation = 0f
@@ -114,10 +114,10 @@ object ChampionHashes {
             val sat = if (max > 0f) (max - min) / max else 0f
             sumSaturation += sat
             
-            // Histograma cromático 4x4x4 RGB
-            val rBin = (r / 32).coerceIn(0, 7)
-            val gBin = (g / 32).coerceIn(0, 7)
-            val bBin = (b / 32).coerceIn(0, 7)
+            // Histograma cromático 4x4x4 RGB (64 bins totales: rBin in 0..3, gBin in 0..3, bBin in 0..3)
+            val rBin = (r / 64).coerceIn(0, 3)
+            val gBin = (g / 64).coerceIn(0, 3)
+            val bBin = (b / 64).coerceIn(0, 3)
             val binIndex = (rBin shl 4) or (gBin shl 2) or bBin
             colorHist[binIndex] += 1f
         }
