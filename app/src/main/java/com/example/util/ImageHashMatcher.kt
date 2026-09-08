@@ -225,6 +225,8 @@ object ImageHashMatcher {
         var secondScore = 0f
 
         if (signatures.isNotEmpty()) {
+            val champBestScores = mutableMapOf<String, Pair<Champion, Float>>()
+
             for (sig in signatures) {
                 // A) Correlación Cruzada Normalizada (NCC) estructural
                 var dotProduct = 0f
@@ -245,17 +247,23 @@ object ImageHashMatcher {
                 // C) Puntuación visual balanceada (50% forma estructural NCC + 50% fidelidad cromática)
                 val totalScore = (0.50f * structuralScore) + (0.50f * colorScore)
 
-                val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
+                val baseId = sig.championId.substringBefore("_")
+                val champ = allChampions.find { it.id.equals(baseId, ignoreCase = true) } ?: continue
 
-                if (totalScore > bestScore) {
-                    secondScore = bestScore
-                    secondChamp = bestChamp
-                    bestScore = totalScore
-                    bestChamp = champ
-                } else if (totalScore > secondScore) {
-                    secondScore = totalScore
-                    secondChamp = champ
+                val prevScore = champBestScores[champ.id]?.second ?: 0f
+                if (totalScore > prevScore) {
+                    champBestScores[champ.id] = Pair(champ, totalScore)
                 }
+            }
+
+            val sorted = champBestScores.values.sortedByDescending { it.second }
+            if (sorted.isNotEmpty()) {
+                bestChamp = sorted[0].first
+                bestScore = sorted[0].second
+            }
+            if (sorted.size > 1) {
+                secondChamp = sorted[1].first
+                secondScore = sorted[1].second
             }
         }
 

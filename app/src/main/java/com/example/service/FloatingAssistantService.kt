@@ -932,18 +932,9 @@ private fun FloatingOverlayContent(
                                 result.allySummonerNamesByRole[role]?.let { name ->
                                     state.allySummonerNames[idx] = name
                                 }
-                                result.allySpellsByRole[role]?.let { spells ->
+                                val spells = result.allySpellsByRole[role]
+                                if (!spells.isNullOrEmpty()) {
                                     state.allySpells[idx] = spells
-                                }
-                            }
-                            result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
-                                if (state.allySummonerNames[slotIdx] == null) {
-                                    state.allySummonerNames[slotIdx] = name
-                                }
-                            }
-                            result.allySpellsBySlot.forEach { (slotIdx, spells) ->
-                                if (state.allySpells[slotIdx].isNullOrEmpty()) {
-                                    state.allySpells[slotIdx] = spells
                                 }
                             }
                             state.enemySpells.clear()
@@ -1016,18 +1007,9 @@ private fun FloatingOverlayContent(
                             result.allySummonerNamesByRole[role]?.let { name ->
                                 state.allySummonerNames[idx] = name
                             }
-                            result.allySpellsByRole[role]?.let { spells ->
+                            val spells = result.allySpellsByRole[role]
+                            if (!spells.isNullOrEmpty()) {
                                 state.allySpells[idx] = spells
-                            }
-                        }
-                        result.allySummonerNamesBySlot.forEach { (slotIdx, name) ->
-                            if (state.allySummonerNames[slotIdx] == null) {
-                                state.allySummonerNames[slotIdx] = name
-                            }
-                        }
-                        result.allySpellsBySlot.forEach { (slotIdx, spells) ->
-                            if (state.allySpells[slotIdx].isNullOrEmpty()) {
-                                state.allySpells[slotIdx] = spells
                             }
                         }
                         state.enemySpells.clear()

@@ -253,27 +253,39 @@ object DraftVisionScanner {
                         // B) Texto de campeón detectado por OCR (100% autoritativo)
                         val matched = ChampionNameResolver.findChampionInText(line, allChamps)
                         if (matched != null) {
-                            allyOcrChampions[i] = matched
-                            slot.champion = matched
-                            slot.confidencePercent = 100
-                            slot.isLikelyUnpicked = false
-
-                            // La línea cambia por el nombre del campeón -> se conserva el carril que tenía asignado
-                            if (allySlotRolesCache[i] != null) {
-                                slot.explicitRole = allySlotRolesCache[i]
+                            val isExact = line.trim().equals(matched.name, ignoreCase = true) ||
+                                          ChampionNameResolver.normalize(line) == ChampionNameResolver.normalize(matched.name)
+                            val existing = allyOcrChampions[i]
+                            val existingIsExact = existing != null && allySlotTexts[i].any {
+                                it.first.trim().equals(existing.name, ignoreCase = true) ||
+                                ChampionNameResolver.normalize(it.first) == ChampionNameResolver.normalize(existing.name)
                             }
-                            textDiagnosticsList.add(
-                                TextBlockDiagnostic(
-                                    text = line,
-                                    rect = safeBox,
-                                    isAlly = true,
-                                    slotIndex = i,
-                                    tag = "CAMPEÓN: ${matched.name}",
-                                    color = android.graphics.Color.GREEN
+
+                            // No permitir que un nombre de invocador con subpalabra (ej: "WuK0ng Babadei")
+                            // sobrescriba una coincidencia exacta de campeón (ej: "THRESH")
+                            if (existing == null || (isExact && !existingIsExact)) {
+                                allyOcrChampions[i] = matched
+                                slot.champion = matched
+                                slot.confidencePercent = 100
+                                slot.isLikelyUnpicked = false
+
+                                // La línea cambia por el nombre del campeón -> se conserva el carril que tenía asignado
+                                if (allySlotRolesCache[i] != null) {
+                                    slot.explicitRole = allySlotRolesCache[i]
+                                }
+                                textDiagnosticsList.add(
+                                    TextBlockDiagnostic(
+                                        text = line,
+                                        rect = safeBox,
+                                        isAlly = true,
+                                        slotIndex = i,
+                                        tag = "CAMPEÓN: ${matched.name}",
+                                        color = android.graphics.Color.GREEN
+                                    )
                                 )
-                            )
-                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matched.name}")
-                            continue
+                                AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matched.name}")
+                                continue
+                            }
                         }
 
                         // C) Nombre de invocador (siempre que no sea rol ni campeón)
@@ -299,10 +311,52 @@ object DraftVisionScanner {
                 }
             }
 
-            // Para el lado rival: En el rival están ocultos la línea y el nombre de invocador.
-            // El escaneo rival es ESTRICTAMENTE mediante detección de imagen en el Avatar.
+            // Para el lado rival: Analizamos el texto de cada slot.
+            // En Wild Rift, cuando un rival fija o selecciona un campeón, el nombre aparece en texto:
+            // "ANNIE", "VOLIBEAR", "KHA'ZIX", "ASHE", etc.
+            // El placeholder "Jugador 1..5" se ignora.
             for (i in 0..4) {
                 enemySlots[i].isLikelyUnpicked = false
+                for ((rawBlock, box) in enemySlotTexts[i].sortedBy { it.second?.top ?: 0 }) {
+                    val safeBox = box ?: Rect(0, 0, 10, 10)
+                    val sublines = rawBlock.split("\n").map { it.trim() }.filter { it.isNotBlank() }
+                    for (line in sublines) {
+                        if (DraftValidationLayer.isNoiseText(line)) continue
+                        val low = line.lowercase(Locale.ROOT)
+                        if (low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador")) {
+                            continue
+                        }
+
+                        val matched = ChampionNameResolver.findChampionInText(line, allChamps)
+                        if (matched != null) {
+                            val isExact = line.trim().equals(matched.name, ignoreCase = true) ||
+                                          ChampionNameResolver.normalize(line) == ChampionNameResolver.normalize(matched.name)
+                            val existing = enemyOcrChampions[i]
+                            val existingIsExact = existing != null && enemySlotTexts[i].any {
+                                it.first.trim().equals(existing.name, ignoreCase = true) ||
+                                ChampionNameResolver.normalize(it.first) == ChampionNameResolver.normalize(existing.name)
+                            }
+
+                            if (existing == null || (isExact && !existingIsExact)) {
+                                enemyOcrChampions[i] = matched
+                                enemySlots[i].champion = matched
+                                enemySlots[i].confidencePercent = 100
+                                enemySlots[i].isLikelyUnpicked = false
+                                textDiagnosticsList.add(
+                                    TextBlockDiagnostic(
+                                        text = line,
+                                        rect = safeBox,
+                                        isAlly = false,
+                                        slotIndex = i,
+                                        tag = "RIVAL: ${matched.name}",
+                                        color = android.graphics.Color.RED
+                                    )
+                                )
+                                AppLogger.d(TAG, "OCR Rival Slot $i -> Campeón 100%: ${matched.name}")
+                            }
+                        }
+                    }
+                }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error durante el análisis OCR", e)
@@ -333,12 +387,9 @@ object DraftVisionScanner {
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        // Ajuste milimétrico de la X: Se desplazan un poco hacia el centro de la pantalla
-        // para que no corten los iconos de hechizos/nombres y centren mejor el rostro
-        // Ajustes del usuario: Izquierda 1 pixel más a la izq. Derecha más a la izq y más arriba.
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.162f).toInt() else (height * 0.155f).toInt()
-        // Enemigos 1 píxel más a la izquierda (de 0.088f a 0.091f)
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.091f)).toInt() else (width - (height * 0.160f)).toInt()
+        // Ajuste milimétrico de la X: Centrado exacto sobre los avatares circulares del HUD
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.133f).toInt() else (height * 0.140f).toInt()
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.075f)).toInt() else (width - (height * 0.130f)).toInt()
 
         // Ratios verticales (eje Y): Subimos un poco (~4 pixeles)
         val slotYRatios = floatArrayOf(0.196f, 0.328f, 0.463f, 0.596f, 0.733f)
@@ -426,7 +477,7 @@ object DraftVisionScanner {
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
             val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
 
-            val ocrChamp: Champion? = null
+            val ocrChamp = enemyOcrChampions[i]
             var eval = VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Error al procesar")
 
             try {
@@ -447,13 +498,18 @@ object DraftVisionScanner {
             }
             var diagReason = eval.reason
 
-            // LADO RIVAL: Detección ESTRICTAMENTE visual en el avatar con filtro riguroso
-            // (El rival no muestra hechizos, nombres ni línea; el avatar es la única fuente de verdad)
-            if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.48f && eval.margin >= 0.02f) {
-                finalChamp = eval.candidate1
-                finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
+            // LADO RIVAL: Prioridad 100% OCR si el nombre del campeón fue detectado en texto (fijado o seleccionado).
+            // Si aún no hay texto de campeón (ej: "Jugador 4" preseleccionando), se recurre al reconocimiento visual del avatar.
+            if (ocrChamp != null) {
+                finalChamp = ocrChamp
+                finalConfidence = 100
                 diagStatus = DiagnosticStatus.CONFIRMADO
-                diagReason = "Confirmado por avatar rival (score ${"%.2f".format(Locale.US, eval.score1)}, margen ${"%.2f".format(Locale.US, eval.margin)})"
+                diagReason = "Confirmado 100% por nombre OCR (${ocrChamp.name})"
+            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.38f) {
+                finalChamp = eval.candidate1
+                finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(60, 95)
+                diagStatus = DiagnosticStatus.CONFIRMADO
+                diagReason = "Preselección rival en avatar (${eval.candidate1.name}, score ${"%.2f".format(Locale.US, eval.score1)})"
             } else {
                 finalChamp = null
                 finalConfidence = 0
@@ -485,7 +541,7 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3.3: ESCANEO DE HECHIZOS DE INVOCADOR ALIADOS (SUMMONER SPELLS)
         // -----------------------------------------------------------------------------------------
-        // En Wild Rift, los hechizos aliados se ubican a la izquierda del avatar del slot.
+        // En Wild Rift, los hechizos aliados se ubican en el borde izquierdo extremo de la pantalla.
         // En el equipo rival los hechizos NO son observables durante el draft.
         val spellSize = (height * 0.040f).toInt().coerceAtLeast(18)
         val allySpellsMap = mutableMapOf<Int, MutableList<String>>()
@@ -493,10 +549,8 @@ object DraftVisionScanner {
 
         for (i in 0..4) {
             val yCenter = (height * slotYRatios[i]).toInt()
-            val allyAvatarLeft = allyAvatarCenterX - avatarDiameter / 2
-            val spellMargin = (height * 0.008f).toInt()
-            val spellRight = (allyAvatarLeft - spellMargin).coerceIn(0, width)
-            val spellLeft = (spellRight - spellSize).coerceIn(0, width)
+            val spellLeft = (height * 0.020f).toInt().coerceAtLeast(8)
+            val spellRight = (spellLeft + spellSize).coerceIn(spellSize, width)
 
             val allyCandidateRects = listOf(
                 // Hechizo 1 (arriba)
