@@ -1,4 +1,5 @@
 [versions]
+playServicesAds = "23.3.0"
 securityCrypto = "1.1.0-alpha06"
 workRuntimeKtx = "2.9.1"
 jsoup = "1.18.1"
@@ -52,6 +53,7 @@ mlkitTextRecognition = "16.0.1"
 
 
 [libraries]
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }

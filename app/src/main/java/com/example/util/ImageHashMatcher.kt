@@ -206,12 +206,12 @@ object ImageHashMatcher {
         // 2. FILTRADO ESTRICTO DE SLOT VACÍO / CASCO ESPARTANO / RUIDO:
         if (!isAlly) {
             val isSpartanHelmetOrEmpty = (avgSaturation < 0.14f && (avgLuminance < 80f || stdDev < 22f)) ||
-                    (stdDev < 16f) || (avgLuminance < 35f)
+                    (stdDev < 10f) || (avgLuminance < 25f)
             if (isSpartanHelmetOrEmpty) {
                 return VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Casco espartano o slot rival sin selección activa")
             }
         } else {
-            val isAllyEmptyOrFlat = (stdDev < 13f) || (avgLuminance < 25f)
+            val isAllyEmptyOrFlat = (stdDev < 10f) || (avgLuminance < 20f)
             if (isAllyEmptyOrFlat) {
                 return VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Slot aliado vacío o plano sin avatar")
             }
@@ -266,7 +266,7 @@ object ImageHashMatcher {
         val margin = (bestScore - secondScore).coerceAtLeast(0f)
 
         // 4. CLASIFICACIÓN ESTRICTA: CONFIRMADO vs RECHAZADO vs AMBIGUO
-        val minThreshold = 0.60f
+        val minThreshold = 0.40f
 
         return when {
             bestChamp == null || bestScore < minThreshold -> {

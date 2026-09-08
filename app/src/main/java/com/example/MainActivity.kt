@@ -430,11 +430,13 @@ fun DashboardScreen(
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(navBg)
-            ) {
+            Column {
+                com.example.ui.components.AdmobBanner()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(navBg)
+                ) {
                 // Ambient Runic Particles Floating across Bottom Navigation Bar in background
                 if (AppThemeManager.isParticlesEnabled && isPremium) {
                     RunicNavBarParticleAnimation(
@@ -551,6 +553,7 @@ fun DashboardScreen(
                         accentColor = navAccent
                     )
                 }
+            }
             }
         }
     ) { paddingValues ->

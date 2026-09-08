@@ -348,7 +348,7 @@ object DraftVisionScanner {
                 } else {
                     diagReason = "Asignado por TEXTO OCR (${ocrChamp.name}) ignorando visión errónea (${eval.candidate1?.name ?: "Nada"})"
                 }
-            } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && (!slot.isLikelyUnpicked || eval.score1 >= 0.40f)) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
                     finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
@@ -453,7 +453,7 @@ object DraftVisionScanner {
                 } else {
                     diagReason = "Asignado por TEXTO OCR (${ocrChamp.name}) ignorando visión errónea (${eval.candidate1?.name ?: "Nada"})"
                 }
-            } else if (eval.isConfirmed && eval.candidate1 != null && !slot.isLikelyUnpicked) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && (!slot.isLikelyUnpicked || eval.score1 >= 0.40f)) {
                 if (ocrChamp == null) {
                     finalChamp = eval.candidate1
                     finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(1, 100)
