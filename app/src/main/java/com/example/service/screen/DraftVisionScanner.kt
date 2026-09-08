@@ -145,6 +145,7 @@ object DraftVisionScanner {
                 for (line in block.lines) {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
+                    if (text.contains("[OCR]") || text.contains("VIS:") || text.contains("[VISUAL]")) continue
                     
                     val box = line.boundingBox
                     if (box != null && overlayRect != null) {
@@ -179,8 +180,8 @@ object DraftVisionScanner {
                     else if (xRatio in 0.76f..0.99f) {
                         enemySlotTexts[slotIndex].add(text)
                     }
-                    // 1.3 CENTRO
-                    else {
+                    // 1.3 CENTRO (Sólo el verdadero centro horizontal para evitar la ventana flotante)
+                    else if (xRatio in 0.35f..0.65f) {
                         centerTexts.add(text)
                     }
                 }

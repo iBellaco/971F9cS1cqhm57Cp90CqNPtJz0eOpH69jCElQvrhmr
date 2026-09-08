@@ -3,9 +3,9 @@ import sys
 with open("app/build.gradle.kts", "r") as f:
     content = f.read()
 
-content = content.replace('versionCode = 137', 'versionCode = 138')
-content = content.replace('versionName = "1.3.25"', 'versionName = "1.3.26"')
+content = content.replace('versionCode = 139', 'versionCode = 140')
+content = content.replace('versionName = "1.3.27"', 'versionName = "1.3.28"')
 
 with open("app/build.gradle.kts", "w") as f:
     f.write(content)
-print("Updated version to 1.3.26")
+print("Updated version to 1.3.28")

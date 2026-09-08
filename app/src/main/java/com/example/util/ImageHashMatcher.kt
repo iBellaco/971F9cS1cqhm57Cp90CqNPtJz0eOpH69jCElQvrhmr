@@ -145,7 +145,7 @@ object ImageHashMatcher {
         var maxLuminance = 0f
         var minLuminance = 255f
         val grays = FloatArray(1024)
-        val cropColorHist = FloatArray(64)
+        val cropColorHist = FloatArray(512)
 
         for (i in 0 until 1024) {
             if (!mask[i]) continue
@@ -166,9 +166,9 @@ object ImageHashMatcher {
             val sat = if (max > 0f) (max - min) / max else 0f
             sumSat += sat
 
-            val rBin = (r / 64).coerceIn(0, 3)
-            val gBin = (g / 64).coerceIn(0, 3)
-            val bBin = (b / 64).coerceIn(0, 3)
+            val rBin = (r / 32).coerceIn(0, 7)
+            val gBin = (g / 32).coerceIn(0, 7)
+            val bBin = (b / 32).coerceIn(0, 7)
             val binIndex = (rBin shl 4) or (gBin shl 2) or bBin
             cropColorHist[binIndex] += 1f
         }
@@ -247,7 +247,7 @@ object ImageHashMatcher {
                 // el NCC estaba encontrando falsos positivos en el ruido de fondo rojo (scores < 0.40).
                 // Al darle peso al color, obligamos al motor a rechazar campeones verdes/azules 
                 // (como Teemo) cuando está viendo un retrato rojo (Katarina/Vlad).
-                val totalScore = (0.60f * structuralScore) + (0.40f * colorScore)
+                val totalScore = (0.25f * structuralScore) + (0.75f * colorScore)
 
                 val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) } ?: continue
 

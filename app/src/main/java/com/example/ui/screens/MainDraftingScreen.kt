@@ -67,7 +67,6 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.util.ImagePrefetcher
-import com.example.ui.components.DownloadProgressWidget
 import com.example.ui.components.UserAvatarView
 import com.example.util.SubscriptionManager
 import androidx.compose.material.icons.filled.Download
@@ -98,7 +97,6 @@ import com.example.ui.components.BugReportFeedbackDialog
 import com.example.ui.components.AdminFeedbackBottomSheet
 import com.example.ui.components.HextechOrbButton
 import com.example.ui.components.LaneDisplaySettingCard
-import com.example.ui.components.WildRiftVersionBanner
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
