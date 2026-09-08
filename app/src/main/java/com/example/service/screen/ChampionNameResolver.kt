@@ -15,7 +15,7 @@ object ChampionNameResolver {
         "jungla", "duo", "dúo", "soporte", "apoyo", "tirador", "marca", "estelar", "eterna", "maestria", "maestría",
         "nivel", "combatanos", "combatamos", "juntos", "bloquear", "elegir", "seleccion", "selección", "fase",
         "ban", "bans", "auto", "scan", "activo", "asistente", "detener", "ajustes", "ajuste", "versus", "vs",
-        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición"
+        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "diego"
     )
 
     // Mapa exhaustivo de nombres de Wild Rift a sus IDs canónicos
@@ -43,6 +43,7 @@ object ChampionNameResolver {
         "cho'gath" to "cho_gath",
         "chogath" to "cho_gath",
         "corki" to "corki",
+        "diego" to "diego", // Ignorar nombre de invocador común
         "darius" to "darius",
         "diana" to "diana",
         "dr. mundo" to "dr_mundo",
