@@ -1,23 +1,31 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || request.auth.token.admin == true;
+    }
+  
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow create: if request.auth != null && request.auth.uid == userId
         && request.resource.data.role == "free"
         && !request.resource.data.keys().hasAny(['banned','premiumUntil'])
         && request.resource.data.registeredDevices.size() <= 2;
-      allow update: if request.auth != null && request.auth.uid == userId
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role','premiumUntil','banned'])
-        && (
-             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
-             || request.resource.data.registeredDevices.size() <= 2
-             || request.auth.token.admin == true || resource.data.role == 'admin'
-        );
+      allow update: if request.auth != null && (
+        (request.auth.uid == userId
+         && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role','premiumUntil','banned'])
+         && (
+              !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registeredDevices'])
+              || request.resource.data.registeredDevices.size() <= 2
+         )
+        ) || isAdmin()
+      );
       allow delete: if false;
     }
+    
     match /users/{userId}/subscription_history/{id} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
       allow write: if false; // solo Admin SDK
     }
   }
