@@ -22,16 +22,20 @@ object DraftValidationLayer {
         "bloquear", "elegir", "jugador", "player", "tarjeta", "aumento", "usó", "uso",
         "combatamos", "juntos", "excelente", "composicion", "composición", "oponentes",
         "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando",
-        "fijar", "preseleccion", "preselección", "fase", "bloqueando"
+        "fijar", "preseleccion", "preselección", "fase", "bloqueando", "maestria", "maestría",
+        "nivel", "lvl", "lv", "puntos", "pts", "pnt", "rango", "insignia", "emblema"
     )
 
     fun isNoiseText(text: String): Boolean {
-        val norm = normalize(text)
+        val norm = normalize(text).trim()
         if (norm.length < 2) return true
         // Descartar números puros o temporizadores de draft (ej: "18", "25", "30", "0:15", "100%")
         if (norm.matches(Regex("^[0-9\\s:.,%#-]+$"))) return true
-        return NOISE_WORDS.any { norm.contains(it) } ||
-                norm.startsWith("jugador") || norm.startsWith("player") || norm.startsWith("jogador")
+        if (norm.startsWith("jugador ") || norm.startsWith("player ") || norm.startsWith("jogador ") ||
+            norm.matches(Regex("^(jugador|player|jogador)\\s*\\d+$"))) return true
+        if (NOISE_WORDS.contains(norm)) return true
+        val words = norm.split(Regex("\\s+"))
+        return words.size == 1 && NOISE_WORDS.contains(words[0])
     }
 
     // Prefijos o etiquetas comunes de clanes/equipos en nombres de invocador

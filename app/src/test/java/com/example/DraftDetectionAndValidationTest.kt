@@ -217,49 +217,14 @@ class DraftDetectionAndValidationTest {
     }
 
     @Test
-    fun testAssetLoadingAndVisualMatching() {
-        initChamps()
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        com.example.util.ChampionHashes.initFromAssets(context)
-        val signatures = com.example.util.ChampionHashes.getAllSignatures()
-        assertTrue("Debe cargar firmas desde assets", signatures.isNotEmpty())
-
-        val yoneBitmap = context.assets.open("champions/yone.png").use {
-            android.graphics.BitmapFactory.decodeStream(it)
-        }
-        assertNotNull(yoneBitmap)
-
-        val champs = WildRiftRepository.champions
-        val match = com.example.util.ImageHashMatcher.findBestVisualMatch(yoneBitmap, champs, isAlly = true)
-        assertNotNull("Debe encontrar coincidencia para Yone", match)
-        assertEquals("El asset de Yone debe coincidir con Yone", "yone", match?.champion?.id)
-
-        val matchJungle = com.example.util.ImageHashMatcher.findBestVisualMatch(yoneBitmap, champs, preferredRole = LaneRole.JUNGLE, isAlly = true)
-        assertNotNull("Debe encontrar coincidencia para Yone con preferredRole JUNGLE", matchJungle)
-        assertEquals("Aun con preferredRole JUNGLE debe seguir siendo Yone", "yone", matchJungle?.champion?.id)
-    }
-
-    @Test
     fun testSmiteSpellDetectionAndRoleResolution() {
-        // Crear un bitmap sintético con colores de fuego / Smite (naranja/rojo/oro brillante)
+        // Crear un bitmap sintético con colores de fuego / Smite (púrpura / Castigo)
         val smiteBitmap = android.graphics.Bitmap.createBitmap(40, 40, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(smiteBitmap)
-        val paint = android.graphics.Paint()
-        paint.color = android.graphics.Color.rgb(240, 120, 20) // Naranja brillante
-        canvas.drawRect(0f, 0f, 40f, 40f, paint)
+        smiteBitmap.eraseColor(android.graphics.Color.rgb(180, 50, 200))
 
-        val isSmite = com.example.util.ImageHashMatcher.detectSmiteSpell(smiteBitmap)
-        assertTrue("El bitmap de prueba con colores de Castigo/Smite debe ser detectado", isSmite)
-
-        // Crear un bitmap de color neutro (gris/azul oscuro de fondo)
-        val nonSmiteBitmap = android.graphics.Bitmap.createBitmap(40, 40, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas2 = android.graphics.Canvas(nonSmiteBitmap)
-        val paint2 = android.graphics.Paint()
-        paint2.color = android.graphics.Color.rgb(30, 40, 60)
-        canvas2.drawRect(0f, 0f, 40f, 40f, paint2)
-
-        val isNotSmite = com.example.util.ImageHashMatcher.detectSmiteSpell(nonSmiteBitmap)
-        assertFalse("Un fondo azul/gris oscuro no debe ser detectado como Smite", isNotSmite)
+        val match = com.example.util.SummonerSpellDetector.detectSpell(smiteBitmap, android.graphics.Rect(0, 0, 40, 40))
+        assertNotNull("El bitmap de prueba con colores de Castigo/Smite debe ser detectado", match)
+        assertEquals("smite", match?.spellId)
     }
 
     @Test
@@ -286,111 +251,6 @@ class DraftDetectionAndValidationTest {
 
         val diego = ChampionNameResolver.findChampionInText("D I E G O", champs)
         assertNull("El apodo Diego no debe confundirse con ningún campeón", diego)
-    }
-
-    @Test
-    fun testCircularMaskProperties() {
-        // Verificar que la máscara circular tiene aproximadamente ~570-580 píxeles activos de 1024
-        val maskCount = com.example.util.ChampionHashes.CIRCLE_MASK.count { it }
-        assertTrue("La máscara circular debe tener entre 550 y 600 píxeles", maskCount in 550..600)
-        // Las 4 esquinas deben estar desactivadas (máscara false)
-        assertFalse("Esquina superior izquierda debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[0])
-        assertFalse("Esquina superior derecha debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[31])
-        assertFalse("Esquina inferior izquierda debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[32 * 31])
-        assertFalse("Esquina inferior derecha debe ser false", com.example.util.ChampionHashes.CIRCLE_MASK[1023])
-        // El centro (15, 15) o (16, 16) debe estar activo
-        assertTrue("El centro debe estar activo", com.example.util.ChampionHashes.CIRCLE_MASK[16 * 32 + 16])
-    }
-
-    @Test
-    fun testVisualMatchingAgainstLocalAssets() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        WildRiftRepository.initChampions(context)
-        com.example.util.ChampionHashes.ensureLoaded(context)
-        val champs = WildRiftRepository.champions
-
-        val testIds = listOf("wukong", "galio", "veigar", "sona", "yone", "lulu", "varus", "olaf", "ambessa", "mel", "yunara", "norra")
-        for (id in testIds) {
-            val assetStream = context.assets.open("champions/$id.png")
-            val bitmap = android.graphics.BitmapFactory.decodeStream(assetStream)
-            assertNotNull("El asset champions/$id.png debe existir y cargarse", bitmap)
-
-            val match = com.example.util.ImageHashMatcher.findBestVisualMatch(
-                bitmap,
-                champs,
-                isAlly = true
-            )
-            println("Test match para $id -> detectado como ${match?.champion?.id} con score ${match?.confidencePercent}%")
-            assertEquals("El avatar local de $id debe detectarse como $id", id, match?.champion?.id)
-            bitmap.recycle()
-        }
-    }
-
-    @Test
-    fun testEmptyAndNoiseVisualMatching() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        WildRiftRepository.initChampions(context)
-        com.example.util.ChampionHashes.ensureLoaded(context)
-        val champs = WildRiftRepository.champions
-
-        // Caso 1: Bitmap negro/oscuro (slot vacío)
-        val darkBitmap = android.graphics.Bitmap.createBitmap(120, 120, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(darkBitmap)
-        canvas.drawColor(android.graphics.Color.rgb(20, 25, 35))
-
-        val matchDark = com.example.util.ImageHashMatcher.findBestVisualMatch(darkBitmap, champs, isAlly = false)
-        println("Resultado para slot oscuro: ${matchDark?.champion?.name} (conf: ${matchDark?.confidencePercent}%)")
-        assertNull("Un slot oscuro/vacío NO debe dar match con ningún campeón", matchDark)
-
-        // Caso 2: Círculo gris azulado típico de Wild Rift sin campeón
-        canvas.drawColor(android.graphics.Color.rgb(30, 40, 55))
-        val matchGray = com.example.util.ImageHashMatcher.findBestVisualMatch(darkBitmap, champs, isAlly = true)
-        println("Resultado para slot gris: ${matchGray?.champion?.name} (conf: ${matchGray?.confidencePercent}%)")
-        assertNull("Un slot grisáceo/fondo NO debe dar match con ningún campeón", matchGray)
-
-        darkBitmap.recycle()
-    }
-
-    @Test
-    fun testAll141ChampionsSelfMatchPrecision() {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        WildRiftRepository.initChampions(context)
-        com.example.util.ChampionHashes.ensureLoaded(context)
-        val champs = WildRiftRepository.champions
-
-        val assetManager = context.assets
-        val list = assetManager.list("champions")?.filter { it.endsWith(".png") } ?: emptyList()
-        assertTrue("Deben existir al menos 130 avatares en assets/champions", list.size >= 130)
-
-        var correctCount = 0
-        val mismatches = mutableListOf<String>()
-
-        for (filename in list) {
-            val expectedId = filename.removeSuffix(".png")
-            val stream = assetManager.open("champions/$filename")
-            val bitmap = android.graphics.BitmapFactory.decodeStream(stream)
-            if (bitmap != null) {
-                val match = com.example.util.ImageHashMatcher.findBestVisualMatch(
-                    bitmap,
-                    champs,
-                    isAlly = true
-                )
-                if (match?.champion?.id == expectedId) {
-                    correctCount++
-                } else {
-                    mismatches.add("$expectedId -> ${match?.champion?.id} (conf: ${match?.confidencePercent}%)")
-                }
-                bitmap.recycle()
-            }
-        }
-
-        println("=== REPORTE DE PRECISIÓN 141 CAMPEONES ===")
-        println("Correctos: $correctCount / ${list.size}")
-        if (mismatches.isNotEmpty()) {
-            println("Mismatches (${mismatches.size}):")
-            mismatches.take(20).forEach { println("  $it") }
-        }
-        assertEquals("La precisión sobre todos los avatares locales debe ser 100% sin inventar ningún campeón. Fallos: $mismatches", 0, mismatches.size)
     }
 
     @Test
@@ -501,52 +361,5 @@ class DraftDetectionAndValidationTest {
         assertEquals(1383, enemyStartX)
         assertEquals(1466, enemyEndX)
         assertTrue("ROI enemiga no toca el borde derecho ni panel de volumen", enemyEndX < width - 50)
-    }
-
-    @Test
-    fun testEvaluateVisualMatchUnbiasedTop2AndMargin() {
-        initChamps()
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        com.example.util.ChampionHashes.initFromAssets(context)
-        val champs = WildRiftRepository.champions
-
-        val wukongBitmap = context.assets.open("champions/wukong.png").use {
-            android.graphics.BitmapFactory.decodeStream(it)
-        }
-        assertNotNull(wukongBitmap)
-
-        val eval = com.example.util.ImageHashMatcher.evaluateVisualMatch(wukongBitmap, champs, isAlly = true)
-        assertTrue("Debe confirmar coincidencia de alta fidelidad", eval.isConfirmed)
-        assertEquals("CONFIRMADO", eval.status)
-        assertEquals("wukong", eval.candidate1?.id)
-        assertTrue("Score #1 debe ser muy alto (> 0.90)", eval.score1 > 0.90f)
-        assertTrue("Margen entre candidato 1 y 2 debe ser claro (> 0.10)", eval.margin > 0.10f)
-
-        // Comprobar que findBestVisualMatch no infla con coerce artificial
-        val match = com.example.util.ImageHashMatcher.findBestVisualMatch(wukongBitmap, champs, isAlly = true)
-        assertNotNull(match)
-        assertEquals("wukong", match?.champion?.id)
-        assertTrue("Confianza real calculada directamente del score visual", match?.confidencePercent ?: 0 >= 90)
-
-        // Verificar el formato de diagnóstico
-        val diag = com.example.service.screen.SlotDiagnostic(
-            slotIndex = 0,
-            isAlly = true,
-            roiRect = android.graphics.Rect(70, 94, 153, 177),
-            candidate1 = eval.candidate1,
-            score1 = eval.score1,
-            candidate2 = eval.candidate2,
-            score2 = eval.score2,
-            margin = eval.margin,
-            ocrChampion = eval.candidate1,
-            finalChampion = eval.candidate1,
-            status = com.example.service.screen.DiagnosticStatus.CONFIRMADO,
-            reason = "Confirmado 100% (Visual y OCR coinciden: Wukong)"
-        )
-        val formatted = diag.toFormattedString()
-        assertTrue(formatted.contains("[Aliado Slot 0]"))
-        assertTrue(formatted.contains("ROI: 70,94 → 153,177"))
-        assertTrue(formatted.contains("Candidato #1: Wukong"))
-        assertTrue(formatted.contains("Estado: CONFIRMADO"))
     }
 }

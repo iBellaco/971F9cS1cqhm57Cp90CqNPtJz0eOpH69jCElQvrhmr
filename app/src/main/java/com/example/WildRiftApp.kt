@@ -90,14 +90,6 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         }
 
         try {
-            CoroutineScope(Dispatchers.IO).launch {
-                com.example.util.ChampionHashes.initFromAssets(this@WildRiftApp)
-            }
-        } catch (e: Exception) {
-            AppLogger.e("WildRiftApp", "Error inicializando ChampionHashes desde assets", e)
-        }
-
-        try {
             DynamicTranslations.loadSync(this)
         } catch (e: Exception) {
             AppLogger.e("WildRiftApp", "Error cargando traducciones dinámicas", e)

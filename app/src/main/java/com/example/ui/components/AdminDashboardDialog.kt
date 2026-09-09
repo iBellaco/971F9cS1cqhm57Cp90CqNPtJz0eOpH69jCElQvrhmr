@@ -1,35 +1,73 @@
 package com.example.ui.components
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.data.AvatarCatalog
+import com.example.model.AvatarItem
+import com.example.ui.theme.*
 import com.example.util.AuthManager
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+private val HextechSurfaceBg: Color get() = HextechSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardDialog(
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
     val isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin()
-    
+
     if (!isAdmin) {
         LaunchedEffect(Unit) { onDismiss() }
         return
@@ -37,17 +75,19 @@ fun AdminDashboardDialog(
 
     var showReportsPanel by remember { mutableStateOf(false) }
     var showSupportReportsPanel by remember { mutableStateOf(false) }
+    var showBroadcastDialog by remember { mutableStateOf(false) }
 
+    // Sub-dialogs
     if (showReportsPanel) {
-        AdminFeedbackBottomSheet(
-            onDismiss = { showReportsPanel = false }
-        )
+        AdminFeedbackBottomSheet(onDismiss = { showReportsPanel = false })
     }
 
     if (showSupportReportsPanel) {
-        AdminSupportReportsDialog(
-            onDismiss = { showSupportReportsPanel = false }
-        )
+        AdminSupportReportsDialog(onDismiss = { showSupportReportsPanel = false })
+    }
+
+    if (showBroadcastDialog) {
+        AdminBroadcastAnnouncementDialog(onDismiss = { showBroadcastDialog = false })
     }
 
     Dialog(
@@ -56,51 +96,28 @@ fun AdminDashboardDialog(
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+            color = HextechDarkBg
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Cabecera
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Panel de Administración",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, "Cerrar", tint = MaterialTheme.colorScheme.onSurface)
-                    }
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding()
+            ) {
+                // Header Premium Hextech
+                AdminDashboardHeader(
+                    onClose = onDismiss,
+                    onOpenReports = { showReportsPanel = true },
+                    onOpenSupport = { showSupportReportsPanel = true },
+                    onOpenBroadcast = { showBroadcastDialog = true }
+                )
 
-                Row(
+                // Panel principal de gestión
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .fillMaxSize()
+                        .weight(1f)
                 ) {
-                    Button(
-                        onClick = { showReportsPanel = true },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Ver Reportes OCR", fontSize = 12.sp)
-                    }
-                    Button(
-                        onClick = { showSupportReportsPanel = true },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                    ) {
-                        Text("Soporte/Feedback", fontSize = 12.sp)
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxSize().weight(1f)) {
-                    UserManagementPanel()
+                    EnhancedUserManagementPanel()
                 }
             }
         }
@@ -108,131 +125,1947 @@ fun AdminDashboardDialog(
 }
 
 @Composable
-fun UserManagementPanel() {
+private fun AdminDashboardHeader(
+    onClose: () -> Unit,
+    onOpenReports: () -> Unit,
+    onOpenSupport: () -> Unit,
+    onOpenBroadcast: () -> Unit
+) {
+    Surface(
+        color = HextechSurfaceBg,
+        tonalElevation = 4.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Brush.linearGradient(listOf(HextechGold, Color(0xFF8B6B23)))),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings,
+                            contentDescription = null,
+                            tint = HextechDarkBg,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "Panel de Administración",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = HextechGold
+                        )
+                        Text(
+                            text = "Control de Usuarios, Membresías y Slots",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+
+                IconButton(
+                    onClick = onClose,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cerrar",
+                        tint = TextPrimary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Botones de acción rápida superiores
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onOpenReports,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Reportes OCR", fontSize = 11.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
+                }
+
+                Button(
+                    onClick = onOpenSupport,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Soporte", fontSize = 11.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
+                }
+
+                Button(
+                    onClick = onOpenBroadcast,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Anuncio", fontSize = 11.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
+    }
+}
+
+enum class UserFilterTab(val label: String) {
+    ALL("Todos"),
+    PREMIUM("👑 Premium"),
+    FREE("🎮 Gratis"),
+    ONLINE("🟢 Online"),
+    ADMINS("🛡️ Admins"),
+    BANNED("⛔ Baneados")
+}
+
+@Composable
+fun EnhancedUserManagementPanel() {
+    val context = LocalContext.current
     var users by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isRefreshing by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
-    
-    LaunchedEffect(Unit) {
-        try {
-            val snapshot = FirebaseFirestore.getInstance().collection("users").get().await()
-            val userList = snapshot.documents.map { doc ->
-                val data = doc.data?.toMutableMap() ?: mutableMapOf()
-                data["uid"] = doc.id
-                data
-            }
-            users = userList
-        } catch (e: Exception) {
-            errorMessage = "Error al cargar usuarios: ${e.message}. Asegúrate de que las reglas de Firestore permiten la lectura."
-        } finally {
-            isLoading = false
-        }
-    }
-    
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    } else if (errorMessage != null) {
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
-            Text(text = errorMessage!!, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
-        }
-    } else if (users.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No se encontraron usuarios.")
-        }
-    } else {
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            items(users) { user ->
-                UserAdminCard(user = user, onUserUpdated = { updatedUser ->
-                    users = users.map { if (it["uid"] == updatedUser["uid"]) updatedUser else it }
-                })
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    }
-}
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf(UserFilterTab.ALL) }
 
-@Composable
-fun UserAdminCard(user: Map<String, Any>, onUserUpdated: (Map<String, Any>) -> Unit) {
-    val uid = user["uid"] as? String ?: ""
-    val name = user["name"] as? String ?: "Sin Nombre"
-    val role = user["role"] as? String ?: "free"
-    val isBanned = user["banned"] as? Boolean ?: false
-    
-    var showDialog by remember { mutableStateOf(false) }
-    
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = name, fontWeight = FontWeight.Bold)
-                Text(text = "UID: $uid", style = MaterialTheme.typography.bodySmall)
-                Text(text = "Rol: $role", style = MaterialTheme.typography.bodySmall, color = if (role == "admin" || role == "premium") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-                if (isBanned) {
-                    Text(text = "BANEADO", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelSmall)
+    // Dialogs
+    var selectedUserForManage by remember { mutableStateOf<Map<String, Any>?>(null) }
+    var selectedUserForAvatarGift by remember { mutableStateOf<Map<String, Any>?>(null) }
+
+    fun loadUsers() {
+        isLoading = true
+        errorMessage = null
+        FirebaseFirestore.getInstance().collection("users")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val list = snapshot.documents.map { doc ->
+                    val data = doc.data?.toMutableMap() ?: mutableMapOf()
+                    data["uid"] = doc.id
+                    data
+                }
+                users = list
+                isLoading = false
+                isRefreshing = false
+            }
+            .addOnFailureListener { e ->
+                errorMessage = "Error al cargar usuarios: ${e.message}"
+                isLoading = false
+                isRefreshing = false
+            }
+    }
+
+    LaunchedEffect(Unit) {
+        loadUsers()
+    }
+
+    // Cálculos de métricas en tiempo real
+    val totalUsers = users.size
+    val now = System.currentTimeMillis()
+    val onlineThreshold = 10 * 60 * 1000L // Activos en últimos 10 minutos o con flag is_online
+
+    val onlineUsers = users.count { u ->
+        val isOnlineFlag = u["is_online"] as? Boolean ?: false
+        val lastActive = (u["last_active"] as? Number)?.toLong() ?: (u["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
+        isOnlineFlag || (now - lastActive < onlineThreshold)
+    }
+
+    val premiumUsers = users.count { u ->
+        val role = u["role"] as? String ?: "free"
+        val until = (u["premiumUntil"] as? Number)?.toLong()
+        role == "premium" && (until == null || until == 0L || until > now)
+    }
+
+    val adminUsers = users.count { (it["role"] as? String) == "admin" }
+    val freeUsers = users.count { u ->
+        val role = u["role"] as? String ?: "free"
+        val until = (u["premiumUntil"] as? Number)?.toLong()
+        role == "free" || (role == "premium" && until != null && until > 0L && until <= now)
+    }
+    val bannedUsers = users.count { (it["banned"] as? Boolean) == true || (it["role"] as? String) == "banned" }
+
+    // Filtrado de usuarios
+    val filteredUsers = remember(users, searchQuery, selectedFilter) {
+        users.filter { user ->
+            val name = (user["name"] as? String ?: "").lowercase()
+            val email = (user["email"] as? String ?: "").lowercase()
+            val uid = (user["uid"] as? String ?: "").lowercase()
+            val query = searchQuery.trim().lowercase()
+
+            val matchesQuery = query.isEmpty() || name.contains(query) || email.contains(query) || uid.contains(query)
+
+            val role = user["role"] as? String ?: "free"
+            val until = (user["premiumUntil"] as? Number)?.toLong()
+            val isPrem = role == "premium" && (until == null || until == 0L || until > now)
+            val isOnline = (user["is_online"] as? Boolean ?: false) || (now - ((user["last_active"] as? Number)?.toLong() ?: 0L) < onlineThreshold)
+            val isBanned = (user["banned"] as? Boolean) == true || role == "banned"
+
+            val matchesTab = when (selectedFilter) {
+                UserFilterTab.ALL -> true
+                UserFilterTab.PREMIUM -> isPrem
+                UserFilterTab.FREE -> role == "free" || (!isPrem && role != "admin")
+                UserFilterTab.ONLINE -> isOnline
+                UserFilterTab.ADMINS -> role == "admin"
+                UserFilterTab.BANNED -> isBanned
+            }
+
+            matchesQuery && matchesTab
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // KPI Cards Bar
+        AdminKpiCards(
+            total = totalUsers,
+            premium = premiumUsers,
+            free = freeUsers,
+            online = onlineUsers,
+            onRefresh = {
+                isRefreshing = true
+                loadUsers()
+            },
+            isRefreshing = isRefreshing
+        )
+
+        // Buscador y Chips de Filtro
+        Surface(
+            color = HextechDarkBg,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Buscar por nombre, email o UID...", color = TextMuted, fontSize = 13.sp) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Limpiar", tint = TextMuted)
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = HextechGold,
+                        unfocusedBorderColor = HextechCardBorder,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Chips de filtro con scroll horizontal
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    UserFilterTab.values().forEach { tab ->
+                        val isSelected = selectedFilter == tab
+                        val count = when (tab) {
+                            UserFilterTab.ALL -> totalUsers
+                            UserFilterTab.PREMIUM -> premiumUsers
+                            UserFilterTab.FREE -> freeUsers
+                            UserFilterTab.ONLINE -> onlineUsers
+                            UserFilterTab.ADMINS -> adminUsers
+                            UserFilterTab.BANNED -> bannedUsers
+                        }
+
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { selectedFilter = tab },
+                            label = {
+                                Text(
+                                    text = "${tab.label} ($count)",
+                                    fontSize = 11.5.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechGold.copy(alpha = 0.25f),
+                                selectedLabelColor = HextechGold,
+                                containerColor = HextechSurfaceBg,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = if (isSelected) HextechGold else HextechCardBorder
+                            )
+                        )
+                    }
                 }
             }
-            Button(onClick = { showDialog = true }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) {
-                Text("Gestionar", fontSize = 12.sp)
+        }
+
+        // Lista de Usuarios
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = HextechGold)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Cargando usuarios y membresías...", color = TextMuted, fontSize = 13.sp)
+                }
+            }
+        } else if (errorMessage != null) {
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = DangerRed, modifier = Modifier.size(40.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = errorMessage!!, color = DangerRed, textAlign = TextAlign.Center, fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(onClick = { loadUsers() }, colors = ButtonDefaults.buttonColors(containerColor = HextechGold)) {
+                        Text("Reintentar", color = HextechDarkBg)
+                    }
+                }
+            }
+        } else if (filteredUsers.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.PersonSearch, contentDescription = null, tint = TextMuted, modifier = Modifier.size(48.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("No se encontraron usuarios en esta categoría", color = TextSecondary, fontWeight = FontWeight.SemiBold)
+                    if (searchQuery.isNotEmpty()) {
+                        Text("Intenta con otro término de búsqueda.", color = TextMuted, fontSize = 12.sp)
+                    }
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(filteredUsers, key = { it["uid"] as? String ?: "" }) { user ->
+                    EnhancedUserAdminCard(
+                        user = user,
+                        onManageClick = { selectedUserForManage = user },
+                        onAvatarGiftClick = { selectedUserForAvatarGift = user },
+                        onResetSlotsClick = {
+                            val uid = user["uid"] as? String ?: return@EnhancedUserAdminCard
+                            resetUserHardwareSlots(context, uid) {
+                                Toast.makeText(context, "Slots de hardware liberados exitosamente", Toast.LENGTH_SHORT).show()
+                                loadUsers()
+                            }
+                        }
+                    )
+                }
             }
         }
     }
-    
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Gestionar a $name") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = {
-                            val newRole = if (role == "premium") "free" else "premium"
-                            updateUserField(uid, "role", newRole) {
-                                onUserUpdated(user.toMutableMap().apply { put("role", newRole) })
-                                showDialog = false
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(if (role == "premium") "Quitar Premium" else "Hacer Premium")
-                    }
-                    Button(
-                        onClick = {
-                            val newRole = if (role == "admin") "free" else "admin"
-                            updateUserField(uid, "role", newRole) {
-                                onUserUpdated(user.toMutableMap().apply { put("role", newRole) })
-                                showDialog = false
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(if (role == "admin") "Quitar Admin" else "Hacer Admin")
-                    }
-                    Button(
-                        onClick = {
-                            val newBanned = !isBanned
-                            updateUserField(uid, "banned", newBanned) {
-                                onUserUpdated(user.toMutableMap().apply { put("banned", newBanned) })
-                                showDialog = false
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = if (isBanned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
-                    ) {
-                        Text(if (isBanned) "Desbanear Usuario" else "Banear Usuario")
-                    }
-                }
+
+    // Modal Detallado de Gestión de Usuario
+    selectedUserForManage?.let { user ->
+        UserDetailManagementDialog(
+            user = user,
+            onDismiss = { selectedUserForManage = null },
+            onUserUpdated = { updatedMap ->
+                users = users.map { if (it["uid"] == updatedMap["uid"]) updatedMap else it }
+                selectedUserForManage = updatedMap
             },
-            confirmButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Cerrar") }
+            onOpenAvatarGift = {
+                selectedUserForAvatarGift = user
+            },
+            onReloadAll = { loadUsers() }
+        )
+    }
+
+    // Modal de Galería para Regalar Avatares
+    selectedUserForAvatarGift?.let { user ->
+        AdminAvatarGiftDialog(
+            user = user,
+            onDismiss = { selectedUserForAvatarGift = null },
+            onAvatarGifted = { newAvatarId ->
+                loadUsers()
             }
         )
     }
 }
 
-private fun updateUserField(uid: String, field: String, value: Any, onSuccess: () -> Unit) {
-    FirebaseFirestore.getInstance().collection("users").document(uid)
-        .update(field, value)
-        .addOnSuccessListener { onSuccess() }
+@Composable
+private fun AdminKpiCards(
+    total: Int,
+    premium: Int,
+    free: Int,
+    online: Int,
+    onRefresh: () -> Unit,
+    isRefreshing: Boolean
+) {
+    Surface(
+        color = HextechSurfaceBg,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        tonalElevation = 2.dp,
+        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Métricas Generales de Usuarios",
+                    color = HextechGold,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { if (!isRefreshing) onRefresh() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Refrescar",
+                        tint = if (isRefreshing) HextechGold else TextMuted,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isRefreshing) "Actualizando..." else "Refrescar",
+                        color = if (isRefreshing) HextechGold else TextMuted,
+                        fontSize = 11.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Total
+                KpiItemCard(
+                    title = "Registrados",
+                    value = total.toString(),
+                    icon = Icons.Default.People,
+                    accentColor = Color(0xFF60A5FA),
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Premium
+                KpiItemCard(
+                    title = "Premium",
+                    value = premium.toString(),
+                    icon = Icons.Default.WorkspacePremium,
+                    accentColor = HextechGold,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Gratuitos
+                KpiItemCard(
+                    title = "Gratuitos",
+                    value = free.toString(),
+                    icon = Icons.Default.SportsEsports,
+                    accentColor = HextechCyan,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Online
+                KpiItemCard(
+                    title = "En Línea",
+                    value = online.toString(),
+                    icon = Icons.Default.Sensors,
+                    accentColor = Color(0xFF00FF7F),
+                    isLive = true,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun KpiItemCard(
+    title: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+    isLive: Boolean = false
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
+    val alphaAnim by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "AlphaPulse"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(HextechDarkBg)
+            .border(1.dp, accentColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+            .padding(vertical = 8.dp, horizontal = 6.dp)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isLive) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF00FF7F).copy(alpha = alphaAnim))
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = accentColor,
+                    modifier = Modifier.size(13.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = value,
+                color = TextPrimary,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 15.sp
+            )
+            Text(
+                text = title,
+                color = TextMuted,
+                fontSize = 9.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun EnhancedUserAdminCard(
+    user: Map<String, Any>,
+    onManageClick: () -> Unit,
+    onAvatarGiftClick: () -> Unit,
+    onResetSlotsClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val uid = user["uid"] as? String ?: ""
+    val name = user["name"] as? String ?: "Sin Nombre"
+    val email = user["email"] as? String ?: ""
+    val role = user["role"] as? String ?: "free"
+    val isBanned = (user["banned"] as? Boolean) == true || role == "banned"
+    val avatarId = user["avatarId"] as? String ?: "default_poro"
+    val rankBorder = user["rankBorder"] as? String ?: "NONE"
+    val premiumUntil = (user["premiumUntil"] as? Number)?.toLong()
+
+    val registeredDevices = (user["registeredDevices"] as? List<*>) ?: emptyList<Any>()
+    val deviceSlotsUsed = registeredDevices.size.coerceAtLeast(0)
+
+    val unlockedAvatars = (user["unlockedAvatars"] as? List<*>)?.mapNotNull { it?.toString() } ?: listOf("default_poro")
+    val unlockedCount = unlockedAvatars.size
+
+    val now = System.currentTimeMillis()
+    val isOnline = (user["is_online"] as? Boolean ?: false) || (now - ((user["last_active"] as? Number)?.toLong() ?: 0L) < 10 * 60 * 1000L)
+
+    val isPremiumActive = when {
+        role == "admin" -> true
+        role == "premium" -> premiumUntil == null || premiumUntil == 0L || premiumUntil > now
+        else -> false
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = HextechSurfaceBg,
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (role == "admin") HextechGold.copy(alpha = 0.6f)
+            else if (isPremiumActive) HextechCyan.copy(alpha = 0.4f)
+            else if (isBanned) DangerRed.copy(alpha = 0.5f)
+            else HextechCardBorder
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Fila superior: Avatar + Info Usuario + Badge de Rol
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Avatar con badge de estado online
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    UserAvatarView(
+                        avatarId = avatarId,
+                        size = 46.dp,
+                        fallbackInitial = name.take(1).uppercase(),
+                        rankBorder = rankBorder
+                    )
+                    // Indicador de conexión verde/gris
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(if (isOnline) Color(0xFF00FF7F) else Color(0xFF6B7280))
+                            .border(1.5.dp, HextechDarkBg, CircleShape)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                // Datos de Usuario
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = name,
+                            fontWeight = FontWeight.Bold,
+                            color = if (role == "admin") HextechGold else TextPrimary,
+                            fontSize = 14.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        // Role Badge
+                        RoleBadge(role = role, isPremiumActive = isPremiumActive, isBanned = isBanned)
+                    }
+
+                    if (email.isNotBlank()) {
+                        Text(
+                            text = email,
+                            color = TextSecondary,
+                            fontSize = 11.5.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    // UID copiable con un toque
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText("UID", uid))
+                            Toast.makeText(context, "UID copiado", Toast.LENGTH_SHORT).show()
+                        }
+                    ) {
+                        Text(
+                            text = "UID: ${uid.take(12)}...",
+                            color = TextMuted,
+                            fontSize = 10.sp
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copiar UID", tint = TextMuted, modifier = Modifier.size(10.dp))
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Divider(color = HextechCardBorder.copy(alpha = 0.5f), thickness = 0.5.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Fila de Estado: Suscripción & Slots de Hardware
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Info de Suscripción
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = if (isPremiumActive) HextechCyan else TextMuted,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = getSubscriptionStatusText(role, premiumUntil, isPremiumActive),
+                            fontSize = 11.sp,
+                            color = if (isPremiumActive) HextechCyan else TextMuted,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    if (isPremiumActive && role != "admin" && premiumUntil != null && premiumUntil > 0L) {
+                        Text(
+                            text = formatExpirationDateDetailed(premiumUntil),
+                            color = if (premiumUntil - now < 3 * 86400000L) Color(0xFFFBBF24) else TextSecondary,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+
+                // Info de Slots de Dispositivos y Avatares
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Badge de Slots de Dispositivo
+                    Surface(
+                        color = HextechDarkBg,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, HextechCardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Smartphone, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "$deviceSlotsUsed/2 slots",
+                                fontSize = 10.sp,
+                                color = if (deviceSlotsUsed >= 2) DangerRed else TextSecondary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    // Badge de Avatares desbloqueados
+                    Surface(
+                        color = HextechDarkBg,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, HextechCardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Palette, contentDescription = null, tint = HextechGold, modifier = Modifier.size(11.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "$unlockedCount avatares",
+                                fontSize = 10.sp,
+                                color = HextechGold,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Botones de acción rápida en la tarjeta
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Botón Regalar Avatar
+                OutlinedButton(
+                    onClick = onAvatarGiftClick,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Default.CardGiftcard, contentDescription = null, modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Regalar Avatar", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                }
+
+                // Botón Reiniciar Slots
+                OutlinedButton(
+                    onClick = onResetSlotsClick,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF60A5FA)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF60A5FA).copy(alpha = 0.5f)),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Reset Slots", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                }
+
+                // Botón Gestionar Completo
+                Button(
+                    onClick = onManageClick,
+                    modifier = Modifier.weight(1.1f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Default.Tune, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Gestionar", color = HextechDarkBg, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RoleBadge(role: String, isPremiumActive: Boolean, isBanned: Boolean) {
+    val (text, bg, textColor) = when {
+        isBanned -> Triple("BANEADO", DangerRed.copy(alpha = 0.2f), DangerRed)
+        role == "admin" -> Triple("👑 ADMIN", HextechGold.copy(alpha = 0.25f), HextechGold)
+        isPremiumActive -> Triple("⭐ PREMIUM", HextechCyan.copy(alpha = 0.2f), HextechCyan)
+        else -> Triple("GRATIS", Color.White.copy(alpha = 0.1f), TextSecondary)
+    }
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(bg)
+            .border(0.5.dp, textColor.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+            .padding(horizontal = 5.dp, vertical = 2.dp)
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+private fun getSubscriptionStatusText(role: String, premiumUntil: Long?, isPremiumActive: Boolean): String {
+    if (role == "admin") return "Acceso Administrador (Vitalicio)"
+    if (role == "banned") return "Cuenta Suspendida"
+    if (!isPremiumActive) return "Plan Gratuito"
+    if (premiumUntil == null || premiumUntil == 0L) return "Premium Vitalicio ♾️"
+
+    val diff = premiumUntil - System.currentTimeMillis()
+    if (diff <= 0) return "Suscripción Expirada"
+
+    val days = diff / (24 * 60 * 60 * 1000L)
+    val hours = (diff % (24 * 60 * 60 * 1000L)) / (60 * 60 * 1000L)
+
+    return if (days > 0) "Premium: $days d $hours h restantes" else "Premium: $hours h restantes"
+}
+
+private fun formatExpirationDateDetailed(timestamp: Long?): String {
+    if (timestamp == null || timestamp == 0L) return "Vitalicio / Permanente"
+    return try {
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        "Vence: " + sdf.format(Date(timestamp))
+    } catch (_: Exception) {
+        "Vence: $timestamp"
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
+// MODAL DE GESTIÓN INTEGRAL DE USUARIO (DURACIONES, SLOTS, ROLES, AVATARES)
+// -------------------------------------------------------------------------------------------------
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserDetailManagementDialog(
+    user: Map<String, Any>,
+    onDismiss: () -> Unit,
+    onUserUpdated: (Map<String, Any>) -> Unit,
+    onOpenAvatarGift: () -> Unit,
+    onReloadAll: () -> Unit
+) {
+    val context = LocalContext.current
+    val uid = user["uid"] as? String ?: ""
+    var currentName by remember { mutableStateOf(user["name"] as? String ?: "Sin Nombre") }
+    val email = user["email"] as? String ?: ""
+    var currentRole by remember { mutableStateOf(user["role"] as? String ?: "free") }
+    var currentBanned by remember { mutableStateOf((user["banned"] as? Boolean) == true || currentRole == "banned") }
+    var currentPremiumUntil by remember { mutableStateOf((user["premiumUntil"] as? Number)?.toLong()) }
+    val avatarId = user["avatarId"] as? String ?: "default_poro"
+    val rankBorder = user["rankBorder"] as? String ?: "NONE"
+
+    var isProcessing by remember { mutableStateOf(false) }
+    var customDaysInput by remember { mutableStateOf("") }
+    var showCustomDaysDialog by remember { mutableStateOf(false) }
+
+    val registeredDevices = (user["registeredDevices"] as? List<*>) ?: emptyList<Any>()
+    var currentDeviceCount by remember { mutableStateOf(registeredDevices.size) }
+
+    val isPremiumActive = when {
+        currentRole == "admin" -> true
+        currentRole == "premium" -> currentPremiumUntil == null || currentPremiumUntil == 0L || currentPremiumUntil!! > System.currentTimeMillis()
+        else -> false
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.92f),
+            shape = RoundedCornerShape(16.dp),
+            color = HextechDarkBg,
+            border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Header del Dialog
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        UserAvatarView(
+                            avatarId = avatarId,
+                            size = 48.dp,
+                            fallbackInitial = currentName.take(1).uppercase(),
+                            rankBorder = rankBorder
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = currentName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = HextechGold
+                            )
+                            Text(
+                                text = email.ifBlank { "UID: $uid" },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextMuted,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(color = HextechCardBorder)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Contenido Scrollable
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    // SECCIÓN 1: ASIGNACIÓN DE SUSCRIPCIÓN PREMIUM
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.WorkspacePremium, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Gestión de Suscripción Premium", fontWeight = FontWeight.Bold, color = HextechGold, fontSize = 13.sp)
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                // Estado actual
+                                Surface(
+                                    color = HextechDarkBg,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(8.dp)) {
+                                        Text(
+                                            text = "Estado: ${if (isPremiumActive) "⭐ PREMIUM ACTIVO" else "⚪ GRATUITO"}",
+                                            color = if (isPremiumActive) HextechCyan else TextSecondary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 12.sp
+                                        )
+                                        Text(
+                                            text = getSubscriptionStatusText(currentRole, currentPremiumUntil, isPremiumActive),
+                                            color = TextMuted,
+                                            fontSize = 11.sp
+                                        )
+                                        if (currentPremiumUntil != null && currentPremiumUntil!! > 0L) {
+                                            Text(
+                                                text = formatExpirationDateDetailed(currentPremiumUntil),
+                                                color = HextechGold,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text("Asignar o Extender Tiempo Premium:", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                // Grid de Duraciones Rápidas
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    DurationButton(
+                                        label = "+1 Día",
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 1, isPermanent = false) { newUntil ->
+                                                currentRole = "premium"
+                                                currentPremiumUntil = newUntil
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", newUntil)
+                                                })
+                                            }
+                                        }
+                                    )
+                                    DurationButton(
+                                        label = "+7 Días",
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 7, isPermanent = false) { newUntil ->
+                                                currentRole = "premium"
+                                                currentPremiumUntil = newUntil
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", newUntil)
+                                                })
+                                            }
+                                        }
+                                    )
+                                    DurationButton(
+                                        label = "+30 Días",
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 30, isPermanent = false) { newUntil ->
+                                                currentRole = "premium"
+                                                currentPremiumUntil = newUntil
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", newUntil)
+                                                })
+                                            }
+                                        }
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    DurationButton(
+                                        label = "+90 Días (3m)",
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 90, isPermanent = false) { newUntil ->
+                                                currentRole = "premium"
+                                                currentPremiumUntil = newUntil
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", newUntil)
+                                                })
+                                            }
+                                        }
+                                    )
+                                    DurationButton(
+                                        label = "+1 Año (365d)",
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 365, isPermanent = false) { newUntil ->
+                                                currentRole = "premium"
+                                                currentPremiumUntil = newUntil
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", newUntil)
+                                                })
+                                            }
+                                        }
+                                    )
+                                    DurationButton(
+                                        label = "♾️ Vitalicio",
+                                        modifier = Modifier.weight(1f),
+                                        accent = true,
+                                        onClick = {
+                                            applyPremiumDuration(context, uid, 0, isPermanent = true) {
+                                                currentRole = "premium"
+                                                currentPremiumUntil = 0L
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "premium")
+                                                    put("premiumUntil", 0L)
+                                                })
+                                            }
+                                        }
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    // Personalizado en días
+                                    OutlinedButton(
+                                        onClick = { showCustomDaysDialog = true },
+                                        modifier = Modifier.weight(1f),
+                                        shape = RoundedCornerShape(6.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                                        contentPadding = PaddingValues(vertical = 6.dp)
+                                    ) {
+                                        Icon(Icons.Default.EditCalendar, contentDescription = null, modifier = Modifier.size(13.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Días Personalizados...", fontSize = 11.sp)
+                                    }
+
+                                    // Quitar Premium
+                                    OutlinedButton(
+                                        onClick = {
+                                            removePremiumFromUser(context, uid) {
+                                                currentRole = "free"
+                                                currentPremiumUntil = null
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("role", "free")
+                                                    put("premiumUntil", 0L)
+                                                })
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        shape = RoundedCornerShape(6.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                                        contentPadding = PaddingValues(vertical = 6.dp)
+                                    ) {
+                                        Icon(Icons.Default.RemoveCircleOutline, contentDescription = null, modifier = Modifier.size(13.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Quitar Premium", fontSize = 11.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // SECCIÓN 2: GESTIÓN DE HARDWARE Y SLOTS DE DISPOSITIVOS
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Devices, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Slots de Hardware y Dispositivos", fontWeight = FontWeight.Bold, color = Color(0xFF60A5FA), fontSize = 13.sp)
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "El usuario tiene $currentDeviceCount de 2 slots de hardware vinculados. Si el usuario cambió de teléfono o tiene problemas de sesión, puedes liberar todos sus slots.",
+                                    color = TextMuted,
+                                    fontSize = 11.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Button(
+                                    onClick = {
+                                        resetUserHardwareSlots(context, uid) {
+                                            currentDeviceCount = 0
+                                            onUserUpdated(user.toMutableMap().apply {
+                                                put("registeredDevices", emptyList<String>())
+                                                put("sessionToken", "")
+                                            })
+                                            Toast.makeText(context, "Slots de hardware liberados (0/2 en uso)", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Liberar / Reiniciar Todos los Slots de Hardware", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+
+                    // SECCIÓN 3: COSMÉTICOS Y REGALOS DE AVATARES
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Palette, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Regalos de Avatares y Cosméticos", fontWeight = FontWeight.Bold, color = HextechGold, fontSize = 13.sp)
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "Permite desbloquear avatares exclusivos individuales o regalar todo el catálogo de una vez.",
+                                    color = TextMuted,
+                                    fontSize = 11.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(
+                                        onClick = {
+                                            onDismiss()
+                                            onOpenAvatarGift()
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Ver Galería de Avatares", color = HextechDarkBg, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            giftAllAvatarsToUser(context, uid) {
+                                                Toast.makeText(context, "¡Todo el catálogo de avatares desbloqueado!", Toast.LENGTH_SHORT).show()
+                                                onReloadAll()
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Desbloquear TODO", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // SECCIÓN 4: ROLES Y SEGURIDAD
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Security, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Roles y Seguridad de la Cuenta", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 13.sp)
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    // Hacer/Quitar Admin
+                                    Button(
+                                        onClick = {
+                                            val newRole = if (currentRole == "admin") "free" else "admin"
+                                            toggleUserAdminRole(context, uid, newRole) {
+                                                currentRole = newRole
+                                                onUserUpdated(user.toMutableMap().apply { put("role", newRole) })
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (currentRole == "admin") Color(0xFF4B5563) else HextechGold
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(if (currentRole == "admin") "Quitar Admin" else "Hacer Admin", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    // Banear/Desbanear
+                                    Button(
+                                        onClick = {
+                                            val newBanned = !currentBanned
+                                            val newRole = if (newBanned) "banned" else "free"
+                                            toggleUserBanStatus(context, uid, newBanned, newRole) {
+                                                currentBanned = newBanned
+                                                currentRole = newRole
+                                                onUserUpdated(user.toMutableMap().apply {
+                                                    put("banned", newBanned)
+                                                    put("role", newRole)
+                                                })
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (currentBanned) Color(0xFF10B981) else DangerRed
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(if (currentBanned) Icons.Default.LockOpen else Icons.Default.Block, contentDescription = null, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(if (currentBanned) "Desbanear" else "Banear Cuenta", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Diálogo para ingresar Días Personalizados
+    if (showCustomDaysDialog) {
+        AlertDialog(
+            onDismissRequest = { showCustomDaysDialog = false },
+            title = { Text("Días Personalizados de Premium", fontWeight = FontWeight.Bold, color = HextechGold) },
+            text = {
+                Column {
+                    Text("Ingresa el número de días que deseas otorgarle a $currentName:", color = TextSecondary, fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = customDaysInput,
+                        onValueChange = { customDaysInput = it.filter { ch -> ch.isDigit() } },
+                        placeholder = { Text("Ej. 15, 45, 180...") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val days = customDaysInput.toIntOrNull()
+                        if (days != null && days > 0) {
+                            applyPremiumDuration(context, uid, days, isPermanent = false) { newUntil ->
+                                currentRole = "premium"
+                                currentPremiumUntil = newUntil
+                                onUserUpdated(user.toMutableMap().apply {
+                                    put("role", "premium")
+                                    put("premiumUntil", newUntil)
+                                })
+                                showCustomDaysDialog = false
+                            }
+                        } else {
+                            Toast.makeText(context, "Ingresa una cantidad válida de días", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                ) {
+                    Text("Aplicar Días", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCustomDaysDialog = false }) {
+                    Text("Cancelar", color = TextMuted)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun DurationButton(
+    label: String,
+    modifier: Modifier = Modifier,
+    accent: Boolean = false,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(6.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (accent) HextechGold else HextechDarkBg
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (accent) HextechGold else HextechCardBorder),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = label,
+            color = if (accent) HextechDarkBg else TextPrimary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
+// MODAL DE GALERÍA PARA REGALAR AVATARES
+// -------------------------------------------------------------------------------------------------
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminAvatarGiftDialog(
+    user: Map<String, Any>,
+    onDismiss: () -> Unit,
+    onAvatarGifted: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val uid = user["uid"] as? String ?: ""
+    val userName = user["name"] as? String ?: "Usuario"
+    val unlockedAvatars = remember(user) {
+        ((user["unlockedAvatars"] as? List<*>)?.mapNotNull { it?.toString() } ?: listOf("default_poro")).toSet()
+    }
+    var currentUnlocked by remember { mutableStateOf(unlockedAvatars) }
+
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedRarity by remember { mutableStateOf("Todas") }
+
+    val allAvatars = remember { AvatarCatalog.avatars }
+    val rarities = listOf("Todas", "Clásico", "Común", "Raro", "Épico", "Legendario", "Mítico")
+
+    val filteredAvatars = remember(searchQuery, selectedRarity, allAvatars) {
+        allAvatars.filter { item ->
+            val matchesQuery = searchQuery.isBlank() || item.name.contains(searchQuery, ignoreCase = true) || item.title.contains(searchQuery, ignoreCase = true)
+            val matchesRarity = selectedRarity == "Todas" || item.rarity.equals(selectedRarity, ignoreCase = true)
+            matchesQuery && matchesRarity
+        }
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.96f)
+                .fillMaxHeight(0.94f),
+            shape = RoundedCornerShape(16.dp),
+            color = HextechDarkBg,
+            border = androidx.compose.foundation.BorderStroke(1.5.dp, HextechGold)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Brush.linearGradient(listOf(HextechGold, Color(0xFF8B6B23)))),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "Regalar Avatar a $userName",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = HextechGold
+                            )
+                            Text(
+                                text = "${currentUnlocked.size} de ${allAvatars.size} desbloqueados",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = HextechCyan,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Buscador y Filtros
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Buscar avatar o campeón...", color = TextMuted, fontSize = 12.sp) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp)) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = null, tint = TextMuted)
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = HextechGold,
+                        unfocusedBorderColor = HextechCardBorder,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Filtros de Rareza
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    rarities.forEach { r ->
+                        val isSel = selectedRarity == r
+                        FilterChip(
+                            selected = isSel,
+                            onClick = { selectedRarity = r },
+                            label = { Text(r, fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechGold.copy(alpha = 0.25f),
+                                selectedLabelColor = HextechGold,
+                                containerColor = HextechSurfaceBg,
+                                labelColor = TextSecondary
+                            )
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botón Regalar Todo el Catálogo
+                Button(
+                    onClick = {
+                        giftAllAvatarsToUser(context, uid) {
+                            currentUnlocked = allAvatars.map { it.id }.toSet()
+                            Toast.makeText(context, "¡Todos los avatares han sido regalados!", Toast.LENGTH_SHORT).show()
+                            onAvatarGifted("all")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("🎁 Regalar TODO el Catálogo (${allAvatars.size} Avatares VIP)", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Cuadrícula de Avatares
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 100.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(filteredAvatars, key = { it.id }) { item ->
+                        val isAlreadyUnlocked = currentUnlocked.contains(item.id)
+
+                        AvatarGiftCard(
+                            item = item,
+                            isUnlocked = isAlreadyUnlocked,
+                            onGift = {
+                                giftSingleAvatarToUser(context, uid, item.id) {
+                                    currentUnlocked = currentUnlocked + item.id
+                                    Toast.makeText(context, "¡Avatar ${item.name} regalado!", Toast.LENGTH_SHORT).show()
+                                    onAvatarGifted(item.id)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvatarGiftCard(
+    item: AvatarItem,
+    isUnlocked: Boolean,
+    onGift: () -> Unit
+) {
+    Surface(
+        color = HextechSurfaceBg,
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isUnlocked) Color(0xFF00FF7F).copy(alpha = 0.5f) else HextechCardBorder
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            UserAvatarView(
+                avatarId = item.id,
+                size = 52.dp,
+                fallbackInitial = item.name.take(1)
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = item.name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp,
+                color = TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = item.rarity,
+                fontSize = 9.sp,
+                color = HextechGold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            if (isUnlocked) {
+                Surface(
+                    color = Color(0xFF00FF7F).copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(4.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "✓ Desbloqueado",
+                        color = Color(0xFF00FF7F),
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = 3.dp)
+                    )
+                }
+            } else {
+                Button(
+                    onClick = onGift,
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    shape = RoundedCornerShape(4.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Regalar", color = HextechDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
+// DIÁLOGO DE ANUNCIO / NOTIFICACIÓN GLOBAL
+// -------------------------------------------------------------------------------------------------
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminBroadcastAnnouncementDialog(
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var title by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    var isUrgent by remember { mutableStateOf(false) }
+    var isPublishing by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Publicar Anuncio Global", fontWeight = FontWeight.Bold, color = HextechGold, fontSize = 16.sp)
+            }
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    "Este anuncio se guardará en la configuración de la app para todos los usuarios activos.",
+                    color = TextSecondary,
+                    fontSize = 12.sp
+                )
+
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Título del Anuncio") },
+                    placeholder = { Text("Ej. Nuevo parche 6.0 o Mantenimiento") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = message,
+                    onValueChange = { message = it },
+                    label = { Text("Mensaje Detallado") },
+                    placeholder = { Text("Escribe el comunicado para los usuarios...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    maxLines = 5
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { isUrgent = !isUrgent }
+                ) {
+                    Checkbox(
+                        checked = isUrgent,
+                        onCheckedChange = { isUrgent = it },
+                        colors = CheckboxDefaults.colors(checkedColor = DangerRed)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Marcar como Urgente / Mantenimiento", color = if (isUrgent) DangerRed else TextSecondary, fontSize = 12.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (title.isBlank() || message.isBlank()) {
+                        Toast.makeText(context, "Por favor completa título y mensaje", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    isPublishing = true
+                    val announcementData = hashMapOf(
+                        "title" to title.trim(),
+                        "message" to message.trim(),
+                        "isUrgent" to isUrgent,
+                        "timestamp" to System.currentTimeMillis(),
+                        "active" to true
+                    )
+                    FirebaseFirestore.getInstance().collection("system_config").document("announcement")
+                        .set(announcementData, SetOptions.merge())
+                        .addOnSuccessListener {
+                            isPublishing = false
+                            Toast.makeText(context, "¡Anuncio global publicado!", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        }
+                        .addOnFailureListener { e ->
+                            isPublishing = false
+                            Toast.makeText(context, "Error al publicar: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                },
+                enabled = !isPublishing,
+                colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+            ) {
+                Text(if (isPublishing) "Publicando..." else "Publicar", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = TextMuted)
+            }
+        }
+    )
+}
+
+// -------------------------------------------------------------------------------------------------
+// FUNCIONES AUXILIARES DE FIRESTORE PARA ADMINISTRACIÓN
+// -------------------------------------------------------------------------------------------------
+
+private fun applyPremiumDuration(
+    context: Context,
+    uid: String,
+    days: Int,
+    isPermanent: Boolean,
+    onSuccess: (Long) -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val userRef = db.collection("users").document(uid)
+
+    val calculatedUntil = if (isPermanent) {
+        0L // 0 indica permanente/vitalicio
+    } else {
+        val now = System.currentTimeMillis()
+        now + (days.toLong() * 24L * 60L * 60L * 1000L)
+    }
+
+    val updatePayload = hashMapOf<String, Any>(
+        "role" to "premium",
+        "premiumUntil" to calculatedUntil,
+        "subscriptionPlan" to if (isPermanent) "Admin Vitalicio" else "Admin Grant ($days días)",
+        "lastModifiedByAdmin" to System.currentTimeMillis()
+    )
+
+    userRef.set(updatePayload, SetOptions.merge())
+        .addOnSuccessListener {
+            val msg = if (isPermanent) "Premium Vitalicio otorgado" else "Premium otorgado por $days días"
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            onSuccess(calculatedUntil)
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun removePremiumFromUser(
+    context: Context,
+    uid: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val updatePayload = hashMapOf<String, Any>(
+        "role" to "free",
+        "premiumUntil" to 0L,
+        "subscriptionPlan" to "Gratuito",
+        "lastModifiedByAdmin" to System.currentTimeMillis()
+    )
+
+    db.collection("users").document(uid)
+        .set(updatePayload, SetOptions.merge())
+        .addOnSuccessListener {
+            Toast.makeText(context, "Suscripción revocada (Cambiado a Gratuito)", Toast.LENGTH_SHORT).show()
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun resetUserHardwareSlots(
+    context: Context,
+    uid: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val updatePayload = hashMapOf<String, Any>(
+        "registeredDevices" to emptyList<String>(),
+        "sessionToken" to "",
+        "slotsResetTimestamp" to System.currentTimeMillis()
+    )
+
+    db.collection("users").document(uid)
+        .set(updatePayload, SetOptions.merge())
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al reiniciar slots: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun giftSingleAvatarToUser(
+    context: Context,
+    uid: String,
+    avatarId: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val userRef = db.collection("users").document(uid)
+
+    userRef.update("unlockedAvatars", FieldValue.arrayUnion(avatarId))
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            // Si el campo no existía aún, usamos set con merge
+            val updateData = hashMapOf<String, Any>(
+                "unlockedAvatars" to listOf("default_poro", avatarId)
+            )
+            userRef.set(updateData, SetOptions.merge())
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { err ->
+                    Toast.makeText(context, "Error: ${err.message}", Toast.LENGTH_LONG).show()
+                }
+        }
+}
+
+private fun giftAllAvatarsToUser(
+    context: Context,
+    uid: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val allIds = AvatarCatalog.avatars.map { it.id }
+
+    val updateData = hashMapOf<String, Any>(
+        "unlockedAvatars" to allIds,
+        "avatarAllAccessGranted" to true
+    )
+
+    db.collection("users").document(uid)
+        .set(updateData, SetOptions.merge())
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al regalar avatares: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun toggleUserAdminRole(
+    context: Context,
+    uid: String,
+    newRole: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("users").document(uid)
+        .update("role", newRole)
+        .addOnSuccessListener {
+            Toast.makeText(context, "Rol actualizado a $newRole", Toast.LENGTH_SHORT).show()
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun toggleUserBanStatus(
+    context: Context,
+    uid: String,
+    isBanned: Boolean,
+    newRole: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val updatePayload = hashMapOf<String, Any>(
+        "banned" to isBanned,
+        "role" to newRole,
+        "bannedTimestamp" to if (isBanned) System.currentTimeMillis() else 0L
+    )
+
+    db.collection("users").document(uid)
+        .set(updatePayload, SetOptions.merge())
+        .addOnSuccessListener {
+            Toast.makeText(context, if (isBanned) "Usuario BANEADO" else "Usuario Desbaneado", Toast.LENGTH_SHORT).show()
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
 }

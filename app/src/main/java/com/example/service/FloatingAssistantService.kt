@@ -188,7 +188,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY, CALIBRATION }
+enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY }
 
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private val overlayState = OverlayState()
@@ -200,7 +200,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     // Estado para la orientación de la pantalla real
     private val isDeviceLandscape = androidx.compose.runtime.mutableStateOf(false)
     private var closeTargetComposeView: ComposeView? = null
-    private var debugBoxesComposeView: ComposeView? = null
     private var floatingParams: WindowManager.LayoutParams? = null
     private var isOverlayExpanded: Boolean = false
     private var isCompactBubbleMode: Boolean = false
@@ -324,15 +323,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         // 1. Desconectar todas las vistas del WindowManager ANTES de destruir el ciclo de vida
         removeFloatingOverlay()
 
-        // 2. Liberar recursos de captura y referencias de debug
+        // 2. Liberar recursos de captura
         try {
             screenCaptureManager?.release()
             screenCaptureManager = null
-        } catch (_: Exception) {}
-
-        try {
-            DraftVisionScanner.lastDebugBitmap.value = null
-            DraftVisionScanner.lastDiagnostics.value = emptyList()
         } catch (_: Exception) {}
 
         // 3. Notificar fin de ciclo de vida y limpiar ViewModelStore de forma segura
@@ -451,32 +445,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             }
         }
 
-        val debugParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-        }
-
-        debugBoxesComposeView = ComposeView(this).apply {
-            setViewTreeLifecycleOwner(this@FloatingAssistantService)
-            setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
-            setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
-            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
-            setContent {
-                val showDebug by showVisionDebugger.collectAsState()
-                if (showDebug) {
-                    VisionDebugOverlay()
-                }
-            }
-        }
-
         try {
             windowManager?.addView(closeTargetComposeView, closeTargetParams)
-            windowManager?.addView(debugBoxesComposeView, debugParams)
         } catch (_: Exception) {}
 
         val params = WindowManager.LayoutParams(
@@ -646,10 +616,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
             }
             closeTargetComposeView = null
-            debugBoxesComposeView?.let { view ->
-                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
-            }
-            debugBoxesComposeView = null
         } catch (_: Exception) {}
     }
 
@@ -917,13 +883,24 @@ private fun FloatingOverlayContent(
                                             assignAllySlot(idx, scannedAlly)
                                             newAlliesAdded++
                                         }
+                                    } else if (result.isSuccessful) {
+                                        if (allies[idx] != null) {
+                                            allies[idx] = null
+                                        }
                                     }
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
                                     val scannedEnemy = result.enemiesByRole[role]
-                                    if (scannedEnemy != null && (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role])) {
-                                        assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                        newEnemiesAdded++
+                                    if (scannedEnemy != null) {
+                                        if (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role]) {
+                                            assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                            newEnemiesAdded++
+                                        }
+                                    } else if (result.isSuccessful) {
+                                        if (enemies[idx] != null) {
+                                            enemies[idx] = null
+                                            state.enemyConfidences.remove(role)
+                                        }
                                     }
                                 }
                             }
@@ -1265,32 +1242,6 @@ private fun FloatingOverlayContent(
                                     }
                                 }
 
-                                // Botón Debug Visual
-                                val isDebug = showVisionDebugger.collectAsStateWithLifecycle().value
-                                IconButton(
-                                    onClick = {
-                                        showVisionDebugger.value = !isDebug
-                                    },
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .background(
-                                            color = if (isDebug) HextechCyan.copy(alpha = 0.20f) else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .border(
-                                            width = if (isDebug) 1.dp else 0.dp,
-                                            color = if (isDebug) HextechCyan.copy(alpha = 0.50f) else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.BugReport,
-                                        contentDescription = "Diagnóstico visual del escáner",
-                                        tint = if (isDebug) HextechCyan else TextMuted,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-
                                 // Botón Limpiar Draft
                                 IconButton(
                                     onClick = {
@@ -1491,41 +1442,6 @@ private fun FloatingOverlayContent(
                                     }
                                 }
                             }
-
-                            // Pestaña 5: Calibración
-                            val isCalibActive = overlayHubTab == OverlayHubTab.CALIBRATION
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.95f)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(if (isCalibActive) HextechGold.copy(alpha = 0.25f) else HextechSurface)
-                                    .border(
-                                        1.dp,
-                                        if (isCalibActive) HextechGold else HextechCardBorder.copy(alpha = 0.5f),
-                                        RoundedCornerShape(6.dp)
-                                    )
-                                    .clickable { overlayHubTab = OverlayHubTab.CALIBRATION }
-                                    .padding(vertical = 5.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Hardware,
-                                        contentDescription = null,
-                                        tint = if (isCalibActive) HextechGold else TextMuted,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Text(
-                                        text = "Calib",
-                                        color = if (isCalibActive) HextechGold else TextMuted,
-                                        fontSize = 9.5.sp,
-                                        fontWeight = if (isCalibActive) FontWeight.Bold else FontWeight.Medium
-                                    )
-                                }
-                            }
                         }
                         }
 
@@ -1547,7 +1463,6 @@ private fun FloatingOverlayContent(
                                         OverlayHubTab.TIER_LIST -> "Tiers & Builds"
                                         OverlayHubTab.CHAMPIONS -> "Campeones"
                                         OverlayHubTab.HISTORY -> "Historial & Perfiles"
-                                        OverlayHubTab.CALIBRATION -> "Calibración de Zonas"
                                     }}",
                                     color = HextechGold,
                                     fontSize = 10.sp,
@@ -1675,11 +1590,6 @@ private fun FloatingOverlayContent(
                                                 isFirstPick = isFirst
                                                 overlayHubTab = OverlayHubTab.DRAFT
                                             }
-                                        )
-                                    }
-                                    OverlayHubTab.CALIBRATION -> {
-                                        com.example.ui.screens.VisionCalibrationTab(
-                                            isOverlay = true
                                         )
                                     }
                                 }
@@ -2522,28 +2432,47 @@ private fun OverlayVersusDraftBoard(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         if (allySlot?.champion != null) {
+                            val champ = allySlot.champion
                             Column(modifier = Modifier.weight(1f, fill = false)) {
                                 Text(
-                                    text = allySlot.champion.name,
+                                    text = champ.name,
                                     color = if (activeUserRole == role) HextechCyan else TextPrimary,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
                                     Text(
-                                        text = allySlot.champion.tier,
+                                        text = champ.tier,
                                         color = HextechGold,
-                                        fontSize = 8.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "WR ${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%",
+                                        color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = "P ${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%",
+                                        color = HextechCyan,
+                                        fontSize = 7.sp
+                                    )
+                                    Text(
+                                        text = "B ${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%",
+                                        color = DangerRed.copy(alpha = 0.85f),
+                                        fontSize = 7.sp
                                     )
                                     if (!summonerName.isNullOrBlank()) {
-                                        Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "• $summonerName",
                                             color = TextMuted,
-                                            fontSize = 7.5.sp,
+                                            fontSize = 7.sp,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -2652,12 +2581,13 @@ private fun OverlayVersusDraftBoard(
                         }
 
                         if (enemySlot?.champion != null) {
+                            val champ = enemySlot.champion
                             Column(
                                 horizontalAlignment = Alignment.End,
                                 modifier = Modifier.weight(1f, fill = false).padding(end = 5.dp)
                             ) {
                                 Text(
-                                    text = enemySlot.champion.name,
+                                    text = champ.name,
                                     color = DangerRed,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
@@ -2665,13 +2595,33 @@ private fun OverlayVersusDraftBoard(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.End
                                 )
-                                Text(
-                                    text = enemySlot.champion.tier,
-                                    color = HextechGold,
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    textAlign = TextAlign.End
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = "B ${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%",
+                                        color = DangerRed.copy(alpha = 0.85f),
+                                        fontSize = 7.sp
+                                    )
+                                    Text(
+                                        text = "P ${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%",
+                                        color = HextechCyan,
+                                        fontSize = 7.sp
+                                    )
+                                    Text(
+                                        text = "WR ${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%",
+                                        color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        text = champ.tier,
+                                        color = HextechGold,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         } else {
                             Text(
@@ -3094,219 +3044,3 @@ private fun CoachContent(
     }
 }
 
-
-@Composable
-fun VisionDebugOverlay() {
-    val bitmap by com.example.service.screen.DraftVisionScanner.lastDebugBitmap.collectAsStateWithLifecycle()
-    val diagnostics by com.example.service.screen.DraftVisionScanner.lastDiagnostics.collectAsStateWithLifecycle()
-    val detectedTexts by com.example.service.screen.DraftVisionScanner.lastDetectedTexts.collectAsStateWithLifecycle()
-    val detectedSpells by com.example.service.screen.DraftVisionScanner.lastDetectedSpells.collectAsStateWithLifecycle()
-    val calibConfig by com.example.service.screen.DraftVisionScanner.calibrationConfig.collectAsStateWithLifecycle()
-
-    val currentBitmap = bitmap
-
-    androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
-        // Indicador HUD superior
-        androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 10.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xE60A1428))
-                .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = "🔍 Diagnóstico en Vivo • Avatares: ${if (calibConfig.showAvatarBoxes) "ON" else "OFF"} • OCR: ${if (calibConfig.showNameBoxes) "ON" else "OFF"} • Hechizos: ${if (calibConfig.showSpellBoxes) "ON" else "OFF"}",
-                color = HextechGold,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (currentBitmap != null && currentBitmap.width > 0 && currentBitmap.height > 0) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val scaleX = size.width / currentBitmap.width.toFloat()
-                val scaleY = size.height / currentBitmap.height.toFloat()
-
-                val textPaint = android.graphics.Paint().apply {
-                    this.textSize = 20f
-                    this.isAntiAlias = true
-                    this.style = android.graphics.Paint.Style.FILL
-                    this.setShadowLayer(4f, 2f, 2f, android.graphics.Color.BLACK)
-                }
-
-                // 1. Dibujar cajas de texto OCR detectadas y columnas de escaneo (si está activado)
-                if (calibConfig.showNameBoxes) {
-                    // Guías visuales de columnas OCR (Franjas verticales tenues)
-                    val allyMinX = size.width * calibConfig.allyOcrMinX
-                    val allyMaxX = size.width * calibConfig.allyOcrMaxX
-                    drawRect(
-                        color = HextechCyan.copy(alpha = 0.08f),
-                        topLeft = androidx.compose.ui.geometry.Offset(allyMinX, 0f),
-                        size = androidx.compose.ui.geometry.Size(allyMaxX - allyMinX, size.height)
-                    )
-                    drawRect(
-                        color = HextechCyan.copy(alpha = 0.35f),
-                        topLeft = androidx.compose.ui.geometry.Offset(allyMinX, 0f),
-                        size = androidx.compose.ui.geometry.Size(allyMaxX - allyMinX, size.height),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
-                    )
-
-                    val enemyMinX = size.width * calibConfig.enemyOcrMinX
-                    val enemyMaxX = size.width * calibConfig.enemyOcrMaxX
-                    drawRect(
-                        color = Color(0xFFFF5252).copy(alpha = 0.08f),
-                        topLeft = androidx.compose.ui.geometry.Offset(enemyMinX, 0f),
-                        size = androidx.compose.ui.geometry.Size(enemyMaxX - enemyMinX, size.height)
-                    )
-                    drawRect(
-                        color = Color(0xFFFF5252).copy(alpha = 0.35f),
-                        topLeft = androidx.compose.ui.geometry.Offset(enemyMinX, 0f),
-                        size = androidx.compose.ui.geometry.Size(enemyMaxX - enemyMinX, size.height),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
-                    )
-
-                    for (tDiag in detectedTexts) {
-                        val rect = tDiag.rect
-                        val left = rect.left * scaleX
-                        val top = rect.top * scaleY
-                        val right = rect.right * scaleX
-                        val bottom = rect.bottom * scaleY
-
-                        val boxColor = when {
-                            tDiag.tag.startsWith("CAMPEÓN") -> Color(0xFF00E676)
-                            tDiag.tag.startsWith("RIVAL") -> Color(0xFFFF3D00)
-                            tDiag.tag.startsWith("LÍNEA") -> Color(0xFF00E5FF)
-                            tDiag.tag == "INVOCADOR" -> Color(0xFF80D8FF)
-                            tDiag.tag == "JUGADOR" -> Color(0xFF9E9E9E)
-                            else -> Color(0xFFE040FB)
-                        }
-
-                        drawRect(
-                            color = boxColor,
-                            topLeft = androidx.compose.ui.geometry.Offset(left, top),
-                            size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
-                        )
-
-                        textPaint.color = when {
-                            tDiag.tag.startsWith("CAMPEÓN") -> android.graphics.Color.rgb(0, 230, 118)
-                            tDiag.tag.startsWith("RIVAL") -> android.graphics.Color.rgb(255, 61, 0)
-                            tDiag.tag.startsWith("LÍNEA") -> android.graphics.Color.rgb(0, 229, 255)
-                            tDiag.tag == "INVOCADOR" -> android.graphics.Color.rgb(128, 216, 255)
-                            tDiag.tag == "JUGADOR" -> android.graphics.Color.rgb(158, 158, 158)
-                            else -> android.graphics.Color.MAGENTA
-                        }
-
-                        drawContext.canvas.nativeCanvas.drawText(
-                            "${tDiag.text} [${tDiag.tag}]",
-                            left,
-                            (top - 4f).coerceAtLeast(20f),
-                            textPaint
-                        )
-                    }
-                }
-
-                // 2. Dibujar cajas de hechizos de invocador (si está activado)
-                if (calibConfig.showSpellBoxes) {
-                    val spellSize = (size.height * calibConfig.spellSizeRatio).coerceAtLeast(18f)
-                    val spellLeft = (size.width * calibConfig.spellLeftRatio).coerceIn(0f, (size.width - spellSize).coerceAtLeast(0f))
-                    val spellRight = spellLeft + spellSize
-
-                    // Dibujar las cajas ROI de calibración de hechizos en cada uno de los 5 slots aliados
-                    for (i in 0..4) {
-                        val yRatio = (calibConfig.allySlotYRatios.getOrNull(i) ?: 0.5f) + calibConfig.spellYOffsetRatio
-                        val yCenter = size.height * yRatio
-                        val spell1Top = (yCenter - spellSize - (size.height * 0.003f)).coerceIn(0f, (size.height - spellSize).coerceAtLeast(0f))
-                        val spell1Bottom = spell1Top + spellSize
-                        val spell2Top = (yCenter + (size.height * 0.003f)).coerceIn(0f, (size.height - spellSize).coerceAtLeast(0f))
-                        val spell2Bottom = spell2Top + spellSize
-
-                        // Cuadro Hechizo 1
-                        drawRect(
-                            color = Color(0xFFFF9100).copy(alpha = 0.75f),
-                            topLeft = androidx.compose.ui.geometry.Offset(spellLeft, spell1Top),
-                            size = androidx.compose.ui.geometry.Size(spellRight - spellLeft, spell1Bottom - spell1Top),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
-                        )
-                        // Cuadro Hechizo 2
-                        drawRect(
-                            color = Color(0xFFFF9100).copy(alpha = 0.75f),
-                            topLeft = androidx.compose.ui.geometry.Offset(spellLeft, spell2Top),
-                            size = androidx.compose.ui.geometry.Size(spellRight - spellLeft, spell2Bottom - spell2Top),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
-                        )
-                    }
-
-                    // Superponer etiquetas de hechizos detectados si existen
-                    for (sDiag in detectedSpells) {
-                        val rect = sDiag.rect
-                        val left = rect.left * scaleX
-                        val top = rect.top * scaleY
-                        val right = rect.right * scaleX
-                        val bottom = rect.bottom * scaleY
-
-                        drawRect(
-                            color = Color(0xFF00E676),
-                            topLeft = androidx.compose.ui.geometry.Offset(left, top),
-                            size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.5f)
-                        )
-
-                        textPaint.color = android.graphics.Color.rgb(0, 230, 118)
-                        drawContext.canvas.nativeCanvas.drawText(
-                            sDiag.spellName,
-                            left,
-                            (top - 4f).coerceAtLeast(20f),
-                            textPaint
-                        )
-                    }
-                }
-
-                // 3. Dibujar ROIs de Avatares y Diagnósticos (si está activado)
-                if (calibConfig.showAvatarBoxes) {
-                    for (diag in diagnostics) {
-                        val rect = diag.roiRect
-                        val left = rect.left * scaleX
-                        val top = rect.top * scaleY
-                        val right = rect.right * scaleX
-                        val bottom = rect.bottom * scaleY
-
-                        val color = when (diag.status) {
-                            com.example.service.screen.DiagnosticStatus.CONFIRMADO -> androidx.compose.ui.graphics.Color.Green
-                            com.example.service.screen.DiagnosticStatus.VACIO -> androidx.compose.ui.graphics.Color.Gray
-                            else -> androidx.compose.ui.graphics.Color.Red
-                        }
-
-                        val insetX = (right - left) * 0.05f
-                        val insetY = (bottom - top) * 0.05f
-                        val drawLeft = left + insetX
-                        val drawTop = top + insetY
-                        val drawWidth = (right - left) - (insetX * 2)
-                        val drawHeight = (bottom - top) - (insetY * 2)
-
-                        drawRect(
-                            color = color,
-                            topLeft = androidx.compose.ui.geometry.Offset(drawLeft, drawTop),
-                            size = androidx.compose.ui.geometry.Size(drawWidth, drawHeight),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
-                        )
-
-                        val finalChampName = diag.finalChampion?.name ?: (diag.ocrChampion?.name ?: "Vacío")
-                        val method = if (diag.finalChampion?.id == diag.ocrChampion?.id && diag.ocrChampion != null) "OCR" else "VISUAL"
-
-                        textPaint.color = if (diag.status == com.example.service.screen.DiagnosticStatus.CONFIRMADO) android.graphics.Color.GREEN else android.graphics.Color.RED
-                        drawContext.canvas.nativeCanvas.drawText(
-                            "${finalChampName} ($method)",
-                            drawLeft + 4f,
-                            drawTop + drawHeight - 6f,
-                            textPaint
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-val showVisionDebugger = kotlinx.coroutines.flow.MutableStateFlow(false)
