@@ -78,6 +78,66 @@ object AvatarCatalog {
             description = "Un poro que danza en el campo de batalla."
         ),
         AvatarItem(
+            id = "poro_aatrox",
+            name = "Poro Aatrox",
+            title = "La Espada de los Oscuros",
+            region = "Poro",
+            rarity = "Épico",
+            imageUrl = "file:///android_asset/poros/poro_aatrox.jpg",
+            borderHex = "#8A2BE2",
+            description = "Un poro consumido por la furia oscura."
+        ),
+        AvatarItem(
+            id = "poro_akshan",
+            name = "Poro Akshan",
+            title = "El Centinela Rebelde",
+            region = "Poro",
+            rarity = "Raro",
+            imageUrl = "file:///android_asset/poros/poro_akshan.jpg",
+            borderHex = "#00BFFF",
+            description = "Un poro carismático buscando justicia."
+        ),
+        AvatarItem(
+            id = "poro_alistar",
+            name = "Poro Alistar",
+            title = "El Minotauro",
+            region = "Poro",
+            rarity = "Común",
+            imageUrl = "file:///android_asset/poros/poro_alistar.jpg",
+            borderHex = "#A0A0A0",
+            description = "Un poro fuerte que protege a su rebaño."
+        ),
+        AvatarItem(
+            id = "poro_akali",
+            name = "Poro Akali",
+            title = "La Asesina Sigilosa",
+            region = "Poro",
+            rarity = "Legendario",
+            imageUrl = "file:///android_asset/poros/poro_akali.jpg",
+            borderHex = "#FFD700",
+            description = "Un poro ninja que acecha en las sombras."
+        ),
+        AvatarItem(
+            id = "poro_ambessa",
+            name = "Poro Ambessa",
+            title = "La Matriarca de la Guerra",
+            region = "Poro",
+            rarity = "Mítico",
+            imageUrl = "file:///android_asset/poros/poro_ambessa.jpg",
+            borderHex = "#FF0000",
+            description = "Un poro con una voluntad de hierro."
+        ),
+        AvatarItem(
+            id = "poro_amumu",
+            name = "Poro Amumu",
+            title = "La Momia Triste",
+            region = "Poro",
+            rarity = "Épico",
+            imageUrl = "file:///android_asset/poros/poro_amumu.jpg",
+            borderHex = "#8A2BE2",
+            description = "Un poro solitario buscando amigos."
+        ),
+        AvatarItem(
             id = "aatrox",
             name = "Aatrox",
             title = "la Espada de los Oscuros",
