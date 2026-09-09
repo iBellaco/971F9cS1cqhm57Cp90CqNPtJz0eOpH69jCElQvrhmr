@@ -167,11 +167,16 @@ object DraftVisionScanner {
                 for (line in block.lines) {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
-                    if (text.contains("[OCR]") || text.contains("VIS:") || text.contains("[VISUAL]") ||
-                        text.contains("[INVOCADOR]") || text.contains("LÍNEA") || text.contains("CAMPEÓN") ||
-                        text.contains("🐛") || text.contains("⚡") || text.contains("Destello") ||
-                        text.contains("Barrera") || text.contains("Castigo") || text.contains("Prender") ||
-                        text.contains("Curar") || text.contains("Fantasmal") || text.contains("Extenuación")) continue
+                    // Ignorar cualquier texto generado por el overlay de depuración
+                    if (text.contains("[") || text.contains("]") ||
+                        text.contains("VISUAL", ignoreCase = true) || text.contains("VIS:", ignoreCase = true) ||
+                        text.contains("OCR", ignoreCase = true) || text.contains("INVOCADOR", ignoreCase = true) ||
+                        text.contains("CAMPEÓN", ignoreCase = true) || text.contains("CAMPEON", ignoreCase = true) ||
+                        text.contains("LÍNEA", ignoreCase = true) || text.contains("LINEA", ignoreCase = true) ||
+                        text.contains("RIVAL", ignoreCase = true) || text.contains("VACÍO", ignoreCase = true) ||
+                        text.contains("VACIO", ignoreCase = true) || text.contains("CONFIRMADO", ignoreCase = true) ||
+                        text.contains("AMBIGUO", ignoreCase = true) || text.contains("⚡") || text.contains("🐛") ||
+                        text.contains("Score", ignoreCase = true) || text.matches(Regex(".*\\b\\d+\\.\\d+\\b.*"))) continue
                     
                     val box = line.boundingBox
                     if (box != null && overlayRect != null) {
@@ -186,37 +191,30 @@ object DraftVisionScanner {
                     val yRatio = centerY.toFloat() / height.toFloat()
                     val xRatio = centerX.toFloat() / width.toFloat()
 
-                    // Ignorar la barra de bans superior (Y < 0.120) y botones del fondo (Y > 0.810)
-                    if (yRatio < 0.120f || yRatio > 0.810f) continue
+                    // Ignorar la barra de bans superior (Y < 0.110) y botones del fondo (Y > 0.820)
+                    if (yRatio < 0.110f || yRatio > 0.820f) continue
 
-                    // Determinar el índice de slot vertical (0..4) calibrado a los 5 slots HUD
-                    val slotIndex = when {
-                        yRatio < 0.262f -> 0
-                        yRatio < 0.396f -> 1
-                        yRatio < 0.530f -> 2
-                        yRatio < 0.675f -> 3
-                        else -> 4
-                    }
-
-                    // 1.1 COLUMNA ALIADA (Extremos para capturar nombres y roles, evitando el centro)
-                    if (xRatio in 0.01f..0.28f) {
+                    // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar, X entre 0.080 y 0.260)
+                    if (xRatio in 0.080f..0.260f) {
+                        val slotIndex = when {
+                            yRatio < 0.259f -> 0
+                            yRatio < 0.393f -> 1
+                            yRatio < 0.526f -> 2
+                            yRatio < 0.660f -> 3
+                            else -> 4
+                        }
                         allySlotTexts[slotIndex].add(Pair(text, box))
                     }
-                    // 1.2 COLUMNA ENEMIGA (X entre 0.69 y 0.99)
-                    else if (xRatio in 0.69f..0.99f) {
-                        enemySlotTexts[slotIndex].add(Pair(text, box))
-                        if (box != null) {
-                            textDiagnosticsList.add(
-                                TextBlockDiagnostic(
-                                    text = text,
-                                    rect = box,
-                                    isAlly = false,
-                                    slotIndex = slotIndex,
-                                    tag = "RIVAL (OCULTO)",
-                                    color = android.graphics.Color.DKGRAY
-                                )
-                            )
+                    // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival, X entre 0.760 y 0.945)
+                    else if (xRatio in 0.760f..0.945f) {
+                        val slotIndex = when {
+                            yRatio < 0.237f -> 0
+                            yRatio < 0.367f -> 1
+                            yRatio < 0.497f -> 2
+                            yRatio < 0.626f -> 3
+                            else -> 4
                         }
+                        enemySlotTexts[slotIndex].add(Pair(text, box))
                     }
                 }
             }
@@ -288,24 +286,27 @@ object DraftVisionScanner {
                                     )
                                 )
                                 AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matched.name}")
-                                continue
                             }
+                            continue // Un nombre de campeón jamás debe pasar a nombre de invocador
                         }
 
                         // C) Nombre de invocador (siempre que no sea rol ni campeón)
                         if (line.length in 2..28 && !DraftValidationLayer.isNoiseText(line)) {
-                            allySummonerNamesCache[i] = line
-                            textDiagnosticsList.add(
-                                TextBlockDiagnostic(
-                                    text = line,
-                                    rect = safeBox,
-                                    isAlly = true,
-                                    slotIndex = i,
-                                    tag = "INVOCADOR",
-                                    color = android.graphics.Color.argb(255, 120, 180, 255)
+                            // Doble verificación: si la línea contiene un campeón, no registrar como invocador
+                            if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
+                                allySummonerNamesCache[i] = line
+                                textDiagnosticsList.add(
+                                    TextBlockDiagnostic(
+                                        text = line,
+                                        rect = safeBox,
+                                        isAlly = true,
+                                        slotIndex = i,
+                                        tag = "INVOCADOR",
+                                        color = android.graphics.Color.argb(255, 120, 180, 255)
+                                    )
                                 )
-                            )
-                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Invocador: $line")
+                                AppLogger.d(TAG, "OCR Aliado Slot $i -> Invocador: $line")
+                            }
                         }
                     }
                 }
@@ -318,7 +319,6 @@ object DraftVisionScanner {
             // Para el lado rival: Analizamos el texto de cada slot.
             // En Wild Rift, cuando un rival fija o selecciona un campeón, el nombre aparece en texto:
             // "ANNIE", "VOLIBEAR", "KHA'ZIX", "ASHE", etc.
-            // El placeholder "Jugador 1..5" se ignora.
             for (i in 0..4) {
                 enemySlots[i].isLikelyUnpicked = false
                 for ((rawBlock, box) in enemySlotTexts[i].sortedBy { it.second?.top ?: 0 }) {
@@ -328,6 +328,16 @@ object DraftVisionScanner {
                         if (DraftValidationLayer.isNoiseText(line)) continue
                         val low = line.lowercase(Locale.ROOT)
                         if (low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador")) {
+                            textDiagnosticsList.add(
+                                TextBlockDiagnostic(
+                                    text = line,
+                                    rect = safeBox,
+                                    isAlly = false,
+                                    slotIndex = i,
+                                    tag = "JUGADOR",
+                                    color = android.graphics.Color.DKGRAY
+                                )
+                            )
                             continue
                         }
 
@@ -358,6 +368,21 @@ object DraftVisionScanner {
                                 )
                                 AppLogger.d(TAG, "OCR Rival Slot $i -> Campeón 100%: ${matched.name}")
                             }
+                            continue
+                        }
+
+                        // Apodo de invocador rival
+                        if (line.length in 2..28 && !DraftValidationLayer.isNoiseText(line)) {
+                            textDiagnosticsList.add(
+                                TextBlockDiagnostic(
+                                    text = line,
+                                    rect = safeBox,
+                                    isAlly = false,
+                                    slotIndex = i,
+                                    tag = "INVOCADOR RIVAL",
+                                    color = android.graphics.Color.MAGENTA
+                                )
+                            )
                         }
                     }
                 }
@@ -380,33 +405,32 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
         // -----------------------------------------------------------------------------------------
-        // Calibración geométrica de precisión HUD Wild Rift:
-        // En pantallas ultra-anchas (21:9), hay un margen de zona segura (Safe Area).
-        // Los avatares aliados están desplazados hacia la derecha (superando los hechizos).
-        // Los avatares enemigos están desplazados hacia la izquierda desde el borde derecho.
-        // Volvems al tamaño geométrico correcto para que el ImageHashMatcher pueda hacer su crop interno (0.70f) sin destrozar la escala.
         // Calibración geométrica precisa del HUD de Wild Rift:
-        // En pantallas ultra-anchas (>= 19:9 o 20:9), hay un margen de zona segura (Safe Area).
-        // Los avatares aliados se sitúan inmediatamente a la derecha de los hechizos de invocador.
-        // Los avatares enemigos se sitúan en el borde derecho antes del margen de pantalla.
-        val avatarDiameter = (height * 0.120f).toInt().coerceAtLeast(32)
+        // Lado izquierdo: Avatares centrados en los círculos de campeones (~0.135h). Hechizos en el extremo izquierdo (~0.024h).
+        // Lado derecho: Avatares en el borde derecho (~width - 0.070h) y ligeramente más arriba (Y: 0.172, 0.302, 0.432, 0.561, 0.691).
+        val avatarDiameter = (height * 0.114f).toInt().coerceAtLeast(32)
         
         // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y >= 19:9
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
         // Posición horizontal calibrada de los avatares:
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.188f).toInt() else (height * 0.160f).toInt()
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.128f)).toInt() else (width - (height * 0.118f)).toInt()
+        // Lado izquierdo: mover más a la izquierda para centrar los retratos circulares aliados
+        val allyAvatarCenterX = if (isUltraWide) (height * 0.135f).toInt() else (height * 0.145f).toInt()
+        // Lado derecho: mover más a la derecha hacia el marco de pantalla
+        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.070f)).toInt() else (width - (height * 0.080f)).toInt()
 
-        // Ratios verticales (eje Y) para los 5 slots
-        val slotYRatios = floatArrayOf(0.196f, 0.328f, 0.463f, 0.596f, 0.733f)
+        // Ratios verticales (eje Y) independientes para ambos lados:
+        // Aliados: alineados con las líneas de carril
+        val allySlotYRatios = floatArrayOf(0.193f, 0.326f, 0.460f, 0.593f, 0.726f)
+        // Rivales: más arriba, calibrados con los marcos circulares del HUD
+        val enemySlotYRatios = floatArrayOf(0.172f, 0.302f, 0.432f, 0.561f, 0.691f)
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
         // 3.1 Aliados
         for (i in 0..4) {
             val slot = allySlots[i]
-            val yCenter = (height * slotYRatios[i]).toInt()
+            val yCenter = (height * allySlotYRatios[i]).toInt()
             val startX = (allyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
             val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
@@ -480,7 +504,7 @@ object DraftVisionScanner {
         // 3.2 Enemigos
         for (i in 0..4) {
             val slot = enemySlots[i]
-            val yCenter = (height * slotYRatios[i]).toInt()
+            val yCenter = (height * enemySlotYRatios[i]).toInt()
             val startX = (enemyAvatarCenterX - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
             val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
             val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
@@ -549,21 +573,20 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3.3: ESCANEO DE HECHIZOS DE INVOCADOR ALIADOS (SUMMONER SPELLS)
         // -----------------------------------------------------------------------------------------
-        // En Wild Rift, los hechizos aliados están anclados inmediatamente a la izquierda del avatar.
-        // En el equipo rival los hechizos NO son observables durante el draft.
-        val spellSize = (height * 0.040f).toInt().coerceAtLeast(18)
+        // En Wild Rift, los hechizos aliados se sitúan en el extremo izquierdo de la pantalla (~0.024h).
+        val spellSize = (height * 0.044f).toInt().coerceAtLeast(18)
+        val spellLeft = if (isUltraWide) (height * 0.024f).toInt().coerceAtLeast(12) else (height * 0.020f).toInt()
+        val spellRight = spellLeft + spellSize
+
         val allySpellsMap = mutableMapOf<Int, MutableList<String>>()
         val detectedSpellsList = mutableListOf<com.example.util.SummonerSpellDetector.SpellMatch>()
 
         for (i in 0..4) {
-            val yCenter = (height * slotYRatios[i]).toInt()
-            val avatarLeft = (allyAvatarCenterX - avatarDiameter / 2).coerceAtLeast(0)
-            val spellRight = (avatarLeft - (height * 0.007f).toInt()).coerceIn(spellSize, width)
-            val spellLeft = (spellRight - spellSize).coerceAtLeast(0)
+            val yCenter = (height * allySlotYRatios[i]).toInt()
 
-            val spell1Top = (yCenter - spellSize - (height * 0.004f).toInt()).coerceIn(0, height - spellSize)
+            val spell1Top = (yCenter - spellSize - (height * 0.003f).toInt()).coerceIn(0, height - spellSize)
             val spell1Bottom = spell1Top + spellSize
-            val spell2Top = (yCenter + (height * 0.004f).toInt()).coerceIn(0, height - spellSize)
+            val spell2Top = (yCenter + (height * 0.003f).toInt()).coerceIn(0, height - spellSize)
             val spell2Bottom = spell2Top + spellSize
 
             val allyCandidateRects = listOf(

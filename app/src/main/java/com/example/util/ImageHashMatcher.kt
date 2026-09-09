@@ -247,8 +247,9 @@ object ImageHashMatcher {
                 // C) Puntuación visual balanceada (50% forma estructural NCC + 50% fidelidad cromática)
                 val totalScore = (0.50f * structuralScore) + (0.50f * colorScore)
 
-                val baseId = sig.championId.substringBefore("_")
-                val champ = allChampions.find { it.id.equals(baseId, ignoreCase = true) } ?: continue
+                val champ = allChampions.find { it.id.equals(sig.championId, ignoreCase = true) }
+                    ?: allChampions.find { sig.championId.startsWith("${it.id}_", ignoreCase = true) }
+                    ?: continue
 
                 val prevScore = champBestScores[champ.id]?.second ?: 0f
                 if (totalScore > prevScore) {

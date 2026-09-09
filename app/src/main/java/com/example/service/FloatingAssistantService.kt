@@ -3086,7 +3086,7 @@ fun VisionDebugOverlay() {
                 val scaleY = size.height / currentBitmap.height.toFloat()
 
                 val textPaint = android.graphics.Paint().apply {
-                    this.textSize = 28f
+                    this.textSize = 20f
                     this.isAntiAlias = true
                     this.style = android.graphics.Paint.Style.FILL
                     this.setShadowLayer(4f, 2f, 2f, android.graphics.Color.BLACK)
@@ -3111,7 +3111,7 @@ fun VisionDebugOverlay() {
                         color = boxColor,
                         topLeft = androidx.compose.ui.geometry.Offset(left, top),
                         size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                     )
 
                     textPaint.color = when (tDiag.tag) {
@@ -3122,9 +3122,9 @@ fun VisionDebugOverlay() {
                     }
 
                     drawContext.canvas.nativeCanvas.drawText(
-                        "${tDiag.text} [${tDiag.tag}]",
+                        "${tDiag.text} • ${tDiag.tag}",
                         left,
-                        (top - 6f).coerceAtLeast(24f),
+                        (top - 4f).coerceAtLeast(20f),
                         textPaint
                     )
                 }
@@ -3141,14 +3141,14 @@ fun VisionDebugOverlay() {
                         color = Color(0xFFFF9100),
                         topLeft = androidx.compose.ui.geometry.Offset(left, top),
                         size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                     )
 
                     textPaint.color = android.graphics.Color.rgb(255, 145, 0)
                     drawContext.canvas.nativeCanvas.drawText(
-                        "⚡ ${sDiag.spellName}",
+                        sDiag.spellName,
                         left,
-                        (bottom + 22f).coerceAtMost(size.height - 10f),
+                        (top - 4f).coerceAtLeast(20f),
                         textPaint
                     )
                 }
@@ -3178,7 +3178,7 @@ fun VisionDebugOverlay() {
                         color = color,
                         topLeft = androidx.compose.ui.geometry.Offset(drawLeft, drawTop),
                         size = androidx.compose.ui.geometry.Size(drawWidth, drawHeight),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f)
                     )
 
                     val finalChampName = diag.finalChampion?.name ?: (diag.ocrChampion?.name ?: "Vacío")
@@ -3186,9 +3186,9 @@ fun VisionDebugOverlay() {
 
                     textPaint.color = if (diag.status == com.example.service.screen.DiagnosticStatus.CONFIRMADO) android.graphics.Color.GREEN else android.graphics.Color.RED
                     drawContext.canvas.nativeCanvas.drawText(
-                        "${finalChampName} [$method] (${"%.2f".format(diag.score1)})",
-                        left,
-                        (top - 10f).coerceAtLeast(24f),
+                        "${finalChampName} ($method)",
+                        drawLeft + 4f,
+                        drawTop + drawHeight - 6f,
                         textPaint
                     )
                 }

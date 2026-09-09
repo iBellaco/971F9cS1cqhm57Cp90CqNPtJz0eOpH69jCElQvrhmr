@@ -320,23 +320,39 @@ object DraftValidationLayer {
                     val champA = finalMap[roleA]!!
                     val champB = finalMap[roleB]!!
                     
-                    val scoreA = if (champA.primaryRole == roleA) 2 else if (champA.secondaryRoles.contains(roleA)) 1 else 0
-                    val scoreB = if (champB.primaryRole == roleB) 2 else if (champB.secondaryRoles.contains(roleB)) 1 else 0
+                    val slotA = validSlots.find { it.champion?.id == champA.id }
+                    val slotB = validSlots.find { it.champion?.id == champB.id }
+                    fun getSlotRole(idx: Int) = when (idx) {
+                        0 -> LaneRole.TOP
+                        1 -> LaneRole.JUNGLE
+                        2 -> LaneRole.MID
+                        3 -> LaneRole.ADC
+                        4 -> LaneRole.SUPPORT
+                        else -> null
+                    }
+                    val slotBonusA = if (slotA != null && getSlotRole(slotA.slotIndex) == roleA) 1 else 0
+                    val slotBonusB = if (slotB != null && getSlotRole(slotB.slotIndex) == roleB) 1 else 0
+
+                    val scoreA = (if (champA.primaryRole == roleA) 3 else if (champA.secondaryRoles.contains(roleA)) 1 else 0) + slotBonusA
+                    val scoreB = (if (champB.primaryRole == roleB) 3 else if (champB.secondaryRoles.contains(roleB)) 1 else 0) + slotBonusB
                     val currentTotal = scoreA + scoreB
                     
-                    val swappedScoreA = if (champA.primaryRole == roleB) 2 else if (champA.secondaryRoles.contains(roleB)) 1 else 0
-                    val swappedScoreB = if (champB.primaryRole == roleA) 2 else if (champB.secondaryRoles.contains(roleA)) 1 else 0
+                    val swappedSlotBonusA = if (slotA != null && getSlotRole(slotA.slotIndex) == roleB) 1 else 0
+                    val swappedSlotBonusB = if (slotB != null && getSlotRole(slotB.slotIndex) == roleA) 1 else 0
+
+                    val swappedScoreA = (if (champA.primaryRole == roleB) 3 else if (champA.secondaryRoles.contains(roleB)) 1 else 0) + swappedSlotBonusA
+                    val swappedScoreB = (if (champB.primaryRole == roleA) 3 else if (champB.secondaryRoles.contains(roleA)) 1 else 0) + swappedSlotBonusB
                     val swappedTotal = swappedScoreA + swappedScoreB
                     
                     if (swappedTotal > currentTotal) {
                         finalMap[roleA] = champB
                         finalMap[roleB] = champA
-                        confidences[roleA] = if (swappedScoreB == 2) 95 else 80
-                        confidences[roleB] = if (swappedScoreA == 2) 95 else 80
-                        validSlots.find { it.champion?.id == champA.id }?.assignedRole = roleB
-                        validSlots.find { it.champion?.id == champB.id }?.assignedRole = roleA
+                        confidences[roleA] = if (swappedScoreB >= 3) 95 else 80
+                        confidences[roleB] = if (swappedScoreA >= 3) 95 else 80
+                        slotA?.assignedRole = roleB
+                        slotB?.assignedRole = roleA
                         changed = true
-                        auditList.add("Heurística: Intercambio de $roleA (${champB.name}) y $roleB (${champA.name}) para optimizar afinidad.")
+                        auditList.add("Heurística: Intercambio de $roleA (${champB.name}) y $roleB (${champA.name}) para optimizar afinidad y posición de slot.")
                     }
                 }
             }
