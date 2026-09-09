@@ -2877,31 +2877,35 @@ private fun RunesTab() {
                                     runesInCat.forEach { rune ->
                                         Column(
                                             horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
                                             modifier = Modifier
                                                 .width(68.dp)
+                                                .height(86.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .clickable { selectedRune = rune }
                                                 .background(HextechSurface.copy(alpha = 0.6f))
                                                 .border(0.5.dp, HextechCardBorder.copy(alpha = 0.7f), RoundedCornerShape(8.dp))
-                                                .padding(6.dp)
+                                                .padding(horizontal = 4.dp, vertical = 6.dp)
                                         ) {
                                             AppAssetImage(
                                                 url = rune.iconUrl,
                                                 contentDescription = rune.name,
                                                 fallbackText = rune.name,
-                                                modifier = Modifier.size(42.dp),
+                                                modifier = Modifier.size(40.dp),
                                                 borderColor = catColor,
                                                 shape = CircleShape
                                             )
-                                            Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 text = tr(rune.name),
                                                 color = TextPrimary,
                                                 fontSize = 9.5.sp,
                                                 fontWeight = FontWeight.Medium,
                                                 maxLines = 2,
+                                                minLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                                lineHeight = 11.sp
+                                                lineHeight = 11.sp,
+                                                modifier = Modifier.fillMaxWidth()
                                             )
                                         }
                                     }
@@ -3228,41 +3232,47 @@ private fun SpellsTab() {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 contentPadding = PaddingValues(bottom = 30.dp)
             ) {
                 items(filteredSpells) { spell ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
+                            .height(130.dp)
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable { selectedSpell = spell },
                         colors = CardDefaults.cardColors(containerColor = HextechSurface),
                         border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(8.dp)
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 6.dp, vertical = 8.dp)
                         ) {
                             AppAssetImage(
                                 url = spell.iconUrl,
                                 contentDescription = spell.name,
                                 fallbackText = spell.name,
-                                modifier = Modifier.size(50.dp),
+                                modifier = Modifier.size(48.dp),
                                 borderColor = HextechCyan,
                                 shape = RoundedCornerShape(10.dp)
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
                                 text = tr(spell.name),
                                 color = TextPrimary,
-                                fontSize = 11.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                maxLines = 1
+                                maxLines = 2,
+                                minLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                lineHeight = 13.sp,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "CD ${spell.cooldown}",
                                 color = HextechCyan,

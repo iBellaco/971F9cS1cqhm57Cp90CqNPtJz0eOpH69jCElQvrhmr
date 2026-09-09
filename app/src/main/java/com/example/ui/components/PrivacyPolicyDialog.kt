@@ -8,7 +8,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Handshake
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,18 +21,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.ui.theme.*
-
 import com.example.util.tr
+
+enum class LegalTab(val titleRes: String) {
+    PRIVACY("Privacidad"),
+    TERMS("Términos"),
+    THIRD_PARTY("Terceros")
+}
 
 @Composable
 fun PrivacyPolicyDialog(
     onDismiss: () -> Unit
 ) {
+    var selectedTab by remember { mutableStateOf(LegalTab.PRIVACY) }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.88f)
+                .fillMaxHeight(0.90f)
                 .border(1.5.dp, HextechGold.copy(alpha = 0.7f), RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = HextechSurface)
@@ -37,7 +47,7 @@ fun PrivacyPolicyDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp)
+                    .padding(18.dp)
             ) {
                 // Header
                 Row(
@@ -50,13 +60,17 @@ fun PrivacyPolicyDialog(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Security,
+                            imageVector = when (selectedTab) {
+                                LegalTab.PRIVACY -> Icons.Default.Security
+                                LegalTab.TERMS -> Icons.Default.Description
+                                LegalTab.THIRD_PARTY -> Icons.Default.Handshake
+                            },
                             contentDescription = null,
                             tint = HextechGold,
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
-                            text = tr("Política de Privacidad"),
+                            text = tr("Información Legal"),
                             color = TextPrimary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
@@ -67,7 +81,39 @@ fun PrivacyPolicyDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Tab Selector
+                TabRow(
+                    selectedTabIndex = selectedTab.ordinal,
+                    containerColor = HextechDarkBg,
+                    contentColor = HextechGold,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
+                            color = HextechGold,
+                            height = 2.5.dp
+                        )
+                    },
+                    modifier = Modifier.border(1.dp, HextechCardBorder, RoundedCornerShape(10.dp))
+                ) {
+                    LegalTab.entries.forEach { tab ->
+                        Tab(
+                            selected = selectedTab == tab,
+                            onClick = { selectedTab = tab },
+                            text = {
+                                Text(
+                                    text = tr(tab.titleRes),
+                                    fontSize = 12.5.sp,
+                                    fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (selectedTab == tab) HextechGold else TextSecondary
+                                )
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Content scrollable
                 Column(
@@ -76,33 +122,14 @@ fun PrivacyPolicyDialog(
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    PolicySection(
-                        title = tr("1. Qué datos recopilamos y por qué"),
-                        body = tr("Hola. Queremos ser totalmente transparentes sobre la información que usa la app. Wild Rift Coach está diseñada para ayudarte en tus partidas y análisis de draft. Si decides iniciar sesión con tu cuenta, guardamos únicamente tu correo electrónico y tu nombre de perfil para gestionar tu acceso, suscripción o estado en la nube. No vendemos, alquilamos ni compartimos tus datos personales con terceros.")
-                    )
-
-                    PolicySection(
-                        title = tr("2. Permisos especiales (Superposición y Captura)"),
-                        body = tr("Para que el asistente flotante funcione mientras juegas, la app solicita permiso para mostrarse sobre otras aplicaciones y, opcionalmente, capturar la pantalla para analizar la selección de campeones mediante OCR. Estas capturas se procesan de forma local en tu propio dispositivo en tiempo real para detectar los campeones del draft y darte consejos al instante. No almacenamos ni enviamos capturas de pantalla de tus partidas a ningún servidor externo.")
-                    )
-
-                    PolicySection(
-                        title = tr("3. Almacenamiento local"),
-                        body = tr("Tus configuraciones personalizadas, favoritos y datos de uso habitual se guardan directamente en el almacenamiento interno de tu celular mediante bases de datos seguras. Puedes borrar tus datos en cualquier momento limpiando el almacenamiento de la app desde los ajustes de Android.")
-                    )
-
-                    PolicySection(
-                        title = tr("4. Cero Publicidad"),
-                        body = tr("Hemos eliminado por completo cualquier tipo de publicidad, banners comerciales y SDKs de anuncios. La aplicación es 100% libre de anuncios para garantizarte una experiencia limpia y sin distracciones.")
-                    )
-
-                    PolicySection(
-                        title = tr("5. Seguridad y contacto"),
-                        body = tr("Protegemos tu cuenta y datos mediante conexiones cifradas con servicios seguros en la nube. Si tienes cualquier duda sobre tu privacidad o quieres que eliminemos tus datos de nuestros registros, puedes ponerte en contacto con nosotros directamente desde el panel de soporte o comentarios de la aplicación.")
-                    )
+                    when (selectedTab) {
+                        LegalTab.PRIVACY -> PrivacyPolicyContent()
+                        LegalTab.TERMS -> TermsOfServiceContent()
+                        LegalTab.THIRD_PARTY -> ThirdPartyAgreementsContent()
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Button(
                     onClick = onDismiss,
@@ -123,19 +150,98 @@ fun PrivacyPolicyDialog(
 }
 
 @Composable
+private fun PrivacyPolicyContent() {
+    PolicySection(
+        title = tr("1. Qué datos recopilamos y por qué"),
+        body = tr("Queremos ser 100% transparentes: Wild Rift Coach está diseñada para el análisis táctico de partidas y drafting. Si decides autenticarte en la aplicación, almacenamos únicamente tu correo electrónico y tu nombre de perfil para gestionar tu sesión, tu nivel de suscripción y tus configuraciones en la nube. No vendemos, no comercializamos ni compartimos tu información personal con ninguna entidad.")
+    )
+
+    PolicySection(
+        title = tr("2. Permisos del Asistente Flotante y Captura en Vivo"),
+        body = tr("Para brindar asistencia en tiempo real durante la selección de campeones, la app solicita permiso de superposición (Overlay) y proyección de pantalla. Dichas capturas se procesan estrictamente en la memoria RAM de tu propio dispositivo de manera local para el reconocimiento óptico de caracteres (OCR) y lectura visual. Ninguna imagen ni grabación se almacena ni se transmite a servidores externos.")
+    )
+
+    PolicySection(
+        title = tr("3. Almacenamiento Local y Recursos Offline"),
+        body = tr("Tus listas de nivel personales (Tier Lists), historial de borradores y preferencias se guardan de forma segura en la base de datos local SQLite (Room) de tu teléfono. Puedes restablecer o eliminar completamente estos datos borrando el almacenamiento de la app desde los ajustes del sistema operativo.")
+    )
+
+    PolicySection(
+        title = tr("4. Cero Publicidad y Rastreo Comercial"),
+        body = tr("La aplicación no incluye anuncios publicitarios, banners intrusivos ni kits de desarrollo (SDKs) de publicidad de terceros. Ofrecemos una experiencia completamente limpia y enfocada en el rendimiento competitivo.")
+    )
+
+    PolicySection(
+        title = tr("5. Seguridad de Conexión"),
+        body = tr("Todas las comunicaciones entre la aplicación y los servicios de base de datos en tiempo real utilizan conexiones seguras y cifradas mediante HTTPS/TLS.")
+    )
+}
+
+@Composable
+private fun TermsOfServiceContent() {
+    PolicySection(
+        title = tr("1. Aceptación de los Términos"),
+        body = tr("Al descargar, instalar o utilizar Wild Rift Coach, aceptas cumplir estos Términos de Servicio. Si no estás de acuerdo con alguna disposición, te solicitamos abstenerte de utilizar la aplicación.")
+    )
+
+    PolicySection(
+        title = tr("2. Propósito y Uso Permitido"),
+        body = tr("Esta aplicación es una herramienta de asistencia táctica, aprendizaje y análisis estratégico para League of Legends: Wild Rift. No modifica archivos del juego ni interactúa con la memoria del proceso del juego; opera únicamente mediante lectura visual externa y recomendaciones estadísticas.")
+    )
+
+    PolicySection(
+        title = tr("3. Cuentas y Suscripciones"),
+        body = tr("El acceso a funciones avanzadas (como análisis con IA y herramientas personalizadas) se gestiona mediante tu cuenta de usuario. Eres responsable de mantener la confidencialidad de tus credenciales. Nos reservamos el derecho de suspender accesos en caso de uso abusivo o vulneración de seguridad.")
+    )
+
+    PolicySection(
+        title = tr("4. Disponibilidad del Servicio"),
+        body = tr("Nos esforzamos por mantener la información de campeones, runas, objetos y parches actualizada constantemente; sin embargo, no garantizamos disponibilidad ininterrumpida ante mantenimientos o actualizaciones imprevistas de los servidores del juego.")
+    )
+
+    PolicySection(
+        title = tr("5. Limitación de Responsabilidad"),
+        body = tr("La aplicación se proporciona 'tal cual' para propósitos informativos y de entretenimiento. No nos hacemos responsables por pérdidas de partidas, sanciones de cuentas externas ni por el mal uso de las herramientas proporcionadas.")
+    )
+}
+
+@Composable
+private fun ThirdPartyAgreementsContent() {
+    PolicySection(
+        title = tr("1. Descargo de Responsabilidad de Riot Games"),
+        body = tr("Wild Rift Coach no está respaldada, afiliada ni patrocinada por Riot Games, Inc. ni por ninguna de sus subsidiarias. League of Legends: Wild Rift y todos los nombres, marcas registradas y elementos visuales asociados son propiedad y derechos de autor de Riot Games, Inc.")
+    )
+
+    PolicySection(
+        title = tr("2. Proveedores de Infraestructura en la Nube"),
+        body = tr("Utilizamos infraestructura en la nube (Supabase / PostgreSQL) para la sincronización segura de perfiles, autenticación y almacenamiento de estados de suscripción, sujeta a sus estrictas normas de seguridad y cumplimiento normativo.")
+    )
+
+    PolicySection(
+        title = tr("3. Bibliotecas de Código Abierto (Open Source)"),
+        body = tr("Esta aplicación utiliza componentes de software libre licenciados bajo Apache 2.0 y MIT, incluyendo Jetpack Compose, Kotlinx Coroutines, AndroidX Room, Coil Image Loader, Material 3 y ML Kit Text Recognition.")
+    )
+
+    PolicySection(
+        title = tr("4. Recursos Visuales y Contenido de la Comunidad"),
+        body = tr("Los iconos de campeones, objetos, runas y hechizos se utilizan bajo los términos de la política 'Legal Jibber Jabber' de Riot Games para proyectos creados por fans y la comunidad.")
+    )
+}
+
+@Composable
 fun PolicySection(title: String, body: String) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = title,
             color = HextechGoldLight,
-            fontSize = 15.sp,
+            fontSize = 14.5.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = body,
             color = TextSecondary,
-            fontSize = 13.sp,
-            lineHeight = 18.sp
+            fontSize = 12.5.sp,
+            lineHeight = 17.5.sp
         )
     }
 }

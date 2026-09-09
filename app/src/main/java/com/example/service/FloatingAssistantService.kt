@@ -2321,8 +2321,6 @@ private fun FloatingDraftCoachView(
             allySlots = allySlots,
             enemySlots = enemySlots,
             allySummonerNames = allySummonerNames.toMap(),
-            allySpells = allySpells.toMap(),
-            enemySpells = enemySpells.toMap(),
             activeUserRole = activeRole,
             onPickChampionForRole = { isAlly, role ->
                 val index = defaultRoles.indexOf(role).coerceAtLeast(0)
@@ -2370,8 +2368,6 @@ private fun OverlayVersusDraftBoard(
     allySlots: List<DraftSlot>,
     enemySlots: List<DraftSlot>,
     allySummonerNames: Map<Int, String> = emptyMap(),
-    allySpells: Map<Int, List<String>> = emptyMap(),
-    enemySpells: Map<Int, List<String>> = emptyMap(),
     activeUserRole: LaneRole?,
     onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
     onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
@@ -2390,265 +2386,243 @@ private fun OverlayVersusDraftBoard(
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
         border = BorderStroke(1.dp, HextechCardBorder)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
             // Header
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp, top = 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp, top = 2.dp, start = 4.dp, end = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(tr("ALIADO"), color = AllyBlue, fontWeight = FontWeight.Black, fontSize = 11.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Start)
-                Text("VS", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 10.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(tr("RIVAL"), color = DangerRed, fontWeight = FontWeight.Black, fontSize = 11.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(AllyBlue))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(tr("EQUIPO ALIADO"), color = AllyBlue, fontWeight = FontWeight.Black, fontSize = 10.5.sp)
+                }
+
+                Surface(
+                    color = HextechDarkBg,
+                    shape = RoundedCornerShape(4.dp),
+                    border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.4f))
+                ) {
+                    Text(
+                        "VS",
+                        color = HextechGold,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
+                    )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(tr("EQUIPO RIVAL"), color = DangerRed, fontWeight = FontWeight.Black, fontSize = 10.5.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(DangerRed))
+                }
             }
 
             roles.forEachIndexed { index, (role, label, iconRes) ->
                 val allySlot = allySlots.find { it.assignedRole == role }
                 val enemySlot = enemySlots.find { it.assignedRole == role }
                 val summonerName = allySlot?.summonerName ?: allySummonerNames[index]
-                val spellsAlly = if (!allySlot?.spells.isNullOrEmpty()) allySlot.spells else (allySpells[index] ?: emptyList())
-                val spellsEnemy = if (!enemySlot?.spells.isNullOrEmpty()) enemySlot.spells else (enemySpells[index] ?: emptyList())
+                val isMyRole = activeUserRole == role
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    color = if (isMyRole) HextechCyan.copy(alpha = 0.08f) else HextechDarkBg.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(
+                        if (isMyRole) 1.dp else 0.5.dp,
+                        if (isMyRole) HextechCyan.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.4f)
+                    )
                 ) {
-                    // Ally Avatar + Name
                     Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable { onPickChampionForRole(true, role) },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
+                            .fillMaxWidth()
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        DraftAvatarBox(
-                            slot = allySlot,
-                            placeholderInitial = summonerName?.take(2)?.uppercase(),
-                            isEnemy = false,
-                            isMyRole = activeUserRole == role,
-                            onClick = { onPickChampionForRole(true, role) },
-                            onRemove = { onRemoveChampionForRole(true, role) }
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        if (allySlot?.champion != null) {
-                            val champ = allySlot.champion
-                            Column(modifier = Modifier.weight(1f, fill = false)) {
+                        // LADO ALIADO (Avatar + Campeón / Nombre)
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onPickChampionForRole(true, role) },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            DraftAvatarBox(
+                                slot = allySlot,
+                                placeholderInitial = summonerName?.take(2)?.uppercase(),
+                                isEnemy = false,
+                                isMyRole = isMyRole,
+                                onClick = { onPickChampionForRole(true, role) },
+                                onRemove = { onRemoveChampionForRole(true, role) }
+                            )
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            if (allySlot?.champion != null) {
+                                val champ = allySlot.champion
+                                Column(modifier = Modifier.weight(1f, fill = false)) {
+                                    Text(
+                                        text = champ.name,
+                                        color = if (isMyRole) HextechCyan else TextPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        Text(
+                                            text = champ.tier,
+                                            color = HextechGold,
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                        Text(
+                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
+                                            color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        if (!summonerName.isNullOrBlank()) {
+                                            Text(
+                                                text = "• $summonerName",
+                                                color = TextMuted,
+                                                fontSize = 7.5.sp,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
+                                }
+                            } else if (!summonerName.isNullOrBlank()) {
+                                Column(modifier = Modifier.weight(1f, fill = false)) {
+                                    Text(
+                                        text = summonerName,
+                                        color = HextechCyan,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = tr("Preselección"),
+                                        color = TextMuted,
+                                        fontSize = 8.sp
+                                    )
+                                }
+                            } else {
                                 Text(
-                                    text = champ.name,
-                                    color = if (activeUserRole == role) HextechCyan else TextPrimary,
-                                    fontWeight = FontWeight.Bold,
+                                    text = tr("+ Elegir"),
+                                    color = AllyBlue.copy(alpha = 0.8f),
                                     fontSize = 10.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1
                                 )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            }
+                        }
+
+                        // CENTRO: ÍCONO Y ETIQUETA DEL ROL / LÍNEA
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+                            Icon(
+                                painterResource(id = iconRes),
+                                contentDescription = label,
+                                tint = if (isMyRole) HextechCyan else HextechGold,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = label,
+                                color = if (isMyRole) HextechCyan else TextSecondary,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        // LADO RIVAL (Campeón / Elegir + Avatar)
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onPickChampionForRole(false, role) },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            if (enemySlot?.champion != null) {
+                                val champ = enemySlot.champion
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    modifier = Modifier
+                                        .weight(1f, fill = false)
+                                        .padding(end = 6.dp)
                                 ) {
                                     Text(
-                                        text = champ.tier,
-                                        color = HextechGold,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Bold
+                                        text = champ.name,
+                                        color = DangerRed,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.End
                                     )
-                                    Text(
-                                        text = "WR ${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%",
-                                        color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = "P ${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%",
-                                        color = HextechCyan,
-                                        fontSize = 7.sp
-                                    )
-                                    Text(
-                                        text = "B ${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%",
-                                        color = DangerRed.copy(alpha = 0.85f),
-                                        fontSize = 7.sp
-                                    )
-                                    if (!summonerName.isNullOrBlank()) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        if (enemySlot.confidence != null && enemySlot.confidence < 100) {
+                                            Text(
+                                                text = "${enemySlot.confidence}% conf",
+                                                color = if (enemySlot.confidence >= 80) HextechCyan else HextechGold,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
                                         Text(
-                                            text = "• $summonerName",
-                                            color = TextMuted,
-                                            fontSize = 7.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
+                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
+                                            color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = champ.tier,
+                                            color = HextechGold,
+                                            fontSize = 8.sp,
+                                            fontWeight = FontWeight.ExtraBold
                                         )
                                     }
                                 }
-                            }
-                        } else if (!summonerName.isNullOrBlank()) {
-                            Column(modifier = Modifier.weight(1f, fill = false)) {
+                            } else {
                                 Text(
-                                    text = summonerName,
-                                    color = HextechCyan,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 9.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = tr("Preselección"),
-                                    color = TextMuted,
-                                    fontSize = 7.5.sp
-                                )
-                            }
-                        } else {
-                            Text(
-                                text = tr("Elegir"),
-                                color = TextMuted.copy(alpha = 0.6f),
-                                fontSize = 8.5.sp,
-                                maxLines = 1
-                            )
-                        }
-
-                        // Hechizos de invocador del aliado
-                        if (spellsAlly.isNotEmpty()) {
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                spellsAlly.take(2).forEach { spellName ->
-                                    val iconUrl = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(spellName)
-                                    AppAssetImage(
-                                        url = iconUrl,
-                                        contentDescription = spellName,
-                                        fallbackText = spellName.take(1),
-                                        modifier = Modifier
-                                            .size(13.dp)
-                                            .clip(RoundedCornerShape(2.dp))
-                                            .border(0.5.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // Center Role (Horizontal layout to save vertical space)
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    ) {
-                        Icon(painterResource(id = iconRes), contentDescription = label, tint = HextechGold, modifier = Modifier.size(15.dp))
-                        Spacer(modifier = Modifier.width(3.dp))
-                        Text(label, color = TextSecondary, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    // Enemy Name + Confidence Tag + Enemy Avatar
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onPickChampionForRole(false, role) },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        // Hechizos de invocador del rival
-                        if (spellsEnemy.isNotEmpty()) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                spellsEnemy.take(2).forEach { spellName ->
-                                    val iconUrl = com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(spellName)
-                                    AppAssetImage(
-                                        url = iconUrl,
-                                        contentDescription = spellName,
-                                        fallbackText = spellName.take(1),
-                                        modifier = Modifier
-                                            .size(13.dp)
-                                            .clip(RoundedCornerShape(2.dp))
-                                            .border(0.5.dp, DangerRed.copy(alpha = 0.8f), RoundedCornerShape(2.dp))
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(3.dp))
-                        }
-
-                        if (enemySlot?.confidence != null && enemySlot.champion != null) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(end = 3.dp)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(Color(0xFF0F1923).copy(alpha = 0.9f))
-                                    .border(0.5.dp, if (enemySlot.confidence >= 80) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
-                                    .padding(horizontal = 2.5.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    text = "${enemySlot.confidence}%",
-                                    color = if (enemySlot.confidence >= 80) HextechCyan else HextechGold,
-                                    fontSize = 7.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        if (enemySlot?.champion != null) {
-                            val champ = enemySlot.champion
-                            Column(
-                                horizontalAlignment = Alignment.End,
-                                modifier = Modifier.weight(1f, fill = false).padding(end = 5.dp)
-                            ) {
-                                Text(
-                                    text = champ.name,
-                                    color = DangerRed,
-                                    fontWeight = FontWeight.Bold,
+                                    text = tr("+ Rival"),
+                                    color = DangerRed.copy(alpha = 0.8f),
                                     fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.padding(end = 6.dp)
                                 )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        text = "B ${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%",
-                                        color = DangerRed.copy(alpha = 0.85f),
-                                        fontSize = 7.sp
-                                    )
-                                    Text(
-                                        text = "P ${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%",
-                                        color = HextechCyan,
-                                        fontSize = 7.sp
-                                    )
-                                    Text(
-                                        text = "WR ${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%",
-                                        color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                    Text(
-                                        text = champ.tier,
-                                        color = HextechGold,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
                             }
-                        } else {
-                            Text(
-                                text = tr("Elegir"),
-                                color = TextMuted.copy(alpha = 0.6f),
-                                fontSize = 8.5.sp,
-                                maxLines = 1,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.padding(end = 5.dp)
+
+                            DraftAvatarBox(
+                                slot = enemySlot,
+                                placeholderInitial = null,
+                                isEnemy = true,
+                                isMyRole = false,
+                                onClick = { onPickChampionForRole(false, role) },
+                                onRemove = { onRemoveChampionForRole(false, role) }
                             )
                         }
-
-                        DraftAvatarBox(
-                            slot = enemySlot,
-                            placeholderInitial = null,
-                            isEnemy = true,
-                            isMyRole = false,
-                            onClick = { onPickChampionForRole(false, role) },
-                            onRemove = { onRemoveChampionForRole(false, role) }
-                        )
                     }
-                }
-                
-                if (index < roles.size - 1) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(HextechCardBorder.copy(alpha=0.5f)))
-                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
         }
@@ -2665,17 +2639,19 @@ private fun DraftAvatarBox(
     onRemove: () -> Unit
 ) {
     val champ = slot?.champion
-    val borderColor = if (isMyRole) HextechCyan else if (champ != null) (if (isEnemy) DangerRed else HextechGold) else HextechCardBorder
-    
+    val borderColor = if (isMyRole) HextechCyan else if (champ != null) (if (isEnemy) DangerRed else HextechGold) else HextechCardBorder.copy(alpha = 0.6f)
+
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(34.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(when {
-                isMyRole -> HextechCyan.copy(alpha = 0.22f)
-                champ != null -> if (isEnemy) DangerRed.copy(alpha=0.2f) else HextechGold.copy(alpha=0.2f)
-                else -> Color(0xFF070D15)
-            })
+            .background(
+                when {
+                    isMyRole -> HextechCyan.copy(alpha = 0.2f)
+                    champ != null -> if (isEnemy) DangerRed.copy(alpha = 0.15f) else HextechGold.copy(alpha = 0.15f)
+                    else -> Color(0xFF070D15)
+                }
+            )
             .border(1.5.dp, borderColor, RoundedCornerShape(8.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
@@ -2691,15 +2667,15 @@ private fun DraftAvatarBox(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(2.dp)
+                        .padding(1.5.dp)
                         .clip(RoundedCornerShape(3.dp))
                         .background(HextechCyan)
-                        .padding(horizontal = 3.dp, vertical = 1.dp)
+                        .padding(horizontal = 2.5.dp, vertical = 0.5.dp)
                 ) {
                     Text(
-                        text = "Mío",
+                        text = "TÚ",
                         color = Color.Black,
-                        fontSize = 8.sp,
+                        fontSize = 7.5.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -2707,12 +2683,12 @@ private fun DraftAvatarBox(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .size(16.dp)
-                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(bottomStart = 8.dp))
+                    .size(15.dp)
+                    .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(bottomStart = 6.dp))
                     .clickable { onRemove() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.White, modifier = Modifier.size(12.dp))
+                Icon(Icons.Default.Close, contentDescription = "Quitar", tint = Color.White, modifier = Modifier.size(11.dp))
             }
         } else if (!placeholderInitial.isNullOrBlank()) {
             Box(
@@ -2727,7 +2703,12 @@ private fun DraftAvatarBox(
                 )
             }
         } else {
-            Icon(Icons.Default.Add, contentDescription = "Añadir", tint = TextMuted, modifier = Modifier.size(20.dp))
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Añadir",
+                tint = if (isEnemy) DangerRed.copy(alpha = 0.5f) else AllyBlue.copy(alpha = 0.5f),
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

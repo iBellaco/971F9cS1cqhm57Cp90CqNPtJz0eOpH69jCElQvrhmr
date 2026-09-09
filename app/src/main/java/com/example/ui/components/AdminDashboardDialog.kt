@@ -701,8 +701,9 @@ fun EnhancedUserAdminCard(
     val unlockedAvatars = (user["unlockedAvatars"] as? List<*>)?.mapNotNull { it?.toString() } ?: listOf("default_poro")
     val unlockedCount = unlockedAvatars.size
 
+    val lastActiveTimestamp = (user["last_active"] as? Number)?.toLong() ?: (user["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
     val now = System.currentTimeMillis()
-    val isOnline = (user["is_online"] as? Boolean ?: false) || (now - ((user["last_active"] as? Number)?.toLong() ?: 0L) < 10 * 60 * 1000L)
+    val isOnline = (user["is_online"] as? Boolean ?: false) || (now - lastActiveTimestamp < 10 * 60 * 1000L && lastActiveTimestamp > 0L)
 
     val isPremiumActive = when {
         role == "admin" -> true
@@ -723,7 +724,7 @@ fun EnhancedUserAdminCard(
         )
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Fila superior: Avatar + Info Usuario + Badge de Rol
+            // Fila superior: Avatar + Info Usuario + Badge de Rol + Estado de Conexión
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -777,22 +778,58 @@ fun EnhancedUserAdminCard(
                         )
                     }
 
-                    // UID copiable con un toque
+                    // UID y Estado de Conexión en vivo
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                            clipboard.setPrimaryClip(ClipData.newPlainText("UID", uid))
-                            Toast.makeText(context, "UID copiado", Toast.LENGTH_SHORT).show()
-                        }
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "UID: ${uid.take(12)}...",
-                            color = TextMuted,
-                            fontSize = 10.sp
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.ContentCopy, contentDescription = "Copiar UID", tint = TextMuted, modifier = Modifier.size(10.dp))
+                        // UID copiable con un toque
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("UID", uid))
+                                Toast.makeText(context, "UID copiado", Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
+                            Text(
+                                text = "UID: ${uid.take(10)}...",
+                                color = TextMuted,
+                                fontSize = 10.sp
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Icon(Icons.Default.ContentCopy, contentDescription = "Copiar UID", tint = TextMuted, modifier = Modifier.size(10.dp))
+                        }
+
+                        // Badge de Conexión / Última Conexión
+                        Surface(
+                            color = if (isOnline) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechDarkBg,
+                            shape = RoundedCornerShape(4.dp),
+                            border = androidx.compose.foundation.BorderStroke(
+                                0.5.dp,
+                                if (isOnline) Color(0xFF00FF7F).copy(alpha = 0.5f) else HextechCardBorder
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isOnline) Color(0xFF00FF7F) else Color(0xFF9CA3AF))
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = formatLastConnection(lastActiveTimestamp, isOnline),
+                                    color = if (isOnline) Color(0xFF00FF7F) else TextMuted,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = if (isOnline) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -954,6 +991,25 @@ private fun RoleBadge(role: String, isPremiumActive: Boolean, isBanned: Boolean)
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+private fun formatLastConnection(lastActiveTimestamp: Long, isOnline: Boolean): String {
+    if (isOnline) return "En línea ahora"
+    if (lastActiveTimestamp <= 0L) return "Sin registro reciente"
+    val diff = System.currentTimeMillis() - lastActiveTimestamp
+    if (diff < 60 * 1000L) return "Hace un momento"
+    val mins = diff / (60 * 1000L)
+    if (mins < 60) return "Hace $mins min"
+    val hours = mins / 60
+    if (hours < 24) return "Hace $hours h"
+    val days = hours / 24
+    if (days < 7) return "Hace $days d"
+    return try {
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        sdf.format(Date(lastActiveTimestamp))
+    } catch (_: Exception) {
+        "Hace $days d"
     }
 }
 
@@ -1371,7 +1427,7 @@ fun UserDetailManagementDialog(
                         }
                     }
 
-                    // SECCIÓN 4: ROLES Y SEGURIDAD
+                    // SECCIÓN 4: SEGURIDAD Y ESTADO DE LA CUENTA
                     item {
                         Surface(
                             color = HextechSurfaceBg,
@@ -1382,33 +1438,34 @@ fun UserDetailManagementDialog(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Security, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Roles y Seguridad de la Cuenta", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 13.sp)
+                                    Text("Seguridad y Estado de la Cuenta", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 13.sp)
                                 }
 
                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    // Hacer/Quitar Admin
-                                    Button(
-                                        onClick = {
-                                            val newRole = if (currentRole == "admin") "free" else "admin"
-                                            toggleUserAdminRole(context, uid, newRole) {
-                                                currentRole = newRole
-                                                onUserUpdated(user.toMutableMap().apply { put("role", newRole) })
-                                            }
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (currentRole == "admin") Color(0xFF4B5563) else HextechGold
-                                        ),
-                                        shape = RoundedCornerShape(8.dp)
+                                if (currentRole == "admin") {
+                                    Surface(
+                                        color = HextechGold.copy(alpha = 0.15f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(if (currentRole == "admin") "Quitar Admin" else "Hacer Admin", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Row(
+                                            modifier = Modifier.padding(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Esta cuenta posee rango de Administrador Maestro protegido.",
+                                                color = HextechGold,
+                                                fontSize = 11.5.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
                                     }
-
-                                    // Banear/Desbanear
+                                } else {
+                                    // Solo opción de suspender/banear o reactivar
                                     Button(
                                         onClick = {
                                             val newBanned = !currentBanned
@@ -1422,15 +1479,15 @@ fun UserDetailManagementDialog(
                                                 })
                                             }
                                         },
-                                        modifier = Modifier.weight(1f),
+                                        modifier = Modifier.fillMaxWidth(),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = if (currentBanned) Color(0xFF10B981) else DangerRed
                                         ),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Icon(if (currentBanned) Icons.Default.LockOpen else Icons.Default.Block, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(if (currentBanned) "Desbanear" else "Banear Cuenta", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Icon(if (currentBanned) Icons.Default.LockOpen else Icons.Default.Block, contentDescription = null, modifier = Modifier.size(15.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(if (currentBanned) "Desbanear y Reactivar Cuenta" else "Suspender / Banear Cuenta", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
