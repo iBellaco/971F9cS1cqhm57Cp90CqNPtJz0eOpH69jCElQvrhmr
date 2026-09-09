@@ -2466,7 +2466,7 @@ private fun OverlayVersusDraftBoard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // LADO ALIADO (Avatar + Campeón / Nombre)
+                        // LADO ALIADO (Avatar + Información organizada)
                         Row(
                             modifier = Modifier
                                 .weight(1f)
@@ -2487,7 +2487,8 @@ private fun OverlayVersusDraftBoard(
 
                             if (allySlot?.champion != null) {
                                 val champ = allySlot.champion
-                                Column(modifier = Modifier.weight(1f, fill = false)) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    // Línea 1: Nombre del Campeón
                                     Text(
                                         text = champ.name,
                                         color = if (isMyRole) HextechCyan else TextPrimary,
@@ -2496,6 +2497,7 @@ private fun OverlayVersusDraftBoard(
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                    // Línea 2: Nombre de Invocador (debajo del nombre del campeón)
                                     if (!summonerName.isNullOrBlank()) {
                                         Text(
                                             text = summonerName,
@@ -2506,27 +2508,28 @@ private fun OverlayVersusDraftBoard(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
+                                    // Línea 3: Estadísticas ordenadas (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                                     ) {
                                         Text(
                                             text = champ.tier,
                                             color = HextechGold,
-                                            fontSize = 8.sp,
+                                            fontSize = 7.5.sp,
                                             fontWeight = FontWeight.ExtraBold
                                         )
                                         Text(
                                             text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
                                             color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.Medium
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                         if (champ.pickRate > 0.0) {
                                             Text(
                                                 text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
                                                 color = HextechCyan,
-                                                fontSize = 7.5.sp,
+                                                fontSize = 7.sp,
                                                 fontWeight = FontWeight.Normal
                                             )
                                         }
@@ -2534,14 +2537,14 @@ private fun OverlayVersusDraftBoard(
                                             Text(
                                                 text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
                                                 color = DangerRed,
-                                                fontSize = 7.5.sp,
+                                                fontSize = 7.sp,
                                                 fontWeight = FontWeight.Normal
                                             )
                                         }
                                     }
                                 }
                             } else if (!summonerName.isNullOrBlank()) {
-                                Column(modifier = Modifier.weight(1f, fill = false)) {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = summonerName,
                                         color = HextechCyan,
@@ -2587,7 +2590,7 @@ private fun OverlayVersusDraftBoard(
                             )
                         }
 
-                        // LADO RIVAL (Campeón / Elegir + Avatar)
+                        // LADO RIVAL (Información organizada + Avatar)
                         Row(
                             modifier = Modifier
                                 .weight(1f)
@@ -2600,9 +2603,10 @@ private fun OverlayVersusDraftBoard(
                                 Column(
                                     horizontalAlignment = Alignment.End,
                                     modifier = Modifier
-                                        .weight(1f, fill = false)
+                                        .weight(1f)
                                         .padding(end = 6.dp)
                                 ) {
+                                    // Línea 1: Nombre del Campeón Rival
                                     Text(
                                         text = champ.name,
                                         color = DangerRed,
@@ -2612,38 +2616,39 @@ private fun OverlayVersusDraftBoard(
                                         overflow = TextOverflow.Ellipsis,
                                         textAlign = TextAlign.End
                                     )
+                                    // Línea 2: Estadísticas ordenadas del Rival (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                                     ) {
-                                        if (champ.banRate > 0.0) {
-                                            Text(
-                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
-                                                color = DangerRed,
-                                                fontSize = 7.5.sp,
-                                                fontWeight = FontWeight.Normal
-                                            )
-                                        }
+                                        Text(
+                                            text = champ.tier,
+                                            color = HextechGold,
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                        Text(
+                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
+                                            color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
                                         if (champ.pickRate > 0.0) {
                                             Text(
                                                 text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
                                                 color = HextechCyan,
-                                                fontSize = 7.5.sp,
+                                                fontSize = 7.sp,
                                                 fontWeight = FontWeight.Normal
                                             )
                                         }
-                                        Text(
-                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
-                                            color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                        Text(
-                                            text = champ.tier,
-                                            color = HextechGold,
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
+                                        if (champ.banRate > 0.0) {
+                                            Text(
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
+                                                color = DangerRed,
+                                                fontSize = 7.sp,
+                                                fontWeight = FontWeight.Normal
+                                            )
+                                        }
                                     }
                                 }
                             } else {
