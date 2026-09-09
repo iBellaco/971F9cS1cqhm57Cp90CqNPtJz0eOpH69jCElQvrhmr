@@ -11,7 +11,7 @@ import org.json.JSONObject
  */
 data class VisionCalibrationConfig(
     // Posición horizontal X central de avatares (0..1)
-    var allyAvatarCenterX: Float = 0.07000000029802322f,
+    var allyAvatarCenterX: Float = 0.0729999989271164f,
     var enemyAvatarCenterX: Float = 0.9600000381469727f,
 
     // Diámetro del avatar relativo al alto de pantalla (0..1)
@@ -19,25 +19,26 @@ data class VisionCalibrationConfig(
 
     // Ratios verticales Y para los 5 slots aliados (0..4)
     var allySlotYRatios: MutableList<Float> = mutableListOf(
-        0.1979999989271164f,
+        0.19499999284744263f,
         0.3310000002384186f,
         0.4650000035762787f,
         0.5979999899864197f,
-        0.7310000061988831f
+        0.734000027179718f
     ),
 
     // Ratios verticales Y para los 5 slots enemigos (0..4)
     var enemySlotYRatios: MutableList<Float> = mutableListOf(
-        0.1720000058412552f,
-        0.3019999861717224f,
-        0.4320000112056732f,
-        0.5609999895095825f,
-        0.6909999847412109f
+        0.19600005447864532f,
+        0.32899990677833557f,
+        0.4649999141693115f,
+        0.603000283241272f,
+        0.7390003204345703f
     ),
 
     // Hechizos de invocador aliados (solo aliados)
     var spellLeftRatio: Float = 0.020999999716877937f,
     var spellSizeRatio: Float = 0.04100000113248825f,
+    var spellYOffsetRatio: Float = 0.0f,
 
     // Rango horizontal OCR para detección de nombres/roles
     var allyOcrMinX: Float = 0.07999999821186066f,
@@ -46,9 +47,9 @@ data class VisionCalibrationConfig(
     var enemyOcrMaxX: Float = 0.9449999928474426f,
 
     // Interruptores de visualización en el HUD de diagnóstico
-    var showAvatarBoxes: Boolean = false,
+    var showAvatarBoxes: Boolean = true,
     var showNameBoxes: Boolean = false,
-    var showSpellBoxes: Boolean = true
+    var showSpellBoxes: Boolean = false
 ) {
     fun toJsonString(indent: Boolean = true): String {
         val obj = JSONObject()
@@ -67,6 +68,7 @@ data class VisionCalibrationConfig(
 
         obj.put("spellLeftRatio", spellLeftRatio.toDouble())
         obj.put("spellSizeRatio", spellSizeRatio.toDouble())
+        obj.put("spellYOffsetRatio", spellYOffsetRatio.toDouble())
 
         obj.put("allyOcrMinX", allyOcrMinX.toDouble())
         obj.put("allyOcrMaxX", allyOcrMaxX.toDouble())
@@ -111,6 +113,7 @@ data class VisionCalibrationConfig(
 
                 if (obj.has("spellLeftRatio")) config.spellLeftRatio = obj.getDouble("spellLeftRatio").toFloat()
                 if (obj.has("spellSizeRatio")) config.spellSizeRatio = obj.getDouble("spellSizeRatio").toFloat()
+                if (obj.has("spellYOffsetRatio")) config.spellYOffsetRatio = obj.getDouble("spellYOffsetRatio").toFloat()
 
                 if (obj.has("allyOcrMinX")) config.allyOcrMinX = obj.getDouble("allyOcrMinX").toFloat()
                 if (obj.has("allyOcrMaxX")) config.allyOcrMaxX = obj.getDouble("allyOcrMaxX").toFloat()

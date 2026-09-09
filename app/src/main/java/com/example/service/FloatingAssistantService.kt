@@ -3175,8 +3175,38 @@ fun VisionDebugOverlay() {
                     }
                 }
 
-                // 2. Dibujar cajas de hechizos de invocador detectados (si está activado)
+                // 2. Dibujar cajas de hechizos de invocador (si está activado)
                 if (calibConfig.showSpellBoxes) {
+                    val spellSize = (size.height * calibConfig.spellSizeRatio).coerceAtLeast(18f)
+                    val spellLeft = (size.width * calibConfig.spellLeftRatio).coerceIn(0f, (size.width - spellSize).coerceAtLeast(0f))
+                    val spellRight = spellLeft + spellSize
+
+                    // Dibujar las cajas ROI de calibración de hechizos en cada uno de los 5 slots aliados
+                    for (i in 0..4) {
+                        val yRatio = (calibConfig.allySlotYRatios.getOrNull(i) ?: 0.5f) + calibConfig.spellYOffsetRatio
+                        val yCenter = size.height * yRatio
+                        val spell1Top = (yCenter - spellSize - (size.height * 0.003f)).coerceIn(0f, (size.height - spellSize).coerceAtLeast(0f))
+                        val spell1Bottom = spell1Top + spellSize
+                        val spell2Top = (yCenter + (size.height * 0.003f)).coerceIn(0f, (size.height - spellSize).coerceAtLeast(0f))
+                        val spell2Bottom = spell2Top + spellSize
+
+                        // Cuadro Hechizo 1
+                        drawRect(
+                            color = Color(0xFFFF9100).copy(alpha = 0.75f),
+                            topLeft = androidx.compose.ui.geometry.Offset(spellLeft, spell1Top),
+                            size = androidx.compose.ui.geometry.Size(spellRight - spellLeft, spell1Bottom - spell1Top),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                        )
+                        // Cuadro Hechizo 2
+                        drawRect(
+                            color = Color(0xFFFF9100).copy(alpha = 0.75f),
+                            topLeft = androidx.compose.ui.geometry.Offset(spellLeft, spell2Top),
+                            size = androidx.compose.ui.geometry.Size(spellRight - spellLeft, spell2Bottom - spell2Top),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                        )
+                    }
+
+                    // Superponer etiquetas de hechizos detectados si existen
                     for (sDiag in detectedSpells) {
                         val rect = sDiag.rect
                         val left = rect.left * scaleX
@@ -3185,13 +3215,13 @@ fun VisionDebugOverlay() {
                         val bottom = rect.bottom * scaleY
 
                         drawRect(
-                            color = Color(0xFFFF9100),
+                            color = Color(0xFF00E676),
                             topLeft = androidx.compose.ui.geometry.Offset(left, top),
                             size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.5f)
                         )
 
-                        textPaint.color = android.graphics.Color.rgb(255, 145, 0)
+                        textPaint.color = android.graphics.Color.rgb(0, 230, 118)
                         drawContext.canvas.nativeCanvas.drawText(
                             sDiag.spellName,
                             left,

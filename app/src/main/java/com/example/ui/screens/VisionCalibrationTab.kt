@@ -378,24 +378,102 @@ fun VisionCalibrationTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // SECCIÓN 3: TAMAÑO DE CUADROS Y HECHIZOS
+        // SECCIÓN 3: CONTROL DIRECCIONAL Y TAMAÑO DE HECHIZOS (SUMMONER SPELLS)
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFF9100).copy(alpha = 0.6f))
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = "📐 Tamaño de Cuadros y Hechizos",
-                    color = HextechGold,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "⚡ HECHIZOS DE INVOCADOR (Aliados)",
+                            color = Color(0xFFFF9100),
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Mueve los cuadros de hechizos hacia Arriba, Abajo, Izquierda o Derecha",
+                            color = TextSecondary,
+                            fontSize = 9.5.sp
+                        )
+                    }
+                    Text(
+                        text = "X: ${"%.3f".format(Locale.US, config.spellLeftRatio)} | Y: ${"%.3f".format(Locale.US, config.spellYOffsetRatio)}",
+                        color = HextechGold,
+                        fontSize = 9.5.sp,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Control Pad Direccional para Hechizos (Arriba, Abajo, Izquierda, Derecha)
+                DirectionalPad(
+                    accentColor = Color(0xFFFF9100),
+                    onUp = {
+                        val newY = (config.spellYOffsetRatio - 0.003f).coerceIn(-0.10f, 0.10f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellYOffsetRatio = newY))
+                    },
+                    onUpFast = {
+                        val newY = (config.spellYOffsetRatio - 0.008f).coerceIn(-0.10f, 0.10f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellYOffsetRatio = newY))
+                    },
+                    onDown = {
+                        val newY = (config.spellYOffsetRatio + 0.003f).coerceIn(-0.10f, 0.10f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellYOffsetRatio = newY))
+                    },
+                    onDownFast = {
+                        val newY = (config.spellYOffsetRatio + 0.008f).coerceIn(-0.10f, 0.10f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellYOffsetRatio = newY))
+                    },
+                    onLeft = {
+                        val newX = (config.spellLeftRatio - 0.003f).coerceIn(0.005f, 0.15f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newX))
+                    },
+                    onLeftFast = {
+                        val newX = (config.spellLeftRatio - 0.008f).coerceIn(0.005f, 0.15f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newX))
+                    },
+                    onRight = {
+                        val newX = (config.spellLeftRatio + 0.003f).coerceIn(0.005f, 0.15f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newX))
+                    },
+                    onRightFast = {
+                        val newX = (config.spellLeftRatio + 0.008f).coerceIn(0.005f, 0.15f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newX))
+                    }
                 )
+
                 Spacer(modifier = Modifier.height(6.dp))
+
+                // Tamaño Hechizos
+                StepAdjusterRow(
+                    label = "Tamaño Cuadros Hechizo",
+                    valueFormatted = "${"%.3f".format(Locale.US, config.spellSizeRatio)}",
+                    onStepLeft = {
+                        val newS = (config.spellSizeRatio - 0.003f).coerceIn(0.015f, 0.08f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellSizeRatio = newS))
+                    },
+                    onStepRight = {
+                        val newS = (config.spellSizeRatio + 0.003f).coerceIn(0.015f, 0.08f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(spellSizeRatio = newS))
+                    },
+                    leftHint = "Menor -",
+                    rightHint = "+ Mayor"
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Diámetro / Tamaño del Cuadro Avatar
                 StepAdjusterRow(
-                    label = "Tamaño Cuadro Avatares",
+                    label = "Tamaño Cuadros Avatar",
                     valueFormatted = "${"%.3f".format(Locale.US, config.avatarDiameterRatio)} (~${(config.avatarDiameterRatio * 100).toInt()}%)",
                     onStepLeft = {
                         val newD = (config.avatarDiameterRatio - 0.004f).coerceIn(0.060f, 0.200f)
@@ -407,42 +485,6 @@ fun VisionCalibrationTab(
                     },
                     leftHint = "Reducir -",
                     rightHint = "+ Agrandar"
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Posición X Hechizos
-                StepAdjusterRow(
-                    label = "Hechizos Aliados (X)",
-                    valueFormatted = "${"%.3f".format(Locale.US, config.spellLeftRatio)}",
-                    onStepLeft = {
-                        val newL = (config.spellLeftRatio - 0.003f).coerceIn(0.005f, 0.10f)
-                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newL))
-                    },
-                    onStepRight = {
-                        val newL = (config.spellLeftRatio + 0.003f).coerceIn(0.005f, 0.10f)
-                        DraftVisionScanner.updateCalibration(context, config.copy(spellLeftRatio = newL))
-                    },
-                    leftHint = "◀ Izq",
-                    rightHint = "Der ▶"
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Tamaño Hechizos
-                StepAdjusterRow(
-                    label = "Tamaño Cuadro Hechizo",
-                    valueFormatted = "${"%.3f".format(Locale.US, config.spellSizeRatio)}",
-                    onStepLeft = {
-                        val newS = (config.spellSizeRatio - 0.003f).coerceIn(0.020f, 0.08f)
-                        DraftVisionScanner.updateCalibration(context, config.copy(spellSizeRatio = newS))
-                    },
-                    onStepRight = {
-                        val newS = (config.spellSizeRatio + 0.003f).coerceIn(0.020f, 0.08f)
-                        DraftVisionScanner.updateCalibration(context, config.copy(spellSizeRatio = newS))
-                    },
-                    leftHint = "Menor -",
-                    rightHint = "+ Mayor"
                 )
             }
         }
