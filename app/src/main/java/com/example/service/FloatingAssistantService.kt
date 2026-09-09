@@ -2,6 +2,8 @@ package com.example.service
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.collectAsState
@@ -858,11 +860,12 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano cada 1.1 segundos mientras esté activo
+    // Auto-Scan Loop en segundo plano optimizado de alta velocidad (cada 650ms)
+    // Se desactiva automáticamente al completar los 10 picks (5 aliados + 5 rivales) para evitar falsos positivos
     LaunchedEffect(autoScanEnabled) {
         if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
-            delay(1100)
+            delay(650)
             if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                 scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
             } else if (!isScanning) {
@@ -917,12 +920,19 @@ private fun FloatingOverlayContent(
                             }
                             state.enemySpells.clear()
 
-                            if (result.detectedRole != null && activeRole != result.detectedRole) {
+                            val totalAlliesPicked = allies.filterNotNull().size
+                            val totalEnemiesPicked = enemies.filterNotNull().size
+
+                            if (totalAlliesPicked == 5 && totalEnemiesPicked == 5) {
+                                // Los 10 campeones están completamente seleccionados: Apagar Auto-Scan para congelar y evitar falsos positivos
+                                autoScanEnabled = false
+                                scanNoticeMessage = "🎯 10/10 Campeones detectados • Auto-Scan completado"
+                            } else if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
                                 com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
                                 scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName})"
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
-                                scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados"
+                                scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($totalAlliesPicked/5 vs $totalEnemiesPicked/5)"
                             }
                             if (scanNoticeMessage != null) {
                                 delay(3000)
@@ -1067,11 +1077,13 @@ private fun FloatingOverlayContent(
                                 strokeWidth = 3.dp
                             )
                         } else {
-                            Icon(
-                                imageVector = Icons.Default.Shield,
+                            Image(
+                                painter = painterResource(id = com.example.R.drawable.ic_overlay_logo),
                                 contentDescription = "Wild Rift Drafting Coach",
-                                tint = Color.White,
-                                modifier = Modifier.size(if (isCompactBubble) 16.dp else 22.dp)
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(if (isCompactBubble) 32.dp else 42.dp)
+                                    .clip(CircleShape)
                             )
                         }
 
@@ -1165,7 +1177,15 @@ private fun FloatingOverlayContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                                Image(
+                                    painter = painterResource(id = com.example.R.drawable.ic_overlay_logo),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .border(1.dp, HextechGold, CircleShape)
+                                )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Column {
                                     Text("DRAFTING COACH", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 12.5.sp)
@@ -2476,9 +2496,19 @@ private fun OverlayVersusDraftBoard(
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                    if (!summonerName.isNullOrBlank()) {
+                                        Text(
+                                            text = summonerName,
+                                            color = if (isMyRole) HextechCyan.copy(alpha = 0.85f) else TextSecondary,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                                     ) {
                                         Text(
                                             text = champ.tier,
@@ -2492,13 +2522,20 @@ private fun OverlayVersusDraftBoard(
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.Medium
                                         )
-                                        if (!summonerName.isNullOrBlank()) {
+                                        if (champ.pickRate > 0.0) {
                                             Text(
-                                                text = "• $summonerName",
-                                                color = TextMuted,
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
+                                                color = HextechCyan,
                                                 fontSize = 7.5.sp,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
+                                                fontWeight = FontWeight.Normal
+                                            )
+                                        }
+                                        if (champ.banRate > 0.0) {
+                                            Text(
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
+                                                color = DangerRed,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Normal
                                             )
                                         }
                                     }
@@ -2577,14 +2614,22 @@ private fun OverlayVersusDraftBoard(
                                     )
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(3.5.dp)
                                     ) {
-                                        if (enemySlot.confidence != null && enemySlot.confidence < 100) {
+                                        if (champ.banRate > 0.0) {
                                             Text(
-                                                text = "${enemySlot.confidence}% conf",
-                                                color = if (enemySlot.confidence >= 80) HextechCyan else HextechGold,
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
+                                                color = DangerRed,
                                                 fontSize = 7.5.sp,
-                                                fontWeight = FontWeight.SemiBold
+                                                fontWeight = FontWeight.Normal
+                                            )
+                                        }
+                                        if (champ.pickRate > 0.0) {
+                                            Text(
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
+                                                color = HextechCyan,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Normal
                                             )
                                         }
                                         Text(

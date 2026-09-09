@@ -73,24 +73,17 @@ fun ChampionAvatar(
                 )
             }
 
-            val modelData: Any = if (champion.avatarUrl.isNotBlank()) {
-                val parsedUrl = champion.avatarUrl.trim()
-                when {
-                    parsedUrl.startsWith("file:///android_asset/") -> android.net.Uri.parse(parsedUrl)
-                    parsedUrl.startsWith("file://") -> java.io.File(parsedUrl.removePrefix("file://"))
-                    parsedUrl.startsWith("http://") || parsedUrl.startsWith("https://") -> {
-                        if (champion.id.isNotBlank()) {
-                            android.net.Uri.parse("file:///android_asset/champions/${champion.id}.png")
-                        } else {
-                            parsedUrl
-                        }
+            val modelData: Any = when {
+                champion.id.isNotBlank() -> android.net.Uri.parse("file:///android_asset/champions/${champion.id}.png")
+                champion.avatarUrl.isNotBlank() -> {
+                    val parsedUrl = champion.avatarUrl.trim()
+                    when {
+                        parsedUrl.startsWith("file:///android_asset/") -> android.net.Uri.parse(parsedUrl)
+                        parsedUrl.startsWith("file://") -> java.io.File(parsedUrl.removePrefix("file://"))
+                        else -> parsedUrl
                     }
-                    else -> parsedUrl
                 }
-            } else if (champion.id.isNotBlank()) {
-                android.net.Uri.parse("file:///android_asset/champions/${champion.id}.png")
-            } else {
-                ""
+                else -> ""
             }
             
             if (modelData != "") {

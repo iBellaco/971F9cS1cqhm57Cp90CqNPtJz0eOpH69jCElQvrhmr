@@ -244,7 +244,7 @@ object DraftVisionScanner {
                         // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar)
                         if (isAllyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.095f
+                            var minDiff = 0.120f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.allySlotYRatios[s])
                                 if (diff < minDiff) {
@@ -259,7 +259,7 @@ object DraftVisionScanner {
                         // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival)
                         else if (isEnemyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.095f
+                            var minDiff = 0.120f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.enemySlotYRatios[s])
                                 if (diff < minDiff) {
