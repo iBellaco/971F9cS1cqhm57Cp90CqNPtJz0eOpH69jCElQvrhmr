@@ -38,11 +38,15 @@ fun UserInboxDialog(
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
         db.collection("users").document(userUid).collection("messages")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error == null && snapshot != null) {
+                if (error != null) {
+                    android.util.Log.e("UserInbox", "Error loading messages: ${error.message}", error)
+                    isLoading = false
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
                     val msgs = snapshot.documents.mapNotNull { it.data?.plus("id" to it.id) }
-                    messages = msgs
+                    messages = msgs.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
                 }
                 isLoading = false
             }

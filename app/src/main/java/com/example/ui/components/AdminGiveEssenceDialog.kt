@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.R
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -35,7 +38,11 @@ fun AdminGiveEssenceDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocalActivity, contentDescription = null, tint = Color(0xFF0EA5E9))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_blue_essence),
+                        contentDescription = "Esencia Azul",
+                        modifier = Modifier.size(24.dp)
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Regalar Esencia Azul", color = Color(0xFF0EA5E9), fontWeight = FontWeight.Bold)
                 }

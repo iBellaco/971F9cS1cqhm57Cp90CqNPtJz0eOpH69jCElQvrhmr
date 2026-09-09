@@ -3,7 +3,9 @@ package com.example.ui.components
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -91,11 +93,19 @@ fun CommunityCreatorsDialog(
                             )
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = tr("Suscríbete con Esencia Azul a tus creadores favoritos"),
-                            color = TextSecondary,
-                            fontSize = 11.5.sp
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                contentDescription = null,
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = tr("Suscríbete con Esencia Azul a tus creadores favoritos"),
+                                color = TextSecondary,
+                                fontSize = 11.5.sp
+                            )
+                        }
                     }
                     IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
@@ -116,7 +126,11 @@ fun CommunityCreatorsDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocalActivity, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                        Image(
+                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                            contentDescription = "Esencia Azul",
+                            modifier = Modifier.size(22.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(tr("Tu Esencia Azul"), color = TextSecondary, fontSize = 11.sp)
@@ -764,8 +778,16 @@ private fun CreatorCardItem(
                     ) {
                         if (isFull) {
                             Text("Cupo Lleno (100)", color = DangerRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        
-                            Text("💎 Suscribirme (100 EA)", color = HextechDarkBg, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Suscribirme (100 EA)", color = HextechDarkBg, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
@@ -1069,10 +1091,16 @@ private fun CreatorBuildDetailDialog(
                     ) {
                         if (isFull) {
                             Text("Límite de 100 Suscriptores Alcanzado", color = DangerRed, fontWeight = FontWeight.Bold)
-                        
-                            Icon(Icons.Default.Star, contentDescription = null, tint = HextechDarkBg)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Suscribirme con 100 Esencias Azules", color = HextechDarkBg, fontWeight = FontWeight.ExtraBold)
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Suscribirme con 100 Esencias Azules", color = HextechDarkBg, fontWeight = FontWeight.ExtraBold)
+                            }
                         }
                     }
                 }

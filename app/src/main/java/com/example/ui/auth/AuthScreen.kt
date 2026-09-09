@@ -1,6 +1,8 @@
 package com.example.ui.auth
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalActivity
 import androidx.compose.material.icons.filled.Message
@@ -334,11 +336,10 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(bottom = 12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocalActivity,
+                Image(
+                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
                     contentDescription = "Esencia Azul",
-                    tint = com.example.ui.theme.HextechCyan,
-                    modifier = Modifier.size(14.dp)
+                    modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -652,10 +653,10 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Text("👑", fontSize = 16.sp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    if (activeProfile.isCreator) "Taller Creador (1 Campeón) & Comunidad" else "Comunidad & Creadores (Suscripciones EA)",
+                    "Creadores",
                     color = com.example.ui.theme.HextechGold,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 13.sp
+                    fontSize = 14.sp
                 )
             }
 

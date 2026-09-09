@@ -147,15 +147,23 @@ fun BlueEssenceStoreDialog(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Column {
-                                            Text(
-                                                text = "+${purchase.amount} Esencias Azules",
-                                                color = HextechCyan,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_blue_essence),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp)
                                             )
-                                            val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(purchase.timestamp))
-                                            Text(text = date, color = TextMuted, fontSize = 11.sp)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Column {
+                                                Text(
+                                                    text = "+${purchase.amount} Esencias Azules",
+                                                    color = HextechCyan,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 14.sp
+                                                )
+                                                val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(purchase.timestamp))
+                                                Text(text = date, color = TextMuted, fontSize = 11.sp)
+                                            }
                                         }
                                         Text(
                                             text = "$${purchase.price} ${purchase.currency}",
@@ -179,7 +187,15 @@ fun BlueEssenceStoreDialog(
                     ) {
                         item {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Paquetes de Esencia Azul", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_blue_essence),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Paquetes de Esencia Azul", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                         

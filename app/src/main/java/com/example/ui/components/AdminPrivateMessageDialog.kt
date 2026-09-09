@@ -90,18 +90,21 @@ fun AdminPrivateMessageDialog(
                                     "isRead" to false
                                 )
                                 
-                                try {
-                                    FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                        .collection("messages").document(messageId)
-                                        .set(messageData)
-                                    // Cerrar inmediatamente, Firestore maneja el guardado offline si es necesario
-                                    isProcessing = false
-                                    onSuccess()
-                                    onDismiss()
-                                } catch (e: Exception) {
-                                    isProcessing = false
-                                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
+                                FirebaseFirestore.getInstance().collection("users").document(userUid)
+                                    .collection("messages").document(messageId)
+                                    .set(messageData)
+                                    .addOnSuccessListener {
+                                        FirebaseFirestore.getInstance().collection("users").document(userUid)
+                                            .update("hasUnreadMessages", true)
+                                        isProcessing = false
+                                        Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
+                                        onSuccess()
+                                        onDismiss()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        isProcessing = false
+                                        Toast.makeText(context, "Error al enviar mensaje: ${e.localizedMessage ?: e.message}", Toast.LENGTH_LONG).show()
+                                    }
                             }
                         },
                         enabled = !isProcessing && title.isNotBlank() && content.isNotBlank(),

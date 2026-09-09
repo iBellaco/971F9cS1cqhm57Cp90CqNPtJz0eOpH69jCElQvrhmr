@@ -1319,7 +1319,7 @@ fun DraftHistoryScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = if (prof.isCreator) "Taller Creador (1 Campeón)" else "Comunidad & Creadores",
+                                    text = "Creadores",
                                     color = HextechGold,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp

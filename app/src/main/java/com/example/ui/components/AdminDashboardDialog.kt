@@ -12,7 +12,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -1529,7 +1531,11 @@ fun UserDetailManagementDialog(
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0EA5E9)),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Icon(Icons.Default.LocalActivity, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Image(
+                                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("Dar Esencia Azul", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
@@ -1663,8 +1669,14 @@ fun AdminAvatarGiftDialog(
     var searchQuery by remember { mutableStateOf("") }
     var selectedRarity by remember { mutableStateOf("Todas") }
 
-    val allAvatars = remember { AvatarCatalog.avatars }
-    val rarities = listOf("Todas", "Clásico", "Común", "Raro", "Épico", "Legendario", "Mítico")
+    // Excluir avatares comunes y clásicos del panel de regalar porque ya están desbloqueados para todos
+    val allAvatars = remember {
+        AvatarCatalog.avatars.filter { item ->
+            val r = item.rarity.lowercase()
+            !r.contains("común") && !r.contains("comun") && !r.contains("clásico") && !r.contains("clasico") && !item.isDefault
+        }
+    }
+    val rarities = listOf("Todas", "Raro", "Épico", "Legendario", "Mítico")
 
     val filteredAvatars = remember(searchQuery, selectedRarity, allAvatars) {
         allAvatars.filter { item ->
@@ -1715,8 +1727,9 @@ fun AdminAvatarGiftDialog(
                                 fontWeight = FontWeight.Bold,
                                 color = HextechGold
                             )
+                            val unlockedExclusiveCount = currentUnlocked.count { id -> allAvatars.any { it.id == id } }
                             Text(
-                                text = "${currentUnlocked.size} de ${allAvatars.size} desbloqueados",
+                                text = "$unlockedExclusiveCount de ${allAvatars.size} exclusivos desbloqueados",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = HextechCyan,
                                 fontSize = 11.sp
@@ -1797,7 +1810,7 @@ fun AdminAvatarGiftDialog(
                 ) {
                     Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("🎁 Regalar TODO el Catálogo (${allAvatars.size} Avatares VIP)", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Text("🎁 Regalar Todos los Exclusivos (${allAvatars.size} Avatares VIP)", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))

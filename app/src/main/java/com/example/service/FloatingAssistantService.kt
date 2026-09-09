@@ -348,9 +348,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        try {
-            stopSelf()
-        } catch (_: Exception) {}
+        // No detener el servicio en segundo plano para permitir uso continuo sobre Wild Rift y evitar cierres involuntarios al rotar o cambiar de app
     }
 
     private fun createNotificationChannel() {
@@ -631,46 +629,45 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     private var lastScreenWidth = 0
     private var lastScreenHeight = 0
 
-        override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
         try {
             val metrics = resources.displayMetrics
+            val isNowLandscape = newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE || metrics.widthPixels > metrics.heightPixels
+            isDeviceLandscape.value = isNowLandscape
+
             if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
                 lastScreenWidth = metrics.widthPixels
                 lastScreenHeight = metrics.heightPixels
-                isDeviceLandscape.value = lastScreenWidth > lastScreenHeight
-                screenCaptureManager?.refreshProjection()
-                
+
+                try {
+                    screenCaptureManager?.refreshProjection()
+                } catch (_: Throwable) {}
+
                 val currentX = floatingParams?.x
                 val currentY = floatingParams?.y
-                
-                // Ya no recreamos toda la ventana para evitar crashes (BadTokenException/WindowManager)
-                // updateViewLayout será suficiente porque el ComposeView es responsive
-                // createFloatingOverlay()
-                
+
                 if (currentX != null && currentY != null && floatingParams != null && floatingComposeView != null) {
                     val density = metrics.density
                     val marginPx = (8 * density).toInt()
                     val currentBubblePx = ((if (overlayState.isCompactBubble) 36f else 46f) * density).toInt()
-                    val isLandscape = lastScreenWidth > lastScreenHeight
-                    val cardWidthPx = ((if (isLandscape) 560 else 330) * density).toInt()
-                    val cardHeightPx = ((if (isLandscape) 390 else 520) * density).toInt()
-                    
+                    val cardWidthPx = ((if (isNowLandscape) 550 else 330) * density).toInt()
+                    val cardHeightPx = ((if (isNowLandscape) 345 else 520) * density).toInt()
+
                     val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
                     val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
-                    
-                    val maxX = lastScreenWidth - marginPx
+
+                    val maxX = (lastScreenWidth - viewWidth - marginPx).coerceAtLeast(marginPx)
                     val maxY = (lastScreenHeight - viewHeight - marginPx).coerceAtLeast(marginPx)
-                    
+
                     floatingParams!!.x = currentX.coerceIn(0, maxX)
                     floatingParams!!.y = currentY.coerceIn(0, maxY)
                     windowManager?.updateViewLayout(floatingComposeView, floatingParams)
                     updateOverlayRect(floatingParams!!, isOverlayExpanded)
                 }
-            } else {
-                floatingComposeView?.dispatchConfigurationChanged(newConfig)
-                closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
             }
+            floatingComposeView?.dispatchConfigurationChanged(newConfig)
+            closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
         } catch (e: Throwable) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
         }
@@ -908,10 +905,10 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
+                            // Sincronizar nombres de invocador aliados y hechizos (bloqueados tras el primer escaneo exitoso)
                             defaultRoles.forEachIndexed { idx, role ->
                                 val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                                if (!sName.isNullOrBlank()) {
+                                if (!sName.isNullOrBlank() && state.allySummonerNames[idx].isNullOrBlank()) {
                                     state.allySummonerNames[idx] = sName
                                 }
                                 val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
@@ -1004,10 +1001,10 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
+                        // Sincronizar nombres de invocador aliados y hechizos (bloqueados tras el primer escaneo exitoso)
                         defaultRoles.forEachIndexed { idx, role ->
                             val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                            if (!sName.isNullOrBlank()) {
+                            if (!sName.isNullOrBlank() && state.allySummonerNames[idx].isNullOrBlank()) {
                                 state.allySummonerNames[idx] = sName
                             }
                             val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
@@ -1145,10 +1142,11 @@ private fun FloatingOverlayContent(
             ) {
                 var isDraggingPanel by remember { mutableStateOf(false) }
 
+                val targetCardHeight = if (isLandscapeMode) 345.dp else 520.dp
                 Card(
                     modifier = Modifier
                         .widthIn(min = if (isLandscapeMode) 520.dp else 300.dp, max = if (isLandscapeMode) 560.dp else 340.dp)
-                        .height(if (isLandscapeMode) 380.dp else 530.dp)
+                        .height(targetCardHeight)
                         .clip(RoundedCornerShape(16.dp)),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
@@ -1177,11 +1175,7 @@ private fun FloatingOverlayContent(
                                         },
                                         onDragEnd = {
                                             isDraggingPanel = false
-                                            if (dragAccumulatedY > 120f) {
-                                                onClose()
-                                            } else {
-                                                onDragDelta(0, 0, false, false)
-                                            }
+                                            onDragDelta(0, 0, false, false)
                                             dragAccumulatedY = 0f
                                         },
                                         onDragCancel = {
@@ -1251,25 +1245,47 @@ private fun FloatingOverlayContent(
                             }
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                // Botón Minimizar (Burbuja)
-                                IconButton(
-                                    onClick = {
-                                        isExpanded = false
-                                        onExpandedChange(false)
-                                    },
-                                    modifier = Modifier.size(28.dp)
+                                // Botón Minimizar (a Burbuja flotante)
+                                Surface(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clickable {
+                                            isExpanded = false
+                                            onExpandedChange(false)
+                                        },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0xFF1E293B),
+                                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
                                 ) {
-                                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Minimizar", tint = TextPrimary, modifier = Modifier.size(20.dp))
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.UnfoldLess,
+                                            contentDescription = "Minimizar a Burbuja",
+                                            tint = HextechGold,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
 
+                                Spacer(modifier = Modifier.width(6.dp))
+
                                 // Botón Cerrar/Ocultar del todo
-                                IconButton(
-                                    onClick = {
-                                        onClose()
-                                    },
-                                    modifier = Modifier.size(28.dp)
+                                Surface(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clickable { onClose() },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0x33DC2626),
+                                    border = BorderStroke(1.dp, Color(0x55EF4444))
                                 ) {
-                                    Icon(androidx.compose.material.icons.Icons.Default.Close, contentDescription = "Ocultar", tint = TextMuted, modifier = Modifier.size(20.dp))
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = androidx.compose.material.icons.Icons.Default.Close,
+                                            contentDescription = "Cerrar Hub",
+                                            tint = Color(0xFFEF4444),
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

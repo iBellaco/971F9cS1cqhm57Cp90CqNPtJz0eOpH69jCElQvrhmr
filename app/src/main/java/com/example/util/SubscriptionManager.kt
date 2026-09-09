@@ -179,10 +179,11 @@ object SubscriptionManager {
             messagesListener?.remove()
             messagesListener = db.collection("users").document(user.uid)
                 .collection("messages")
-                .whereEqualTo("isRead", false)
                 .addSnapshotListener { snapshot, error ->
                     if (error == null && snapshot != null) {
-                        _unreadMessagesCount.value = snapshot.size()
+                        _unreadMessagesCount.value = snapshot.documents.count { doc ->
+                            doc.getBoolean("isRead") == false
+                        }
                     }
                 }
 

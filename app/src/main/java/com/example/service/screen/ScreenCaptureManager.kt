@@ -234,14 +234,24 @@ class ScreenCaptureManager(private val context: Context) {
                 }
 
                 val currentVirtualDisplay = virtualDisplay
+                var resizeSuccess = false
                 if (currentVirtualDisplay != null) {
                     try {
-                        // En lugar de resize (que causa crash native fatal en algunos dispositivos Samsung/Xiaomi),
-                        // siempre soltamos y recreamos. En API 34+ puede dar error si se excede el uso del token, 
-                        // pero es mucho mas seguro que un SIGSEGV native de BufferQueue.
-                        currentVirtualDisplay.release()
-                    } catch (_: Throwable) {}
-                    
+                        currentVirtualDisplay.surface = newImageReader.surface
+                        currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
+                        resizeSuccess = true
+                        AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente tras rotación (${captureWidth}x${captureHeight})")
+                    } catch (resizeEx: Throwable) {
+                        AppLogger.w(TAG, "Resize no soportado en este dispositivo, procediendo a recrear: ${resizeEx.message}")
+                    }
+                }
+
+                if (!resizeSuccess) {
+                    if (currentVirtualDisplay != null) {
+                        try {
+                            currentVirtualDisplay.release()
+                        } catch (_: Throwable) {}
+                    }
                     try {
                         virtualDisplay = proj.createVirtualDisplay(
                             VIRTUAL_DISPLAY_NAME,
@@ -256,17 +266,6 @@ class ScreenCaptureManager(private val context: Context) {
                     } catch (e2: Throwable) {
                         AppLogger.e(TAG, "No se pudo recrear el VirtualDisplay: ${e2.message}")
                     }
-                } else {
-                    virtualDisplay = proj.createVirtualDisplay(
-                        VIRTUAL_DISPLAY_NAME,
-                        captureWidth,
-                        captureHeight,
-                        screenDensity,
-                        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                        newImageReader.surface,
-                        null,
-                        handler
-                    )
                 }
 
                 val oldReader = imageReader
