@@ -11,31 +11,43 @@ import org.json.JSONObject
  */
 data class VisionCalibrationConfig(
     // Posición horizontal X central de avatares (0..1)
-    var allyAvatarCenterX: Float = 0.135f,
-    var enemyAvatarCenterX: Float = 0.930f,
+    var allyAvatarCenterX: Float = 0.07000000029802322f,
+    var enemyAvatarCenterX: Float = 0.9600000381469727f,
 
     // Diámetro del avatar relativo al alto de pantalla (0..1)
-    var avatarDiameterRatio: Float = 0.114f,
+    var avatarDiameterRatio: Float = 0.12600000202655792f,
 
     // Ratios verticales Y para los 5 slots aliados (0..4)
-    var allySlotYRatios: MutableList<Float> = mutableListOf(0.193f, 0.326f, 0.460f, 0.593f, 0.726f),
+    var allySlotYRatios: MutableList<Float> = mutableListOf(
+        0.1979999989271164f,
+        0.3310000002384186f,
+        0.4650000035762787f,
+        0.5979999899864197f,
+        0.7310000061988831f
+    ),
 
     // Ratios verticales Y para los 5 slots enemigos (0..4)
-    var enemySlotYRatios: MutableList<Float> = mutableListOf(0.172f, 0.302f, 0.432f, 0.561f, 0.691f),
+    var enemySlotYRatios: MutableList<Float> = mutableListOf(
+        0.1720000058412552f,
+        0.3019999861717224f,
+        0.4320000112056732f,
+        0.5609999895095825f,
+        0.6909999847412109f
+    ),
 
-    // Hechizos de invocador aliados
-    var spellLeftRatio: Float = 0.024f,
-    var spellSizeRatio: Float = 0.044f,
+    // Hechizos de invocador aliados (solo aliados)
+    var spellLeftRatio: Float = 0.020999999716877937f,
+    var spellSizeRatio: Float = 0.04100000113248825f,
 
     // Rango horizontal OCR para detección de nombres/roles
-    var allyOcrMinX: Float = 0.080f,
-    var allyOcrMaxX: Float = 0.260f,
-    var enemyOcrMinX: Float = 0.760f,
-    var enemyOcrMaxX: Float = 0.945f,
+    var allyOcrMinX: Float = 0.07999999821186066f,
+    var allyOcrMaxX: Float = 0.25999999046325684f,
+    var enemyOcrMinX: Float = 0.7599999904632568f,
+    var enemyOcrMaxX: Float = 0.9449999928474426f,
 
     // Interruptores de visualización en el HUD de diagnóstico
-    var showAvatarBoxes: Boolean = true,
-    var showNameBoxes: Boolean = true,
+    var showAvatarBoxes: Boolean = false,
+    var showNameBoxes: Boolean = false,
     var showSpellBoxes: Boolean = true
 ) {
     fun toJsonString(indent: Boolean = true): String {

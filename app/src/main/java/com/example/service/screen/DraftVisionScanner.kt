@@ -409,23 +409,7 @@ object DraftVisionScanner {
                             }
                             continue
                         }
-
-                        // Apodo de invocador rival
-                        if (line.length in 2..28 && !DraftValidationLayer.isNoiseText(line)) {
-                            // Si contiene un nombre de campeón, jamás registrar como invocador rival
-                            if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
-                                textDiagnosticsList.add(
-                                    TextBlockDiagnostic(
-                                        text = line,
-                                        rect = safeBox,
-                                        isAlly = false,
-                                        slotIndex = i,
-                                        tag = "INVOCADOR RIVAL",
-                                        color = android.graphics.Color.MAGENTA
-                                    )
-                                )
-                            }
-                        }
+                        // Nota: Se omite intencionalmente el escaneo de nombres de invocador rivales, procesando únicamente el nombre de campeón.
                     }
                 }
             }
