@@ -610,10 +610,10 @@ fun MainDraftingScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = tr("Política de Privacidad"),
+                        text = tr("Políticas de Privacidad, Términos y Terceros"),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        letterSpacing = 0.5.sp
+                        fontSize = 11.5.sp,
+                        letterSpacing = 0.3.sp
                     )
                 }
 
