@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 173
-    versionName = "1.3.61"
+    versionCode = 179
+    versionName = "1.3.67"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -95,7 +95,6 @@ secrets {
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
 dependencies {
-  implementation(libs.play.services.ads)
   implementation(libs.androidx.security.crypto)
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.auth)

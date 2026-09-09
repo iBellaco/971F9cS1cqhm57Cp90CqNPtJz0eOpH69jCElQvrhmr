@@ -2,6 +2,7 @@ package com.example.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,10 @@ fun PrivacyPolicyDialog(
     onDismiss: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(LegalTab.PRIVACY) }
+    var acceptedPrivacy by remember { mutableStateOf(false) }
+    var acceptedTerms by remember { mutableStateOf(false) }
+    var acceptedThirdParty by remember { mutableStateOf(false) }
+    val allAccepted = acceptedPrivacy && acceptedTerms && acceptedThirdParty
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -129,17 +134,40 @@ fun PrivacyPolicyDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    LegalCheckbox(
+                        text = tr("He leído y acepto la Política de Privacidad"),
+                        checked = acceptedPrivacy,
+                        onCheckedChange = { acceptedPrivacy = it }
+                    )
+                    LegalCheckbox(
+                        text = tr("He leído y acepto los Términos de Servicio"),
+                        checked = acceptedTerms,
+                        onCheckedChange = { acceptedTerms = it }
+                    )
+                    LegalCheckbox(
+                        text = tr("He leído y acepto los Acuerdos de Terceros"),
+                        checked = acceptedThirdParty,
+                        onCheckedChange = { acceptedThirdParty = it }
+                    )
+                }
 
                 Button(
                     onClick = onDismiss,
+                    enabled = allAccepted,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = HextechGold,
+                        disabledContainerColor = HextechCardBorder
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
                         text = tr("Entendido y Aceptar"),
-                        color = HextechDarkBg,
+                        color = if (allAccepted) HextechDarkBg else TextSecondary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )
@@ -242,6 +270,37 @@ fun PolicySection(title: String, body: String) {
             color = TextSecondary,
             fontSize = 12.5.sp,
             lineHeight = 17.5.sp
+        )
+    }
+}
+
+@Composable
+private fun LegalCheckbox(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = CheckboxDefaults.colors(
+                checkedColor = HextechGold,
+                uncheckedColor = TextSecondary,
+                checkmarkColor = HextechDarkBg
+            )
+        )
+        Text(
+            text = text,
+            color = TextPrimary,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(start = 2.dp)
         )
     }
 }

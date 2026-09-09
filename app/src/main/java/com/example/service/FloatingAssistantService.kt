@@ -860,12 +860,12 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano optimizado de alta velocidad (cada 650ms)
+    // Auto-Scan Loop en segundo plano optimizado de alta velocidad (cada 300ms)
     // Se desactiva automáticamente al completar los 10 picks (5 aliados + 5 rivales) para evitar falsos positivos
     LaunchedEffect(autoScanEnabled) {
         if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
-            delay(650)
+            delay(300)
             if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                 scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
             } else if (!isScanning) {
@@ -935,8 +935,10 @@ private fun FloatingOverlayContent(
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($totalAlliesPicked/5 vs $totalEnemiesPicked/5)"
                             }
                             if (scanNoticeMessage != null) {
-                                delay(3000)
-                                scanNoticeMessage = null
+                                launch {
+                                    delay(2000)
+                                    scanNoticeMessage = null
+                                }
                             }
                         }
                     }
@@ -2106,7 +2108,7 @@ private fun FloatingSaveMatchDialog(
                                     color = if (isSelected) HextechCyan else TextPrimary,
                                     fontSize = 9.5.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    maxLines = 1,
+                                    maxLines = 1, softWrap = false,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
@@ -2494,7 +2496,7 @@ private fun OverlayVersusDraftBoard(
                                         color = if (isMyRole) HextechCyan else TextPrimary,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 11.sp,
-                                        maxLines = 1,
+                                        maxLines = 1, softWrap = false,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     // Línea 2: Nombre de Invocador (debajo del nombre del campeón)
@@ -2504,41 +2506,45 @@ private fun OverlayVersusDraftBoard(
                                             color = if (isMyRole) HextechCyan.copy(alpha = 0.85f) else TextSecondary,
                                             fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Medium,
-                                            maxLines = 1,
+                                            maxLines = 1, softWrap = false,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                     // Línea 3: Estadísticas ordenadas (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                                     ) {
                                         Text(
                                             text = champ.tier,
                                             color = HextechGold,
                                             fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.ExtraBold
+                                            fontWeight = FontWeight.ExtraBold,
+                                            maxLines = 1, softWrap = false,
                                         )
                                         Text(
-                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
+                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%WR",
                                             color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
                                             fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1, softWrap = false,
                                         )
                                         if (champ.pickRate > 0.0) {
                                             Text(
-                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%PR",
                                                 color = HextechCyan,
                                                 fontSize = 7.sp,
-                                                fontWeight = FontWeight.Normal
+                                                fontWeight = FontWeight.Normal,
+                                                maxLines = 1, softWrap = false,
                                             )
                                         }
                                         if (champ.banRate > 0.0) {
                                             Text(
-                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%BR",
                                                 color = DangerRed,
                                                 fontSize = 7.sp,
-                                                fontWeight = FontWeight.Normal
+                                                fontWeight = FontWeight.Normal,
+                                                maxLines = 1, softWrap = false,
                                             )
                                         }
                                     }
@@ -2550,7 +2556,7 @@ private fun OverlayVersusDraftBoard(
                                         color = HextechCyan,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 10.sp,
-                                        maxLines = 1,
+                                        maxLines = 1, softWrap = false,
                                         overflow = TextOverflow.Ellipsis
                                     )
                                     Text(
@@ -2612,41 +2618,45 @@ private fun OverlayVersusDraftBoard(
                                         color = DangerRed,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 11.sp,
-                                        maxLines = 1,
+                                        maxLines = 1, softWrap = false,
                                         overflow = TextOverflow.Ellipsis,
                                         textAlign = TextAlign.End
                                     )
                                     // Línea 2: Estadísticas ordenadas del Rival (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                                     ) {
                                         Text(
                                             text = champ.tier,
                                             color = HextechGold,
                                             fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.ExtraBold
+                                            fontWeight = FontWeight.ExtraBold,
+                                            maxLines = 1, softWrap = false,
                                         )
                                         Text(
-                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}% WR",
+                                            text = "${String.format(java.util.Locale.US, "%.1f", champ.winrate)}%WR",
                                             color = if (champ.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
                                             fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.SemiBold
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1, softWrap = false,
                                         )
                                         if (champ.pickRate > 0.0) {
                                             Text(
-                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}% PR",
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.pickRate)}%PR",
                                                 color = HextechCyan,
                                                 fontSize = 7.sp,
-                                                fontWeight = FontWeight.Normal
+                                                fontWeight = FontWeight.Normal,
+                                                maxLines = 1, softWrap = false,
                                             )
                                         }
                                         if (champ.banRate > 0.0) {
                                             Text(
-                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}% BR",
+                                                text = "${String.format(java.util.Locale.US, "%.1f", champ.banRate)}%BR",
                                                 color = DangerRed,
                                                 fontSize = 7.sp,
-                                                fontWeight = FontWeight.Normal
+                                                fontWeight = FontWeight.Normal,
+                                                maxLines = 1, softWrap = false,
                                             )
                                         }
                                     }
@@ -2657,7 +2667,7 @@ private fun OverlayVersusDraftBoard(
                                     color = DangerRed.copy(alpha = 0.8f),
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Medium,
-                                    maxLines = 1,
+                                    maxLines = 1, softWrap = false,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.padding(end = 6.dp)
                                 )
@@ -3065,7 +3075,7 @@ private fun CoachContent(
                                 Text("WR: ${pick.estimatedWinrate}%", color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                             }
                             Text(pick.advantageBadge, color = HextechCyan, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold)
-                            Text(pick.tacticalReason, color = TextMuted, fontSize = 8.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(pick.tacticalReason, color = TextMuted, fontSize = 8.sp, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
                         }
                     }
                     

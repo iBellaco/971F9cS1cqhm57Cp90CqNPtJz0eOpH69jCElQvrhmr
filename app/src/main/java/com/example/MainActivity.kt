@@ -431,7 +431,6 @@ fun DashboardScreen(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         bottomBar = {
             Column {
-                com.example.ui.components.AdmobBanner()
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

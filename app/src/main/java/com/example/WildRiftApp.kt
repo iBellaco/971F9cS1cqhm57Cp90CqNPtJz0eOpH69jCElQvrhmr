@@ -40,13 +40,6 @@ class WildRiftApp : Application(), ImageLoaderFactory {
         instance = this
         com.example.util.CrashLogger.init(this)
         
-        try {
-            com.google.android.gms.ads.MobileAds.initialize(this) {}
-            AppLogger.d("APP", "AdMob initialized.")
-        } catch (e: Exception) {
-            AppLogger.e("APP", "Error initializing AdMob", e)
-        }
-        
         // --- Firebase App Check (Play Integrity) ---
         try {
             com.google.firebase.FirebaseApp.initializeApp(this)

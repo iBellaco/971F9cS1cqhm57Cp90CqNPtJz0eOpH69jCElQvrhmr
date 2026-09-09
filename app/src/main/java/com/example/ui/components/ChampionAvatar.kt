@@ -93,6 +93,8 @@ fun ChampionAvatar(
                         .crossfade(true)
                         .placeholder(com.example.R.drawable.ic_placeholder_loading)
                         .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCacheKey(modelData.toString() + "_v1365")
+                        .diskCacheKey(modelData.toString() + "_v1365")
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .listener(
                             onError = { request, result -> 
@@ -179,7 +181,9 @@ fun AppAssetImage(
 .placeholder(com.example.R.drawable.ic_placeholder_loading)
                     
                     .diskCachePolicy(CachePolicy.ENABLED)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .memoryCacheKey(modelData.toString() + "_v1365")
+                        .diskCacheKey(modelData.toString() + "_v1365")
+                        .memoryCachePolicy(CachePolicy.ENABLED)
                     .listener(
                         onError = { request, result -> 
                             com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 
