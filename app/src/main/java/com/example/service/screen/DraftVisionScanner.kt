@@ -100,6 +100,23 @@ object DraftVisionScanner {
     var lastDetectedTexts = kotlinx.coroutines.flow.MutableStateFlow<List<TextBlockDiagnostic>>(emptyList())
     var lastDetectedSpells = kotlinx.coroutines.flow.MutableStateFlow<List<com.example.util.SummonerSpellDetector.SpellMatch>>(emptyList())
     
+    // Configuración dinámica e interactiva de coordenadas de calibración (cálculos y ROIs)
+    val calibrationConfig = kotlinx.coroutines.flow.MutableStateFlow(
+        com.example.WildRiftApp.instance?.let { VisionCalibrationConfig.load(it) } ?: VisionCalibrationConfig()
+    )
+
+    fun updateCalibration(context: android.content.Context, newConfig: VisionCalibrationConfig) {
+        calibrationConfig.value = newConfig
+        VisionCalibrationConfig.save(context, newConfig)
+        AppLogger.d(TAG, "Configuración de calibración actualizada y guardada")
+    }
+
+    fun resetCalibration(context: android.content.Context) {
+        val def = VisionCalibrationConfig.reset(context)
+        calibrationConfig.value = def
+        AppLogger.d(TAG, "Configuración de calibración restablecida a valores por defecto")
+    }
+
     private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
 
     // Memoria persistente de los carriles asignados a cada slot aliado (0..4)
@@ -143,6 +160,8 @@ object DraftVisionScanner {
         val height = bitmap.height
         val allChamps = WildRiftRepository.champions
         val auditList = mutableListOf<String>()
+
+        val calib = calibrationConfig.value
 
         // 5 slots para aliados y 5 slots para enemigos
         val allySlots = (0..4).map { ScannedSlotInfo(slotIndex = it, isAlly = true) }
@@ -213,8 +232,8 @@ object DraftVisionScanner {
                         // Ignorar barra de bans y botones
                         if (subYRatio < 0.110f || subYRatio > 0.820f) continue
 
-                        // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar, X entre 0.080 y 0.260)
-                        if (xRatio in 0.080f..0.260f) {
+                        // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar)
+                        if (xRatio in calib.allyOcrMinX..calib.allyOcrMaxX) {
                             val slotIndex = when {
                                 subYRatio < 0.259f -> 0
                                 subYRatio < 0.393f -> 1
@@ -224,8 +243,8 @@ object DraftVisionScanner {
                             }
                             allySlotTexts[slotIndex].add(Pair(subline, subBox))
                         }
-                        // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival, X entre 0.760 y 0.945)
-                        else if (xRatio in 0.760f..0.945f) {
+                        // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival)
+                        else if (xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX) {
                             val slotIndex = when {
                                 subYRatio < 0.237f -> 0
                                 subYRatio < 0.367f -> 1
@@ -428,26 +447,20 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
         // -----------------------------------------------------------------------------------------
-        // Calibración geométrica precisa del HUD de Wild Rift:
-        // Lado izquierdo: Avatares centrados en los círculos de campeones (~0.135h). Hechizos en el extremo izquierdo (~0.024h).
-        // Lado derecho: Avatares en el borde derecho (~width - 0.070h) y ligeramente más arriba (Y: 0.172, 0.302, 0.432, 0.561, 0.691).
-        val avatarDiameter = (height * 0.114f).toInt().coerceAtLeast(32)
+        // Calibración geométrica precisa del HUD de Wild Rift utilizando la configuración dinámica:
+        val avatarDiameter = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
         
         // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y >= 19:9
         val aspectRatio = width.toFloat() / height.toFloat()
         val isUltraWide = aspectRatio > 2.0f
         
-        // Posición horizontal calibrada de los avatares:
-        // Lado izquierdo: mover más a la izquierda para centrar los retratos circulares aliados
-        val allyAvatarCenterX = if (isUltraWide) (height * 0.135f).toInt() else (height * 0.145f).toInt()
-        // Lado derecho: mover más a la derecha hacia el marco de pantalla
-        val enemyAvatarCenterX = if (isUltraWide) (width - (height * 0.070f)).toInt() else (width - (height * 0.080f)).toInt()
+        // Posición horizontal calibrada de los avatares (permite ajuste fino en tiempo real):
+        val allyAvatarCenterX = (width * calib.allyAvatarCenterX).toInt()
+        val enemyAvatarCenterX = (width * calib.enemyAvatarCenterX).toInt()
 
         // Ratios verticales (eje Y) independientes para ambos lados:
-        // Aliados: alineados con las líneas de carril
-        val allySlotYRatios = floatArrayOf(0.193f, 0.326f, 0.460f, 0.593f, 0.726f)
-        // Rivales: más arriba, calibrados con los marcos circulares del HUD
-        val enemySlotYRatios = floatArrayOf(0.172f, 0.302f, 0.432f, 0.561f, 0.691f)
+        val allySlotYRatios = calib.allySlotYRatios
+        val enemySlotYRatios = calib.enemySlotYRatios
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
         // 3.1 Aliados
@@ -596,9 +609,9 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 3.3: ESCANEO DE HECHIZOS DE INVOCADOR ALIADOS (SUMMONER SPELLS)
         // -----------------------------------------------------------------------------------------
-        // En Wild Rift, los hechizos aliados se sitúan en el extremo izquierdo de la pantalla (~0.024h).
-        val spellSize = (height * 0.044f).toInt().coerceAtLeast(18)
-        val spellLeft = if (isUltraWide) (height * 0.024f).toInt().coerceAtLeast(12) else (height * 0.020f).toInt()
+        // En Wild Rift, los hechizos aliados se sitúan en el extremo izquierdo de la pantalla:
+        val spellSize = (height * calib.spellSizeRatio).toInt().coerceAtLeast(18)
+        val spellLeft = (width * calib.spellLeftRatio).toInt().coerceIn(0, width - spellSize)
         val spellRight = spellLeft + spellSize
 
         val allySpellsMap = mutableMapOf<Int, MutableList<String>>()
