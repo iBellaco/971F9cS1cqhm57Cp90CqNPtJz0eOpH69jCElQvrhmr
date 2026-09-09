@@ -44,9 +44,10 @@ object ChampionVisualMatcher {
 
     /**
      * Precarga firmas visuales en segundo plano para optimizar latencia en tiempo de ejecución.
+     * Almacena en memoria las 141 firmas visuales calculadas a partir de los avatares locales.
      */
     suspend fun preloadSignatures(context: Context, champions: List<Champion>) = withContext(Dispatchers.IO) {
-        if (isPreloaded && signatureCache.size >= 80) return@withContext
+        if (isPreloaded && signatureCache.size >= champions.size && champions.isNotEmpty()) return@withContext
         try {
             for (champ in champions) {
                 if (!signatureCache.containsKey(champ.id)) {
@@ -54,7 +55,7 @@ object ChampionVisualMatcher {
                 }
             }
             isPreloaded = true
-            AppLogger.d(TAG, "Precargadas ${signatureCache.size} firmas visuales de campeones")
+            AppLogger.d(TAG, "Precargadas ${signatureCache.size}/${champions.size} firmas visuales locales de campeones")
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error precargando firmas visuales", e)
         }
@@ -364,12 +365,12 @@ object ChampionVisualMatcher {
             }
         }
 
-        if (bestChamp != null && bestScore >= 0.20f) {
+        if (bestChamp != null && bestScore >= 0.15f) {
             AppLogger.d(TAG, "Mayor similitud visual encontrada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%)")
             return VisualMatchResult(
                 champion = bestChamp,
                 confidence = bestScore,
-                isConfident = bestScore >= 0.35f
+                isConfident = bestScore >= 0.30f
             )
         }
 
