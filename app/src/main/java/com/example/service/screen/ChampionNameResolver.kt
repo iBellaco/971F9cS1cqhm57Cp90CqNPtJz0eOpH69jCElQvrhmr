@@ -249,11 +249,11 @@ object ChampionNameResolver {
         // 1. Coincidencia directa por mapa de nombres canónicos
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
             val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && DraftValidationLayer.isValidChampionToken(clean, found.id)) return found
+            if (found != null) return found
         }
         KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
             val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && DraftValidationLayer.isValidChampionToken(compact, found.id)) return found
+            if (found != null) return found
         }
 
         // 2. Coincidencia exacta por lista de campeones en memoria

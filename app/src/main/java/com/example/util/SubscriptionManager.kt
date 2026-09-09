@@ -6,6 +6,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.FieldValue
+import kotlinx.coroutines.tasks.await
 import com.example.data.AvatarCatalog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -233,6 +235,17 @@ object SubscriptionManager {
                     _currentAvatarId.value = avatarId
                     
                     _unlockedAvatars.value = unlocked
+
+                    // Sincronizar conteo de mensajes no leídos desde el documento de usuario
+                    val hasUnread = listenSnapshot.getBoolean("hasUnreadMessages") ?: false
+                    @Suppress("UNCHECKED_CAST")
+                    val privateMsgs = listenSnapshot.get("privateMessages") as? List<Map<String, Any>>
+                    val countFromList = privateMsgs?.count { (it["isRead"] as? Boolean) == false } ?: 0
+                    if (countFromList > 0) {
+                        _unreadMessagesCount.value = maxOf(_unreadMessagesCount.value, countFromList)
+                    } else if (hasUnread && _unreadMessagesCount.value == 0) {
+                        _unreadMessagesCount.value = 1
+                    }
                 } else {
                     val isEmailAdmin = AuthManager.isCurrentUserAdmin()
                     _userName.value = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""
@@ -348,5 +361,17 @@ object SubscriptionManager {
         val until = _premiumUntil.value ?: return "Activo (Permanente)"
         if (until == 0L) return "Activo (Permanente)"
         return formatDuration(until)
+    }
+
+    suspend fun addBlueEssence(amount: Long) {
+        val user = AuthManager.getAuth()?.currentUser ?: return
+        val db = FirebaseFirestore.getInstance()
+        try {
+            val userRef = db.collection("users").document(user.uid)
+            userRef.update("blueEssence", FieldValue.increment(amount)).await()
+            _blueEssence.value = _blueEssence.value + amount
+        } catch (e: Exception) {
+            Log.e("SubscriptionManager", "Error incrementing blue essence", e)
+        }
     }
 }

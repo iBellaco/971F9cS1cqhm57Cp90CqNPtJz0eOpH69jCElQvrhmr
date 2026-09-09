@@ -59,45 +59,36 @@ object DraftValidationLayer {
         if (isNoiseText(trimmed)) return false
         if (parseRoleFromText(trimmed) != null) return false
 
-        // Si contiene prefijo de clan conocido
+        // Si contiene prefijo de clan conocido (ej: "XCS Faker", "T1 Gumayusi")
         if (SUMMONER_PREFIX_REGEX.containsMatchIn(trimmed)) {
             return true
         }
 
-        // Si contiene números en medio o al final (típico de invocadores como Gaby11anos, martincho137)
-        if (Regex("[a-zA-Z]+[0-9]+").containsMatchIn(trimmed)) {
+        // Si contiene números mezclados con letras (típico de invocadores como Gaby11anos, martincho137)
+        if (Regex("[a-zA-Z]{2,}[0-9]+").containsMatchIn(trimmed)) {
             return true
         }
 
-        // Si es CamelCase mixto (ej: CacauVegannah, RedPoint, Lucianito) y no es todo mayúsculas
-        val isMixedCase = trimmed.any { it.isUpperCase() } && trimmed.any { it.isLowerCase() }
-        val hasSpaces = trimmed.contains(" ")
-
-        // Excluir nombres canónicos de campeones con espacios
-        val lower = trimmed.lowercase(java.util.Locale.ROOT)
-        if (lower.startsWith("dr") || lower.startsWith("jarvan") || lower.startsWith("twisted") ||
-            lower.startsWith("xin") || lower.startsWith("aurelion") || lower.startsWith("lee") ||
-            lower.startsWith("miss") || lower.startsWith("master") || lower.startsWith("tahm") ||
-            lower.startsWith("nunu") || lower.startsWith("kha")) {
-            return false
+        // Si contiene sufijos de diminutivo claramente de apodo (ej: Lucianito != Lucian)
+        val lower = trimmed.lowercase(Locale.ROOT)
+        for (dim in SUMMONER_DIMINUTIVES) {
+            if (lower.endsWith(dim) && lower.length >= 6) {
+                return true
+            }
         }
 
-        if (isMixedCase || hasSpaces) {
-            return true
-        }
-
-        return true
+        return false
     }
 
     /**
-     * Valida si una palabra específica es un nombre de campeón estricto,
-     * descartando variaciones o diminutivos de invocadores (ej: "lucianito" NO es "lucian").
+     * Valida si una palabra específica es un nombre o alias válido de campeón,
+     * descartando diminutivos o apodos de invocador (ej: "lucianito" NO es "lucian").
      */
     fun isValidChampionToken(token: String, championId: String): Boolean {
         val cleanToken = normalize(token).replace(Regex("[^a-z0-9]"), "")
         val cleanChamp = normalize(championId).replace(Regex("[^a-z0-9]"), "")
 
-        // Coincidencia exacta estricta
+        // Coincidencia exacta
         if (cleanToken == cleanChamp) return true
 
         // Si el token termina con un sufijo de apodo, rechazar inmediatamente
@@ -107,7 +98,12 @@ object DraftValidationLayer {
             }
         }
 
-        return cleanToken == cleanChamp
+        // Si el ID del campeón contiene o coincide con el token (ej: "drmundo" contiene "mundo", "jarvaniv" contiene "jarvan", "nunuandwillump" contiene "nunu")
+        if (cleanToken.length >= 2 && (cleanChamp.contains(cleanToken) || cleanToken.contains(cleanChamp))) {
+            return true
+        }
+
+        return false
     }
 
     /**

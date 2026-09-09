@@ -32,24 +32,51 @@ fun UserInboxDialog(
     userUid: String,
     onDismiss: () -> Unit
 ) {
-    var messages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var subcollectionMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userUid) {
         val db = FirebaseFirestore.getInstance()
-        db.collection("users").document(userUid).collection("messages")
+        val userDoc = db.collection("users").document(userUid)
+        
+        // 1. Escuchar subcolección messages
+        userDoc.collection("messages")
             .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    android.util.Log.e("UserInbox", "Error loading messages: ${error.message}", error)
-                    isLoading = false
-                    return@addSnapshotListener
-                }
-                if (snapshot != null) {
-                    val msgs = snapshot.documents.mapNotNull { it.data?.plus("id" to it.id) }
-                    messages = msgs.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
+                if (error == null && snapshot != null) {
+                    val msgs = snapshot.documents.mapNotNull { doc ->
+                        doc.data?.plus("id" to doc.id)
+                    }
+                    subcollectionMessages = msgs
                 }
                 isLoading = false
             }
+
+        // 2. Escuchar campo privateMessages en el documento del usuario (por si las reglas de subcolección bloquearon o viceversa)
+        userDoc.addSnapshotListener { snapshot, error ->
+            if (error == null && snapshot != null && snapshot.exists()) {
+                @Suppress("UNCHECKED_CAST")
+                val pMsgs = snapshot.get("privateMessages") as? List<Map<String, Any>>
+                if (pMsgs != null) {
+                    arrayMessages = pMsgs
+                }
+            }
+            isLoading = false
+        }
+    }
+
+    // Unir mensajes de ambas fuentes eliminando duplicados por id
+    val messages = remember(subcollectionMessages, arrayMessages) {
+        val all = mutableMapOf<String, Map<String, Any>>()
+        for (m in arrayMessages) {
+            val id = m["id"] as? String ?: continue
+            all[id] = m
+        }
+        for (m in subcollectionMessages) {
+            val id = m["id"] as? String ?: continue
+            all[id] = m
+        }
+        all.values.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
     }
 
     Dialog(
@@ -107,9 +134,20 @@ fun UserInboxDialog(
 
                             LaunchedEffect(isRead) {
                                 if (!isRead) {
-                                    FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                        .collection("messages").document(id)
+                                    val db = FirebaseFirestore.getInstance()
+                                    val uRef = db.collection("users").document(userUid)
+                                    uRef.collection("messages").document(id)
                                         .update("isRead", true)
+                                    uRef.get().addOnSuccessListener { snap ->
+                                        @Suppress("UNCHECKED_CAST")
+                                        val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+                                        if (pMsgs != null) {
+                                            val updated = pMsgs.map { m ->
+                                                if (m["id"] == id) m.toMutableMap().apply { put("isRead", true) } else m
+                                            }
+                                            uRef.update("privateMessages", updated, "hasUnreadMessages", false)
+                                        }
+                                    }
                                 }
                             }
 
@@ -127,9 +165,18 @@ fun UserInboxDialog(
                                     ) {
                                         Text(title, color = if (!isRead) Color(0xFF0EA5E9) else Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                         IconButton(onClick = {
-                                            FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                                .collection("messages").document(id)
+                                            val db = FirebaseFirestore.getInstance()
+                                            val uRef = db.collection("users").document(userUid)
+                                            uRef.collection("messages").document(id)
                                                 .delete()
+                                            uRef.get().addOnSuccessListener { snap ->
+                                                @Suppress("UNCHECKED_CAST")
+                                                val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+                                                if (pMsgs != null) {
+                                                    val updated = pMsgs.filter { it["id"] != id }
+                                                    uRef.update("privateMessages", updated)
+                                                }
+                                            }
                                         }) {
                                             Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
                                         }

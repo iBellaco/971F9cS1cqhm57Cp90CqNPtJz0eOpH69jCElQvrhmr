@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -331,23 +332,91 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(6.dp))
 
             val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(bottom = 12.dp)
+            val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+
+            var showBuyEssenceDialog by remember { mutableStateOf(false) }
+            var showEssenceLabel by remember { mutableStateOf(false) }
+            var showPurchaseHistoryDialog by remember { mutableStateOf(false) }
+
+            if (showBuyEssenceDialog) {
+                com.example.ui.components.BuyEssenceDialog(
+                    isAdmin = isAdminUser,
+                    onDismiss = { showBuyEssenceDialog = false }
+                )
+            }
+
+            if (showPurchaseHistoryDialog) {
+                com.example.ui.components.PurchaseHistoryDialog(
+                    isAdmin = isAdminUser,
+                    onDismiss = { showPurchaseHistoryDialog = false }
+                )
+            }
+
+            // Contenedor Esencia Azul: Logo ENCIMA de la cantidad
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             ) {
-                Image(
-                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                    contentDescription = "Esencia Azul",
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "$currentBlueEssence EA",
-                    color = com.example.ui.theme.HextechCyan,
-                    fontSize = 13.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                )
+                // Logo de la Esencia Azul encima (al presionar muestra 'Esencia Azul')
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f))
+                        .clickable {
+                            showEssenceLabel = !showEssenceLabel
+                            android.widget.Toast.makeText(context, "Esencia Azul", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                        contentDescription = "Esencia Azul",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // Etiqueta al presionar encima del logo
+                AnimatedVisibility(visible = showEssenceLabel) {
+                    Text(
+                        text = "Esencia Azul",
+                        color = com.example.ui.theme.HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Cantidad de Esencia Azul debajo (al presionar abre diálogo de comprar)
+                Surface(
+                    modifier = Modifier.clickable { showBuyEssenceDialog = true },
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color(0xFF1E293B),
+                    border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "$currentBlueEssence EA",
+                            color = com.example.ui.theme.HextechCyan,
+                            fontSize = 13.5.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "+",
+                            color = com.example.ui.theme.HextechGold,
+                            fontSize = 14.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        )
+                    }
+                }
             }
             
             var showInboxDialog by remember { mutableStateOf(false) }
@@ -657,6 +726,30 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     color = com.example.ui.theme.HextechGold,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     fontSize = 14.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Botón de Historial de Compras
+            Button(
+                onClick = { showPurchaseHistoryDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
+                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.8f)),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocalActivity,
+                    contentDescription = null,
+                    tint = com.example.ui.theme.HextechGold
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Historial de Compras",
+                    color = com.example.ui.theme.HextechGold,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 13.5.sp
                 )
             }
 

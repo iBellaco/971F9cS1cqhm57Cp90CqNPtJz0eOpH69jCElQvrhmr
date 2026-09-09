@@ -82,7 +82,7 @@ fun AdminPrivateMessageDialog(
                             if (title.isNotBlank() && content.isNotBlank()) {
                                 isProcessing = true
                                 val messageId = UUID.randomUUID().toString()
-                                val messageData = mapOf(
+                                val messageData = hashMapOf<String, Any>(
                                     "id" to messageId,
                                     "title" to title,
                                     "content" to content,
@@ -90,20 +90,38 @@ fun AdminPrivateMessageDialog(
                                     "isRead" to false
                                 )
                                 
-                                FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                    .collection("messages").document(messageId)
+                                val db = FirebaseFirestore.getInstance()
+                                val userDocRef = db.collection("users").document(userUid)
+                                
+                                userDocRef.collection("messages").document(messageId)
                                     .set(messageData)
                                     .addOnSuccessListener {
-                                        FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                            .update("hasUnreadMessages", true)
-                                        isProcessing = false
-                                        Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
-                                        onSuccess()
-                                        onDismiss()
+                                        userDocRef.update(
+                                            "hasUnreadMessages", true,
+                                            "unreadMessagesCount", com.google.firebase.firestore.FieldValue.increment(1),
+                                            "privateMessages", com.google.firebase.firestore.FieldValue.arrayUnion(messageData)
+                                        ).addOnCompleteListener {
+                                            isProcessing = false
+                                            Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
+                                            onSuccess()
+                                            onDismiss()
+                                        }
                                     }
                                     .addOnFailureListener { e ->
-                                        isProcessing = false
-                                        Toast.makeText(context, "Error al enviar mensaje: ${e.localizedMessage ?: e.message}", Toast.LENGTH_LONG).show()
+                                        // Intento directo en el documento del usuario por si las reglas bloquean la subcolección
+                                        userDocRef.update(
+                                            "hasUnreadMessages", true,
+                                            "unreadMessagesCount", com.google.firebase.firestore.FieldValue.increment(1),
+                                            "privateMessages", com.google.firebase.firestore.FieldValue.arrayUnion(messageData)
+                                        ).addOnSuccessListener {
+                                            isProcessing = false
+                                            Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
+                                            onSuccess()
+                                            onDismiss()
+                                        }.addOnFailureListener { e2 ->
+                                            isProcessing = false
+                                            Toast.makeText(context, "Error al enviar mensaje: ${e.localizedMessage ?: e2.localizedMessage ?: "Error desconocido"}", Toast.LENGTH_LONG).show()
+                                        }
                                     }
                             }
                         },

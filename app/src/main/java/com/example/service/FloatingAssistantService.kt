@@ -865,19 +865,19 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano optimizado de alta velocidad (cada 300ms)
+    // Auto-Scan Loop en segundo plano optimizado de ultra alta velocidad (cada 120ms)
     // Se desactiva automáticamente al completar los 10 picks (5 aliados + 5 rivales) para evitar falsos positivos
     LaunchedEffect(autoScanEnabled) {
         if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
-            delay(300)
+            delay(120)
             if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                 scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
             } else if (!isScanning) {
                 try {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
                     if (bitmap != null) {
-                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick)
+                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick, activeRole)
                         if (result.isSuccessful) {
                             // Detección automática del orden de pick (Primera Selección vs Segunda Selección)
                             if (result.detectedFirstPick != null && isFirstPick != result.detectedFirstPick) {
@@ -887,17 +887,17 @@ private fun FloatingOverlayContent(
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
-                            // 1. Asignación directa y de alta precisión por rol/carril detectado (respetando selecciones manuales)
+                            // 1. Asignación directa y de alta precisión por rol o por slot físico (respetando selecciones manuales)
                             defaultRoles.forEachIndexed { idx, role ->
                                 if (manualLockedAllySlots[idx] != true) {
-                                    val scannedAlly = result.alliesByRole[role]
+                                    val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
                                     if (scannedAlly != null && allies[idx] == null) {
                                         assignAllySlot(idx, scannedAlly)
                                         newAlliesAdded++
                                     }
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
-                                    val scannedEnemy = result.enemiesByRole[role]
+                                    val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
                                     if (scannedEnemy != null && enemies[idx] == null) {
                                         assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                         newEnemiesAdded++
@@ -972,7 +972,7 @@ private fun FloatingOverlayContent(
         coroutineScope.launch(Dispatchers.IO) {
             val bitmap = screenCaptureManager?.captureCurrentFrame()
             if (bitmap != null) {
-                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick)
+                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick, activeRole)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         // Sincronizar primera selección si se detectó
@@ -980,23 +980,18 @@ private fun FloatingOverlayContent(
                             isFirstPick = result.detectedFirstPick
                         }
 
-                        // 1. Asignación directa y de alta precisión por rol/posición (respetando selecciones manuales)
+                        // 1. Asignación directa y de alta precisión por rol o por slot físico (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
-                                val scannedAlly = result.alliesByRole[role]
+                                val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
-                                } else if (result.allies.isNotEmpty() && !result.allies.contains(allies[idx])) {
-                                    // allies[idx] = null
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
-                                val scannedEnemy = result.enemiesByRole[role]
+                                val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                } else {
-                                    // enemies[idx] = null
-                                    // state.enemyConfidences.remove(role)
                                 }
                             }
                         }
@@ -1262,27 +1257,6 @@ private fun FloatingOverlayContent(
                                             imageVector = Icons.Default.UnfoldLess,
                                             contentDescription = "Minimizar a Burbuja",
                                             tint = HextechGold,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.width(6.dp))
-
-                                // Botón Cerrar/Ocultar del todo
-                                Surface(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clickable { onClose() },
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = Color(0x33DC2626),
-                                    border = BorderStroke(1.dp, Color(0x55EF4444))
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = androidx.compose.material.icons.Icons.Default.Close,
-                                            contentDescription = "Cerrar Hub",
-                                            tint = Color(0xFFEF4444),
                                             modifier = Modifier.size(16.dp)
                                         )
                                     }
