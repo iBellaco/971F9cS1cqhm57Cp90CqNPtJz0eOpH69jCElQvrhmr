@@ -74,14 +74,12 @@ import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -497,8 +495,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 val currentMetrics = resources.displayMetrics
                                 val currentScreenWidth = currentMetrics.widthPixels
                                 val currentScreenHeight = currentMetrics.heightPixels
-                                val currentWidth = if (overlayState.isExpanded) cardWidthPx else bubbleSizePx
-                                val currentHeight = if (overlayState.isExpanded) cardHeightPx else bubbleSizePx
+                                val currentIsLandscape = currentScreenWidth > currentScreenHeight
+                                val dynamicCardWidthPx = ((if (currentIsLandscape) 560 else 330) * density).toInt()
+                                val currentWidth = if (overlayState.isExpanded) dynamicCardWidthPx else bubbleSizePx
+                                val dynamicCardHeightPx = ((if (currentIsLandscape) 390 else 520) * density).toInt()
+                                val currentHeight = if (overlayState.isExpanded) dynamicCardHeightPx else bubbleSizePx
                                 val maxX = (currentScreenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
                                 val maxY = (currentScreenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
                                 
@@ -881,29 +882,16 @@ private fun FloatingOverlayContent(
                             defaultRoles.forEachIndexed { idx, role ->
                                 if (manualLockedAllySlots[idx] != true) {
                                     val scannedAlly = result.alliesByRole[role]
-                                    if (scannedAlly != null) {
-                                        if (allies[idx]?.id != scannedAlly.id) {
-                                            assignAllySlot(idx, scannedAlly)
-                                            newAlliesAdded++
-                                        }
-                                    } else if (result.isSuccessful) {
-                                        if (allies[idx] != null) {
-                                            allies[idx] = null
-                                        }
+                                    if (scannedAlly != null && allies[idx] == null) {
+                                        assignAllySlot(idx, scannedAlly)
+                                        newAlliesAdded++
                                     }
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
                                     val scannedEnemy = result.enemiesByRole[role]
-                                    if (scannedEnemy != null) {
-                                        if (enemies[idx]?.id != scannedEnemy.id || state.enemyConfidences[role] != result.enemyConfidencesByRole[role]) {
-                                            assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                            newEnemiesAdded++
-                                        }
-                                    } else if (result.isSuccessful) {
-                                        if (enemies[idx] != null) {
-                                            enemies[idx] = null
-                                            state.enemyConfidences.remove(role)
-                                        }
+                                    if (scannedEnemy != null && enemies[idx] == null) {
+                                        assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                        newEnemiesAdded++
                                     }
                                 }
                             }
@@ -978,7 +966,7 @@ private fun FloatingOverlayContent(
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
                                 } else if (result.allies.isNotEmpty() && !result.allies.contains(allies[idx])) {
-                                    allies[idx] = null
+                                    // allies[idx] = null
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
@@ -986,8 +974,8 @@ private fun FloatingOverlayContent(
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                 } else {
-                                    enemies[idx] = null
-                                    state.enemyConfidences.remove(role)
+                                    // enemies[idx] = null
+                                    // state.enemyConfidences.remove(role)
                                 }
                             }
                         }
@@ -1247,43 +1235,6 @@ private fun FloatingOverlayContent(
                                     )
                                 }
 
-                                // Botón Escaneo Manual
-                                IconButton(
-                                    onClick = { triggerManualScan() },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    if (isScanning) {
-                                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechCyan, strokeWidth = 2.dp)
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.FlashOn,
-                                            contentDescription = "Escanear selección",
-                                            tint = HextechCyan,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-
-                                // Botón Limpiar Draft
-                                IconButton(
-                                    onClick = {
-                                        for (i in 0 until 5) {
-                                            allies[i] = null
-                                            enemies[i] = null
-                                        }
-                                        manualLockedAllySlots.clear()
-                                        manualLockedEnemySlots.clear()
-                                        state.allySummonerNames.clear()
-                                        state.allySpells.clear()
-                                        state.enemySpells.clear()
-                                        selectedChampionDetail = null
-                                        com.example.service.screen.DraftVisionScanner.resetSlotMemory()
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(Icons.Default.DeleteSweep, contentDescription = "Limpiar", tint = TextMuted, modifier = Modifier.size(18.dp))
-                                }
-
                                 // Botón Tamaño de Burbuja (Compact/Expanded)
                                 IconButton(
                                     onClick = {
@@ -1308,7 +1259,7 @@ private fun FloatingOverlayContent(
                                     },
                                     modifier = Modifier.size(28.dp)
                                 ) {
-                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Minimizar", tint = TextPrimary, modifier = Modifier.size(20.dp))
+                                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Minimizar", tint = TextPrimary, modifier = Modifier.size(20.dp))
                                 }
                             }
                         }
@@ -1493,7 +1444,7 @@ private fun FloatingOverlayContent(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text("Mostrar barra", color = HextechCyan, fontSize = 9.sp)
                                     Spacer(modifier = Modifier.width(2.dp))
-                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                    Icon(Icons.Default.KeyboardArrowRight, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
                                 }
                             }
                             Spacer(modifier = Modifier.height(2.dp))

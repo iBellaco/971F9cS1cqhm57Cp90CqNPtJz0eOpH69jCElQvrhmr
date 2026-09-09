@@ -120,7 +120,8 @@ fun BlueEssenceStoreDialog(
                 if (showHistory) {
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
@@ -170,7 +171,8 @@ fun BlueEssenceStoreDialog(
                 } else {
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .padding(horizontal = 16.dp),
                         contentPadding = PaddingValues(bottom = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
