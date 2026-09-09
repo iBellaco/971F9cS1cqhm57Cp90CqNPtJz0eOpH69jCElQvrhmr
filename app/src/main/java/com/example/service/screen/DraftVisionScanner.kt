@@ -77,6 +77,9 @@ data class DraftScanResult(
     val enemiesByRole: Map<LaneRole, Champion> = emptyMap(),
     val enemyConfidencesByRole: Map<LaneRole, Int> = emptyMap(),
     val detectedRole: LaneRole? = null,
+    val detectedFirstPick: Boolean? = null,
+    val isLastPickImageRecognized: Boolean = false,
+    val lastPickChampion: Champion? = null,
     val detectedRawWords: List<String> = emptyList(),
     val discrepancies: List<String> = emptyList(),
     val diagnostics: List<SlotDiagnostic> = emptyList(),
@@ -151,7 +154,11 @@ object DraftVisionScanner {
         return recognizerInstance
     }
 
-    suspend fun scanDraftFromBitmap(bitmap: Bitmap): DraftScanResult {
+    suspend fun scanDraftFromBitmap(
+        bitmap: Bitmap,
+        context: android.content.Context? = null,
+        currentIsFirstPick: Boolean? = null
+    ): DraftScanResult {
         if (bitmap.isRecycled || bitmap.width < bitmap.height) {
             return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Orientación no horizontal")
         }
@@ -171,6 +178,9 @@ object DraftVisionScanner {
         val detectedWords = mutableListOf<String>()
         var userDetectedLane: LaneRole? = null
         var userSlotIndex: Int? = null
+        var detectedFirstPick: Boolean? = null
+        var isLastPickVisualRecognized = false
+        var lastPickVisualChampion: Champion? = null
         val allySlotTexts = Array(5) { mutableListOf<Pair<String, Rect?>>() }
         val enemySlotTexts = Array(5) { mutableListOf<Pair<String, Rect?>>() }
         val allyOcrChampions = Array<Champion?>(5) { null }
@@ -188,6 +198,31 @@ object DraftVisionScanner {
                 for (line in block.lines) {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
+
+                    // Detección automática del turno de Primera Selección / Segunda Selección en cabeceras o banners
+                    val textNorm = DraftValidationLayer.normalize(text)
+                    if (detectedFirstPick == null) {
+                        if (textNorm.contains("primera eleccion") || textNorm.contains("primera seleccion") ||
+                            textNorm.contains("primer pick") || textNorm.contains("first pick") ||
+                            textNorm.contains("1a eleccion") || textNorm.contains("1ª eleccion") ||
+                            textNorm.contains("1.a eleccion") || textNorm.contains("1.ª eleccion") ||
+                            textNorm.contains("1a seleccion") || textNorm.contains("1ª seleccion") ||
+                            textNorm.contains("tu equipo elige") || textNorm.contains("equipo azul") ||
+                            textNorm.contains("blue team")) {
+                            detectedFirstPick = true
+                            AppLogger.d(TAG, "OCR Primera Selección detectada: Equipo Aliado ('$text')")
+                        } else if (textNorm.contains("segunda eleccion") || textNorm.contains("segunda seleccion") ||
+                            textNorm.contains("second pick") || textNorm.contains("2a eleccion") ||
+                            textNorm.contains("2ª eleccion") || textNorm.contains("2.a eleccion") ||
+                            textNorm.contains("2.ª eleccion") || textNorm.contains("2a seleccion") ||
+                            textNorm.contains("2ª seleccion") || textNorm.contains("enemigo elige") ||
+                            textNorm.contains("rival elige") || textNorm.contains("equipo rojo") ||
+                            textNorm.contains("red team")) {
+                            detectedFirstPick = false
+                            AppLogger.d(TAG, "OCR Segunda Selección detectada: Equipo Rival ('$text')")
+                        }
+                    }
+
                     // Ignorar cualquier texto generado por el overlay de depuración
                     if (text.contains("[") || text.contains("]") ||
                         text.contains("VISUAL", ignoreCase = true) || text.contains("VIS:", ignoreCase = true) ||
@@ -612,6 +647,90 @@ object DraftVisionScanner {
         }
 
         // -----------------------------------------------------------------------------------------
+        // PASO 3.4: RECONOCIMIENTO VISUAL INTELIGENTE DEL 10º PICK (ÚLTIMO PICK DEL DRAFT)
+        // En Wild Rift, cuando el último jugador selecciona su campeón, la partida transiciona
+        // inmediatamente a la pantalla de carga del juego, por lo que el nombre textual desaparece
+        // y el OCR no puede leerlo.
+        // La secuencia de selección según el orden de Draft:
+        // - Si el Equipo Aliado es Primer Pick (1A -> 2E -> 2A -> 2E -> 2A -> 1E):
+        //   El 10º pick es RIVAL (el último campeón enemigo). Se aplica reconocimiento visual al slot rival restante.
+        // - Si el Equipo Aliado es Segundo Pick (1E -> 2A -> 2E -> 2A -> 2E -> 1A):
+        //   El 10º pick es ALIADO (el último campeón aliado). Se aplica reconocimiento visual al slot aliado restante.
+        // -----------------------------------------------------------------------------------------
+        val totalAllyOcr = allySlots.count { it.champion != null }
+        val totalEnemyOcr = enemySlots.count { it.champion != null }
+
+        // Inferencia determinista de Primera Selección por progreso si el OCR no leyó el banner superior
+        if (detectedFirstPick == null) {
+            if (totalAllyOcr == 1 && totalEnemyOcr == 0) {
+                detectedFirstPick = true
+            } else if (totalEnemyOcr == 1 && totalAllyOcr == 0) {
+                detectedFirstPick = false
+            } else if (totalAllyOcr == 1 && totalEnemyOcr in 1..2) {
+                detectedFirstPick = true
+            } else if (totalEnemyOcr == 1 && totalAllyOcr in 1..2) {
+                detectedFirstPick = false
+            } else if (totalAllyOcr in 2..3 && totalEnemyOcr in 1..2) {
+                detectedFirstPick = true
+            } else if (totalEnemyOcr in 2..3 && totalAllyOcr in 1..2) {
+                detectedFirstPick = false
+            }
+        }
+
+        val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
+
+        // Verificar si nos encontramos en la fase del 10º pick (o slot residual pendiente)
+        val shouldScanLastPickVisual = (totalAllyOcr + totalEnemyOcr >= 8) && context != null
+        if (shouldScanLastPickVisual && context != null) {
+            val targetSlot = if (effectiveFirstPick) {
+                // Si Aliado es Primer Pick -> El 10º pick es del equipo RIVAL
+                enemySlots.firstOrNull { it.champion == null }
+            } else {
+                // Si Aliado es Segundo Pick -> El 10º pick es del equipo ALIADO
+                allySlots.firstOrNull { it.champion == null }
+            }
+
+            if (targetSlot != null) {
+                val yCenter = if (targetSlot.isAlly) {
+                    (height * allySlotYRatios[targetSlot.slotIndex]).toInt()
+                } else {
+                    (height * enemySlotYRatios[targetSlot.slotIndex]).toInt()
+                }
+                val xCenter = if (targetSlot.isAlly) allyAvatarCenterX else enemyAvatarCenterX
+                val startX = (xCenter - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
+                val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
+                val roi = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
+
+                try {
+                    val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                    val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
+                    val match = ChampionVisualMatcher.matchChampion(context, avatarCrop, allChamps, alreadyPickedIds)
+                    avatarCrop.recycle()
+
+                    if (match != null) {
+                        targetSlot.champion = match.champion
+                        targetSlot.confidencePercent = (match.confidence * 100).toInt()
+                        targetSlot.isLikelyUnpicked = false
+
+                        if (targetSlot.isAlly) {
+                            allyOcrChampions[targetSlot.slotIndex] = match.champion
+                            allySlotFilters[targetSlot.slotIndex].process(match.champion, isOcr = false, score = match.confidence)
+                        } else {
+                            enemyOcrChampions[targetSlot.slotIndex] = match.champion
+                            enemySlotFilters[targetSlot.slotIndex].process(match.champion, isOcr = false, score = match.confidence)
+                        }
+
+                        isLastPickVisualRecognized = true
+                        lastPickVisualChampion = match.champion
+                        auditList.add("🎯 10º Pick (${if (targetSlot.isAlly) "Aliado" else "Rival"}) detectado por Reconocimiento Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
+                    }
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error en reconocimiento visual del 10º pick", e)
+                }
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
         // PASO 4: RESOLUCIÓN Y ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
         // -----------------------------------------------------------------------------------------
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados
@@ -662,8 +781,12 @@ object DraftVisionScanner {
         val enemyChampsList = finalEnemiesMap.values.toList()
         val total = allyChampsList.size + enemyChampsList.size
 
+        val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null
+
         val statusMsg = when {
+            total == 0 && allySummonerNamesCache.isNotEmpty() -> "Invocadores aliados detectados (${allySummonerNamesCache.size}/5)"
             total == 0 -> "Esperando selección en directo..."
+            isLastPickVisualRecognized -> "10/10 Completo • 10º Pick detectado por imagen (${lastPickVisualChampion?.name})"
             auditList.isNotEmpty() -> "Detectados: $total picks (${auditList.size} adaptaciones)"
             else -> "Detectados: $total picks con certeza"
         }
@@ -675,6 +798,9 @@ object DraftVisionScanner {
             enemiesByRole = finalEnemiesMap,
             enemyConfidencesByRole = enemyConfidences,
             detectedRole = userDetectedLane,
+            detectedFirstPick = detectedFirstPick,
+            isLastPickImageRecognized = isLastPickVisualRecognized,
+            lastPickChampion = lastPickVisualChampion,
             detectedRawWords = detectedWords,
             discrepancies = auditList,
             diagnostics = diagnosticsList,
@@ -683,7 +809,7 @@ object DraftVisionScanner {
             enemySpellsBySlot = emptyMap(),
             allySummonerNamesByRole = allySummonerNamesByRole,
             allySpellsByRole = allySpellsByRole,
-            isSuccessful = total > 0,
+            isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )
     }

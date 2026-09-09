@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
@@ -24,6 +26,7 @@ fun AdminPrivateMessageDialog(
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -38,6 +41,7 @@ fun AdminPrivateMessageDialog(
                     Text("Mensaje Privado", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
+                
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -49,7 +53,9 @@ fun AdminPrivateMessageDialog(
                         focusedBorderColor = Color(0xFFF59E0B)
                     )
                 )
+                
                 Spacer(modifier = Modifier.height(8.dp))
+                
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
@@ -61,7 +67,9 @@ fun AdminPrivateMessageDialog(
                         focusedBorderColor = Color(0xFFF59E0B)
                     )
                 )
+                
                 Spacer(modifier = Modifier.height(16.dp))
+                
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -81,17 +89,19 @@ fun AdminPrivateMessageDialog(
                                     "timestamp" to System.currentTimeMillis(),
                                     "isRead" to false
                                 )
-                                FirebaseFirestore.getInstance().collection("users").document(userUid)
-                                    .collection("messages").document(messageId)
-                                    .set(messageData)
-                                    .addOnSuccessListener {
-                                        isProcessing = false
-                                        onSuccess()
-                                        onDismiss()
-                                    }
-                                    .addOnFailureListener {
-                                        isProcessing = false
-                                    }
+                                
+                                try {
+                                    FirebaseFirestore.getInstance().collection("users").document(userUid)
+                                        .collection("messages").document(messageId)
+                                        .set(messageData)
+                                    // Cerrar inmediatamente, Firestore maneja el guardado offline si es necesario
+                                    isProcessing = false
+                                    onSuccess()
+                                    onDismiss()
+                                } catch (e: Exception) {
+                                    isProcessing = false
+                                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         },
                         enabled = !isProcessing && title.isNotBlank() && content.isNotBlank(),

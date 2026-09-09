@@ -217,6 +217,12 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         super.onCreate()
         try {
             com.example.data.WildRiftRepository.initChampions(applicationContext)
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                com.example.service.screen.ChampionVisualMatcher.preloadSignatures(
+                    applicationContext,
+                    com.example.data.WildRiftRepository.champions
+                )
+            }
             screenCaptureManager = ScreenCaptureManager(this)
             savedStateRegistryController.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -874,8 +880,13 @@ private fun FloatingOverlayContent(
                 try {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
                     if (bitmap != null) {
-                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                        val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick)
                         if (result.isSuccessful) {
+                            // Detección automática del orden de pick (Primera Selección vs Segunda Selección)
+                            if (result.detectedFirstPick != null && isFirstPick != result.detectedFirstPick) {
+                                isFirstPick = result.detectedFirstPick
+                            }
+
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
@@ -899,10 +910,11 @@ private fun FloatingOverlayContent(
 
                             // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
                             defaultRoles.forEachIndexed { idx, role ->
-                                result.allySummonerNamesByRole[role]?.let { name ->
-                                    state.allySummonerNames[idx] = name
+                                val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
+                                if (!sName.isNullOrBlank()) {
+                                    state.allySummonerNames[idx] = sName
                                 }
-                                val spells = result.allySpellsByRole[role]
+                                val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
                                 if (!spells.isNullOrEmpty()) {
                                     state.allySpells[idx] = spells
                                 }
@@ -915,7 +927,13 @@ private fun FloatingOverlayContent(
                             if (totalAlliesPicked == 5 && totalEnemiesPicked == 5) {
                                 // Los 10 campeones están completamente seleccionados: Apagar Auto-Scan para congelar y evitar falsos positivos
                                 autoScanEnabled = false
-                                scanNoticeMessage = "🎯 10/10 Campeones detectados • Auto-Scan completado"
+                                scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
+                                    "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
+                                } else {
+                                    "🎯 10/10 Campeones detectados • Auto-Scan completado"
+                                }
+                            } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
+                                scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"
                             } else if (result.detectedRole != null && activeRole != result.detectedRole) {
                                 activeRole = result.detectedRole
                                 com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
@@ -957,9 +975,14 @@ private fun FloatingOverlayContent(
         coroutineScope.launch(Dispatchers.IO) {
             val bitmap = screenCaptureManager?.captureCurrentFrame()
             if (bitmap != null) {
-                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap)
+                val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick)
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
+                        // Sincronizar primera selección si se detectó
+                        if (result.detectedFirstPick != null && isFirstPick != result.detectedFirstPick) {
+                            isFirstPick = result.detectedFirstPick
+                        }
+
                         // 1. Asignación directa y de alta precisión por rol/posición (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
@@ -983,10 +1006,11 @@ private fun FloatingOverlayContent(
 
                         // Sincronizar nombres de invocador aliados y hechizos detectados asociados al carril
                         defaultRoles.forEachIndexed { idx, role ->
-                            result.allySummonerNamesByRole[role]?.let { name ->
-                                state.allySummonerNames[idx] = name
+                            val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
+                            if (!sName.isNullOrBlank()) {
+                                state.allySummonerNames[idx] = sName
                             }
-                            val spells = result.allySpellsByRole[role]
+                            val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
                             if (!spells.isNullOrEmpty()) {
                                 state.allySpells[idx] = spells
                             }
@@ -998,8 +1022,12 @@ private fun FloatingOverlayContent(
                             com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
                         }
                         val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
-                        scanNoticeMessage = "✅ Escaneo exitoso ($totalDetected picks" +
+                        scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
+                            "🎯 10/10 Detectado por Imagen: ${result.lastPickChampion.name}"
+                        } else {
+                            "✅ Escaneo exitoso ($totalDetected picks" +
                                 (if (result.detectedRole != null) ", tu rol: ${result.detectedRole.shortName})" else ")")
+                        }
                     } else {
                         scanNoticeMessage = "ℹ️ ${result.statusMessage}"
                     }
@@ -2281,6 +2309,8 @@ private fun FloatingDraftCoachView(
             enemySlots = enemySlots,
             allySummonerNames = allySummonerNames.toMap(),
             activeUserRole = activeRole,
+            isFirstPick = isFirstPick,
+            onToggleFirstPick = onFirstPickToggle,
             onPickChampionForRole = { isAlly, role ->
                 val index = defaultRoles.indexOf(role).coerceAtLeast(0)
                 onOpenChampionPicker(isAlly, index)
@@ -2328,6 +2358,8 @@ private fun OverlayVersusDraftBoard(
     enemySlots: List<DraftSlot>,
     allySummonerNames: Map<Int, String> = emptyMap(),
     activeUserRole: LaneRole?,
+    isFirstPick: Boolean = true,
+    onToggleFirstPick: (() -> Unit)? = null,
     onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
     onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
 ) {
@@ -2346,6 +2378,69 @@ private fun OverlayVersusDraftBoard(
         border = BorderStroke(1.dp, HextechCardBorder)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
+            // 0. Banner de Primera Selección y Secuencia Snake 5v5 (Detectado automáticamente o manual)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp)
+                    .clickable { onToggleFirstPick?.invoke() },
+                shape = RoundedCornerShape(8.dp),
+                color = if (isFirstPick) AllyBlue.copy(alpha = 0.12f) else DangerRed.copy(alpha = 0.12f),
+                border = BorderStroke(
+                    1.dp,
+                    if (isFirstPick) AllyBlue.copy(alpha = 0.5f) else DangerRed.copy(alpha = 0.5f)
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 5.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (isFirstPick) "⚡" else "🛡️",
+                                fontSize = 11.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (isFirstPick) tr("PRIMERA SELECCIÓN (EQUIPO ALIADO)") else tr("SEGUNDA SELECCIÓN (RIVAL ELIGE PRIMERO)"),
+                                color = if (isFirstPick) AllyBlue else DangerRed,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 9.5.sp
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = HextechDarkBg.copy(alpha = 0.8f),
+                            border = BorderStroke(0.5.dp, if (isFirstPick) AllyBlue.copy(alpha = 0.4f) else DangerRed.copy(alpha = 0.4f))
+                        ) {
+                            Text(
+                                text = tr("Cambiar"),
+                                color = TextMuted,
+                                fontSize = 7.5.sp,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = if (isFirstPick) {
+                            "Secuencia: 1 Aliado ➔ 2 Rivales ➔ 2 Aliados ➔ 2 Rivales ➔ 2 Aliados ➔ 1 Rival (Último pick: Imagen)"
+                        } else {
+                            "Secuencia: 1 Rival ➔ 2 Aliados ➔ 2 Rivales ➔ 2 Aliados ➔ 2 Rivales ➔ 1 Aliado (Último pick: Imagen)"
+                        },
+                        color = TextSecondary,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
             // Header
             Row(
                 modifier = Modifier

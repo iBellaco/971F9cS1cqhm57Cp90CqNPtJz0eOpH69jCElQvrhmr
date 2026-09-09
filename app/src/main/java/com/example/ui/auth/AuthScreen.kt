@@ -643,7 +643,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = { showCommunityCreatorsDialog = true },
+                onClick = { if (userRole == "admin") showCommunityCreatorsDialog = true else android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show() },
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurface),
                 border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold),
                 modifier = Modifier.fillMaxWidth().height(50.dp),

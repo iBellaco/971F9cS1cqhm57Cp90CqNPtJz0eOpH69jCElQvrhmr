@@ -156,21 +156,11 @@ fun CommunityCreatorsDialog(
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(if (isSel) HextechGold else HextechSurface)
-                                .clickable { 
-                                    if (index == 2) {
-                                        
-                                        if (com.example.util.SubscriptionManager.userRole.value == "admin") {
-                                            selectedTab = index
-                                        } else {
-                                            Toast.makeText(context, "Fuera de servicio temporalmente", Toast.LENGTH_SHORT).show()
-                                        }
-                                    } else {
-                                        selectedTab = index
-                                    }
-                                }
+                                .clickable { selectedTab = index }
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
+
                             Text(
                                 text = tr(label),
                                 color = if (isSel) HextechDarkBg else TextPrimary,
@@ -194,7 +184,7 @@ fun CommunityCreatorsDialog(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text("No hay creadores disponibles en este momento.", color = TextMuted)
                             }
-                        } else {
+                        
                             LazyColumn(
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier.fillMaxSize()
@@ -253,7 +243,7 @@ fun CommunityCreatorsDialog(
                                     Text("Explorar Creadores", color = HextechDarkBg, fontWeight = FontWeight.Bold)
                                 }
                             }
-                        } else {
+                        
                             LazyColumn(
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier.fillMaxSize()
@@ -348,7 +338,7 @@ fun CommunityCreatorsDialog(
                                         }
                                     }
                                 }
-                            } else {
+                            
                                 // User IS a Creator!
                                 Card(
                                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -451,6 +441,8 @@ fun CommunityCreatorsDialog(
                                                 }
                                             }
                                         } else {
+
+                                        
                                             // Displays active 1 champion build
                                             val champ = WildRiftRepository.champions.find { it.name.equals(myBuild.championName, ignoreCase = true) }
                                             Column {
@@ -532,6 +524,8 @@ fun CommunityCreatorsDialog(
                                                 }
                                             }
                                         }
+
+
                                     }
                                 }
                             }
@@ -756,7 +750,7 @@ private fun CreatorCardItem(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Suscrito ✓", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                     }
-                } else {
+                
                     Button(
                         onClick = onSubscribe,
                         enabled = !isFull,
@@ -770,7 +764,7 @@ private fun CreatorCardItem(
                     ) {
                         if (isFull) {
                             Text("Cupo Lleno (100)", color = DangerRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        } else {
+                        
                             Text("💎 Suscribirme (100 EA)", color = HextechDarkBg, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -938,7 +932,7 @@ private fun CreatorBuildDetailDialog(
                                             contentDescription = item.name,
                                             modifier = Modifier.size(44.dp).clip(RoundedCornerShape(6.dp)).border(1.dp, HextechGold, RoundedCornerShape(6.dp))
                                         )
-                                    } else {
+                                    
                                         Box(
                                             modifier = Modifier.size(44.dp).clip(RoundedCornerShape(6.dp)).background(HextechSurfaceVariant),
                                             contentAlignment = Alignment.Center
@@ -988,7 +982,7 @@ private fun CreatorBuildDetailDialog(
                                     val kRune = WildRiftSpellsAndRunes.runes.find { it.name.equals(build.keystoneRune, ignoreCase = true) }
                                     if (kRune != null) {
                                         AsyncImage(model = kRune.iconUrl, contentDescription = kRune.name, modifier = Modifier.size(36.dp).clip(CircleShape))
-                                    } else {
+                                    
                                         Text(build.keystoneRune, color = HextechGold, fontSize = 11.sp)
                                     }
 
@@ -1062,7 +1056,7 @@ private fun CreatorBuildDetailDialog(
                     ) {
                         Text("Cancelar Suscripción", color = DangerRed, fontWeight = FontWeight.Bold)
                     }
-                } else {
+                
                     Button(
                         onClick = onSubscribe,
                         enabled = !isFull,
@@ -1075,7 +1069,7 @@ private fun CreatorBuildDetailDialog(
                     ) {
                         if (isFull) {
                             Text("Límite de 100 Suscriptores Alcanzado", color = DangerRed, fontWeight = FontWeight.Bold)
-                        } else {
+                        
                             Icon(Icons.Default.Star, contentDescription = null, tint = HextechDarkBg)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Suscribirme con 100 Esencias Azules", color = HextechDarkBg, fontWeight = FontWeight.ExtraBold)
