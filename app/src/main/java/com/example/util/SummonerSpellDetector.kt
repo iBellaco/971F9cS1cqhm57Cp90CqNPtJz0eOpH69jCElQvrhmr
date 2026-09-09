@@ -121,7 +121,7 @@ object SummonerSpellDetector {
         }
 
         val item = WildRiftSpellsAndRunes.getSpellByName(spellId)
-        val iconUrl = item?.iconUrl ?: "https://i.postimg.cc/6qHRh6Gt/1691694210-flash.webp"
+        val iconUrl = item?.iconUrl ?: "file:///android_asset/offline_images/b4f2c9b975912c3a88ceb806e74c23f1.webp"
         return SpellMatch(spellId, name, iconUrl, rect)
     }
 }

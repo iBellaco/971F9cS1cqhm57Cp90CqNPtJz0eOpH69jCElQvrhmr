@@ -17,7 +17,7 @@ object WildRiftItemsData {
             passiveEn = "Bloody: +8% Physical Vamp, Attacks that Critically Strike gain an additional 4% Physical Vamp.",
             coachTip = "Este objeto es un elemento básico para los portadores de ataques automáticos, ya que proporciona un fuerte aumento del daño, la probabilidad crítica y la velocidad de ataque. Su pasiva convierte los golpes críticos en robo de vida mejorado, lo que hace que los intercambios prolongados y las peleas sostenidas se inclinen a tu favor. Cuando tienes una salud crítica, se activa un escudo que salva vidas, lo que te otorga defensas adicionales y la oportunidad de sobrevivir en momentos difíciles. Ideal para tiradores y luchadores de ataque automático que necesitan un alto DPS y un mantenimiento fiable.",
             coachTipEn = "This item is a staple for auto-attack carries, providing a strong boost to damage, critical chance, and attack speed. Its passive converts critical strikes into enhanced lifesteal, making extended trades and sustained fights lean in your favor. When you fall into critical health, a lifesaving shield activates, granting extra defenses and a chance to survive clutch moments. Ideal for marksmen and auto-attack fighters who need both high DPS and reliable sustain.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2024-12/1733876753_3072.webp"
+            iconUrl = "file:///android_asset/offline_images/926efbca7b9ae9f241ddf7cd3c250273.webp"
         ),
         WildRiftItem(
             id = "guardian_angel",
@@ -31,7 +31,7 @@ object WildRiftItemsData {
             passiveEn = "Resurrect: Upon taking lethal damage, restores 50% Health and 100% Mana after 4 seconds of stasis. (180s Cooldown)",
             coachTip = "Este objeto es perfecto para campeones que necesitan una segunda oportunidad en las peleas en equipo. Es especialmente efectivo contra campeones con un alto daño explosivo, como Zed, Syndra o Zoe, así como contra campeones fuertes en picado como Camille, Kha'Zix o Lee Sin. El efecto Resurrección te permite regresar a la pelea después de recibir daño letal, restaurando la salud y el maná, dándote la oportunidad de continuar luchando y ayudar a tu equipo incluso en momentos críticos.",
             coachTipEn = "This item is perfect for champions who need a second chance in teamfights. It is especially effective against champions with high burst damage, such as Zed, Syndra, or Zoe, as well as against strong diving champions like Camille, Kha'Zix, or Lee Sin. The Resurrection effect allows you to return to the fight after taking lethal damage, restoring health and mana, giving you a chance to continue fighting and assist your team even in critical moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300268_guardian-angel.webp"
+            iconUrl = "file:///android_asset/offline_images/a9e382435db8c5b4d3dada562fa99d42.webp"
         ),
         WildRiftItem(
             id = "magnetic_blaster",
@@ -45,7 +45,7 @@ object WildRiftItemsData {
             passiveEn = "Fervor: +5% Move Speed.\nEnergized: Moving and attacking will generate an Energized Attack.\nPower Blitz: Energized Attacks gain 100 range (50 range for melee attacks), deal 40-100 bonus magic damage, and grant 60 Movement Speed for 0.75 seconds. This damage bounces to 5 nearby enemies and can Critically Strike.(Deals 50-80% bonus damage against minions.)",
             coachTip = "Este objeto amplía tu alcance de ataque y agrega daño híbrido al potenciar cada cuarto ataque con una ráfaga mágica que puede rebotar hacia múltiples objetivos y causar un golpe crítico. Moverse y atacar cargan el golpe potenciado y, al activarlo, obtienes un gran aumento de velocidad de movimiento, lo que ayuda tanto a perseguir como a retirarte. — Perfecto para tiradores y matones de ataque automático que desean más alcance, daño a múltiples objetivos y movilidad extra en escaramuzas.",
             coachTipEn = "This item extends your attack range and adds hybrid damage by empowering every fourth attack with a magic burst that can bounce to multiple targets and critically strike. Moving and attacking charges the empowered strike, and upon activation you gain a hefty movement speed boost, aiding both chase and retreat. — Perfect for marksmen and auto‑attack bruisers who want more reach, multi‑target damage, and extra mobility in skirmishes.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300773_magnetic-blaster.webp"
+            iconUrl = "file:///android_asset/offline_images/17b12d05612d9e67848fc60b16f961b5.webp"
         ),
         WildRiftItem(
             id = "blade_of_the_ruined_king",
@@ -59,7 +59,7 @@ object WildRiftItemsData {
             passiveEn = "Thirst: +10% Omni Vamp.\nRuined Strikes: Attacks deal bonus physical damage equal to 7% of the enemy's current Health on-hit. (Melee attacks deal 10%). Minion damage: 15. Max damage vs monsters: 60.\nDrain: Hitting a champion with 3 attacks or abilities deals 30-100 bonus magic damage and steals 25% of their Move Speed for 2 seconds. (60s Cooldown)",
             coachTip = "Este objeto es una herramienta poderosa para destruir la salud del enemigo y mantenerse con vida en peleas prolongadas. Otorga poder de ataque y velocidad de ataque, convirtiendo tus golpes básicos en daño sostenido que aumenta con la salud actual del objetivo, ideal contra tanques y configuraciones de alto HP. Su activo otorga una fuerte desaceleración y roba velocidad de movimiento del objetivo, ayudándote a perseguir o bloquear objetivos prioritarios. El sustento similar al robo de vida que proporciona lo convierte en una elección sólida para los campeones que quieren sobrevivir a sus oponentes en intercambios prolongados.",
             coachTipEn = "This item is a powerful tool for shredding enemy health and staying alive in extended fights. It grants attack power and attack speed, turning your basic hits into sustained damage that scales with the target’s current health — ideal against tanks and high-HP builds. Its active grants a strong slow and steals movement speed from the target, helping you chase or lock down priority targets. The lifesteal-like sustain it provides makes it a solid pick for champions who want to outlast opponents in prolonged exchanges.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300221_blade-of-the-ruined-king.webp"
+            iconUrl = "file:///android_asset/offline_images/537435e5e6691bd654c89dba3aa169ef.webp"
         ),
         WildRiftItem(
             id = "runaan_s_hurricane",
@@ -73,7 +73,7 @@ object WildRiftItemsData {
             passiveEn = "Wind's Fury: Attacks strike 2 additional nearby enemies, each dealing 55%. These strikes can Critically Strike and trigger on-hit effects.\nWind Blade: Attacks deal 15 bonus physical damage on-hit against targets.This item cannot only be used by melee champions.",
             coachTip = "Este objeto convierte tus ataques básicos en presión contra múltiples objetivos: cada ataque dispara rayos adicionales a los enemigos cercanos que pueden desencadenar efectos de impacto y críticos. Mejora enormemente la eliminación de ondas, contribuye con un fuerte daño a múltiples objetivos en las peleas en equipo y hace que el intercambio de objetivos individuales sea mucho más riesgoso para el oponente debido al daño distribuido. Perfecto para tiradores y configuraciones de impacto que valoran la cadencia de ataque sostenida y la presencia de AOE. Los usuarios cuerpo a cuerpo también pueden usarlo, pero brilla más en los atacantes automáticos a distancia.",
             coachTipEn = "This item turns your basic attacks into multi-target pressure: each attack fires extra bolts at nearby enemies that can trigger on-hit effects and crits. It greatly improves waveclear, contributes strong multi-target damage in teamfights, and makes trading on single targets much riskier for the opponent due to distributed damage. Perfect for marksmen and on-hit builds who value sustained attack cadence and AOE presence. Melee users can use it too, but it shines brightest on ranged auto-attackers.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300839_yordle-runaans-hurricane.webp"
+            iconUrl = "file:///android_asset/offline_images/1a1634a965cf3e181449d31fb2d9f1b3.webp"
         ),
         WildRiftItem(
             id = "youmuu_s_ghostblade",
@@ -87,7 +87,7 @@ object WildRiftItemsData {
             passiveEn = "Slice: +15 Armor Penetration.\nMomentum: Moving builds Momentum, granting up to 50 Move Speed at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nSpectral Haste: Attacking with max Momentum grants 25% Attack Speed for 4 seconds.",
             coachTip = "Este objeto es perfecto para asesinos y campeones que necesitan entrar y salir de las peleas rápidamente. Proporciona bonificaciones al daño de ataque y la velocidad de habilidad, junto con la penetración de armadura, lo que te ayuda a infligir más daño a los enemigos. El efecto Momentum aumenta tu velocidad de movimiento y la penetración de armadura a medida que te mueves, dándote una ventaja en movilidad durante las peleas. Cuando Momentum está completamente acumulado, los ataques otorgan velocidad de ataque adicional, lo que convierte al elemento en una excelente opción para los campeones que necesitan infligir daño rápidamente y escapar de las peleas.",
             coachTipEn = "This item is perfect for assassins and champions who need to get in and out of fights quickly. It provides bonuses to attack damage and ability haste, along with armor penetration, helping you deal more damage to enemies. The Momentum effect increases your movement speed and armor penetration as you move, giving you an advantage in mobility during fights. When Momentum is fully stacked, attacks grant bonus attack speed, making the item a great choice for champions who need to quickly deal damage and escape from fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300869_youmuus-ghostblade.webp"
+            iconUrl = "file:///android_asset/offline_images/f1b8c4afd751ba63ea7b8f0ff5f2c981.webp"
         ),
         WildRiftItem(
             id = "duskblade_of_draktharr",
@@ -101,7 +101,7 @@ object WildRiftItemsData {
             passiveEn = "Razor: +18 Armor Penetration.\nNightstalker: The first attack against a champion deals 60-160 bonus physical damage and slows them by 99% for 0.35s (10s cooldown). Champion takedowns refresh cooldown.",
             coachTip = "Este objeto es una herramienta puramente asesina: aumenta la penetración de tu armadura y hace que tu primer golpe a un enemigo cause una ráfaga mortal con una breve desaceleración. Conseguir un derribo otorga sigilo y una ventana de reposición rápida, lo que te permite escapar o continuar cazando, perfecto para selecciones de un solo objetivo. Brilla sobre los asesinos móviles que se centran en ejecuciones rápidas y deambulan; es menos efectivo contra los frontliners voluminosos y con alto HP.",
             coachTipEn = "This item is a pure assassin tool: it boosts your armor penetration and makes your first strike on an enemy deal a deadly burst with a brief slow. Securing a takedown grants stealth and a fast reposition window, letting you escape or continue hunting—perfect for single-target picks. It shines on mobile killers who focus on quick executions and roams; it’s less effective against bulky, high-HP frontliners.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300931_yordle-duskblade-of-draktharr.webp"
+            iconUrl = "file:///android_asset/offline_images/d23e07c846f67b0006a5e83797744539.webp"
         ),
         WildRiftItem(
             id = "infinity_edge",
@@ -115,7 +115,7 @@ object WildRiftItemsData {
             passiveEn = "Infinity: Critical Strikes deal 205% damage instead of 175%.\nLimit Break: When your total gain from items exceeds 100%, every 1% excess grants 0.6 bonus Critical Damage.",
             coachTip = "Este objeto amplifica enormemente tu poder de ataque automático al aumentar el daño base de los golpes críticos y otorgar daño crítico adicional cuando tu probabilidad total de crítico de los objetos está limitada. — Perfecto para tiradores y luchadores de ataque automático que buscan maximizar su daño crítico y sacar aún más valor de las configuraciones con alta probabilidad de crítico.",
             coachTipEn = "This item greatly amplifies your auto‑attack power by boosting the base damage of critical strikes and granting extra critical damage when your total crit chance from items is capped. — Perfect for marksmen and auto‑attack fighters looking to maximize their crit damage and squeeze even more value out of high crit chance builds.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300938_infinity-edge.webp"
+            iconUrl = "file:///android_asset/offline_images/277520aa7c2716fe0e494a9f2fa55e2a.webp"
         ),
         WildRiftItem(
             id = "mortal_reminder",
@@ -129,7 +129,7 @@ object WildRiftItemsData {
             passiveEn = "Last Whisper: +30% Armor Penetration. Attacks that Critically Strike gain an additional 6% Armor Penetration.\nSepsis: Dealing physical damage to enemy champions applies 50% Grievous Wounds for 3 seconds.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Este objeto es perfecto para atacantes automáticos que necesitan destruir armaduras y reducir la curación del enemigo. Aumenta tu penetración para causar más daño contra objetivos tanque y aplica heridas graves al golpear, lo que reduce todos los efectos de curación y regeneración. — Ideal contra tanques y campeones de alta curación, y para tiradores y luchadores de ataque automático que necesitan perforar las defensas y frenar el apoyo del enemigo.",
             coachTipEn = "This item is perfect for auto‑attackers who need to shred through armor and cut down enemy healing. It boosts your penetration to deal more damage against tanky targets and applies grievous wounds on hit, reducing all healing and regen effects. — Ideal against tanks and high‑heal champions, and for marksmen and auto‑attack fighters who need to pierce defenses and curb enemy sustain.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301062_mortal-reminder.webp"
+            iconUrl = "file:///android_asset/offline_images/015057112ebdc55f96b3dfa9252ba3c5.webp"
         ),
         WildRiftItem(
             id = "black_cleaver",
@@ -143,7 +143,7 @@ object WildRiftItemsData {
             passiveEn = "Sunder: Dealing physical damage to a champion reduces their Armor by 6% for 6 seconds, stacking 5 times for 30% reduction.\nRage: Gain 20 Movement Speed when you deal physical damage. When moving toward enemy champions with 5 Sunder stacks, gain 40 Move Speed. Ranged champions gain halved values.",
             coachTip = "Objeto indispensable para campeones de daño físico contra rivales con armadura. Reduce la armadura enemiga con cada impacto físico y otorga velocidad de movimiento para mantener el hostigamiento.",
             coachTipEn = "This item is perfect for champions who deal physical damage and need to fight tanky opponents. Sunder reduces armor on physical hits while Rage grants movement speed.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301421_black-cleaver.webp"
+            iconUrl = "file:///android_asset/offline_images/c98e3aff8b69a404445bcedab6bc9b96.webp"
         ),
         WildRiftItem(
             id = "manamune",
@@ -157,7 +157,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants Attack Damage equal to 1.5% of max Mana and refunds 15% of all Mana spent.\nMana Charge: Increases max Mana by 18 every attack or when Mana is spent. Caps at 700, bonus Mana, transforming Manamune into Muramana. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "This item is perfect for AD champions who rely on mana and abilities to deal damage. It provides bonuses to attack damage, maximum mana, and ability haste, allowing you to use your abilities effectively. The \"Mana Charge\" effect increases your mana with each attack or mana usage, which significantly boosts your damage once the item is completed. After reaching the maximum bonus mana, the item transforms into Muramana, greatly enhancing your attacks. It’s an excellent choice for champions who use mana to activate their abilities, such as Ezreal or Twitch.",
             coachTipEn = "This item is perfect for AD champions who rely on mana and abilities to deal damage. It provides bonuses to attack damage, maximum mana, and ability haste, allowing you to use your abilities effectively. The \"Mana Charge\" effect increases your mana with each attack or mana usage, which significantly boosts your damage once the item is completed. After reaching the maximum bonus mana, the item transforms into Muramana, greatly enhancing your attacks. It’s an excellent choice for champions who use mana to activate their abilities, such as Ezreal or Twitch.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301442_manamune.webp"
+            iconUrl = "file:///android_asset/offline_images/aba4fb973b550edadd3be632fb355f74.webp"
         ),
         WildRiftItem(
             id = "muramana",
@@ -171,7 +171,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants Attack Damage equal to 2% of max Mana and refunds 15% of all Mana spent.\nShock: When you hit an enemy champion with auto attack, it drains 2.5% of current Mana and deals bonus physical damage equal to the amount consumed. When dealing ability damage to enemy champion drains 4% of current mana and deals an additional physical damage equal to the amount consumed + 6%. This effect only triggers when remaining mana is above 20%. A single attack or ability will only trigger this effect once on the same champion.",
             coachTip = "This item is perfect for AD champions who rely on mana to activate their abilities and auto-attacks. It provides bonuses to attack damage, maximum mana, and ability haste, significantly enhancing your attacks and abilities. The \"Shock\" effect allows you to deal bonus physical damage by consuming mana with each auto-attack or ability. This is especially useful for champions like Ezreal, who actively use mana to deal damage. The effect doesn't trigger if your mana is below 20%, so it's important to manage your resources carefully. Overall, this item provides a huge power spike once completed and is ideal for champions who rely on mana and physical attacks.",
             coachTipEn = "This item is perfect for AD champions who rely on mana to activate their abilities and auto-attacks. It provides bonuses to attack damage, maximum mana, and ability haste, significantly enhancing your attacks and abilities. The \"Shock\" effect allows you to deal bonus physical damage by consuming mana with each auto-attack or ability. This is especially useful for champions like Ezreal, who actively use mana to deal damage. The effect doesn't trigger if your mana is below 20%, so it's important to manage your resources carefully. Overall, this item provides a huge power spike once completed and is ideal for champions who rely on mana and physical attacks.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301487_muramana.webp"
+            iconUrl = "file:///android_asset/offline_images/08f2da37400fbff1179c90b251358dac.webp"
         ),
         WildRiftItem(
             id = "trinity_force",
@@ -185,7 +185,7 @@ object WildRiftItemsData {
             passiveEn = "Fervor: +5% Move Speed.\nSpellblade: Using an ability causes the next attack used within 10 seconds to deal bonus physical damage equal to 200% base AD(1.5s Cooldown). Damage is reduced vs structures.\nValor: Attacks grant 20 Move Speed for 2 seconds. Bonuses do not stack. Ranged champions gain halved values.",
             coachTip = "Este elemento proporciona un conjunto completo de estadísticas y mejora el daño mediante la combinación de habilidades y ataques básicos. Es ideal para campeones que frecuentemente entrelazan habilidades entre ataques y dependen de un intercambio constante. Funciona mejor con luchadores y algunos portadores móviles donde la versatilidad, la velocidad y el daño explosivo en escaramuzas cortas son importantes.",
             coachTipEn = "This item provides a well-rounded set of stats and enhances damage through the combination of abilities and basic attacks. It is ideal for champions who frequently weave abilities between attacks and rely on consistent trading. It works best on fighters and some mobile carries where versatility, speed, and burst damage in short skirmishes are important.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301537_trinity-force.webp"
+            iconUrl = "file:///android_asset/offline_images/1475e9776e1486a548893bcbfba5b0ce.webp"
         ),
         WildRiftItem(
             id = "maw_of_malmortius",
@@ -199,7 +199,7 @@ object WildRiftItemsData {
             passiveEn = "Lifeline: Upon taking Magic Damage that would reduce your Health to below 35%, gain +10% Omni Vamp. until the end of combat and a magic shield that absorbs 220-530 Magic Damage for 3s. (70s Cooldown)",
             coachTip = "Este objeto proporciona una combinación de daño, resistencia mágica y rapidez de habilidad, pero su valor principal es la pasiva anti-explosión: cuando te golpea una peligrosa ráfaga de daño mágico, obtienes instantáneamente un fuerte escudo protector y un efecto temporal de robo de vida/omnivamp que dura durante toda la pelea. Te permite sobrevivir a grandes detonaciones AP y volver a entrar en escaramuzas rápidamente. Lo mejor para asesinos, matones y campeones de AD que necesitan sobrevivir a la explosión mágica y al poder del enemigo en las peleas.",
             coachTipEn = "This item provides a mix of damage, magic resistance and ability haste, but its core value is the anti-burst passive: when hit by a dangerous burst of magic damage, you instantly gain a strong protective shield and a temporary lifesteal/omnivamp effect that lasts through the fight. It lets you survive big AP detonations and re-enter skirmishes quickly. Best for assassins, bruisers and AD champions who need to survive enemy magic burst and power through fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301577_maw-of-malmortius.webp"
+            iconUrl = "file:///android_asset/offline_images/fde3101c1b0cf8002454b75c285cd1fe.webp"
         ),
         WildRiftItem(
             id = "death_s_dance",
@@ -213,7 +213,7 @@ object WildRiftItemsData {
             passiveEn = "Defy: Champion takedowns cleanse Cauterize's remaining damage pool and restores 8% of your maximum health over 2 seconds.\nCauterize: 27% of all physical damage and magic damage received (12% for ranged champions) is dealt to you over 3 seconds as true damage instead.",
             coachTip = "Este elemento convierte el daño recibido en un efecto retardado, lo que te permite permanecer en las peleas por más tiempo y suavizar los picos de daño. Aumenta tu capacidad de supervivencia con armadura y aceleración de habilidades, y los derribos exitosos limpian el daño retrasado mientras te curan instantáneamente. — Perfecto para matones y tanques que necesitan absorber ráfagas de daño y luego recuperarse rápidamente para seguir luchando.",
             coachTipEn = "This item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with armor and ability haste, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301539_yordle-deaths-dance.webp"
+            iconUrl = "file:///android_asset/offline_images/5069d1174a4d1b3b70d631d7bb61731e.webp"
         ),
         WildRiftItem(
             id = "phantom_dancer",
@@ -227,7 +227,7 @@ object WildRiftItemsData {
             passiveEn = "Swift-Footed: +5% Movement Speed.\nSpectral Waltz: One hit, your attacks grants 25% Attack Speed and +7% Movement Speedfor 6s. Bonuses do not stack. (10s cooldown reduced by 1s when your attack hits an enemy.)",
             coachTip = "Este objeto otorga un fuerte impulso a la velocidad de ataque y la movilidad, convirtiendo tus ataques básicos en una herramienta para controlar el ritmo de las peleas. Los golpes a los campeones enemigos aumentan temporalmente tu velocidad de ataque y movimiento, y los golpes frecuentes reducen el tiempo de inactividad del efecto, perfecto para hacer kitesurf, perseguir y duelos prolongados. Ideal para tiradores y matones de ataque automático que necesitan movilidad y DPS consistente.",
             coachTipEn = "This item grants a strong boost to attack speed and mobility, turning your basic attacks into a tool for controlling the tempo of fights. Hits on enemy champions temporarily increase your attack and movement speed, and frequent hits reduce the effect’s downtime — perfect for kiting, chasing, and extended duels. Ideal for marksmen and auto-attack bruisers who need mobility and consistent DPS.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302001_phantom-dancer.webp"
+            iconUrl = "file:///android_asset/offline_images/8e27a7598b14f664ed0c345151d0278c.webp"
         ),
         WildRiftItem(
             id = "nashor_s_tooth",
@@ -241,7 +241,7 @@ object WildRiftItemsData {
             passiveEn = "Magic Fang: Obtain 25 Attack Damage or 50 Ability Power (Adaptive).\nGnaw: Attacks deal adaptive damage (15 + 20% bonus+ 30% bonus) on hit.",
             coachTip = "Este objeto es perfecto para campeones que combinan ataques automáticos con daño mágico. Proporciona un gran impulso a la velocidad de ataque y reduce los tiempos de reutilización de las habilidades, lo que te permite lanzar hechizos con más frecuencia en las peleas. La pasiva \"Magic Fang\" se adapta a tu estructura otorgando daño de ataque adicional o poder de habilidad, lo que agrega flexibilidad. Con cada ataque automático, \"Gnaw\" inflige daño mágico adaptativo al golpear, lo que lo hace especialmente efectivo contra objetivos tanque y para desgastar a los oponentes con el tiempo. Este objeto es ideal para campeones como Teemo, Kayle y Jax, que dependen de ataques automáticos sostenidos respaldados por daño mágico y necesitan un uso frecuente de habilidades para maximizar el DPS en enfrentamientos prolongados.",
             coachTipEn = "This item is perfect for champions who blend auto-attacks with magic damage. It provides a hefty boost to attack speed and reduces ability cooldowns, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either bonus attack damage or ability power, adding flexibility. With each auto-attack, “Gnaw” deals adaptive magic damage on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for champions like Teemo, Kayle, and Jax, who rely on sustained auto-attacks supported by magic damage and need frequent ability usage to maximize DPS in extended engagements.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302010_nashors-tooth.webp"
+            iconUrl = "file:///android_asset/offline_images/721c3fa5d5bbda08bcc8de214d0ff715.webp"
         ),
         WildRiftItem(
             id = "wit_s_end",
@@ -255,7 +255,7 @@ object WildRiftItemsData {
             passiveEn = "At Wit's End: Basic attacks deal 10-55 bonus magic damage. While below 50%Health, dealing damage to an enemy champion heals you for (Melee 100% / Range 66%) of this effect's post-mitigation damage.",
             coachTip = "Excelente para duelistas y tiradores contra composiciones con alto daño mágico. Proporciona velocidad de ataque, daño mágico al impactar y curación por debajo del 50% de vida.",
             coachTipEn = "This item is perfect for champions who want sustained damage and magic defense. Provides attack speed, on-hit magic damage, and healing below 50% HP.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302068_wits-end.webp"
+            iconUrl = "file:///android_asset/offline_images/77c41c15fa7642a1d42a2717e2a7e6ca.webp"
         ),
         WildRiftItem(
             id = "essence_reaver",
@@ -269,7 +269,7 @@ object WildRiftItemsData {
             passiveEn = "Spellblade: Casting an ability generates a Spellblade charge (max 2 charges) that lasts up to 10 second(s). Hitting an enemy with an attack consumes a charge, dealing 70 bonusas physical damage and granting 40 Movement Speed for 2 second(s). This bonus damage can Critically Strike. Each ability generates only one charge per 2 second(s).\nMana Siphon: Attacks restore 3% missingMana on-hit.",
             coachTip = "Este objeto es perfecto para campeones híbridos de ataque automático que necesitan mantenimiento de maná y daño mejorado después de lanzar habilidades. Aumenta la velocidad de habilidad y, después de usar una habilidad, tu siguiente ataque básico golpea más fuerte y otorga una ráfaga de velocidad de movimiento. Además, los ataques automáticos restauran una parte del maná que te falta, lo que te mantiene en las peleas por más tiempo. — Una excelente elección para tiradores y luchadores que incorporan hechizos en sus rotaciones de ataques automáticos para obtener el máximo DPS y sostenibilidad de maná.",
             coachTipEn = "This item is perfect for hybrid auto‑attack champions who need mana sustain and enhanced damage after casting abilities. It boosts ability haste, and after using a skill, your next basic attack hits harder and grants a burst of movement speed. Additionally, auto‑attacks restore a portion of your missing mana, keeping you in fights longer. — A great pick for marksmen and fighters who weave spells into their auto‑attack rotations for maximum DPS and mana sustainability.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302228_essence-reaver.webp"
+            iconUrl = "file:///android_asset/offline_images/cc324318eca7e4029fea09a7ebb2c39f.webp"
         ),
         WildRiftItem(
             id = "serylda_s_grudge",
@@ -283,7 +283,7 @@ object WildRiftItemsData {
             passiveEn = "Last Whisper: Gain +33% Armor Penetration.\nIcy: Damaging active abilities and empowered attacks slow enemies by 30% for 1 second.\nFrostbite: Apply Frostbite to enemies slowed by Icy for 6s. At 3 Frostbite stacks, all stacks are consumed to apply bleed, dealing (5 + 1-15 () + 15% bonus) physical damage over 2s. Also applies 50% Grievous Wounds for 3s. (5s cooldown per target)",
             coachTip = "Este objeto combina una fuerte penetración de armadura con control de masas: tus habilidades activas y tus golpes potenciados ralentizan a los objetivos, y las ralentizaciones repetidas desencadenan un sangrado que también aplica heridas graves. Perfecto para campeones que necesitan hacer kite, ejecutar objetivos prioritarios y frenar su curación.",
             coachTipEn = "This item blends heavy armor penetration with crowd control: your active abilities and empowered hits slow targets, and repeated slows trigger a bleed that also applies grievous wounds. Perfect for champions who need to kite, execute priority targets, and curb their healing.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302257_yordle-seryldas-grudge.webp"
+            iconUrl = "file:///android_asset/offline_images/672c2f3191c28c8f729dd0b4a67d17b8.webp"
         ),
         WildRiftItem(
             id = "navori_quickblades",
@@ -297,7 +297,7 @@ object WildRiftItemsData {
             passiveEn = "Deft Strikes: Attacks reduce the remaining cooldowns of your basic abilities by 15%.",
             coachTip = "Este objeto es perfecto para atacantes automáticos que buscan amplificar el daño de sus habilidades y reducir los tiempos de reutilización. Los golpes críticos aceleran tus habilidades no definitivas, mientras que tus habilidades golpean más fuerte según tu probabilidad de crítico. — Una de las mejores opciones para tiradores y asesinos que combinan ataques automáticos con hechizos para eliminar objetivos rápidamente y mantener el impulso del combate.",
             coachTipEn = "This item is perfect for auto‑attackers who aim to amplify their ability damage and reduce cooldowns. Critical strikes accelerate your non‑ultimate abilities, while your skills hit harder based on your crit chance. — A top pick for marksmen and assassins who weave auto‑attacks with spells to swiftly eliminate targets and maintain combat momentum.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302298_navori-quickblades.webp"
+            iconUrl = "file:///android_asset/offline_images/ddb7b42ff818a8e2d2f541c9dc96a0fc.webp"
         ),
         WildRiftItem(
             id = "edge_of_night",
@@ -311,7 +311,7 @@ object WildRiftItemsData {
             passiveEn = "Gouge: +12 Armor Penetration.\nAnnul: Grants a spell shield that blocks the next hostile ability. This spell shield refreshes upon leaving combat with enemy champions. (35 second cooldown)",
             coachTip = "Ideal para asesinos y tiradores de letalidad. Otorga penetración de armadura y un escudo que bloquea la primera habilidad enemiga, permitiendo entrar a las peleas con total seguridad.",
             coachTipEn = "This item is perfect for assassins and lethality carries, providing armor penetration and a spell shield to block critical enemy crowd control or burst.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302335_edge-of-night.webp"
+            iconUrl = "file:///android_asset/offline_images/9d3f49bbe18458be5b63ce1d74b3e91c.webp"
         ),
         WildRiftItem(
             id = "divine_sunderer",
@@ -325,7 +325,7 @@ object WildRiftItemsData {
             passiveEn = "Spellblade: After using an ability, your next attack within 10 seconds deals (10% melee / 7% ranged) of target’s maximum health as bonus physical damage. If the target is a champion, heal for (6% melee / 2.5% ranged) of the target's maximum health. (1.5s Cooldown) Damage is reduced vs structure.",
             coachTip = "Este objeto ofrece una sólida combinación de capacidad de supervivencia y daño: después de usar una habilidad, tu próximo ataque básico tiene el poder de infligir daño adicional según la salud máxima del objetivo y te cura cuando se usa contra campeones enemigos. Perfecto para luchadores matones y carrileros solitarios que entrelazan habilidades en autos y necesitan apoyo contra tanques y duelistas.",
             coachTipEn = "This item offers a strong blend of survivability and damage: after using an ability your next basic attack is empowered to deal bonus damage based on the target’s max health, and it heals you when used on enemy champions. Perfect for fighter-bruisiers and solo laners who weave abilities into autos and need sustain versus tanks and duelists.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753303444_divine-sunderer.webp"
+            iconUrl = "file:///android_asset/offline_images/691296760b88f9735ddee2799f4992d4.webp"
         ),
         WildRiftItem(
             id = "serpent_s_fang",
@@ -339,7 +339,7 @@ object WildRiftItemsData {
             passiveEn = "Shield Reaver: Dealing damage to an enemy champion reduces any shields they gain for 3s. Melee champions apply (10% of bonus AD + 40)% shield reduction, capped at 60%; while ranged champions apply (10% of bonus AD + 25)% shield reduction, capped at 45%. When you damage an enemy who is unaffected by Shield Reaver, all shields on them are reduced by the same values.",
             coachTip = "Este objeto es ideal para asesinos y duelistas físicos frente a rivales con escudos pesados (como Lux, Shen, Karma, Lulu o Sett). La pasiva Siegaescudos destruye y reduce la absorción de barreras enemigas al impactar, garantizando que tu daño penetre rápidamente.",
             coachTipEn = "This item is perfect for assassins and champions who face enemies with a lot of shields. It provides bonuses to attack damage, ability haste, and armor penetration, with the Shield Reaver effect cutting through enemy shields.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753303456_serpents-fang.webp"
+            iconUrl = "file:///android_asset/offline_images/9056fe258a17cfe13919ec1b3e222f4a.webp"
         ),
         WildRiftItem(
             id = "chempunk_chainsword",
@@ -353,7 +353,7 @@ object WildRiftItemsData {
             passiveEn = "Punishment: Dealing physical damage to enemy champions applies 50% Grievous Wounds for 3 seconds. Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Objeto esencial para luchadores y asesinos contra composiciones con alta curación y sostenimiento (Dr. Mundo, Soraka, Yuumi, Aatrox, Darius). Corta el 50% de las curaciones enemigas mientras otorga vida y daño.",
             coachTipEn = "This item is perfect for champions who face enemies with high sustain, applying Grievous Wounds to reduce healing and regeneration by 50%.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304959_chempunk-chainsword.webp"
+            iconUrl = "file:///android_asset/offline_images/86e753262caa8f290509232bb4e34f15.webp"
         ),
         WildRiftItem(
             id = "the_collector",
@@ -367,7 +367,7 @@ object WildRiftItemsData {
             passiveEn = "Killer: +10 Armor Penetration.\nDeath and Taxes: Dealing damage that would leave an enemy champion below (4% + 2% Critical Rate) of their max Health executes them, permanently increases the max Health percentage execution threshold by 0.1%, and grants 25 bonus gold.Limited to 1 The Collector.",
             coachTip = "Este objeto convierte tus ataques automáticos en un remate: aumenta tu penetración para destruir armaduras y ejecuta automáticamente a enemigos con poca salud, recompensándote con oro adicional. — Perfecto para tiradores y asesinos que necesitan ejecuciones confiables en objetivos vulnerables mientras aumentan sus ingresos de oro.",
             coachTipEn = "This item turns your auto‑attacks into a finisher: it boosts your penetration for shredding armor and automatically executes low‑health enemies, rewarding you with extra gold. — Perfect for marksmen and assassins who need reliable executes on vulnerable targets while snowballing their gold income.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304861_the-collector.webp"
+            iconUrl = "file:///android_asset/offline_images/c341133522f4f2bf164b1b823a13249c.webp"
         ),
         WildRiftItem(
             id = "sterak_s_gage",
@@ -381,7 +381,7 @@ object WildRiftItemsData {
             passiveEn = "Heavy Handed: +50% base Attack Damage as bonus Attack Damage.\nLifeline: Damage that puts you under 35% Health grants a shield that equal to 75% of your bonus health that decays over 3 seconds (75s Cooldown).\nSterak's Fury: Triggering Lifeline increases size, empowers you, removes all crowd control effects on you (except Airborne), and grants 30% Tenacity for 4 seconds.",
             coachTip = "Esencial para luchadores y colosos de primera línea. Otorga gran daño según tu AD base y un escudo masivo con tenacidad cuando tu vida baja críticamente.",
             coachTipEn = "This item is essential for frontline fighters, granting bonus attack damage and a large shield with tenacity when health drops below 35%.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305021_steraks-gage.webp"
+            iconUrl = "file:///android_asset/offline_images/919bc13bc2461bb522082722e34a456d.webp"
         ),
         WildRiftItem(
             id = "spear_of_shojin",
@@ -395,7 +395,7 @@ object WildRiftItemsData {
             passiveEn = "Dragonforce: +20% Ability Haste.\nFocused Will: Dealing damage to monsters or enemies with abilities increases your champion’s ability and passive damage by 3% for 6s. (Stacks 4 times).",
             coachTip = "Este elemento proporciona una combinación de capacidad de supervivencia y uso potenciado de habilidades: aumenta tu poder de permanencia, reduce los tiempos de reutilización de las habilidades y aumenta temporalmente tu habilidad y el daño pasivo después de enfrentarte a enemigos o eliminar monstruos. Perfecto para duelistas que quieren lanzar hechizos con más frecuencia en las peleas y obtener ventaja en escaramuzas prolongadas o escenarios de empuje dividido. Adecuado para campeones que tejen autos con lanzamientos de habilidades frecuentes.",
             coachTipEn = "This item provides a mix of survivability and empowered ability usage: it increases your staying power, reduces ability cooldowns, and temporarily boosts your ability and passive damage after engaging enemies or clearing monsters. Perfect for duelist bruisers who want to cast more often in fights and gain an edge in extended skirmishes or split-push scenarios. Suited for champions who weave autos with frequent ability casts.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304984_spear-of-shojin.webp"
+            iconUrl = "file:///android_asset/offline_images/41f521861c5c4a43c061989ace78c171.webp"
         ),
         WildRiftItem(
             id = "titanic_hydra",
@@ -409,7 +409,7 @@ object WildRiftItemsData {
             passiveEn = "Cleave: Every 1.75 second(s), your next attack deals bonus physical damage equal to 25 + 3% bonus (also applies to turrets), creating a shockwave that deals physical damage equal to 80 + 10% bonus to enemies behind the target. Ranged champions deal 75% of the damage.",
             coachTip = "Este elemento convierte tus ataques básicos en una herramienta AOE: periódicamente tu próximo golpe se convierte en un golpe de barrido que inflige daño físico adicional a los enemigos cercanos y afecta a los objetivos detrás del golpe principal. Acelera la eliminación de olas, agrega daño adicional en las peleas en equipo y ayuda a presionar las estructuras cuando se construye adecuadamente. Es más adecuado para matones cuerpo a cuerpo y tanques que combinan una gran reserva de salud con autos frecuentes; ideal para jugadores que desean impactar tanto en intercambios 1 contra 1 como en enfrentamientos prolongados.",
             coachTipEn = "This item turns your basic attacks into an AOE tool: periodically your next hit becomes a sweeping strike that deals bonus physical damage to nearby enemies and affects targets behind the primary hit. It speeds up waveclear, adds extra damage in teamfights, and helps pressure structures when built appropriately. Best suited for melee bruisers and tanks who combine a big health pool with frequent autos — great for players who want impact both in 1v1 trades and prolonged engagements.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304937_titanic-hydra.webp"
+            iconUrl = "file:///android_asset/offline_images/a587350906b08db7aacfec025271682b.webp"
         ),
         WildRiftItem(
             id = "terminus",
@@ -423,7 +423,7 @@ object WildRiftItemsData {
             passiveEn = "Shadow: Attacks deal 35 bonus magic damage on-hit.\nJuxtaposition: Alternate between Light and Dark on-hits when attacking. Light attacks grant 5-8 Armor and Magic Resist for 5 seconds on hit. Dark attacks grant 11% Armor Pen and 11% Magic Pen for 5 seconds on hit. Each on-hit effect stacks up to 3 times. While you have this item, bonus Armor Pen and Magic Pen granted by it is capped at 40%.",
             coachTip = "This item is perfect for champions who rely heavily on auto-attacks and can benefit from mixed penetration effects and stacking resistances. It provides bonuses to attack damage and attack speed, and adds bonus magic damage to your auto-attacks. The \"Juxtaposition\" effect alternates between Light and Dark on-hits, granting you bonuses to resistances or penetration depending on which effect is triggered. Light attacks grant armor and magic resist, while Dark attacks grant armor and magic penetration. This item is especially useful for champions who auto-attack frequently and can take advantage of the stacking resistances and penetration effects.",
             coachTipEn = "This item is perfect for champions who rely heavily on auto-attacks and can benefit from mixed penetration effects and stacking resistances. It provides bonuses to attack damage and attack speed, and adds bonus magic damage to your auto-attacks. The \"Juxtaposition\" effect alternates between Light and Dark on-hits, granting you bonuses to resistances or penetration depending on which effect is triggered. Light attacks grant armor and magic resist, while Dark attacks grant armor and magic penetration. This item is especially useful for champions who auto-attack frequently and can take advantage of the stacking resistances and penetration effects.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305038_terminus.webp"
+            iconUrl = "file:///android_asset/offline_images/75dd4d584ca6b34dad5d3d12404ca40d.webp"
         ),
         WildRiftItem(
             id = "sundered_sky",
@@ -437,7 +437,7 @@ object WildRiftItemsData {
             passiveEn = "Lightshield Strike: The first attack against an enemy champion deals Critically Strikes (6s cooldown per target), dealing 160% damage and restores Health (equal to 125% base Attack Damage + 6% of missing Health to you.",
             coachTip = "Excelente para iniciaciones y escaramuzas en línea. Tu primer golpe a cada enemigo inflige un impacto crítico devastador y te cura una porción de tu vida faltante.",
             coachTipEn = "This item is perfect for AD bruisers who deal physical damage and need sustain during fights. The first strike critically hits and heals based on missing HP.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305059_sundered-sky.webp"
+            iconUrl = "file:///android_asset/offline_images/e23e4ba0819c936167a00e9a1aee7389.webp"
         ),
         WildRiftItem(
             id = "eclipse",
@@ -451,7 +451,7 @@ object WildRiftItemsData {
             passiveEn = "Ever Rising Moon: Hitting an enemy champion with 2 separate attacks or abilities within 1.8s deals bonus physical damage equal to 7% of the target's max Health(3.5% for ranged champions), and grants you a shield that absorbs damage equal to 140 + 35% bonus Attack Damage (70 + 18% bonus Attack Damage for ranged champions) for 2s. (6s Cooldown)",
             coachTip = "Este objeto es ideal para asesinos y duelistas que buscan infligir daño por vida porcentual y obtener un escudo protector constante en escaramuzas rápidas.",
             coachTipEn = "This item is perfect for assassins who want to burst down enemies quickly, dealing percent max health damage and gaining a protective shield.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305145_eclipse.webp"
+            iconUrl = "file:///android_asset/offline_images/58e5a4886b2f0f5814d36b8dfabff5a6.webp"
         ),
         WildRiftItem(
             id = "soul_transfer",
@@ -465,7 +465,7 @@ object WildRiftItemsData {
             passiveEn = "Shadow Dance: When your attack Critically Strikes an enemy champion or a large monster, summon a clone that lasts 4 second(s) to attack nearby enemies. The clone inherits 20% of your Attack Damage and additionally gains 30% of your Critical Rate as Attack Speed. Up to two clones can exist at one time.If a clone moves more than 600 units away from you, it will disappear early.",
             coachTip = "Este objeto es perfecto para campeones que dependen de golpes críticos y ataques automáticos, especialmente en peleas en equipo prolongadas. Otorga daño de ataque adicional, probabilidad de golpe crítico y velocidad de ataque. En un golpe crítico contra un campeón o un monstruo grande, invocas un clon que ataca a los enemigos cercanos; el clon hereda una parte de tu DA y convierte la probabilidad de crítico adicional en velocidad de ataque. Ideal para tiradores que frecuentemente lanzan críticos y necesitan daño adicional contra múltiples objetivos.",
             coachTipEn = "This item is perfect for champions relying on critical strikes and auto-attacks, especially in extended teamfights. It grants bonus attack damage, critical strike chance, and attack speed. On a critical strike against a champion or large monster, you summon a clone that attacks nearby enemies— the clone inherits a portion of your AD and converts extra crit chance into attack speed. Ideal for marksmen who frequently land crits and need extra multi-target damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305204_soul-transfer.webp"
+            iconUrl = "file:///android_asset/offline_images/df3df474dc044b21421f740011f419a2.webp"
         ),
         WildRiftItem(
             id = "lord_dominik_s_regards",
@@ -479,7 +479,7 @@ object WildRiftItemsData {
             passiveEn = "Last Whisper: Grants physical armor penetration. Giant Slayer: Deals bonus damage against champions with greater max health.",
             coachTip = "Fundamental cuando el equipo enemigo tiene tanques que acumulan mucha vida y armadura.",
             coachTipEn = "Essential when the enemy team has tanks stacking a lot of health and armor.",
-            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3036.png"
+            iconUrl = "file:///android_asset/offline_images/22544e382529f38069d660a78e6df20e.png"
         ),
         WildRiftItem(
             id = "experimental_hexplate",
@@ -493,7 +493,7 @@ object WildRiftItemsData {
             passiveEn = "Hexcharged: Gain 20 Ultimate Ability Haste. Overdrive: After casting your ultimate, gain 40% Attack Speed (20% for ranged) and 20% Movement Speed (10% for ranged) for 8s (30s cooldown).",
             coachTip = "Excelente en campeones cuyas definitivas son el centro de su estilo de juego, como Nocturne o Xin Zhao.",
             coachTipEn = "Excellent on champions whose ultimates are the core of their playstyle, like Nocturne or Xin Zhao.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630328_experimental-hexplate.webp"
+            iconUrl = "file:///android_asset/offline_images/b2e930bbfbaf70f3183bf1732eb6c052.webp"
         ),
         WildRiftItem(
             id = "hullbreaker",
@@ -507,7 +507,7 @@ object WildRiftItemsData {
             passiveEn = "Boarding Party: While no allied champions are nearby, gain Armor/MR and deal bonus damage to structures. Nearby minions are also buffed.",
             coachTip = "El objeto definitivo para el split-push (empuje dividido). Si vas a ignorar a tu equipo para tirar torres, este es tu ítem.",
             coachTipEn = "The ultimate split-push item. If you plan to ignore your team to take down towers, this is your item.",
-            iconUrl = "https://am-a.akamaihd.net/image?f=http://ddragon.leagueoflegends.com/cdn/14.6.1/img/item/3181.png"
+            iconUrl = "file:///android_asset/offline_images/0678b476a01b8e1b5fa9754e8858ee93.png"
         ),
         WildRiftItem(
             id = "luden_s_echo",
@@ -521,7 +521,7 @@ object WildRiftItemsData {
             passiveEn = "Echo: Your next damaging ability or empowered attack deals an additional 140 + 15% magic damage to the target and up to 3 nearby enemies. (9s Cooldown)",
             coachTip = "Este objeto mejora enormemente tu daño explosivo al potenciar tu próxima habilidad dañina o ataque potenciado con una explosión mágica adicional que también golpea a los enemigos cercanos. Es una excelente opción para los magos que se destacan en despejar olas, atacar múltiples objetivos y dominar operaciones cortas con un alto potencial de explosión.",
             coachTipEn = "This item greatly enhances your burst damage by empowering your next damaging ability or empowered attack with an additional magic explosion that also strikes nearby enemies. It is an excellent choice for mages who excel at wave clearing, poking multiple targets, and dominating short trades with high burst potential.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388218_ludens-echo.webp"
+            iconUrl = "file:///android_asset/offline_images/1788098a082a158a83b05bbc9bcb4e0b.webp"
         ),
         WildRiftItem(
             id = "morellonomicon",
@@ -535,7 +535,7 @@ object WildRiftItemsData {
             passiveEn = "Affliction: Dealing magic damage to enemy champions inflicts 50% Grievous Wounds for 3 seconds.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Este objeto está diseñado para contrarrestar campeones con una fuerte curación y sustentación. Cualquier daño mágico que inflijas aplica heridas graves, lo que reduce en gran medida la efectividad de la curación y regeneración del enemigo. Es una excelente opción para magos y apoyos AP contra equipos que dependen en gran medida de la curación, el robo de vida o la regeneración.",
             coachTipEn = "This item is designed to counter champions with strong healing and sustain. Any magic damage you deal applies Grievous Wounds, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports against teams that rely heavily on healing, lifesteal, or regeneration.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp"
+            iconUrl = "file:///android_asset/offline_images/0c0fefe5c38af6fc40ea24c5539672b0.webp"
         ),
         WildRiftItem(
             id = "rabadon_s_deathcap",
@@ -549,7 +549,7 @@ object WildRiftItemsData {
             passiveEn = "Overkill: Increases Ability Power by 30%.",
             coachTip = "Este objeto es el amplificador de poder de habilidad definitivo para cualquier mago. No solo proporciona una enorme cantidad de AP, sino que también aumenta tu poder de habilidad total, aumentando drásticamente el daño con hechizos, la curación y todos los demás efectos de escala de AP. Una compra esencial al final del juego para los campeones que buscan maximizar su potencial de lanzamiento de hechizos y desatar un daño explosivo devastador.",
             coachTipEn = "This item is the ultimate Ability Power amplifier for any mage. It not only provides a massive amount of AP but also increases your total Ability Power, dramatically boosting your spell damage, healing, and all other AP scaling effects. An essential late-game purchase for champions looking to maximize their spellcasting potential and unleash devastating burst damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388295_rabadons-deathcap.webp"
+            iconUrl = "file:///android_asset/offline_images/3e238358c02090087ae206fc310ad98a.webp"
         ),
         WildRiftItem(
             id = "rylai_s_crystal_scepter",
@@ -563,7 +563,7 @@ object WildRiftItemsData {
             passiveEn = "Icy: Damaging abilities and empowered attacks slow enemies by 30% for 0.75 second.",
             coachTip = "Este objeto mejora tu control de masas al hacer que tus habilidades y ataques potenciados ralenticen a los enemigos con cada golpe. La salud adicional mejora tu durabilidad, mientras que la ralentización constante hace que sea mucho más fácil conseguir habilidades de seguimiento, perseguir objetivos que huyen y apoyar a tus compañeros de equipo. Es una excelente opción para magos y campeones de daño en el tiempo que dependen de mantener a los enemigos dentro del alcance de sus habilidades.",
             coachTipEn = "This item enhances your crowd control by causing your abilities and empowered attacks to slow enemies with every hit. The bonus health improves your durability, while the consistent slow makes it much easier to land follow-up abilities, chase fleeing targets, and support your teammates. It is an excellent choice for damage-over-time mages and champions who rely on keeping enemies within the range of their abilities.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388390_rylais-crystal-scepter.webp"
+            iconUrl = "file:///android_asset/offline_images/da88ffd23441e3d461aec00c69f066b3.webp"
         ),
         WildRiftItem(
             id = "liandry_s_torment",
@@ -577,7 +577,7 @@ object WildRiftItemsData {
             passiveEn = "Torment: Damaging abilities and empowered attacks burn enemies for 2% max Health magic damage for 3 seconds.\nMadness: Deals 2% more damage for each second in combat against champions, capped at 6% after 3 seconds.",
             coachTip = "Este objeto sobresale en peleas prolongadas. Tus habilidades y ataques potenciados encienden a los enemigos e infligen daño a lo largo del tiempo en función de su salud máxima, mientras que tu daño general aumenta constantemente cuanto más tiempo permaneces en combate. Es una excelente opción para los magos que hacen daño en el tiempo y los matones AP que quieren desgastar incluso a los campeones de primera línea más duros.",
             coachTipEn = "This item excels in extended fights. Your abilities and empowered attacks ignite enemies, dealing damage over time based on their maximum health, while your overall damage steadily increases the longer you remain in combat. It is an excellent choice for damage-over-time mages and AP bruisers who want to wear down even the toughest frontline champions.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388368_yorlde-liandrys-torment.webp"
+            iconUrl = "file:///android_asset/offline_images/206e3eef90b44d6334533e14005a29b6.webp"
         ),
         WildRiftItem(
             id = "rod_of_ages",
@@ -591,7 +591,7 @@ object WildRiftItemsData {
             passiveEn = "Eternity: Restore Mana equal to 15% of the damage taken from champions. Regen Health equal to 20% Mana spent. Capped at 25 Health per cast.\nVeteran: Each stack provides 15 Health, 30 Mana and 4 Ability Power, stacking at a rate of 1 every 35 seconds. Max of 10 stacks, providing 150 Health, 300 Mana, and 40 Ability Power.",
             coachTip = "Este elemento se vuelve más fuerte a lo largo del juego, aumentando gradualmente sus estadísticas y convirtiéndose en una de las mejores opciones de escala disponibles. Proporciona un excelente equilibrio entre durabilidad, maná y poder de habilidad al mismo tiempo que restaura la salud y el maná durante el combate, lo que te permite permanecer en las peleas por mucho más tiempo. Una elección perfecta para magos y matones AP que prosperan al final del juego y destacan en peleas en equipo prolongadas.",
             coachTipEn = "This item grows stronger over the course of the game, gradually increasing its stats and becoming one of the best scaling options available. It provides an excellent balance of durability, mana, and Ability Power while restoring both health and mana during combat, allowing you to stay in fights much longer. A perfect choice for mages and AP bruisers who thrive in the late game and excel in extended teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388412_rod-of-ages.webp"
+            iconUrl = "file:///android_asset/offline_images/3961150fddbbe87f5e4b119da3cf03ff.webp"
         ),
         WildRiftItem(
             id = "lich_bane",
@@ -605,7 +605,7 @@ object WildRiftItemsData {
             passiveEn = "Spellblade: Using an ability causes the next attack used within 10 seconds to deal bonus magic damage equal to 75% base AD + 45% AP . (1.5s Cooldown) Damage is reduced vs structures.",
             coachTip = "Este objeto es perfecto para campeones que entrelazan habilidades entre sus ataques básicos. Después de lanzar un hechizo, tu próximo ataque se potencia con una poderosa ráfaga de daño mágico adicional, lo que aumenta enormemente tu potencial combinado. La velocidad de movimiento adicional también mejora tu movilidad, lo que facilita reposicionarte y perseguir objetivos. Una excelente opción para magos móviles, asesinos AP y campeones híbridos que dependen de rotaciones de habilidades cortas y de alto daño.",
             coachTipEn = "This item is perfect for champions who weave abilities between their basic attacks. After casting a spell, your next attack is empowered with a powerful burst of bonus magic damage, greatly increasing your combo potential. The bonus movement speed also improves your mobility, making it easier to reposition and chase targets. An excellent choice for mobile mages, AP assassins, and hybrid champions who rely on short, high-damage ability rotations.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388405_lich-bane.webp"
+            iconUrl = "file:///android_asset/offline_images/49358858c22a8313bd7c2a47b405e5fd.webp"
         ),
         WildRiftItem(
             id = "nashor_s_tooth",
@@ -619,7 +619,7 @@ object WildRiftItemsData {
             passiveEn = "Magic Fang: Obtain 25 Attack Damage or 50 Ability Power (Adaptive).\nGnaw: Attacks deal adaptive damage (15 + 20% bonus+ 30% bonus) on hit.",
             coachTip = "Este objeto es perfecto para campeones que combinan ataques automáticos con daño mágico. Proporciona un gran impulso a la velocidad de ataque y reduce los tiempos de reutilización de las habilidades, lo que te permite lanzar hechizos con más frecuencia en las peleas. La pasiva \"Magic Fang\" se adapta a tu estructura otorgando daño de ataque adicional o poder de habilidad, lo que agrega flexibilidad. Con cada ataque automático, \"Gnaw\" inflige daño mágico adaptativo al golpear, lo que lo hace especialmente efectivo contra objetivos tanque y para desgastar a los oponentes con el tiempo. Este objeto es ideal para campeones como Teemo, Kayle y Jax, que dependen de ataques automáticos sostenidos respaldados por daño mágico y necesitan un uso frecuente de habilidades para maximizar el DPS en enfrentamientos prolongados.",
             coachTipEn = "This item is perfect for champions who blend auto-attacks with magic damage. It provides a hefty boost to attack speed and reduces ability cooldowns, allowing you to cast spells more frequently in fights. The “Magic Fang” passive adapts to your build by granting either bonus attack damage or ability power, adding flexibility. With each auto-attack, “Gnaw” deals adaptive magic damage on hit, making it especially effective against tanky targets and for wearing down opponents over time. This item is ideal for champions like Teemo, Kayle, and Jax, who rely on sustained auto-attacks supported by magic damage and need frequent ability usage to maximize DPS in extended engagements.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753302010_nashors-tooth.webp"
+            iconUrl = "file:///android_asset/offline_images/721c3fa5d5bbda08bcc8de214d0ff715.webp"
         ),
         WildRiftItem(
             id = "archangel_s_staff",
@@ -633,7 +633,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants Ability Power equal to 1% max Mana and refunds 25% of all Mana spent.\nMana Charge: Increases max Mana by 14 every time Mana is spent. Caps at 700 bonus Mana, transforming Archangel's Staff into Seraph's Embrace. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Objeto de escalado masivo para magos que dependen de un gran depósito de maná (Orianna, Kassadin, Ryze, Ziggs). Al completarse se transforma en Abrazo del serafín, otorgando un escudo vitalicio.",
             coachTipEn = "This item is perfect for mages who rely on a large mana pool and need significant ability power scaling.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388461_archangels-staff.webp"
+            iconUrl = "file:///android_asset/offline_images/53c64305bd1c31856f272d2196a1163e.webp"
         ),
         WildRiftItem(
             id = "seraph_s_embrace",
@@ -647,7 +647,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants Ability Power equal to 2% max Mana and refunds 25% of all Mana spent.\nLifeline: Damage that puts you under 35% Health consumes 20% of your current Mana to grant a shield, equal to that amount +100 for 2 seconds. (70s cooldown).",
             coachTip = "Transformación definitiva del Báculo del arcángel. Otorga un inmenso poder de habilidad por maná y un escudo automático para sobrevivir al daño de ráfaga asesino.",
             coachTipEn = "Upgraded form of Archangel's Staff. Grants massive AP based on mana and an emergency lifeline shield.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388429_seraphs-embrace.webp"
+            iconUrl = "file:///android_asset/offline_images/0bfb36d8b1370271319b5895293c4056.webp"
         ),
         WildRiftItem(
             id = "infinity_orb",
@@ -661,7 +661,7 @@ object WildRiftItemsData {
             passiveEn = "Inevitable Demise: Abilities and empowered attacks Critically Strike for 20% bonus damage against enemies below 35% Health.",
             coachTip = "Este objeto mejora enormemente el poder final de un mago. Proporciona un gran impulso al poder de habilidad y la penetración mágica al mismo tiempo que permite que tus habilidades y ataques potenciados causen mayor daño a enemigos con poca salud. Una excelente opción para magos y asesinos AP que desean ejecutar objetivos de manera más confiable y maximizar su potencial de explosión.",
             coachTipEn = "This item greatly enhances a mage's finishing power. It provides a large boost to Ability Power and magic penetration while allowing your abilities and empowered attacks to deal increased damage to low-health enemies. An excellent choice for mages and AP assassins who want to execute targets more reliably and maximize their burst potential.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388486_yordle-infinity-orb.webp"
+            iconUrl = "file:///android_asset/offline_images/026213a99027f6878f2e67427e6a2445.webp"
         ),
         WildRiftItem(
             id = "oceanid_s_trident",
@@ -675,7 +675,7 @@ object WildRiftItemsData {
             passiveEn = "Lethal Weapon: Dealing ability damage to an enemy champion reduces any shields they gain for 3 seconds. Area of effect abilities apply (5% of bonus AP + 25)% shield reduction, capped at 45%; while single target abilities apply (5% of bonus AP + 40)% shield reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.",
             coachTip = "Este objeto está diseñado para contrarrestar a campeones con muchos escudos. Tus habilidades reducen significativamente la efectividad de los escudos que reciben los enemigos, mientras que el primer golpe también puede debilitar los escudos que ya están activos. Es una excelente opción para magos y apoyos AP contra composiciones que dependen de escudos, lo que permite a tu equipo atravesar las defensas enemigas y eliminar objetivos prioritarios de manera más efectiva.",
             coachTipEn = "This item is designed to counter shield-heavy champions. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports against shield-reliant compositions, allowing your team to break through enemy defenses and eliminate priority targets more effectively.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp"
+            iconUrl = "file:///android_asset/offline_images/f800a2be044a17e73fe7079161df361a.webp"
         ),
         WildRiftItem(
             id = "cosmic_drive",
@@ -689,7 +689,7 @@ object WildRiftItemsData {
             passiveEn = "Spelldance: Dealing magic or true damage to champions grants 30 Movement Speed for 4 second(s).",
             coachTip = "Este artículo combina poder de habilidad, durabilidad y movilidad excepcional. Infligir daño con tus habilidades otorga una ráfaga de velocidad de movimiento, lo que hace que sea más fácil atacar a los enemigos, perseguir objetivos que huyen o reposicionarse de manera segura durante las peleas. Es una excelente opción para magos móviles, matones AP y campeones que prosperan en escaramuzas prolongadas mientras permanecen en constante movimiento.",
             coachTipEn = "This item combines Ability Power, durability, and exceptional mobility. Dealing damage with your abilities grants a burst of movement speed, making it easier to kite enemies, chase fleeing targets, or reposition safely during fights. It is an excellent choice for mobile mages, AP bruisers, and champions who thrive in extended skirmishes while constantly staying on the move.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388596_cosmic-drive.webp"
+            iconUrl = "file:///android_asset/offline_images/22da6db8487eb222ee027fc4b6a5fb95.webp"
         ),
         WildRiftItem(
             id = "riftmaker",
@@ -703,7 +703,7 @@ object WildRiftItemsData {
             passiveEn = "Void Corruption: Every 1 second(s) in combat with enemy champions, deal 2% bonus damage, up to 8%.At maximum strength, gainOmni Vamp. (10% for melee champions / 6% for ranged champions).\nVoid Infusion: Gain 2% of your bonus Health as Ability Power.",
             coachTip = "Este objeto está diseñado para peleas prolongadas y aumenta gradualmente el daño cuanto más tiempo permaneces en combate. Una vez que está completamente aumentado, otorga Omni Vamp para mejorar el sustento, mientras que tu salud adicional se convierte parcialmente en poder de habilidad, lo que aumenta aún más tu daño general. Una excelente opción para los matones AP y los magos de batalla que destacan en peleas en equipo prolongadas y prosperan escalando a lo largo del combate.",
             coachTipEn = "This item is built for extended fights, gradually increasing your damage the longer you remain in combat. Once fully ramped up, it grants Omni Vamp for improved sustain, while your bonus Health is partially converted into Ability Power, further increasing your overall damage. An excellent choice for AP bruisers and battlemages who excel in prolonged teamfights and thrive by scaling throughout combat.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388604_riftmaker.webp"
+            iconUrl = "file:///android_asset/offline_images/8ab6dc6493eda1a50bf731f8fa715087.webp"
         ),
         WildRiftItem(
             id = "horizon_focus",
@@ -717,7 +717,7 @@ object WildRiftItemsData {
             passiveEn = "Hypershot: Damaging an enemy champion with an ability from 600 units away reveals them for 8 seconds and increases damage dealt to them by 10%.\nFocus: When Hypershot is triggered, it reveals all enemy champions within 1.200 units of the target for 3s. (12s Cooldown)",
             coachTip = "Este objeto es perfecto para magos de largo alcance y campeones orientados a empujar. Golpear a un enemigo con un hechizo desde la distancia lo marca y lo revela mientras aumenta todo el daño posterior que recibe. También expone a los campeones enemigos cercanos, lo que proporciona una visión valiosa para tu equipo y facilita mucho los ataques de seguimiento. Una excelente opción para magos y campeones de artillería que destacan controlando los combates desde una distancia segura.",
             coachTipEn = "This item is perfect for long-range mages and poke-oriented champions. Hitting an enemy with a spell from a distance marks and reveals them while increasing all subsequent damage they take. It also exposes nearby enemy champions, providing valuable vision for your team and making follow-up attacks much easier. An excellent choice for artillery mages and champions who excel at controlling fights from a safe distance.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388673_horizon-focus.webp"
+            iconUrl = "file:///android_asset/offline_images/8f0a15511fe5a7a9cce26cc981494f47.webp"
         ),
         WildRiftItem(
             id = "runaan_s_hurricane",
@@ -731,7 +731,7 @@ object WildRiftItemsData {
             passiveEn = "Wind's Fury: Attacks strike 2 additional nearby enemies, each dealing 55%. These strikes can Critically Strike and trigger on-hit effects.\nWind Blade: Attacks deal 15 bonus physical damage on-hit against targets.This item cannot only be used by melee champions.",
             coachTip = "Este objeto convierte tus ataques básicos en presión contra múltiples objetivos: cada ataque dispara rayos adicionales a los enemigos cercanos que pueden desencadenar efectos de impacto y críticos. Mejora enormemente la eliminación de ondas, contribuye con un fuerte daño a múltiples objetivos en las peleas en equipo y hace que el intercambio de objetivos individuales sea mucho más riesgoso para el oponente debido al daño distribuido. Perfecto para tiradores y configuraciones de impacto que valoran la cadencia de ataque sostenida y la presencia de AOE. Los usuarios cuerpo a cuerpo también pueden usarlo, pero brilla más en los atacantes automáticos a distancia.",
             coachTipEn = "This item turns your basic attacks into multi-target pressure: each attack fires extra bolts at nearby enemies that can trigger on-hit effects and crits. It greatly improves waveclear, contributes strong multi-target damage in teamfights, and makes trading on single targets much riskier for the opponent due to distributed damage. Perfect for marksmen and on-hit builds who value sustained attack cadence and AOE presence. Melee users can use it too, but it shines brightest on ranged auto-attackers.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300839_yordle-runaans-hurricane.webp"
+            iconUrl = "file:///android_asset/offline_images/1a1634a965cf3e181449d31fb2d9f1b3.webp"
         ),
         WildRiftItem(
             id = "malignance",
@@ -745,7 +745,7 @@ object WildRiftItemsData {
             passiveEn = "Scorn: Your Ultimate abilities gain 20 Ability Haste.\nHatefog: Damaging a champion with your Ultimate burns the ground beneath them for 3 second(s), dealing magic damage equal to 60 plus 5% AP per second and reducing their Magic Resist by 10. Burn radius increases with damage, reaching maximum radius at 800 damage.",
             coachTip = "This item is perfect for champions who focus on their ultimate abilities and want to maximize their effectiveness in fights. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste. The \"Scorn\" effect reduces the cooldown of your ultimate ability, enhancing its efficiency and uptime. The \"Hatefog\" effect deals magic damage to enemies in the area after using your ultimate, creating a scorched earth effect. Enemies within this area take damage and have their magic resistance reduced, making this item ideal for champions who want to weaken their opponents and increase their damage. It’s especially useful against enemies with high magic resistance.",
             coachTipEn = "This item is perfect for champions who focus on their ultimate abilities and want to maximize their effectiveness in fights. It provides bonuses to ability power, magic penetration, maximum mana, and ability haste. The \"Scorn\" effect reduces the cooldown of your ultimate ability, enhancing its efficiency and uptime. The \"Hatefog\" effect deals magic damage to enemies in the area after using your ultimate, creating a scorched earth effect. Enemies within this area take damage and have their magic resistance reduced, making this item ideal for champions who want to weaken their opponents and increase their damage. It’s especially useful against enemies with high magic resistance.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388765_malignance.webp"
+            iconUrl = "file:///android_asset/offline_images/68be73b96d8fcacbb963525fd45e91c5.webp"
         ),
         WildRiftItem(
             id = "guinsoo_s_rageblade",
@@ -759,7 +759,7 @@ object WildRiftItemsData {
             passiveEn = "Surge: Gain 5% Move Speed.\nChaos: Gain 25 Attack Damage or 50 Ability Power (Adaptive).\nWrath: Attacks deal 30 magic damage but no longer Critical Strike. Fore every 1% Critical Strike Rate gained from items, your magic damage increases by 1.5, up to a max increase of 75 (reached at 50% Critical Rate).\nSeething Strike: Attacks grant 8% Attack Speed, staking up to 4 times for a maximum of 32% Attack Speed). While fully stacked, every 3 attacks applies on-hit effects an additional 1 times.",
             coachTip = "Este elemento es perfecto para configuraciones de alto impacto y velocidad de ataque. Convierte estadísticas centradas en críticos en daño mágico constante al golpear, proporciona una poderosa rampa de velocidad de ataque y acumula ráfagas de velocidad de ataque de golpes consecutivos. Con pilas completas, tus ataques desencadenan golpes adicionales con mayor frecuencia, lo que lo convierte en la mejor opción para los jugadores que desean un daño confiable y sostenido en duelos prolongados y peleas en equipo.",
             coachTipEn = "This item is perfect for on-hit and high-attack-speed builds. It converts crit-focused stats into consistent on-hit magic damage, provides a powerful ramp of attack speed and stacking attack-speed bursts from consecutive hits. At full stacks your attacks trigger extra on-hit strikes more often, making it a top choice for players who want reliable, sustained damage in extended duels and teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1768000022_abb24fd724faa77b82baf985dea956b8eae9f31a-512x512.webp"
+            iconUrl = "file:///android_asset/offline_images/82b3ab99fbfd8659968e324bfeeb1ae6.webp"
         ),
         WildRiftItem(
             id = "blackfire_torch",
@@ -773,7 +773,7 @@ object WildRiftItemsData {
             passiveEn = "Baleful Blaze: Dealing damage with abilities causes enemies to burn for 20 + 2%magic damage per second for 3 seconds.Deal 40 plus 2%magic damage every second to monsters.\nBlackfire: For each enemy champion or monster affected by your Baleful Blaze, gain 4% Ability Power.",
             coachTip = "Este objeto es perfecto para magos que se especializan en daño sostenido con hechizos. Tus habilidades encienden a los enemigos, quemándolos con el tiempo, y cuantos más enemigos se vean afectados por la quemadura, más poder de habilidad obtendrás. Sobresale en campeones con habilidades de área de efecto y daño en el tiempo, aumentando tanto tu daño general como tu capacidad para despejar olas y campamentos en la jungla de manera eficiente.",
             coachTipEn = "This item is perfect for mages who specialize in sustained spell damage. Your abilities ignite enemies, burning them over time, and the more enemies affected by the burn, the more Ability Power you gain. It excels on champions with area-of-effect and damage-over-time abilities, boosting both your overall damage and your ability to clear waves and jungle camps efficiently.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783191589_blackfire-torch.webp"
+            iconUrl = "file:///android_asset/offline_images/9b539fd10498d48a66695583ed2736c1.webp"
         ),
         WildRiftItem(
             id = "dusk_and_dawn",
@@ -787,7 +787,7 @@ object WildRiftItemsData {
             passiveEn = "Spellblade: After using an ability, your next attack deals (75% base+ 10%) bonus magic damage. After a brief delay, apply on-hits to the target 1 additional time. (1.5s Cooldown)Deals reduced damage to structures.",
             coachTip = "Este objeto es perfecto para campeones que combinan habilidades con sus ataques básicos. Después de lanzar un hechizo, tu siguiente ataque recibe daño mágico adicional y luego activa todos los efectos de impacto una vez adicional, lo que aumenta drásticamente tu producción de daño general. Sobresale en luchadores AP híbridos y magos cuerpo a cuerpo que dependen de encadenar habilidades y ataques automáticos para maximizar su DPS.",
             coachTipEn = "This item is perfect for champions who weave abilities into their basic attacks. After casting a spell, your next attack is empowered with bonus magic damage and then triggers all on-hit effects an additional time, dramatically increasing your overall damage output. It excels on hybrid AP fighters and melee mages who rely on chaining abilities and auto-attacks to maximize their DPS.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783191855_2510_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/76543735b249a44f523b705363ec15cc.webp"
         ),
         WildRiftItem(
             id = "stormsurge",
@@ -801,7 +801,7 @@ object WildRiftItemsData {
             passiveEn = "Stormraider: When damaging a champion, dealing damage equal to 25% of their max Health within 2.5 second(s) applies Squall to them and grants you 25% bonus Movement Speed for 2.5s. (25s Cooldown)\nSquall: After 2 second(s), strike the target, dealing magic damage equal to 125 plus 10%. If the target is killed before the strike, it detonates immediately in a large area and grants 25 gold.",
             coachTip = "Este objeto es perfecto para magos capaces de causar grandes daños explosivos. Después de realizar un combo fuerte, marca el objetivo, te otorga una ráfaga de velocidad de movimiento y continúa con un golpe mágico adicional. Si el objetivo muere antes de que se active el efecto, inmediatamente explota en un área y te recompensa con oro adicional. Una excelente opción para magos escalables y asesinos AP que buscan asegurar muertes y aumentar su ventaja.",
             coachTipEn = "This item is perfect for mages capable of delivering heavy burst damage. After landing a strong combo, it marks the target, grants you a burst of movement speed, and follows up with an additional magic strike. If the target dies before the effect triggers, it immediately explodes in an area and rewards you with bonus gold. An excellent choice for scaling mages and AP assassins looking to secure kills and snowball their advantage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192090_4646_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/420de2dd4a92054b5d8520f26c3a0c53.webp"
         ),
         WildRiftItem(
             id = "void_staff",
@@ -815,7 +815,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Este objeto es la principal opción contra enemigos que acumulan resistencia mágica. Aumenta en gran medida la efectividad de tus hechizos a través de una poderosa penetración mágica, lo que te permite infligir un daño constante incluso a los objetivos más difíciles. Una excelente opción para cualquier mago una vez que el equipo enemigo comienza a invertir en resistencia mágica.",
             coachTipEn = "This item is the premier choice against enemies stacking magic resistance. It greatly increases the effectiveness of your spells through powerful magic penetration, allowing you to deal consistent damage even to the toughest targets. An excellent pickup for any mage once the enemy team starts investing in magic resistance.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192299_3135_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/a67295fc9713d5227ce1e8037c3e2779.webp"
         ),
         WildRiftItem(
             id = "cryptbloom",
@@ -829,7 +829,7 @@ object WildRiftItemsData {
             passiveEn = "Life from Death: When a champion that you damaged within 3s dies, a nova spreads from their corpse that restores 100 plus 20%Health to allies. (60s Cooldown)",
             coachTip = "Este objeto combina una poderosa penetración mágica con una valiosa utilidad para el equipo. Además de aumentar el daño de tus hechizos, los campeones que dañaste recientemente liberan una nova curativa al morir, restaurando la salud de los aliados cercanos. Es una excelente opción para los magos que desean causar mucho daño y al mismo tiempo brindar apoyo adicional a su equipo durante peleas en equipo prolongadas.",
             coachTipEn = "This item combines powerful magic penetration with valuable team utility. In addition to boosting your spell damage, champions you recently damaged release a healing nova upon death, restoring health to nearby allies. It is an excellent choice for mages who want to deal heavy damage while providing extra sustain for their team during extended teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192528_3137_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/beab6482899783d2692a415124c086ee.webp"
         ),
         WildRiftItem(
             id = "bloodletter_s_curse",
@@ -843,7 +843,7 @@ object WildRiftItemsData {
             passiveEn = "Vile Decay: Dealing magic damage with abilities or passives to champions reduces their Magic Resist by 7.5% for 6 seconds (max 30%).",
             coachTip = "Este objeto mejora enormemente tu daño mágico al reducir gradualmente la resistencia mágica del objetivo cada vez que tus habilidades o efectos pasivos causan daño. Sobresale en peleas prolongadas, permitiéndote a ti y a tus compañeros de equipo AP causar un daño cada vez mayor al mismo objetivo. Una excelente opción para los matones AP, los magos de daño en el tiempo y los campeones que pueden mantener activa la desventaja de manera consistente en múltiples enemigos.",
             coachTipEn = "This item greatly enhances your magic damage by gradually reducing the target's magic resistance whenever your abilities or passive effects deal damage. It excels in extended fights, allowing both you and your AP teammates to deal increasingly higher damage to the same target. An excellent choice for AP bruisers, damage-over-time mages, and champions who can consistently keep the debuff active on multiple enemies.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561458_bloodletters-curse.webp"
+            iconUrl = "file:///android_asset/offline_images/ce15eea1024a5297205252cd85892523.webp"
         ),
         WildRiftItem(
             id = "banshees_veil",
@@ -857,7 +857,7 @@ object WildRiftItemsData {
             passiveEn = "Annul: Grants a spell shield that blocks the next hostile ability. (30s Cooldown)",
             coachTip = "Este objeto proporciona una fuerte protección contra el daño mágico y al mismo tiempo otorga un escudo contra hechizos que bloquea la siguiente habilidad hostil. Es especialmente efectivo contra campeones que dependen de lanzar un solo hechizo clave para iniciar su combo o derribarte. Una excelente opción para magos y luchadores AP que necesitan mantener una posición segura y negar el potencial de ataque o selección del enemigo.",
             coachTipEn = "This item provides strong protection against magic damage while granting a spell shield that blocks the next hostile ability. It is especially effective against champions who rely on landing a single key spell to start their combo or burst you down. A great choice for mages and AP fighters who need to maintain safe positioning and deny enemy engage or pick potential.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192846_3102_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/cf77ad618891d973e7cd6babb40f24a5.webp"
         ),
         WildRiftItem(
             id = "hextech_roketbelt",
@@ -871,7 +871,7 @@ object WildRiftItemsData {
             passiveEn = "Protobelt (Active): Dash forward and unleash a cone of missiles, dealing 100 plus 10% magic damage. (30s Cooldown)If champions or monsters are hit by more than one missile, missiles after the first will deal only 10% damage.",
             coachTip = "Este objeto combina poder de habilidad con movilidad adicional, lo que te permite cerrar la brecha o reposicionarte rápidamente durante el combate. Su activa otorga una carrera corta mientras dispara un cono de cohetes que causan daño mágico de área. Es una excelente opción para asesinos AP, magos móviles y campeones orientados al combate que necesitan sumergirse, asegurar muertes o esquivar habilidades enemigas clave.",
             coachTipEn = "This item combines Ability Power with extra mobility, allowing you to quickly close the gap or reposition during combat. Its active grants a short dash while firing a cone of rockets that deal area magic damage. It is an excellent choice for AP assassins, mobile mages, and engage-oriented champions who need to dive in, secure kills, or dodge key enemy abilities.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389704_protobelt-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/7edd3e0a1f50a5616ea44d0628f13d15.webp"
         ),
         WildRiftItem(
             id = "zhonya_s_hourglass",
@@ -885,7 +885,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)",
             coachTip = "Este objeto combina un alto poder de habilidad con armadura adicional, mientras que su característica definitoria es la capacidad de volverse completamente invulnerable por un corto tiempo. Su efecto activo te permite sobrevivir a daños letales, evitar habilidades enemigas cruciales o ganar tiempo para que se recuperen tus tiempos de reutilización. Es una excelente opción para magos y asesinos AP que necesitan sobrevivir al foco enemigo y cambiar el rumbo de una pelea en equipo.",
             coachTipEn = "This item combines high Ability Power with extra armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your cooldowns to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a teamfight.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/2baadaec94cd1e205e425a57cb1f52e5.webp"
         ),
         WildRiftItem(
             id = "redemption",
@@ -899,7 +899,7 @@ object WildRiftItemsData {
             passiveEn = "Intervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deal 10% of max as true damage to enemy champions. (60s Cooldown)Can be cast while dead.",
             coachTip = "Este artículo está diseñado para brindar apoyo al equipo que cambia las reglas del juego. Su activo restaura la salud de todas las unidades aliadas en un área grande mientras causa daño real a los campeones enemigos, lo que lo convierte en una herramienta poderosa para cambiar el rumbo de las peleas en equipo. La capacidad de lanzarlo incluso después de la muerte lo hace especialmente valioso para los apoyos que desean continuar impactando las peleas incluso después de ser eliminados.",
             coachTipEn = "This item is designed to provide game-changing team support. Its active restores health to all allied units in a large area while dealing true damage to enemy champions, making it a powerful tool for turning the tide of teamfights. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
+            iconUrl = "file:///android_asset/offline_images/7c4aa6c8827f314917041dc3a4d63c05.webp"
         ),
         WildRiftItem(
             id = "guardian_angel",
@@ -913,7 +913,7 @@ object WildRiftItemsData {
             passiveEn = "Resurrect: Upon taking lethal damage, restores 50% Health and 100% Mana after 4 seconds of stasis. (180s Cooldown)",
             coachTip = "Este objeto es perfecto para campeones que necesitan una segunda oportunidad en las peleas en equipo. Es especialmente efectivo contra campeones con un alto daño explosivo, como Zed, Syndra o Zoe, así como contra campeones fuertes en picado como Camille, Kha'Zix o Lee Sin. El efecto Resurrección te permite regresar a la pelea después de recibir daño letal, restaurando la salud y el maná, dándote la oportunidad de continuar luchando y ayudar a tu equipo incluso en momentos críticos.",
             coachTipEn = "This item is perfect for champions who need a second chance in teamfights. It is especially effective against champions with high burst damage, such as Zed, Syndra, or Zoe, as well as against strong diving champions like Camille, Kha'Zix, or Lee Sin. The Resurrection effect allows you to return to the fight after taking lethal damage, restoring health and mana, giving you a chance to continue fighting and assist your team even in critical moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753300268_guardian-angel.webp"
+            iconUrl = "file:///android_asset/offline_images/a9e382435db8c5b4d3dada562fa99d42.webp"
         ),
         WildRiftItem(
             id = "sunfire_aegis",
@@ -927,7 +927,7 @@ object WildRiftItemsData {
             passiveEn = "Immolate: While in combat, deal magic damage equal to 16-25 plus 0.8% bonus HPto nearby enemies per second. Damaging champions or epic monsters with Immolate increases its damage by 5% for 5s, stacking up to 6 times.\nFlametouch: At max Immolate stacks, attacks burn enemies around you for 50% of Immolate's damage over 3 seconds. Immolate deals 130% damage to monsters an 175-250% () to minions.",
             coachTip = "Este objeto es perfecto para tanques y matones que pasan la mayor parte de la pelea en medio de la acción. Quema continuamente a los enemigos cercanos, y el daño aumenta cuanto más tiempo permaneces en combate, y una vez que está completamente acumulado, tus ataques esparcen fuego adicional alrededor del objetivo. Es una excelente opción para los campeones de primera línea que desean un daño constante en el área y al mismo tiempo mantener una alta durabilidad, así como una limpieza más rápida de las olas y los campamentos de la jungla.",
             coachTipEn = "This item is perfect for tanks and bruisers who spend most of the fight in the middle of the action. It continuously burns nearby enemies, with the damage increasing the longer you remain in combat, and once fully stacked, your attacks spread additional fire around the target. It is an excellent choice for frontline champions who want consistent area damage while maintaining high durability, as well as faster wave and jungle camp clearing.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389023_yordle-sunfire-aegis.webp"
+            iconUrl = "file:///android_asset/offline_images/446cb1deb4616fba85f68c078be08339.webp"
         ),
         WildRiftItem(
             id = "randuin_s_omen",
@@ -941,7 +941,7 @@ object WildRiftItemsData {
             passiveEn = "Resilience: Critically Struck deal 30% less damage to you.\nCountercurrent: Gain 1 stacks of Countercurrent when Critically Struck by physical damage. Each stuck grants 5% Movement Speed and 5% slow resist. Max 4 stacks.",
             coachTip = "Este objeto está diseñado para contrarrestar construcciones con muchos críticos. Proporciona una gran reserva de salud y armadura al mismo tiempo que reduce el daño de los golpes críticos, lo que te hace mucho más resistente en enfrentamientos frontales. Cuando recibes un golpe crítico, obtienes acumulaciones que aumentan tu movimiento y reducen la resistencia, lo que te ayuda a mantener la posición y controlar el espacio de las peleas. — Perfecto para tanques y matones que necesitan enfrentarse a autoatacantes de alto crítico y sobrevivir a peleas en equipo prolongadas.",
             coachTipEn = "This item is built to counter crit-heavy builds. It provides a large health pool and armor while reducing damage from critical strikes, making you much tougher in head-on engagements. When you are critically struck, you gain stacks that boost your movement and slow resistance, helping you hold position and control fight spacing. — Perfect for tanks and bruisers who need to stand up to high-crit auto-attackers and survive extended teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389031_randuins-omen.webp"
+            iconUrl = "file:///android_asset/offline_images/a01f7976459d788cbb0a763155cb39b8.webp"
         ),
         WildRiftItem(
             id = "thornmail",
@@ -955,7 +955,7 @@ object WildRiftItemsData {
             passiveEn = "Thorns: When struck by an attack, deal 20 + 6% bonus Armor + 1% bonus Health magic damage to the attacker.\nEntwine: Apply 50% Grievous Wounds to enemy champions for 3 second(s) when stuck by their attacks or dealing damage to them.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Este elemento refleja una parte del daño físico recibido a los atacantes como daño mágico y aplica un efecto que reduce la efectividad de curación del enemigo. Una elección sólida frente a equipos con gran daño y sustentación de ataques automáticos, ideal para tanques y matones que necesitan absorber la concentración y reducir la curación del oponente.",
             coachTipEn = "This item reflects a portion of incoming physical damage back to attackers as magic damage and applies an effect that reduces enemy healing effectiveness. A strong pick versus teams with heavy auto-attack damage and sustain — ideal for tanks and bruisers who need to absorb focus and cut down opponent healing.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389035_thornmail.webp"
+            iconUrl = "file:///android_asset/offline_images/b68d6e640042b5db9b2c77722c9187e5.webp"
         ),
         WildRiftItem(
             id = "warmog_s_armor",
@@ -969,7 +969,7 @@ object WildRiftItemsData {
             passiveEn = "Warmog's Heart: If you have at least 950 bonus Health, restore 3.5% Health per second if you haven't taken damage within the last 5 seconds.\nBlessed: Increases all healing and shielding effects on you by 30%.",
             coachTip = "Este objeto es una excelente opción de supervivencia: otorga una enorme reserva de salud y una fuerte regeneración fuera de combate, lo que te permite recuperarte rápidamente entre peleas. También amplifica la curación y los escudos, lo que hace que sea mucho más difícil acabar contigo. Perfecto para tanques y matones que necesitan una alta capacidad de supervivencia y una recuperación rápida después de los enfrentamientos.",
             coachTipEn = "This item is a top survivability pickup: it grants a massive health pool and strong out-of-combat regeneration, letting you recover quickly between fights. It also amplifies healing and shields, making you much harder to finish off. Perfect for tanks and bruisers who need high survivability and fast recovery after engagements.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389074_warmogs-armor.webp"
+            iconUrl = "file:///android_asset/offline_images/f141ec3263251399bc6226e325c1d998.webp"
         ),
         WildRiftItem(
             id = "sterak_s_gage",
@@ -983,7 +983,7 @@ object WildRiftItemsData {
             passiveEn = "Heavy Handed: +50% base Attack Damage as bonus Attack Damage.\nLifeline: Damage that puts you under 35% Health grants a shield that equal to 75% of your bonus health that decays over 3 seconds (75s Cooldown).\nSterak's Fury: Triggering Lifeline increases size, empowers you, removes all crowd control effects on you (except Airborne), and grants 30% Tenacity for 4 seconds.",
             coachTip = "El objeto definitivo de supervivencia para colosos y luchadores en primera línea. Otorga un escudo masivo y tenacidad al descender del 35% de vida para soportar el burst enemigo.",
             coachTipEn = "This item is perfect for champions who need survivability in team fights, granting a massive shield and tenacity when dropping below 35% health.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753305021_steraks-gage.webp"
+            iconUrl = "file:///android_asset/offline_images/919bc13bc2461bb522082722e34a456d.webp"
         ),
         WildRiftItem(
             id = "iceborn_gauntlet",
@@ -997,7 +997,7 @@ object WildRiftItemsData {
             passiveEn = "Spellblade: Using an ability causes your next attack within 10 seconds to deal bonus physical damage equal to (100% base AD + 25% Bonus Armor ) in an area and creates an icy field for 2 seconds that slows by 30%. Armor increases the size of the icy field. (1.5s Cooldown)Damage is reduced vs structures.",
             coachTip = "Este objeto aumenta enormemente tu salud, armadura, maná y velocidad de habilidades, lo que te hace mucho más tanque. Después de lanzar una habilidad, tu siguiente ataque en un área inflige daño físico adicional y crea un campo helado que ralentiza a los enemigos que se encuentran dentro en un 30%. El tamaño del campo aumenta con tu armadura. Esto hace que el objeto sea una excelente opción para los campeones que desean combinar una alta capacidad de supervivencia con control de masas y daño AOE adicional.",
             coachTipEn = "This item greatly boosts your health, armor, mana, and ability haste, making you much tankier. After casting an ability, your next attack in an area deals bonus physical damage and creates an icy field that slows enemies inside by 30%. The field’s size scales with your armor. This makes the item a great choice for champions who want to combine high survivability with crowd control and extra AOE damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389028_iceborn-gauntlet.webp"
+            iconUrl = "file:///android_asset/offline_images/0ec5d7a3b173c4f04ca3cc32e35c2e43.webp"
         ),
         WildRiftItem(
             id = "dead_man_s_plate",
@@ -1011,7 +1011,7 @@ object WildRiftItemsData {
             passiveEn = "Relentless: +5% Move Speed.\nMomentum: Moving builds Momentum, granting up to 40 Move Speed at 100 stacks. Attacking removes all Momentum. Stacks decay when movement is impaired.\nCrushing Blow: Attacks deal up to 100 bonus magic damage based on Momentum removed. Melee attacks with max Momentum slows by 75% for 1 second.",
             coachTip = "Este elemento proporciona un aumento sustancial de la salud y la armadura, y su pasivo \"Impulso\" aumenta la velocidad de movimiento a medida que te mueves (hasta un límite) hasta que realizas un ataque, que luego activa un \"Golpe aplastante\", que inflige daño mágico adicional según el impulso eliminado y ralentiza a los enemigos con acumulaciones completas. Esto lo convierte en una excelente opción para tanques y matones que necesitan movilidad adicional para participar rápidamente y mantenerse en las peleas. Consejos: ideal para campeones que necesitan acortar distancias y absorber daño; Se combina muy bien con elementos Spellblade (por ejemplo, Divine Sunderer) para causar daño explosivo adicional al atacar.",
             coachTipEn = "This item provides a substantial boost to health and armor, and its “Momentum” passive builds movement speed as you move—up to a cap—until you land an attack, which then triggers “Crushing Blow”, dealing bonus magic damage based on the momentum removed and slowing enemies at full stacks. This makes it an excellent choice for tanks and bruisers who need extra mobility to engage quickly and sustain through fights. Tips: ideal for champions who need to close distance and absorb damage; pairs extremely well with Spellblade items (e.g., Divine Sunderer) for additional burst damage on engage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389106_dead-mans-plate.webp"
+            iconUrl = "file:///android_asset/offline_images/856d8989c3c87e50fc7b8e997f9facbc.webp"
         ),
         WildRiftItem(
             id = "zeke_s_convergence",
@@ -1025,7 +1025,7 @@ object WildRiftItemsData {
             passiveEn = "Harbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's attacks for 10 seconds. Your blizzard deals a maximum of 320–600 damage, slows enemies by 25% and leaves a trail behind you. Allied champions on the trail gain 40 bonus Movement Speed for 1 second. (30s Cooldown)",
             coachTip = "Este objeto es perfecto para campeones de apoyo tanques que inician peleas y brindan control de masas en primera línea. Otorga armadura, salud, maná y aceleración de habilidades. Cuando lanzas tu habilidad definitiva, una tormenta de nieve helada te rodea, causando daño y ralentizando a los enemigos, mientras deja un rastro que otorga velocidad de movimiento adicional a los aliados. Durante el efecto, los ataques de un aliado marcado cercano infligen daño mágico adicional, lo que le da a tu equipo una poderosa ventaja en las peleas en equipo.",
             coachTipEn = "This item is perfect for tanky support champions who initiate fights and provide frontline crowd control. It grants armor, health, mana, and ability haste. When you cast your ultimate, an icy blizzard surrounds you, dealing damage and slowing enemies, while leaving a trail that grants bonus movement speed to allies. During the effect, the attacks of a nearby marked ally deal additional magic damage, giving your team a powerful advantage in teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp"
+            iconUrl = "file:///android_asset/offline_images/0685ea68cf8f32ccbd8e016af1c0b7b4.webp"
         ),
         WildRiftItem(
             id = "death_s_dance",
@@ -1039,7 +1039,7 @@ object WildRiftItemsData {
             passiveEn = "Defy: Champion takedowns cleanse Cauterize's remaining damage pool and restores 8% of your maximum health over 2 seconds.\nCauterize: 27% of all physical damage and magic damage received (12% for ranged champions) is dealt to you over 3 seconds as true damage instead.",
             coachTip = "Este elemento convierte el daño recibido en un efecto retardado, lo que te permite permanecer en las peleas por más tiempo y suavizar los picos de daño. Aumenta tu capacidad de supervivencia con armadura y aceleración de habilidades, y los derribos exitosos limpian el daño retrasado mientras te curan instantáneamente. — Perfecto para matones y tanques que necesitan absorber ráfagas de daño y luego recuperarse rápidamente para seguir luchando.",
             coachTipEn = "This item converts incoming damage into a delayed effect, letting you stay in fights longer and smooth out damage spikes. It boosts your survivability with armor and ability haste, and successful takedowns cleanse the delayed damage while instantly healing you. — Perfect for bruisers and tanks who need to absorb bursts of damage and then quickly recover to keep fighting.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753301539_yordle-deaths-dance.webp"
+            iconUrl = "file:///android_asset/offline_images/5069d1174a4d1b3b70d631d7bb61731e.webp"
         ),
         WildRiftItem(
             id = "winter_s_approach",
@@ -1053,7 +1053,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants bonus health equal to 8% of max Mana and refunds 15% of all Mana spent.\nMana Charge: Increases max Mana by 12 every attack, when Mana is spent or when taking damage from champions, epic monsters, or towers. Caps at 700 bonus Mana, transforming Winter's Approach into Fimbulwinter. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Excelente objeto defensivo para tanques y colosos que gastan mucho maná y quieren acumular reservas para obtener el escudo pasivo de Fimbulinvierno.",
             coachTipEn = "Perfect defensive item for tanks needing mana scaling and massive shielding upon transforming.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389175_winters-approach.webp"
+            iconUrl = "file:///android_asset/offline_images/ed3f1fac19870153dfdc6bed7a071edd.webp"
         ),
         WildRiftItem(
             id = "fimbulwinter",
@@ -1067,7 +1067,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: Grants bonus health equal to 10% of max Mana and refunds 15% of all Mana spent.\nFrozen Colossus: Immobilizing or slowing an enemy champion consumes 3% current mana and grants a shield for 3 seconds, absorbing 90-180 +4.5% current Mana, increased by 80% if there is more than 1 enemy champion nearby.Only triggers when above 20% max Mana. (8s cooldown).Shield is 50% effective for ranged champions.",
             coachTip = "Este elemento proporciona maná, salud y aceleración de habilidades masivas, y su pasivo \"Frozen Colossus\" consume maná cuando ralentizas o inmovilizas a un enemigo para otorgar un escudo fuerte que escala con tu reserva de maná y aumenta cerca de múltiples enemigos. Perfecto para tanques con hechizos que necesitan protección adicional de sus reservas de maná.",
             coachTipEn = "This item provides massive mana, health, and ability haste, and its “Frozen Colossus” passive consumes mana when you slow or immobilize an enemy to grant a strong shield that scales with your mana pool and increases near multiple enemies. Perfect for spell-weaving tanks needing extra protection from their mana reserves.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389109_fimbulwinter.webp"
+            iconUrl = "file:///android_asset/offline_images/ae7584f101f22466aaeaca45438a8371.webp"
         ),
         WildRiftItem(
             id = "force_of_nature",
@@ -1081,7 +1081,7 @@ object WildRiftItemsData {
             passiveEn = "Absorb: Taking ability damage from enemy champions grants 1 stack(s) of Steadfast for 7 seconds, max 4 stacks. Receiving damage from an enemy Champion will refresh the duration of the stacks. At maximum stacks, gain 10% Movement Speed and reduce all incoming magic damage by 20%.",
             coachTip = "Este elemento proporciona un aumento sustancial de la salud y la resistencia mágica, y su pasiva \"Absorber\" se acumula cuando recibes daño de habilidad de los campeones enemigos, lo que reduce todo el daño mágico entrante y otorga velocidad de movimiento adicional en las acumulaciones máximas. Es perfecto para tanques que necesitan resistir equipos con mucho daño mágico y mantener la movilidad para estar en la posición correcta durante las peleas. Elige esto cuando el equipo enemigo genere daño mágico (por ejemplo, Syndra, Brand) y necesites velocidad de movimiento adicional para iniciar de manera efectiva o escapar de situaciones peligrosas.",
             coachTipEn = "This item provides a substantial boost to health and magic resistance, and its “Absorb” passive stacks up when you take ability damage from enemy champions, reducing all incoming magic damage and granting bonus movement speed at max stacks. It’s perfect for tanks who need to withstand teams heavy in magic damage and maintain mobility to be in the right position during fights. Pick this up when the enemy team builds magic damage (e.g., Syndra, Brand) and you need extra movement speed to initiate effectively or escape dangerous situations.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389153_force-of-nature.webp"
+            iconUrl = "file:///android_asset/offline_images/3e9ae4d161ed330f5ba83c71d2b2a637.webp"
         ),
         WildRiftItem(
             id = "frozen_heart",
@@ -1095,7 +1095,7 @@ object WildRiftItemsData {
             passiveEn = "Winter's Caress: Basic attacks and magic damage caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the enemy champion for 3 seconds. Each stack of Chill slows enemy attack speed by 9%, up to a maximum of 4 stacks or 36% attack speed reduction. Each individual ability has a 3 seconds cooldown on applying Chill stacks.",
             coachTip = "Este objeto es ideal para tanques y campeones de apoyo que necesitan reducir la velocidad de ataque del enemigo y mantener una reserva de maná saludable. Proporciona bonificaciones sustanciales a la armadura, el maná y la aceleración de habilidades. La pasiva \"Caricia de invierno\" aplica hasta cuatro acumulaciones de Escalofrío a los campeones enemigos a través de tus ataques básicos, habilidades o cualquier daño mágico que reciban; cada acumulación reduce su velocidad de ataque en un 9%, hasta un 36% con acumulaciones completas. Esto debilita a los tiradores y combatientes enemigos, lo que les dificulta infligir daño sostenido en los combates.",
             coachTipEn = "This item is ideal for tanks and support champions who need to slow enemy attack speed and maintain a healthy mana pool. It provides substantial bonuses to armor, mana, and ability haste. The “Winter’s Caress” passive applies up to four stacks of Chill on enemy champions through your basic attacks, abilities, or any magic damage they take—each stack slows their attack speed by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to deal sustained damage in fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389159_frozen-heart.webp"
+            iconUrl = "file:///android_asset/offline_images/0e47792257d27c16e79a36c746d6c82e.webp"
         ),
         WildRiftItem(
             id = "dawnshroud",
@@ -1109,7 +1109,7 @@ object WildRiftItemsData {
             passiveEn = "Dawnbringer: When you immobilize a champion champion or are immobilized within 400 units of an enemy champion, reveal all nearby enemy champions for 3 seconds, deal magic damage equal to 40 + 2.5% bonusand gain 20% Armor and Magic Resistance (3s Cooldown)",
             coachTip = "Este artículo es ideal para tanques e iniciadores de apoyo. Cuando inmovilizas a un enemigo o estás inmovilizado cerca de enemigos, revela campeones cercanos, inflige una explosión explosiva de daño mágico y aumenta brevemente tus defensas. Perfecto para control de zonas, enfrentamientos confiables y contrarrestar los intentos de inmersión del enemigo.",
             coachTipEn = "This item is great for tanks and support initiators. When you immobilize an enemy or are immobilized near foes, it reveals nearby champions, deals an explosive burst of magic damage, and briefly boosts your defenses. Perfect for zone control, reliable engages, and countering enemy dive attempts.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp"
+            iconUrl = "file:///android_asset/offline_images/739efe1076c8c7945f56d767ddc89c3c.webp"
         ),
         WildRiftItem(
             id = "amaranth_s_twinguard",
@@ -1123,7 +1123,7 @@ object WildRiftItemsData {
             passiveEn = "Endurance: Gain 1 stacks of Endurance every 1 seconds while in combat with enemy champions (max 5 stacks). At maximum stacks, gain 20% size, 20% Tenacity, and increase Armor by 30% and Magic Resistance by 30% until out of combat with champion.",
             coachTip = "Este objeto es perfecto para campeones que pasan mucho tiempo en medio de las peleas y necesitan mayor durabilidad y resistencia al control de multitudes. Proporciona bonificaciones a la armadura y la resistencia mágica. La pasiva \"Resistencia\" se acumula hasta cinco veces durante el combate, y cuando se acumula al máximo, aumentas de tamaño, obtienes tenacidad mejorada y recibes armadura y resistencia mágica adicionales hasta que salgas del combate. Esto te permitirá permanecer en primera línea por más tiempo y resistir los ataques enemigos de manera más efectiva. Debido a su utilidad versátil, este elemento es una de las opciones defensivas más populares del juego y lo utilizan la mayoría de los tanques, luchadores y otras clases.",
             coachTipEn = "This item is perfect for champions who spend a lot of time in the thick of fights and need extra durability and crowd control resistance. It provides bonuses to armor and magic resistance. The “Endurance” passive stacks up to five times during combat, and at full stacks you increase in size, gain enhanced tenacity, and receive bonus armor and magic resistance until you exit combat. This allows you to stay in the frontline longer and withstand enemy attacks more effectively. Due to its versatile utility, this item is one of the most popular defensive choices in the game and is used by the majority of tanks, fighters, and other classes.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389236_amaranths-twinguard.webp"
+            iconUrl = "file:///android_asset/offline_images/6d9dfa05a285da04d1e7e5f60d48ea70.webp"
         ),
         WildRiftItem(
             id = "mantle_of_the_twelfth_hour",
@@ -1137,7 +1137,7 @@ object WildRiftItemsData {
             passiveEn = "Lifeline: Damage that puts you under 35%, grants bonus max Health equal to 180 + 45% bonus health for 3 seconds, and provides 50% Slow Resistance and 30 Movement Speed for 3 seconds. (70s Cooldown)",
             coachTip = "Este objeto es perfecto para campeones que se encuentran al borde de la muerte y necesitan un aumento instantáneo de supervivencia. Cuando recibes daño que te deja por debajo del 35% de salud, obtienes una bonificación de salud máxima, una velocidad de movimiento significativa y una alta resistencia a la ralentización durante un breve período. Esto te da la oportunidad de escapar del peligro o permanecer en la lucha. El objeto es especialmente eficaz para tanques y matones que necesitan soportar momentos críticos manteniendo la movilidad con poca salud.",
             coachTipEn = "This item is perfect for champions who find themselves on the brink of death and need an instant survivability boost. When you take damage that drops you below 35% health, you gain bonus maximum health, significant movement speed, and high slow resistance for a short duration. This gives you the chance to escape danger or stay in the fight. The item is especially effective for tanks and bruisers who need to endure critical moments while retaining mobility at low health.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389204_mantle-of-the-twelfth-hour.webp"
+            iconUrl = "file:///android_asset/offline_images/0529996e54514079a61b4cee270526fb.webp"
         ),
         WildRiftItem(
             id = "searing_crown",
@@ -1151,7 +1151,7 @@ object WildRiftItemsData {
             passiveEn = "Fiery Touch: After dealing damage with an attack or ability, burn target for 3 seconds, dealing 1.4% of the target’s maximum health as magic damage per second (damage reduced to 0.8% for ranged users).Deals 150% damage to minions and monsters.Maximum 125 damage to monsters.",
             coachTip = "Este elemento es perfecto para campeones que desean combinar una alta capacidad de supervivencia con un porcentaje de daño adicional de salud. Proporciona un aumento sustancial de la salud y la armadura, y su pasiva \"Fiery Touch\" quema a los objetivos al golpearlos con ataques o habilidades, causando daño mágico equivalente a un porcentaje de su salud máxima. Esto lo hace efectivo contra tanques y campeones con mucha salud, al mismo tiempo que acelera la limpieza de olas y de la jungla. Ideal para tanques y matones que quieren dejar una huella en las peleas sin dejar de ser duraderos.",
             coachTipEn = "This item is perfect for champions who want to combine high survivability with bonus health-percentage damage. It provides a substantial boost to health and armor, and its “Fiery Touch” passive burns targets on hit with attacks or abilities, dealing magic damage equal to a percentage of their maximum health. This makes it effective against tanks and high-health champions, while also speeding up waveclear and jungle clear. Ideal for tanks and bruisers who want to leave a mark in fights while staying durable.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389203_searing-crown.webp"
+            iconUrl = "file:///android_asset/offline_images/8c585684ae11f4bd1818521dc47bcc3d.webp"
         ),
         WildRiftItem(
             id = "heartsteel",
@@ -1165,7 +1165,7 @@ object WildRiftItemsData {
             passiveEn = "Colossal Consumption: While within 700 units of an enemy champion, charges for 2.5 seconds before dealing a huge strike against the enemy champion. This charged attack deals bonus physical damage equal to 140 + 3.5% of maximum Health, and grants maximum Health equal to 15% of the damage dealt. The charge for each target has a 20 second cooldown.",
             coachTip = "Este objeto es perfecto para tanques y matones que desean combinar la máxima capacidad de supervivencia con un daño explosivo masivo contra campeones enemigos. Proporciona una enorme reserva de salud, regeneración mejorada fuera de combate y aceleración de habilidades. La pasiva \"Consumo colosal\" requiere una carga de 2,5 segundos cuando estás cerca de un campeón enemigo, después de lo cual tu siguiente golpe inflige un daño físico adicional significativo según tu salud máxima y te otorga el 15% del daño infligido como salud adicional. Esto te permite absorber daño y curarte durante las escaramuzas, lo que convierte al objeto en una excelente opción para peleas prolongadas y cerrar peleas en equipo. Excelente sinergia con Spirit Visage: la amplificación de curación y el impulso de regeneración de Spirit Visage mejoran aún más la restauración de la salud de la pasiva de este objeto, proporcionando una increíble capacidad de supervivencia y sostenibilidad en combate.",
             coachTipEn = "This item is perfect for tanks and bruisers who want to combine maximum survivability with massive burst damage against enemy champions. It provides a huge health pool, enhanced out-of-combat regeneration, and ability haste. The “Colossal Consumption” passive requires a 2.5-second charge when near an enemy champion, after which your next strike deals significant bonus physical damage based on your max health and grants you 15% of the damage dealt as bonus health. This allows you to both absorb damage and heal during skirmishes, making the item an excellent choice for extended fights and closing out teamfights. Excellent synergy with Spirit Visage: the healing amplification and regeneration boost from Spirit Visage further enhance the health restoration from this item’s passive, providing incredible survivability and sustain in combat.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389201_heartsteel.webp"
+            iconUrl = "file:///android_asset/offline_images/06c122abcc307025bf2aacd5667ddaad.webp"
         ),
         WildRiftItem(
             id = "titanic_hydra",
@@ -1179,7 +1179,7 @@ object WildRiftItemsData {
             passiveEn = "Cleave: Every 1.75 second(s), your next attack deals bonus physical damage equal to 25 + 3% bonus (also applies to turrets), creating a shockwave that deals physical damage equal to 80 + 10% bonus to enemies behind the target. Ranged champions deal 75% of the damage.",
             coachTip = "Este elemento convierte tus ataques básicos en una herramienta AOE: periódicamente tu próximo golpe se convierte en un golpe de barrido que inflige daño físico adicional a los enemigos cercanos y afecta a los objetivos detrás del golpe principal. Acelera la eliminación de olas, agrega daño adicional en las peleas en equipo y ayuda a presionar las estructuras cuando se construye adecuadamente. Es más adecuado para matones cuerpo a cuerpo y tanques que combinan una gran reserva de salud con autos frecuentes; ideal para jugadores que desean impactar tanto en intercambios 1 contra 1 como en enfrentamientos prolongados.",
             coachTipEn = "This item turns your basic attacks into an AOE tool: periodically your next hit becomes a sweeping strike that deals bonus physical damage to nearby enemies and affects targets behind the primary hit. It speeds up waveclear, adds extra damage in teamfights, and helps pressure structures when built appropriately. Best suited for melee bruisers and tanks who combine a big health pool with frequent autos — great for players who want impact both in 1v1 trades and prolonged engagements.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753304937_titanic-hydra.webp"
+            iconUrl = "file:///android_asset/offline_images/a587350906b08db7aacfec025271682b.webp"
         ),
         WildRiftItem(
             id = "redemption",
@@ -1193,7 +1193,7 @@ object WildRiftItemsData {
             passiveEn = "Intervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deal 10% of max as true damage to enemy champions. (60s Cooldown)Can be cast while dead.",
             coachTip = "Este artículo está diseñado para brindar apoyo al equipo que cambia las reglas del juego. Su activo restaura la salud de todas las unidades aliadas en un área grande mientras causa daño real a los campeones enemigos, lo que lo convierte en una herramienta poderosa para cambiar el rumbo de las peleas en equipo. La capacidad de lanzarlo incluso después de la muerte lo hace especialmente valioso para los apoyos que desean continuar impactando las peleas incluso después de ser eliminados.",
             coachTipEn = "This item is designed to provide game-changing team support. Its active restores health to all allied units in a large area while dealing true damage to enemy champions, making it a powerful tool for turning the tide of teamfights. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
+            iconUrl = "file:///android_asset/offline_images/7c4aa6c8827f314917041dc3a4d63c05.webp"
         ),
         WildRiftItem(
             id = "kaenic_rookern",
@@ -1207,7 +1207,7 @@ object WildRiftItemsData {
             passiveEn = "Magebane: After not taking magic damage for 12 seconds, gain a magic shield that absorbs damage equal to 50-150 + 14% of max Health.",
             coachTip = "El objeto defensivo definitivo contra composiciones enemigas repletas de magos o daño mágico. Otorga +85 de resistencia mágica y un escudo pasivo antimage.",
             coachTipEn = "The premier magic resistance item against heavy AP damage, granting high MR and a scaling magic damage absorption shield.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389228_kaenic-rookern.webp"
+            iconUrl = "file:///android_asset/offline_images/93b2f7e8e684cf1ec4aabcdc13c89c8e.webp"
         ),
         WildRiftItem(
             id = "yordle_trap",
@@ -1221,7 +1221,7 @@ object WildRiftItemsData {
             passiveEn = "Catcher: After using abilities to apply crowd control effects that displace the enemy, gain 10% Movement Speed for 3 second(s) and mark the target, reducing their Armor and Magic Resist by 5–12 for 8 second(s). If the target dies while they are marked, their death grants 100–140 bonus gold () that will be evenly shared among you and nearby allies.This bonus gold can only be obtained once every 10 second(s).",
             coachTip = "Este objeto está diseñado para campeones con habilidades de desplazamiento y potentes herramientas de combate. Desplazar con éxito a un enemigo te otorga velocidad de movimiento adicional mientras marcas al objetivo, lo que reduce su armadura y resistencia mágica para que tu equipo pueda eliminarlos más fácilmente. Si el objetivo marcado muere, tú y tus aliados cercanos recibiréis oro adicional, lo que ayudará a vuestro equipo a aumentar su ventaja. Es una excelente opción para tanques y soportes de combate con habilidades de derribo, tirones o derribos.",
             coachTipEn = "This item is designed for champions with displacement abilities and strong engage tools. Successfully displacing an enemy grants you bonus movement speed while marking the target, reducing their Armor and Magic Resistance to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive bonus gold, helping your team snowball its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389328_yordle-trap.webp"
+            iconUrl = "file:///android_asset/offline_images/3b1afe564977a0cbc6238247c6a1089b.webp"
         ),
         WildRiftItem(
             id = "radiant_virtue_wild_rift",
@@ -1235,7 +1235,7 @@ object WildRiftItemsData {
             passiveEn = "Guiding Light: Upon casting your ultimate ability, you Transcend, increasing your max Health by 10% for 6s. While Transcended, allied champions within 1,200 units of you heal for 2.5% of your max Health per second over the duration. (60s cooldown) If you're a ranged champion, heals granted are reduced by 50%.",
             coachTip = "Este elemento aumenta tu durabilidad al otorgarte salud máxima, armadura y velocidad de habilidad adicionales. Su pasiva hace que trasciendas después de lanzar tu habilidad máxima: aumentas temporalmente tu salud máxima y los aliados cercanos se curan en función de esa salud mejorada. La curación se reduce para los campeones a distancia. Una buena elección para los jugadores de primera línea y de apoyo que quieren sobrevivir y al mismo tiempo brindar apoyo a todo el equipo durante las peleas.",
             coachTipEn = "This item boosts your durability by granting extra max health, armor, and ability haste. Its passive causes you to transcend after casting your ultimate: you temporarily raise your max health, and nearby allies are healed based on that boosted health. The healing is reduced for ranged champions. A strong pick for frontliners and supports who want to survive engages while providing teamwide sustain during fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-10/1760128035_radiant-virtue.webp"
+            iconUrl = "file:///android_asset/offline_images/7e13a61aa958f9626d5bf76025a85e0a.webp"
         ),
         WildRiftItem(
             id = "abyssal_mask",
@@ -1249,7 +1249,7 @@ object WildRiftItemsData {
             passiveEn = "Unmake: Curse enemy champions within 600 units, reducing their Magic Resist by 5 plus 1.2% bonus, up to 25 Magic Resist. For each enemy champion cursed, gain 9 bonus Magic Resist.",
             coachTip = "Este objeto es un sólido elemento antimagia: aumenta tu resistencia mágica al mismo tiempo que reduce la resistencia mágica de los enemigos cercanos, lo que los hace más fáciles de destruir con daño de hechizo. Ideal para tanques y vanguardia que necesitan absorber el daño mágico y amplificar la capacidad de su equipo para acabar con amenazas AP y objetivos duraderos.",
             coachTipEn = "This item is a solid anti-magic pickup: it boosts your magic resistance while reducing the magic resist of nearby enemies, making them easier to shred with spell damage. Great for tanks and frontliners who need to both soak magic damage and amplify their team’s ability to take down AP threats and durable targets.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767912720_abyssal-mask.webp"
+            iconUrl = "file:///android_asset/offline_images/c08d478db157d63bf53cc63e98254f91.webp"
         ),
         WildRiftItem(
             id = "hollow_radiance",
@@ -1263,7 +1263,7 @@ object WildRiftItemsData {
             passiveEn = "Immolate: While in combat, deal magic damage equal to 20–30 plus 1% of bonus per second for 5 second(s) to nearby enemies. Deals 125% damage against monsters and 200% damage against minions.\nDesolate: Killing a neutral monster or an enemy deals magic damage equal to 30 plus 2% of bonus in an area around them.",
             coachTip = "Este objeto te convierte en una fuente constante de presión en las peleas: mientras estás en combate, emite un aura de daño mágico de área que ayuda a despejar las ondas y castigar a los objetivos pequeños cercanos. Al matar a un neutral o enemigo, detona para causar daño de área, lo que lo hace ideal para limpiezas rápidas y creación de amenazas al entrar en escaramuzas. Perfecto para tanques y matones de primera línea que necesitan mantener el centro de las peleas y obligar a los oponentes a cometer errores.",
             coachTipEn = "This item turns you into a steady source of pressure in fights: while engaged, it emits an area magic damage aura that helps clear waves and punish nearby small targets. On killing a neutral or enemy, it detonates for area damage, making it great for fast clears and threat creation when entering skirmishes. Perfect for tanks and frontline bruisers who need to hold the center of fights and force opponents into mistakes.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767913515_6664_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/0ef7e5460d345f44edfd1f0718286415.webp"
         ),
         WildRiftItem(
             id = "knight_s_vow",
@@ -1277,7 +1277,7 @@ object WildRiftItemsData {
             passiveEn = "Pledge: While in combat, deal magic damage equal to 20–30 plus 1% of bonus Health per second for 5 second(s) to nearby enemies. Deals 125% damage against monsters and 200% damage against minions.\nSacrifice: Killing a neutral monster or an enemy deals magic damage equal to 30 plus 2% of bonus Health in an area around them.",
             coachTip = "Este elemento te permite actuar como un ancla protectora para un aliado designado: parte del daño que recibe se redirige hacia ti y te curas cuando ese aliado causa daño. Perfecto para apoyos de tanques y matones centrados en la pelea que quieren mantener un transporte seguro: proporciona una forma confiable de concentrarse, mantenerse en las peleas y mantener la presencia en las peleas en equipo.",
             coachTipEn = "This item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally deals damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustain through fights, and maintain teamfight presence.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767914013_3109_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/5f92d9e55433af69c2d2e91adfca0284.webp"
         ),
         WildRiftItem(
             id = "wild_rift__overlord_s_bloodmail",
@@ -1291,7 +1291,7 @@ object WildRiftItemsData {
             passiveEn = "Tyranny: Gain Attack Damage equal to 2.5% of your bonus Health.\nRetribution: Gain up to 9% increased Attack Damage based on your missing Health. Maximum Retribution bonus while below 30% Health.",
             coachTip = "Este elemento convierte la salud adicional en poder de ataque y aumenta tu daño cuando caes en rangos de HP peligrosos: una elección híbrida para jugadores que quieren ser a la vez tanques y amenazantes. Se adapta a los matones y a los carrileros en solitario que acumulan salud y aceptan escaramuzas de alto riesgo y alta recompensa: cuanto más salud adicional tengas, más fuertes se vuelven tus ataques brutos, y cuando luchas con poca salud, infliges daño amplificado. Genial para duelistas agresivos que ganan intercambios intercambiando capacidad de supervivencia por explosión.",
             coachTipEn = "This item converts bonus health into attack power and ramps up your damage when you drop into dangerous HP ranges — a hybrid pick for players who want to be both tanky and threatening. It suits bruisers and solo laners who stack health and embrace high-risk, high-reward skirmishes: the more bonus health you have, the stronger your raw attacks become, and when you fight at low health you deal amplified damage. Great for aggressive duelists who win trades by trading survivability for burst.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630274_overlords-bloodmail.webp"
+            iconUrl = "file:///android_asset/offline_images/3c62884953388c0a2e57ca679bab692a.webp"
         ),
         WildRiftItem(
             id = "wild_rift__unending_despair",
@@ -1305,7 +1305,7 @@ object WildRiftItemsData {
             passiveEn = "Anguish: Every 4 second(s) while in combat with a champion, deal 3% of your max Health as magic damage to nearby champions and heal for 250% of the damage dealt. Anguish is unaffected by Item Ability Haste.",
             coachTip = "Este objeto te convierte en una primera línea autosostenible: mientras luchas, periódicamente infliges daño mágico a tu alrededor y te curas una parte de ese daño. Excelente para tanques y soldados de primera línea: te ayuda a concentrarte, permanecer en el centro de las peleas por más tiempo y sobresalir en enfrentamientos prolongados en equipo. Menos efectivo en intercambios de ráfagas muy breves o en campeones que evitan permanecer en el centro del combate.",
             coachTipEn = "This item turns you into a self-sustaining frontline: while fighting you periodically deal magic damage around you and heal for a portion of that damage. Great for tanks and frontliners — it helps you soak focus, remain in the heart of fights longer, and excel in extended team engagements. Less effective in very short burst trades or on champions that avoid standing in the center of combat.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630350_unending-despair.webp"
+            iconUrl = "file:///android_asset/offline_images/eb1a3d3a367bbbdc7e3b55fe2eb4221d.webp"
         ),
         WildRiftItem(
             id = "banshee_s_veil",
@@ -1319,7 +1319,7 @@ object WildRiftItemsData {
             passiveEn = "Annul: Grants a spell shield that blocks the next hostile ability. (30s Cooldown)",
             coachTip = "Este objeto proporciona una fuerte protección contra el daño mágico y al mismo tiempo otorga un escudo contra hechizos que bloquea la siguiente habilidad hostil. Es especialmente efectivo contra campeones que dependen de lanzar un solo hechizo clave para iniciar su combo o derribarte. Una excelente opción para magos y luchadores AP que necesitan mantener una posición segura y negar el potencial de ataque o selección del enemigo.",
             coachTipEn = "This item provides strong protection against magic damage while granting a spell shield that blocks the next hostile ability. It is especially effective against champions who rely on landing a single key spell to start their combo or burst you down. A great choice for mages and AP fighters who need to maintain safe positioning and deny enemy engage or pick potential.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783192846_3102_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/cf77ad618891d973e7cd6babb40f24a5.webp"
         ),
         WildRiftItem(
             id = "zhonya_s_hourglass",
@@ -1333,7 +1333,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)",
             coachTip = "Este objeto combina un alto poder de habilidad con armadura adicional, mientras que su característica definitoria es la capacidad de volverse completamente invulnerable por un corto tiempo. Su efecto activo te permite sobrevivir a daños letales, evitar habilidades enemigas cruciales o ganar tiempo para que se recuperen tus tiempos de reutilización. Es una excelente opción para magos y asesinos AP que necesitan sobrevivir al foco enemigo y cambiar el rumbo de una pelea en equipo.",
             coachTipEn = "This item combines high Ability Power with extra armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your cooldowns to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a teamfight.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/2baadaec94cd1e205e425a57cb1f52e5.webp"
         ),
         WildRiftItem(
             id = "gargoyle_stoneplate",
@@ -1347,7 +1347,7 @@ object WildRiftItemsData {
             passiveEn = "Stoneplate (Active): Gain a base shield that absorbs damage equal to 100 plus 90% bonusand gain size, decayng over 2.5s. (60s Cooldown)",
             coachTip = "Este elemento aumenta enormemente tu capacidad de supervivencia durante las peleas en equipo. Su actividad activa otorga un escudo poderoso que aumenta con tu salud adicional, lo que te permite resistir fuego intenso y permanecer en la línea del frente por más tiempo. Es una excelente opción para tanques y matones que necesitan absorber grandes cantidades de daño mientras protegen a su equipo.",
             coachTipEn = "This item greatly increases your survivability during teamfights. Its active grants a powerful shield that scales with your bonus Health, allowing you to withstand heavy focus fire and remain on the frontline longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/c6e47425e00b913bb5917d5fa15f1b3b.webp"
         ),
         WildRiftItem(
             id = "bulwark_of_the_mountain",
@@ -1361,7 +1361,7 @@ object WildRiftItemsData {
             passiveEn = "Soulcast: Every 6",
             coachTip = "Este objeto está diseñado para jugadores de apoyo y otorga ingresos pasivos de oro cada 60 segundos junto con acumulaciones de Soulforce que aumentan tu salud, daño de ataque o poder de habilidad. Con 10 acumulaciones, obtienes una importante bonificación de estadísticas adaptativas. Si bien reduce el oro procedente de matar súbditos y monstruos, acelera el ritmo económico de tu equipo. Un efecto adicional inflige daño adicional a los Sight Wards revelados, lo que facilita aclarar la visión y mantener el control del mapa.",
             coachTipEn = "This item is designed for support players and grants passive gold income every 60 seconds along with Soulforce stacks that boost your health, attack damage, or ability power. At 10 stacks, you gain a significant adaptive stat bonus. While it reduces gold from killing minions and monsters, it accelerates your team’s economic pace. An additional effect deals extra damage to revealed Sight Wards, making it easier to clear vision and maintain map control.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389518_bulwark-of-the-mountain.webp"
+            iconUrl = "file:///android_asset/offline_images/90729ecdec9a7cb238b1156edbce22f6.webp"
         ),
         WildRiftItem(
             id = "black_mist_scythe",
@@ -1375,7 +1375,7 @@ object WildRiftItemsData {
             passiveEn = "Versatile: Gain 14 Attack Damage or 28 Ability Power (Adaptive).\nSoulcast: Every 6",
             coachTip = "Este objeto está diseñado para jugadores de apoyo y otorga bonificaciones pasivas de oro y estadísticas. Reduce el oro que obtienes al matar súbditos y monstruos, pero proporciona 75 de oro y 1 acumulación de Soulforce cada 60 segundos. Cada acumulación de Soulforce otorga de forma adaptativa salud, daño de ataque o poder de habilidad, y con 10 acumulaciones obtienes una bonificación significativa a una de estas estadísticas. El objeto también aumenta tu efectividad para aclarar la visión al causar daño adicional a las barreras enemigas reveladas. Ideal para soportes centrados en el control del mapa que quieran ayudar a su equipo sin preocuparse por la agricultura; Generarás recursos constantemente y fortalecerás tu utilidad tanto para proteger como para pelar.",
             coachTipEn = "This item is designed for support players, granting passive bonuses to gold and stats. It reduces your gold from killing minions and monsters but provides 75 gold and 1 Soulforce stack every 60 seconds. Each Soulforce stack adaptively grants health, attack damage, or ability power, and at 10 stacks you gain a significant bonus to one of these stats. The item also increases your effectiveness in clearing vision by dealing extra damage to revealed enemy wards. Ideal for map-control–focused supports who want to help their team without worrying about farming; you’ll steadily generate resources and strengthen your utility for both protect and peel.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389555_black-mist-scythe.webp"
+            iconUrl = "file:///android_asset/offline_images/905380f9e777f9fb79a8ade29433cf27.webp"
         ),
         WildRiftItem(
             id = "morellonomicon",
@@ -1389,7 +1389,7 @@ object WildRiftItemsData {
             passiveEn = "Affliction: Dealing magic damage to enemy champions inflicts 50% Grievous Wounds for 3 seconds.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Este objeto está diseñado para contrarrestar campeones con una fuerte curación y sustentación. Cualquier daño mágico que inflijas aplica heridas graves, lo que reduce en gran medida la efectividad de la curación y regeneración del enemigo. Es una excelente opción para magos y apoyos AP contra equipos que dependen en gran medida de la curación, el robo de vida o la regeneración.",
             coachTipEn = "This item is designed to counter champions with strong healing and sustain. Any magic damage you deal applies Grievous Wounds, greatly reducing the effectiveness of enemy healing and regeneration. It is an excellent choice for mages and AP supports against teams that rely heavily on healing, lifesteal, or regeneration.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388237_morellonomicon.webp"
+            iconUrl = "file:///android_asset/offline_images/0c0fefe5c38af6fc40ea24c5539672b0.webp"
         ),
         WildRiftItem(
             id = "ardent_censer",
@@ -1403,7 +1403,7 @@ object WildRiftItemsData {
             passiveEn = "Censer: When you heal or shield, an allied champion other than yourself, they gain 15-34% Attack Speed and their attacks deal 16-22 bonus magic damage. for 6 seconds. This damage can Critically Strike.",
             coachTip = "Este objeto mejora tus curaciones y escudos, otorgando a los aliados protegidos una mayor velocidad de ataque y daño mágico adicional en sus ataques por un corto período. Perfecto para apoyo de encantadores que quieren proteger y potenciar a sus portadores cuando más importa.",
             coachTipEn = "This item enhances your heals and shields, granting shielded allies increased attack speed and bonus magic damage on their attacks for a short duration. Perfect for enchanter supports who want to protect and empower their carries when it matters most.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388425_ardent-censer.webp"
+            iconUrl = "file:///android_asset/offline_images/9910505e11aafddc30dd943ecf79b0d8.webp"
         ),
         WildRiftItem(
             id = "harmonic_echo",
@@ -1417,7 +1417,7 @@ object WildRiftItemsData {
             passiveEn = "Harmonic Echo: Moving and casting abilities builds Harmony. At 100 Harmony your next healing or shielding ability on an ally restore an additional equal to (100-160 () + 15% AP) Health. If the target has less than 30% Health, heal effectiveness is increased to 130% of the original.",
             coachTip = "Este objeto mejora enormemente tus capacidades de curación y protección. Las habilidades de movimiento y lanzamiento crean armonía, potenciando tu próxima curación o escudo con curación adicional, mientras que los aliados con poca salud reciben una recuperación aún más fuerte. Es una excelente opción para los apoyos de encantadores que se centran en mantener vivo a su equipo y salvar a los aliados durante los momentos críticos.",
             coachTipEn = "This item greatly enhances your healing and shielding capabilities. Moving and casting abilities builds Harmony, empowering your next heal or shield with additional healing, while allies at low health receive an even stronger recovery. It is an excellent choice for enchanter supports who focus on keeping their team alive and saving allies during critical moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388518_yordle-harmonic-echo.webp"
+            iconUrl = "file:///android_asset/offline_images/d872a816297fba72325d5b0b2e6858c8.webp"
         ),
         WildRiftItem(
             id = "staff_of_flowing_water",
@@ -1431,7 +1431,7 @@ object WildRiftItemsData {
             passiveEn = "Rapids: Healing or shielding an ally grants you both +15 Ability Haste and 30-50 (based on target's level) Ability Power for 6 seconds.",
             coachTip = "Objeto insignia para encantadores (Nami, Lulu, Yuumi, Sona, Soraka) con aliados que aprovechan el AP y la aceleración de habilidades. Cada escudo o curación potencia el daño mágico de tu carry.",
             coachTipEn = "Premier support item for enchanters with AP allies, buffing both you and your ally with ability power and haste upon heals or shields.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388553_staff-of-flowing-water.webp"
+            iconUrl = "file:///android_asset/offline_images/0514e703e9172ec9266ef8121ae07b3b.webp"
         ),
         WildRiftItem(
             id = "oceanid_s_trident",
@@ -1445,7 +1445,7 @@ object WildRiftItemsData {
             passiveEn = "Lethal Weapon: Dealing ability damage to an enemy champion reduces any shields they gain for 3 seconds. Area of effect abilities apply (5% of bonus AP + 25)% shield reduction, capped at 45%; while single target abilities apply (5% of bonus AP + 40)% shield reduction, capped at 60%. When you damage an enemy who is unaffected by Lethal Weapon, all shields on them are reduced by the same values.",
             coachTip = "Este objeto está diseñado para contrarrestar a campeones con muchos escudos. Tus habilidades reducen significativamente la efectividad de los escudos que reciben los enemigos, mientras que el primer golpe también puede debilitar los escudos que ya están activos. Es una excelente opción para magos y apoyos AP contra composiciones que dependen de escudos, lo que permite a tu equipo atravesar las defensas enemigas y eliminar objetivos prioritarios de manera más efectiva.",
             coachTipEn = "This item is designed to counter shield-heavy champions. Your abilities significantly reduce the effectiveness of shields enemies receive, while the first hit can also weaken shields that are already active. It is an excellent choice for mages and AP supports against shield-reliant compositions, allowing your team to break through enemy defenses and eliminate priority targets more effectively.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp"
+            iconUrl = "file:///android_asset/offline_images/f800a2be044a17e73fe7079161df361a.webp"
         ),
         WildRiftItem(
             id = "imperial_mandate",
@@ -1459,7 +1459,7 @@ object WildRiftItemsData {
             passiveEn = "Coordinated Fire: Abilities that Slow or Immobilize a champion deal 47-75 bonus magic damage and marks them for 4 seconds (6 seconds cooldown per enemy champion). Allied champion damage detonates the mark, dealing an additional 94-150 magic damage (based on ally level) and granting you both 20% Move Speed, for 2 seconds.",
             coachTip = "Fundamental para apoyos con control de masas (Karma, Morgana, Nami, Lux, Seraphine). Marca a los enemigos inmovilizados o ralentizados para que tus aliados detonen daño mágico adicional masivo y velocidad.",
             coachTipEn = "Ideal for supports with CC. Marks enemies to allow allies to detonate extra magic burst and gain movement speed.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388613_imperial-mandate.webp"
+            iconUrl = "file:///android_asset/offline_images/516c29e1d0b53fc59197feeb6201c965.webp"
         ),
         WildRiftItem(
             id = "zeke_s_convergence",
@@ -1473,7 +1473,7 @@ object WildRiftItemsData {
             passiveEn = "Harbinger: Casting your ultimate surrounds you with a blizzard and ignites a nearby ally's attacks for 10 seconds. Your blizzard deals a maximum of 320–600 damage, slows enemies by 25% and leaves a trail behind you. Allied champions on the trail gain 40 bonus Movement Speed for 1 second. (30s Cooldown)",
             coachTip = "Este objeto es perfecto para campeones de apoyo tanques que inician peleas y brindan control de masas en primera línea. Otorga armadura, salud, maná y aceleración de habilidades. Cuando lanzas tu habilidad definitiva, una tormenta de nieve helada te rodea, causando daño y ralentizando a los enemigos, mientras deja un rastro que otorga velocidad de movimiento adicional a los aliados. Durante el efecto, los ataques de un aliado marcado cercano infligen daño mágico adicional, lo que le da a tu equipo una poderosa ventaja en las peleas en equipo.",
             coachTipEn = "This item is perfect for tanky support champions who initiate fights and provide frontline crowd control. It grants armor, health, mana, and ability haste. When you cast your ultimate, an icy blizzard surrounds you, dealing damage and slowing enemies, while leaving a trail that grants bonus movement speed to allies. During the effect, the attacks of a nearby marked ally deal additional magic damage, giving your team a powerful advantage in teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389063_zekes-convergence.webp"
+            iconUrl = "file:///android_asset/offline_images/0685ea68cf8f32ccbd8e016af1c0b7b4.webp"
         ),
         WildRiftItem(
             id = "frozen_heart",
@@ -1487,7 +1487,7 @@ object WildRiftItemsData {
             passiveEn = "Winter's Caress: Basic attacks and magic damage caused by you or inflicted upon you and nearby allies, will apply stacks of Chill to the enemy champion for 3 seconds. Each stack of Chill slows enemy attack speed by 9%, up to a maximum of 4 stacks or 36% attack speed reduction. Each individual ability has a 3 seconds cooldown on applying Chill stacks.",
             coachTip = "Este objeto es ideal para tanques y campeones de apoyo que necesitan reducir la velocidad de ataque del enemigo y mantener una reserva de maná saludable. Proporciona bonificaciones sustanciales a la armadura, el maná y la aceleración de habilidades. La pasiva \"Caricia de invierno\" aplica hasta cuatro acumulaciones de Escalofrío a los campeones enemigos a través de tus ataques básicos, habilidades o cualquier daño mágico que reciban; cada acumulación reduce su velocidad de ataque en un 9%, hasta un 36% con acumulaciones completas. Esto debilita a los tiradores y combatientes enemigos, lo que les dificulta infligir daño sostenido en los combates.",
             coachTipEn = "This item is ideal for tanks and support champions who need to slow enemy attack speed and maintain a healthy mana pool. It provides substantial bonuses to armor, mana, and ability haste. The “Winter’s Caress” passive applies up to four stacks of Chill on enemy champions through your basic attacks, abilities, or any magic damage they take—each stack slows their attack speed by 9%, up to 36% at full stacks. This weakens enemy marksmen and fighters, making it harder for them to deal sustained damage in fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389159_frozen-heart.webp"
+            iconUrl = "file:///android_asset/offline_images/0e47792257d27c16e79a36c746d6c82e.webp"
         ),
         WildRiftItem(
             id = "dawnshroud",
@@ -1501,7 +1501,7 @@ object WildRiftItemsData {
             passiveEn = "Dawnbringer: When you immobilize a champion champion or are immobilized within 400 units of an enemy champion, reveal all nearby enemy champions for 3 seconds, deal magic damage equal to 40 + 2.5% bonusand gain 20% Armor and Magic Resistance (3s Cooldown)",
             coachTip = "Este artículo es ideal para tanques e iniciadores de apoyo. Cuando inmovilizas a un enemigo o estás inmovilizado cerca de enemigos, revela campeones cercanos, inflige una explosión explosiva de daño mágico y aumenta brevemente tus defensas. Perfecto para control de zonas, enfrentamientos confiables y contrarrestar los intentos de inmersión del enemigo.",
             coachTipEn = "This item is great for tanks and support initiators. When you immobilize an enemy or are immobilized near foes, it reveals nearby champions, deals an explosive burst of magic damage, and briefly boosts your defenses. Perfect for zone control, reliable engages, and countering enemy dive attempts.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389211_dawnshroud.webp"
+            iconUrl = "file:///android_asset/offline_images/739efe1076c8c7945f56d767ddc89c3c.webp"
         ),
         WildRiftItem(
             id = "yordle_trap",
@@ -1515,7 +1515,7 @@ object WildRiftItemsData {
             passiveEn = "Catcher: After using abilities to apply crowd control effects that displace the enemy, gain 10% Movement Speed for 3 second(s) and mark the target, reducing their Armor and Magic Resist by 5–12 for 8 second(s). If the target dies while they are marked, their death grants 100–140 bonus gold () that will be evenly shared among you and nearby allies.This bonus gold can only be obtained once every 10 second(s).",
             coachTip = "Este objeto está diseñado para campeones con habilidades de desplazamiento y potentes herramientas de combate. Desplazar con éxito a un enemigo te otorga velocidad de movimiento adicional mientras marcas al objetivo, lo que reduce su armadura y resistencia mágica para que tu equipo pueda eliminarlos más fácilmente. Si el objetivo marcado muere, tú y tus aliados cercanos recibiréis oro adicional, lo que ayudará a vuestro equipo a aumentar su ventaja. Es una excelente opción para tanques y soportes de combate con habilidades de derribo, tirones o derribos.",
             coachTipEn = "This item is designed for champions with displacement abilities and strong engage tools. Successfully displacing an enemy grants you bonus movement speed while marking the target, reducing their Armor and Magic Resistance to make them easier for your team to eliminate. If the marked target dies, you and nearby allies receive bonus gold, helping your team snowball its advantage. It is an excellent choice for tanks and engage supports with knockbacks, pulls, or knock-up abilities.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389328_yordle-trap.webp"
+            iconUrl = "file:///android_asset/offline_images/3b1afe564977a0cbc6238247c6a1089b.webp"
         ),
         WildRiftItem(
             id = "knight_s_vow",
@@ -1529,7 +1529,7 @@ object WildRiftItemsData {
             passiveEn = "Pledge: While in combat, deal magic damage equal to 20–30 plus 1% of bonus Health per second for 5 second(s) to nearby enemies. Deals 125% damage against monsters and 200% damage against minions.\nSacrifice: Killing a neutral monster or an enemy deals magic damage equal to 30 plus 2% of bonus Health in an area around them.",
             coachTip = "Este elemento te permite actuar como un ancla protectora para un aliado designado: parte del daño que recibe se redirige hacia ti y te curas cuando ese aliado causa daño. Perfecto para apoyos de tanques y matones centrados en la pelea que quieren mantener un transporte seguro: proporciona una forma confiable de concentrarse, mantenerse en las peleas y mantener la presencia en las peleas en equipo.",
             coachTipEn = "This item lets you act as a protective anchor for a designated ally: some of the damage they take is redirected to you, and you heal when that ally deals damage. Perfect for tanky supports and peel-focused bruisers who want to keep a carry safe — it provides a reliable way to soak focus, sustain through fights, and maintain teamfight presence.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1767914013_3109_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/5f92d9e55433af69c2d2e91adfca0284.webp"
         ),
         WildRiftItem(
             id = "redemption",
@@ -1543,7 +1543,7 @@ object WildRiftItemsData {
             passiveEn = "Intervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deal 10% of max as true damage to enemy champions. (60s Cooldown)Can be cast while dead.",
             coachTip = "Este artículo está diseñado para brindar apoyo al equipo que cambia las reglas del juego. Su activo restaura la salud de todas las unidades aliadas en un área grande mientras causa daño real a los campeones enemigos, lo que lo convierte en una herramienta poderosa para cambiar el rumbo de las peleas en equipo. La capacidad de lanzarlo incluso después de la muerte lo hace especialmente valioso para los apoyos que desean continuar impactando las peleas incluso después de ser eliminados.",
             coachTipEn = "This item is designed to provide game-changing team support. Its active restores health to all allied units in a large area while dealing true damage to enemy champions, making it a powerful tool for turning the tide of teamfights. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
+            iconUrl = "file:///android_asset/offline_images/7c4aa6c8827f314917041dc3a4d63c05.webp"
         ),
         WildRiftItem(
             id = "mikael_s_blessing",
@@ -1557,7 +1557,7 @@ object WildRiftItemsData {
             passiveEn = "Purify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied champion, grant them crowd control immunity for 0.2s, and heal them for 150–250 Health. (75s Cooldown)",
             coachTip = "Este objeto está diseñado para proteger a los aliados del control de multitudes. Su activo elimina la mayoría de los efectos incapacitantes de un aliado objetivo, restaura instantáneamente su salud y otorga brevemente inmunidad para un mayor control de masas. Es una excelente opción para los apoyos que desean mantener vivos a sus carry y asegurarse de que puedan continuar luchando en momentos cruciales.",
             coachTipEn = "This item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restores their health, and briefly grants immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783571078_3222_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/bbc3dbd2e1b410b93581181f83ef1e54.webp"
         ),
         WildRiftItem(
             id = "locket_of_the_iron_solari",
@@ -1571,7 +1571,7 @@ object WildRiftItemsData {
             passiveEn = "Locket (Active): Grants a shield to yourself and nearby allied champions that each absorbs 250-370 damage for 2.5 seconds. (60s Cooldown)This effect is reduced by 50% if the target has been affected by another Locket in the last 20 seconds.",
             coachTip = "Este elemento proporciona una poderosa protección para todo el equipo durante las peleas. Su actividad activa te otorga un escudo a ti y a tus aliados cercanos, lo que ayuda a tu equipo a sobrevivir al daño explosivo y reduce el impacto de los enfrentamientos enemigos. Es una excelente opción para tanques y apoyos que permanecen cerca de sus compañeros de equipo y desean maximizar la capacidad de supervivencia de su equipo en las peleas en equipo.",
             coachTipEn = "This item provides powerful team-wide protection during fights. Its active grants a shield to you and nearby allies, helping your team survive burst damage and reducing the impact of enemy engages. It is an excellent choice for tanks and supports who stay close to their teammates and want to maximize their team's survivability in teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389710_locket-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/90e64403fbbc718c296e56622bc21fac.webp"
         ),
         WildRiftItem(
             id = "shurelya_s_battlesong",
@@ -1585,7 +1585,7 @@ object WildRiftItemsData {
             passiveEn = "Inspiring Speech (Active): Grant nearby allies champions 30% Move Speed for 4 seconds. (60s Cooldown)",
             coachTip = "Este elemento mejora enormemente la movilidad de tu equipo. Su activo otorga a los campeones aliados cercanos una ráfaga de velocidad de movimiento, lo que permite a tu equipo participar en peleas, perseguir enemigos que huyen o retirarse de situaciones peligrosas de manera más efectiva. Es una excelente opción para los campeones de apoyo y utilitarios que se destacan en controlar el ritmo de las peleas en equipo y habilitar a sus compañeros de equipo.",
             coachTipEn = "This item greatly enhances your team's mobility. Its active grants nearby allied champions a burst of movement speed, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility champions who excel at controlling the pace of teamfights and enabling their teammates.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783187148_shurelyas-battlesong.webp"
+            iconUrl = "file:///android_asset/offline_images/47f3b1e1cbcb3ead1b9819b2367ee282.webp"
         ),
         WildRiftItem(
             id = "quicksilver_sash",
@@ -1599,7 +1599,7 @@ object WildRiftItemsData {
             passiveEn = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 seconds.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Slow Resist for 1.5 seconds. (60s Cooldown)Cannot be used during knock up or knock back effects.",
             coachTip = "Cómpralo estrictamente cuando te enfrentes a un control de masas letal (como la ultimate de Malzahar, Leona o Ashe).",
             coachTipEn = "This enchant instantly removes most crowd control effects and briefly grants immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and slows, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice against teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389685_quicksilver-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/f4b2c195dbd314e51668359f9abc086b.webp"
         ),
         WildRiftItem(
             id = "seeker_s_armguard",
@@ -1613,7 +1613,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5s, but unable to move, attack, cast spells or use items. (120s Cooldown).",
             coachTip = "El Brazalete de la buscadora proporciona la invaluable activa de Éstasis (2.5 s de invulnerabilidad) a mitad de partida, permitiendo esquivar definitivas letales y combos de asesinos antes de completar el Reloj de arena de Zhonya.",
             coachTipEn = "Seeker's Armguard provides the invaluable Stasis active (2.5s invulnerability) at mid-tier cost, allowing you to dodge lethal ultimates and assassin combos before finishing Zhonya's Hourglass.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2022-01/1641809649_seekers-armguard.png"
+            iconUrl = "file:///android_asset/offline_images/a3b6e6c6102ce5f573811ec15758dfb2.png"
         ),
         WildRiftItem(
             id = "stridebreaker",
@@ -1627,7 +1627,7 @@ object WildRiftItemsData {
             passiveEn = "Halting Slash (Active): Dash a short distance forward, dealing 100% physical damage to nearby enemies and slowing them by 40% for 3s (25s Cooldown).\n\nHeroic (Passive): Grants 20 Move Speed for 2s when dealing physical damage.",
             coachTip = "Excelente para luchadores y colosos (Darius, Sett, Garen, Urgot) para recortar distancias, ralentizar en área y enganchar al objetivo clave.",
             coachTipEn = "Ideal for bruisers and juggernauts to close distance, slow in an area and stick to priority targets.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
+            iconUrl = "file:///android_asset/offline_images/d53ef50c7883f58fceafbc13bdd071b6.webp"
         ),
         WildRiftItem(
             id = "goredrinker",
@@ -1641,7 +1641,7 @@ object WildRiftItemsData {
             passiveEn = "Goredrinker (Passive): Grants 8% Omnivamp.\n\nThirsting Slash (Active): Deals 175% base AD physical damage to nearby enemies. Restores Health equal to 20% AD + 10% missing Health per enemy champion hit (12s Cooldown).",
             coachTip = "El objeto activo por excelencia para luchadores en peleas de equipo (Aatrox, Riven, Renekton, Olaf). Actívalo cuando estés bajo de vida rodeado de enemigos para curarte masivamente.",
             coachTipEn = "The quintessential active teamfight item for bruisers. Activate at low HP when surrounded to get a massive burst heal.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389878_goredrinker.webp"
+            iconUrl = "file:///android_asset/offline_images/faa4bc60887a69d10e46b9926fbfc130.webp"
         ),
         WildRiftItem(
             id = "galeforce",
@@ -1655,7 +1655,7 @@ object WildRiftItemsData {
             passiveEn = "Cloudburst (Active): Dash in target direction and fire 3 missiles at lowest-health enemy near destination (prioritizes champions). Deals physical damage equal to 40-125 + 35% bonus AD (60s Cooldown).",
             coachTip = "Aporta a tiradores inmóviles como Jhin, Jinx o Caitlyn una valiosa herramienta de esquiva y burst de ejecución para rematar objetivos que huyen.",
             coachTipEn = "Gives immobile ADCs a crucial repositioning dash and execution missile burst to finish off escaping enemies.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
+            iconUrl = "file:///android_asset/offline_images/1aeafb7896806a2f556ff126daf52d91.webp"
         ),
         WildRiftItem(
             id = "mercurial_scimitar",
@@ -1669,7 +1669,7 @@ object WildRiftItemsData {
             passiveEn = "Quicksilver (Active): Removes all crowd control debuffs affecting you and grants immunity against crowd control for 0.25s.\n\nPerseverance (Passive): When Quicksilver effect ends, grants 30% Tenacity and 30% Slow Resist for 1.5s.",
             coachTip = "Imprescindible contra composiciones enemigas con iniciaciones duras, supresiones o cadenas de aturdimientos que te impidan pegar en teamfights.",
             coachTipEn = "Essential against heavy crowd control and suppression setups that prevent you from attacking during fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/bfba991bdd26cac9dc642cd79060d0f5.webp"
         ),
         WildRiftItem(
             id = "hextech_roketbelt",
@@ -1683,7 +1683,7 @@ object WildRiftItemsData {
             passiveEn = "Protobelt (Active): Dash forward and unleash a cone of missiles, dealing 100 plus 10% magic damage. (30s Cooldown)If champions or monsters are hit by more than one missile, missiles after the first will deal only 10% damage.",
             coachTip = "Este objeto combina poder de habilidad con movilidad adicional, lo que te permite cerrar la brecha o reposicionarte rápidamente durante el combate. Su activa otorga una carrera corta mientras dispara un cono de cohetes que causan daño mágico de área. Es una excelente opción para asesinos AP, magos móviles y campeones orientados al combate que necesitan sumergirse, asegurar muertes o esquivar habilidades enemigas clave.",
             coachTipEn = "This item combines Ability Power with extra mobility, allowing you to quickly close the gap or reposition during combat. Its active grants a short dash while firing a cone of rockets that deal area magic damage. It is an excellent choice for AP assassins, mobile mages, and engage-oriented champions who need to dive in, secure kills, or dodge key enemy abilities.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389704_protobelt-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/7edd3e0a1f50a5616ea44d0628f13d15.webp"
         ),
         WildRiftItem(
             id = "zhonya_s_hourglass",
@@ -1697,7 +1697,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (90s Cooldown)",
             coachTip = "Este objeto combina un alto poder de habilidad con armadura adicional, mientras que su característica definitoria es la capacidad de volverse completamente invulnerable por un corto tiempo. Su efecto activo te permite sobrevivir a daños letales, evitar habilidades enemigas cruciales o ganar tiempo para que se recuperen tus tiempos de reutilización. Es una excelente opción para magos y asesinos AP que necesitan sobrevivir al foco enemigo y cambiar el rumbo de una pelea en equipo.",
             coachTipEn = "This item combines high Ability Power with extra armor, while its defining feature is the ability to become completely invulnerable for a short time. Its active effect allows you to survive lethal damage, avoid crucial enemy abilities, or buy time for your cooldowns to recover. It is an excellent choice for mages and AP assassins who need to outlive enemy focus and turn the tide of a teamfight.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389628_stasis-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/2baadaec94cd1e205e425a57cb1f52e5.webp"
         ),
         WildRiftItem(
             id = "redemption",
@@ -1711,7 +1711,7 @@ object WildRiftItemsData {
             passiveEn = "Intervention (Active): Target a large area. After 2.5s, restore 150-350 Health (based on ally's level) to allied units and deal 10% of max as true damage to enemy champions. (60s Cooldown)Can be cast while dead.",
             coachTip = "Este artículo está diseñado para brindar apoyo al equipo que cambia las reglas del juego. Su activo restaura la salud de todas las unidades aliadas en un área grande mientras causa daño real a los campeones enemigos, lo que lo convierte en una herramienta poderosa para cambiar el rumbo de las peleas en equipo. La capacidad de lanzarlo incluso después de la muerte lo hace especialmente valioso para los apoyos que desean continuar impactando las peleas incluso después de ser eliminados.",
             coachTipEn = "This item is designed to provide game-changing team support. Its active restores health to all allied units in a large area while dealing true damage to enemy champions, making it a powerful tool for turning the tide of teamfights. The ability to cast it even after death makes it especially valuable for supports who want to continue impacting fights even after being eliminated.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389247_yordle-redeeming.webp"
+            iconUrl = "file:///android_asset/offline_images/7c4aa6c8827f314917041dc3a4d63c05.webp"
         ),
         WildRiftItem(
             id = "gargoyle_stoneplate",
@@ -1725,7 +1725,7 @@ object WildRiftItemsData {
             passiveEn = "Stoneplate (Active): Gain a base shield that absorbs damage equal to 100 plus 90% bonusand gain size, decayng over 2.5s. (60s Cooldown)",
             coachTip = "Este elemento aumenta enormemente tu capacidad de supervivencia durante las peleas en equipo. Su actividad activa otorga un escudo poderoso que aumenta con tu salud adicional, lo que te permite resistir fuego intenso y permanecer en la línea del frente por más tiempo. Es una excelente opción para tanques y matones que necesitan absorber grandes cantidades de daño mientras protegen a su equipo.",
             coachTipEn = "This item greatly increases your survivability during teamfights. Its active grants a powerful shield that scales with your bonus Health, allowing you to withstand heavy focus fire and remain on the frontline longer. It is an excellent choice for tanks and bruisers who need to absorb large amounts of damage while protecting their team.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389735_stoneplate-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/c6e47425e00b913bb5917d5fa15f1b3b.webp"
         ),
         WildRiftItem(
             id = "mikael_s_blessing",
@@ -1739,7 +1739,7 @@ object WildRiftItemsData {
             passiveEn = "Purify (Active): Remove all crowd control debuffs (excluding knock up and suppression) from an allied champion, grant them crowd control immunity for 0.2s, and heal them for 150–250 Health. (75s Cooldown)",
             coachTip = "Este objeto está diseñado para proteger a los aliados del control de multitudes. Su activo elimina la mayoría de los efectos incapacitantes de un aliado objetivo, restaura instantáneamente su salud y otorga brevemente inmunidad para un mayor control de masas. Es una excelente opción para los apoyos que desean mantener vivos a sus carry y asegurarse de que puedan continuar luchando en momentos cruciales.",
             coachTipEn = "This item is designed to protect allies from crowd control. Its active removes most disabling effects from a targeted ally, instantly restores their health, and briefly grants immunity to further crowd control. It is an excellent choice for supports who want to keep their carries alive and ensure they can continue fighting through crucial moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783571078_3222_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/bbc3dbd2e1b410b93581181f83ef1e54.webp"
         ),
         WildRiftItem(
             id = "locket_of_the_iron_solari",
@@ -1753,7 +1753,7 @@ object WildRiftItemsData {
             passiveEn = "Locket (Active): Grants a shield to yourself and nearby allied champions that each absorbs 250-370 damage for 2.5 seconds. (60s Cooldown)This effect is reduced by 50% if the target has been affected by another Locket in the last 20 seconds.",
             coachTip = "Este elemento proporciona una poderosa protección para todo el equipo durante las peleas. Su actividad activa te otorga un escudo a ti y a tus aliados cercanos, lo que ayuda a tu equipo a sobrevivir al daño explosivo y reduce el impacto de los enfrentamientos enemigos. Es una excelente opción para tanques y apoyos que permanecen cerca de sus compañeros de equipo y desean maximizar la capacidad de supervivencia de su equipo en las peleas en equipo.",
             coachTipEn = "This item provides powerful team-wide protection during fights. Its active grants a shield to you and nearby allies, helping your team survive burst damage and reducing the impact of enemy engages. It is an excellent choice for tanks and supports who stay close to their teammates and want to maximize their team's survivability in teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389710_locket-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/90e64403fbbc718c296e56622bc21fac.webp"
         ),
         WildRiftItem(
             id = "shurelya_s_battlesong",
@@ -1767,7 +1767,7 @@ object WildRiftItemsData {
             passiveEn = "Inspiring Speech (Active): Grant nearby allies champions 30% Move Speed for 4 seconds. (60s Cooldown)",
             coachTip = "Este elemento mejora enormemente la movilidad de tu equipo. Su activo otorga a los campeones aliados cercanos una ráfaga de velocidad de movimiento, lo que permite a tu equipo participar en peleas, perseguir enemigos que huyen o retirarse de situaciones peligrosas de manera más efectiva. Es una excelente opción para los campeones de apoyo y utilitarios que se destacan en controlar el ritmo de las peleas en equipo y habilitar a sus compañeros de equipo.",
             coachTipEn = "This item greatly enhances your team's mobility. Its active grants nearby allied champions a burst of movement speed, allowing your team to engage fights, chase fleeing enemies, or disengage from dangerous situations more effectively. It is an excellent choice for supports and utility champions who excel at controlling the pace of teamfights and enabling their teammates.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783187148_shurelyas-battlesong.webp"
+            iconUrl = "file:///android_asset/offline_images/47f3b1e1cbcb3ead1b9819b2367ee282.webp"
         ),
         WildRiftItem(
             id = "gluttonous_greaves",
@@ -1781,7 +1781,7 @@ object WildRiftItemsData {
             passiveEn = "Balance of Power: Gain 12 Attack Damage or 20 Ability Power (Adaptive).\nConversion: Gain 5% Omnivamp. Champion takedowns grant an additional 0.5% Omnivamp, up to 5%.",
             coachTip = "Estas botas combinan movilidad, poder ofensivo adaptativo y curación sostenida. Aumentan tu daño mientras Omnivamp restaura la salud de todo el daño que infliges. Los derribos de campeones aumentan aún más tu Omnivamp, lo que los convierte en una excelente opción para los campeones que desean equilibrar un alto nivel de daño con un fuerte sustento durante peleas prolongadas.",
             coachTipEn = "These boots combine mobility, adaptive offensive power, and sustained healing. They increase your damage while Omnivamp restores health from all damage you deal. Champion takedowns further increase your Omnivamp, making them an excellent choice for champions who want to balance high damage output with strong sustain during extended fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389849_gluttonous-greaves.webp"
+            iconUrl = "file:///android_asset/offline_images/bc6f5486fc82c342fc0b285e2ad49198.webp"
         ),
         WildRiftItem(
             id = "berserker_s_greaves",
@@ -1795,7 +1795,7 @@ object WildRiftItemsData {
             passiveEn = "Blessed Blade: Attacks restore 10 Health on hit.",
             coachTip = "Estas botas otorgan un aumento significativo en la velocidad de ataque y de movimiento, al mismo tiempo que potencian tus ataques básicos con robo de vida al golpear. — Una excelente elección para tiradores y matones de ataque automático que necesitan movilidad, cadencia de ataque rápida y sustentabilidad constante en las peleas.",
             coachTipEn = "These boots grant a significant boost to attack speed and movement speed, while empowering your basic attacks with on‑hit life steal. — A great pick for marksmen and auto‑attack bruisers who need mobility, rapid attack cadence, and constant sustain in fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389864_berserkers-greaves.webp"
+            iconUrl = "file:///android_asset/offline_images/8556456bfeb2b62e7a7b055721646ad8.webp"
         ),
         WildRiftItem(
             id = "mercury_s_treads",
@@ -1809,7 +1809,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Estas botas aumentan tu resistencia mágica y te hacen más resistente al control de multitudes a través de Tenacity. La salud adicional y la velocidad de movimiento mejoran tanto la capacidad de supervivencia como la movilidad, lo que te permite desempeñarte de manera más efectiva contra el daño mágico y las composiciones de equipos con mucho CC. Son una excelente opción para tanques, luchadores y cualquier campeón que necesite permanecer en la lucha por más tiempo.",
             coachTipEn = "These boots increase your Magic Resistance while making you more resilient to crowd control through Tenacity. The bonus Health and movement speed improve both survivability and mobility, allowing you to perform more effectively against magic damage and heavy-CC team compositions. They are an excellent choice for tanks, fighters, and any champion who needs to stay in the fight longer.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389863_mercurys-treads.webp"
+            iconUrl = "file:///android_asset/offline_images/f72e2b0af20dc12975a0a056994e0bfd.webp"
         ),
         WildRiftItem(
             id = "plated_steelcaps",
@@ -1823,7 +1823,7 @@ object WildRiftItemsData {
             passiveEn = "Block: Reduces damage from champion attacks by 10%.",
             coachTip = "Estas botas brindan una protección confiable contra campeones que dependen en gran medida de ataques básicos. Aumentan tu salud y armadura, mientras que la pasiva reduce aún más el daño recibido por los ataques de los campeones enemigos. Una excelente opción contra tiradores, luchadores AD y otros campeones centrados en ataques automáticos.",
             coachTipEn = "These boots provide reliable protection against champions who rely heavily on basic attacks. They increase your Health and Armor, while the passive further reduces damage taken from enemy champion attacks. An excellent choice against marksmen, AD fighters, and other auto-attack-focused champions.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389651_plated-steelcaps.webp"
+            iconUrl = "file:///android_asset/offline_images/cb35750fcaf34bd2f1355eb5dcee18af.webp"
         ),
         WildRiftItem(
             id = "ionian_boots_of_lucidity",
@@ -1837,7 +1837,7 @@ object WildRiftItemsData {
             passiveEn = "Summoned: Reduces spell cooldowns by 15%.",
             coachTip = "Estas botas están diseñadas para campeones que dependen de sus habilidades de lanzamiento con la mayor frecuencia posible. Proporcionan regeneración de maná, celeridad de habilidades y reducen aún más el tiempo de reutilización de los hechizos de invocador, lo que te permite usar habilidades clave con más frecuencia mientras recuperas Flash, Smite, Ignite y otros hechizos de invocador más rápido. Son una excelente opción para magos, apoyos, luchadores y cualquier campeón que se beneficie al maximizar el tiempo de actividad de sus habilidades.",
             coachTipEn = "These boots are designed for champions who rely on casting abilities as often as possible. They provide mana regeneration, Ability Haste, and further reduce the cooldown of Summoner Spells, allowing you to use key abilities more frequently while bringing back Flash, Smite, Ignite, and other Summoner Spells faster. They are an excellent choice for mages, supports, fighters, and any champion who benefits from maximizing ability uptime.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389658_ionian-boots-of-lucidity.webp"
+            iconUrl = "file:///android_asset/offline_images/1f02ca361ef7d963b109dacc267d8e18.webp"
         ),
         WildRiftItem(
             id = "boots_of_mana",
@@ -1851,7 +1851,7 @@ object WildRiftItemsData {
             passiveEn = "Equilibrium: Champions without Mana gain 50% bonus health Regen.\nBig Bully: Attacks and active abilities deal 18 bonus true damage to minions.",
             coachTip = "Estas botas mejoran enormemente tu daño mágico inicial al proporcionar poder de habilidad, penetración mágica y mayor regeneración de maná. También mejoran la eliminación de oleadas al infligir daño verdadero adicional a los súbditos, mientras que los campeones sin maná obtienen regeneración de salud adicional. Son una excelente opción para magos y apoyos AP que valoran las líneas fuertes, el lanzamiento frecuente de hechizos y la limpieza eficiente de olas.",
             coachTipEn = "These boots greatly enhance your early magic damage by providing Ability Power, magic penetration, and increased mana regeneration. They also improve wave clear by dealing bonus true damage to minions, while champions without Mana instead gain additional health regeneration. They are an excellent choice for mages and AP supports who value strong laning, frequent spell casting, and efficient wave clearing.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389619_boots-of-mana.webp"
+            iconUrl = "file:///android_asset/offline_images/cba2fca06ca760dec5b86c66077bee07.webp"
         ),
         WildRiftItem(
             id = "boots_of_dynamism",
@@ -1865,7 +1865,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Estas botas aumentan tu daño físico al proporcionar daño de ataque adicional y penetración de armadura. Son especialmente efectivos durante las primeras etapas del juego, lo que te permite atravesar las defensas enemigas y ganar intercambios más fácilmente. Son una excelente opción para tiradores, asesinos y luchadores que buscan maximizar su daño y eliminar enemigos de manera más eficiente.",
             coachTipEn = "These boots increase your physical damage by providing bonus Attack Damage and armor penetration. They are especially effective during the early stages of the game, allowing you to cut through enemy defenses and win trades more easily. They are an excellent choice for marksmen, assassins, and fighters looking to maximize their damage output and eliminate enemies more efficiently.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389665_boots-of-dynamism.webp"
+            iconUrl = "file:///android_asset/offline_images/474ef0da4f590ed15a53564d5bf4faf4.webp"
         ),
         WildRiftItem(
             id = "immortal_treds",
@@ -1879,7 +1879,7 @@ object WildRiftItemsData {
             passiveEn = "Balance of Power: Gain 12 Attack Damage or 20 Ability Power (Adaptive).\nConversion: Gain 5% Omnivamp. Champion takedowns grant an additional 0.5% Omnivamp, up to 5%.\nNow and Forever: When you have more than 50% Health, deal 5% bonus damage. When below 50% Health, gain 12% increased healing and shielding.",
             coachTip = "Estas botas combinan poder ofensivo adaptativo, sustentación y mayor efectividad en el combate. Mientras estés por encima del 50 % de salud, infliges un mayor daño, y cuando estés por debajo del 50 % de salud, te beneficiarás de una curación y un escudo más fuertes para mejorar tu capacidad de supervivencia. El Omnivamp adicional restaura aún más la salud de todo el daño que infliges. Son una excelente opción para luchadores, matones AP y campeones que desean equilibrar el poder ofensivo con una durabilidad sostenida durante peleas prolongadas.",
             coachTipEn = "These boots combine adaptive offensive power, sustain, and increased combat effectiveness. While above 50% Health, you deal increased damage, and when below 50% Health, you benefit from stronger healing and shielding to improve your survivability. The additional Omnivamp further restores Health from all damage you deal. They are an excellent choice for fighters, AP bruisers, and champions who want to balance offensive power with sustained durability throughout extended fights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561637_immortal-treds.webp"
+            iconUrl = "file:///android_asset/offline_images/efdc50afd3ac80c011c522c3054ae881.webp"
         ),
         WildRiftItem(
             id = "gunmetal_greaves",
@@ -1893,7 +1893,7 @@ object WildRiftItemsData {
             passiveEn = "Noxian Gait: Attacks against enemy champions grant Movement Speed (10% for melee champions / 7% for ranged champions) decaying over 2 seconds.\nBlessed Blade: Attacks restore 12 Health on hit.",
             coachTip = "Estas botas aumentan enormemente tu velocidad de ataque al tiempo que mejoran tu movilidad en combate. Atacar a campeones enemigos otorga una ráfaga de velocidad de movimiento, lo que hace que sea más fácil perseguir oponentes o hacer cometas de manera efectiva, mientras que Physical Vamp y la curación al golpear brindan un valioso sustento durante peleas prolongadas. Son una excelente opción para tiradores y campeones que dependen de ataques básicos frecuentes para causar daño.",
             coachTipEn = "These boots greatly increase your attack speed while improving your mobility in combat. Attacking enemy champions grants a burst of movement speed, making it easier to chase opponents or kite effectively, while Physical Vamp and on-hit healing provide valuable sustain during extended fights. They are an excellent choice for marksmen and champions who rely on frequent basic attacks to deal damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561598_gunmetal-greaves.webp"
+            iconUrl = "file:///android_asset/offline_images/a16b9ea6b70744268c92bedd120157ca.webp"
         ),
         WildRiftItem(
             id = "chainlaced_crushers",
@@ -1907,7 +1907,7 @@ object WildRiftItemsData {
             passiveEn = "Noxian Persistence: After taking magic damage from a champion, gain a magic shield that absorbs 10-120 plus 5% maxfor 5s. (12s Cooldown)",
             coachTip = "Estas botas mejoran enormemente tu capacidad de supervivencia contra el daño mágico. Después de recibir daño mágico de un campeón enemigo, obtienes un escudo mágico que te ayuda a absorber los hechizos posteriores, mientras que la resistencia mágica y la tenacidad adicionales te hacen mucho más resistente contra las amenazas AP y el control de multitudes. Son una excelente opción contra equipos con mucho daño mágico y fuerte CC.",
             coachTipEn = "These boots greatly improve your survivability against magic damage. After taking magic damage from an enemy champion, you gain a magic shield that helps absorb follow-up spells, while the bonus Magic Resistance and Tenacity make you far more resilient against AP threats and crowd control. They are an excellent choice against teams with heavy magic damage and strong CC.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561548_chainlaced-crushers.webp"
+            iconUrl = "file:///android_asset/offline_images/b7ad42a5e367d9d95c1c0884fcbc3af6.webp"
         ),
         WildRiftItem(
             id = "armored_advance",
@@ -1921,7 +1921,7 @@ object WildRiftItemsData {
             passiveEn = "Block: Reduce damage from champion attacks by 10%.\nNoxian Endurance: After taking physical damage from a champion grants a physical shield that absorbs damage equal to 10-140 plus 8% max Health. (12s Cooldown)",
             coachTip = "Estas botas brindan una excelente protección contra daños físicos. Reducen el daño recibido por los ataques de los campeones enemigos y otorgan un escudo protector después de recibir daño físico de un campeón, lo que te ayuda a sobrevivir a intercambios prolongados y fuertes ráfagas de daño físico. Son una excelente opción contra tiradores, luchadores y otros campeones que dependen principalmente de ataques físicos.",
             coachTipEn = "These boots provide excellent protection against physical damage. They reduce damage taken from enemy champion attacks and grant a protective shield after taking physical damage from a champion, helping you survive extended trades and heavy bursts of physical damage. They are an excellent choice against marksmen, fighters, and other champions who rely primarily on physical attacks.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561641_armored-advance.webp"
+            iconUrl = "file:///android_asset/offline_images/ed83e5effcd6985567d86c8d0704a554.webp"
         ),
         WildRiftItem(
             id = "crimson_lucidity",
@@ -1935,7 +1935,7 @@ object WildRiftItemsData {
             passiveEn = "Summoned: Reduces spell cooldown by 20%.\nNoxian Haste: Healing or shielding allied champions, casting a spell, or dealing damage to enemies with abilities grants Movement Speed (10% for melee champions / 8% for ranged champions) for 4 seconds.This effect can only be triggered once every 4 seconds per ability.",
             coachTip = "Estas botas son ideales para campeones que dependen de sus habilidades de lanzamiento con la mayor frecuencia posible. Reducen en gran medida el tiempo de reutilización de las habilidades y los hechizos de invocador y, al mismo tiempo, otorgan velocidad de movimiento adicional cada vez que curas o proteges a tus aliados, lanzas hechizos o dañas a los enemigos con habilidades. Son una excelente opción para magos, apoyos y luchadores que valoran la alta movilidad y el máximo tiempo de actividad de las habilidades.",
             coachTipEn = "These boots are ideal for champions who rely on casting abilities as often as possible. They greatly reduce the cooldown of both abilities and Summoner Spells while granting bonus movement speed whenever you heal or shield allies, cast spells, or damage enemies with abilities. They are an excellent choice for mages, supports, and fighters who value high mobility and maximum ability uptime.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561706_crimson-lucidity.webp"
+            iconUrl = "file:///android_asset/offline_images/5cf776558a30c79bcc001444973eb023.webp"
         ),
         WildRiftItem(
             id = "spellslinger_s_shoes",
@@ -1949,7 +1949,7 @@ object WildRiftItemsData {
             passiveEn = "Equilibrium: Champions without Mana gain 50% base Health Regen.\nBig Bully: Attacks and active abilities deal 18 bonus true damage to minions.",
             coachTip = "Estas botas aumentan enormemente tu daño mágico a través de una combinación de poder de habilidad y penetración mágica tanto plana como porcentual. La alta regeneración de maná permite lanzar hechizos con frecuencia, mientras que el daño verdadero adicional a los súbditos mejora significativamente la eliminación de oleadas. En cambio, los campeones sin maná obtienen una mayor regeneración de salud. Son una excelente opción para magos y soportes AP que valoran un daño fuerte, una presión constante en el carril y una agricultura eficiente.",
             coachTipEn = "These boots greatly increase your magic damage through a combination of Ability Power and both flat and percentage magic penetration. The high mana regeneration allows for frequent spell casting, while the bonus true damage to minions significantly improves wave clear. Champions without Mana instead gain increased health regeneration. They are an excellent choice for mages and AP supports who value strong damage, constant lane pressure, and efficient farming.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561512_spellslingers-shoes.webp"
+            iconUrl = "file:///android_asset/offline_images/04cb752504f7354c82af07eef16dca51.webp"
         ),
         WildRiftItem(
             id = "armorcrusher_boots",
@@ -1963,7 +1963,7 @@ object WildRiftItemsData {
             passiveEn = "Cloudwalker: Gain 20 out-of combat Move Speed.",
             coachTip = "Estas botas aumentan enormemente tu daño físico al proporcionar daño de ataque adicional junto con una penetración de armadura tanto plana como porcentual. La velocidad de movimiento adicional fuera de combate te permite rotar por el mapa más rápido, perseguir enemigos de manera más efectiva y responder a las peleas más rápidamente. Son una excelente opción para tiradores, asesinos y luchadores que valoran la alta movilidad y el máximo daño contra objetivos blindados.",
             coachTipEn = "These boots greatly increase your physical damage by providing bonus Attack Damage along with both flat and percentage armor penetration. The additional out-of-combat movement speed allows you to rotate around the map faster, chase enemies more effectively, and respond to fights more quickly. They are an excellent choice for marksmen, assassins, and fighters who value high mobility and maximum damage against armored targets.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783561651_armorbreaker-boots.webp"
+            iconUrl = "file:///android_asset/offline_images/b3e005086063ca6a745bfa89489c0b18.webp"
         ),
         WildRiftItem(
             id = "quicksilver_sash_mid_tier",
@@ -1977,7 +1977,7 @@ object WildRiftItemsData {
             passiveEn = "Quicksilver (Active): Removes all crowd control effects currently affecting you, and become immune to crowd control effects for 0.25 seconds.\nPerseverance (Passive): When the Quicksilver effects ends, grant 30% Tenacity and 30% Slow Resist for 1.5 seconds. (60s Cooldown)Cannot be used during knock up or knock back effects.",
             coachTip = "Cómpralo estrictamente cuando te enfrentes a un control de masas letal (como la ultimate de Malzahar, Leona o Ashe).",
             coachTipEn = "This enchant instantly removes most crowd control effects and briefly grants immunity to further disables. Once the effect ends, it provides increased resistance to crowd control and slows, helping you escape dangerous situations or continue fighting without interruption. It is an excellent choice against teams with heavy crowd control, allowing you to stay mobile and effective in crucial moments.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389685_quicksilver-enchant.webp"
+            iconUrl = "file:///android_asset/offline_images/f4b2c195dbd314e51668359f9abc086b.webp"
         ),
         WildRiftItem(
             id = "lol_wild_rift_seeker_s_armguard",
@@ -1991,7 +1991,7 @@ object WildRiftItemsData {
             passiveEn = "Stasis (Active): Become invulnerable and untargetable for 2.5 seconds, but unable to move, attack, cast abilities or use items. (120s Cooldown)",
             coachTip = "El Brazalete de la buscadora proporciona la invaluable activa de Éstasis (2.5 s de invulnerabilidad) a mitad de partida, permitiendo esquivar definitivas letales y combos de asesinos antes de completar el Reloj de arena de Zhonya.",
             coachTipEn = "This item combines Ability Power with extra defense, but its defining feature is the ability to become temporarily invulnerable. Its active effect lets you completely avoid lethal damage, dodge crucial enemy abilities, or buy time for your cooldowns to return. It is an excellent choice for mages and AP assassins who need to survive burst damage and outplay opponents in critical teamfights.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2022-01/1641809649_seekers-armguard.png"
+            iconUrl = "file:///android_asset/offline_images/a3b6e6c6102ce5f573811ec15758dfb2.png"
         ),
         WildRiftItem(
             id = "vampiric_scepter_wild_rift",
@@ -2005,7 +2005,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Excelente componente temprano para mantenerte con vida y sustain en la fase de líneas sin tener que regresar constantemente a base.",
             coachTipEn = "Great early component for sustaining through the laning phase without needing frequent recalls.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985546_1053.png"
+            iconUrl = "file:///android_asset/offline_images/e97953f0759810c41743165bc7cd3fa9.png"
         ),
         WildRiftItem(
             id = "zeal_wild_rift",
@@ -2019,7 +2019,7 @@ object WildRiftItemsData {
             passiveEn = "Fervor: +5% Move Speed.",
             coachTip = "Objeto intermedio clave para tiradores y campeones de daño sostenido que necesitan velocidad de ataque y probabilidad de crítico para escalar.",
             coachTipEn = "Key mid-tier item for marksmen and sustained damage dealers scaling with attack speed and critical strike.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985588_3086.png"
+            iconUrl = "file:///android_asset/offline_images/1d3d0b38318e429fd5cec574709ba25c.png"
         ),
         WildRiftItem(
             id = "kircheis_shard_wild_rift",
@@ -2033,7 +2033,7 @@ object WildRiftItemsData {
             passiveEn = "Jolt: Energized attacks deal 50 bonus magic damage. Moving and attacking generates energized attacks.",
             coachTip = "Aumenta tu daño de ráfaga y desgaste en intercambios cortos gracias al daño adicional de los ataques con vigor.",
             coachTipEn = "Increases burst damage and short trade potential with extra energized magic damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985587_2015.png"
+            iconUrl = "file:///android_asset/offline_images/53d19baa2793ddd0dcc8a706211907c9.png"
         ),
         WildRiftItem(
             id = "serrated_dirk_wild_rift",
@@ -2047,7 +2047,7 @@ object WildRiftItemsData {
             passiveEn = "Sharp: +8 Armor Penetration.",
             coachTip = "Otorga penetración de armadura plana temprana, ideal para asesinos y tiradores de letalidad en sus primeros enfrentamientos.",
             coachTipEn = "Grants early flat armor penetration, ideal for assassins and lethality users.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985626_3134.png"
+            iconUrl = "file:///android_asset/offline_images/96d151af56d30e9ad2b839b8aa0c6a60.png"
         ),
         WildRiftItem(
             id = "recurve_bow_wild_rift",
@@ -2061,7 +2061,7 @@ object WildRiftItemsData {
             passiveEn = "Reinforced: Attacks deal 15 bonus physical damage on-hit against targets.",
             coachTip = "Otorga velocidad de ataque y daño directo al impacto, ideal para campeones que aprovechan efectos al golpear rápidamente.",
             coachTipEn = "Grants attack speed and on-hit damage, great for on-hit reliant champions.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985621_1043.png"
+            iconUrl = "file:///android_asset/offline_images/4220aa90b0441f533fd1160267218516.png"
         ),
         WildRiftItem(
             id = "b__f__sword_wild_rift",
@@ -2075,7 +2075,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El componente de daño físico más contundente para tiradores y asesinos AD. Proporciona una gran inyección de daño en el juego temprano.",
             coachTipEn = "The heaviest AD component for marksmen and assassins, providing high early-game attack power.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985610_1038.png"
+            iconUrl = "file:///android_asset/offline_images/734a3b1e160287aa1993b1760b58a51b.png"
         ),
         WildRiftItem(
             id = "cloak_of_agility_wild_rift",
@@ -2089,7 +2089,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Pieza clave para acelerar la acumulación de probabilidad de golpe crítico en tiradores y campeones de daño crítico como Yasuo o Yone.",
             coachTipEn = "Key component to accelerate crit chance builds for marksmen and crit champions.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985612_1018.png"
+            iconUrl = "file:///android_asset/offline_images/8e8ce032aeca62cc15a4a617dae18167.png"
         ),
         WildRiftItem(
             id = "last_whisper_wild_rift",
@@ -2103,7 +2103,7 @@ object WildRiftItemsData {
             passiveEn = "Last Whisper: +12% Armor Penetration.",
             coachTip = "Componente esencial contra tanques o enemigos que empiezan a armarse armadura temprano en la partida.",
             coachTipEn = "Essential early armor shred against targets building armor.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611440927_last-whisper.png"
+            iconUrl = "file:///android_asset/offline_images/bab2bfe9c989e479ea3733e49a418842.png"
         ),
         WildRiftItem(
             id = "executioner_s_calling_wild_rift",
@@ -2117,7 +2117,7 @@ object WildRiftItemsData {
             passiveEn = "Rend: Physical Damage inflicts 40% Grievous Wounds to enemy champions for 3 seconds.",
             coachTip = "El componente cortacuras AD por excelencia. Cómpralo temprano cuando te enfrentes a enemigos con mucha regeneración o curación como Aatrox, Warwick o Soraka.",
             coachTipEn = "The go-to early anti-heal AD component against high sustain or healing enemies.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985718_3123.png"
+            iconUrl = "file:///android_asset/offline_images/0021f149f91cc1567701be1238176f67.png"
         ),
         WildRiftItem(
             id = "phage_wild_rift",
@@ -2131,7 +2131,7 @@ object WildRiftItemsData {
             passiveEn = "Rage: Attacks grant 20 Move Speed and kills grant 60 Move Speed for 2 seconds. Bonuses do not stack. Ranged champions gain halved values.",
             coachTip = "Te da vida, daño y la velocidad necesaria para perseguir a los rivales o esquivar habilidades en duelos prolongados.",
             coachTipEn = "Provides health, damage, and mobility to stick to enemies or kite during trades.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985701_3044.png"
+            iconUrl = "file:///android_asset/offline_images/34f0f9e7689d7fa1a29b72c5c870fc4a.png"
         ),
         WildRiftItem(
             id = "stinger_wild_rift",
@@ -2145,7 +2145,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Componente esencial para atacantes rápidos que también necesitan celeridad para sus hechizos (como Jax, Teemo o Gwen). Mejora fluidamente tus intercambios largos.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985695_winged_moonplate_item_hd.jpg"
+            iconUrl = "file:///android_asset/offline_images/b64740deb0302ac378e09998e57c00a1.jpg"
         ),
         WildRiftItem(
             id = "caulfield_s_warhammer_wild_rift",
@@ -2159,7 +2159,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un componente muy versátil que combina daño y reducción de enfriamiento, clave para luchadores y asesinos basados en habilidades.",
             coachTipEn = "Combines attack power with ability haste, great for caster bruisers and assassins.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611441611_caulfields-warhammer.png"
+            iconUrl = "file:///android_asset/offline_images/83c7928ec8fe440cfc62b8e50d7180fc.png"
         ),
         WildRiftItem(
             id = "jaurim_s_fist_wild_rift",
@@ -2173,7 +2173,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Componente equilibrado para luchadores que necesitan durabilidad sin sacrificar su presión de daño.",
             coachTipEn = "Balanced health and attack damage component for bruisers.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611444901_jaurims-fist.png"
+            iconUrl = "file:///android_asset/offline_images/333371fbb7e193e76748ef3f2197fc9b.png"
         ),
         WildRiftItem(
             id = "aether_wisp_wild_rift",
@@ -2187,7 +2187,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Te ofrece el poder necesario con un sutil pero valioso toque de movilidad extra, excelente para rotar por el mapa o esquivar tiros de habilidad.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611442631_aether-wisp.png"
+            iconUrl = "file:///android_asset/offline_images/94291cfd2a0a84a2880ce80831566ff5.png"
         ),
         WildRiftItem(
             id = "lost_chapter_wild_rift",
@@ -2201,7 +2201,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El componente estrella para los magos hambrientos de maná. Resolverá tus problemas de energía permitiéndote acosar incesantemente a tus rivales.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985899_3802.png"
+            iconUrl = "file:///android_asset/offline_images/deb8d0db21accf19a6d9b4f916c805df.png"
         ),
         WildRiftItem(
             id = "fiendish_codex_wild_rift",
@@ -2215,7 +2215,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "La pieza ideal si lo que necesitas es rotar tus habilidades más rápido manteniendo al mismo tiempo tu presión ofensiva en la línea.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985893_3108.png"
+            iconUrl = "file:///android_asset/offline_images/5931118ed82a04668244c5004ac00a03.png"
         ),
         WildRiftItem(
             id = "blasting_wand_wild_rift",
@@ -2229,7 +2229,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una sólida inyección de daño en el juego medio. Otorga poder constante para construir casi cualquier objeto mágico avanzado que requieras.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985924_1026.png"
+            iconUrl = "file:///android_asset/offline_images/3fc642a9e6e408709eb21b8c4b7127f9.png"
         ),
         WildRiftItem(
             id = "needlessly_large_rod_wild_rift",
@@ -2243,7 +2243,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un pico de poder bruto enorme. Ahorrar para este objeto vale completamente la pena, ya que incrementa de forma masiva el daño de todo tu kit.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985984_1058.png"
+            iconUrl = "file:///android_asset/offline_images/eb3ac0e1d61e44c74c226ad7f39465dc.png"
         ),
         WildRiftItem(
             id = "haunting_guise_wild_rift",
@@ -2257,7 +2257,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Perfecto para magos de daño sostenido y luchadores AP. Cuanto más logres alargar el enfrentamiento, más daño infligirás.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611443224_haunting-guise.png"
+            iconUrl = "file:///android_asset/offline_images/38bcaabdaf63e6dc337ed3357e8ddf18.png"
         ),
         WildRiftItem(
             id = "sheen_wild_rift",
@@ -2271,7 +2271,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una mejora de daño excelente para campeones que pueden intercalar fácilmente ataques básicos con sus habilidades (como Ezreal o Camille).",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985975_3057.png"
+            iconUrl = "file:///android_asset/offline_images/e1223aff990a601b707b86263bf61e1e.png"
         ),
         WildRiftItem(
             id = "oblivion_orb_wild_rift",
@@ -2285,7 +2285,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Tu respuesta prioritaria contra campeones con alta regeneración o curación (como Soraka, Dr. Mundo). Cómpralo temprano para cortar de raíz su sustento.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616985971_3916.png"
+            iconUrl = "file:///android_asset/offline_images/1958e3834e80ab02b704308a0372d5f6.png"
         ),
         WildRiftItem(
             id = "bami_s_cinder_wild_rift",
@@ -2299,7 +2299,7 @@ object WildRiftItemsData {
             passiveEn = "Cinders: Deals 10-20 magic damage per second to nearby enemies. Deals 15% bonus damage to minions and monsters.",
             coachTip = "Vital para tanques de la jungla o top, ya que aumenta dramáticamente tu capacidad para limpiar oleadas o campamentos.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986281_6660.png"
+            iconUrl = "file:///android_asset/offline_images/7938b908a6b5cc2ef9f8319fd1fc7c57.png"
         ),
         WildRiftItem(
             id = "spectre_s_cowl_wild_rift",
@@ -2313,7 +2313,7 @@ object WildRiftItemsData {
             passiveEn = "Spectral Visit: Grants 150% Health Regen for 10 seconds after taking damage from an enemy champion.",
             coachTip = "Fantástico para sostenerte en línea contra campeones de daño mágico que te hacen daño de desgaste (poke).",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986306_3211.png"
+            iconUrl = "file:///android_asset/offline_images/499fa576de6e50bb1decf5656ef0601b.png"
         ),
         WildRiftItem(
             id = "kindlegem_wild_rift",
@@ -2327,7 +2327,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Estadísticas muy eficientes. Te permite lanzar hechizos con mayor frecuencia mientras te hace más resistente.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986347_3067.png"
+            iconUrl = "file:///android_asset/offline_images/7b89d30d687b24ad23a1f14bfbd9099a.png"
         ),
         WildRiftItem(
             id = "giant_s_belt_wild_rift",
@@ -2341,7 +2341,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una inyección enorme de vida, excelente contra daño verdadero y todo tipo de daño mixto.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986359_1011.png"
+            iconUrl = "file:///android_asset/offline_images/5368af31c04bf286142840505b392e5e.png"
         ),
         WildRiftItem(
             id = "warden_s_mail_wild_rift",
@@ -2355,7 +2355,7 @@ object WildRiftItemsData {
             passiveEn = "Cold Steel: Reduce the Attack Speed of enemies by 15% for 1.5 seconds when struck by an attack.",
             coachTip = "El counter definitivo para campeones que dependen de su velocidad de ataque (como Jinx, Vayne o Yasuo).",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986370_3082.png"
+            iconUrl = "file:///android_asset/offline_images/e97cc01895707a49497a5800bf15622d.png"
         ),
         WildRiftItem(
             id = "catalyst_of_aeons_wild_rift",
@@ -2369,7 +2369,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Otorga una increíble sustentabilidad para el juego temprano, dándote los recursos necesarios para mantenerte agresivo en tu línea sin tener que regresar a base.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611444645_catalyst-of-aeons.png"
+            iconUrl = "file:///android_asset/offline_images/f381b661b209aea5b3d901ab3cbf9677.png"
         ),
         WildRiftItem(
             id = "chain_vest_wild_rift",
@@ -2383,7 +2383,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Gran bloque de armadura sólida. Perfecto para mitigar daño de asesinos AD o tiradores.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986413_1031.png"
+            iconUrl = "file:///android_asset/offline_images/54298039ca4192e39e128be58cb5232b.png"
         ),
         WildRiftItem(
             id = "bramble_vest_wild_rift",
@@ -2397,7 +2397,7 @@ object WildRiftItemsData {
             passiveEn = "Thorns: When struck by an attack, deal 4 magic damage + 6% bonus armor to the attacker and inflict 40% Grievous Wounds for 3 seconds if they are a champion.Grievous Wounds reduces the effectiveness of Healing and Regeneration effects.",
             coachTip = "Objeto defensivo clave si te enfrentas a campeones con mucha curación o robo de vida. ¡Cómpralo rápido contra ellos!",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986594_3076.png"
+            iconUrl = "file:///android_asset/offline_images/96336e7eafce4efdc8441793dbf08ea5.png"
         ),
         WildRiftItem(
             id = "hexdrinker_wild_rift",
@@ -2411,7 +2411,7 @@ object WildRiftItemsData {
             passiveEn = "Lifeline: Upon taking magic damage that reduces health below 35%, grants a magic shield.",
             coachTip = "Defensa temprana contra magos de ráfaga para evitar morir en un solo combo.",
             coachTipEn = "Crucial early anti-magic burst defense.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986547_3155.png"
+            iconUrl = "file:///android_asset/offline_images/b61c64b2268692e16a08bed7e7ccb33c.png"
         ),
         WildRiftItem(
             id = "negatron_cloak_wild_rift",
@@ -2425,7 +2425,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Pico de resistencia mágica esencial. Cómpralo cuando enfrentes ráfagas severas de daño mágico.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986529_1057.png"
+            iconUrl = "file:///android_asset/offline_images/db68e1f3e54a0d9dfe8ef7c3bba37ed7.png"
         ),
         WildRiftItem(
             id = "glacial_shroud_wild_rift",
@@ -2439,7 +2439,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Gran objeto intermedio para tanques que usan mucho maná y dependen de sus habilidades.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616986572_3024.png"
+            iconUrl = "file:///android_asset/offline_images/85f9d39b508b2816e6e4c50d8d216f26.png"
         ),
         WildRiftItem(
             id = "winged_moonplate_wild_rift",
@@ -2453,7 +2453,7 @@ object WildRiftItemsData {
             passiveEn = "Flight: +5% Move Speed.",
             coachTip = "Mejora tu capacidad de supervivencia y te da movilidad extra, excelente para tanques que necesitan alcanzar objetivos.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-03/1616981123_winged_moonplate_item_hd-min.png"
+            iconUrl = "file:///android_asset/offline_images/3942c1ad8b231a488139ffc5021ab871.png"
         ),
         WildRiftItem(
             id = "nashor_s_talon_wild_rift",
@@ -2467,7 +2467,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un componente muy versátil que escala según lo que necesites, dándote un poder flexible antes de completar el Diente de Nashor.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698258000_nashors-talon.png"
+            iconUrl = "file:///android_asset/offline_images/f7a1496d801b3fdbdd48af70cdc60b22.png"
         ),
         WildRiftItem(
             id = "noonquiver_wild_rift",
@@ -2481,7 +2481,7 @@ object WildRiftItemsData {
             passiveEn = "Precision: Attacks deal 20 bonus physical damage to minions and monsters.",
             coachTip = "Excelente objeto intermedio para tiradores que acelera el despeje de oleadas y otorga daño y velocidad consistentes.",
             coachTipEn = "Excellent early marksman component for faster waveclear and steady damage.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2023-05/1685137714_noonquiver_item.webp"
+            iconUrl = "file:///android_asset/offline_images/15a37e9669d39887f3f2ceeff6e1f4bf.webp"
         ),
         WildRiftItem(
             id = "hextech_alternator_wild_rift",
@@ -2495,7 +2495,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Añade un estallido de daño significativo a tu combo. Ideal para magos de ráfaga y asesinos AP, ayudándolos a asegurar asesinatos durante el juego temprano.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698176528_hextech_alternator_item.webp"
+            iconUrl = "file:///android_asset/offline_images/ec0a0577c43cffeeb2117941fea0d507.webp"
         ),
         WildRiftItem(
             id = "mejai_s_soulstealer_wild_rift",
@@ -2509,7 +2509,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "¡Una apuesta de alto riesgo y alta recompensa! Solo deberías comprar este objeto si tu ventaja es amplia y confías plenamente en que no morirás.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698177176_mejai27s_soulstealer_item_hd.webp"
+            iconUrl = "file:///android_asset/offline_images/221151cb74af78cadfd4445e86b1b058.webp"
         ),
         WildRiftItem(
             id = "surging_scales_wild_rift",
@@ -2523,7 +2523,7 @@ object WildRiftItemsData {
             passiveEn = "Surge: Gain 20% Slow Resist while in combat with an enemy champion.",
             coachTip = "Otorga armadura y movilidad en combate, útil para campeones que necesitan persecución o reposicionamiento.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2023-10/1698258154_surging-scales.png"
+            iconUrl = "file:///android_asset/offline_images/4fac563b3f41db16ad8090ab099cfffb.png"
         ),
         WildRiftItem(
             id = "forbidden_idol_wild_rift",
@@ -2537,7 +2537,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "La mejor opción para soportes de utilidad. Incrementa significativamente el impacto de tus escudos y curaciones para proteger a tu tirador en peleas cerradas.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2024-12/1735325004_forbidden_idol_item_hd.webp"
+            iconUrl = "file:///android_asset/offline_images/33e5facfaeacb6fda651a192c183ee53.webp"
         ),
         WildRiftItem(
             id = "fated_ashes",
@@ -2551,7 +2551,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un componente asombroso para magos jungleros o para el desgaste en línea, acelerando drásticamente tu capacidad de limpieza de oleadas.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783190595_fated-ashes.webp"
+            iconUrl = "file:///android_asset/offline_images/80de17646ebd83faa7566b576d20edc6.webp"
         ),
         WildRiftItem(
             id = "void_amethyst",
@@ -2565,7 +2565,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Un pico de poder brutal de bajo costo. Proporciona la penetración necesaria para derretir a los tanques o campeones que empiezan a acumular resistencia mágica.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783190939_void_amethyst.webp"
+            iconUrl = "file:///android_asset/offline_images/8f5c0c14e910df76c0397acae240f2d0.webp"
         ),
         WildRiftItem(
             id = "verdant_barrier",
@@ -2579,7 +2579,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "La mejor protección mágica temprana contra magos de ráfaga y asesinos AP (como Akali o Fizz), forzándolos a quemar recursos antes de intentar matarte.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783191133_verdant_barrier_item_hd_11zon.png"
+            iconUrl = "file:///android_asset/offline_images/1d2cd876e0badc2e53d9dc179f32a22f.png"
         ),
         WildRiftItem(
             id = "boots_of_speed",
@@ -2593,7 +2593,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390529_boots-of-speed.webp"
+            iconUrl = "file:///android_asset/offline_images/83cf0419e6817c27325798622d293a50.webp"
         ),
         WildRiftItem(
             id = "long_sword",
@@ -2607,7 +2607,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390561_long-sword.webp"
+            iconUrl = "file:///android_asset/offline_images/faf9e77c888aa55124b679e40038b5a8.webp"
         ),
         WildRiftItem(
             id = "brawler_s_gloves",
@@ -2621,7 +2621,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390558_brawlers-gloves.webp"
+            iconUrl = "file:///android_asset/offline_images/fe466808cbb9b63e6f95a163cc0d368b.webp"
         ),
         WildRiftItem(
             id = "dagger",
@@ -2635,7 +2635,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390550_dagger.webp"
+            iconUrl = "file:///android_asset/offline_images/259b73b0271cd03ddcec7ebc8ded5ff2.webp"
         ),
         WildRiftItem(
             id = "shimmering_spark",
@@ -2649,7 +2649,7 @@ object WildRiftItemsData {
             passiveEn = "Burn: Deals 5-10 magic damage per second to nearby enemies.",
             coachTip = "Excelente opción temprana para ayudar a los tanques con su limpieza de súbditos o monstruos de la jungla.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390582_shimmering-spark.webp"
+            iconUrl = "file:///android_asset/offline_images/5aac061d55c41515a63e2a589f58b2ae.webp"
         ),
         WildRiftItem(
             id = "tear_of_the_goddess_wild_rift",
@@ -2663,7 +2663,7 @@ object WildRiftItemsData {
             passiveEn = "Awe: 10% of Mana spent is refunded.\nMana Charge: Increases max Mana by 6 every time Mana is spent. Caps at 700 bonus Mana. Triggers up to 3 times every 10 seconds. You may only carry one Tear of the Goddess item at a time.",
             coachTip = "Compra este objeto al principio si usas un campeón que depende mucho del maná, ya que necesitas tiempo para cargarlo completamente y evolucionarlo.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2021-01/1611442459_tear-of-the-goddess.png"
+            iconUrl = "file:///android_asset/offline_images/e1577a7ebf54d6e7e774226ab83bc735.png"
         ),
         WildRiftItem(
             id = "amplifying_tome",
@@ -2677,7 +2677,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Objeto mágico básico para cualquier mago o asesino de AP. Aporta daño crudo para fortalecer tus habilidades en la fase de líneas temprana.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390572_amplifying-tome.webp"
+            iconUrl = "file:///android_asset/offline_images/c30a84567e8fd00a5753178009ad5264.webp"
         ),
         WildRiftItem(
             id = "ruby_crystal",
@@ -2691,7 +2691,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Una de las mejores compras básicas de supervivencia, te da vida plana útil contra cualquier tipo de daño.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390626_ruby-crystal.webp"
+            iconUrl = "file:///android_asset/offline_images/f4a3b321d0b7f2fce6c27695d7c9bbf3.webp"
         ),
         WildRiftItem(
             id = "cloth_armor",
@@ -2705,7 +2705,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El componente defensivo ideal si te enfrentas a atacantes físicos (AD) en el juego temprano.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390581_cloth-armor.webp"
+            iconUrl = "file:///android_asset/offline_images/49280df3ba15c8747841508c95588da3.webp"
         ),
         WildRiftItem(
             id = "null_magic_mantle",
@@ -2719,7 +2719,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "Objeto básico para reducir el daño de campeones con poder de habilidad. Ideal en los primeros niveles contra magos.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390606_null-magic-mantle.webp"
+            iconUrl = "file:///android_asset/offline_images/ab1efad7f180f86c1057a417a512f03f.webp"
         ),
         WildRiftItem(
             id = "ring_of_revelation",
@@ -2733,7 +2733,7 @@ object WildRiftItemsData {
             passiveEn = "",
             coachTip = "El mejor objeto inicial para soportes hechiceros. Asegúrate de usar tus habilidades para hostigar al enemigo constantemente y así completar tu misión lo más rápido posible.",
             coachTipEn = "",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390605_ring-of-revelation.webp"
+            iconUrl = "file:///android_asset/offline_images/cd7812930bc65ae1e7f5833f7861d6c6.webp"
         ),
         WildRiftItem(
             id = "relic_shield",
@@ -2747,7 +2747,7 @@ object WildRiftItemsData {
             passiveEn = "Tribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions will trigger Tribute to grant you 65 gold and restore your Health.\nQuest: After earning 750 gold, this item upgrades into Bulwark of the Mountain.",
             coachTip = "El objeto ideal para los soportes de tipo tanque. Úsalo para curarte a ti y a tu aliado mientras ejecutas súbditos de la línea, acelerando tu ganancia de oro y manteniendo la vida alta.",
             coachTipEn = "The ideal item for tank supports. Use it to heal yourself and your ally while executing minions, accelerating your gold income and keeping your health high.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390612_relic-shield.webp"
+            iconUrl = "file:///android_asset/offline_images/938d7636d6fea8b75793b107b4dfa880.webp"
         ),
         WildRiftItem(
             id = "spectral_sickle",
@@ -2761,7 +2761,7 @@ object WildRiftItemsData {
             passiveEn = "Versatile: Gain 10 Attack Damage or 20 Ability Power (Adaptive).\nTribute: Gain 1 encircling energy orb(s) every 30 seconds (max 3 orbs). While near an ally, actions trigger Tribute granting gold.\nQuest: Earn 750 gold to transform into Black Mist Scythe.",
             coachTip = "Ideal para soportes basados en daño de ataque. Acosa a tus enemigos constantemente en fase de líneas para acumular oro rápidamente y mejorar tu objeto.",
             coachTipEn = "Ideal for AD-based supports. Harass your enemies constantly in the laning phase to quickly stack gold and upgrade your item.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753390656_spectral-sickle.webp"
+            iconUrl = "file:///android_asset/offline_images/92dd81dfa1f1a0db79e115b9eab9c9b1.webp"
         ),
 
         WildRiftItem(
@@ -2776,7 +2776,7 @@ object WildRiftItemsData {
             passiveEn = "Cloud Stride: +5% Move Speed.\nBring it Down: Every third attack deals 120-160 bonus physical damage, increased by missing health.",
             coachTip = "Este objeto potencia tus ataques básicos proporcionando daño adicional, velocidad de ataque y una mejora de movilidad. Periódicamente tus golpes infligen daño adicional que escala con la salud faltante del objetivo, haciéndolo fuerte tanto contra tanques como para rematar enemigos con poca vida.",
             coachTipEn = "This item boosts your basic attacks by providing extra damage, attack speed, and a mobility bonus for better positioning. Periodically your hits deal bonus damage that scales with the target’s missing health.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630263_kraken-slayer.webp"
+            iconUrl = "file:///android_asset/offline_images/429b846f590224d8699b0e85a75a402c.webp"
         ),
         WildRiftItem(
             id = "stridebreaker",
@@ -2790,7 +2790,7 @@ object WildRiftItemsData {
             passiveEn = "Breaking Shockwave (Active): Activate to dash a short distance and slow enemies.\nStride: Gain Movement Speed when dealing physical damage.",
             coachTip = "Este objeto combina movilidad, daño y control de masas, facilitando mantenerse sobre los objetivos. Su activa te permite realizar un deslizamiento corto y ralentizar enormemente a los enemigos cercanos.",
             coachTipEn = "This item combines mobility, damage, and crowd control, making it easier to stick to your targets. Its active lets you dash a short distance, damage nearby enemies, and heavily slow them.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_stridebreaker.webp"
+            iconUrl = "file:///android_asset/offline_images/d53ef50c7883f58fceafbc13bdd071b6.webp"
         ),
         WildRiftItem(
             id = "goredrinker",
@@ -2804,7 +2804,7 @@ object WildRiftItemsData {
             passiveEn = "Goredrink: Gain 8% Omni Vamp.\nThirsting Slash (Active): Deal physical damage to nearby enemies. Restore Health for each enemy champion hit.",
             coachTip = "Este objeto es ideal para luchadores en combates prolongados. Otorga Omnivampirismo y su activa inflige daño de área y restaura salud en base a la cantidad de campeones enemigos golpeados.",
             coachTipEn = "This item is perfect for fighters who excel in extended combat. It grants Omni Vamp, while its active ability deals area physical damage and restores health based on the number of enemy champions hit.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389878_goredrinker.webp"
+            iconUrl = "file:///android_asset/offline_images/faa4bc60887a69d10e46b9926fbfc130.webp"
         ),
         WildRiftItem(
             id = "guinsoo_s_rageblade",
@@ -2818,7 +2818,7 @@ object WildRiftItemsData {
             passiveEn = "Surge: Gain Move Speed.\nChaos: Gain Adaptive Force.\nWrath: Attacks deal magic damage based on crit.\nSeething Strike: Attacks grant stacking Attack Speed and trigger extra on-hit effects.",
             coachTip = "Perfecto para builds de impactos (on-hit) y alta velocidad de ataque. Convierte estadísticas de críticos en daño mágico consistente y aumenta gradualmente tu velocidad de ataque.",
             coachTipEn = "Perfect for on-hit and high-attack-speed builds. It converts crit-focused stats into consistent on-hit magic damage, provides a powerful ramp of attack speed and stacking bursts.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-01/1768000022_abb24fd724faa77b82baf985dea956b8eae9f31a-512x512.webp"
+            iconUrl = "file:///android_asset/offline_images/82b3ab99fbfd8659968e324bfeeb1ae6.webp"
         ),
         WildRiftItem(
             id = "overlord_s_bloodmail",
@@ -2832,7 +2832,7 @@ object WildRiftItemsData {
             passiveEn = "Tyranny: Gain Attack Damage equal to 2.5% of your bonus Health.\nRetribution: Gain up to 9% increased Attack Damage based on missing Health.",
             coachTip = "Convierte la vida adicional en poder de ataque y potencia tu daño cuando tu salud baja a niveles peligrosos. Es ideal para luchadores agresivos que priorizan objetos de vida.",
             coachTipEn = "Converts bonus health into attack power and ramps up your damage when you drop into dangerous HP ranges. It suits bruisers and solo laners who stack health and embrace high-risk skirmishes.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1772630274_overlords-bloodmail.webp"
+            iconUrl = "file:///android_asset/offline_images/3c62884953388c0a2e57ca679bab692a.webp"
         ),
         WildRiftItem(
             id = "mercurial_scimitar",
@@ -2846,7 +2846,7 @@ object WildRiftItemsData {
             passiveEn = "Quicksilver Sash (Active): Removes all crowd control debuffs.\nPerseverance: Grants temporary Tenacity after use.",
             coachTip = "Diseñado para contrarrestar el control de masas. Su activa elimina efectos inhabilitantes y otorga brevemente inmunidad a los mismos. Fundamental para tiradores y asesinos contra composiciones de alto CC.",
             coachTipEn = "Designed to counter crowd control. Its active removes most disabling effects and briefly grants immunity to follow-up control. Excellent for marksmen and assassins against heavy-CC teams.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp"
+            iconUrl = "file:///android_asset/offline_images/bfba991bdd26cac9dc642cd79060d0f5.webp"
         ),
         WildRiftItem(
             id = "galeforce",
@@ -2860,7 +2860,7 @@ object WildRiftItemsData {
             passiveEn = "Cloudburst (Active): Dash in a target direction and fire missiles at the lowest Health enemy.",
             coachTip = "Mejora significativamente la movilidad de los tiradores otorgando un deslizamiento que dispara proyectiles. Perfecto para rematar objetivos y esquivar habilidades vitales.",
             coachTipEn = "Greatly improves the mobility of marksmen by granting a dash that also fires projectiles at the lowest-health nearby target. Perfect for finishing enemies and repositioning.",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389842_galeforce.webp"
+            iconUrl = "file:///android_asset/offline_images/1aeafb7896806a2f556ff126daf52d91.webp"
         ),
     )
 

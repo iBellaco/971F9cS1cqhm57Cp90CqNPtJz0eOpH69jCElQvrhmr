@@ -47,8 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import com.example.ui.components.PrivacyPolicyDialog
-import com.example.data.sync.OfflineResourceManager
-import com.example.data.sync.DownloadState
 import com.example.ui.theme.DangerRed
 
 
@@ -66,7 +64,6 @@ import androidx.compose.runtime.Composable
 
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
-import com.example.util.ImagePrefetcher
 import com.example.ui.components.UserAvatarView
 import com.example.util.SubscriptionManager
 import androidx.compose.material.icons.filled.Download
@@ -522,7 +519,6 @@ fun MainDraftingScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 
-                OfflineResourceDownloadCard()
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Botones de Información, Preguntas Frecuentes y Política de Privacidad
@@ -746,259 +742,7 @@ fun MainDraftingScreen(
             PrivacyPolicyDialog(onDismiss = { showPrivacyPolicyDialog = false })
         }
     }
-}
 
 
-@Composable
-fun OfflineResourceDownloadCard() {
-    val context = LocalContext.current
-    val downloadState by OfflineResourceManager.downloadState.collectAsState()
-    val progress by OfflineResourceManager.progress.collectAsState()
-    val downloaded by OfflineResourceManager.downloadedCount.collectAsState()
-    val total by OfflineResourceManager.totalCount.collectAsState()
-    val downloadedMB by OfflineResourceManager.downloadedMB.collectAsState()
-    val totalMB by OfflineResourceManager.totalMB.collectAsState()
-
-    val isAlreadyCompleted = remember(context, downloadState) {
-        OfflineResourceManager.isCompleted(context) || downloadState == DownloadState.COMPLETED
-    }
-
-    if (isAlreadyCompleted) {
-        return
-    }
-
-    var isMinimized by remember { mutableStateOf(false) }
-
-    if (isMinimized) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
-                .clickable { isMinimized = false },
-            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.8f)),
-            shape = RoundedCornerShape(10.dp),
-            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        Icons.Default.CloudDownload,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Column {
-                        Text(
-                            text = tr("Descarga de Recursos"),
-                            color = TextPrimary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (downloadState == DownloadState.DOWNLOADING || downloadState == DownloadState.PAUSED) {
-                            Text(
-                                text = "${(progress * 100).toInt()}% • ${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB",
-                                color = if (downloadState == DownloadState.PAUSED) HextechGold else HextechCyan,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                    }
-                }
-                IconButton(onClick = { isMinimized = false }, modifier = Modifier.size(28.dp)) {
-                    Icon(
-                        Icons.Default.KeyboardArrowDown,
-                        contentDescription = tr("Expandir"),
-                        tint = HextechGold
-                    )
-                }
-            }
-        }
-    } else {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.5f)),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f))
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(Icons.Default.CloudDownload, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
-                        Text(
-                            text = tr("Descarga de Recursos Offline"),
-                            color = TextPrimary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(HextechGold.copy(alpha = 0.2f))
-                            .border(0.5.dp, HextechGold, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 4.dp, vertical = 1.dp)
-                    ) {
-                        Text("⭐ " + tr("RECOMENDADO"), color = HextechGold, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                if (downloadState == DownloadState.DOWNLOADING || downloadState == DownloadState.PAUSED) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        IconButton(
-                            onClick = { isMinimized = true },
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardArrowUp,
-                                contentDescription = tr("Minimizar"),
-                                tint = HextechGold
-                            )
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(10.dp))
-                
-                Text(
-                    text = tr("Descarga de habilidades en alta definición y avatares de perfil adicionales para uso offline sin conexión."),
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp
-                )
-                
-                Spacer(modifier = Modifier.height(12.dp))
-
-                when (downloadState) {
-                    DownloadState.IDLE -> {
-                        Button(
-                            onClick = { OfflineResourceManager.startDownload(context) },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            val sizeText = if (totalMB > 0f) " (~${String.format(java.util.Locale.US, "%.1f", totalMB)} MB)" else ""
-                            Text(tr("Descargar Recursos") + sizeText, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    DownloadState.DOWNLOADING -> {
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxWidth().height(6.dp),
-                            color = HextechCyan,
-                            trackColor = HextechSurface
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "$downloaded / $total recursos (${(progress * 100).toInt()}%)",
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB",
-                                    color = HextechCyan,
-                                    fontSize = 11.sp
-                                )
-                            }
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(
-                                    onClick = { OfflineResourceManager.pauseDownload() },
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
-                                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-                                ) {
-                                    Text(tr("Pausar"), fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-                    DownloadState.PAUSED -> {
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxWidth().height(6.dp),
-                            color = HextechGold,
-                            trackColor = HextechSurface
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = tr("Pausado") + " • $downloaded / $total",
-                                    color = HextechGold,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "${String.format(java.util.Locale.US, "%.1f", downloadedMB)} MB / ${String.format(java.util.Locale.US, "%.1f", totalMB)} MB (${(progress * 100).toInt()}%)",
-                                    color = TextSecondary,
-                                    fontSize = 11.sp
-                                )
-                            }
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(
-                                    onClick = { OfflineResourceManager.cancelDownload(context) },
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
-                                    border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
-                                    contentPadding = PaddingValues(horizontal = 12.dp)
-                                ) {
-                                    Text(tr("Cancelar"), fontSize = 12.sp)
-                                }
-                                Button(
-                                    onClick = { OfflineResourceManager.resumeDownload(context) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
-                                    contentPadding = PaddingValues(horizontal = 12.dp)
-                                ) {
-                                    Text(tr("Reanudar"), fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-                    DownloadState.COMPLETED -> {
-                        // Will not be shown because isAlreadyCompleted handles it
-                    }
-                    DownloadState.ERROR -> {
-                        Text(tr("Error en la descarga. Comprueba tu conexión."), color = DangerRed, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { OfflineResourceManager.startDownload(context) },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(tr("Reintentar"), fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 }

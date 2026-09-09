@@ -74,10 +74,6 @@ fun FAQScreen(
                 "Es muy sencillo. Solo entra a tu perfil y toca el botón 'Cambiar Avatar'. Se abrirá el catálogo completo donde puedes elegir tu icono preferido, desde poros divertidos hasta avatares legendarios de campeones."
             ),
             Pair(
-                "¿Por qué se recomienda descargar los recursos offline?",
-                "Te sugiero ampliamente usar la opción de descarga de recursos offline en la pantalla principal. Esto baja las imágenes de campeones y habilidades directo a tu dispositivo para que todo cargue al instante y puedas consultar la app sin consumir datos ni depender de internet. Los objetos y runas ya están integrados en la aplicación."
-            ),
-            Pair(
                 "¿Cómo funciona el sistema de Tier List y las valoraciones S+, S y A?",
                 "La Tier List clasifica a los campeones basándose en su tasa de victoria (winrate), tasa de selección y desempeño general en partidas clasificatorias de alto elo. Los campeones en Tier S+ son prioritarios para el meta actual por su versatilidad y poder en manos expertas, mientras que los tiers S y A ofrecen opciones sólidas adaptadas a composiciones específicas."
             ),
@@ -156,22 +152,6 @@ fun FAQScreen(
             Pair(
                 "¿Cómo funciona la calculadora de penetración de armadura/mágica?",
                 "Toma en cuenta las resistencias base del campeón enemigo por nivel y los objetos que lleva armados, y te dice exactamente qué porcentaje de tu daño vas a aplicar, sugiriendo si rentan objetos porcentuales o planos."
-            ),
-            Pair(
-                "Si descargo los recursos offline, ¿cuánto espacio ocupan en mi celular?",
-                "Dependiendo de si descargas solo iconos o también habilidades de alta calidad, ocupará entre 50 MB y 150 MB. Nada grave para los teléfonos actuales."
-            ),
-            Pair(
-                "¿La descarga offline se actualiza sola cuando sale un parche nuevo?",
-                "Cuando hay campeones nuevos, la app te notificará para que corras una sincronización rápida. No tienes que descargar todo de cero, solo actualizará los cambios."
-            ),
-            Pair(
-                "¿Qué pasa si juego sin internet y no tengo los recursos descargados?",
-                "Podrás ver los textos de sugerencias, porcentajes y winrates, pero los iconos de campeones, objetos y habilidades no cargarán y verás cuadrados grises."
-            ),
-            Pair(
-                "Borré los datos de la app desde mi Android, ¿tengo que descargar todo de nuevo?",
-                "Sí, al borrar el caché/datos de la aplicación o desinstalarla, se pierden los recursos locales y tu historial de drafts (a menos que esté sincronizado por ser premium)."
             ),
             Pair(
                 "¿Qué hago si soy Premium pero sigo viendo funciones bloqueadas?",

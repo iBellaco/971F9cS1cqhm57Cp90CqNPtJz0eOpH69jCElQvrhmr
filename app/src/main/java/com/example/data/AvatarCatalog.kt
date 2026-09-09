@@ -9,7 +9,7 @@ object AvatarCatalog {
         title = "Espíritu de la Grieta",
         region = "Poro",
         rarity = "Clásico",
-        imageUrl = "https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/588.png",
+        imageUrl = "file:///android_asset/offline_images/763bd901dd7903b0ef0081f2f1109dbd.png",
         borderHex = "#C8AA6E",
         description = "El leal compañero de todo Invocador de Wild Rift.",
         isDefault = true
@@ -23,7 +23,7 @@ object AvatarCatalog {
             title = "El Rey Mono",
             region = "Poro",
             rarity = "Común",
-            imageUrl = "https://i.postimg.cc/LXS8Tbv5/1788243501865.jpg",
+            imageUrl = "file:///android_asset/offline_images/e8a4313a1a6195419ea38509e182357f.jpg",
             borderHex = "#A0A0A0",
             description = "Un poro listo para la batalla con su bastón mágico."
         ),
@@ -33,7 +33,7 @@ object AvatarCatalog {
             title = "El Rugido del Trueno",
             region = "Poro",
             rarity = "Raro",
-            imageUrl = "https://i.postimg.cc/LXV6030W/1788243804693.jpg",
+            imageUrl = "file:///android_asset/offline_images/0e2476c9fb4f0a4f0bba0ca15a867c0f.jpg",
             borderHex = "#00BFFF",
             description = "Un poro imbuido con el poder de la tormenta."
         ),
@@ -43,7 +43,7 @@ object AvatarCatalog {
             title = "El Rey de la Grieta",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/bJRNF9FF/1788243975279.jpg",
+            imageUrl = "file:///android_asset/offline_images/0ff726a7d53de0d252297216e58ee357.jpg",
             borderHex = "#8A2BE2",
             description = "El poro más temible del río."
         ),
@@ -53,7 +53,7 @@ object AvatarCatalog {
             title = "La Mujer Zorro",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/gJKkBHBt/1788244165659.jpg",
+            imageUrl = "file:///android_asset/offline_images/03fa2d4274a2a4a79b70f0b8b40a26e2.jpg",
             borderHex = "#8A2BE2",
             description = "Un poro con un encanto irresistible."
         ),
@@ -63,7 +63,7 @@ object AvatarCatalog {
             title = "Hija del Vacío",
             region = "Poro",
             rarity = "Épico",
-            imageUrl = "https://i.postimg.cc/NMxfPkPV/1788244288372.jpg",
+            imageUrl = "file:///android_asset/offline_images/e461f7b0e02a95ba7f0413a4981e2aa9.jpg",
             borderHex = "#8A2BE2",
             description = "Un poro que sobrevivió al vacío."
         ),
@@ -73,7 +73,7 @@ object AvatarCatalog {
             title = "La Danza de las Cuchillas",
             region = "Poro",
             rarity = "Común",
-            imageUrl = "https://i.postimg.cc/QtqxnJyG/1788244351208.jpg",
+            imageUrl = "file:///android_asset/offline_images/930c937ac0438948c6eadfb2bea29a30.jpg",
             borderHex = "#A0A0A0",
             description = "Un poro que danza en el campo de batalla."
         ),
@@ -193,7 +193,7 @@ object AvatarCatalog {
             title = "la Matriarca de la Guerra",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://wr-meta.com/uploads/posts/2024-10/1729619132_gacsdslw8a11au11q0i_11zon.webp",
+            imageUrl = "file:///android_asset/offline_images/0e02eb044e810d4aaad954fb52aabe0b.webp",
             borderHex = "#C8AA6E",
             description = "Ambessa Medarda comanda el campo de batalla con implacable disciplina militar. Sus cadenas y ho..."
         ),
@@ -803,7 +803,7 @@ object AvatarCatalog {
             title = "la Consejera Dorada",
             region = "Runaterra",
             rarity = "Legendario",
-            imageUrl = "https://wr-meta.com/uploads/posts/2025-01/1737748919_mel_0.webp",
+            imageUrl = "file:///android_asset/offline_images/19acee68d94821c4b6fed292f63821cc.webp",
             borderHex = "#C8AA6E",
             description = "Mel domina las líneas con magia solar áurea, proveyendo daño a distancia, escudos reflectantes ..."
         ),
@@ -913,7 +913,7 @@ object AvatarCatalog {
             title = "la Maestra de los Portales",
             region = "Runaterra",
             rarity = "Mítico",
-            imageUrl = "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6a1ba2f0d1178b81cf869741e94e9453ffd3e69f-285x323.jpg?accountingTag=WR",
+            imageUrl = "file:///android_asset/offline_images/87bfb0c8cb1949e183b6262556f5f12d.jpg",
             borderHex = "#C8AA6E",
             description = "Norra abre fisuras hacia la Ciudad de Bandle para dotar de hipermovilidad a su equipo y desorie..."
         ),
@@ -1473,7 +1473,7 @@ object AvatarCatalog {
             title = "la Tejedora de Penumbra",
             region = "Runaterra",
             rarity = "Común",
-            imageUrl = "https://wr-meta.com/uploads/posts/2025-07/1751894236_yunara-lol-splash-art-8k-wallpaper-uhdpaper_com-4341225g.webp",
+            imageUrl = "file:///android_asset/offline_images/bb9667bedb5e250145dc7830f2e846c1.webp",
             borderHex = "#C8AA6E",
             description = "Yunara es una tiradora letal que enlaza a sus víctimas con hilos invisibles de daño verdadero y..."
         ),

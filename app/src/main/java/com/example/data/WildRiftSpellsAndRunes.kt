@@ -13,7 +13,7 @@ object WildRiftSpellsAndRunes {
     const val SPELL_HEAL = "file:///android_asset/spells/heal.webp"
     const val SPELL_CLARITY = "file:///android_asset/spells/clarity.jpg"
     const val SPELL_MARK = "file:///android_asset/spells/mark.jpg"
-    const val SPELL_TELEPORT = "https://i.postimg.cc/gJdSFvPs/1611110740-teleport-enchant.png"
+    const val SPELL_TELEPORT = "file:///android_asset/spells/teleport.png"
     const val SPELL_CLEANSE = "file:///android_asset/spells/cleanse.webp"
     const val SPELL_CHILLING_SMITE = "file:///android_asset/spells/smite.webp"
 

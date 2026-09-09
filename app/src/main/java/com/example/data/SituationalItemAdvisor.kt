@@ -17,7 +17,7 @@ object SituationalItemAdvisor {
     private val adviceMap = mapOf(
         "Cota de Espinas" to SituationalItemInfo(
             name = "Cota de Espinas",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3075.png",
+            iconUrl = "file:///android_asset/offline_images/ab38f2866c6c041524f8f14b1749fc1c.png",
             categoryName = "Anti-Curación & Armadura",
             purpose = "Mitiga curaciones y robo de vida de atacantes físicos continuos mientras refleja daño mágico.",
             bestAgainst = listOf("Aatrox", "Warwick", "Maestro Yi", "Tryndamere", "Jinx", "Yone", "Olaf", "Irelia"),
@@ -26,7 +26,7 @@ object SituationalItemAdvisor {
         ),
         "Recordatorio Mortal" to SituationalItemInfo(
             name = "Recordatorio Mortal",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3033.png",
+            iconUrl = "file:///android_asset/offline_images/3b9e64690847f3bc956e9db35a455f32.png",
             categoryName = "Anti-Curación & Penetración AD",
             purpose = "Destruye tanques y anula la regeneración masiva de curadores enemigos para tiradores y asesinos.",
             bestAgainst = listOf("Soraka", "Yuumi", "Dr. Mundo", "Vladimir", "Swain", "Sion", "Aatrox", "Volibear"),
@@ -35,7 +35,7 @@ object SituationalItemAdvisor {
         ),
         "Morellonomicón" to SituationalItemInfo(
             name = "Morellonomicón",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3165.png",
+            iconUrl = "file:///android_asset/offline_images/473e58dc0df0c96012529455146ce012.png",
             categoryName = "Anti-Curación AP",
             purpose = "Aplica reducción de sanación a múltiples enemigos simultáneamente con daño mágico en área.",
             bestAgainst = listOf("Vladimir", "Soraka", "Swain", "Warwick", "Yuumi", "Samira", "Ekko"),
@@ -44,7 +44,7 @@ object SituationalItemAdvisor {
         ),
         "Colmillo de Serpiente" to SituationalItemInfo(
             name = "Colmillo de Serpiente",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6695.png",
+            iconUrl = "file:///android_asset/offline_images/8d0a2f1589e177a2bf2ad148cb31a65f.png",
             categoryName = "Anti-Escudos (Letalidad)",
             purpose = "Destruye y reduce drásticamente la potencia de los escudos defensivos enemigos.",
             bestAgainst = listOf("Sett", "Karma", "Lulu", "Shen", "Janna", "Braum", "Sion", "Lux", "Riven"),
@@ -53,7 +53,7 @@ object SituationalItemAdvisor {
         ),
         "Presagio de Randuin" to SituationalItemInfo(
             name = "Presagio de Randuin",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3143.png",
+            iconUrl = "file:///android_asset/offline_images/1420e397855c6263e113cf0a16d4bb71.png",
             categoryName = "Anti-Crítico & Velocidad de Ataque",
             purpose = "Reduce el impacto de los impactos críticos y drena la velocidad de ataque enemiga.",
             bestAgainst = listOf("Yasuo", "Yone", "Jinx", "Caitlyn", "Tristana", "Tryndamere", "Lucian"),
@@ -62,7 +62,7 @@ object SituationalItemAdvisor {
         ),
         "Fuerza de la Naturaleza" to SituationalItemInfo(
             name = "Fuerza de la Naturaleza",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/4401.png",
+            iconUrl = "file:///android_asset/offline_images/e1f9d816eb318d20e5c768c4fa05290d.png",
             categoryName = "Anti-Daño Mágico Continuo",
             purpose = "Otorga la máxima resistencia mágica y reducción porcentual frente a magos de daño en el tiempo.",
             bestAgainst = listOf("Brand", "Swain", "Aurelion Sol", "Teemo", "Gwen", "Katarina", "Kassadin", "Lillia"),
@@ -71,7 +71,7 @@ object SituationalItemAdvisor {
         ),
         "Reloj de Arena de Zhonya" to SituationalItemInfo(
             name = "Reloj de Arena de Zhonya",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3157.png",
+            iconUrl = "file:///android_asset/offline_images/3b32bd3dbf4245dc0952c48bc603bcc8.png",
             categoryName = "Inmunidad / Estasis Activa",
             purpose = "Permite esquivar habilidades definitivas fatales y combos explosivos de eliminación rápida.",
             bestAgainst = listOf("Zed", "Syndra", "Fizz", "Kayn", "Katarina", "Talon", "Malphite", "Nocturne"),
@@ -80,7 +80,7 @@ object SituationalItemAdvisor {
         ),
         "Danza de la Muerte" to SituationalItemInfo(
             name = "Danza de la Muerte",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6333.png",
+            iconUrl = "file:///android_asset/offline_images/7f8482a5143b2c02ad323ce93df371f1.png",
             categoryName = "Anti-Burst AD & Supervivencia",
             purpose = "Convierte el daño de ráfaga físico en un sangrado retrasado y cura un porcentaje de vida en derribos.",
             bestAgainst = listOf("Zed", "Kha'Zix", "Rengar", "Talon", "Pantheon", "Jayce", "Draven"),
@@ -89,7 +89,7 @@ object SituationalItemAdvisor {
         ),
         "Rencor de Serylda" to SituationalItemInfo(
             name = "Rencor de Serylda",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6694.png",
+            iconUrl = "file:///android_asset/offline_images/422b305b36178590bc9ddd6e826c22ba.png",
             categoryName = "Penetración & Ralentización",
             purpose = "Otorga penetración de armadura porcentual y hace que todas las habilidades dañinas ralenticen.",
             bestAgainst = listOf("Ornn", "Malphite", "Nautilus", "Garen", "Nasus", "Darius", "K'Sante"),
@@ -98,7 +98,7 @@ object SituationalItemAdvisor {
         ),
         "Recuerdos de lord Dominik" to SituationalItemInfo(
             name = "Recuerdos de lord Dominik",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-03/1774953440_lord-dominiks-regards.webp",
+            iconUrl = "file:///android_asset/offline_images/c3893b84c990398e6ed58b03c16cafa0.webp",
             categoryName = "Anti-Tanques & Vida Máxima",
             purpose = "Penetra armadura masiva (+36%) y destroza a enemigos que acumulan mucha vida adicional mediante daño porcentual.",
             bestAgainst = listOf("Sion", "Dr. Mundo", "Cho'Gath", "Ornn", "Malphite", "Sett", "Volibear", "Nautilus"),
@@ -107,7 +107,7 @@ object SituationalItemAdvisor {
         ),
         "Ángel Guardián" to SituationalItemInfo(
             name = "Ángel Guardián",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3026.png",
+            iconUrl = "file:///android_asset/offline_images/dddefc0a5f24a544b89699b38a9a35e1.png",
             categoryName = "Resurrección en Combate",
             purpose = "Otorga una segunda oportunidad de vida en las peleas de equipo decisivas de juego tardío.",
             bestAgainst = listOf("Composiciones de dive agresivo", "Asesinos con combos all-in (Diana, Akali, Zed, Kayn)"),
@@ -116,7 +116,7 @@ object SituationalItemAdvisor {
         ),
         "Fauces de Malmortius" to SituationalItemInfo(
             name = "Fauces de Malmortius",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3156.png",
+            iconUrl = "file:///android_asset/offline_images/89889a5db477564f0dded7057e9a1916.png",
             categoryName = "Escudo Salvavidas Anti-Mágico",
             purpose = "Genera un escudo gigantesco contra daño mágico al bajar de 35% de vida para resistir ejecuciones.",
             bestAgainst = listOf("Evelynn", "Akali", "Syndra", "Veigar", "Fizz", "Ekko", "Kassadin"),
@@ -125,7 +125,7 @@ object SituationalItemAdvisor {
         ),
         "Báculo del Vacío" to SituationalItemInfo(
             name = "Báculo del Vacío",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3135.png",
+            iconUrl = "file:///android_asset/offline_images/f4c23d99ec30ef6893a81208846a8831.png",
             categoryName = "Penetración Mágica Porcentual",
             purpose = "Ignora un porcentaje masivo de la resistencia mágica enemiga para que tus hechizos no pierdan daño.",
             bestAgainst = listOf("Galio", "Mundo", "Ornn", "Malphite", "Shen", "Alistar", "Braum"),
@@ -134,7 +134,7 @@ object SituationalItemAdvisor {
         ),
         "Coraza del Muerto" to SituationalItemInfo(
             name = "Coraza del Muerto",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3742.png",
+            iconUrl = "file:///android_asset/offline_images/3a33fd10d1e6f9e3f55dd6b553970311.png",
             categoryName = "Movilidad & Iniciación",
             purpose = "Otorga velocidad de rotación rápida por el mapa y ralentiza al primer objetivo golpeado.",
             bestAgainst = listOf("Composiciones de poke móvil", "Tiradores sin dash (Jhin, Ashe, Miss Fortune)"),
@@ -143,7 +143,7 @@ object SituationalItemAdvisor {
         ),
         "Protector Pétreo" to SituationalItemInfo(
             name = "Protector Pétreo",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3193.png",
+            iconUrl = "file:///android_asset/offline_images/e361b2bafad7a688cb9f134d5c210943.png",
             categoryName = "Megashield de Equipo (Activa)",
             purpose = "Multiplica drásticamente la resistencia para absorber el foco de daño de 5 enemigos en teamfights.",
             bestAgainst = listOf("Teamfights masivas 5v5", "Iniciaciones directas contra composiciones de alto daño combinado"),
@@ -152,7 +152,7 @@ object SituationalItemAdvisor {
         ),
         "Corazón de Hielo" to SituationalItemInfo(
             name = "Corazón de Hielo",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3110.png",
+            iconUrl = "file:///android_asset/offline_images/989ee173a52f7cfc8ea3fd107415dc38.png",
             categoryName = "Aura Reductora de Ataque",
             purpose = "Reduce de forma pasiva continua la velocidad de ataque de todos los enemigos en un radio cercano.",
             bestAgainst = listOf("Maestro Yi", "Jinx", "Tryndamere", "Tristana", "Maestro Yi", "Vayne", "Kai'Sa"),
@@ -161,7 +161,7 @@ object SituationalItemAdvisor {
         ),
         "Velo de la Banshee" to SituationalItemInfo(
             name = "Velo de la Banshee",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3102.png",
+            iconUrl = "file:///android_asset/offline_images/8501d4d39cb74524631ed6ef74b1f410.png",
             categoryName = "Escudo Anti-Hechizos AP",
             purpose = "Bloquea automáticamente la próxima habilidad enemiga para evitar ser cazado o estuneado.",
             bestAgainst = listOf("Blitzcrank", "Malphite", "Nautilus", "Thresh", "Ahri", "Lux", "Morgana"),
@@ -170,7 +170,7 @@ object SituationalItemAdvisor {
         ),
         "Filo de la Noche" to SituationalItemInfo(
             name = "Filo de la Noche",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/3814.png",
+            iconUrl = "file:///android_asset/offline_images/e450b4ac7163f1de8de7cfe932744c45.png",
             categoryName = "Escudo Anti-Hechizos AD",
             purpose = "Otorga letalidad, vida y un escudo de hechizos para asegurar que los asesinos culminen su combo.",
             bestAgainst = listOf("Lulu", "Vayne", "Syndra", "Vex", "Poppy", "Gragas"),
@@ -179,7 +179,7 @@ object SituationalItemAdvisor {
         ),
         "Protección Gemela de Amaranth" to SituationalItemInfo(
             name = "Protección Gemela de Amaranth",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389236_amaranths-twinguard.webp",
+            iconUrl = "file:///android_asset/offline_images/6d9dfa05a285da04d1e7e5f60d48ea70.webp",
             categoryName = "Resistencia Híbrida & Tenacidad",
             purpose = "Aumenta un 30% la armadura y resistencia mágica en combate prolongado, otorgando además tenacidad masiva.",
             bestAgainst = listOf("Composiciones de daño mixto (AD + AP)", "Peleas grupales largas 5v5"),
@@ -188,7 +188,7 @@ object SituationalItemAdvisor {
         ),
         "Rookern Kaénico" to SituationalItemInfo(
             name = "Rookern Kaénico",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389228_kaenic-rookern.webp",
+            iconUrl = "file:///android_asset/offline_images/93b2f7e8e684cf1ec4aabcdc13c89c8e.webp",
             categoryName = "Anti-Mágico Puro & Escudo AP",
             purpose = "Genera un escudo de absorción mágica masivo fuera de combate que mitiga por completo el daño de ráfaga AP.",
             bestAgainst = listOf("Syndra", "Veigar", "Zoe", "Evelynn", "Kassadin", "Lux", "Brand"),
@@ -197,7 +197,7 @@ object SituationalItemAdvisor {
         ),
         "Manto de la Duodécima Hora" to SituationalItemInfo(
             name = "Manto de la Duodécima Hora",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389204_mantle-of-the-twelfth-hour.webp",
+            iconUrl = "file:///android_asset/offline_images/0529996e54514079a61b4cee270526fb.webp",
             categoryName = "Supervivencia Crítica & Desenganche",
             purpose = "Otorga una inyección masiva de vida adicional y velocidad al caer por debajo del 35% de vida.",
             bestAgainst = listOf("Asesinos de ejecución rápida", "Peleas cerradas al límite de vida"),
@@ -206,7 +206,7 @@ object SituationalItemAdvisor {
         ),
         "Corona Abrasadora" to SituationalItemInfo(
             name = "Corona Abrasadora",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753389203_searing-crown.webp",
+            iconUrl = "file:///android_asset/offline_images/8c585684ae11f4bd1818521dc47bcc3d.webp",
             categoryName = "Quemadura Porcentual para Tanques",
             purpose = "Quema a los enemigos por porcentaje de su vida máxima con cada ataque y habilidad.",
             bestAgainst = listOf("Sion", "Dr. Mundo", "Cho'Gath", "Ornn", "Heartsteel Users"),
@@ -215,7 +215,7 @@ object SituationalItemAdvisor {
         ),
         "Tridente de Oceánida" to SituationalItemInfo(
             name = "Tridente de Oceánida",
-            iconUrl = "https://wr-meta.com/uploads/posts/2025-07/1753388583_oceanids-trident.webp",
+            iconUrl = "file:///android_asset/offline_images/f800a2be044a17e73fe7079161df361a.webp",
             categoryName = "Anti-Escudos para Magos (AP)",
             purpose = "Destruye y reduce los escudos enemigos al infligir daño mágico con habilidades de área o impacto individual.",
             bestAgainst = listOf("Karma", "Lulu", "Sett", "Shen", "Janna", "Lux", "Braum"),
@@ -224,7 +224,7 @@ object SituationalItemAdvisor {
         ),
         "Espada Sierra Quimopunk" to SituationalItemInfo(
             name = "Espada Sierra Quimopunk",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/16.16.1/img/item/6609.png",
+            iconUrl = "file:///android_asset/offline_images/823ee379ad90c01f692a5a054015ffdd.png",
             categoryName = "Anti-Curación para Luchadores (AD)",
             purpose = "Otorga daño, vida y aceleración de habilidad mientras aplica reducción de curación continua.",
             bestAgainst = listOf("Aatrox", "Warwick", "Vladimir", "Soraka", "Dr. Mundo", "Olaf"),
@@ -233,7 +233,7 @@ object SituationalItemAdvisor {
         ),
         "Cimitarra Mercurial" to SituationalItemInfo(
             name = "Cimitarra Mercurial",
-            iconUrl = "https://wr-meta.com/uploads/posts/2026-07/1783568239_3139_11zon.webp",
+            iconUrl = "file:///android_asset/offline_images/bfba991bdd26cac9dc642cd79060d0f5.webp",
             categoryName = "Purificación de CC para Carries AD",
             purpose = "Elimina todo el control de masas inmediatamente y otorga tenacidad para reposicionarse.",
             bestAgainst = listOf("Veigar", "Skarner", "Warwick", "Ashe", "Leona", "Twisted Fate"),
@@ -242,7 +242,7 @@ object SituationalItemAdvisor {
         ),
         "Arco axiomático" to SituationalItemInfo(
             name = "Arco axiomático",
-            iconUrl = "https://ddragon.leagueoflegends.com/cdn/14.24.1/img/item/6696.png",
+            iconUrl = "file:///android_asset/offline_images/3580a8fd19fbb3ab6be5cadb022aa07a.png",
             categoryName = "Letalidad & Reset de Definitiva (H4)",
             purpose = "Reembolsa 20% del enfriamiento total de la Habilidad Definitiva al conseguir derribos.",
             bestAgainst = listOf("Composiciones de squishies frágiles", "Zed", "Pyke", "Miss Fortune", "Varus", "Kha'Zix"),
