@@ -201,6 +201,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     // Estado para la orientación de la pantalla real
     private val isDeviceLandscape = androidx.compose.runtime.mutableStateOf(false)
     private var closeTargetComposeView: ComposeView? = null
+    private var debugOverlayView: ComposeView? = null
     private var floatingParams: WindowManager.LayoutParams? = null
     private var isOverlayExpanded: Boolean = false
     private var isCompactBubbleMode: Boolean = false
@@ -454,6 +455,37 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             windowManager?.addView(closeTargetComposeView, closeTargetParams)
         } catch (_: Exception) {}
 
+        val debugParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            layoutType,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+        }
+
+        debugOverlayView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@FloatingAssistantService)
+            setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
+            setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
+            setContent {
+                val showBoxes by com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.collectAsStateWithLifecycle()
+                if (showBoxes) {
+                    com.example.ui.components.ScannerDebugOverlay(
+                        config = com.example.service.screen.DraftVisionScanner.calibrationConfig,
+                        overlayRect = com.example.service.screen.DraftVisionScanner.overlayRect
+                    )
+                }
+            }
+        }
+
+        try {
+            windowManager?.addView(debugOverlayView, debugParams)
+        } catch (_: Exception) {}
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -624,6 +656,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
             }
             closeTargetComposeView = null
+            debugOverlayView?.let { view ->
+                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
+            }
+            debugOverlayView = null
         } catch (_: Exception) {}
     }
 
@@ -1256,6 +1292,7 @@ private fun FloatingOverlayContent(
                                         .size(28.dp)
                                         .clickable {
                                             showCalibrationPanel = !showCalibrationPanel
+                                            com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = showCalibrationPanel
                                         },
                                     shape = RoundedCornerShape(6.dp),
                                     color = if (showCalibrationPanel) HextechCyan.copy(alpha = 0.25f) else Color(0xFF1E293B),

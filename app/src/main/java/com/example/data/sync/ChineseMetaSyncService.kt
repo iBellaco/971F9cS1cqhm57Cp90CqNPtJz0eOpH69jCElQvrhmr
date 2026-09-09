@@ -31,6 +31,7 @@ object ChineseMetaSyncService {
 
     fun setRegion(context: Context, regionId: String, scope: CoroutineScope) {
         _currentRegion.value = regionId
+        com.example.data.WildRiftRepository.simulateRegionStatsChange(regionId)
     }
 
     suspend fun syncChineseMeta(context: Context, tier: TencentRankTier = TencentRankTier.DIAMOND_PLUS, forceRefresh: Boolean = false) {

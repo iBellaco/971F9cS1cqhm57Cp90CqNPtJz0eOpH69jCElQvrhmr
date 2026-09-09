@@ -797,7 +797,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         modifier = Modifier
                             .weight(1f)
                             .height(68.dp)
-                            .clickable { showPurchaseHistoryDialog = true },
+                            .clickable {
+                                if (isAdminUser) {
+                                    showPurchaseHistoryDialog = true
+                                } else {
+                                    android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            },
                         shape = RoundedCornerShape(12.dp),
                         color = com.example.ui.theme.HextechSurfaceVariant,
                         border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f))

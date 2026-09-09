@@ -17,11 +17,11 @@ data class VisionCalibrationConfig(
 
     // Ratios verticales Y para los 5 slots aliados (0..4)
     val allySlotYRatios: List<Float> = listOf(
-        0.195f,
-        0.331f,
+        0.196f,
+        0.329f,
         0.465f,
-        0.598f,
-        0.734f
+        0.603f,
+        0.739f
     ),
 
     // Ratios verticales Y para los 5 slots enemigos (0..4)

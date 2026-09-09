@@ -98,6 +98,8 @@ data class DraftScanResult(
 object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
     var overlayRect: android.graphics.Rect? = null
+    val showCalibrationBoxes = kotlinx.coroutines.flow.MutableStateFlow(false)
+
     
     // Configuración estándar de coordenadas y cálculos
     var calibrationConfig = VisionCalibrationConfig()
@@ -802,18 +804,9 @@ object DraftVisionScanner {
         val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
 
         // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN
-        // Solo para el 10º pick (última selección) o slots con retrato real confirmado sin texto OCR
+        // Aplicamos reconocimiento visual a todos los slots que aún no tienen campeón confirmado por OCR
         if (context != null) {
-            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
-            val isFinalTenthPick = totalPickedSoFar == 9
-
-            val candidateSlots = if (isFinalTenthPick) {
-                // Si faltan exactamente 1 campeón de los 10, probamos el único slot restante
-                (allySlots + enemySlots).filter { it.champion == null }
-            } else {
-                // Si aún se están seleccionando, solo consideramos slots que NO estén explícitamente marcados como esperando selección
-                (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
-            }
+            val candidateSlots = (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
 
             if (candidateSlots.isNotEmpty()) {
                 val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
@@ -862,7 +855,8 @@ object DraftVisionScanner {
 
                         try {
                             val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                            val threshold = if (isFinalTenthPick) 0.45f else 0.52f
+                            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
+                            val threshold = if (totalPickedSoFar == 9) 0.45f else 0.52f
                             val match = ChampionVisualMatcher.matchChampion(
                                 context = context,
                                 avatarCrop = avatarCrop,
