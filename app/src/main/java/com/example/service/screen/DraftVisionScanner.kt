@@ -79,6 +79,7 @@ data class DraftScanResult(
     val enemiesByRole: Map<LaneRole, Champion> = emptyMap(),
     val enemyConfidencesByRole: Map<LaneRole, Int> = emptyMap(),
     val detectedRole: LaneRole? = null,
+    val userExplicitlyDetectedRole: LaneRole? = null,
     val detectedFirstPick: Boolean? = null,
     val isLastPickImageRecognized: Boolean = false,
     val lastPickChampion: Champion? = null,
@@ -182,6 +183,7 @@ object DraftVisionScanner {
         val detectedWords = mutableListOf<String>()
         var userDetectedLane: LaneRole? = null
         var userSlotIndex: Int? = null
+        var userExplicitlyConfirmed = false
         var detectedFirstPick: Boolean? = null
         var isLastPickVisualRecognized = false
         var lastPickVisualChampion: Champion? = null
@@ -336,6 +338,16 @@ object DraftVisionScanner {
                 }
             }
 
+            userExplicitlyConfirmed = false
+            val currentUserNameClean = try {
+                val u1 = com.example.util.SubscriptionManager.userName.value.trim().lowercase(Locale.ROOT).replace(" ", "")
+                val u2 = com.example.util.AuthManager.getAuth()?.currentUser?.displayName?.trim()?.lowercase(Locale.ROOT)?.replace(" ", "") ?: ""
+                val u3 = try { if (context != null) com.example.data.AccountProfileManager.getActiveProfile(context).name.trim().lowercase(Locale.ROOT).replace(" ", "") else "" } catch (_: Exception) { "" }
+                listOf(u1, u2, u3, "diego", "yo", "tu").filter { it.isNotBlank() }
+            } catch (_: Exception) {
+                listOf("diego", "yo", "tu")
+            }
+
             // Procesar textos aliados: Detección de Línea, Nombre de Invocador y Campeón
             for (i in 0..4) {
                 val slot = allySlots[i]
@@ -349,29 +361,63 @@ object DraftVisionScanner {
                     val safeBox = box ?: Rect(0, 0, 10, 10)
                     val sublines = rawBlock.split("\n").map { it.trim() }.filter { it.isNotBlank() }
 
+                    // Comprobar si el texto está coloreado en dorado/amarillo característico del slot del usuario en Wild Rift
+                    var hasYellowGoldText = false
+                    try {
+                        val sampleBox = Rect(
+                            safeBox.left.coerceIn(0, width - 1),
+                            safeBox.top.coerceIn(0, height - 1),
+                            safeBox.right.coerceIn(0, width),
+                            safeBox.bottom.coerceIn(0, height)
+                        )
+                        if (sampleBox.width() > 4 && sampleBox.height() > 4) {
+                            var yellowHits = 0
+                            val stepX = (sampleBox.width() / 6).coerceAtLeast(1)
+                            val stepY = (sampleBox.height() / 4).coerceAtLeast(1)
+                            for (sy in sampleBox.top until sampleBox.bottom step stepY) {
+                                for (sx in sampleBox.left until sampleBox.right step stepX) {
+                                    val px = bitmap.getPixel(sx, sy)
+                                    val pr = android.graphics.Color.red(px)
+                                    val pg = android.graphics.Color.green(px)
+                                    val pb = android.graphics.Color.blue(px)
+                                    if (pr > 165 && pg > 140 && pb < 115 && pr > pb * 1.5f) {
+                                        yellowHits++
+                                    }
+                                }
+                            }
+                            if (yellowHits >= 3) {
+                                hasYellowGoldText = true
+                            }
+                        }
+                    } catch (_: Exception) {}
+
                     for (line in sublines) {
                         if (DraftValidationLayer.isNoiseText(line)) continue
 
-                        // Comprobar si este slot contiene la etiqueta del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)"
+                        // Comprobar si este slot contiene la etiqueta del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)" o coincide con su nombre
                         val lineNorm = DraftValidationLayer.normalize(line).lowercase(Locale.ROOT)
+                        val lineCompressed = lineNorm.replace(" ", "")
                         val isUserTag = lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
                                         lineNorm == "voce" || lineNorm == "(voce)" ||
                                         lineNorm.startsWith("(tu) ") || lineNorm.endsWith(" (tu)") ||
                                         lineNorm.startsWith("(you) ") || lineNorm.endsWith(" (you)") ||
-                                        lineNorm.contains(" tú ") || lineNorm.contains("(tú)")
-                        if (isUserTag) {
+                                        lineNorm.contains(" tú ") || lineNorm.contains("(tú)") ||
+                                        currentUserNameClean.any { it.length >= 3 && lineCompressed == it }
+
+                        if (isUserTag || hasYellowGoldText) {
                             userSlotIndex = i
+                            userExplicitlyConfirmed = true
                             textDiagnosticsList.add(
                                 TextBlockDiagnostic(
                                     text = line,
                                     rect = safeBox,
                                     isAlly = true,
                                     slotIndex = i,
-                                    tag = "¡TU SLOT! (TÚ)",
+                                    tag = "¡TU SLOT!",
                                     color = android.graphics.Color.YELLOW
                                 )
                             )
-                            AppLogger.d(TAG, "Etiqueta de usuario detectada en Slot Aliado $i ('$line')")
+                            AppLogger.d(TAG, "Slot del usuario confirmado en Slot Aliado $i ('$line') [Yellow=$hasYellowGoldText]")
                         }
 
                         // A) Rol / Línea explícito (ej: "Línea Central", "Carril de Barón", etc.)
@@ -742,26 +788,46 @@ object DraftVisionScanner {
 
         val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
 
-        // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN (Para el último pick o slots sin texto OCR)
+        // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN
+        // Solo para el 10º pick (última selección) o slots con retrato real confirmado sin texto OCR
         if (context != null) {
-            val emptySlots = (allySlots + enemySlots).filter { it.champion == null }
-            if (emptySlots.isNotEmpty()) {
+            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
+            val isFinalTenthPick = totalPickedSoFar == 9
+
+            val candidateSlots = if (isFinalTenthPick) {
+                // Si faltan exactamente 1 campeón de los 10, probamos el único slot restante
+                (allySlots + enemySlots).filter { it.champion == null }
+            } else {
+                // Si aún se están seleccionando, solo consideramos slots que NO estén explícitamente marcados como esperando selección
+                (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
+            }
+
+            if (candidateSlots.isNotEmpty()) {
                 val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
 
-                for (targetSlot in emptySlots) {
+                for (targetSlot in candidateSlots) {
                     val yCenter = if (targetSlot.isAlly) {
                         (height * allySlotYRatios[targetSlot.slotIndex]).toInt()
                     } else {
                         (height * enemySlotYRatios[targetSlot.slotIndex]).toInt()
                     }
                     val xCenter = if (targetSlot.isAlly) allyAvatarCenterX else enemyAvatarCenterX
-                    val startX = (xCenter - avatarDiameter / 2).coerceIn(0, width - avatarDiameter)
-                    val startY = (yCenter - avatarDiameter / 2).coerceIn(0, height - avatarDiameter)
-                    val roi = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
+                    // Usar un radio de recorte más amplio (1.35x) para capturar el retrato completo con máxima fidelidad
+                    val expandedDiameter = (avatarDiameter * 1.35f).toInt()
+                    val startX = (xCenter - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
+                    val startY = (yCenter - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
+                    val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
 
                     try {
                         val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                        val match = ChampionVisualMatcher.matchChampion(context, avatarCrop, allChamps, alreadyPickedIds)
+                        val threshold = if (isFinalTenthPick) 0.50f else 0.58f
+                        val match = ChampionVisualMatcher.matchChampion(
+                            context = context,
+                            avatarCrop = avatarCrop,
+                            candidates = allChamps,
+                            excludedChampionIds = alreadyPickedIds,
+                            minConfidenceThreshold = threshold
+                        )
                         avatarCrop.recycle()
 
                         if (match != null) {
@@ -863,6 +929,7 @@ object DraftVisionScanner {
             enemiesByRole = finalEnemiesMap,
             enemyConfidencesByRole = enemyConfidences,
             detectedRole = userDetectedLane,
+            userExplicitlyDetectedRole = if (userExplicitlyConfirmed) userDetectedLane else null,
             detectedFirstPick = detectedFirstPick,
             isLastPickImageRecognized = isLastPickVisualRecognized,
             lastPickChampion = lastPickVisualChampion,

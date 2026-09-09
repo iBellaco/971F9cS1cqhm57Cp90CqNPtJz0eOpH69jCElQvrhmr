@@ -151,8 +151,12 @@ object DraftValidationLayer {
 
         // 1. Frases completas de carril (Español, Inglés, Portugués)
         // TOP
-        if (lower.contains("calle de baron") || lower.contains("calle de baron") ||
+        if (lower.contains("calle del baron") || lower.contains("calle del barón") ||
+            lower.contains("calle de baron") || lower.contains("calle de barón") ||
+            lower.contains("calle baron") || lower.contains("calle barón") ||
+            lower.contains("carril del baron") || lower.contains("carril del barón") ||
             lower.contains("carril de baron") || lower.contains("carril de barón") ||
+            lower.contains("carril baron") || lower.contains("carril barón") ||
             lower.contains("carril superior") || lower.contains("calle superior") ||
             lower.contains("baron lane") || lower.contains("rota de barao") ||
             lower.contains("rota de barão") || lower.contains("solo lane")) {
@@ -162,6 +166,7 @@ object DraftValidationLayer {
         // MID
         if (lower.contains("calle central") || lower.contains("carril central") ||
             lower.contains("calle medio") || lower.contains("carril medio") ||
+            lower.contains("calle de enmedio") || lower.contains("calle de en medio") ||
             lower.contains("mid lane") || lower.contains("rota do meio") ||
             lower.contains("middle lane")) {
             return LaneRole.MID
@@ -169,7 +174,11 @@ object DraftValidationLayer {
 
         // ADC / DÚO
         if (lower.contains("calle del dragon") || lower.contains("calle del dragón") ||
+            lower.contains("calle de dragon") || lower.contains("calle de dragón") ||
+            lower.contains("calle dragon") || lower.contains("calle dragón") ||
             lower.contains("carril del dragon") || lower.contains("carril del dragón") ||
+            lower.contains("carril de dragon") || lower.contains("carril de dragón") ||
+            lower.contains("carril dragon") || lower.contains("carril dragón") ||
             lower.contains("calle duo") || lower.contains("calle dúo") ||
             lower.contains("carril duo") || lower.contains("carril dúo") ||
             lower.contains("duo lane") || lower.contains("dragon lane") ||
@@ -177,6 +186,19 @@ object DraftValidationLayer {
             lower.contains("carril bot") || lower.contains("calle bot") ||
             lower.contains("bot lane")) {
             return LaneRole.ADC
+        }
+
+        // SUPPORT / APOYO
+        if (lower.contains("apoyo") || lower.contains("soporte") ||
+            lower.contains("suporte") || lower.contains("support")) {
+            return LaneRole.SUPPORT
+        }
+
+        // JUNGLA
+        if (lower.contains("jungla") || lower.contains("jungle") ||
+            lower.contains("cacador") || lower.contains("caçador") ||
+            lower.contains("selva")) {
+            return LaneRole.JUNGLE
         }
 
         // 2. Tokens individuales delimitados exactamente

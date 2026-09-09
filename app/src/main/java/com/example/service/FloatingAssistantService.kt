@@ -754,6 +754,7 @@ class OverlayState {
     var showRoleChangeDialog by androidx.compose.runtime.mutableStateOf(false)
     var isSavedRecently by androidx.compose.runtime.mutableStateOf(false)
     var activeRole by androidx.compose.runtime.mutableStateOf(LaneRole.MID)
+    var isRoleManuallySelected by androidx.compose.runtime.mutableStateOf(false)
     var isFirstPick by androidx.compose.runtime.mutableStateOf(false)
     var isCompactBubble by androidx.compose.runtime.mutableStateOf(false)
     var isScanning by androidx.compose.runtime.mutableStateOf(false)
@@ -935,10 +936,10 @@ private fun FloatingOverlayContent(
                                 }
                             } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                                 scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"
-                            } else if (result.detectedRole != null && activeRole != result.detectedRole) {
-                                activeRole = result.detectedRole
-                                com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
-                                scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.detectedRole.shortName})"
+                            } else if (!state.isRoleManuallySelected && result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
+                                activeRole = result.userExplicitlyDetectedRole
+                                com.example.util.UserPreferences.setActiveDraftRole(context, result.userExplicitlyDetectedRole)
+                                scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($totalAlliesPicked/5 vs $totalEnemiesPicked/5)"
                             }
@@ -1501,6 +1502,7 @@ private fun FloatingOverlayContent(
                                             activeRole = activeRole,
                                             onActiveRoleChange = { 
                                                 activeRole = it 
+                                                state.isRoleManuallySelected = true
                                                 com.example.util.UserPreferences.setActiveDraftRole(context, it)
                                             },
                                             isFirstPick = isFirstPick,
@@ -1535,6 +1537,7 @@ private fun FloatingOverlayContent(
                                                 state.enemySummonerNames.clear()
                                                 state.allySpells.clear()
                                                 state.enemySpells.clear()
+                                                state.isRoleManuallySelected = false
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },

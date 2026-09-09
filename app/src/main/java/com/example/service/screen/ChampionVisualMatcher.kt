@@ -9,6 +9,7 @@ import com.example.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -281,31 +282,53 @@ object ChampionVisualMatcher {
     }
 
     /**
-     * Identifica el campeón con mayor similitud visual comparando contra las imágenes de avatares disponibles.
-     * Retorna el campeón que tenga más similitud entre los candidatos elegibles (no seleccionados).
+     * Comprueba si el recorte contiene un retrato de campeón real o si es un slot vacío,
+     * ícono de línea geométrico, fondo plano o casco de marcador de posición.
      */
-    fun matchChampion(
-        context: Context,
-        avatarCrop: Bitmap,
-        candidates: List<Champion>,
-        excludedChampionIds: Set<String> = emptySet()
-    ): VisualMatchResult? {
-        if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
+    fun isRealChampionPortrait(bitmap: Bitmap): Boolean {
+        if (bitmap.isRecycled || bitmap.width < 12 || bitmap.height < 12) return false
 
-        // Verificar si la región tiene contenido visual válido (no un slot negro o vacío)
-        val w = avatarCrop.width
-        val h = avatarCrop.height
-        val sampleStepX = (w / 8).coerceAtLeast(1)
-        val sampleStepY = (h / 8).coerceAtLeast(1)
+        val w = bitmap.width
+        val h = bitmap.height
+        val sampleStepX = (w / 10).coerceAtLeast(1)
+        val sampleStepY = (h / 10).coerceAtLeast(1)
+
+        var sumR = 0L
+        var sumG = 0L
+        var sumB = 0L
         var sumLum = 0L
         var minLum = 255
         var maxLum = 0
         var samples = 0
+        var colorfulPixels = 0
 
-        for (y in 0 until h step sampleStepY) {
-            for (x in 0 until w step sampleStepX) {
-                val pixel = avatarCrop.getPixel(x, y)
-                val lum = (Color.red(pixel) * 299 + Color.green(pixel) * 587 + Color.blue(pixel) * 114) / 1000
+        val rList = mutableListOf<Int>()
+        val gList = mutableListOf<Int>()
+        val bList = mutableListOf<Int>()
+
+        for (y in (h * 0.15f).toInt() until (h * 0.85f).toInt() step sampleStepY) {
+            for (x in (w * 0.15f).toInt() until (w * 0.85f).toInt() step sampleStepX) {
+                val pixel = bitmap.getPixel(x, y)
+                val r = Color.red(pixel)
+                val g = Color.green(pixel)
+                val b = Color.blue(pixel)
+
+                rList.add(r)
+                gList.add(g)
+                bList.add(b)
+
+                sumR += r
+                sumG += g
+                sumB += b
+
+                val maxC = max(r, max(g, b))
+                val minC = min(r, min(g, b))
+                val sat = if (maxC > 0) (maxC - minC).toFloat() / maxC.toFloat() else 0f
+                if (sat > 0.18f && maxC > 35) {
+                    colorfulPixels++
+                }
+
+                val lum = (r * 299 + g * 587 + b * 114) / 1000
                 sumLum += lum
                 if (lum < minLum) minLum = lum
                 if (lum > maxLum) maxLum = lum
@@ -313,11 +336,49 @@ object ChampionVisualMatcher {
             }
         }
 
-        val avgLum = if (samples > 0) sumLum / samples else 0
-        val contrast = maxLum - minLum
+        if (samples < 10) return false
 
-        // Si la región es completamente negra y carece de contraste, no hay avatar
-        if (avgLum < 12 || contrast < 14) {
+        val avgLum = sumLum / samples
+        val contrast = maxLum - minLum
+        val colorfulRatio = colorfulPixels.toFloat() / samples.toFloat()
+
+        // Calcular desviación estándar de luminosidad (textura visual)
+        var sumSqDiff = 0.0
+        for (i in 0 until samples) {
+            val lum = (rList[i] * 299 + gList[i] * 587 + bList[i] * 114) / 1000
+            val diff = lum - avgLum
+            sumSqDiff += diff * diff
+        }
+        val stdDev = sqrt(sumSqDiff / samples)
+
+        // Un slot vacío, ícono de línea o casco gris tiene muy baja varianza de color o contraste plano
+        if (avgLum < 18 || contrast < 28 || stdDev < 12.0) {
+            return false
+        }
+
+        // Si casi no hay píxeles de color (casco gris / icono plano monocromo), no es un campeón
+        if (colorfulRatio < 0.12f && stdDev < 20.0) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * Identifica el campeón con mayor similitud visual comparando contra las imágenes de avatares disponibles.
+     * Retorna el campeón SOLO si supera el umbral de confianza estricto y no es un slot vacío.
+     */
+    fun matchChampion(
+        context: Context,
+        avatarCrop: Bitmap,
+        candidates: List<Champion>,
+        excludedChampionIds: Set<String> = emptySet(),
+        minConfidenceThreshold: Float = 0.52f
+    ): VisualMatchResult? {
+        if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
+
+        // Comprobación anti-falsos positivos: ¿Es realmente un retrato de campeón?
+        if (!isRealChampionPortrait(avatarCrop)) {
             return null
         }
 
@@ -325,6 +386,7 @@ object ChampionVisualMatcher {
 
         var bestChamp: Champion? = null
         var bestScore = -1.0f
+        var secondBestScore = -1.0f
 
         val eligibleCandidates = candidates.filter { it.id !in excludedChampionIds }
         if (eligibleCandidates.isEmpty()) return null
@@ -360,17 +422,23 @@ object ChampionVisualMatcher {
             val combinedScore = 0.45f * histSim + 0.45f * zoneSim + 0.10f * dominantColorSim
 
             if (combinedScore > bestScore) {
+                secondBestScore = bestScore
                 bestScore = combinedScore
                 bestChamp = champ
+            } else if (combinedScore > secondBestScore) {
+                secondBestScore = combinedScore
             }
         }
 
-        if (bestChamp != null && bestScore >= 0.15f) {
-            AppLogger.d(TAG, "Mayor similitud visual encontrada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%)")
+        // Se requiere superar el umbral mínimo estricto para evitar emparejamientos espurios
+        if (bestChamp != null && bestScore >= minConfidenceThreshold) {
+            val margin = bestScore - secondBestScore
+            val isConfident = bestScore >= 0.60f && (secondBestScore < 0 || margin >= 0.04f)
+            AppLogger.d(TAG, "Similitud visual detectada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%, Confidente: $isConfident)")
             return VisualMatchResult(
                 champion = bestChamp,
                 confidence = bestScore,
-                isConfident = bestScore >= 0.30f
+                isConfident = isConfident
             )
         }
 

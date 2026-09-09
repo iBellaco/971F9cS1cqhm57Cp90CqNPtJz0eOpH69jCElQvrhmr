@@ -15,7 +15,9 @@ import androidx.compose.foundation.border
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -686,95 +688,239 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
-                onClick = { showAvatarDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechGold),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+            // Action Grid: 2x2 Clean Hextech Card Layout
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Icon(imageVector = Icons.Default.Face, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cambiar Avatar", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Card 1: Avatar Collection
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(68.dp)
+                            .clickable { showAvatarDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = com.example.ui.theme.HextechSurfaceVariant,
+                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.8f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(com.example.ui.theme.HextechGold.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Face,
+                                    contentDescription = null,
+                                    tint = com.example.ui.theme.HextechGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Avatares",
+                                    color = com.example.ui.theme.HextechGold,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = "Colección & Marcos",
+                                    color = com.example.ui.theme.TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // Card 2: Theme Customization
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(68.dp)
+                            .clickable { showThemeDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = com.example.ui.theme.HextechSurfaceVariant,
+                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Palette,
+                                    contentDescription = null,
+                                    tint = com.example.ui.theme.HextechCyan,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Temas",
+                                    color = com.example.ui.theme.HextechCyan,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = "Colores & Estilos",
+                                    color = com.example.ui.theme.TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Card 3: Blue Essence History
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(68.dp)
+                            .clickable { showPurchaseHistoryDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        color = com.example.ui.theme.HextechSurfaceVariant,
+                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                androidx.compose.foundation.Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                    contentDescription = "Esencia Azul",
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Esencia Azul",
+                                    color = com.example.ui.theme.HextechCyan,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = "Historial & Recargas",
+                                    color = com.example.ui.theme.TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // Card 4: Creators / Community
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(68.dp)
+                            .clickable {
+                                if (userRole == "admin") showCommunityCreatorsDialog = true
+                                else android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                        shape = RoundedCornerShape(12.dp),
+                        color = com.example.ui.theme.HextechSurfaceVariant,
+                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.5f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(com.example.ui.theme.HextechGold.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("👑", fontSize = 18.sp)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Creadores",
+                                    color = com.example.ui.theme.HextechGold,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = "Comunidad Pro",
+                                    color = com.example.ui.theme.TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            Button(
-                onClick = { showThemeDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechCyan),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+            // Support Center Card Button
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showSupportDialog = true },
+                shape = RoundedCornerShape(12.dp),
+                color = com.example.ui.theme.HextechSurfaceVariant,
+                border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.4f))
             ) {
-                Icon(imageVector = Icons.Filled.Palette, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Personalizar Tema", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = { if (userRole == "admin") showCommunityCreatorsDialog = true else android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show() },
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurface),
-                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("👑", fontSize = 16.sp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Creadores",
-                    color = com.example.ui.theme.HextechGold,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Botón de Historial de Esencia Azul
-            Button(
-                onClick = { showPurchaseHistoryDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f)),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                androidx.compose.foundation.Image(
-                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_blue_essence),
-                    contentDescription = "Esencia Azul",
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Historial de Esencia Azul",
-                    color = com.example.ui.theme.HextechCyan,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 13.5.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Botón de Centro de Soporte
-            Button(
-                onClick = { showSupportDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f)),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = com.example.ui.theme.HextechCyan
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    "Centro de Soporte y Ayuda",
-                    color = com.example.ui.theme.HextechCyan,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 13.5.sp
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = com.example.ui.theme.HextechCyan,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                "Centro de Soporte y Ayuda",
+                                color = com.example.ui.theme.HextechCyan,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                            Text(
+                                "Reportar bugs, consultas o sugerencias",
+                                color = com.example.ui.theme.TextMuted,
+                                fontSize = 10.5.sp
+                            )
+                        }
+                    }
+                    Text("›", color = com.example.ui.theme.HextechCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -783,7 +929,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Button(
                     onClick = { showAdminDashboard = true },
                     colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.DangerRed),
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(imageVector = Icons.Default.AdminPanelSettings, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
@@ -796,11 +942,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Button(
                 onClick = onSignOut,
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(46.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.3f))
+                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.35f))
             ) {
-                Text("Cerrar Sesión", color = DangerRed)
+                Text("Cerrar Sesión", color = DangerRed, fontWeight = FontWeight.SemiBold)
             }
         }
     }
