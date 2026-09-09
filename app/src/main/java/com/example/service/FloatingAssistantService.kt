@@ -69,6 +69,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BookmarkAdd
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -1273,19 +1274,20 @@ private fun FloatingOverlayContent(
                                     modifier = Modifier
                                         .size(28.dp)
                                         .background(
-                                            color = if (isDebug) Color.Red.copy(alpha = 0.3f) else Color.Transparent,
+                                            color = if (isDebug) HextechCyan.copy(alpha = 0.20f) else Color.Transparent,
                                             shape = CircleShape
                                         )
                                         .border(
                                             width = if (isDebug) 1.dp else 0.dp,
-                                            color = if (isDebug) Color.Red else Color.Transparent,
+                                            color = if (isDebug) HextechCyan.copy(alpha = 0.50f) else Color.Transparent,
                                             shape = CircleShape
                                         )
                                 ) {
-                                    Text(
-                                        text = "🐛",
-                                        fontSize = if (isDebug) 16.sp else 14.sp,
-                                        modifier = Modifier.alpha(if (isDebug) 1f else 0.5f)
+                                    Icon(
+                                        imageVector = Icons.Default.BugReport,
+                                        contentDescription = "Diagnóstico visual del escáner",
+                                        tint = if (isDebug) HextechCyan else TextMuted,
+                                        modifier = Modifier.size(16.dp)
                                     )
                                 }
 
@@ -3073,7 +3075,7 @@ fun VisionDebugOverlay() {
                 .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "🐛 Visión en Vivo: ${detectedTexts.size} textos • ${detectedSpells.size} hechizos • ${diagnostics.size} avatares",
+                text = "🔍 Diagnóstico en Vivo: ${detectedTexts.size} textos • ${detectedSpells.size} hechizos • ${diagnostics.size} avatares",
                 color = HextechGold,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold

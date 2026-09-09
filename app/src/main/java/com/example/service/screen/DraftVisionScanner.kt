@@ -176,6 +176,7 @@ object DraftVisionScanner {
                         text.contains("RIVAL", ignoreCase = true) || text.contains("VACÍO", ignoreCase = true) ||
                         text.contains("VACIO", ignoreCase = true) || text.contains("CONFIRMADO", ignoreCase = true) ||
                         text.contains("AMBIGUO", ignoreCase = true) || text.contains("⚡") || text.contains("🐛") ||
+                        text.contains("Diagnóstico", ignoreCase = true) || text.contains("Diagnostico", ignoreCase = true) ||
                         text.contains("Score", ignoreCase = true) || text.matches(Regex(".*\\b\\d+\\.\\d+\\b.*"))) continue
                     
                     val box = line.boundingBox
@@ -188,33 +189,52 @@ object DraftVisionScanner {
                     detectedWords.add(text)
                     val centerY = box?.centerY() ?: 0
                     val centerX = box?.centerX() ?: 0
-                    val yRatio = centerY.toFloat() / height.toFloat()
                     val xRatio = centerX.toFloat() / width.toFloat()
 
-                    // Ignorar la barra de bans superior (Y < 0.110) y botones del fondo (Y > 0.820)
-                    if (yRatio < 0.110f || yRatio > 0.820f) continue
+                    val linesInText = text.split("\n").map { it.trim() }.filter { it.isNotBlank() }
+                    val totalLines = linesInText.size
+                    val baseBox = box ?: Rect(0, 0, 10, 10)
+                    val lineH = if (totalLines > 0) baseBox.height().toFloat() / totalLines else baseBox.height().toFloat()
 
-                    // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar, X entre 0.080 y 0.260)
-                    if (xRatio in 0.080f..0.260f) {
-                        val slotIndex = when {
-                            yRatio < 0.259f -> 0
-                            yRatio < 0.393f -> 1
-                            yRatio < 0.526f -> 2
-                            yRatio < 0.660f -> 3
-                            else -> 4
+                    for ((idx, subline) in linesInText.withIndex()) {
+                        if (subline.length < 2) continue
+                        val subCenterY = if (totalLines > 1) {
+                            (baseBox.top + (idx + 0.5f) * lineH).toInt()
+                        } else {
+                            centerY
                         }
-                        allySlotTexts[slotIndex].add(Pair(text, box))
-                    }
-                    // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival, X entre 0.760 y 0.945)
-                    else if (xRatio in 0.760f..0.945f) {
-                        val slotIndex = when {
-                            yRatio < 0.237f -> 0
-                            yRatio < 0.367f -> 1
-                            yRatio < 0.497f -> 2
-                            yRatio < 0.626f -> 3
-                            else -> 4
+                        val subYRatio = subCenterY.toFloat() / height.toFloat()
+                        val subBox = if (totalLines > 1) {
+                            Rect(baseBox.left, (baseBox.top + idx * lineH).toInt(), baseBox.right, (baseBox.top + (idx + 1) * lineH).toInt())
+                        } else {
+                            baseBox
                         }
-                        enemySlotTexts[slotIndex].add(Pair(text, box))
+
+                        // Ignorar barra de bans y botones
+                        if (subYRatio < 0.110f || subYRatio > 0.820f) continue
+
+                        // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar, X entre 0.080 y 0.260)
+                        if (xRatio in 0.080f..0.260f) {
+                            val slotIndex = when {
+                                subYRatio < 0.259f -> 0
+                                subYRatio < 0.393f -> 1
+                                subYRatio < 0.526f -> 2
+                                subYRatio < 0.660f -> 3
+                                else -> 4
+                            }
+                            allySlotTexts[slotIndex].add(Pair(subline, subBox))
+                        }
+                        // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival, X entre 0.760 y 0.945)
+                        else if (xRatio in 0.760f..0.945f) {
+                            val slotIndex = when {
+                                subYRatio < 0.237f -> 0
+                                subYRatio < 0.367f -> 1
+                                subYRatio < 0.497f -> 2
+                                subYRatio < 0.626f -> 3
+                                else -> 4
+                            }
+                            enemySlotTexts[slotIndex].add(Pair(subline, subBox))
+                        }
                     }
                 }
             }
@@ -373,16 +393,19 @@ object DraftVisionScanner {
 
                         // Apodo de invocador rival
                         if (line.length in 2..28 && !DraftValidationLayer.isNoiseText(line)) {
-                            textDiagnosticsList.add(
-                                TextBlockDiagnostic(
-                                    text = line,
-                                    rect = safeBox,
-                                    isAlly = false,
-                                    slotIndex = i,
-                                    tag = "INVOCADOR RIVAL",
-                                    color = android.graphics.Color.MAGENTA
+                            // Si contiene un nombre de campeón, jamás registrar como invocador rival
+                            if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
+                                textDiagnosticsList.add(
+                                    TextBlockDiagnostic(
+                                        text = line,
+                                        rect = safeBox,
+                                        isAlly = false,
+                                        slotIndex = i,
+                                        tag = "INVOCADOR RIVAL",
+                                        color = android.graphics.Color.MAGENTA
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
@@ -468,7 +491,7 @@ object DraftVisionScanner {
                 } else {
                     diagReason = "100% Certeza: Nombre OCR detectado (${ocrChamp.name})"
                 }
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.54f) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.50f) {
                 finalChamp = eval.candidate1
                 finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(60, 90)
                 diagStatus = DiagnosticStatus.CONFIRMADO
@@ -537,7 +560,7 @@ object DraftVisionScanner {
                 finalConfidence = 100
                 diagStatus = DiagnosticStatus.CONFIRMADO
                 diagReason = "Confirmado 100% por nombre OCR (${ocrChamp.name})"
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.60f && eval.margin >= 0.035f) {
+            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.50f && eval.margin >= 0.018f) {
                 finalChamp = eval.candidate1
                 finalConfidence = ((eval.score1 * 100).toInt()).coerceIn(60, 95)
                 diagStatus = DiagnosticStatus.CONFIRMADO

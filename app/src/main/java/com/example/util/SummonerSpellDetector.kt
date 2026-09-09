@@ -55,8 +55,9 @@ object SummonerSpellDetector {
 
                 // 1. Castigo (Smite): En Wild Rift el Castigo presenta destello y filo púrpura/violeta/magenta
                 // característico de la daga mágica (r y b altos, g notablemente menor). Ningún otro hechizo tiene este matiz.
-                if ((r > 105 && b > 105 && g < 115 && (r + b) > (2 * g + 30)) ||
-                    (b > 115 && r > 90 && g < 95 && b > g + 25)) {
+                if ((r > 100 && b > 100 && g < 120 && (r + b) > (2 * g + 20)) ||
+                    (b > 110 && r > 85 && g < 100 && b > g + 20) ||
+                    (b > 130 && r > 110 && g < 135)) {
                     purpleCount++
                 }
                 // 2. Curar (Heal): Verde esmeralda vivo predominante
@@ -71,12 +72,12 @@ object SummonerSpellDetector {
                 else if (r > 155 && g < 95 && b < 70 && (r - g) > 55) {
                     redFireCount++
                 }
-                // 5. Destello (Flash): Amarillo eléctrico puro (r y g muy altos y parejos)
-                else if (r > 170 && g > 145 && b < 120 && kotlin.math.abs(r - g) < 40) {
+                // 5. Destello (Flash): Amarillo eléctrico puro y chispas doradas de Flash
+                else if (r > 165 && g > 140 && b < 125 && kotlin.math.abs(r - g) < 50) {
                     yellowCount++
                 }
-                // 6. Barrera (Barrier): Ámbar / Dorado esférico (r claramente superior a g)
-                else if (r > 165 && g in 115..190 && b < 100 && (r - g) in 25..80) {
+                // 6. Barrera (Barrier): Ámbar / Dorado esférico puro (r claramente superior a g y sin amarillo eléctrico)
+                else if (r > 170 && g in 110..175 && b < 90 && (r - g) in 35..85) {
                     amberGoldCount++
                 }
                 // 7. Extenuación (Exhaust): Marrón / Bronce oscuro
@@ -108,17 +109,15 @@ object SummonerSpellDetector {
             cyanRatio > 0.06f -> "ghost" to "Fantasmal"
             // 4. Prender: Fuego rojo vivo
             redRatio > 0.06f -> "ignite" to "Prender"
-            // 5. Extenuación: Bronce / marrón
+            // 5. Destello: Amarillo eléctrico característico de Flash (predominante)
+            yellowRatio > 0.035f -> "flash" to "Destello"
+            // 6. Barrera: Solo si hay ámbar muy marcado sin componente amarillo
+            amberRatio > 0.12f && yellowRatio < 0.02f -> "barrier" to "Barrera"
+            // 7. Extenuación: Bronce / marrón
             brownRatio > 0.10f -> "exhaust" to "Extenuación"
-            // 6. Barrera: Escudo ámbar (r claramente mayor a g)
-            amberRatio > 0.10f && yellowRatio < 0.10f -> "barrier" to "Barrera"
-            // 7. Destello: Amarillo puro (r y g muy cercanos)
-            yellowRatio > 0.05f -> "flash" to "Destello"
-            // 8. Barrera fallback si hay tono ámbar
-            amberRatio > 0.06f -> "barrier" to "Barrera"
-            // 9. Destello fallback
-            yellowRatio > 0.03f -> "flash" to "Destello"
-            else -> return null // Evitar inventar Destello si no hay coincidencia cromática real
+            // 8. Destello fallback si hay destello dorado
+            yellowRatio > 0.02f || amberRatio > 0.05f -> "flash" to "Destello"
+            else -> return null // Evitar inventar si no hay coincidencia cromática real
         }
 
         val item = WildRiftSpellsAndRunes.getSpellByName(spellId)

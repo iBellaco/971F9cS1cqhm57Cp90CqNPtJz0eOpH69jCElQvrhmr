@@ -21,12 +21,15 @@ object DraftValidationLayer {
         "auto-scan", "autoscan", "activo", "detener", "asistente", "ajustes",
         "bloquear", "elegir", "jugador", "player", "tarjeta", "aumento", "usó", "uso",
         "combatamos", "juntos", "excelente", "composicion", "composición", "oponentes",
-        "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando"
+        "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando",
+        "fijar", "preseleccion", "preselección", "fase", "bloqueando"
     )
 
     fun isNoiseText(text: String): Boolean {
         val norm = normalize(text)
         if (norm.length < 2) return true
+        // Descartar números puros o temporizadores de draft (ej: "18", "25", "30", "0:15", "100%")
+        if (norm.matches(Regex("^[0-9\\s:.,%#-]+$"))) return true
         return NOISE_WORDS.any { norm.contains(it) } ||
                 norm.startsWith("jugador") || norm.startsWith("player") || norm.startsWith("jogador")
     }

@@ -271,8 +271,8 @@ object ImageHashMatcher {
         val margin = (bestScore - secondScore).coerceAtLeast(0f)
 
         // 4. CLASIFICACIÓN ESTRICTA: CONFIRMADO vs RECHAZADO vs AMBIGUO
-        val minThreshold = if (isAlly) 0.52f else 0.58f
-        val minMargin = if (isAlly) 0.020f else 0.030f
+        val minThreshold = if (isAlly) 0.50f else 0.52f
+        val minMargin = if (isAlly) 0.018f else 0.020f
 
         return when {
             bestChamp == null || bestScore < minThreshold -> {
