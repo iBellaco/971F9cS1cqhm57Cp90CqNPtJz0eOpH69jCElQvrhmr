@@ -1878,7 +1878,7 @@ fun BugReportFeedbackDialog(
 }
 
 @Composable
-private fun ChampionCatalogSelectionDialog(
+internal fun ChampionCatalogSelectionDialog(
     onDismiss: () -> Unit,
     onSelect: (Champion) -> Unit
 ) {
@@ -2004,7 +2004,7 @@ private fun ChampionCatalogSelectionDialog(
 }
 
 @Composable
-private fun ItemCatalogSelectionDialog(
+internal fun ItemCatalogSelectionDialog(
     type: String,
     excludedItemIds: Set<String> = emptySet(),
     onDismiss: () -> Unit,
@@ -2214,7 +2214,7 @@ private fun ItemCatalogSelectionDialog(
 }
 
 @Composable
-private fun RuneCatalogSelectionDialog(
+internal fun RuneCatalogSelectionDialog(
     mode: String, // "keystone", "secondary", "optional_keystone", "optional_secondary"
     excludedRuneNames: Set<String> = emptySet(),
     onDismiss: () -> Unit,
@@ -2372,7 +2372,7 @@ private fun RuneCatalogSelectionDialog(
 }
 
 @Composable
-private fun SpellCatalogSelectionDialog(
+internal fun SpellCatalogSelectionDialog(
     title: String = tr("Seleccionar Hechizo de Invocador"),
     excludedSpellNames: Set<String> = emptySet(),
     onDismiss: () -> Unit,

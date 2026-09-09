@@ -165,6 +165,9 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showPlansDialog by remember { mutableStateOf(false) }
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
+    var showCommunityCreatorsDialog by remember { mutableStateOf(false) }
+    var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
+    val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
     val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
         SubscriptionManager.isExpiringSoon()
@@ -208,6 +211,23 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showAdminDashboard) {
         com.example.ui.components.AdminDashboardDialog(
             onDismiss = { showAdminDashboard = false }
+        )
+    }
+
+    if (showCommunityCreatorsDialog) {
+        com.example.ui.components.CommunityCreatorsDialog(
+            onDismiss = { showCommunityCreatorsDialog = false },
+            onOpenBlueEssenceStore = {
+                showCommunityCreatorsDialog = false
+                showBlueEssenceStoreDialog = true
+            }
+        )
+    }
+
+    if (showBlueEssenceStoreDialog) {
+        com.example.ui.components.BlueEssenceStoreDialog(
+            profileId = activeProfile.id,
+            onDismiss = { showBlueEssenceStoreDialog = false }
         )
     }
 
@@ -561,6 +581,25 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Icon(imageVector = Icons.Filled.Palette, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Personalizar Tema", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = { showCommunityCreatorsDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurface),
+                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("👑", fontSize = 16.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    if (activeProfile.isCreator) "Taller Creador (1 Campeón) & Comunidad" else "Comunidad & Creadores (Suscripciones EA)",
+                    color = com.example.ui.theme.HextechGold,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 13.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

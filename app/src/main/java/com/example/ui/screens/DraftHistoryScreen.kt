@@ -61,6 +61,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsKabaddi
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -244,6 +245,7 @@ fun DraftHistoryScreen(
     var showCreateProfileDialog by remember { mutableStateOf(false) }
     var profileToEdit by remember { mutableStateOf<AccountProfile?>(null) }
     var showBlueEssenceStore by remember { mutableStateOf<String?>(null) }
+    var showCommunityCreatorsDialog by remember { mutableStateOf(false) }
 
     var currentHistoryTab by remember { mutableStateOf("DRAFTS") } // "DRAFTS" or "TIER_LIST"
     var searchQuery by remember { mutableStateOf("") }
@@ -690,6 +692,15 @@ fun DraftHistoryScreen(
                                     Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Text(tr("Crear Perfil"), color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(4.dp))
+                                TextButton(
+                                    onClick = { showCommunityCreatorsDialog = true },
+                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                                ) {
+                                    Icon(Icons.Default.Star, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Text(tr("Creadores"), color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                 }
                                 Spacer(modifier = Modifier.width(2.dp))
                                 IconButton(
@@ -1290,6 +1301,39 @@ fun DraftHistoryScreen(
                         Text("Tienda", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant)
+                            .clickable {
+                                showCommunityCreatorsDialog = true
+                            }
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("👑", fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = if (prof.isCreator) "Taller Creador (1 Campeón)" else "Comunidad & Creadores",
+                                    color = HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    text = "${prof.subscribersCount} / 100 suscriptores",
+                                    color = HextechCyan,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                        Text(if (prof.isCreator) "Mi Build" else "Explorar", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+
                     if (profiles.size > 1 && prof.id != "default") {
                         Spacer(modifier = Modifier.height(14.dp))
                         
@@ -1378,6 +1422,16 @@ fun DraftHistoryScreen(
         com.example.ui.components.BlueEssenceStoreDialog(
             profileId = showBlueEssenceStore!!,
             onDismiss = { showBlueEssenceStore = null }
+        )
+    }
+
+    if (showCommunityCreatorsDialog) {
+        com.example.ui.components.CommunityCreatorsDialog(
+            onDismiss = { showCommunityCreatorsDialog = false },
+            onOpenBlueEssenceStore = {
+                showCommunityCreatorsDialog = false
+                showBlueEssenceStore = activeProfileId
+            }
         )
     }
 

@@ -88,8 +88,10 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             icon = Icons.Default.WorkspacePremium,
             accentColor = Color(0xFFFFB300),
             highlights = listOf(
-                tr("Historial de drafts y estadísticas de Win Rate personal"),
-                tr("Sistema para añadir campeones a tu lista de favoritos"),
+                tr("Escáner Automático del draft"),
+                tr("Historial del draft"),
+                tr("Win Rate personal"),
+                tr("Campeones Favoritos"),
                 tr("Temas Premium"),
                 tr("Avatares Premium")
             )

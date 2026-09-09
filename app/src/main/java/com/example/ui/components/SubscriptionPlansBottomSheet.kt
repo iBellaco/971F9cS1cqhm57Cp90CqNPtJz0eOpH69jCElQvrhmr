@@ -79,22 +79,39 @@ fun SubscriptionPlansBottomSheet(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
+            val premiumFeatures = listOf(
+                FeatureItem("Escáner Automático del draft", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
+                FeatureItem("Historial del draft", true, isHighlight = true, icon = Icons.Default.Save),
+                FeatureItem("Win Rate personal", true, isHighlight = true, icon = Icons.Default.Star),
+                FeatureItem("Campeones Favoritos", true, isHighlight = true, icon = Icons.Default.Star),
+                FeatureItem("Temas Premium", true, isHighlight = true, icon = Icons.Default.Palette),
+                FeatureItem("Avatares Premium", true, isHighlight = true, icon = Icons.Default.WorkspacePremium)
+            )
+
+            // Free Card (Primero)
+            FreePlanCard(
+                title = "Plan Gratuito",
+                price = "Gratis",
+                features = listOf(
+                    FeatureItem("Acceso básico al asistente", true),
+                    FeatureItem("Escáner Automático del draft", false),
+                    FeatureItem("Historial del draft", false),
+                    FeatureItem("Win Rate personal", false),
+                    FeatureItem("Campeones Favoritos", false),
+                    FeatureItem("Temas Premium", false),
+                    FeatureItem("Avatares Premium", false)
+                )
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             // Premium Card (Mensual)
             PremiumPlanCard(
                 title = "Coach Premium (Mensual)",
-                price = "$1.00",
+                price = "$5.00",
                 period = "/ mes",
                 isPopular = false,
-                features = listOf(
-                    FeatureItem("Acceso completo al Asistente de Draft 30 días", true),
-                    FeatureItem("Descarga de recursos offline permanente", true),
-                    FeatureItem("Colección de Avatares Exclusiva completa", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardado de draft", true, isHighlight = true, icon = Icons.Default.Save),
-                    FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
-                    FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
-                ),
+                features = premiumFeatures,
                 onSubscribe = {
                     Toast.makeText(context, "Servicio de suscripción temporalmente fuera de servicio", Toast.LENGTH_LONG).show()
                 }
@@ -105,42 +122,13 @@ fun SubscriptionPlansBottomSheet(
             // Premium Anual Card
             PremiumPlanCard(
                 title = "Coach Premium (Anual)",
-                price = "$11.00",
-                period = "/ año (Normalmente $12)",
+                price = "$55.00",
+                period = "/ año",
                 isPopular = true,
-                features = listOf(
-                    FeatureItem("1 mes gratis (Ahorro del 8%)", true, isHighlight = true, icon = Icons.Default.Star),
-                    FeatureItem("Acceso completo al Asistente de Draft por 365 días", true),
-                    FeatureItem("Descarga de recursos offline", true),
-                    FeatureItem("Colección de Avatares Exclusiva", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Temas Visuales Completos por Región", true, isHighlight = true, icon = Icons.Default.Palette),
-                    FeatureItem("Partículas Mágicas (Barra de Navegación)", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
-                    FeatureItem("Guardado de draft", true, isHighlight = true, icon = Icons.Default.Save),
-                    FeatureItem("Tier list personal", true, isHighlight = true, icon = Icons.Default.Star),
-                    FeatureItem("Campeón favorito", true, isHighlight = true, icon = Icons.Default.Star)
-                ),
+                features = premiumFeatures,
                 onSubscribe = {
                     Toast.makeText(context, "Servicio de suscripción temporalmente fuera de servicio", Toast.LENGTH_LONG).show()
                 }
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Free Card (Muted)
-            FreePlanCard(
-                title = "Plan Gratuito",
-                price = "Gratis",
-                features = listOf(
-                    FeatureItem("Acceso al asistente del draft", true),
-                    FeatureItem("Descarga de recursos offline", true),
-                    FeatureItem("Avatares Comunes Gratuitos", true),
-                    FeatureItem("Colección de Avatares Premium", false),
-                    FeatureItem("Temas Visuales por Región", false),
-                    FeatureItem("Partículas Mágicas", false),
-                    FeatureItem("Guardado de draft", false),
-                    FeatureItem("Tier list personal", false),
-                    FeatureItem("Campeón favorito", false)
-                )
             )
 
             Spacer(modifier = Modifier.height(40.dp))
