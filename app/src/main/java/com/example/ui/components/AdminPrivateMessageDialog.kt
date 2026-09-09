@@ -25,7 +25,7 @@ import java.util.UUID
 enum class MessageAudienceTarget(val label: String) {
     SINGLE_USER("Este usuario"),
     ALL_USERS("Todos los usuarios"),
-    PREMIUM_ONLY("Solo Premium")
+    PREMIUM_ONLY("Solo Exclusivos")
 }
 
 @Composable

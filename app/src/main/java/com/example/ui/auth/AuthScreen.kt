@@ -731,23 +731,23 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Botón de Historial de Compras
+            // Botón de Historial de Esencia Azul
             Button(
                 onClick = { showPurchaseHistoryDialog = true },
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.8f)),
+                border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f)),
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocalActivity,
-                    contentDescription = null,
-                    tint = com.example.ui.theme.HextechGold
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_blue_essence),
+                    contentDescription = "Esencia Azul",
+                    modifier = Modifier.size(22.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Historial de Compras",
-                    color = com.example.ui.theme.HextechGold,
+                    "Historial de Esencia Azul",
+                    color = com.example.ui.theme.HextechCyan,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     fontSize = 13.5.sp
                 )

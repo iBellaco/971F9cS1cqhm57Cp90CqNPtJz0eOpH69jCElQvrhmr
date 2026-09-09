@@ -219,7 +219,7 @@ private fun ThirdPartyAgreementsContent() {
 
     PolicySection(
         title = tr("2. Proveedores de Infraestructura en la Nube"),
-        body = tr("Utilizamos infraestructura en la nube (Supabase / PostgreSQL) para la sincronización segura de perfiles, autenticación y almacenamiento de estados de suscripción, sujeta a sus estrictas normas de seguridad y cumplimiento normativo.")
+        body = tr("Utilizamos infraestructura en la nube con servidores seguros y bases de datos cifradas para la sincronización de perfiles, autenticación y almacenamiento de estados de suscripción, bajo estrictas normas de seguridad y protección de datos.")
     )
 
     PolicySection(

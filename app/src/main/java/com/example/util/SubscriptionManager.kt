@@ -244,10 +244,8 @@ object SubscriptionManager {
 
                     if (privateMsgs != null) {
                         _unreadMessagesCount.value = unreadInArray
-                    } else if (!hasUnread) {
+                    } else if (!hasUnread || (privateMsgs != null && privateMsgs.isEmpty())) {
                         _unreadMessagesCount.value = 0
-                    } else if (_unreadMessagesCount.value == 0 && hasUnread) {
-                        _unreadMessagesCount.value = 1
                     }
                 } else {
                     val isEmailAdmin = AuthManager.isCurrentUserAdmin()

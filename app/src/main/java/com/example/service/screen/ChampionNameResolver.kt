@@ -15,7 +15,11 @@ object ChampionNameResolver {
         "jungla", "duo", "dúo", "soporte", "apoyo", "tirador", "marca", "estelar", "eterna", "maestria", "maestría",
         "nivel", "combatanos", "combatamos", "juntos", "bloquear", "elegir", "seleccion", "selección", "fase",
         "ban", "bans", "auto", "scan", "activo", "asistente", "detener", "ajustes", "ajuste", "versus", "vs",
-        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "diego"
+        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "diego",
+        "destello", "flash", "castigo", "smite", "ignicion", "ignición", "ignite", "prender", "incendiar",
+        "curacion", "curación", "cura", "heal", "barrera", "barrier", "extenuacion", "extenuación", "exaustao",
+        "exaustão", "exhaust", "fantasmal", "fantasma", "ghost", "claridad", "teletransporte", "teleport",
+        "hechizo", "hechizos", "feitiço", "feitiços", "spells", "spell"
     )
 
     // Mapa exhaustivo de nombres de Wild Rift a sus IDs canónicos

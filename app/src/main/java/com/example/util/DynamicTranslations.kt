@@ -11,8 +11,6 @@ import kotlinx.coroutines.launch
 
 object DynamicTranslations {
     @Volatile
-    private var enMap: Map<String, String>? = null
-    @Volatile
     private var ptMap: Map<String, String>? = null
 
     private val scope = CoroutineScope(Dispatchers.IO + CoroutineExceptionHandler { _, t ->
@@ -20,7 +18,7 @@ object DynamicTranslations {
     })
 
     fun load(context: Context) {
-        if (enMap != null && ptMap != null) return
+        if (ptMap != null) return
         
         scope.launch {
             loadSync(context)
@@ -28,19 +26,8 @@ object DynamicTranslations {
     }
 
     fun loadSync(context: Context) {
-        if (enMap != null && ptMap != null) return
+        if (ptMap != null) return
         try {
-            if (enMap == null) {
-                val jsonStr = context.assets.open("translations_en.json").bufferedReader().use { it.readText() }
-                val json = JSONObject(jsonStr)
-                val map = mutableMapOf<String, String>()
-                val iter = json.keys()
-                while (iter.hasNext()) {
-                    val key = iter.next()
-                    map[key] = json.getString(key)
-                }
-                enMap = map
-            }
             if (ptMap == null) {
                 val jsonStr = context.assets.open("translations_pt.json").bufferedReader().use { it.readText() }
                 val json = JSONObject(jsonStr)
@@ -58,59 +45,39 @@ object DynamicTranslations {
     }
 
     fun get(lang: String, key: String): String? {
-        val staticTranslation = if (lang == "en") enMap?.get(key) else if (lang == "pt") ptMap?.get(key) else null
+        if (lang != "pt") return null
+        val staticTranslation = ptMap?.get(key)
         if (staticTranslation != null) return staticTranslation
         
-        val isEn = lang == "en"
-        
         // ----------------------------------------------------
-        // DYNAMIC REPOSITORY LOOKUP (SUPABASE LOCALIZED COLUMNS)
+        // DYNAMIC REPOSITORY LOOKUP (PORTUGUÊS EM MANUTENÇÃO)
         // ----------------------------------------------------
         val itemByName = WildRiftRepository.items.find { it.name.equals(key, ignoreCase = true) }
-        if (itemByName != null) {
-            val loc = if (isEn) itemByName.nameEn else itemByName.namePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (itemByName != null && itemByName.namePt.isNotBlank()) return itemByName.namePt
+        
         val itemByStats = WildRiftRepository.items.find { it.stats.equals(key, ignoreCase = true) }
-        if (itemByStats != null) {
-            val loc = if (isEn) itemByStats.statsEn else itemByStats.statsPt
-            if (loc.isNotBlank()) return loc
-        }
+        if (itemByStats != null && itemByStats.statsPt.isNotBlank()) return itemByStats.statsPt
+        
         val itemByPassive = WildRiftRepository.items.find { it.passive.equals(key, ignoreCase = true) }
-        if (itemByPassive != null) {
-            val loc = if (isEn) itemByPassive.passiveEn else itemByPassive.passivePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (itemByPassive != null && itemByPassive.passivePt.isNotBlank()) return itemByPassive.passivePt
+        
         val champByName = WildRiftRepository.champions.find { it.name.equals(key, ignoreCase = true) }
-        if (champByName != null) {
-            val loc = if (isEn) champByName.nameEn else champByName.namePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (champByName != null && champByName.namePt.isNotBlank()) return champByName.namePt
+        
         val champByTitle = WildRiftRepository.champions.find { it.title.equals(key, ignoreCase = true) }
-        if (champByTitle != null) {
-            val loc = if (isEn) champByTitle.titleEn else champByTitle.titlePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (champByTitle != null && champByTitle.titlePt.isNotBlank()) return champByTitle.titlePt
+        
         val runeByName = WildRiftRepository.runes.find { it.name.equals(key, ignoreCase = true) }
-        if (runeByName != null) {
-            val loc = if (isEn) runeByName.nameEn else runeByName.namePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (runeByName != null && runeByName.namePt.isNotBlank()) return runeByName.namePt
+        
         val runeByDesc = WildRiftRepository.runes.find { it.description.equals(key, ignoreCase = true) }
-        if (runeByDesc != null) {
-            val loc = if (isEn) runeByDesc.descriptionEn else runeByDesc.descriptionPt
-            if (loc.isNotBlank()) return loc
-        }
+        if (runeByDesc != null && runeByDesc.descriptionPt.isNotBlank()) return runeByDesc.descriptionPt
+        
         val spellByName = WildRiftRepository.summonerSpells.find { it.name.equals(key, ignoreCase = true) }
-        if (spellByName != null) {
-            val loc = if (isEn) spellByName.nameEn else spellByName.namePt
-            if (loc.isNotBlank()) return loc
-        }
+        if (spellByName != null && spellByName.namePt.isNotBlank()) return spellByName.namePt
+        
         val spellByDesc = WildRiftRepository.summonerSpells.find { it.description.equals(key, ignoreCase = true) }
-        if (spellByDesc != null) {
-            val loc = if (isEn) spellByDesc.descriptionEn else spellByDesc.descriptionPt
-            if (loc.isNotBlank()) return loc
-        }
+        if (spellByDesc != null && spellByDesc.descriptionPt.isNotBlank()) return spellByDesc.descriptionPt
         
         return null
     }

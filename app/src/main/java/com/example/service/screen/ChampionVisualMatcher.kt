@@ -9,27 +9,27 @@ import com.example.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Reconocedor Visual Inteligente para Campeones de Wild Rift.
- * Utilizado primordialmente para el 10º Pick (Último pick del draft)
- * cuando el juego transiciona instantáneamente a la pantalla de carga
- * y el nombre en texto deja de ser legible por OCR.
- *
- * Utiliza una combinación de:
- * 1. Histograma Cromático 3D (64 bins: 4x4x4 RGB) para invariancia posicional.
- * 2. Matriz Espacial de Color 16x16 (256 píxeles muestreados).
- * 3. Filtrado estricto de exclusión (descarta los 9 campeones ya seleccionados).
+ * Reconocedor Visual Inteligente para Campeones de Wild Rift por Similitud de Avatares.
+ * Compara recortes de pantalla del draft/pantalla de carga contra los avatares locales de campeones
+ * utilizando:
+ * 1. Enmascaramiento circular para ignorar bordes y fondos de la interfaz.
+ * 2. Matriz Espacial de Color 4x4 (16 zonas).
+ * 3. Histograma Cromático 3D (64 bins: 4x4x4 RGB).
+ * 4. Ponderación de similitud máxima relativa (Best Match) excluyendo campeones ya seleccionados.
  */
 object ChampionVisualMatcher {
     private const val TAG = "ChampionVisualMatcher"
 
     data class VisualSignature(
-        val histogram: FloatArray, // 64 bins normalizados (suma = 1.0)
-        val zoneColors: FloatArray // 9 zonas (3x3) * 3 valores RGB normalizados (0.0..1.0)
+        val histogram: FloatArray,   // 64 bins normalizados (suma = 1.0)
+        val zoneColors: FloatArray,  // 16 zonas (4x4) * 3 valores RGB normalizados (0.0..1.0)
+        val avgR: Float,             // Color promedio normalizado
+        val avgG: Float,
+        val avgB: Float
     )
 
     data class VisualMatchResult(
@@ -62,43 +62,113 @@ object ChampionVisualMatcher {
 
     private fun loadSignature(context: Context, champId: String): VisualSignature? {
         signatureCache[champId]?.let { return it }
-        return try {
-            val assetPath = "champions/$champId.png"
-            context.assets.open(assetPath).use { input ->
-                val bitmap = BitmapFactory.decodeStream(input) ?: return null
-                val signature = computeSignature(bitmap, isCroppedAvatar = false)
-                bitmap.recycle()
-                if (signature != null) {
-                    signatureCache[champId] = signature
-                }
-                signature
+
+        // Lista de posibles rutas de asset para asegurar compatibilidad con todos los nombres de archivo
+        val normalizedId = champId.lowercase().trim()
+        val candidatePaths = mutableListOf(
+            "champions/$normalizedId.png",
+            "champions/${normalizedId.replace("-", "_")}.png",
+            "champions/${normalizedId.replace("_", "")}.png",
+            "avatars/$normalizedId.png",
+            "avatars/${normalizedId.replace("-", "_")}.png"
+        )
+
+        // Aliases específicos para nombres con variantes en assets
+        when (normalizedId) {
+            "nunu_and_willump", "nunuandwillump" -> candidatePaths.add(0, "champions/nunu_willump.png")
+            "wukong", "monkeyking" -> {
+                candidatePaths.add(0, "champions/wukong.png")
+                candidatePaths.add(1, "champions/monkey_king.png")
             }
-        } catch (_: Exception) {
-            null
+            "swain", "sw_ain" -> {
+                candidatePaths.add(0, "champions/swain.png")
+                candidatePaths.add(1, "champions/sw_ain.png")
+            }
+            "drmundo", "dr_mundo" -> {
+                candidatePaths.add(0, "champions/dr_mundo.png")
+                candidatePaths.add(1, "champions/drmundo.png")
+            }
+            "jarvaniv", "jarvan_iv" -> {
+                candidatePaths.add(0, "champions/jarvan_iv.png")
+                candidatePaths.add(1, "champions/jarvaniv.png")
+            }
+            "missfortune", "miss_fortune" -> {
+                candidatePaths.add(0, "champions/miss_fortune.png")
+                candidatePaths.add(1, "champions/missfortune.png")
+            }
+            "twistedfate", "twisted_fate" -> {
+                candidatePaths.add(0, "champions/twisted_fate.png")
+                candidatePaths.add(1, "champions/twistedfate.png")
+            }
+            "xinzhao", "xin_zhao" -> {
+                candidatePaths.add(0, "champions/xin_zhao.png")
+                candidatePaths.add(1, "champions/xinzhao.png")
+            }
+            "aurelionsol", "aurelion_sol" -> {
+                candidatePaths.add(0, "champions/aurelion_sol.png")
+                candidatePaths.add(1, "champions/aurelionsol.png")
+            }
+            "ksante", "k_sante" -> {
+                candidatePaths.add(0, "champions/k_sante.png")
+                candidatePaths.add(1, "champions/ksante.png")
+            }
+            "kaisa", "kai_sa" -> {
+                candidatePaths.add(0, "champions/kai_sa.png")
+                candidatePaths.add(1, "champions/kaisa.png")
+            }
+            "chogath", "cho_gath" -> {
+                candidatePaths.add(0, "champions/cho_gath.png")
+                candidatePaths.add(1, "champions/chogath.png")
+            }
+            "velkoz", "vel_koz" -> {
+                candidatePaths.add(0, "champions/vel_koz.png")
+                candidatePaths.add(1, "champions/velkoz.png")
+            }
+            "kogmaw", "kog_maw" -> {
+                candidatePaths.add(0, "champions/kog_maw.png")
+                candidatePaths.add(1, "champions/kogmaw.png")
+            }
         }
+
+        for (path in candidatePaths.distinct()) {
+            try {
+                context.assets.open(path).use { input ->
+                    val bitmap = BitmapFactory.decodeStream(input)
+                    if (bitmap != null) {
+                        val signature = computeSignature(bitmap, isCroppedAvatar = false)
+                        bitmap.recycle()
+                        if (signature != null) {
+                            signatureCache[champId] = signature
+                            return signature
+                        }
+                    }
+                }
+            } catch (_: Exception) {
+                // Probar siguiente ruta candidata
+            }
+        }
+        return null
     }
 
     /**
-     * Calcula la firma visual (histograma cromático + perfil 3x3 de zonas de color) de una imagen.
-     * Ambas imágenes (asset del juego y captura de pantalla) se recortan al área central interior (70%)
-     * para coincidir exactamente con el contenido facial/corporal inscrito en el círculo,
-     * descartando marcos hexagonales, dorados, sombras o fondos oscuros del HUD.
+     * Calcula la firma visual utilizando un enmascaramiento circular centrado
+     * para aislar el retrato del campeón de cualquier borde o fondo cuadrado.
      */
     fun computeSignature(bitmap: Bitmap, isCroppedAvatar: Boolean): VisualSignature? {
-        if (bitmap.isRecycled || bitmap.width < 16 || bitmap.height < 16) return null
+        if (bitmap.isRecycled || bitmap.width < 12 || bitmap.height < 12) return null
 
         val w = bitmap.width
         val h = bitmap.height
 
-        // Tomar el área central (70%) para aislar el círculo del avatar e ignorar marcos o biseles externos
-        val marginRatio = if (isCroppedAvatar) 0.16f else 0.12f
+        // Margen de seguridad: 14% para recortes de pantalla, 10% para avatares directos
+        val marginRatio = if (isCroppedAvatar) 0.14f else 0.10f
         val startX = (w * marginRatio).toInt()
         val endX = (w * (1.0f - marginRatio)).toInt()
         val startY = (h * marginRatio).toInt()
         val endY = (h * (1.0f - marginRatio)).toInt()
 
-        val cropW = (endX - startX).coerceAtLeast(16)
-        val cropH = (endY - startY).coerceAtLeast(16)
+        val cropW = (endX - startX).coerceAtLeast(12)
+        val cropH = (endY - startY).coerceAtLeast(12)
 
         val workingBmp = try {
             Bitmap.createBitmap(bitmap, startX, startY, cropW, cropH)
@@ -106,12 +176,12 @@ object ChampionVisualMatcher {
             return null
         }
 
-        // Redimensionar a 24x24 para análisis estandarizado de zonas 3x3 (cada bloque es de 8x8 px)
+        // Redimensionar a 32x32 para muestreo estandarizado en 4x4 zonas (cada zona es de 8x8 px)
         val scaled = try {
-            if (workingBmp.width == 24 && workingBmp.height == 24) {
+            if (workingBmp.width == 32 && workingBmp.height == 32) {
                 workingBmp
             } else {
-                Bitmap.createScaledBitmap(workingBmp, 24, 24, true)
+                Bitmap.createScaledBitmap(workingBmp, 32, 32, true)
             }
         } catch (_: Exception) {
             if (workingBmp != bitmap) workingBmp.recycle()
@@ -122,70 +192,96 @@ object ChampionVisualMatcher {
             workingBmp.recycle()
         }
 
-        val totalPixels = 24 * 24 // 576
+        val totalPixels = 32 * 32 // 1024 píxeles
         val pixels = IntArray(totalPixels)
-        scaled.getPixels(pixels, 0, 24, 0, 0, 24, 24)
+        scaled.getPixels(pixels, 0, 32, 0, 0, 32, 32)
 
         if (scaled != bitmap) {
             scaled.recycle()
         }
 
-        // 1. Histograma 4x4x4 = 64 bins cromáticos
         val hist = FloatArray(64)
+        val zoneColors = FloatArray(16 * 3) // 4x4 = 16 zonas
+        val zoneCounts = IntArray(16)
 
-        // 2. Perfil de 9 Zonas (3x3 bloques de 8x8 píxeles cada uno)
-        // Cada zona acumula la media de (R, G, B) normalizada (0.0..1.0)
-        val zoneColors = FloatArray(9 * 3)
-        val zoneCounts = IntArray(9)
+        var totalR = 0.0f
+        var totalG = 0.0f
+        var totalB = 0.0f
+        var validMaskPixels = 0
 
-        for (y in 0 until 24) {
-            val zoneY = (y / 8).coerceIn(0, 2)
-            for (x in 0 until 24) {
-                val zoneX = (x / 8).coerceIn(0, 2)
-                val zoneIdx = zoneY * 3 + zoneX
+        val center = 15.5f
+        val maxRadius = 15.0f
 
-                val c = pixels[y * 24 + x]
+        for (y in 0 until 32) {
+            val dy = y - center
+            val zoneY = (y / 8).coerceIn(0, 3)
+
+            for (x in 0 until 32) {
+                val dx = x - center
+                val dist = sqrt(dx * dx + dy * dy)
+
+                // Enmascaramiento circular: ignorar esquinas fuera del radio del avatar
+                if (dist > maxRadius) continue
+
+                val zoneX = (x / 8).coerceIn(0, 3)
+                val zoneIdx = zoneY * 4 + zoneX
+
+                val c = pixels[y * 32 + x]
                 val r = Color.red(c)
                 val g = Color.green(c)
                 val b = Color.blue(c)
 
-                // Binning cromático 4x4x4
+                // Binning cromático 4x4x4 (64 bins)
                 val rBin = (r / 64).coerceIn(0, 3)
                 val gBin = (g / 64).coerceIn(0, 3)
                 val bBin = (b / 64).coerceIn(0, 3)
                 val binIdx = rBin * 16 + gBin * 4 + bBin
                 hist[binIdx] += 1.0f
 
-                // Acumular para media de la zona
-                zoneColors[zoneIdx * 3] += (r / 255.0f)
-                zoneColors[zoneIdx * 3 + 1] += (g / 255.0f)
-                zoneColors[zoneIdx * 3 + 2] += (b / 255.0f)
+                val normR = r / 255.0f
+                val normG = g / 255.0f
+                val normB = b / 255.0f
+
+                zoneColors[zoneIdx * 3] += normR
+                zoneColors[zoneIdx * 3 + 1] += normG
+                zoneColors[zoneIdx * 3 + 2] += normB
                 zoneCounts[zoneIdx]++
+
+                totalR += normR
+                totalG += normG
+                totalB += normB
+                validMaskPixels++
             }
         }
 
+        if (validMaskPixels == 0) return null
+
         // Normalizar histograma
+        val normFactor = validMaskPixels.toFloat()
         for (k in 0 until 64) {
-            hist[k] = hist[k] / totalPixels.toFloat()
+            hist[k] = hist[k] / normFactor
         }
 
-        // Promediar colores de cada una de las 9 zonas
-        for (z in 0 until 9) {
+        // Promediar colores de cada zona espacial
+        for (z in 0 until 16) {
             val cnt = zoneCounts[z].coerceAtLeast(1).toFloat()
             zoneColors[z * 3] /= cnt
             zoneColors[z * 3 + 1] /= cnt
             zoneColors[z * 3 + 2] /= cnt
         }
 
-        return VisualSignature(hist, zoneColors)
+        return VisualSignature(
+            histogram = hist,
+            zoneColors = zoneColors,
+            avgR = totalR / normFactor,
+            avgG = totalG / normFactor,
+            avgB = totalB / normFactor
+        )
     }
 
     /**
-     * Identifica el campeón correspondiente a un recorte de pantalla (ROI de avatar o carga).
-     * @param context Contexto de Android para acceso a assets.
-     * @param avatarCrop Bitmap recortado de la región del avatar del 10º pick.
-     * @param candidates Lista completa de campeones disponibles.
-     * @param excludedChampionIds IDs de campeones ya fijados en la partida (9 campeones).
+     * Identifica el campeón con mayor similitud visual comparando contra las imágenes de avatares disponibles.
+     * Retorna el campeón que tenga más similitud entre los candidatos elegibles (no seleccionados).
      */
     fun matchChampion(
         context: Context,
@@ -193,9 +289,9 @@ object ChampionVisualMatcher {
         candidates: List<Champion>,
         excludedChampionIds: Set<String> = emptySet()
     ): VisualMatchResult? {
-        if (avatarCrop.isRecycled || avatarCrop.width < 16 || avatarCrop.height < 16) return null
+        if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
 
-        // Verificar si la región tiene contenido visual válido (evitar slots vacíos o negros)
+        // Verificar si la región tiene contenido visual válido (no un slot negro o vacío)
         val w = avatarCrop.width
         val h = avatarCrop.height
         val sampleStepX = (w / 8).coerceAtLeast(1)
@@ -219,41 +315,48 @@ object ChampionVisualMatcher {
         val avgLum = if (samples > 0) sumLum / samples else 0
         val contrast = maxLum - minLum
 
-        // Si la región es casi negra o sin contraste, está vacía
-        if (avgLum < 18 || contrast < 20) {
+        // Si la región es completamente negra y carece de contraste, no hay avatar
+        if (avgLum < 12 || contrast < 14) {
             return null
         }
 
         val targetSignature = computeSignature(avatarCrop, isCroppedAvatar = true) ?: return null
 
         var bestChamp: Champion? = null
-        var bestScore = 0.0f
+        var bestScore = -1.0f
 
         val eligibleCandidates = candidates.filter { it.id !in excludedChampionIds }
+        if (eligibleCandidates.isEmpty()) return null
 
         for (champ in eligibleCandidates) {
             val candidateSig = signatureCache[champ.id] ?: loadSignature(context, champ.id)
             if (candidateSig == null) continue
 
-            // 1. Similaridad de Histograma (Intersección normalizada)
+            // 1. Similitud de Histograma (Intersección normalizada)
             var histSim = 0.0f
             for (i in 0 until 64) {
                 histSim += min(targetSignature.histogram[i], candidateSig.histogram[i])
             }
 
-            // 2. Similaridad Espacial de Zonas 3x3 (Invariante a pequeños desplazamientos)
+            // 2. Similitud Espacial 4x4 (16 zonas)
             var zoneDiffSum = 0.0f
-            for (z in 0 until 9) {
+            for (z in 0 until 16) {
                 val dr = targetSignature.zoneColors[z * 3] - candidateSig.zoneColors[z * 3]
                 val dg = targetSignature.zoneColors[z * 3 + 1] - candidateSig.zoneColors[z * 3 + 1]
                 val db = targetSignature.zoneColors[z * 3 + 2] - candidateSig.zoneColors[z * 3 + 2]
                 zoneDiffSum += sqrt((dr * dr + dg * dg + db * db) / 3.0f)
             }
-            val avgZoneDiff = zoneDiffSum / 9.0f
+            val avgZoneDiff = zoneDiffSum / 16.0f
             val zoneSim = (1.0f - avgZoneDiff).coerceIn(0.0f, 1.0f)
 
-            // Puntuación combinada ponderada: 50% distribución de colores, 50% zonas espaciales
-            val combinedScore = 0.50f * histSim + 0.50f * zoneSim
+            // 3. Similitud de Color Global Promedio
+            val drAvg = targetSignature.avgR - candidateSig.avgR
+            val dgAvg = targetSignature.avgG - candidateSig.avgG
+            val dbAvg = targetSignature.avgB - candidateSig.avgB
+            val dominantColorSim = (1.0f - sqrt((drAvg * drAvg + dgAvg * dgAvg + dbAvg * dbAvg) / 3.0f)).coerceIn(0.0f, 1.0f)
+
+            // Puntuación combinada de similitud relativa
+            val combinedScore = 0.45f * histSim + 0.45f * zoneSim + 0.10f * dominantColorSim
 
             if (combinedScore > bestScore) {
                 bestScore = combinedScore
@@ -261,12 +364,12 @@ object ChampionVisualMatcher {
             }
         }
 
-        if (bestChamp != null && bestScore >= 0.44f) {
-            AppLogger.d(TAG, "Match visual detectado: ${bestChamp.name} (Confianza: ${(bestScore * 100).toInt()}%)")
+        if (bestChamp != null && bestScore >= 0.20f) {
+            AppLogger.d(TAG, "Mayor similitud visual encontrada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%)")
             return VisualMatchResult(
                 champion = bestChamp,
                 confidence = bestScore,
-                isConfident = bestScore >= 0.55f
+                isConfident = bestScore >= 0.35f
             )
         }
 

@@ -92,8 +92,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 tr("Historial del draft"),
                 tr("Win Rate personal"),
                 tr("Campeones Favoritos"),
-                tr("Temas Premium"),
-                tr("Avatares Premium")
+                tr("Temas Exclusivos"),
+                tr("Avatares Exclusivos")
             )
         )
     )

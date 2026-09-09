@@ -663,8 +663,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     floatingParams!!.x = currentX.coerceIn(0, maxX)
                     floatingParams!!.y = currentY.coerceIn(0, maxY)
                     try {
-                        windowManager?.updateViewLayout(floatingComposeView, floatingParams)
-                        updateOverlayRect(floatingParams!!, isOverlayExpanded)
+                        if (floatingComposeView?.isAttachedToWindow == true) {
+                            windowManager?.updateViewLayout(floatingComposeView, floatingParams)
+                            updateOverlayRect(floatingParams!!, isOverlayExpanded)
+                        }
                     } catch (eLayout: Throwable) {
                         AppLogger.w("FloatingService", "Error actualizando layout tras rotación: ${eLayout.message}")
                     }
@@ -2534,16 +2536,6 @@ private fun OverlayVersusDraftBoard(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
-                                    if (allySlot.spells.isNotEmpty()) {
-                                        Text(
-                                            text = allySlot.spells.joinToString(", "),
-                                            color = HextechGold.copy(alpha = 0.9f),
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1, softWrap = false,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
                                     // Línea 3: Estadísticas ordenadas (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -2663,17 +2655,6 @@ private fun OverlayVersusDraftBoard(
                                             color = TextSecondary,
                                             fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Medium,
-                                            maxLines = 1, softWrap = false,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                    if (enemySlot.spells.isNotEmpty()) {
-                                        Text(
-                                            text = enemySlot.spells.joinToString(", "),
-                                            color = HextechGold.copy(alpha = 0.9f),
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.SemiBold,
                                             maxLines = 1, softWrap = false,
                                             overflow = TextOverflow.Ellipsis,
                                             textAlign = TextAlign.End

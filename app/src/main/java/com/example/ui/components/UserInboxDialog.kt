@@ -108,6 +108,11 @@ fun UserInboxDialog(
                     "hasUnreadMessages", remainingUnread > 0,
                     "unreadMessagesCount", remainingUnread
                 )
+            } else {
+                uRef.update(
+                    "hasUnreadMessages", false,
+                    "unreadMessagesCount", 0
+                )
             }
         }
     }

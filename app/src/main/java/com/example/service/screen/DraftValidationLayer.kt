@@ -23,7 +23,14 @@ object DraftValidationLayer {
         "combatamos", "juntos", "excelente", "composicion", "composición", "oponentes",
         "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando",
         "fijar", "preseleccion", "preselección", "fase", "bloqueando", "maestria", "maestría",
-        "nivel", "lvl", "lv", "puntos", "pts", "pnt", "rango", "insignia", "emblema"
+        "nivel", "lvl", "lv", "puntos", "pts", "pnt", "rango", "insignia", "emblema",
+        // Hechizos de Invocador (ES, EN, PT) para evitar que aparezcan como nombres o texto en el Hub
+        "destello", "flash", "castigo", "smite", "golpe", "ignicion", "ignición", "ignite", "incendiar",
+        "fantasmal", "ghost", "fantasma", "barrera", "barrier", "curacion", "curación", "heal", "curar", "cura",
+        "extenuacion", "extenuación", "exhaust", "exaustao", "exaustão", "claridad", "clarity",
+        "purificacion", "purificación", "cleanse", "purificar", "teleport", "teletransporte", "teleportacion",
+        "teleportación", "nieve", "mark", "dash", "snowball", "golpear", "aplastamiento", "hechizo", "hechizos",
+        "spells", "spell", "feitiço", "feitiços"
     )
 
     fun isNoiseText(text: String): Boolean {

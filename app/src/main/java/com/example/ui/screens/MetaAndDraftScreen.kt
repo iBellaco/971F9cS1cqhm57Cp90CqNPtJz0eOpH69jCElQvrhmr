@@ -4964,18 +4964,20 @@ fun TierSelectionPanel(
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
     ) {
         Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
-            // REGION SELECTION PILLS
+            // CABECERA OFICIAL TIER LIST GLOBAL, NA Y ASIÁTICA
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "🌐 " + tr("Servidor / Meta:"),
-                    color = HextechGold,
-                    fontSize = if (isOverlay) 10.5.sp else 11.5.sp,
-                    fontWeight = FontWeight.Black
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "🌐 " + tr("Tier List Global, NA y Asiática"),
+                        color = HextechGold,
+                        fontSize = if (isOverlay) 11.sp else 12.5.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
@@ -4994,17 +4996,20 @@ fun TierSelectionPanel(
 
             Spacer(modifier = Modifier.height(if (isOverlay) 6.dp else 8.dp))
 
+            // SELECTOR DE REGIONES: GLOBAL, NA Y ASIÁTICA
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp)
             ) {
                 val regionItems = listOf(
-                    Triple("CN", if (isOverlay) "CN" else "Servidor Chino", if (isOverlay) "Tencent" else "API Tencent"),
-                    Triple("Global", if (isOverlay) "Global" else "Global", if (isOverlay) "Live" else "Meta Live"),
-                    Triple("NA", if (isOverlay) "NA" else "América (NA)", if (isOverlay) "Cache" else "Local Cache")
+                    Triple("Global", if (isOverlay) "Global" else "Tier List Global", if (isOverlay) "Live" else "Meta Mundial"),
+                    Triple("NA", if (isOverlay) "NA" else "Tier List NA", if (isOverlay) "Norteamérica" else "América (NA)"),
+                    Triple("CN", if (isOverlay) "Asiática" else "Tier List Asiática", if (isOverlay) "Tencent" else "Servidor Chino")
                 )
                 regionItems.forEach { (regionId, label, sub) ->
-                    val isSelected = currentRegion == regionId || (regionId == "Global" && currentRegion == "BestBuildWR")
+                    val isSelected = (regionId == "CN" && currentRegion == "CN") ||
+                                     (regionId == "NA" && currentRegion == "NA") ||
+                                     (regionId == "Global" && (currentRegion == "Global" || currentRegion == "BestBuildWR"))
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -5031,7 +5036,7 @@ fun TierSelectionPanel(
                             Text(
                                 text = tr(label),
                                 color = if (isSelected) HextechGold else TextMuted,
-                                fontSize = 9.5.sp,
+                                fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
                                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 maxLines = 1
@@ -5039,7 +5044,7 @@ fun TierSelectionPanel(
                             Text(
                                 text = sub,
                                 color = if (isSelected) HextechCyan else TextMuted,
-                                fontSize = 8.sp,
+                                fontSize = 7.5.sp,
                                 fontWeight = FontWeight.Normal
                             )
                         }
@@ -5048,6 +5053,59 @@ fun TierSelectionPanel(
             }
             
             Spacer(modifier = Modifier.height(8.dp))
+
+            // MÓDULOS TÁCTICOS DESTACADOS (Identificación de Mejores Pick, Análisis, Coach, Wombo Combos, etc.)
+            if (!isOverlay) {
+                val tacticalModules = listOf(
+                    "🎯 Identificación de Mejores Pick",
+                    "⚔️ Análisis de enfrentamiento",
+                    "🛡️ Coach Élite y Draft",
+                    "⭐ Recomendador de mejor pick",
+                    "💥 Wombo Combos",
+                    "⚖️ Balance de daño aliado y rival",
+                    "🏆 Condición de Victoria"
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechDarkBg.copy(alpha = 0.6f))
+                        .border(0.5.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "⚡ " + tr("Módulos de Análisis Táctico Oficial:"),
+                        color = HextechCyan,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        tacticalModules.forEach { module ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                                    .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 6.dp, vertical = 3.dp)
+                            ) {
+                                Text(
+                                    text = tr(module),
+                                    color = HextechGold,
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             
             // METALLIC TIER RANK BADGES (Challenger, Master, Diamond, Emerald)
             AnimatedVisibility(visible = currentRegion == "CN") {

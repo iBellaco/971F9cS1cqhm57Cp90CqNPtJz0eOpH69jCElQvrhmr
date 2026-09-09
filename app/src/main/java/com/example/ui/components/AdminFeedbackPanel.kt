@@ -824,7 +824,7 @@ fun AdminFeedbackBottomSheet(
             text = {
                 Column {
                     Text(
-                        text = tr("Esta acción borrará permanentemente de Supabase el reporte:"),
+                        text = tr("Esta acción borrará permanentemente del servidor el reporte:"),
                         color = TextSecondary,
                         fontSize = 13.sp
                     )

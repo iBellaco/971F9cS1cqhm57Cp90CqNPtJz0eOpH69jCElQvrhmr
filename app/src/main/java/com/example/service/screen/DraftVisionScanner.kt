@@ -742,12 +742,10 @@ object DraftVisionScanner {
 
         val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
 
-        // RECONOCIMIENTO VISUAL: Exclusivamente como soporte para el 10º pick cuando ya hay 9 picks confirmados por OCR
-        // para evitar inventar campeones o falsos positivos en slots vacíos / no seleccionados
+        // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN (Para el último pick o slots sin texto OCR)
         if (context != null) {
-            val totalConfirmedOcr = (allySlots + enemySlots).count { it.champion != null }
-            val emptySlots = (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
-            if (totalConfirmedOcr == 9 && emptySlots.size == 1) {
+            val emptySlots = (allySlots + enemySlots).filter { it.champion == null }
+            if (emptySlots.isNotEmpty()) {
                 val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
 
                 for (targetSlot in emptySlots) {
@@ -766,7 +764,7 @@ object DraftVisionScanner {
                         val match = ChampionVisualMatcher.matchChampion(context, avatarCrop, allChamps, alreadyPickedIds)
                         avatarCrop.recycle()
 
-                        if (match != null && match.confidence >= 0.70f) {
+                        if (match != null) {
                             targetSlot.champion = match.champion
                             targetSlot.confidencePercent = (match.confidence * 100).toInt()
                             targetSlot.isLikelyUnpicked = false
@@ -782,8 +780,8 @@ object DraftVisionScanner {
                             isLastPickVisualRecognized = true
                             lastPickVisualChampion = match.champion
                             val side = if (targetSlot.isAlly) "Aliado" else "Rival"
-                            auditList.add("🎯 Slot $side ${targetSlot.slotIndex} detectado por Imagen: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
-                            AppLogger.d(TAG, "Reconocimiento visual en $side ${targetSlot.slotIndex}: ${match.champion.name}")
+                            auditList.add("🎯 Slot $side ${targetSlot.slotIndex} detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
+                            AppLogger.d(TAG, "Reconocimiento por similitud en $side ${targetSlot.slotIndex}: ${match.champion.name}")
                         }
                     } catch (e: Exception) {
                         AppLogger.e(TAG, "Error en reconocimiento visual del slot ${targetSlot.slotIndex}", e)

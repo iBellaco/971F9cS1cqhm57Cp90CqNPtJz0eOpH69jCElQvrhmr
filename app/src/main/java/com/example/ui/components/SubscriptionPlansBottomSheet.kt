@@ -85,8 +85,8 @@ fun SubscriptionPlansBottomSheet(
                 FeatureItem("Historial del draft", true, isHighlight = true, icon = Icons.Default.Save),
                 FeatureItem("Win Rate personal", true, isHighlight = true, icon = Icons.Default.Star),
                 FeatureItem("Campeones Favoritos", true, isHighlight = true, icon = Icons.Default.Star),
-                FeatureItem("Temas Premium", true, isHighlight = true, icon = Icons.Default.Palette),
-                FeatureItem("Avatares Premium", true, isHighlight = true, icon = Icons.Default.WorkspacePremium)
+                FeatureItem("Temas Exclusivos", true, isHighlight = true, icon = Icons.Default.Palette),
+                FeatureItem("Avatares Exclusivos", true, isHighlight = true, icon = Icons.Default.WorkspacePremium)
             )
 
             // Free Card (Primero)
@@ -99,8 +99,8 @@ fun SubscriptionPlansBottomSheet(
                     FeatureItem("Historial del draft", false),
                     FeatureItem("Win Rate personal", false),
                     FeatureItem("Campeones Favoritos", false),
-                    FeatureItem("Temas Premium", false),
-                    FeatureItem("Avatares Premium", false)
+                    FeatureItem("Temas Exclusivos", false),
+                    FeatureItem("Avatares Exclusivos", false)
                 )
             )
 
