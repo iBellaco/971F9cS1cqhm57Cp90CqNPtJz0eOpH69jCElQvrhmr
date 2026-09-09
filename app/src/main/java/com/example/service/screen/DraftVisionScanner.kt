@@ -203,11 +203,20 @@ object DraftVisionScanner {
                     val text = line.text.trim()
                     if (text.isBlank()) continue
 
-                    // Detección automática de Primera / Segunda Selección por texto y ubicación espacial
+                    val box = line.boundingBox
+                    if (box != null && overlayRect != null) {
+                        if (android.graphics.Rect.intersects(box, overlayRect!!)) {
+                            continue // Ignorar texto que cae dentro de la ventana flotante
+                        }
+                    }
+
+                    val centerY = box?.centerY() ?: 0
+                    val centerX = box?.centerX() ?: 0
+                    val xRatio = if (width > 0) centerX.toFloat() / width.toFloat() else 0.5f
+                    val yRatio = if (height > 0) centerY.toFloat() / height.toFloat() else 0.5f
+
+                    // Detección automática de Primera / Segunda Selección por texto y ubicación espacial superior
                     val textNorm = DraftValidationLayer.normalize(text)
-                    val lineBox = line.boundingBox
-                    val lineCenterX = lineBox?.centerX() ?: 0
-                    val lineXRatio = if (width > 0) lineCenterX.toFloat() / width.toFloat() else 0.5f
 
                     val hasPrimera = textNorm.contains("primera eleccion") || textNorm.contains("primera seleccion") ||
                                      textNorm.contains("primer pick") || textNorm.contains("first pick") ||
@@ -225,26 +234,27 @@ object DraftVisionScanner {
                                      textNorm.contains("2.a seleccion") || textNorm.contains("2.ª seleccion") ||
                                      textNorm.contains("segunda escolha") || textNorm.contains("segunda selecao")
 
-                    if (detectedFirstPick == null) {
+                    // Solo detectar en la cabecera superior extrema donde aparecen los banners oficiales
+                    if (yRatio < 0.20f && (xRatio < 0.35f || xRatio > 0.65f)) {
                         if (hasPrimera) {
-                            if (lineXRatio > 0.50f) {
+                            if (xRatio > 0.50f) {
                                 // Insignia en mitad derecha (equipo rival) -> Rival tiene 1º Pick -> Aliados son 2º Pick
                                 detectedFirstPick = false
-                                AppLogger.d(TAG, "OCR Primera Selección detectada en lado RIVAL (lineXRatio=$lineXRatio) -> Aliados = Segunda Selección")
+                                AppLogger.d(TAG, "OCR Primera Selección detectada en lado RIVAL (xRatio=$xRatio) -> Aliados = Segunda Selección")
                             } else {
                                 // Insignia en mitad izquierda (equipo aliado) -> Aliados tienen 1º Pick
                                 detectedFirstPick = true
-                                AppLogger.d(TAG, "OCR Primera Selección detectada en lado ALIADO (lineXRatio=$lineXRatio) -> Aliados = Primera Selección")
+                                AppLogger.d(TAG, "OCR Primera Selección detectada en lado ALIADO (xRatio=$xRatio) -> Aliados = Primera Selección")
                             }
                         } else if (hasSegunda) {
-                            if (lineXRatio > 0.50f) {
+                            if (xRatio > 0.50f) {
                                 // Insignia de 2ª Selección en mitad derecha (rival) -> Rival es 2º Pick -> Aliados son 1º Pick
                                 detectedFirstPick = true
-                                AppLogger.d(TAG, "OCR Segunda Selección detectada en lado RIVAL (lineXRatio=$lineXRatio) -> Aliados = Primera Selección")
+                                AppLogger.d(TAG, "OCR Segunda Selección detectada en lado RIVAL (xRatio=$xRatio) -> Aliados = Primera Selección")
                             } else {
                                 // Insignia de 2ª Selección en mitad izquierda (aliado) -> Aliados son 2º Pick
                                 detectedFirstPick = false
-                                AppLogger.d(TAG, "OCR Segunda Selección detectada en lado ALIADO (lineXRatio=$lineXRatio) -> Aliados = Segunda Selección")
+                                AppLogger.d(TAG, "OCR Segunda Selección detectada en lado ALIADO (xRatio=$xRatio) -> Aliados = Segunda Selección")
                             }
                         }
                     }
@@ -261,17 +271,7 @@ object DraftVisionScanner {
                         text.contains("Diagnóstico", ignoreCase = true) || text.contains("Diagnostico", ignoreCase = true) ||
                         text.contains("Score", ignoreCase = true) || text.matches(Regex(".*\\b\\d+\\.\\d+\\b.*"))) continue
                     
-                    val box = line.boundingBox
-                    if (box != null && overlayRect != null) {
-                        if (android.graphics.Rect.intersects(box, overlayRect!!)) {
-                            continue // Ignorar texto que cae dentro de la ventana flotante
-                        }
-                    }
-                    
                     detectedWords.add(text)
-                    val centerY = box?.centerY() ?: 0
-                    val centerX = box?.centerX() ?: 0
-                    val xRatio = centerX.toFloat() / width.toFloat()
                     val leftRatio = (box?.left ?: centerX).toFloat() / width.toFloat()
                     val rightRatio = (box?.right ?: centerX).toFloat() / width.toFloat()
 
@@ -742,11 +742,12 @@ object DraftVisionScanner {
 
         val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
 
-        // RECONOCIMIENTO VISUAL ULTRA-RÁPIDO Y PRECISO
-        // Escanea slots sin campeón detectado por OCR (por selecciones muy rápidas o en el 10º pick del draft)
+        // RECONOCIMIENTO VISUAL: Exclusivamente como soporte para el 10º pick cuando ya hay 9 picks confirmados por OCR
+        // para evitar inventar campeones o falsos positivos en slots vacíos / no seleccionados
         if (context != null) {
-            val emptySlots = (allySlots + enemySlots).filter { it.champion == null }
-            if (emptySlots.isNotEmpty()) {
+            val totalConfirmedOcr = (allySlots + enemySlots).count { it.champion != null }
+            val emptySlots = (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
+            if (totalConfirmedOcr == 9 && emptySlots.size == 1) {
                 val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
 
                 for (targetSlot in emptySlots) {
@@ -765,7 +766,7 @@ object DraftVisionScanner {
                         val match = ChampionVisualMatcher.matchChampion(context, avatarCrop, allChamps, alreadyPickedIds)
                         avatarCrop.recycle()
 
-                        if (match != null) {
+                        if (match != null && match.confidence >= 0.70f) {
                             targetSlot.champion = match.champion
                             targetSlot.confidencePercent = (match.confidence * 100).toInt()
                             targetSlot.isLikelyUnpicked = false

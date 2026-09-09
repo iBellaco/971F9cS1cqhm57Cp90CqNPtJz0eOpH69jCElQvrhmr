@@ -52,7 +52,7 @@ fun UserInboxDialog(
                 isLoading = false
             }
 
-        // 2. Escuchar campo privateMessages en el documento del usuario (por si las reglas de subcolección bloquearon o viceversa)
+        // 2. Escuchar campo privateMessages en el documento del usuario
         userDoc.addSnapshotListener { snapshot, error ->
             if (error == null && snapshot != null && snapshot.exists()) {
                 @Suppress("UNCHECKED_CAST")
@@ -77,6 +77,84 @@ fun UserInboxDialog(
             all[id] = m
         }
         all.values.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
+    }
+
+    // Si la bandeja está vacía y se terminó de cargar, limpiar automáticamente el badge pendiente en Firestore
+    LaunchedEffect(isLoading, messages.isEmpty()) {
+        if (!isLoading && messages.isEmpty()) {
+            val db = FirebaseFirestore.getInstance()
+            val uRef = db.collection("users").document(userUid)
+            uRef.update(
+                "hasUnreadMessages", false,
+                "unreadMessagesCount", 0
+            )
+        }
+    }
+
+    fun markMessageAsRead(id: String) {
+        val db = FirebaseFirestore.getInstance()
+        val uRef = db.collection("users").document(userUid)
+        uRef.collection("messages").document(id).update("isRead", true)
+        uRef.get().addOnSuccessListener { snap ->
+            @Suppress("UNCHECKED_CAST")
+            val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+            if (pMsgs != null) {
+                val updated = pMsgs.map { m ->
+                    if (m["id"] == id) m.toMutableMap().apply { put("isRead", true) } else m
+                }
+                val remainingUnread = updated.count { (it["isRead"] as? Boolean) == false }
+                uRef.update(
+                    "privateMessages", updated,
+                    "hasUnreadMessages", remainingUnread > 0,
+                    "unreadMessagesCount", remainingUnread
+                )
+            }
+        }
+    }
+
+    fun markAllAsRead() {
+        val db = FirebaseFirestore.getInstance()
+        val uRef = db.collection("users").document(userUid)
+        for (m in messages) {
+            val id = m["id"] as? String ?: continue
+            uRef.collection("messages").document(id).update("isRead", true)
+        }
+        uRef.get().addOnSuccessListener { snap ->
+            @Suppress("UNCHECKED_CAST")
+            val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+            val updated = pMsgs?.map { m ->
+                m.toMutableMap().apply { put("isRead", true) }
+            } ?: emptyList()
+            uRef.update(
+                "privateMessages", updated,
+                "hasUnreadMessages", false,
+                "unreadMessagesCount", 0
+            )
+        }
+    }
+
+    fun deleteMessage(id: String) {
+        val db = FirebaseFirestore.getInstance()
+        val uRef = db.collection("users").document(userUid)
+        uRef.collection("messages").document(id).delete()
+        uRef.get().addOnSuccessListener { snap ->
+            @Suppress("UNCHECKED_CAST")
+            val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+            if (pMsgs != null) {
+                val updated = pMsgs.filter { it["id"] != id }
+                val remainingUnread = updated.count { (it["isRead"] as? Boolean) == false }
+                uRef.update(
+                    "privateMessages", updated,
+                    "hasUnreadMessages", remainingUnread > 0,
+                    "unreadMessagesCount", remainingUnread
+                )
+            } else {
+                uRef.update(
+                    "hasUnreadMessages", false,
+                    "unreadMessagesCount", 0
+                )
+            }
+        }
     }
 
     Dialog(
@@ -106,6 +184,31 @@ fun UserInboxDialog(
                         Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
                     }
                 }
+
+                val unreadCount = messages.count { (it["isRead"] as? Boolean) == false }
+                if (messages.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            if (unreadCount > 0) "$unreadCount no leído(s)" else "Todos leídos",
+                            color = if (unreadCount > 0) Color(0xFF38BDF8) else Color.Gray,
+                            fontSize = 12.sp
+                        )
+                        if (unreadCount > 0) {
+                            TextButton(
+                                onClick = { markAllAsRead() },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Icon(Icons.Default.MarkEmailRead, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Marcar todos leídos", color = Color(0xFF38BDF8), fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
                 
                 Divider(color = Color(0xFF1E293B))
                 Spacer(modifier = Modifier.height(8.dp))
@@ -116,7 +219,11 @@ fun UserInboxDialog(
                     }
                 } else if (messages.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No tienes mensajes nuevos.", color = Color.Gray)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Message, contentDescription = null, tint = Color.DarkGray, modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("No tienes mensajes en tu bandeja.", color = Color.Gray, fontSize = 14.sp)
+                        }
                     }
                 } else {
                     LazyColumn(
@@ -132,25 +239,6 @@ fun UserInboxDialog(
                             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                             val dateStr = sdf.format(Date(timestamp))
 
-                            LaunchedEffect(isRead) {
-                                if (!isRead) {
-                                    val db = FirebaseFirestore.getInstance()
-                                    val uRef = db.collection("users").document(userUid)
-                                    uRef.collection("messages").document(id)
-                                        .update("isRead", true)
-                                    uRef.get().addOnSuccessListener { snap ->
-                                        @Suppress("UNCHECKED_CAST")
-                                        val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
-                                        if (pMsgs != null) {
-                                            val updated = pMsgs.map { m ->
-                                                if (m["id"] == id) m.toMutableMap().apply { put("isRead", true) } else m
-                                            }
-                                            uRef.update("privateMessages", updated, "hasUnreadMessages", false)
-                                        }
-                                    }
-                                }
-                            }
-
                             Card(
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
                                 shape = RoundedCornerShape(8.dp),
@@ -163,22 +251,44 @@ fun UserInboxDialog(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(title, color = if (!isRead) Color(0xFF0EA5E9) else Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                        IconButton(onClick = {
-                                            val db = FirebaseFirestore.getInstance()
-                                            val uRef = db.collection("users").document(userUid)
-                                            uRef.collection("messages").document(id)
-                                                .delete()
-                                            uRef.get().addOnSuccessListener { snap ->
-                                                @Suppress("UNCHECKED_CAST")
-                                                val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
-                                                if (pMsgs != null) {
-                                                    val updated = pMsgs.filter { it["id"] != id }
-                                                    uRef.update("privateMessages", updated)
+                                        Row(
+                                            modifier = Modifier.weight(1f),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            if (!isRead) {
+                                                Surface(
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    color = Color(0xFF0EA5E9).copy(alpha = 0.2f),
+                                                    modifier = Modifier.padding(end = 6.dp)
+                                                ) {
+                                                    Text(
+                                                        "NUEVO",
+                                                        color = Color(0xFF38BDF8),
+                                                        fontSize = 9.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                                    )
                                                 }
                                             }
-                                        }) {
-                                            Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
+                                            Text(title, color = if (!isRead) Color(0xFF0EA5E9) else Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                        }
+
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            if (!isRead) {
+                                                IconButton(
+                                                    onClick = { markMessageAsRead(id) },
+                                                    modifier = Modifier.size(28.dp)
+                                                ) {
+                                                    Icon(Icons.Default.MarkEmailRead, contentDescription = "Marcar como leído", tint = Color(0xFF0EA5E9), modifier = Modifier.size(18.dp))
+                                                }
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                            }
+                                            IconButton(
+                                                onClick = { deleteMessage(id) },
+                                                modifier = Modifier.size(28.dp)
+                                            ) {
+                                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
+                                            }
                                         }
                                     }
                                     Text(dateStr, color = Color.Gray, fontSize = 11.sp)

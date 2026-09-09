@@ -236,14 +236,17 @@ object SubscriptionManager {
                     
                     _unlockedAvatars.value = unlocked
 
-                    // Sincronizar conteo de mensajes no leídos desde el documento de usuario
+                    // Sincronizar conteo de mensajes no leídos desde el documento de usuario de forma limpia y exacta
                     val hasUnread = listenSnapshot.getBoolean("hasUnreadMessages") ?: false
                     @Suppress("UNCHECKED_CAST")
                     val privateMsgs = listenSnapshot.get("privateMessages") as? List<Map<String, Any>>
-                    val countFromList = privateMsgs?.count { (it["isRead"] as? Boolean) == false } ?: 0
-                    if (countFromList > 0) {
-                        _unreadMessagesCount.value = maxOf(_unreadMessagesCount.value, countFromList)
-                    } else if (hasUnread && _unreadMessagesCount.value == 0) {
+                    val unreadInArray = privateMsgs?.count { (it["isRead"] as? Boolean) == false } ?: 0
+
+                    if (privateMsgs != null) {
+                        _unreadMessagesCount.value = unreadInArray
+                    } else if (!hasUnread) {
+                        _unreadMessagesCount.value = 0
+                    } else if (_unreadMessagesCount.value == 0 && hasUnread) {
                         _unreadMessagesCount.value = 1
                     }
                 } else {

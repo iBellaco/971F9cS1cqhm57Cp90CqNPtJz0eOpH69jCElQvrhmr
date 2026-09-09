@@ -98,8 +98,22 @@ object DraftValidationLayer {
             }
         }
 
-        // Si el ID del campeón contiene o coincide con el token (ej: "drmundo" contiene "mundo", "jarvaniv" contiene "jarvan", "nunuandwillump" contiene "nunu")
-        if (cleanToken.length >= 2 && (cleanChamp.contains(cleanToken) || cleanToken.contains(cleanChamp))) {
+        // Aliases oficiales compuestos reconocidos
+        val validMultiPartAliases = when (cleanChamp) {
+            "drmundo", "dr_mundo" -> setOf("mundo", "drmundo")
+            "jarvaniv", "jarvan_iv" -> setOf("jarvan", "j4", "jarvaniv")
+            "missfortune", "miss_fortune" -> setOf("mf", "missfortune")
+            "twistedfate", "twisted_fate" -> setOf("tf", "twistedfate")
+            "nunuandwillump", "nunu_and_willump" -> setOf("nunu", "willump")
+            "aurelionsol", "aurelion_sol" -> setOf("asol", "aurelion")
+            "leesin", "lee_sin" -> setOf("lee", "leesin")
+            "masteryi", "master_yi" -> setOf("yi", "masteryi")
+            "tahmkench", "tahm_kench" -> setOf("tahm", "kench")
+            "xinzhao", "xin_zhao" -> setOf("xin", "xinzhao")
+            else -> emptySet()
+        }
+
+        if (validMultiPartAliases.contains(cleanToken)) {
             return true
         }
 

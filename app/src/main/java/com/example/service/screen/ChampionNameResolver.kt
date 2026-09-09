@@ -25,6 +25,7 @@ object ChampionNameResolver {
         "akali" to "akali",
         "akshan" to "akshan",
         "alistar" to "alistar",
+        "ambessa" to "ambessa",
         "amumu" to "amumu",
         "annie" to "annie",
         "ashe" to "ashe",
@@ -43,7 +44,6 @@ object ChampionNameResolver {
         "cho'gath" to "cho_gath",
         "chogath" to "cho_gath",
         "corki" to "corki",
-        "diego" to "diego", // Ignorar nombre de invocador común
         "darius" to "darius",
         "diana" to "diana",
         "dr. mundo" to "dr_mundo",
@@ -109,6 +109,7 @@ object ChampionNameResolver {
         "master yi" to "master_yi",
         "masteryi" to "master_yi",
         "yi" to "master_yi",
+        "mel" to "mel",
         "milio" to "milio",
         "miss fortune" to "miss_fortune",
         "missfortune" to "miss_fortune",
@@ -134,6 +135,8 @@ object ChampionNameResolver {
         "qiyana" to "qiyana",
         "rakan" to "rakan",
         "rammus" to "rammus",
+        "renata" to "renata_glasc",
+        "renata glasc" to "renata_glasc",
         "renekton" to "renekton",
         "rengar" to "rengar",
         "riven" to "riven",
@@ -149,6 +152,7 @@ object ChampionNameResolver {
         "singed" to "singed",
         "sion" to "sion",
         "sivir" to "sivir",
+        "smolder" to "smolder",
         "sona" to "sona",
         "soraka" to "soraka",
         "swain" to "swain",
@@ -197,18 +201,7 @@ object ChampionNameResolver {
         "ziggs" to "ziggs",
         "zilean" to "zilean",
         "zoe" to "zoe",
-        "zyra" to "zyra",
-        // Errores comunes de OCR por proximidad o fusión con icono de rol en Wild Rift
-        "alio" to "galio",
-        "eigar" to "veigar",
-        "ukong" to "wukong",
-        "resh" to "thresh",
-        "nnie" to "annie",
-        "af" to "olaf",
-        "laf" to "olaf",
-        "arus" to "varus",
-        "iana" to "diana",
-        "elia" to "irelia"
+        "zyra" to "zyra"
     )
 
     fun normalize(input: String): String {

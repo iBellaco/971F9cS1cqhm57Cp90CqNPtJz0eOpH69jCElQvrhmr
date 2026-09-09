@@ -11,11 +11,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import java.util.UUID
+
+enum class MessageAudienceTarget(val label: String) {
+    SINGLE_USER("Este usuario"),
+    ALL_USERS("Todos los usuarios"),
+    PREMIUM_ONLY("Solo Premium")
+}
 
 @Composable
 fun AdminPrivateMessageDialog(
@@ -25,28 +36,75 @@ fun AdminPrivateMessageDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+    var targetAudience by remember { mutableStateOf(MessageAudienceTarget.SINGLE_USER) }
     var isProcessing by remember { mutableStateOf(false) }
+    var statusText by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(12.dp),
             color = Color(0xFF0F172A),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B))
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B)),
+            modifier = Modifier.fillMaxWidth(0.95f)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Message, contentDescription = null, tint = Color(0xFFF59E0B))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Mensaje Privado", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
+                    Text("Enviar Mensaje / Comunicado", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text("Destinatarios:", color = Color.LightGray, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    MessageAudienceTarget.values().forEach { target ->
+                        val isSelected = targetAudience == target
+                        val btnColor = when (target) {
+                            MessageAudienceTarget.SINGLE_USER -> Color(0xFF0EA5E9)
+                            MessageAudienceTarget.ALL_USERS -> Color(0xFF8B5CF6)
+                            MessageAudienceTarget.PREMIUM_ONLY -> Color(0xFFF59E0B)
+                        }
+                        Button(
+                            onClick = { targetAudience = target },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSelected) btnColor else btnColor.copy(alpha = 0.15f)
+                            )
+                        ) {
+                            val icon = when (target) {
+                                MessageAudienceTarget.SINGLE_USER -> Icons.Default.Person
+                                MessageAudienceTarget.ALL_USERS -> Icons.Default.People
+                                MessageAudienceTarget.PREMIUM_ONLY -> Icons.Default.Star
+                            }
+                            Icon(icon, contentDescription = null, tint = if (isSelected) Color.White else btnColor, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                target.label,
+                                color = if (isSelected) Color.White else btnColor,
+                                fontSize = 10.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
                 
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Título", color = Color.Gray) },
+                    label = { Text("Título (ej: Oferta Especial o Aviso)", color = Color.Gray) },
                     singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -59,8 +117,8 @@ fun AdminPrivateMessageDialog(
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text("Mensaje", color = Color.Gray) },
-                    modifier = Modifier.height(120.dp),
+                    label = { Text("Mensaje del comunicado...", color = Color.Gray) },
+                    modifier = Modifier.fillMaxWidth().height(110.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -68,7 +126,12 @@ fun AdminPrivateMessageDialog(
                     )
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                if (statusText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(statusText, color = Color(0xFF38BDF8), fontSize = 11.sp)
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -81,48 +144,103 @@ fun AdminPrivateMessageDialog(
                         onClick = {
                             if (title.isNotBlank() && content.isNotBlank()) {
                                 isProcessing = true
-                                val messageId = UUID.randomUUID().toString()
-                                val messageData = hashMapOf<String, Any>(
-                                    "id" to messageId,
-                                    "title" to title,
-                                    "content" to content,
-                                    "timestamp" to System.currentTimeMillis(),
-                                    "isRead" to false
-                                )
-                                
+                                statusText = "Enviando mensaje..."
                                 val db = FirebaseFirestore.getInstance()
-                                val userDocRef = db.collection("users").document(userUid)
-                                
-                                userDocRef.collection("messages").document(messageId)
-                                    .set(messageData)
-                                    .addOnSuccessListener {
-                                        userDocRef.update(
-                                            "hasUnreadMessages", true,
-                                            "unreadMessagesCount", com.google.firebase.firestore.FieldValue.increment(1),
-                                            "privateMessages", com.google.firebase.firestore.FieldValue.arrayUnion(messageData)
-                                        ).addOnCompleteListener {
+
+                                when (targetAudience) {
+                                    MessageAudienceTarget.SINGLE_USER -> {
+                                        val messageId = UUID.randomUUID().toString()
+                                        val messageData = hashMapOf<String, Any>(
+                                            "id" to messageId,
+                                            "title" to title.trim(),
+                                            "content" to content.trim(),
+                                            "timestamp" to System.currentTimeMillis(),
+                                            "isRead" to false
+                                        )
+                                        val userDocRef = db.collection("users").document(userUid)
+                                        userDocRef.collection("messages").document(messageId)
+                                            .set(messageData)
+                                            .addOnSuccessListener {
+                                                userDocRef.update(
+                                                    "hasUnreadMessages", true,
+                                                    "unreadMessagesCount", FieldValue.increment(1),
+                                                    "privateMessages", FieldValue.arrayUnion(messageData)
+                                                ).addOnCompleteListener {
+                                                    isProcessing = false
+                                                    Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
+                                                    onSuccess()
+                                                    onDismiss()
+                                                }
+                                            }
+                                            .addOnFailureListener {
+                                                userDocRef.update(
+                                                    "hasUnreadMessages", true,
+                                                    "unreadMessagesCount", FieldValue.increment(1),
+                                                    "privateMessages", FieldValue.arrayUnion(messageData)
+                                                ).addOnCompleteListener {
+                                                    isProcessing = false
+                                                    Toast.makeText(context, "¡Mensaje enviado!", Toast.LENGTH_SHORT).show()
+                                                    onSuccess()
+                                                    onDismiss()
+                                                }
+                                            }
+                                    }
+
+                                    MessageAudienceTarget.ALL_USERS,
+                                    MessageAudienceTarget.PREMIUM_ONLY -> {
+                                        db.collection("users").get().addOnSuccessListener { snapshot ->
+                                            val now = System.currentTimeMillis()
+                                            val targetDocs = snapshot.documents.filter { doc ->
+                                                if (targetAudience == MessageAudienceTarget.PREMIUM_ONLY) {
+                                                    val role = doc.getString("role") ?: "free"
+                                                    val until = doc.getLong("premiumUntil")
+                                                    role == "admin" || (role == "premium" && (until == null || until == 0L || until > now))
+                                                } else {
+                                                    true
+                                                }
+                                            }
+
+                                            if (targetDocs.isEmpty()) {
+                                                isProcessing = false
+                                                Toast.makeText(context, "No se encontraron usuarios destinatarios.", Toast.LENGTH_SHORT).show()
+                                                return@addOnSuccessListener
+                                            }
+
+                                            var completedCount = 0
+                                            val total = targetDocs.size
+                                            statusText = "Entregando a $total usuarios..."
+
+                                            for (doc in targetDocs) {
+                                                val messageId = UUID.randomUUID().toString()
+                                                val messageData = hashMapOf<String, Any>(
+                                                    "id" to messageId,
+                                                    "title" to title.trim(),
+                                                    "content" to content.trim(),
+                                                    "timestamp" to System.currentTimeMillis(),
+                                                    "isRead" to false
+                                                )
+                                                val uRef = doc.reference
+                                                uRef.collection("messages").document(messageId).set(messageData)
+                                                uRef.update(
+                                                    "hasUnreadMessages", true,
+                                                    "unreadMessagesCount", FieldValue.increment(1),
+                                                    "privateMessages", FieldValue.arrayUnion(messageData)
+                                                ).addOnCompleteListener {
+                                                    completedCount++
+                                                    if (completedCount >= total) {
+                                                        isProcessing = false
+                                                        Toast.makeText(context, "¡Comunicado enviado a $total usuario(s)!", Toast.LENGTH_LONG).show()
+                                                        onSuccess()
+                                                        onDismiss()
+                                                    }
+                                                }
+                                            }
+                                        }.addOnFailureListener { e ->
                                             isProcessing = false
-                                            Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
-                                            onSuccess()
-                                            onDismiss()
+                                            Toast.makeText(context, "Error obteniendo lista de usuarios: ${e.message}", Toast.LENGTH_LONG).show()
                                         }
                                     }
-                                    .addOnFailureListener { e ->
-                                        // Intento directo en el documento del usuario por si las reglas bloquean la subcolección
-                                        userDocRef.update(
-                                            "hasUnreadMessages", true,
-                                            "unreadMessagesCount", com.google.firebase.firestore.FieldValue.increment(1),
-                                            "privateMessages", com.google.firebase.firestore.FieldValue.arrayUnion(messageData)
-                                        ).addOnSuccessListener {
-                                            isProcessing = false
-                                            Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
-                                            onSuccess()
-                                            onDismiss()
-                                        }.addOnFailureListener { e2 ->
-                                            isProcessing = false
-                                            Toast.makeText(context, "Error al enviar mensaje: ${e.localizedMessage ?: e2.localizedMessage ?: "Error desconocido"}", Toast.LENGTH_LONG).show()
-                                        }
-                                    }
+                                }
                             }
                         },
                         enabled = !isProcessing && title.isNotBlank() && content.isNotBlank(),

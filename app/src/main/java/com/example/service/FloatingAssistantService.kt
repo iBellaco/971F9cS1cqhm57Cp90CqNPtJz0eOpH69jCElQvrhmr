@@ -662,12 +662,14 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
                     floatingParams!!.x = currentX.coerceIn(0, maxX)
                     floatingParams!!.y = currentY.coerceIn(0, maxY)
-                    windowManager?.updateViewLayout(floatingComposeView, floatingParams)
-                    updateOverlayRect(floatingParams!!, isOverlayExpanded)
+                    try {
+                        windowManager?.updateViewLayout(floatingComposeView, floatingParams)
+                        updateOverlayRect(floatingParams!!, isOverlayExpanded)
+                    } catch (eLayout: Throwable) {
+                        AppLogger.w("FloatingService", "Error actualizando layout tras rotación: ${eLayout.message}")
+                    }
                 }
             }
-            floatingComposeView?.dispatchConfigurationChanged(newConfig)
-            closeTargetComposeView?.dispatchConfigurationChanged(newConfig)
         } catch (e: Throwable) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
         }
