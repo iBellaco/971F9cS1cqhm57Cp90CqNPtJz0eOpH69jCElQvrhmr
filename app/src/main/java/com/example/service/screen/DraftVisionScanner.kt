@@ -505,25 +505,18 @@ object DraftVisionScanner {
         // No forzamos roles naturales aquí, DraftValidationLayer se encarga de usar el índice del slot si hace falta.
 
         // -----------------------------------------------------------------------------------------
-        // PASO 3: SCANNER V2 CON ROI CALIBRADA Y RECONOCIMIENTO VISUAL PURO
+        // PASO 3: EVALUACIÓN DE SLOTS Y DIAGNÓSTICO EN TIEMPO REAL (100% BASADO EN OCR Y ROLES)
         // -----------------------------------------------------------------------------------------
-        // Calibración geométrica precisa del HUD de Wild Rift utilizando la configuración dinámica:
         val avatarDiameter = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
-        
-        // Ajuste dinámico basado en el aspect ratio para soportar 16:9 y >= 19:9
-        val aspectRatio = width.toFloat() / height.toFloat()
-        val isUltraWide = aspectRatio > 2.0f
-        
-        // Posición horizontal calibrada de los avatares (permite ajuste fino en tiempo real):
         val allyAvatarCenterX = (width * calib.allyAvatarCenterX).toInt()
         val enemyAvatarCenterX = (width * calib.enemyAvatarCenterX).toInt()
-
-        // Ratios verticales (eje Y) independientes para ambos lados:
         val allySlotYRatios = calib.allySlotYRatios
         val enemySlotYRatios = calib.enemySlotYRatios
         val diagnosticsList = mutableListOf<SlotDiagnostic>()
 
-        // 3.1 Aliados
+        val defaultRolesList = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+
+        // 3.1 Aliados: Si se detectó el nombre del campeón en el slot, se asocia directamente a la línea memorizada de ese slot
         for (i in 0..4) {
             val slot = allySlots[i]
             val yCenter = (height * allySlotYRatios[i]).toInt()
@@ -532,65 +525,37 @@ object DraftVisionScanner {
             val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
 
             val ocrChamp = allyOcrChampions[i]
-            var eval = VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Error al procesar")
+            val roleForSlot = allySlotRolesCache[i] ?: defaultRolesList[i]
 
-            try {
-                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
-                eval = ImageHashMatcher.evaluateVisualMatch(crop, allChamps, isAlly = true)
-                crop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error comparando avatar aliado slot $i: ${e.message}")
+            val finalChamp = allySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f)
+            
+            if (finalChamp != null) {
+                slot.champion = finalChamp
+                slot.confidencePercent = 100
+                slot.explicitRole = roleForSlot
+                slot.assignedRole = roleForSlot
+            } else {
+                slot.champion = null
+                slot.confidencePercent = 0
+                slot.explicitRole = roleForSlot
             }
 
-            var rawCandidate: Champion? = null
-            var isOcr = false
-            var candidateScore = 0f
-            var diagReason = eval.reason
-
-            // LÓGICA DE DETECCIÓN ALIADA:
-            // 1. TEXTO OCR DE CAMPEÓN: 100% autoritativo.
-            // 2. AVATAR (IMAGEN): Si no hay OCR, se utiliza reconocimiento visual de plantilla con estabilidad temporal.
-            if (ocrChamp != null) {
-                rawCandidate = ocrChamp
-                isOcr = true
-                candidateScore = 1.0f
-                diagReason = if (eval.candidate1?.id == ocrChamp.id) {
-                    "Confirmado 100% (Nombre OCR y Avatar coinciden: ${ocrChamp.name})"
-                } else {
-                    "100% Certeza: Nombre OCR detectado (${ocrChamp.name})"
-                }
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.45f) {
-                rawCandidate = eval.candidate1
-                isOcr = false
-                candidateScore = eval.score1
-                diagReason = "Preselección aliada en avatar (${eval.candidate1.name}, score ${"%.2f".format(Locale.US, eval.score1)})"
+            val diagStatus = if (finalChamp != null) DiagnosticStatus.CONFIRMADO else DiagnosticStatus.VACIO
+            val diagReason = if (finalChamp != null) {
+                "Campeón confirmado por nombre OCR: ${finalChamp.name} -> ${roleForSlot.shortName}"
+            } else {
+                "Esperando selección en carril ${roleForSlot.shortName} (${allySummonerNamesCache[i] ?: "Invocador"})"
             }
-
-            // Aplicar filtro de estabilización temporal para evitar oscilación y parpadeo
-            val finalChamp = allySlotFilters[i].process(rawCandidate, isOcr, candidateScore)
-            val finalConfidence = when {
-                finalChamp == null -> 0
-                isOcr && finalChamp.id == ocrChamp?.id -> 100
-                else -> ((candidateScore * 100).toInt()).coerceIn(65, 95)
-            }
-            val diagStatus = when {
-                finalChamp != null -> DiagnosticStatus.CONFIRMADO
-                eval.status == "AMBIGUO" -> DiagnosticStatus.AMBIGUO
-                else -> DiagnosticStatus.VACIO
-            }
-
-            slot.champion = finalChamp
-            slot.confidencePercent = finalConfidence
 
             val diagnostic = SlotDiagnostic(
                 slotIndex = i,
                 isAlly = true,
                 roiRect = roiRect,
-                candidate1 = eval.candidate1,
-                score1 = eval.score1,
-                candidate2 = eval.candidate2,
-                score2 = eval.score2,
-                margin = eval.margin,
+                candidate1 = finalChamp,
+                score1 = if (finalChamp != null) 1.0f else 0.0f,
+                candidate2 = null,
+                score2 = 0f,
+                margin = if (finalChamp != null) 1.0f else 0f,
                 ocrChampion = ocrChamp,
                 finalChampion = finalChamp,
                 status = diagStatus,
@@ -600,7 +565,7 @@ object DraftVisionScanner {
             AppLogger.d(TAG, diagnostic.toFormattedString())
         }
 
-        // 3.2 Enemigos
+        // 3.2 Rivales: Se detecta el nombre del campeón cuando desaparece 'Jugador X'
         for (i in 0..4) {
             val slot = enemySlots[i]
             val yCenter = (height * enemySlotYRatios[i]).toInt()
@@ -609,60 +574,33 @@ object DraftVisionScanner {
             val roiRect = Rect(startX, startY, startX + avatarDiameter, startY + avatarDiameter)
 
             val ocrChamp = enemyOcrChampions[i]
-            var eval = VisualEvaluation(null, 0f, null, 0f, 0f, false, "VACIO", "Error al procesar")
 
-            try {
-                val crop = Bitmap.createBitmap(bitmap, startX, startY, avatarDiameter, avatarDiameter)
-                eval = ImageHashMatcher.evaluateVisualMatch(crop, allChamps, isAlly = false)
-                crop.recycle()
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error comparando avatar enemigo slot $i: ${e.message}")
+            val finalChamp = enemySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f)
+
+            if (finalChamp != null) {
+                slot.champion = finalChamp
+                slot.confidencePercent = 100
+            } else {
+                slot.champion = null
+                slot.confidencePercent = 0
             }
 
-            var rawCandidate: Champion? = null
-            var isOcr = false
-            var candidateScore = 0f
-            var diagReason = eval.reason
-
-            // LADO RIVAL: Prioridad 100% OCR si el nombre del campeón fue detectado en texto.
-            // Si aún no hay texto, evaluación visual con filtro de estabilización temporal para eliminar parpadeos.
-            if (ocrChamp != null) {
-                rawCandidate = ocrChamp
-                isOcr = true
-                candidateScore = 1.0f
-                diagReason = "Confirmado 100% por nombre OCR (${ocrChamp.name})"
-            } else if (eval.isConfirmed && eval.candidate1 != null && eval.score1 >= 0.48f && eval.margin >= 0.018f) {
-                rawCandidate = eval.candidate1
-                isOcr = false
-                candidateScore = eval.score1
-                diagReason = "Preselección rival en avatar (${eval.candidate1.name}, score ${"%.2f".format(Locale.US, eval.score1)})"
+            val diagStatus = if (finalChamp != null) DiagnosticStatus.CONFIRMADO else DiagnosticStatus.VACIO
+            val diagReason = if (finalChamp != null) {
+                "Campeón rival confirmado por OCR: ${finalChamp.name}"
+            } else {
+                "Slot rival esperando selección (Jugador ${i + 1})"
             }
-
-            // Aplicar filtro de estabilización temporal para evitar oscilación y parpadeo
-            val finalChamp = enemySlotFilters[i].process(rawCandidate, isOcr, candidateScore)
-            val finalConfidence = when {
-                finalChamp == null -> 0
-                isOcr && finalChamp.id == ocrChamp?.id -> 100
-                else -> ((candidateScore * 100).toInt()).coerceIn(65, 95)
-            }
-            val diagStatus = when {
-                finalChamp != null -> DiagnosticStatus.CONFIRMADO
-                eval.status == "AMBIGUO" -> DiagnosticStatus.AMBIGUO
-                else -> DiagnosticStatus.VACIO
-            }
-
-            slot.champion = finalChamp
-            slot.confidencePercent = finalConfidence
 
             val diagnostic = SlotDiagnostic(
                 slotIndex = i,
                 isAlly = false,
                 roiRect = roiRect,
-                candidate1 = eval.candidate1,
-                score1 = eval.score1,
-                candidate2 = eval.candidate2,
-                score2 = eval.score2,
-                margin = eval.margin,
+                candidate1 = finalChamp,
+                score1 = if (finalChamp != null) 1.0f else 0.0f,
+                candidate2 = null,
+                score2 = 0f,
+                margin = if (finalChamp != null) 1.0f else 0f,
                 ocrChampion = ocrChamp,
                 finalChampion = finalChamp,
                 status = diagStatus,
@@ -746,7 +684,6 @@ object DraftVisionScanner {
         val enemyConfidences = enemyResolved.confidences.filterKeys { finalEnemiesMap.containsKey(it) }
 
         // Mapear nombres de invocador y hechizos al rol final asignado (o rol por defecto del slot)
-        val defaultRolesList = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
         val allySummonerNamesByRole = mutableMapOf<LaneRole, String>()
         val allySpellsByRole = mutableMapOf<LaneRole, List<String>>()
 

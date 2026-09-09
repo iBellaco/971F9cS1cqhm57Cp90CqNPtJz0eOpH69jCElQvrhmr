@@ -47,9 +47,9 @@ data class VisionCalibrationConfig(
     var enemyOcrMaxX: Float = 0.9449999928474426f,
 
     // Interruptores de visualización en el HUD de diagnóstico
-    var showAvatarBoxes: Boolean = true,
-    var showNameBoxes: Boolean = false,
-    var showSpellBoxes: Boolean = false
+    var showAvatarBoxes: Boolean = false,
+    var showNameBoxes: Boolean = true,
+    var showSpellBoxes: Boolean = true
 ) {
     fun toJsonString(indent: Boolean = true): String {
         val obj = JSONObject()

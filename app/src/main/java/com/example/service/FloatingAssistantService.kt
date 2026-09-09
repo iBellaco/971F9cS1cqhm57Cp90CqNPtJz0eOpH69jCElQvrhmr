@@ -3136,8 +3136,37 @@ fun VisionDebugOverlay() {
                     this.setShadowLayer(4f, 2f, 2f, android.graphics.Color.BLACK)
                 }
 
-                // 1. Dibujar cajas de texto OCR detectadas (si está activado)
+                // 1. Dibujar cajas de texto OCR detectadas y columnas de escaneo (si está activado)
                 if (calibConfig.showNameBoxes) {
+                    // Guías visuales de columnas OCR (Franjas verticales tenues)
+                    val allyMinX = size.width * calibConfig.allyOcrMinX
+                    val allyMaxX = size.width * calibConfig.allyOcrMaxX
+                    drawRect(
+                        color = HextechCyan.copy(alpha = 0.08f),
+                        topLeft = androidx.compose.ui.geometry.Offset(allyMinX, 0f),
+                        size = androidx.compose.ui.geometry.Size(allyMaxX - allyMinX, size.height)
+                    )
+                    drawRect(
+                        color = HextechCyan.copy(alpha = 0.35f),
+                        topLeft = androidx.compose.ui.geometry.Offset(allyMinX, 0f),
+                        size = androidx.compose.ui.geometry.Size(allyMaxX - allyMinX, size.height),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
+                    )
+
+                    val enemyMinX = size.width * calibConfig.enemyOcrMinX
+                    val enemyMaxX = size.width * calibConfig.enemyOcrMaxX
+                    drawRect(
+                        color = Color(0xFFFF5252).copy(alpha = 0.08f),
+                        topLeft = androidx.compose.ui.geometry.Offset(enemyMinX, 0f),
+                        size = androidx.compose.ui.geometry.Size(enemyMaxX - enemyMinX, size.height)
+                    )
+                    drawRect(
+                        color = Color(0xFFFF5252).copy(alpha = 0.35f),
+                        topLeft = androidx.compose.ui.geometry.Offset(enemyMinX, 0f),
+                        size = androidx.compose.ui.geometry.Size(enemyMaxX - enemyMinX, size.height),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
+                    )
+
                     for (tDiag in detectedTexts) {
                         val rect = tDiag.rect
                         val left = rect.left * scaleX
@@ -3145,10 +3174,12 @@ fun VisionDebugOverlay() {
                         val right = rect.right * scaleX
                         val bottom = rect.bottom * scaleY
 
-                        val boxColor = when (tDiag.tag) {
-                            "CAMPEÓN" -> Color(0xFF00E5FF)
-                            "ROL" -> Color(0xFFFFD700)
-                            "INVOCADOR" -> Color(0xFF00FF7F)
+                        val boxColor = when {
+                            tDiag.tag.startsWith("CAMPEÓN") -> Color(0xFF00E676)
+                            tDiag.tag.startsWith("RIVAL") -> Color(0xFFFF3D00)
+                            tDiag.tag.startsWith("LÍNEA") -> Color(0xFF00E5FF)
+                            tDiag.tag == "INVOCADOR" -> Color(0xFF80D8FF)
+                            tDiag.tag == "JUGADOR" -> Color(0xFF9E9E9E)
                             else -> Color(0xFFE040FB)
                         }
 
@@ -3159,15 +3190,17 @@ fun VisionDebugOverlay() {
                             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                         )
 
-                        textPaint.color = when (tDiag.tag) {
-                            "CAMPEÓN" -> android.graphics.Color.CYAN
-                            "ROL" -> android.graphics.Color.YELLOW
-                            "INVOCADOR" -> android.graphics.Color.GREEN
+                        textPaint.color = when {
+                            tDiag.tag.startsWith("CAMPEÓN") -> android.graphics.Color.rgb(0, 230, 118)
+                            tDiag.tag.startsWith("RIVAL") -> android.graphics.Color.rgb(255, 61, 0)
+                            tDiag.tag.startsWith("LÍNEA") -> android.graphics.Color.rgb(0, 229, 255)
+                            tDiag.tag == "INVOCADOR" -> android.graphics.Color.rgb(128, 216, 255)
+                            tDiag.tag == "JUGADOR" -> android.graphics.Color.rgb(158, 158, 158)
                             else -> android.graphics.Color.MAGENTA
                         }
 
                         drawContext.canvas.nativeCanvas.drawText(
-                            "${tDiag.text} • ${tDiag.tag}",
+                            "${tDiag.text} [${tDiag.tag}]",
                             left,
                             (top - 4f).coerceAtLeast(20f),
                             textPaint

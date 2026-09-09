@@ -491,7 +491,100 @@ fun VisionCalibrationTab(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // SECCIÓN 4: INTERRUPTORES DE VISIBILIDAD (CAPAS)
+        // SECCIÓN 4: ZONAS DE TEXTO OCR (NOMBRES Y LÍNEAS)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+        ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(
+                    text = "🔤 ZONAS DE LECTURA DE TEXTO (OCR)",
+                    color = HextechGold,
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Ajusta las franjas horizontales donde se leen los nombres de campeones, líneas e invocadores",
+                    color = TextSecondary,
+                    fontSize = 9.5.sp
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Columna Aliada
+                StepAdjusterRow(
+                    label = "Texto Aliados (Inicio X)",
+                    valueFormatted = "${"%.3f".format(Locale.US, config.allyOcrMinX)}",
+                    onStepLeft = {
+                        val newV = (config.allyOcrMinX - 0.005f).coerceIn(0.01f, config.allyOcrMaxX - 0.02f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(allyOcrMinX = newV))
+                    },
+                    onStepRight = {
+                        val newV = (config.allyOcrMinX + 0.005f).coerceIn(0.01f, config.allyOcrMaxX - 0.02f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(allyOcrMinX = newV))
+                    },
+                    leftHint = "◀ Izq",
+                    rightHint = "Der ▶"
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                StepAdjusterRow(
+                    label = "Texto Aliados (Fin X)",
+                    valueFormatted = "${"%.3f".format(Locale.US, config.allyOcrMaxX)}",
+                    onStepLeft = {
+                        val newV = (config.allyOcrMaxX - 0.005f).coerceIn(config.allyOcrMinX + 0.02f, 0.45f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(allyOcrMaxX = newV))
+                    },
+                    onStepRight = {
+                        val newV = (config.allyOcrMaxX + 0.005f).coerceIn(config.allyOcrMinX + 0.02f, 0.45f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(allyOcrMaxX = newV))
+                    },
+                    leftHint = "◀ Menor",
+                    rightHint = "Mayor ▶"
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Columna Rival
+                StepAdjusterRow(
+                    label = "Texto Rivales (Inicio X)",
+                    valueFormatted = "${"%.3f".format(Locale.US, config.enemyOcrMinX)}",
+                    onStepLeft = {
+                        val newV = (config.enemyOcrMinX - 0.005f).coerceIn(0.55f, config.enemyOcrMaxX - 0.02f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(enemyOcrMinX = newV))
+                    },
+                    onStepRight = {
+                        val newV = (config.enemyOcrMinX + 0.005f).coerceIn(0.55f, config.enemyOcrMaxX - 0.02f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(enemyOcrMinX = newV))
+                    },
+                    leftHint = "◀ Izq",
+                    rightHint = "Der ▶"
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                StepAdjusterRow(
+                    label = "Texto Rivales (Fin X)",
+                    valueFormatted = "${"%.3f".format(Locale.US, config.enemyOcrMaxX)}",
+                    onStepLeft = {
+                        val newV = (config.enemyOcrMaxX - 0.005f).coerceIn(config.enemyOcrMinX + 0.02f, 0.99f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(enemyOcrMaxX = newV))
+                    },
+                    onStepRight = {
+                        val newV = (config.enemyOcrMaxX + 0.005f).coerceIn(config.enemyOcrMinX + 0.02f, 0.99f)
+                        DraftVisionScanner.updateCalibration(context, config.copy(enemyOcrMaxX = newV))
+                    },
+                    leftHint = "◀ Menor",
+                    rightHint = "Mayor ▶"
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // SECCIÓN 5: INTERRUPTORES DE VISIBILIDAD (CAPAS)
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = HextechSurface),
