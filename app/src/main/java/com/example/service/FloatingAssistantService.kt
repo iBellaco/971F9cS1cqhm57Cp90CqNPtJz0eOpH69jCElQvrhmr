@@ -2824,7 +2824,7 @@ private fun CoachContent(
             )
 
             Text(
-                text = if (isFirstPick) "⭐ " + tr("1ª Elección") else "🎯 " + tr("Counter Pick"),
+                text = if (isFirstPick) tr("1ª Elección") else tr("Counter Pick"),
                 color = if (isFirstPick) HextechGold else HextechCyan,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold,

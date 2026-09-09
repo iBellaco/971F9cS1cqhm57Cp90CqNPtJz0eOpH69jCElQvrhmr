@@ -243,6 +243,7 @@ fun DraftHistoryScreen(
 
     var showCreateProfileDialog by remember { mutableStateOf(false) }
     var profileToEdit by remember { mutableStateOf<AccountProfile?>(null) }
+    var showBlueEssenceStore by remember { mutableStateOf<String?>(null) }
 
     var currentHistoryTab by remember { mutableStateOf("DRAFTS") } // "DRAFTS" or "TIER_LIST"
     var searchQuery by remember { mutableStateOf("") }
@@ -1259,6 +1260,36 @@ fun DraftHistoryScreen(
                         shape = RoundedCornerShape(10.dp)
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant)
+                            .clickable {
+                                showBlueEssenceStore = prof.id
+                            }
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            androidx.compose.foundation.Image(
+                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                contentDescription = "Esencia Azul",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Esencias: ${prof.blueEssence}",
+                                color = HextechCyan,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                        Text("Tienda", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+
                     if (profiles.size > 1 && prof.id != "default") {
                         Spacer(modifier = Modifier.height(14.dp))
                         
@@ -1340,6 +1371,13 @@ fun DraftHistoryScreen(
                     Text(tr("Cancelar"), color = TextMuted)
                 }
             }
+        )
+    }
+
+    if (showBlueEssenceStore != null) {
+        com.example.ui.components.BlueEssenceStoreDialog(
+            profileId = showBlueEssenceStore!!,
+            onDismiss = { showBlueEssenceStore = null }
         )
     }
 

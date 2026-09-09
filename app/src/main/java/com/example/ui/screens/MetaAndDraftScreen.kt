@@ -3610,22 +3610,6 @@ fun DraftAnalysisTab(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            shape = CircleShape,
-                            color = HextechGold.copy(alpha = 0.15f),
-                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f)),
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Shield,
-                                    contentDescription = null,
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
                                 text = tr("Mi Línea"),
@@ -3683,22 +3667,6 @@ fun DraftAnalysisTab(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        shape = CircleShape,
-                        color = if (isFirstPick) HextechGold.copy(alpha = 0.25f) else HextechSurfaceVariant,
-                        border = BorderStroke(1.dp, if (isFirstPick) HextechGold else HextechCardBorder),
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                imageVector = if (isFirstPick) Icons.Default.Star else Icons.Default.FlashOn,
-                                contentDescription = null,
-                                tint = if (isFirstPick) HextechGold else HextechCyan,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
                             text = if (isFirstPick) tr("1er Pick") else tr("Counter Pick"),
@@ -5031,9 +4999,9 @@ fun TierSelectionPanel(
                 horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp)
             ) {
                 val regionItems = listOf(
-                    Triple("CN", if (isOverlay) "🇨🇳 CN" else "🇨🇳 CN High-Elo", if (isOverlay) "Tencent" else "API Tencent"),
-                    Triple("Global", if (isOverlay) "🌐 Global" else "🌐 Meta Global Pro", if (isOverlay) "Live" else "Meta Live"),
-                    Triple("NA", if (isOverlay) "🌎 NA" else "🌎 América (NA)", if (isOverlay) "Cache" else "Local Cache")
+                    Triple("CN", if (isOverlay) "CN" else "Servidor Chino", if (isOverlay) "Tencent" else "API Tencent"),
+                    Triple("Global", if (isOverlay) "Global" else "Global", if (isOverlay) "Live" else "Meta Live"),
+                    Triple("NA", if (isOverlay) "NA" else "América (NA)", if (isOverlay) "Cache" else "Local Cache")
                 )
                 regionItems.forEach { (regionId, label, sub) ->
                     val isSelected = currentRegion == regionId || (regionId == "Global" && currentRegion == "BestBuildWR")
@@ -5091,10 +5059,10 @@ fun TierSelectionPanel(
                         TencentRankTier.entries.forEach { tier ->
                             val isSelected = currentTier == tier
                             val (rankIcon, rankColor) = when (tier) {
-                                TencentRankTier.CHALLENGER -> "👑" to Color(0xFFFFD700)
-                                TencentRankTier.MASTER_PLUS -> "💎" to Color(0xFF00E5FF)
-                                TencentRankTier.DIAMOND_PLUS -> "🛡️" to Color(0xFF3B82F6)
-                                TencentRankTier.ALL_RANKS -> "🌐" to Color(0xFF10B981)
+                                TencentRankTier.CHALLENGER -> "" to Color(0xFFFFD700)
+                                TencentRankTier.MASTER_PLUS -> "" to Color(0xFF00E5FF)
+                                TencentRankTier.DIAMOND_PLUS -> "" to Color(0xFF3B82F6)
+                                TencentRankTier.ALL_RANKS -> "" to Color(0xFF10B981)
                             }
                             Box(
                                 modifier = Modifier
