@@ -75,12 +75,13 @@ fun CommunityCreatorsDialog(
                     .padding(16.dp)
             ) {
                 // Header
+                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = "🌟 " + tr("Comunidad & Creadores"),
@@ -89,43 +90,54 @@ fun CommunityCreatorsDialog(
                                 fontWeight = FontWeight.Bold
                             )
                         }
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = tr("Suscríbete con Esencia Azul a tus creadores favoritos (Máx. 100 suscriptores)"),
+                            text = tr("Suscríbete con Esencia Azul a tus creadores favoritos"),
                             color = TextSecondary,
                             fontSize = 11.5.sp
                         )
                     }
-
+                    IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                
+                // Banner Esencia Azul
+                val currentBlueEssence by com.example.util.SubscriptionManager.blueEssence.collectAsState()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechSurface)
+                        .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Blue Essence Pill
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(HextechSurfaceVariant)
-                                .border(1.dp, HextechCyan.copy(alpha = 0.7f), RoundedCornerShape(16.dp))
-                                .clickable { onOpenBlueEssenceStore() }
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("💎", fontSize = 12.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "${activeProfile.blueEssence} EA",
-                                    color = HextechCyan,
-                                    fontSize = 11.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(Icons.Default.Add, contentDescription = "Comprar EA", tint = HextechGold, modifier = Modifier.size(14.dp))
-                            }
+                        Icon(Icons.Default.LocalActivity, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(tr("Tu Esencia Azul"), color = TextSecondary, fontSize = 11.sp)
+                            Text(
+                                text = "$currentBlueEssence EA",
+                                color = HextechCyan,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
-                        }
+                    }
+                    Button(
+                        onClick = onOpenBlueEssenceStore,
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(tr("Comprar"), color = HextechDarkBg, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -144,8 +156,18 @@ fun CommunityCreatorsDialog(
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(if (isSel) HextechGold else HextechSurface)
-                                .border(1.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(8.dp))
-                                .clickable { selectedTab = index }
+                                .clickable { 
+                                    if (index == 2) {
+                                        
+                                        if (com.example.util.SubscriptionManager.userRole.value == "admin") {
+                                            selectedTab = index
+                                        } else {
+                                            Toast.makeText(context, "Fuera de servicio temporalmente", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        selectedTab = index
+                                    }
+                                }
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {

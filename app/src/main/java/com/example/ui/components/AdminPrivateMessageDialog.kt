@@ -1,0 +1,110 @@
+package com.example.ui.components
+
+import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.text.font.FontWeight
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.UUID
+
+@Composable
+fun AdminPrivateMessageDialog(
+    userUid: String,
+    onDismiss: () -> Unit,
+    onSuccess: () -> Unit
+) {
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var isProcessing by remember { mutableStateOf(false) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = Color(0xFF0F172A),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Message, contentDescription = null, tint = Color(0xFFF59E0B))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Mensaje Privado", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Título", color = Color.Gray) },
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFF59E0B)
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = { content = it },
+                    label = { Text("Mensaje", color = Color.Gray) },
+                    modifier = Modifier.height(120.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color(0xFFF59E0B)
+                    )
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss, enabled = !isProcessing) {
+                        Text("Cancelar", color = Color.Gray)
+                    }
+                    Button(
+                        onClick = {
+                            if (title.isNotBlank() && content.isNotBlank()) {
+                                isProcessing = true
+                                val messageId = UUID.randomUUID().toString()
+                                val messageData = mapOf(
+                                    "id" to messageId,
+                                    "title" to title,
+                                    "content" to content,
+                                    "timestamp" to System.currentTimeMillis(),
+                                    "isRead" to false
+                                )
+                                FirebaseFirestore.getInstance().collection("users").document(userUid)
+                                    .collection("messages").document(messageId)
+                                    .set(messageData)
+                                    .addOnSuccessListener {
+                                        isProcessing = false
+                                        onSuccess()
+                                        onDismiss()
+                                    }
+                                    .addOnFailureListener {
+                                        isProcessing = false
+                                    }
+                            }
+                        },
+                        enabled = !isProcessing && title.isNotBlank() && content.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B))
+                    ) {
+                        if (isProcessing) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
+                        } else {
+                            Text("Enviar")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

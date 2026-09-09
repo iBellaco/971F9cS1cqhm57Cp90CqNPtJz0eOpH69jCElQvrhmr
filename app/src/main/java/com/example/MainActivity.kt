@@ -529,7 +529,23 @@ fun DashboardScreen(
                     NavigationBarItem(
                         selected = pagerState.currentPage == 4,
                         onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
-                        icon = { Icon(Icons.Default.Person, contentDescription = "Usuario") },
+                        icon = { 
+                            val unreadCount by com.example.util.SubscriptionManager.unreadMessagesCount.collectAsStateWithLifecycle(0)
+                            BadgedBox(
+                                badge = {
+                                    if (unreadCount > 0) {
+                                        Badge(
+                                            containerColor = com.example.ui.theme.DangerRed,
+                                            contentColor = Color.White
+                                        ) {
+                                            Text(unreadCount.toString())
+                                        }
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Person, contentDescription = "Usuario")
+                            }
+                        },
                         label = { Text(tr("Usuario")) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = navSelectedIcon,

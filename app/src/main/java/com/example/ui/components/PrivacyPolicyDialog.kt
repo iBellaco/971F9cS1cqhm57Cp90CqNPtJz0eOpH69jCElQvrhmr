@@ -134,40 +134,17 @@ fun PrivacyPolicyDialog(
                     }
                 }
 
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    LegalCheckbox(
-                        text = tr("He leído y acepto la Política de Privacidad"),
-                        checked = acceptedPrivacy,
-                        onCheckedChange = { acceptedPrivacy = it }
-                    )
-                    LegalCheckbox(
-                        text = tr("He leído y acepto los Términos de Servicio"),
-                        checked = acceptedTerms,
-                        onCheckedChange = { acceptedTerms = it }
-                    )
-                    LegalCheckbox(
-                        text = tr("He leído y acepto los Acuerdos de Terceros"),
-                        checked = acceptedThirdParty,
-                        onCheckedChange = { acceptedThirdParty = it }
-                    )
-                }
-
                 Button(
                     onClick = onDismiss,
-                    enabled = allAccepted,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = HextechGold,
-                        disabledContainerColor = HextechCardBorder
+                        containerColor = HextechGold
                     ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = tr("Entendido y Aceptar"),
-                        color = if (allAccepted) HextechDarkBg else TextSecondary,
+                        text = tr("Cerrar"),
+                        color = HextechDarkBg,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )

@@ -1064,6 +1064,8 @@ fun UserDetailManagementDialog(
     var isProcessing by remember { mutableStateOf(false) }
     var customDaysInput by remember { mutableStateOf("") }
     var showCustomDaysDialog by remember { mutableStateOf(false) }
+    var showGiveEssenceDialog by remember { mutableStateOf(false) }
+    var showPrivateMessageDialog by remember { mutableStateOf(false) }
 
     val registeredDevices = (user["registeredDevices"] as? List<*>) ?: emptyList<Any>()
     var currentDeviceCount by remember { mutableStateOf(registeredDevices.size) }
@@ -1493,9 +1495,71 @@ fun UserDetailManagementDialog(
                             }
                         }
                     }
+                    // SECCIÓN 5: COMUNICACIÓN Y RECOMPENSAS
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Comunicación y Recompensas", fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 13.sp)
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Button(
+                                        onClick = { showPrivateMessageDialog = true },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.Message, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Mensaje Privado", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    Button(
+                                        onClick = { showGiveEssenceDialog = true },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0EA5E9)),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.LocalActivity, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Dar Esencia Azul", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    if (showGiveEssenceDialog) {
+        AdminGiveEssenceDialog(
+            userUid = uid,
+            onDismiss = { showGiveEssenceDialog = false },
+            onSuccess = { 
+                Toast.makeText(context, "Esencia Azul enviada.", Toast.LENGTH_SHORT).show() 
+            }
+        )
+    }
+
+    if (showPrivateMessageDialog) {
+        AdminPrivateMessageDialog(
+            userUid = uid,
+            onDismiss = { showPrivateMessageDialog = false },
+            onSuccess = { 
+                Toast.makeText(context, "Mensaje privado enviado.", Toast.LENGTH_SHORT).show() 
+            }
+        )
     }
 
     // Diálogo para ingresar Días Personalizados

@@ -80,6 +80,7 @@ fun SubscriptionPlansBottomSheet(
             )
 
             val premiumFeatures = listOf(
+                FeatureItem("Acceso al asistente", true, isHighlight = false, icon = Icons.Default.Check),
                 FeatureItem("Escáner Automático del draft", true, isHighlight = true, icon = Icons.Default.AutoAwesome),
                 FeatureItem("Historial del draft", true, isHighlight = true, icon = Icons.Default.Save),
                 FeatureItem("Win Rate personal", true, isHighlight = true, icon = Icons.Default.Star),
@@ -93,7 +94,7 @@ fun SubscriptionPlansBottomSheet(
                 title = "Plan Gratuito",
                 price = "Gratis",
                 features = listOf(
-                    FeatureItem("Acceso básico al asistente", true),
+                    FeatureItem("Acceso al asistente", true),
                     FeatureItem("Escáner Automático del draft", false),
                     FeatureItem("Historial del draft", false),
                     FeatureItem("Win Rate personal", false),

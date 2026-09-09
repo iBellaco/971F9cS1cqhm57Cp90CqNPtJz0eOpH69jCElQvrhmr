@@ -38,7 +38,14 @@ object SubscriptionManager {
     private val _unlockedAvatars = MutableStateFlow<List<String>>(emptyList())
     val unlockedAvatars: StateFlow<List<String>> = _unlockedAvatars.asStateFlow()
 
+    private val _blueEssence = MutableStateFlow(0L)
+    val blueEssence: StateFlow<Long> = _blueEssence.asStateFlow()
+
+    private val _unreadMessagesCount = MutableStateFlow(0)
+    val unreadMessagesCount: StateFlow<Int> = _unreadMessagesCount.asStateFlow()
+
     private var roleListener: ListenerRegistration? = null
+    private var messagesListener: ListenerRegistration? = null
     private var heartbeatJob: kotlinx.coroutines.Job? = null
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -52,8 +59,12 @@ object SubscriptionManager {
                 _isBanned.value = false
                 _currentAvatarId.value = "default_poro"
                 _unlockedAvatars.value = emptyList()
+                _blueEssence.value = 0L
+                _unreadMessagesCount.value = 0
                 roleListener?.remove()
                 roleListener = null
+                messagesListener?.remove()
+                messagesListener = null
                 heartbeatJob?.cancel()
                 heartbeatJob = null
             }
@@ -165,6 +176,16 @@ object SubscriptionManager {
                 }
             }
             
+            messagesListener?.remove()
+            messagesListener = db.collection("users").document(user.uid)
+                .collection("messages")
+                .whereEqualTo("isRead", false)
+                .addSnapshotListener { snapshot, error ->
+                    if (error == null && snapshot != null) {
+                        _unreadMessagesCount.value = snapshot.size()
+                    }
+                }
+
             // Listen for real-time changes
             roleListener?.remove()
             roleListener = userRef.addSnapshotListener { listenSnapshot, error ->
@@ -187,6 +208,7 @@ object SubscriptionManager {
                     val name = listenSnapshot.getString("name") ?: ""
                     val avatarId = listenSnapshot.getString("avatarId") ?: "default_poro"
                     val rankBorder = listenSnapshot.getString("rankBorder") ?: "NONE"
+                    val blueEs = listenSnapshot.getLong("blueEssence") ?: 0L
                     val until = listenSnapshot.getLong("premiumUntil")
                     @Suppress("UNCHECKED_CAST")
                     val unlocked = listenSnapshot.get("unlockedAvatars") as? List<String> ?: listOf("default_poro")
@@ -197,6 +219,7 @@ object SubscriptionManager {
                     _userRole.value = role
                     _isBanned.value = (role == "banned" || banned)
                     _premiumUntil.value = until
+                    _blueEssence.value = blueEs
                     
                     val isPrem = when {
                         isAdminClaim || role == "admin" -> true

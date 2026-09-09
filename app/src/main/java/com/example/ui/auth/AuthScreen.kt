@@ -2,6 +2,8 @@ package com.example.ui.auth
 
 import androidx.compose.animation.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalActivity
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
@@ -324,7 +326,62 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     modifier = Modifier.size(15.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+
+            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocalActivity,
+                    contentDescription = "Esencia Azul",
+                    tint = com.example.ui.theme.HextechCyan,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "$currentBlueEssence EA",
+                    color = com.example.ui.theme.HextechCyan,
+                    fontSize = 13.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+            }
+            
+            var showInboxDialog by remember { mutableStateOf(false) }
+            if (showInboxDialog) {
+                com.example.ui.components.UserInboxDialog(
+                    userUid = user.uid,
+                    onDismiss = { showInboxDialog = false }
+                )
+            }
+            
+            val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
+            if (unreadCount > 0) {
+                Button(
+                    onClick = { showInboxDialog = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                ) {
+                    Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Tienes $unreadCount mensaje(s) nuevo(s)")
+                }
+            } else {
+                OutlinedButton(
+                    onClick = { showInboxDialog = true },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = com.example.ui.theme.HextechCyan),
+                    border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                ) {
+                    Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Bandeja de Entrada")
+                }
+            }
 
             // Premium Status Card & Expiration Indicator
             Card(

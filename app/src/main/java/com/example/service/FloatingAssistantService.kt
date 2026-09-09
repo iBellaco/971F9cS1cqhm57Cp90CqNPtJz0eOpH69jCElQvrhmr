@@ -500,11 +500,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                                 val currentWidth = if (overlayState.isExpanded) dynamicCardWidthPx else bubbleSizePx
                                 val dynamicCardHeightPx = ((if (currentIsLandscape) 390 else 520) * density).toInt()
                                 val currentHeight = if (overlayState.isExpanded) dynamicCardHeightPx else bubbleSizePx
-                                val maxX = (currentScreenWidth - currentWidth - marginPx).coerceAtLeast(marginPx)
+                                val maxX = currentScreenWidth - marginPx
                                 val maxY = (currentScreenHeight - currentHeight - marginPx).coerceAtLeast(marginPx)
                                 
-                                params.x = (params.x + dx).coerceIn(marginPx, maxX)
-                                params.y = (params.y + dy).coerceIn(marginPx, maxY)
+                                params.x = (params.x + dx).coerceIn(0, maxX)
+                                params.y = (params.y + dy).coerceIn(0, maxY)
 
                                 if (!isOverlayExpanded) {
                                     if (isDragging) {
@@ -653,11 +653,11 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
                     val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
                     
-                    val maxX = (lastScreenWidth - viewWidth - marginPx).coerceAtLeast(marginPx)
+                    val maxX = lastScreenWidth - marginPx
                     val maxY = (lastScreenHeight - viewHeight - marginPx).coerceAtLeast(marginPx)
                     
-                    floatingParams!!.x = currentX.coerceIn(marginPx, maxX)
-                    floatingParams!!.y = currentY.coerceIn(marginPx, maxY)
+                    floatingParams!!.x = currentX.coerceIn(0, maxX)
+                    floatingParams!!.y = currentY.coerceIn(0, maxY)
                     windowManager?.updateViewLayout(floatingComposeView, floatingParams)
                     updateOverlayRect(floatingParams!!, isOverlayExpanded)
                 }
@@ -765,6 +765,7 @@ class OverlayState {
     val manualLockedAllySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
     val manualLockedEnemySlots = androidx.compose.runtime.mutableStateMapOf<Int, Boolean>()
     val allySummonerNames = androidx.compose.runtime.mutableStateMapOf<Int, String>()
+    val enemySummonerNames = androidx.compose.runtime.mutableStateMapOf<Int, String>()
     val allySpells = androidx.compose.runtime.mutableStateMapOf<Int, List<String>>()
     val enemySpells = androidx.compose.runtime.mutableStateMapOf<Int, List<String>>()
 }
@@ -1222,36 +1223,7 @@ private fun FloatingOverlayContent(
                             }
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                // Botón Minimizar/Mostrar Pestañas del Hub
-                                IconButton(
-                                    onClick = { isOverlayTabsMinimized = !isOverlayTabsMinimized },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (isOverlayTabsMinimized) Icons.Default.UnfoldMore else Icons.Default.UnfoldLess,
-                                        contentDescription = if (isOverlayTabsMinimized) "Mostrar pestañas del Hub" else "Minimizar pestañas del Hub",
-                                        tint = if (isOverlayTabsMinimized) HextechGold else TextMuted,
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                }
-
-                                // Botón Tamaño de Burbuja (Compact/Expanded)
-                                IconButton(
-                                    onClick = {
-                                        isCompactBubble = !isCompactBubble
-                                        onCompactModeChange(isCompactBubble)
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = if (isCompactBubble) Icons.Default.UnfoldMore else Icons.Default.UnfoldLess,
-                                        contentDescription = "Cambiar tamaño de burbuja",
-                                        tint = TextMuted,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-
-                                // Botón Minimizar
+                                // Botón Minimizar (Burbuja)
                                 IconButton(
                                     onClick = {
                                         isExpanded = false
@@ -1260,6 +1232,16 @@ private fun FloatingOverlayContent(
                                     modifier = Modifier.size(28.dp)
                                 ) {
                                     Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Minimizar", tint = TextPrimary, modifier = Modifier.size(20.dp))
+                                }
+
+                                // Botón Cerrar/Ocultar del todo
+                                IconButton(
+                                    onClick = {
+                                        onClose()
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(androidx.compose.material.icons.Icons.Default.Close, contentDescription = "Ocultar", tint = TextMuted, modifier = Modifier.size(20.dp))
                                 }
                             }
                         }
@@ -1507,6 +1489,7 @@ private fun FloatingOverlayContent(
                                             enemies = enemies,
                                             enemyConfidences = state.enemyConfidences,
                                             allySummonerNames = state.allySummonerNames,
+                                            enemySummonerNames = state.enemySummonerNames,
                                             allySpells = state.allySpells,
                                             enemySpells = state.enemySpells,
                                             analysis = analysis,
@@ -1527,6 +1510,7 @@ private fun FloatingOverlayContent(
                                                 manualLockedEnemySlots.clear()
                                                 state.enemyConfidences.clear()
                                                 state.allySummonerNames.clear()
+                                                state.enemySummonerNames.clear()
                                                 state.allySpells.clear()
                                                 state.enemySpells.clear()
                                                 DraftVisionScanner.resetSlotMemory()
@@ -2235,6 +2219,7 @@ private fun FloatingDraftCoachView(
     enemies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
     enemyConfidences: androidx.compose.runtime.snapshots.SnapshotStateMap<LaneRole, Int>,
     allySummonerNames: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, String> = remember { androidx.compose.runtime.mutableStateMapOf() },
+    enemySummonerNames: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, String> = remember { androidx.compose.runtime.mutableStateMapOf() },
     allySpells: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, List<String>> = remember { androidx.compose.runtime.mutableStateMapOf() },
     enemySpells: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, List<String>> = remember { androidx.compose.runtime.mutableStateMapOf() },
     analysis: com.example.model.DraftAnalysisResult,
@@ -2272,7 +2257,7 @@ private fun FloatingDraftCoachView(
             }
         }
     }
-    val enemySlots = remember(enemies.toList(), enemyConfidences.toMap(), enemySpells.toMap()) {
+    val enemySlots = remember(enemies.toList(), enemyConfidences.toMap(), enemySpells.toMap(), enemySummonerNames.toMap()) {
         defaultRoles.mapIndexedNotNull { index, role ->
             enemies.getOrNull(index)?.let {
                 val conf = enemyConfidences[role] ?: 85
@@ -2280,6 +2265,7 @@ private fun FloatingDraftCoachView(
                     champion = it,
                     assignedRole = role,
                     confidence = conf,
+                    summonerName = enemySummonerNames[index],
                     spells = enemySpells[index] ?: emptyList()
                 )
             }
@@ -2461,6 +2447,16 @@ private fun OverlayVersusDraftBoard(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
+                                    if (allySlot.spells.isNotEmpty()) {
+                                        Text(
+                                            text = allySlot.spells.joinToString(", "),
+                                            color = HextechGold.copy(alpha = 0.9f),
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1, softWrap = false,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
                                     // Línea 3: Estadísticas ordenadas (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -2573,6 +2569,29 @@ private fun OverlayVersusDraftBoard(
                                         overflow = TextOverflow.Ellipsis,
                                         textAlign = TextAlign.End
                                     )
+                                    // Línea 1.5: Nombre de Invocador Rival
+                                    if (!enemySlot.summonerName.isNullOrBlank()) {
+                                        Text(
+                                            text = enemySlot.summonerName,
+                                            color = TextSecondary,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1, softWrap = false,
+                                            overflow = TextOverflow.Ellipsis,
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                    if (enemySlot.spells.isNotEmpty()) {
+                                        Text(
+                                            text = enemySlot.spells.joinToString(", "),
+                                            color = HextechGold.copy(alpha = 0.9f),
+                                            fontSize = 7.5.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1, softWrap = false,
+                                            overflow = TextOverflow.Ellipsis,
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
                                     // Línea 2: Estadísticas ordenadas del Rival (Tier, WR, PR, BR)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
