@@ -297,6 +297,75 @@ object DraftValidationLayer {
             }
         }
 
+        // 2.5 RESOLUCIÓN INTELIGENTE DE DUPLAS Y FLEX PICKS META (Wild Rift Pro Matchups)
+        // Ejemplo: Jax + Malphite -> Jax TOP, Malphite SUPPORT/MID.
+        // Ejemplo: Sett + Midlaner -> Sett TOP.
+        // Ejemplo: Lux + Midlaner -> Lux SUPPORT.
+        // Ejemplo: Yasuo + Malphite -> Yasuo MID, Malphite TOP/SUP.
+        // Ejemplo: Volibear + Jax + Malphite -> Jax TOP, Volibear JUNGLE, Malphite SUPPORT.
+        val unassignedValidSlots = validSlots.filter { !assignedChampionIds.contains(it.champion?.id) }
+        val unassignedChampIds = unassignedValidSlots.mapNotNull { it.champion?.id }.toSet()
+
+        if (unassignedChampIds.contains("jax") && unassignedChampIds.contains("malphite")) {
+            val jaxSlot = unassignedValidSlots.find { it.champion?.id == "jax" }
+            val malphiteSlot = unassignedValidSlots.find { it.champion?.id == "malphite" }
+            if (jaxSlot != null && malphiteSlot != null) {
+                if (availableRoles.contains(LaneRole.TOP)) {
+                    finalMap[LaneRole.TOP] = jaxSlot.champion!!
+                    confidences[LaneRole.TOP] = 95
+                    availableRoles.remove(LaneRole.TOP)
+                    assignedChampionIds.add("jax")
+                    jaxSlot.assignedRole = LaneRole.TOP
+                    auditList.add("Sinergia de Draft: Jax asignado a TOP (Barón)")
+                }
+                val malphRole = when {
+                    availableRoles.contains(LaneRole.SUPPORT) -> LaneRole.SUPPORT
+                    availableRoles.contains(LaneRole.MID) -> LaneRole.MID
+                    availableRoles.contains(LaneRole.JUNGLE) -> LaneRole.JUNGLE
+                    else -> availableRoles.firstOrNull()
+                }
+                if (malphRole != null) {
+                    finalMap[malphRole] = malphiteSlot.champion!!
+                    confidences[malphRole] = 90
+                    availableRoles.remove(malphRole)
+                    assignedChampionIds.add("malphite")
+                    malphiteSlot.assignedRole = malphRole
+                    auditList.add("Sinergia de Draft: Malphite flex adaptado a ${malphRole.shortName} junto a Jax TOP")
+                }
+            }
+        }
+
+        // Si Volibear está con Jax o Malphite, Volibear se prioriza como Jungla si está disponible
+        if (unassignedChampIds.contains("volibear") && availableRoles.contains(LaneRole.JUNGLE)) {
+            val voliSlot = unassignedValidSlots.find { it.champion?.id == "volibear" }
+            if (voliSlot != null && !assignedChampionIds.contains("volibear")) {
+                finalMap[LaneRole.JUNGLE] = voliSlot.champion!!
+                confidences[LaneRole.JUNGLE] = 95
+                availableRoles.remove(LaneRole.JUNGLE)
+                assignedChampionIds.add("volibear")
+                voliSlot.assignedRole = LaneRole.JUNGLE
+                auditList.add("Sinergia de Draft: Volibear asignado a JUNGLA")
+            }
+        }
+
+        // Si Lux está con otro mago de carril central (ej. Viktor, Veigar, Ahri, Syndra, Zed, Yasuo), Lux toma SUPPORT
+        if (unassignedChampIds.contains("lux") && availableRoles.contains(LaneRole.SUPPORT)) {
+            val hasOtherMid = unassignedValidSlots.any {
+                it.champion?.id != "lux" && (it.champion?.primaryRole == LaneRole.MID || it.champion?.id in listOf("viktor", "ahri", "syndra", "zed", "yasuo", "vex", "katarina", "akali", "aurelionsol", "zoe"))
+            }
+            if (hasOtherMid) {
+                val luxSlot = unassignedValidSlots.find { it.champion?.id == "lux" }
+                if (luxSlot != null && !assignedChampionIds.contains("lux")) {
+                    finalMap[LaneRole.SUPPORT] = luxSlot.champion!!
+                    confidences[LaneRole.SUPPORT] = 90
+                    availableRoles.remove(LaneRole.SUPPORT)
+                    assignedChampionIds.add("lux")
+                    luxSlot.assignedRole = LaneRole.SUPPORT
+                    auditList.add("Sinergia de Draft: Lux flex adaptada a APOYO (con otro Midlaner presente)")
+                }
+            }
+        }
+
         // 3. ASIGNACIÓN POR ROL PRIMARIO DEL CAMPEÓN
         for (slot in validSlots) {
             val champ = slot.champion ?: continue

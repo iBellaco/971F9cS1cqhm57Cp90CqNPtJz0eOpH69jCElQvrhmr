@@ -190,6 +190,8 @@ class ScreenCaptureManager(private val context: Context) {
         }
     }
 
+    private var lastRefreshTimestamp = 0L
+
     /**
      * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución sin invalidar el token de MediaProjection.
      * En Android 14+, recrear el VirtualDisplay con el mismo token lanza SecurityException; por ello se redimensiona
@@ -197,6 +199,10 @@ class ScreenCaptureManager(private val context: Context) {
      */
     @SuppressLint("WrongConstant")
     fun refreshProjection() {
+        val now = System.currentTimeMillis()
+        if (now - lastRefreshTimestamp < 350L) return
+        lastRefreshTimestamp = now
+
         synchronized(projectionLock) {
             val proj = mediaProjection ?: return
             try {

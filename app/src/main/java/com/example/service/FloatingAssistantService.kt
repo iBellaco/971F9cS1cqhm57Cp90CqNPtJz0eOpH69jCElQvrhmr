@@ -71,6 +71,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BookmarkAdd
+import com.example.ui.components.DraftCalibrationPanel
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
@@ -439,7 +440,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
-            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
             setContent {
                 FloatingCloseTarget(
@@ -470,7 +471,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             setViewTreeLifecycleOwner(this@FloatingAssistantService)
             setViewTreeViewModelStoreOwner(this@FloatingAssistantService)
             setViewTreeSavedStateRegistryOwner(this@FloatingAssistantService)
-            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
 
             setContent {
                 val sharedPrefs = remember { getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
@@ -892,17 +893,17 @@ private fun FloatingOverlayContent(
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
-                            // 1. Asignación directa y de alta precisión por rol o por slot físico (respetando selecciones manuales)
+                            // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales y evitando asignaciones espurias)
                             defaultRoles.forEachIndexed { idx, role ->
                                 if (manualLockedAllySlots[idx] != true) {
-                                    val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
+                                    val scannedAlly = result.alliesByRole[role]
                                     if (scannedAlly != null && allies[idx] == null) {
                                         assignAllySlot(idx, scannedAlly)
                                         newAlliesAdded++
                                     }
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
-                                    val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
+                                    val scannedEnemy = result.enemiesByRole[role]
                                     if (scannedEnemy != null && enemies[idx] == null) {
                                         assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                         newEnemiesAdded++
@@ -985,16 +986,16 @@ private fun FloatingOverlayContent(
                             isFirstPick = result.detectedFirstPick
                         }
 
-                        // 1. Asignación directa y de alta precisión por rol o por slot físico (respetando selecciones manuales)
+                        // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
-                                val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
+                                val scannedAlly = result.alliesByRole[role]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
-                                val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
+                                val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                 }
@@ -1141,6 +1142,7 @@ private fun FloatingOverlayContent(
                 exit = scaleOut() + fadeOut()
             ) {
                 var isDraggingPanel by remember { mutableStateOf(false) }
+                var showCalibrationPanel by remember { mutableStateOf(false) }
 
                 val targetCardHeight = if (isLandscapeMode) 345.dp else 520.dp
                 Card(
@@ -1244,7 +1246,31 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                // Botón Insecto (Depuración y Calibrador de Escáner)
+                                Surface(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clickable {
+                                            showCalibrationPanel = !showCalibrationPanel
+                                        },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = if (showCalibrationPanel) HextechCyan.copy(alpha = 0.25f) else Color(0xFF1E293B),
+                                    border = BorderStroke(1.dp, if (showCalibrationPanel) HextechCyan else HextechGold.copy(alpha = 0.6f))
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.BugReport,
+                                            contentDescription = "Calibrador y Depuración de Escáner",
+                                            tint = if (showCalibrationPanel) HextechCyan else HextechGold,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+
                                 // Botón Minimizar (a Burbuja flotante)
                                 Surface(
                                     modifier = Modifier
@@ -1488,7 +1514,11 @@ private fun FloatingOverlayContent(
 
                         // Contenido Principal del Hub según la Pestaña Activa o Detalle de Campeón
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                            if (selectedChampionDetail != null) {
+                            if (showCalibrationPanel) {
+                                DraftCalibrationPanel(
+                                    onDismiss = { showCalibrationPanel = false }
+                                )
+                            } else if (selectedChampionDetail != null) {
                                 com.example.ui.screens.ChampionDetailSheet(
                                     isOverlay = true,
                                     champion = selectedChampionDetail,

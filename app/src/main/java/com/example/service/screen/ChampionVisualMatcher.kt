@@ -373,7 +373,7 @@ object ChampionVisualMatcher {
         avatarCrop: Bitmap,
         candidates: List<Champion>,
         excludedChampionIds: Set<String> = emptySet(),
-        minConfidenceThreshold: Float = 0.52f
+        minConfidenceThreshold: Float = 0.50f
     ): VisualMatchResult? {
         if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
 
@@ -395,7 +395,7 @@ object ChampionVisualMatcher {
             val candidateSig = signatureCache[champ.id] ?: loadSignature(context, champ.id)
             if (candidateSig == null) continue
 
-            // 1. Similitud de Histograma (Intersección normalizada)
+            // 1. Similitud de Histograma (Intersección normalizada de 64 bins)
             var histSim = 0.0f
             for (i in 0 until 64) {
                 histSim += min(targetSignature.histogram[i], candidateSig.histogram[i])
@@ -418,7 +418,7 @@ object ChampionVisualMatcher {
             val dbAvg = targetSignature.avgB - candidateSig.avgB
             val dominantColorSim = (1.0f - sqrt((drAvg * drAvg + dgAvg * dgAvg + dbAvg * dbAvg) / 3.0f)).coerceIn(0.0f, 1.0f)
 
-            // Puntuación combinada de similitud relativa
+            // Puntuación combinada de similitud relativa (45% Histograma + 45% Estructura Espacial + 10% Tono Global)
             val combinedScore = 0.45f * histSim + 0.45f * zoneSim + 0.10f * dominantColorSim
 
             if (combinedScore > bestScore) {
@@ -433,8 +433,8 @@ object ChampionVisualMatcher {
         // Se requiere superar el umbral mínimo estricto para evitar emparejamientos espurios
         if (bestChamp != null && bestScore >= minConfidenceThreshold) {
             val margin = bestScore - secondBestScore
-            val isConfident = bestScore >= 0.60f && (secondBestScore < 0 || margin >= 0.04f)
-            AppLogger.d(TAG, "Similitud visual detectada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%, Confidente: $isConfident)")
+            val isConfident = bestScore >= 0.58f && (secondBestScore < 0 || margin >= 0.03f)
+            AppLogger.d(TAG, "Similitud visual detectada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%, Margen: ${(margin * 100).toInt()}%)")
             return VisualMatchResult(
                 champion = bestChamp,
                 confidence = bestScore,

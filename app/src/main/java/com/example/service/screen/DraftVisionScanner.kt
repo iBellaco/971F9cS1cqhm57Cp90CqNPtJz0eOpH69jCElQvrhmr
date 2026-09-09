@@ -100,7 +100,21 @@ object DraftVisionScanner {
     var overlayRect: android.graphics.Rect? = null
     
     // Configuración estándar de coordenadas y cálculos
-    val calibrationConfig = VisionCalibrationConfig()
+    var calibrationConfig = VisionCalibrationConfig()
+
+    fun initCalibration(context: android.content.Context) {
+        calibrationConfig = VisionCalibrationConfig.loadFromPrefs(context)
+    }
+
+    fun updateCalibration(context: android.content.Context, newConfig: VisionCalibrationConfig) {
+        calibrationConfig = newConfig
+        newConfig.saveToPrefs(context)
+    }
+
+    fun resetCalibration(context: android.content.Context) {
+        calibrationConfig = VisionCalibrationConfig()
+        calibrationConfig.saveToPrefs(context)
+    }
 
     private var recognizerInstance: com.google.mlkit.vision.text.TextRecognizer? = null
 
@@ -472,6 +486,7 @@ object DraftVisionScanner {
                     allyOcrChampions[i] = null
                     slot.champion = null
                     slot.isLikelyUnpicked = true
+                    allySlotFilters[i].reset() // Resetear memoria temporal del slot para no arrastrar campeones previos
                 } else if (detectedChampInSlot != null) {
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
@@ -481,32 +496,30 @@ object DraftVisionScanner {
                     allyOcrChampions[i] = null
                     slot.champion = null
                     slot.isLikelyUnpicked = true
+                    allySlotFilters[i].reset()
                 }
 
                 if (allySlotRolesCache[i] != null) {
                     slot.explicitRole = allySlotRolesCache[i]
                 }
 
-                // Asignar el nombre de invocador más limpio detectado SOLO si este slot no ha sido escaneado aún (bloqueo anti-parpadeo)
-                if (allySummonerNamesCache[i].isNullOrBlank()) {
-                    val bestSummoner = summonerCandidates.firstOrNull { cand ->
-                        !cand.equals(slot.champion?.name, ignoreCase = true) &&
-                        ChampionNameResolver.findChampionInText(cand, allChamps) == null
-                    }
-                    if (!bestSummoner.isNullOrBlank()) {
-                        allySummonerNamesCache[i] = bestSummoner
-                        textDiagnosticsList.add(
-                            TextBlockDiagnostic(
-                                text = bestSummoner,
-                                rect = Rect(0, 0, 10, 10),
-                                isAlly = true,
-                                slotIndex = i,
-                                tag = "INVOCADOR",
-                                color = android.graphics.Color.argb(255, 120, 180, 255)
-                            )
+                // Asignar el nombre de invocador más limpio detectado
+                val bestSummoner = summonerCandidates.firstOrNull { cand ->
+                    !cand.equals(slot.champion?.name, ignoreCase = true) &&
+                    ChampionNameResolver.findChampionInText(cand, allChamps) == null
+                }
+                if (!bestSummoner.isNullOrBlank()) {
+                    allySummonerNamesCache[i] = bestSummoner
+                    textDiagnosticsList.add(
+                        TextBlockDiagnostic(
+                            text = bestSummoner,
+                            rect = Rect(0, 0, 10, 10),
+                            isAlly = true,
+                            slotIndex = i,
+                            tag = "INVOCADOR",
+                            color = android.graphics.Color.argb(255, 120, 180, 255)
                         )
-                        AppLogger.d(TAG, "OCR Aliado Slot $i -> Invocador bloqueado: $bestSummoner")
-                    }
+                    )
                 }
             }
 
@@ -806,51 +819,88 @@ object DraftVisionScanner {
                 val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
 
                 for (targetSlot in candidateSlots) {
-                    val yCenter = if (targetSlot.isAlly) {
-                        (height * allySlotYRatios[targetSlot.slotIndex]).toInt()
+                    val sIdx = targetSlot.slotIndex
+                    val isAlly = targetSlot.isAlly
+
+                    // Ubicación dinámica adaptativa: Si el OCR detectó texto en este slot (ej: "Jugador 5" o nombre),
+                    // usamos la posición Y exacta del texto y colocamos el avatar al lado
+                    val slotTexts = if (isAlly) allySlotTexts[sIdx] else enemySlotTexts[sIdx]
+                    val detectedTextBox = slotTexts.mapNotNull { it.second }.firstOrNull()
+
+                    val defaultYCenter = if (isAlly) {
+                        (height * allySlotYRatios[sIdx]).toInt()
                     } else {
-                        (height * enemySlotYRatios[targetSlot.slotIndex]).toInt()
+                        (height * enemySlotYRatios[sIdx]).toInt()
                     }
-                    val xCenter = if (targetSlot.isAlly) allyAvatarCenterX else enemyAvatarCenterX
-                    // Usar un radio de recorte más amplio (1.35x) para capturar el retrato completo con máxima fidelidad
-                    val expandedDiameter = (avatarDiameter * 1.35f).toInt()
-                    val startX = (xCenter - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
-                    val startY = (yCenter - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
-                    val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
+                    val defaultXCenter = if (isAlly) allyAvatarCenterX else enemyAvatarCenterX
 
-                    try {
-                        val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                        val threshold = if (isFinalTenthPick) 0.50f else 0.58f
-                        val match = ChampionVisualMatcher.matchChampion(
-                            context = context,
-                            avatarCrop = avatarCrop,
-                            candidates = allChamps,
-                            excludedChampionIds = alreadyPickedIds,
-                            minConfidenceThreshold = threshold
-                        )
-                        avatarCrop.recycle()
-
-                        if (match != null) {
-                            targetSlot.champion = match.champion
-                            targetSlot.confidencePercent = (match.confidence * 100).toInt()
-                            targetSlot.isLikelyUnpicked = false
-
-                            if (targetSlot.isAlly) {
-                                allyOcrChampions[targetSlot.slotIndex] = match.champion
-                                allySlotFilters[targetSlot.slotIndex].process(match.champion, isOcr = false, score = match.confidence)
-                            } else {
-                                enemyOcrChampions[targetSlot.slotIndex] = match.champion
-                                enemySlotFilters[targetSlot.slotIndex].process(match.champion, isOcr = false, score = match.confidence)
-                            }
-
-                            isLastPickVisualRecognized = true
-                            lastPickVisualChampion = match.champion
-                            val side = if (targetSlot.isAlly) "Aliado" else "Rival"
-                            auditList.add("🎯 Slot $side ${targetSlot.slotIndex} detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
-                            AppLogger.d(TAG, "Reconocimiento por similitud en $side ${targetSlot.slotIndex}: ${match.champion.name}")
+                    val yCenter = detectedTextBox?.centerY() ?: defaultYCenter
+                    val xCenter = if (detectedTextBox != null) {
+                        if (isAlly) {
+                            (detectedTextBox.left / 2).coerceIn((width * 0.04f).toInt(), (width * 0.12f).toInt())
+                        } else {
+                            ((detectedTextBox.right + width) / 2).coerceIn((width * 0.88f).toInt(), (width * 0.96f).toInt())
                         }
-                    } catch (e: Exception) {
-                        AppLogger.e(TAG, "Error en reconocimiento visual del slot ${targetSlot.slotIndex}", e)
+                    } else defaultXCenter
+
+                    // Usar un radio de recorte adaptable (1.30x) para capturar el retrato completo
+                    val expandedDiameter = (avatarDiameter * 1.30f).toInt().coerceAtLeast(36)
+                    val offsets = listOf(
+                        Pair(0, 0),
+                        Pair(-(expandedDiameter * 0.08f).toInt(), 0),
+                        Pair((expandedDiameter * 0.08f).toInt(), 0),
+                        Pair(0, -(expandedDiameter * 0.08f).toInt()),
+                        Pair(0, (expandedDiameter * 0.08f).toInt())
+                    )
+
+                    var bestMatchResult: ChampionVisualMatcher.VisualMatchResult? = null
+
+                    for ((offX, offY) in offsets) {
+                        val startX = (xCenter + offX - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
+                        val startY = (yCenter + offY - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
+                        val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
+
+                        try {
+                            val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                            val threshold = if (isFinalTenthPick) 0.45f else 0.52f
+                            val match = ChampionVisualMatcher.matchChampion(
+                                context = context,
+                                avatarCrop = avatarCrop,
+                                candidates = allChamps,
+                                excludedChampionIds = alreadyPickedIds,
+                                minConfidenceThreshold = threshold
+                            )
+                            avatarCrop.recycle()
+
+                            if (match != null) {
+                                if (bestMatchResult == null || match.confidence > bestMatchResult.confidence) {
+                                    bestMatchResult = match
+                                }
+                            }
+                        } catch (e: Exception) {
+                            AppLogger.e(TAG, "Error en reconocimiento visual del slot $sIdx (offset $offX,$offY)", e)
+                        }
+                    }
+
+                    if (bestMatchResult != null) {
+                        val match = bestMatchResult
+                        targetSlot.champion = match.champion
+                        targetSlot.confidencePercent = (match.confidence * 100).toInt()
+                        targetSlot.isLikelyUnpicked = false
+
+                        if (targetSlot.isAlly) {
+                            allyOcrChampions[sIdx] = match.champion
+                            allySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                        } else {
+                            enemyOcrChampions[sIdx] = match.champion
+                            enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                        }
+
+                        isLastPickVisualRecognized = true
+                        lastPickVisualChampion = match.champion
+                        val side = if (targetSlot.isAlly) "Aliado" else "Rival"
+                        auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
+                        AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
                     }
                 }
             }

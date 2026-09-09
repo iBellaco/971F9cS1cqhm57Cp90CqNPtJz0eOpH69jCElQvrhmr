@@ -4964,7 +4964,7 @@ fun TierSelectionPanel(
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
     ) {
         Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
-            // CABECERA OFICIAL TIER LIST GLOBAL, NA Y ASIÁTICA
+            // CABECERA: 🌐 Servidor / Meta: | Δ 24h Meta Sync
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -4972,39 +4972,48 @@ fun TierSelectionPanel(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "🌐 " + tr("Tier List Global, NA y Asiática"),
+                        text = "🌐 " + tr("Servidor / Meta:"),
                         color = HextechGold,
-                        fontSize = if (isOverlay) 11.sp else 12.5.sp,
+                        fontSize = if (isOverlay) 11.5.sp else 13.5.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(HextechCyan.copy(alpha = 0.15f))
-                        .border(0.6.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .background(HextechCyan.copy(alpha = 0.12f))
+                        .border(0.8.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .clickable {
+                            coroutineScope.launch {
+                                if (currentRegion == "CN") {
+                                    ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+                                } else {
+                                    ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+                                }
+                            }
+                        }
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = if (isOverlay) "24h Sync" else "Δ 24h Meta Sync",
                         color = HextechCyan,
-                        fontSize = if (isOverlay) 8.5.sp else 9.sp,
+                        fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(if (isOverlay) 6.dp else 8.dp))
+            Spacer(modifier = Modifier.height(if (isOverlay) 8.dp else 10.dp))
 
-            // SELECTOR DE REGIONES: GLOBAL, NA Y ASIÁTICA
+            // SELECTOR DE 3 SERVIDORES: Servidor Chino (API Tencent) | Global (Meta Live) | América (NA) (Local Cache)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 6.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (isOverlay) 4.dp else 8.dp)
             ) {
                 val regionItems = listOf(
-                    Triple("Global", if (isOverlay) "Global" else "Tier List Global", if (isOverlay) "Live" else "Meta Mundial"),
-                    Triple("NA", if (isOverlay) "NA" else "Tier List NA", if (isOverlay) "Norteamérica" else "América (NA)"),
-                    Triple("CN", if (isOverlay) "Asiática" else "Tier List Asiática", if (isOverlay) "Tencent" else "Servidor Chino")
+                    Triple("CN", "🇨🇳 " + tr("Servidor Chino"), "API Tencent"),
+                    Triple("Global", "🌍 " + tr("Global"), "Meta Live"),
+                    Triple("NA", "🌎 " + tr("América (NA)"), "Local Cache")
                 )
                 regionItems.forEach { (regionId, label, sub) ->
                     val isSelected = (regionId == "CN" && currentRegion == "CN") ||
@@ -5016,36 +5025,41 @@ fun TierSelectionPanel(
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 if (isSelected) Brush.verticalGradient(
-                                    listOf(HextechGold.copy(alpha = 0.35f), HextechGold.copy(alpha = 0.15f))
+                                    listOf(HextechGold.copy(alpha = 0.22f), HextechGold.copy(alpha = 0.08f))
                                 ) else Brush.verticalGradient(
-                                    listOf(HextechSurfaceVariant.copy(alpha = 0.4f), HextechSurfaceVariant.copy(alpha = 0.4f))
+                                    listOf(HextechSurfaceVariant.copy(alpha = 0.35f), HextechSurfaceVariant.copy(alpha = 0.2f))
                                 )
                             )
                             .border(
                                 width = if (isSelected) 1.5.dp else 0.8.dp,
-                                color = if (isSelected) HextechGold else HextechCardBorder,
+                                color = if (isSelected) HextechGold else HextechCardBorder.copy(alpha = 0.6f),
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .clickable {
                                 ChineseMetaSyncService.setRegion(context, regionId, coroutineScope)
                             }
-                            .padding(horizontal = 4.dp, vertical = 6.dp),
+                            .padding(horizontal = 4.dp, vertical = if (isOverlay) 6.dp else 8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
                             Text(
-                                text = tr(label),
+                                text = label,
                                 color = if (isSelected) HextechGold else TextMuted,
-                                fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
-                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+                                fontSize = if (isOverlay) 8.5.sp else 10.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 maxLines = 1
                             )
                             Text(
                                 text = sub,
-                                color = if (isSelected) HextechCyan else TextMuted,
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Normal
+                                color = if (isSelected) HextechCyan else TextMuted.copy(alpha = 0.7f),
+                                fontSize = if (isOverlay) 7.5.sp else 8.5.sp,
+                                fontWeight = FontWeight.Normal,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                maxLines = 1
                             )
                         }
                     }
@@ -5054,60 +5068,7 @@ fun TierSelectionPanel(
             
             Spacer(modifier = Modifier.height(8.dp))
 
-            // MÓDULOS TÁCTICOS DESTACADOS (Identificación de Mejores Pick, Análisis, Coach, Wombo Combos, etc.)
-            if (!isOverlay) {
-                val tacticalModules = listOf(
-                    "🎯 Identificación de Mejores Pick",
-                    "⚔️ Análisis de enfrentamiento",
-                    "🛡️ Coach Élite y Draft",
-                    "⭐ Recomendador de mejor pick",
-                    "💥 Wombo Combos",
-                    "⚖️ Balance de daño aliado y rival",
-                    "🏆 Condición de Victoria"
-                )
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(HextechDarkBg.copy(alpha = 0.6f))
-                        .border(0.5.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "⚡ " + tr("Módulos de Análisis Táctico Oficial:"),
-                        color = HextechCyan,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        tacticalModules.forEach { module ->
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(HextechSurfaceVariant.copy(alpha = 0.6f))
-                                    .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 6.dp, vertical = 3.dp)
-                            ) {
-                                Text(
-                                    text = tr(module),
-                                    color = HextechGold,
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            
-            // METALLIC TIER RANK BADGES (Challenger, Master, Diamond, Emerald)
+            // RANGO DE ELO PARA SERVIDOR CHINO: Retador/Soberano | Maestro/Gran Maestro | Esmeralda/Diamante | General
             AnimatedVisibility(visible = currentRegion == "CN") {
                 Column {
                     Row(
@@ -5116,11 +5077,11 @@ fun TierSelectionPanel(
                     ) {
                         TencentRankTier.entries.forEach { tier ->
                             val isSelected = currentTier == tier
-                            val (rankIcon, rankColor) = when (tier) {
-                                TencentRankTier.CHALLENGER -> "" to Color(0xFFFFD700)
-                                TencentRankTier.MASTER_PLUS -> "" to Color(0xFF00E5FF)
-                                TencentRankTier.DIAMOND_PLUS -> "" to Color(0xFF3B82F6)
-                                TencentRankTier.ALL_RANKS -> "" to Color(0xFF10B981)
+                            val rankColor = when (tier) {
+                                TencentRankTier.CHALLENGER -> Color(0xFFFFD700)
+                                TencentRankTier.MASTER_PLUS -> Color(0xFF00E5FF)
+                                TencentRankTier.DIAMOND_PLUS -> Color(0xFF3B82F6)
+                                TencentRankTier.ALL_RANKS -> Color(0xFF10B981)
                             }
                             Box(
                                 modifier = Modifier
@@ -5128,14 +5089,14 @@ fun TierSelectionPanel(
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(
                                         if (isSelected) Brush.verticalGradient(
-                                            listOf(rankColor.copy(alpha = 0.35f), HextechSurfaceVariant)
+                                            listOf(HextechCyan.copy(alpha = 0.30f), HextechSurfaceVariant.copy(alpha = 0.6f))
                                         ) else Brush.verticalGradient(
-                                            listOf(HextechSurfaceVariant.copy(alpha = 0.3f), HextechSurfaceVariant.copy(alpha = 0.3f))
+                                            listOf(HextechSurfaceVariant.copy(alpha = 0.25f), HextechSurfaceVariant.copy(alpha = 0.15f))
                                         )
                                     )
                                     .border(
                                         width = if (isSelected) 1.5.dp else 0.6.dp,
-                                        color = if (isSelected) rankColor else HextechCardBorder,
+                                        color = if (isSelected) HextechCyan else HextechCardBorder.copy(alpha = 0.5f),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable {
@@ -5143,25 +5104,22 @@ fun TierSelectionPanel(
                                             ChineseMetaSyncService.syncChineseMeta(context, tier, forceRefresh = true)
                                         }
                                     }
-                                    .padding(horizontal = 3.dp, vertical = 5.dp),
+                                    .padding(horizontal = 2.dp, vertical = if (isOverlay) 5.dp else 7.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(text = rankIcon, fontSize = 11.sp)
-                                    Text(
-                                        text = tr(tier.shortName),
-                                        color = if (isSelected) rankColor else TextMuted,
-                                        fontSize = 8.5.sp,
-                                        lineHeight = 10.5.sp,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
-                                        maxLines = 1
-                                    )
-                                }
+                                Text(
+                                    text = tr(tier.displayName),
+                                    color = if (isSelected) HextechCyan else TextMuted,
+                                    fontSize = if (isOverlay) 7.5.sp else 8.5.sp,
+                                    lineHeight = 10.5.sp,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    maxLines = 1
+                                )
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
@@ -5177,7 +5135,7 @@ fun TierSelectionPanel(
                         "⚡ ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
                     } else when (val s = syncState) {
                         is ChineseSyncState.Syncing -> "⏳ " + tr("Sincronizando...")
-                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR" || currentRegion == "Global") "⚡ ${tr("Sincronizado")} ${s.timestamp}" else "⚡ ${tr("En vivo:")} ${s.timestamp} (${tr(s.tier.displayName)})"
+                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR" || currentRegion == "Global") "⚡ ${s.timestamp}" else "⚡ ${s.timestamp} (${tr(s.tier.displayName)})"
                         is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
                         ChineseSyncState.Idle -> "⚡ ${lastSyncInfo.second}"
                     },
