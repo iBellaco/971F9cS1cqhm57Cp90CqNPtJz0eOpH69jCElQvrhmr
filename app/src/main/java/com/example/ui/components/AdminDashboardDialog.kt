@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
+import com.example.data.sync.BestBuildWrScraper
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -362,6 +365,8 @@ fun EnhancedUserManagementPanel() {
             },
             isRefreshing = isRefreshing
         )
+
+        ServerScraperHealthCard()
 
         // Buscador y Chips de Filtro
         Surface(
@@ -2213,4 +2218,157 @@ private fun toggleUserBanStatus(
         .addOnFailureListener { e ->
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
         }
+}
+
+
+@Composable
+private fun ServerScraperHealthCard() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val sourceStatuses by BestBuildWrScraper.sourceStatuses.collectAsState()
+    val globalStatus by BestBuildWrScraper.globalSyncStatus.collectAsState()
+    var isChecking by remember { mutableStateOf(false) }
+
+    Surface(
+        color = HextechSurfaceBg,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, HextechCardBorder),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CloudSync, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Monitoreo en Vivo de Scrappers & Servidores",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            isChecking = true
+                            BestBuildWrScraper.syncGlobalTierList(context)
+                            kotlinx.coroutines.delay(600L)
+                            isChecking = false
+                            Toast.makeText(context, "Verificación de servidores completada", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Verificar",
+                        tint = if (isChecking) HextechGold else HextechCyan,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Estado Global (Promedio 5 Fuentes): $globalStatus",
+                color = TextSecondary,
+                fontSize = 11.sp
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            val allSources = sourceStatuses.values.toList()
+            allSources.forEach { status ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(if (status.isHealthy) Color(0xFF00FF7F) else Color(0xFFFF5252))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = status.name,
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${status.responseTimeMs} ms",
+                            color = TextMuted,
+                            fontSize = 10.sp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            color = if (status.isHealthy) Color(0xFF2E7D32).copy(alpha = 0.2f) else Color(0xFFC62828).copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(4.dp),
+                            border = BorderStroke(0.5.dp, if (status.isHealthy) Color(0xFF81C784) else Color(0xFFEF9A9A))
+                        ) {
+                            Text(
+                                text = if (status.isHealthy) "OPERATIVO (OK)" else (status.errorMessage ?: "ERROR"),
+                                color = if (status.isHealthy) Color(0xFF81C784) else Color(0xFFEF9A9A),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+            Divider(color = HextechCardBorder.copy(alpha = 0.5f), thickness = 0.5.dp)
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF00FF7F))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Servidor Oficial Tencent (China - lolm.qq.com)",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Surface(
+                    color = Color(0xFF2E7D32).copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(4.dp),
+                    border = BorderStroke(0.5.dp, Color(0xFF81C784))
+                ) {
+                    Text(
+                        text = "OPERATIVO (OK)",
+                        color = Color(0xFF81C784),
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
+        }
+    }
 }

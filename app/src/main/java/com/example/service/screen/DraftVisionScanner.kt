@@ -480,7 +480,7 @@ object DraftVisionScanner {
                         }
 
                         // C) Nombre de invocador (siempre que no sea rol ni campeón)
-                        if (line.length in 2..28 && !DraftValidationLayer.isNoiseText(line) && !line.matches(Regex("^[0-9\\s:.,%#-]+$"))) {
+                        if (line.length in 1..28 && !DraftValidationLayer.isNoiseText(line) && !line.matches(Regex("^[0-9\\s:.,%#-]+$"))) {
                             if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
                                 summonerCandidates.add(line)
                             }
@@ -526,15 +526,20 @@ object DraftVisionScanner {
                     }
                 }
 
-                // Combinar líneas adyacentes si forman parte de un nombre con espacios (ej. "DIE" + "GO" -> "DIE GO")
+                // Combinar líneas adyacentes o letras espaciadas (ej. D I E G O -> D I E G O / DIEGO)
                 var bestSummoner: String? = null
                 if (validSummonerLines.isNotEmpty()) {
-                    bestSummoner = validSummonerLines.first()
-                    if (validSummonerLines.size >= 2 && validSummonerLines[0].length <= 8 && validSummonerLines[1].length <= 12) {
+                    // Si son fragmentos de una sola letra o palabras cortas espaciadas (ej. D, I, E, G, O), unirlas
+                    val joinedAll = validSummonerLines.joinToString(" ").replace(Regex("\\s+"), " ").trim()
+                    if (validSummonerLines.all { it.length <= 2 } && joinedAll.length <= 20) {
+                        bestSummoner = joinedAll
+                    } else if (validSummonerLines.size >= 2 && validSummonerLines[0].length <= 10 && validSummonerLines[1].length <= 12) {
                         val combined = "${validSummonerLines[0]} ${validSummonerLines[1]}"
                         if (combined.length <= 25) {
                             bestSummoner = combined
                         }
+                    } else {
+                        bestSummoner = validSummonerLines.first()
                     }
                 }
 
