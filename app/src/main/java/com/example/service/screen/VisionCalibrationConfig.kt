@@ -10,7 +10,7 @@ import android.content.SharedPreferences
 data class VisionCalibrationConfig(
     // Posición horizontal X central de avatares (0..1)
     val allyAvatarCenterX: Float = 0.073f,
-    val enemyAvatarCenterX: Float = 0.927f,
+    val enemyAvatarCenterX: Float = 0.957f,
 
     // Diámetro del avatar relativo al alto de pantalla (0..1)
     val avatarDiameterRatio: Float = 0.126f,
