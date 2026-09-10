@@ -1,5 +1,6 @@
 package com.example.ui.auth
 
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
@@ -226,7 +227,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             onDismiss = { showCommunityCreatorsDialog = false },
             onOpenBlueEssenceStore = {
                 showCommunityCreatorsDialog = false
-                showBlueEssenceStoreDialog = true
+                val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+                if (isAdminUser) {
+                    showBlueEssenceStoreDialog = true
+                } else {
+                    Toast.makeText(context, "Servicio temporalmente fuera de servicio", Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }

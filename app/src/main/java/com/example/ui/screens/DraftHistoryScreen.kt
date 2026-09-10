@@ -1278,7 +1278,12 @@ fun DraftHistoryScreen(
                             .clip(RoundedCornerShape(8.dp))
                             .background(HextechSurfaceVariant)
                             .clickable {
-                                showBlueEssenceStore = prof.id
+                                val isAdmin = com.example.util.AuthManager.isCurrentUserAdmin()
+                                if (isAdmin) {
+                                    showBlueEssenceStore = prof.id
+                                } else {
+                                    android.widget.Toast.makeText(context, "Servicio temporalmente fuera de servicio", android.widget.Toast.LENGTH_SHORT).show()
+                                }
                             }
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1430,7 +1435,12 @@ fun DraftHistoryScreen(
             onDismiss = { showCommunityCreatorsDialog = false },
             onOpenBlueEssenceStore = {
                 showCommunityCreatorsDialog = false
-                showBlueEssenceStore = activeProfileId
+                val isAdmin = com.example.util.AuthManager.isCurrentUserAdmin()
+                if (isAdmin) {
+                    showBlueEssenceStore = activeProfileId
+                } else {
+                    android.widget.Toast.makeText(context, "Servicio temporalmente fuera de servicio", android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }
