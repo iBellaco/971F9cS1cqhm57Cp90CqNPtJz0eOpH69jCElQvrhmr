@@ -275,11 +275,7 @@ fun ThemeCustomizationBottomSheet(
                 isPremium = isPremium,
                 onShowPremiumAlert = { showPremiumRequiredDialog = true },
                 onApply = {
-                    if (isPremium) {
-                        AppThemeManager.setTheme(previewTheme, context)
-                    } else {
-                        showPremiumRequiredDialog = true
-                    }
+                    AppThemeManager.setTheme(previewTheme, context)
                 }
             )
 

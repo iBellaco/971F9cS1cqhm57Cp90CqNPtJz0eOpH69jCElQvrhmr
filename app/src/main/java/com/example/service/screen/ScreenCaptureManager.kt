@@ -139,8 +139,15 @@ class ScreenCaptureManager(private val context: Context) {
 
                 updateScreenDimensions()
 
-                val captureWidth = screenWidth.coerceAtLeast(480)
-                val captureHeight = screenHeight.coerceAtLeast(480)
+                // Wild Rift corre exclusivamente en formato horizontal (apaisado: maxDim x minDim).
+                // Al inicializar el VirtualDisplay e ImageReader en la resolución apaisada nativa
+                // con VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR garantizamos:
+                // 1. Captura 1:1 sin distorsión ni artefactos cuando el juego está en pantalla.
+                // 2. El compositor de Android adapta de forma nativa y segura cualquier orientación (vertical/horizontal)
+                //    sin necesidad de destruir el VirtualDisplay ni el ImageReader.
+                // 3. Se previene de raíz la SecurityException de Android 14+ generada al reutilizar el token de MediaProjection.
+                val captureWidth = maxOf(screenWidth, screenHeight).coerceAtLeast(1280)
+                val captureHeight = minOf(screenWidth, screenHeight).coerceAtLeast(720)
 
                 imageReader = ImageReader.newInstance(
                     captureWidth,
@@ -193,96 +200,20 @@ class ScreenCaptureManager(private val context: Context) {
     private var lastRefreshTimestamp = 0L
 
     /**
-     * Refresca el VirtualDisplay para adaptarse a cambios de orientación o resolución sin invalidar el token de MediaProjection.
-     * En Android 14+, recrear el VirtualDisplay con el mismo token lanza SecurityException; por ello se redimensiona
-     * el VirtualDisplay existente usando la API nativa `resize` y actualizando el Surface.
+     * Notifica y actualiza dimensiones de pantalla tras rotación sin destruir la proyección virtual.
+     * Al usar un VirtualDisplay con AUTO_MIRROR en resolución de juego, no se requiere reinicializar
+     * ni crear nuevos objetos ImageReader, manteniendo intacto el Foreground Service y el token de Android 14+.
      */
-    @SuppressLint("WrongConstant")
     fun refreshProjection() {
         val now = System.currentTimeMillis()
         if (now - lastRefreshTimestamp < 350L) return
         lastRefreshTimestamp = now
 
-        synchronized(projectionLock) {
-            val proj = mediaProjection ?: return
-            try {
-                updateScreenDimensions()
-                
-                val captureWidth = screenWidth.coerceAtLeast(480)
-                val captureHeight = screenHeight.coerceAtLeast(480)
-
-                val newImageReader = ImageReader.newInstance(
-                    captureWidth,
-                    captureHeight,
-                    PixelFormat.RGBA_8888,
-                    3
-                ).apply {
-                    setOnImageAvailableListener({ reader ->
-                        var img: Image? = null
-                        try {
-                            img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-                            val cleanBmp = processImageToBitmap(img)
-                            if (cleanBmp != null) {
-                                synchronized(frameLock) {
-                                    val old = lastFrame
-                                    lastFrame = cleanBmp
-                                    old?.recycle()
-                                }
-                            }
-                        } catch (t: Throwable) {
-                            AppLogger.w(TAG, "Error seguro en listener tras refresh: ${t.message}")
-                        } finally {
-                            try {
-                                img?.close()
-                            } catch (_: Throwable) {}
-                        }
-                    }, handler)
-                }
-
-                val currentVirtualDisplay = virtualDisplay
-                var resizeSuccess = false
-                if (currentVirtualDisplay != null) {
-                    try {
-                        currentVirtualDisplay.surface = newImageReader.surface
-                        currentVirtualDisplay.resize(captureWidth, captureHeight, screenDensity)
-                        resizeSuccess = true
-                        AppLogger.d(TAG, "VirtualDisplay redimensionado exitosamente tras rotación (${captureWidth}x${captureHeight})")
-                    } catch (resizeEx: Throwable) {
-                        AppLogger.w(TAG, "Resize no soportado en este dispositivo, procediendo a recrear: ${resizeEx.message}")
-                    }
-                }
-
-                if (!resizeSuccess) {
-                    if (currentVirtualDisplay != null) {
-                        try {
-                            currentVirtualDisplay.release()
-                        } catch (_: Throwable) {}
-                    }
-                    try {
-                        virtualDisplay = proj.createVirtualDisplay(
-                            VIRTUAL_DISPLAY_NAME,
-                            captureWidth,
-                            captureHeight,
-                            screenDensity,
-                            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-                            newImageReader.surface,
-                            null,
-                            handler
-                        )
-                    } catch (e2: Throwable) {
-                        AppLogger.e(TAG, "No se pudo recrear el VirtualDisplay: ${e2.message}")
-                    }
-                }
-
-                val oldReader = imageReader
-                imageReader = newImageReader
-                try {
-                    oldReader?.close()
-                } catch (_: Throwable) {}
-
-            } catch (e: Throwable) {
-                AppLogger.e(TAG, "Error al redimensionar proyección de pantalla", e)
-            }
+        try {
+            updateScreenDimensions()
+            AppLogger.d(TAG, "Rotación de pantalla registrada de forma segura (${screenWidth}x${screenHeight}).")
+        } catch (e: Throwable) {
+            AppLogger.w(TAG, "Error actualizando dimensiones en rotación: ${e.message}")
         }
     }
 
@@ -295,9 +226,8 @@ class ScreenCaptureManager(private val context: Context) {
             val metrics = DisplayMetrics()
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealMetrics(metrics)
-            if (metrics.widthPixels != screenWidth || metrics.heightPixels != screenHeight) {
-                refreshProjection()
-            }
+            screenWidth = metrics.widthPixels
+            screenHeight = metrics.heightPixels
         } catch (_: Exception) {}
 
         // Intentar obtener el frame disponible, con breve espera de sincronización si recién inicializa

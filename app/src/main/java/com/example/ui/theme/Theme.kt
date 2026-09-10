@@ -16,19 +16,6 @@ fun MyApplicationTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle(initialValue = false)
-    val isSystemDark = isSystemInDarkTheme()
-    
-    androidx.compose.runtime.LaunchedEffect(isSystemDark, isPremium) {
-        if (!isPremium) {
-            val forcedTheme = AppTheme.PILTOVER
-            if (AppThemeManager.currentTheme != forcedTheme) {
-                AppThemeManager.setTheme(forcedTheme, null)
-            }
-            AppThemeManager.setNavBarOption(NavBarColorOption.THEME_AUTO, null)
-        }
-    }
-
     val theme = AppThemeManager.currentTheme
     val colorScheme = if (theme.isDark) {
         darkColorScheme(

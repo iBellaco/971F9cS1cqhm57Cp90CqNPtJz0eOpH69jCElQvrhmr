@@ -673,19 +673,24 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             val isNowLandscape = newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE || metrics.widthPixels > metrics.heightPixels
             isDeviceLandscape.value = isNowLandscape
 
-            if (lastScreenWidth != metrics.widthPixels || lastScreenHeight != metrics.heightPixels) {
-                lastScreenWidth = metrics.widthPixels
-                lastScreenHeight = metrics.heightPixels
+            // Notificar al ScreenCaptureManager de la rotación de manera segura
+            try {
+                screenCaptureManager?.refreshProjection()
+            } catch (_: Throwable) {}
 
+            fun applyClampedLayout() {
                 try {
-                    screenCaptureManager?.refreshProjection()
-                } catch (_: Throwable) {}
+                    val curMetrics = resources.displayMetrics
+                    val screenW = curMetrics.widthPixels
+                    val screenH = curMetrics.heightPixels
+                    lastScreenWidth = screenW
+                    lastScreenHeight = screenH
 
-                val currentX = floatingParams?.x
-                val currentY = floatingParams?.y
+                    val params = floatingParams ?: return
+                    val view = floatingComposeView ?: return
+                    if (!view.isAttachedToWindow) return
 
-                if (currentX != null && currentY != null && floatingParams != null && floatingComposeView != null) {
-                    val density = metrics.density
+                    val density = curMetrics.density
                     val marginPx = (8 * density).toInt()
                     val currentBubblePx = ((if (overlayState.isCompactBubble) 36f else 46f) * density).toInt()
                     val cardWidthPx = ((if (isNowLandscape) 550 else 330) * density).toInt()
@@ -694,21 +699,25 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                     val viewWidth = if (overlayState.isExpanded) cardWidthPx else currentBubblePx
                     val viewHeight = if (overlayState.isExpanded) cardHeightPx else currentBubblePx
 
-                    val maxX = (lastScreenWidth - viewWidth - marginPx).coerceAtLeast(marginPx)
-                    val maxY = (lastScreenHeight - viewHeight - marginPx).coerceAtLeast(marginPx)
+                    val maxX = (screenW - viewWidth - marginPx).coerceAtLeast(marginPx)
+                    val maxY = (screenH - viewHeight - marginPx).coerceAtLeast(marginPx)
 
-                    floatingParams!!.x = currentX.coerceIn(0, maxX)
-                    floatingParams!!.y = currentY.coerceIn(0, maxY)
-                    try {
-                        if (floatingComposeView?.isAttachedToWindow == true) {
-                            windowManager?.updateViewLayout(floatingComposeView, floatingParams)
-                            updateOverlayRect(floatingParams!!, isOverlayExpanded)
-                        }
-                    } catch (eLayout: Throwable) {
-                        AppLogger.w("FloatingService", "Error actualizando layout tras rotación: ${eLayout.message}")
-                    }
+                    params.x = params.x.coerceIn(0, maxX)
+                    params.y = params.y.coerceIn(0, maxY)
+
+                    windowManager?.updateViewLayout(view, params)
+                    updateOverlayRect(params, isOverlayExpanded)
+                } catch (eLayout: Throwable) {
+                    AppLogger.w("FloatingService", "Error actualizando layout en rotación: ${eLayout.message}")
                 }
             }
+
+            // Aplicar inmediatamente y reaplicar tras 150ms para sincronizar con la animación de rotación del sistema
+            applyClampedLayout()
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                applyClampedLayout()
+            }, 150L)
+
         } catch (e: Throwable) {
             AppLogger.w("FloatingService", "Error adaptando layout tras cambio de configuración: ${e.message}")
         }

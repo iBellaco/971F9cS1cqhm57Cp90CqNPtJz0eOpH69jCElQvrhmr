@@ -47,6 +47,12 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.ui.draw.rotate
+import com.example.ui.theme.AppTheme
+import com.example.ui.theme.AppThemeManager
 import com.example.data.AvatarCatalog
 import com.example.ui.components.UserAvatarView
 import com.example.ui.components.AvatarSelectionBottomSheet
@@ -276,14 +282,75 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             val equippedAvatar = AvatarCatalog.getAvatarById(currentAvatarId)
 
+            val activeTheme = AppThemeManager.currentTheme
+
+            // Animated Runic Sweep Aura around Avatar
+            val avatarTransition = rememberInfiniteTransition(label = "AvatarHalo")
+            val haloRotation by avatarTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 10000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "haloRotation"
+            )
+            val haloPulse by avatarTransition.animateFloat(
+                initialValue = 0.95f,
+                targetValue = 1.06f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "haloPulse"
+            )
+
+            var avatarTapped by remember { mutableStateOf(false) }
+            val avatarScale by animateFloatAsState(
+                targetValue = if (avatarTapped) 0.92f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                label = "avatarScale",
+                finishedListener = { avatarTapped = false }
+            )
+
             Box(
                 modifier = Modifier
-                    .clickable { showAvatarDialog = true },
-                contentAlignment = Alignment.BottomEnd
+                    .graphicsLayer {
+                        scaleX = avatarScale
+                        scaleY = avatarScale
+                    }
+                    .clickable {
+                        avatarTapped = true
+                        showAvatarDialog = true
+                    },
+                contentAlignment = Alignment.Center
             ) {
+                // Ambient rotating ring matching active theme
+                Box(
+                    modifier = Modifier
+                        .size(86.dp)
+                        .graphicsLayer {
+                            scaleX = haloPulse
+                            scaleY = haloPulse
+                        }
+                        .rotate(haloRotation)
+                        .border(
+                            width = 2.dp,
+                            brush = Brush.sweepGradient(
+                                listOf(
+                                    activeTheme.primary,
+                                    activeTheme.secondary,
+                                    activeTheme.primaryGlow,
+                                    activeTheme.primary
+                                )
+                            ),
+                            shape = CircleShape
+                        )
+                )
+
                 UserAvatarView(
                     avatarId = currentAvatarId,
-                                    rankBorder = currentRankBorder,
+                    rankBorder = currentRankBorder,
                     size = 72.dp,
                     fallbackInitial = finalUserName
                 )
@@ -291,15 +358,16 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Box(
                     modifier = Modifier
                         .size(24.dp)
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(com.example.ui.theme.HextechGold)
-                        .border(1.5.dp, com.example.ui.theme.HextechDarkBg, androidx.compose.foundation.shape.CircleShape),
+                        .align(Alignment.BottomEnd)
+                        .clip(CircleShape)
+                        .background(activeTheme.secondary)
+                        .border(1.5.dp, activeTheme.background, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Cambiar Avatar",
-                        tint = com.example.ui.theme.HextechDarkBg,
+                        tint = activeTheme.background,
                         modifier = Modifier.size(13.dp)
                     )
                 }
@@ -309,7 +377,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Text(
                 text = finalUserName,
-                color = com.example.ui.theme.HextechGold,
+                color = activeTheme.secondary,
                 fontSize = 20.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 letterSpacing = 0.3.sp
@@ -318,10 +386,30 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             // Avatar Title & Region subtitle
             Text(
                 text = "${equippedAvatar.title} • ${equippedAvatar.region}",
-                color = com.example.ui.theme.HextechCyan,
+                color = activeTheme.primary,
                 fontSize = 12.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
             )
+
+            // Dynamic Region Badge reflecting current theme
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.primary.copy(alpha = 0.15f),
+                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f)),
+                modifier = Modifier.padding(top = 4.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "🏛️ ${activeTheme.regionTag.uppercase()} • ${activeTheme.titleKey}",
+                        color = activeTheme.primaryLight,
+                        fontSize = 10.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
             
             var isEmailVisible by remember { mutableStateOf(false) }
             Row(
@@ -330,18 +418,134 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 Text(
                     text = if (isEmailVisible) (user.email ?: "") else "••••••••@••••.com",
-                    color = com.example.ui.theme.TextSecondary,
+                    color = activeTheme.textSecondary,
                     fontSize = 13.5.sp
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Icon(
                     imageVector = Icons.Filled.Info,
                     contentDescription = null,
-                    tint = com.example.ui.theme.TextMuted,
+                    tint = activeTheme.textMuted,
                     modifier = Modifier.size(15.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Quick Theme Selector Strip: Instant 1-tap live theme transformation!
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(activeTheme.surfaceVariant.copy(alpha = 0.6f))
+                    .border(1.dp, activeTheme.cardBorder, RoundedCornerShape(14.dp))
+                    .padding(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Palette,
+                            contentDescription = null,
+                            tint = activeTheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Tema de Región:",
+                            color = activeTheme.textPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = activeTheme.titleKey,
+                            color = activeTheme.secondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+
+                    Text(
+                        text = "Ver todos ›",
+                        color = activeTheme.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { showThemeDialog = true }
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Scrollable row of quick region chips
+                androidx.compose.foundation.lazy.LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val featuredThemes = listOf(
+                        AppTheme.PILTOVER,
+                        AppTheme.ZAUN,
+                        AppTheme.JONIA,
+                        AppTheme.NOXUS,
+                        AppTheme.AGUAS_ESTANCADAS,
+                        AppTheme.FRELJORD,
+                        AppTheme.EL_VACIO,
+                        AppTheme.SHURIMA
+                    )
+                    items(featuredThemes.size) { index ->
+                        val themeItem = featuredThemes[index]
+                        val isSelected = themeItem == activeTheme
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isSelected) themeItem.primary.copy(alpha = 0.25f) else themeItem.surface,
+                            border = BorderStroke(
+                                if (isSelected) 1.5.dp else 0.8.dp,
+                                if (isSelected) themeItem.secondary else themeItem.cardBorder.copy(alpha = 0.6f)
+                            ),
+                            modifier = Modifier
+                                .clickable {
+                                    AppThemeManager.setTheme(themeItem, context)
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(themeItem.primary)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = themeItem.titleKey,
+                                    color = if (isSelected) themeItem.secondary else themeItem.textSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                                if (isSelected) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = themeItem.secondary,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
             val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
@@ -364,68 +568,56 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 )
             }
 
-            // Contenedor Esencia Azul: Logo ENCIMA de la cantidad
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            // Contenedor Esencia Azul Interactivo y Animado
+            var essenceBounce by remember { mutableStateOf(false) }
+            val essenceScale by animateFloatAsState(
+                targetValue = if (essenceBounce) 1.08f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                label = "essenceScale",
+                finishedListener = { essenceBounce = false }
+            )
+
+            Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                    .graphicsLayer {
+                        scaleX = essenceScale
+                        scaleY = essenceScale
+                    }
+                    .clickable {
+                        essenceBounce = true
+                        showBuyEssenceDialog = true
+                    },
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.surfaceVariant,
+                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
             ) {
-                // Logo de la Esencia Azul encima (al presionar muestra 'Esencia Azul')
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(androidx.compose.foundation.shape.CircleShape)
-                        .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f))
-                        .clickable {
-                            showEssenceLabel = !showEssenceLabel
-                            android.widget.Toast.makeText(context, "Esencia Azul", android.widget.Toast.LENGTH_SHORT).show()
-                        },
-                    contentAlignment = Alignment.Center
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Image(
                         painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
                         contentDescription = "Esencia Azul",
                         modifier = Modifier.size(24.dp)
                     )
-                }
-
-                // Etiqueta al presionar encima del logo
-                AnimatedVisibility(visible = showEssenceLabel) {
                     Text(
-                        text = "Esencia Azul",
-                        color = com.example.ui.theme.HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = "$currentBlueEssence EA",
+                        color = activeTheme.primary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Cantidad de Esencia Azul debajo (al presionar abre diálogo de comprar)
-                Surface(
-                    modifier = Modifier.clickable { showBuyEssenceDialog = true },
-                    shape = RoundedCornerShape(10.dp),
-                    color = Color(0xFF1E293B),
-                    border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(activeTheme.secondary)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "$currentBlueEssence EA",
-                            color = com.example.ui.theme.HextechCyan,
-                            fontSize = 13.5.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "+",
-                            color = com.example.ui.theme.HextechGold,
-                            fontSize = 14.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            text = "+ Recargar",
+                            color = activeTheme.background,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold
                         )
                     }
                 }
@@ -710,7 +902,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             TextButton(onClick = { showPlansDialog = true }) {
                 Text(
                     text = if (isPremium) "Ver / Cambiar Plan de Suscripción" else "Comparar Planes Premium",
-                    color = com.example.ui.theme.HextechCyan,
+                    color = activeTheme.primary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     fontSize = 13.sp
                 )
@@ -719,7 +911,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             TextButton(onClick = { showHistoryDialog = true }) {
                 Text(
                     text = "Historial de Suscripciones",
-                    color = com.example.ui.theme.TextSecondary,
+                    color = activeTheme.textSecondary,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                     fontSize = 12.sp
                 )
@@ -741,8 +933,9 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Slot usage and no-logout recommendation
+            // Slot usage and no-logout recommendation (Collapsible and Animated)
             var registeredDevicesCount by remember { mutableStateOf(1) }
+            var isSecurityExpanded by remember { mutableStateOf(false) }
             LaunchedEffect(user.uid) {
                 com.google.firebase.firestore.FirebaseFirestore.getInstance()
                     .collection("users")
@@ -754,57 +947,77 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)),
-                border = BorderStroke(1.dp, com.example.ui.theme.HextechCardBorder)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = activeTheme.surfaceVariant.copy(alpha = 0.55f)),
+                border = BorderStroke(1.dp, activeTheme.cardBorder)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isSecurityExpanded = !isSecurityExpanded },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "📱 " + com.example.util.tr("Slots de Dispositivo:"),
-                                color = com.example.ui.theme.HextechGold,
-                                fontSize = 12.sp,
+                                text = "📱 Dispositivos Conectados:",
+                                color = activeTheme.secondary,
+                                fontSize = 12.5.sp,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                             )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(activeTheme.primary.copy(alpha = 0.2f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "$registeredDevicesCount de 2 en uso",
+                                    color = activeTheme.primary,
+                                    fontSize = 11.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                )
+                            }
                         }
-                        Text(
-                            text = "$registeredDevicesCount de 2 en uso",
-                            color = com.example.ui.theme.HextechCyan,
-                            fontSize = 12.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                        Icon(
+                            imageVector = if (isSecurityExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = null,
+                            tint = activeTheme.secondary,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "🔒 " + com.example.util.tr("Por seguridad de tu cuenta, la liberación y reasignación de slots de hardware es gestionada exclusivamente por los Administradores desde el panel de soporte."),
-                        color = com.example.ui.theme.TextSecondary,
-                        fontSize = 10.5.sp,
-                        lineHeight = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
-                        color = com.example.ui.theme.TextMuted,
-                        fontSize = 10.5.sp,
-                        lineHeight = 14.sp
-                    )
+
+                    AnimatedVisibility(visible = isSecurityExpanded) {
+                        Column(modifier = Modifier.padding(top = 10.dp)) {
+                            Text(
+                                text = "🔒 " + com.example.util.tr("Por seguridad de tu cuenta, la liberación y reasignación de slots de hardware es gestionada exclusivamente por los Administradores desde el panel de soporte."),
+                                color = activeTheme.textSecondary,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
+                                color = activeTheme.textMuted,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                        }
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action Grid: 2x2 Clean Hextech Card Layout
+            // Action Grid: 2x2 Animated Theme-Aware Cards
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -817,11 +1030,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     Surface(
                         modifier = Modifier
                             .weight(1f)
-                            .height(68.dp)
+                            .height(72.dp)
                             .clickable { showAvatarDialog = true },
                         shape = RoundedCornerShape(12.dp),
-                        color = com.example.ui.theme.HextechSurfaceVariant,
-                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.8f))
+                        color = activeTheme.surfaceVariant,
+                        border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.8f))
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -831,13 +1044,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(com.example.ui.theme.HextechGold.copy(alpha = 0.15f)),
+                                    .background(activeTheme.secondary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Face,
                                     contentDescription = null,
-                                    tint = com.example.ui.theme.HextechGold,
+                                    tint = activeTheme.secondary,
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
@@ -845,13 +1058,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             Column {
                                 Text(
                                     text = "Avatares",
-                                    color = com.example.ui.theme.HextechGold,
+                                    color = activeTheme.secondary,
                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
                                 Text(
                                     text = "Colección & Marcos",
-                                    color = com.example.ui.theme.TextMuted,
+                                    color = activeTheme.textMuted,
                                     fontSize = 10.sp
                                 )
                             }
@@ -862,11 +1075,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     Surface(
                         modifier = Modifier
                             .weight(1f)
-                            .height(68.dp)
+                            .height(72.dp)
                             .clickable { showThemeDialog = true },
                         shape = RoundedCornerShape(12.dp),
-                        color = com.example.ui.theme.HextechSurfaceVariant,
-                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.8f))
+                        color = activeTheme.surfaceVariant,
+                        border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.8f))
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -876,13 +1089,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f)),
+                                    .background(activeTheme.primary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Palette,
                                     contentDescription = null,
-                                    tint = com.example.ui.theme.HextechCyan,
+                                    tint = activeTheme.primary,
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
@@ -890,13 +1103,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             Column {
                                 Text(
                                     text = "Temas",
-                                    color = com.example.ui.theme.HextechCyan,
+                                    color = activeTheme.primary,
                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
                                 Text(
-                                    text = "Colores & Estilos",
-                                    color = com.example.ui.theme.TextMuted,
+                                    text = activeTheme.titleKey,
+                                    color = activeTheme.textMuted,
                                     fontSize = 10.sp
                                 )
                             }
@@ -912,7 +1125,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     Surface(
                         modifier = Modifier
                             .weight(1f)
-                            .height(68.dp)
+                            .height(72.dp)
                             .clickable {
                                 if (isAdminUser) {
                                     showPurchaseHistoryDialog = true
@@ -921,8 +1134,8 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 }
                             },
                         shape = RoundedCornerShape(12.dp),
-                        color = com.example.ui.theme.HextechSurfaceVariant,
-                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f))
+                        color = activeTheme.surfaceVariant,
+                        border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.5f))
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -932,7 +1145,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(com.example.ui.theme.HextechCyan.copy(alpha = 0.15f)),
+                                    .background(activeTheme.primary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 androidx.compose.foundation.Image(
@@ -945,13 +1158,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             Column {
                                 Text(
                                     text = "Esencia Azul",
-                                    color = com.example.ui.theme.HextechCyan,
+                                    color = activeTheme.primary,
                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
                                 Text(
                                     text = "Historial & Recargas",
-                                    color = com.example.ui.theme.TextMuted,
+                                    color = activeTheme.textMuted,
                                     fontSize = 10.sp
                                 )
                             }
@@ -962,14 +1175,14 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     Surface(
                         modifier = Modifier
                             .weight(1f)
-                            .height(68.dp)
+                            .height(72.dp)
                             .clickable {
                                 if (userRole == "admin") showCommunityCreatorsDialog = true
                                 else android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show()
                             },
                         shape = RoundedCornerShape(12.dp),
-                        color = com.example.ui.theme.HextechSurfaceVariant,
-                        border = BorderStroke(1.2.dp, com.example.ui.theme.HextechGold.copy(alpha = 0.5f))
+                        color = activeTheme.surfaceVariant,
+                        border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.5f))
                     ) {
                         Row(
                             modifier = Modifier.padding(10.dp),
@@ -979,7 +1192,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(com.example.ui.theme.HextechGold.copy(alpha = 0.15f)),
+                                    .background(activeTheme.secondary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text("👑", fontSize = 18.sp)
@@ -988,13 +1201,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             Column {
                                 Text(
                                     text = "Creadores",
-                                    color = com.example.ui.theme.HextechGold,
+                                    color = activeTheme.secondary,
                                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     fontSize = 13.sp
                                 )
                                 Text(
                                     text = "Comunidad Pro",
-                                    color = com.example.ui.theme.TextMuted,
+                                    color = activeTheme.textMuted,
                                     fontSize = 10.sp
                                 )
                             }
@@ -1003,7 +1216,39 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Friendly Coach Advice Card
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.surfaceVariant.copy(alpha = 0.45f),
+                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.35f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text("💡", fontSize = 20.sp)
+                    Column {
+                        Text(
+                            text = "Consejo del Coach Challenger",
+                            color = activeTheme.secondary,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo.",
+                            color = activeTheme.textSecondary,
+                            fontSize = 10.5.sp,
+                            lineHeight = 14.sp
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Support Center Card Button
             Surface(
@@ -1011,8 +1256,8 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     .fillMaxWidth()
                     .clickable { showSupportDialog = true },
                 shape = RoundedCornerShape(12.dp),
-                color = com.example.ui.theme.HextechSurfaceVariant,
-                border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.4f))
+                color = activeTheme.surfaceVariant,
+                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f))
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
@@ -1023,25 +1268,25 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = null,
-                            tint = com.example.ui.theme.HextechCyan,
+                            tint = activeTheme.primary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
                                 "Centro de Soporte y Ayuda",
-                                color = com.example.ui.theme.HextechCyan,
+                                color = activeTheme.primary,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                 fontSize = 13.sp
                             )
                             Text(
                                 "Reportar bugs, consultas o sugerencias",
-                                color = com.example.ui.theme.TextMuted,
+                                color = activeTheme.textMuted,
                                 fontSize = 10.5.sp
                             )
                         }
                     }
-                    Text("›", color = com.example.ui.theme.HextechCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Text("›", color = activeTheme.primary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
             }
 

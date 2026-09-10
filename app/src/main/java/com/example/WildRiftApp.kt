@@ -62,7 +62,12 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             val isCaptureThreadException = (thread.name.contains("ScreenCapture") ||
                     thread.name.contains("ImageReader") ||
                     exception.message?.contains("Buffer") == true ||
-                    exception.message?.contains("VirtualDisplay") == true)
+                    exception.message?.contains("VirtualDisplay") == true ||
+                    exception.message?.contains("MediaProjection") == true ||
+                    exception.message?.contains("View not attached") == true ||
+                    exception.message?.contains("BadTokenException") == true ||
+                    exception.message?.contains("updateViewLayout") == true ||
+                    exception.message?.contains("has already been added") == true)
             if (!isGmsBrokerSecurityException && !isCaptureThreadException) {
                 defaultExceptionHandler?.uncaughtException(thread, exception)
             } else {
