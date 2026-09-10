@@ -847,8 +847,21 @@ object DraftVisionScanner {
                 // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
             } else if (isFinalTenthPick) {
-                // Flujo normal: solo escaneamos por imagen si es exactamente el 10º pick
-                (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
+                // Flujo normal: escáner visual EXCLUSIVAMENTE para el Pick 10 (Slot 4 del equipo enemigo),
+                // ignorando los demás slots ya que su nombre aparece por OCR.
+                // Pick 10 dinámico según Primera o Segunda Selección:
+                // - Si el equipo aliado tiene 1º Pick (effectiveFirstPick = true), el último pick (10) es el último rival (enemySlots[4]).
+                // - Si el equipo aliado tiene 2º Pick (effectiveFirstPick = false), el último pick (10) es el último aliado (allySlots[4]).
+                val tenthPickSlot = if (effectiveFirstPick) {
+                    enemySlots.getOrNull(4)
+                } else {
+                    allySlots.getOrNull(4)
+                }
+                if (tenthPickSlot != null && tenthPickSlot.champion == null) {
+                    listOf(tenthPickSlot)
+                } else {
+                    emptyList()
+                }
             } else {
                 emptyList()
             }
