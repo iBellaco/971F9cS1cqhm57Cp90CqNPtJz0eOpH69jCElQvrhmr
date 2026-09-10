@@ -2,6 +2,7 @@ package com.example.data.sync
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,9 @@ object ChineseMetaSyncService {
     fun setRegion(context: Context, regionId: String, scope: CoroutineScope) {
         _currentRegion.value = regionId
         com.example.data.WildRiftRepository.simulateRegionStatsChange(regionId)
+        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            BestBuildWrScraper.syncGlobalTierList(context, regionId)
+        }
     }
 
     suspend fun syncChineseMeta(context: Context, tier: TencentRankTier = TencentRankTier.DIAMOND_PLUS, forceRefresh: Boolean = false) {

@@ -42,7 +42,7 @@ object BestBuildWrScraper {
     private val _globalSyncStatus = MutableStateFlow<String>("Sincronizado (Promedio de 5 Fuentes Globales)")
     val globalSyncStatus: StateFlow<String> = _globalSyncStatus.asStateFlow()
 
-    suspend fun syncGlobalTierList(context: Context) {
+    suspend fun syncGlobalTierList(context: Context, region: String = "Global") {
         withContext(Dispatchers.IO) {
             val sources = listOf(
                 Pair("WildRiftFire", "https://www.wildriftfire.com/tier-list"),
@@ -88,12 +88,12 @@ object BestBuildWrScraper {
             }
             _sourceStatuses.value = updatedMap
             val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-            _globalSyncStatus.value = "Promedio de 5 Fuentes ($successCount/5 Activas) - $timeStr"
-            com.example.data.WildRiftRepository.simulateRegionStatsChange("Global")
+            _globalSyncStatus.value = "Promedio 5 Fuentes ($region) [$successCount/5 Activas] - $timeStr"
+            com.example.data.WildRiftRepository.simulateRegionStatsChange(region)
         }
     }
 
-    suspend fun syncAllChampionBuilds(context: Context) {
-        syncGlobalTierList(context)
+    suspend fun syncAllChampionBuilds(context: Context, region: String = "Global") {
+        syncGlobalTierList(context, region)
     }
 }
