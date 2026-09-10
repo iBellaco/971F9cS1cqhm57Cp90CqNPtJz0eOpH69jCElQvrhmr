@@ -940,9 +940,11 @@ private fun FloatingOverlayContent(
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
                                     val scannedEnemy = result.enemiesByRole[role]
-                                    if (scannedEnemy != null && enemies[idx] == null) {
-                                        assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                        newEnemiesAdded++
+                                    // Permitir sobrescribir el slot si era un falso positivo previo, PERO ahora sí está confirmado (ej. por OCR final)
+                                    val canAssign = scannedEnemy != null && (enemies[idx] == null || (enemies[idx]?.id != scannedEnemy.id && result.isLastPickConfirmed))
+                                    if (canAssign) {
+                                        assignEnemySlot(idx, scannedEnemy!!, result.enemyConfidencesByRole[role])
+                                        if (enemies[idx] == null) newEnemiesAdded++
                                     }
                                 }
                             }
@@ -965,11 +967,15 @@ private fun FloatingOverlayContent(
 
                             if (totalAlliesPicked == 5 && totalEnemiesPicked == 5) {
                                 // Los 10 campeones están completamente seleccionados: Apagar Auto-Scan para congelar y evitar falsos positivos
-                                autoScanEnabled = false
-                                scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
-                                    "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
+                                if (result.isLastPickConfirmed) {
+                                    autoScanEnabled = false
+                                    scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
+                                        "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
+                                    } else {
+                                        "🎯 10/10 Campeones detectados • Auto-Scan completado"
+                                    }
                                 } else {
-                                    "🎯 10/10 Campeones detectados • Auto-Scan completado"
+                                    scanNoticeMessage = "⏳ 10/10 Detectados (Esperando confirmación del último pick...)"
                                 }
                             } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                                 scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"

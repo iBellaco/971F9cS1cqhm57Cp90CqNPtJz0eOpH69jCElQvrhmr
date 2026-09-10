@@ -82,6 +82,7 @@ data class DraftScanResult(
     val userExplicitlyDetectedRole: LaneRole? = null,
     val detectedFirstPick: Boolean? = null,
     val isLastPickImageRecognized: Boolean = false,
+    val isLastPickConfirmed: Boolean = false,
     val lastPickChampion: Champion? = null,
     val detectedRawWords: List<String> = emptyList(),
     val discrepancies: List<String> = emptyList(),
@@ -178,8 +179,10 @@ object DraftVisionScanner {
         currentActiveRole: LaneRole? = null
     ): DraftScanResult {
         if (bitmap.isRecycled || bitmap.width < bitmap.height) {
+
             return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Orientación no horizontal")
         }
+
 
         val recognizer = getRecognizer() ?: return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "OCR no disponible")
 
@@ -200,6 +203,8 @@ object DraftVisionScanner {
         var userExplicitlyConfirmed = false
         var detectedFirstPick: Boolean? = null
         var isLastPickVisualRecognized = false
+        var lastPickVisualConfidence = 0f
+        var isTenthPickOcrFound = false
         var lastPickVisualChampion: Champion? = null
         val allySlotTexts = Array(5) { mutableListOf<Pair<String, Rect?>>() }
         val enemySlotTexts = Array(5) { mutableListOf<Pair<String, Rect?>>() }
@@ -857,7 +862,7 @@ object DraftVisionScanner {
                 } else {
                     allySlots.getOrNull(4)
                 }
-                if (tenthPickSlot != null && tenthPickSlot.champion == null) {
+                if (tenthPickSlot != null) {
                     listOf(tenthPickSlot)
                 } else {
                     emptyList()
@@ -931,23 +936,28 @@ object DraftVisionScanner {
 
                     if (bestMatchResult != null) {
                         val match = bestMatchResult
-                        targetSlot.champion = match.champion
-                        targetSlot.confidencePercent = (match.confidence * 100).toInt()
-                        targetSlot.isLikelyUnpicked = false
+                        if (match.confidence >= 0.65f) {
+                            targetSlot.champion = match.champion
+                            targetSlot.confidencePercent = (match.confidence * 100).toInt()
+                            targetSlot.isLikelyUnpicked = false
 
-                        if (targetSlot.isAlly) {
-                            allyOcrChampions[sIdx] = match.champion
-                            allySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
-                        } else {
-                            enemyOcrChampions[sIdx] = match.champion
-                            enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                            if (targetSlot.isAlly) {
+                                allyOcrChampions[sIdx] = match.champion
+                                allySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                            } else {
+                                enemyOcrChampions[sIdx] = match.champion
+                                enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                            }
+
+                            isLastPickVisualRecognized = true
+                            lastPickVisualChampion = match.champion
+                            lastPickVisualConfidence = match.confidence
+                            val side = if (targetSlot.isAlly) "Aliado" else "Rival"
+                            auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
+                            AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
+                        } else if (targetSlot.champion == null) {
+                            AppLogger.d(TAG, "Confianza visual baja (${match.confidence}), asumiendo placeholder.")
                         }
-
-                        isLastPickVisualRecognized = true
-                        lastPickVisualChampion = match.champion
-                        val side = if (targetSlot.isAlly) "Aliado" else "Rival"
-                        auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
-                        AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
                     }
                 }
             }
@@ -1017,6 +1027,11 @@ object DraftVisionScanner {
             else -> "Detectados: $total picks con certeza"
         }
 
+        val tenthSlot = if (effectiveFirstPick) enemySlots.getOrNull(4) else allySlots.getOrNull(4)
+        val isTenthOcr = tenthSlot != null && tenthSlot.champion != null && tenthSlot.confidencePercent == 100
+        val isTenthVisualConfirmed = isLastPickVisualRecognized && lastPickVisualConfidence >= 0.82f
+        val isLastPickConfirmedValue = if (total == 10) (isTenthOcr || isTenthVisualConfirmed) else false
+
         return DraftScanResult(
             allies = allyChampsList,
             enemies = enemyChampsList,
@@ -1029,6 +1044,7 @@ object DraftVisionScanner {
             userExplicitlyDetectedRole = if (userExplicitlyConfirmed) userDetectedLane else null,
             detectedFirstPick = detectedFirstPick,
             isLastPickImageRecognized = isLastPickVisualRecognized,
+            isLastPickConfirmed = isLastPickConfirmedValue,
             lastPickChampion = lastPickVisualChampion,
             detectedRawWords = detectedWords,
             discrepancies = auditList,
