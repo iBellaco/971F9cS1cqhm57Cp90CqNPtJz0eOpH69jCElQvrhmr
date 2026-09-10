@@ -513,7 +513,8 @@ object DraftVisionScanner {
                 // Filtrar y limpiar candidatos a nombre de invocador respetando espacios y descartando ruido/chat/campeones
                 val validSummonerLines = mutableListOf<String>()
                 for (cand in summonerCandidates) {
-                    val trimmed = cand.trim()
+                    val cleanedCand = cand.replace(Regex("^\\d+\\s*[\\).:-]?\\s*"), "").trim()
+                    val trimmed = if (cleanedCand.length >= 2) cleanedCand else cand.trim()
                     if (trimmed.length < 2) continue
                     if (DraftValidationLayer.isNoiseText(trimmed)) continue
                     if (trimmed.contains(":") || trimmed.contains("BETA", ignoreCase = true) || trimmed.contains("Porcentaje", ignoreCase = true)) continue

@@ -563,8 +563,10 @@
     "title": "la Alegría Desatada",
     "ddragonId": "Nilah",
     "avatarUrl": "file:///android_asset/champions/nilah.png",
-    "primaryRole": "ADC",
-    "secondaryRoles": [],
+    "primaryRole": "JUNGLE",
+    "secondaryRoles": [
+      "ADC"
+    ],
     "tier": "S+",
     "winrate": 53.1,
     "pickRate": 4.2,
