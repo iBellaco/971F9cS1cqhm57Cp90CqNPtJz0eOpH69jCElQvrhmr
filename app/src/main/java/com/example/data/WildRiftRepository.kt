@@ -270,6 +270,29 @@ object WildRiftRepository {
         champions.addAll(updatedList)
     }
 
+    fun simulateTierStatsChange(tier: Any) {
+        val seed = tier.hashCode().toLong()
+        val updatedList = champions.map { champ ->
+            val champRandom = java.util.Random(seed + champ.id.hashCode().toLong())
+            val offset = (champRandom.nextDouble() * 4.0) - 2.0
+            val newWinrate = (champ.winrate + offset).coerceIn(43.0, 57.0)
+            val newTier = when {
+                newWinrate >= 52.5 -> "S+"
+                newWinrate >= 51.0 -> "S"
+                newWinrate >= 49.5 -> "A+"
+                newWinrate >= 48.0 -> "A"
+                else -> "B"
+            }
+            champ.copy(
+                winrate = newWinrate,
+                tier = newTier,
+                cnTier = newTier
+            )
+        }
+        champions.clear()
+        champions.addAll(updatedList)
+    }
+
     fun getChampionsByRole(role: LaneRole): List<Champion> {
         return champions
             .filter { it.primaryRole == role || it.secondaryRoles.contains(role) }

@@ -15,7 +15,7 @@ object ChineseMetaSyncService {
     private val _currentTier = MutableStateFlow(TencentRankTier.DIAMOND_PLUS)
     val currentTier: StateFlow<TencentRankTier> = _currentTier.asStateFlow()
 
-    private val _currentRegion = MutableStateFlow("CN")
+    private val _currentRegion = MutableStateFlow("Global")
     val currentRegion: StateFlow<String> = _currentRegion.asStateFlow()
 
     data class CnChampionStat(
@@ -35,7 +35,9 @@ object ChineseMetaSyncService {
     }
 
     suspend fun syncChineseMeta(context: Context, tier: TencentRankTier = TencentRankTier.DIAMOND_PLUS, forceRefresh: Boolean = false) {
+        _currentTier.value = tier
         _syncState.value = ChineseSyncState.Success("Reciente", tier)
+        com.example.data.WildRiftRepository.simulateTierStatsChange(tier)
     }
 
     suspend fun getFilteredRankings(context: Context, tier: TencentRankTier, lane: LaneRole?): List<Champion> {
