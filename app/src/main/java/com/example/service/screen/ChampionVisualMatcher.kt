@@ -430,11 +430,12 @@ object ChampionVisualMatcher {
             }
         }
 
-        // Se requiere superar el umbral mínimo estricto y alta confianza para evitar emparejamientos espurios
+        // Se requiere superar el umbral mínimo y confianza adaptativa
         if (bestChamp != null && bestScore >= minConfidenceThreshold) {
             val margin = bestScore - secondBestScore
-            val isConfident = bestScore >= 0.60f && (secondBestScore < 0 || margin >= 0.04f)
-            if (!isConfident && bestScore < 0.68f) {
+            val requiredConfidence = (minConfidenceThreshold + 0.05f).coerceAtLeast(0.44f)
+            val isConfident = bestScore >= requiredConfidence && (secondBestScore < 0 || margin >= 0.02f)
+            if (!isConfident && bestScore < (minConfidenceThreshold + 0.09f)) {
                 AppLogger.d(TAG, "Rechazado match visual por baja confianza/margen: ${bestChamp.name} (Score: $bestScore, Margin: $margin)")
                 return null
             }

@@ -527,28 +527,30 @@ object DraftVisionScanner {
                     }
                 }
 
-                // Combinar líneas adyacentes o letras espaciadas (ej. D I E G O -> D I E G O / DIEGO)
+                // Combinar líneas y preservar nombre de invocador con alta tolerancia a espacios
                 var bestSummoner: String? = null
                 if (validSummonerLines.isNotEmpty()) {
-                    // Si son fragmentos de una sola letra o palabras cortas espaciadas (ej. D, I, E, G, O), unirlas
-                    val joinedAll = validSummonerLines.joinToString(" ").replace(Regex("\\s+"), " ").trim()
-                    if (validSummonerLines.all { it.length <= 2 } && joinedAll.length <= 20) {
-                        bestSummoner = joinedAll
-                    } else if (validSummonerLines.size >= 2 && validSummonerLines[0].length <= 10 && validSummonerLines[1].length <= 12) {
-                        val combined = "${validSummonerLines[0]} ${validSummonerLines[1]}"
-                        if (combined.length <= 25) {
-                            bestSummoner = combined
-                        }
-                    } else {
-                        bestSummoner = validSummonerLines.first()
+                    val filtered = validSummonerLines.filter { line ->
+                        !DraftValidationLayer.isNoiseText(line) &&
+                        ChampionNameResolver.findChampionInText(line, allChamps) == null &&
+                        DraftValidationLayer.parseRoleFromText(line) == null &&
+                        !line.equals("tu", true) && !line.equals("(tu)", true) && !line.equals("you", true)
+                    }
+                    if (filtered.isNotEmpty()) {
+                        val joined = filtered.joinToString(" ").replace(Regex("\\s+"), " ").trim()
+                        bestSummoner = if (joined.length <= 25) joined else filtered.maxByOrNull { it.length } ?: filtered.first()
                     }
                 }
 
+                if (bestSummoner.isNullOrBlank() && allySummonerNamesCache.containsKey(i)) {
+                    bestSummoner = allySummonerNamesCache[i]
+                }
+
                 if (!bestSummoner.isNullOrBlank()) {
-                    allySummonerNamesCache[i] = bestSummoner
+                    allySummonerNamesCache[i] = bestSummoner!!
                     textDiagnosticsList.add(
                         TextBlockDiagnostic(
-                            text = bestSummoner,
+                            text = bestSummoner!!,
                             rect = Rect(0, 0, 10, 10),
                             isAlly = true,
                             slotIndex = i,
@@ -841,7 +843,7 @@ object DraftVisionScanner {
         // Aplicamos reconocimiento visual a todos los slots que aún no tienen campeón confirmado por OCR
         if (context != null) {
             val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
-            val isFinalTenthPick = totalPickedSoFar == 9
+            val isFinalTenthPick = totalPickedSoFar >= 8
             val isCalibrating = showCalibrationBoxes.value
 
             val candidateSlots = if (isCalibrating) {
@@ -910,7 +912,7 @@ object DraftVisionScanner {
 
                         try {
                             val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                            val threshold = if (isFinalTenthPick) 0.45f else 0.52f
+                            val threshold = if (isFinalTenthPick) 0.38f else 0.48f
                             val match = ChampionVisualMatcher.matchChampion(
                                 context = context,
                                 avatarCrop = avatarCrop,
