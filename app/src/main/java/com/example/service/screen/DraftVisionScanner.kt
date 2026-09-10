@@ -99,6 +99,7 @@ object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
     var overlayRect: android.graphics.Rect? = null
     val showCalibrationBoxes = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val debugVisualMatches = kotlinx.coroutines.flow.MutableStateFlow<Map<String, String>>(emptyMap())
 
     
     // Configuración estándar de coordenadas y cálculos
@@ -806,10 +807,24 @@ object DraftVisionScanner {
         // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN
         // Aplicamos reconocimiento visual a todos los slots que aún no tienen campeón confirmado por OCR
         if (context != null) {
-            val candidateSlots = (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
+            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
+            val isFinalTenthPick = totalPickedSoFar == 9
+            val isCalibrating = showCalibrationBoxes.value
+
+            val candidateSlots = if (isCalibrating) {
+                // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
+                allySlots + enemySlots
+            } else if (isFinalTenthPick) {
+                // Flujo normal: solo escaneamos por imagen si es exactamente el 10º pick
+                (allySlots + enemySlots).filter { it.champion == null && !it.isLikelyUnpicked }
+            } else {
+                emptyList()
+            }
+            
+            val newDebugMatches = mutableMapOf<String, String>()
 
             if (candidateSlots.isNotEmpty()) {
-                val alreadyPickedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
+                val alreadyPickedIds = if (!isCalibrating) (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet() else emptySet()
 
                 for (targetSlot in candidateSlots) {
                     val sIdx = targetSlot.slotIndex
@@ -855,8 +870,7 @@ object DraftVisionScanner {
 
                         try {
                             val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
-                            val threshold = if (totalPickedSoFar == 9) 0.45f else 0.52f
+                            val threshold = if (isFinalTenthPick) 0.45f else 0.52f
                             val match = ChampionVisualMatcher.matchChampion(
                                 context = context,
                                 avatarCrop = avatarCrop,
