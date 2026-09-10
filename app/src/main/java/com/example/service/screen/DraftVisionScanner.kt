@@ -510,11 +510,34 @@ object DraftVisionScanner {
                     slot.explicitRole = allySlotRolesCache[i]
                 }
 
-                // Asignar el nombre de invocador más limpio detectado
-                val bestSummoner = summonerCandidates.firstOrNull { cand ->
-                    !cand.equals(slot.champion?.name, ignoreCase = true) &&
-                    ChampionNameResolver.findChampionInText(cand, allChamps) == null
+                // Filtrar y limpiar candidatos a nombre de invocador respetando espacios y descartando ruido/chat/campeones
+                val validSummonerLines = mutableListOf<String>()
+                for (cand in summonerCandidates) {
+                    val trimmed = cand.trim()
+                    if (trimmed.length < 2) continue
+                    if (DraftValidationLayer.isNoiseText(trimmed)) continue
+                    if (trimmed.contains(":") || trimmed.contains("BETA", ignoreCase = true) || trimmed.contains("Porcentaje", ignoreCase = true)) continue
+                    if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
+                    if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
+                    if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
+                    if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
+                    if (!validSummonerLines.contains(trimmed)) {
+                        validSummonerLines.add(trimmed)
+                    }
                 }
+
+                // Combinar líneas adyacentes si forman parte de un nombre con espacios (ej. "DIE" + "GO" -> "DIE GO")
+                var bestSummoner: String? = null
+                if (validSummonerLines.isNotEmpty()) {
+                    bestSummoner = validSummonerLines.first()
+                    if (validSummonerLines.size >= 2 && validSummonerLines[0].length <= 8 && validSummonerLines[1].length <= 12) {
+                        val combined = "${validSummonerLines[0]} ${validSummonerLines[1]}"
+                        if (combined.length <= 25) {
+                            bestSummoner = combined
+                        }
+                    }
+                }
+
                 if (!bestSummoner.isNullOrBlank()) {
                     allySummonerNamesCache[i] = bestSummoner
                     textDiagnosticsList.add(
@@ -846,14 +869,8 @@ object DraftVisionScanner {
                     }
                     val defaultXCenter = if (isAlly) allyAvatarCenterX else enemyAvatarCenterX
 
-                    val yCenter = detectedTextBox?.centerY() ?: defaultYCenter
-                    val xCenter = if (detectedTextBox != null) {
-                        if (isAlly) {
-                            (detectedTextBox.left / 2).coerceIn((width * 0.04f).toInt(), (width * 0.12f).toInt())
-                        } else {
-                            ((detectedTextBox.right + width) / 2).coerceIn((width * 0.88f).toInt(), (width * 0.96f).toInt())
-                        }
-                    } else defaultXCenter
+                    val yCenter = defaultYCenter
+                    val xCenter = defaultXCenter
 
                     // Usar un radio de recorte adaptable (1.30x) para capturar el retrato completo
                     val expandedDiameter = (avatarDiameter * 1.30f).toInt().coerceAtLeast(36)

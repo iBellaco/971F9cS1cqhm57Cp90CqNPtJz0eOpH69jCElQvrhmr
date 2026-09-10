@@ -13,7 +13,7 @@ data class VisionCalibrationConfig(
     val enemyAvatarCenterX: Float = 0.957f,
 
     // Diámetro del avatar relativo al alto de pantalla (0..1)
-    val avatarDiameterRatio: Float = 0.126f,
+    val avatarDiameterRatio: Float = 0.106f,
 
     // Ratios verticales Y para los 5 slots aliados (0..4)
     val allySlotYRatios: List<Float> = listOf(
