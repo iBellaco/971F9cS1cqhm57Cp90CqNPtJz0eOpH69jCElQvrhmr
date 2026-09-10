@@ -134,25 +134,18 @@ object DraftVisionScanner {
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
         private var lastConfirmedChampion: Champion? = null
-        private var emptyCount: Int = 0
 
         fun process(candidate: Champion?, isOcr: Boolean, score: Float): Champion? {
             if (candidate != null) {
                 lastConfirmedChampion = candidate
-                emptyCount = 0
                 return candidate
             }
-
-            emptyCount++
-            if (emptyCount >= 2) {
-                lastConfirmedChampion = null
-            }
-            return lastConfirmedChampion
+            lastConfirmedChampion = null
+            return null
         }
 
         fun reset() {
             lastConfirmedChampion = null
-            emptyCount = 0
         }
     }
 
@@ -510,24 +503,25 @@ object DraftVisionScanner {
                     slot.explicitRole = allySlotRolesCache[i]
                 }
 
-                // Filtrar y limpiar candidatos a nombre de invocador respetando espacios y descartando ruido/chat/campeones
+                // Filtrar y limpiar candidatos a nombre de invocador estrictamente (descartando roles, ruido, chat y texto UI)
                 val validSummonerLines = mutableListOf<String>()
                 for (cand in summonerCandidates) {
                     val cleanedCand = cand.replace(Regex("^\\d+\\s*[\\).:-]?\\s*"), "").trim()
                     val trimmed = if (cleanedCand.length >= 2) cleanedCand else cand.trim()
-                    if (trimmed.length < 2) continue
+                    if (trimmed.length < 2 || trimmed.length > 25) continue
                     if (DraftValidationLayer.isNoiseText(trimmed)) continue
-                    if (trimmed.contains(":") || trimmed.contains("BETA", ignoreCase = true) || trimmed.contains("Porcentaje", ignoreCase = true)) continue
+                    val lLower = trimmed.lowercase(Locale.ROOT)
+                    if (lLower.contains(":") || lLower.contains("beta") || lLower.contains("porcentaje") || lLower.contains("victorias") || lLower.contains("bora") || lLower.contains("...") || lLower.contains("confirmar") || lLower.contains("detener") || lLower.contains("asistente")) continue
                     if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
                     if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
                     if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
+                    if (lLower.contains("calle") || lLower.contains("carril") || lLower.contains("dragon") || lLower.contains("dragón") || lLower.contains("baron") || lLower.contains("barón") || lLower.contains("central") || lLower.contains("jungla") || lLower.contains("soporte") || lLower.contains("adc") || lLower.contains("duo") || lLower.contains("dúo") || lLower.contains("top") || lLower.contains("mid") || lLower.contains("sup")) continue
                     if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
                     if (!validSummonerLines.contains(trimmed)) {
                         validSummonerLines.add(trimmed)
                     }
                 }
 
-                // Combinar líneas y preservar nombre de invocador con alta tolerancia a espacios y exclusión de roles
                 var bestSummoner: String? = null
                 if (validSummonerLines.isNotEmpty()) {
                     val filtered = validSummonerLines.filter { line ->
@@ -535,21 +529,18 @@ object DraftVisionScanner {
                         !DraftValidationLayer.isNoiseText(line) &&
                         ChampionNameResolver.findChampionInText(line, allChamps) == null &&
                         DraftValidationLayer.parseRoleFromText(line) == null &&
+                        !lLower.contains("calle") && !lLower.contains("carril") &&
                         !lLower.contains("dragon") && !lLower.contains("dragón") &&
                         !lLower.contains("baron") && !lLower.contains("barón") &&
                         !lLower.contains("central") && !lLower.contains("jungla") &&
                         !lLower.contains("soporte") && !lLower.contains("adc") &&
                         !lLower.contains("duo") && !lLower.contains("dúo") &&
+                        !lLower.contains("top") && !lLower.contains("mid") &&
                         !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true)
                     }
                     if (filtered.isNotEmpty()) {
-                        val bestLine = filtered.maxByOrNull { it.length } ?: filtered.first()
-                        bestSummoner = if (bestLine.length <= 25) bestLine else filtered.first()
+                        bestSummoner = filtered.maxByOrNull { it.length } ?: filtered.first()
                     }
-                }
-
-                if (bestSummoner.isNullOrBlank() && allySummonerNamesCache.containsKey(i)) {
-                    bestSummoner = allySummonerNamesCache[i]
                 }
 
                 if (!bestSummoner.isNullOrBlank()) {
