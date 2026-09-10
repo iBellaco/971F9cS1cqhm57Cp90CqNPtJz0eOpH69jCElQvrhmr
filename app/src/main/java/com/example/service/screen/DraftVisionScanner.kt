@@ -104,18 +104,22 @@ object DraftVisionScanner {
     
     // Configuración estándar de coordenadas y cálculos
     var calibrationConfig = VisionCalibrationConfig()
+    val calibrationConfigFlow = kotlinx.coroutines.flow.MutableStateFlow(VisionCalibrationConfig())
 
     fun initCalibration(context: android.content.Context) {
         calibrationConfig = VisionCalibrationConfig.loadFromPrefs(context)
+        calibrationConfigFlow.value = calibrationConfig
     }
 
     fun updateCalibration(context: android.content.Context, newConfig: VisionCalibrationConfig) {
         calibrationConfig = newConfig
+        calibrationConfigFlow.value = newConfig
         newConfig.saveToPrefs(context)
     }
 
     fun resetCalibration(context: android.content.Context) {
         calibrationConfig = VisionCalibrationConfig()
+        calibrationConfigFlow.value = calibrationConfig
         calibrationConfig.saveToPrefs(context)
     }
 

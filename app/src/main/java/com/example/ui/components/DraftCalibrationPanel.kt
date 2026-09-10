@@ -35,6 +35,7 @@ import com.example.service.screen.DraftVisionScanner
 import com.example.service.screen.VisionCalibrationConfig
 import com.example.ui.theme.*
 import com.example.util.tr
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 enum class CalibrationTarget(val title: String, val subtitle: String) {
     GLOBAL_ALLY_X("Columna Aliados (X)", "Mover horizontalmente todos los avatares aliados"),
@@ -59,7 +60,11 @@ fun DraftCalibrationPanel(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var config by remember { mutableStateOf(DraftVisionScanner.calibrationConfig) }
+    val currentConfig by DraftVisionScanner.calibrationConfigFlow.collectAsStateWithLifecycle()
+    var config by remember { mutableStateOf(currentConfig) }
+    LaunchedEffect(currentConfig) {
+        config = currentConfig
+    }
     var selectedTarget by remember { mutableStateOf(CalibrationTarget.AVATAR_SIZE) }
     var stepFactor by remember { mutableStateOf(0.005f) } // 0.5% paso normal
 

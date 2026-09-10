@@ -19,9 +19,10 @@ import com.example.service.screen.DraftVisionScanner
 
 @Composable
 fun ScannerDebugOverlay(
-    config: VisionCalibrationConfig,
+    config: VisionCalibrationConfig = DraftVisionScanner.calibrationConfigFlow.collectAsStateWithLifecycle().value,
     overlayRect: android.graphics.Rect?
 ) {
+    val currentConfig by DraftVisionScanner.calibrationConfigFlow.collectAsStateWithLifecycle()
     val debugMatches by DraftVisionScanner.debugVisualMatches.collectAsStateWithLifecycle()
     val density = LocalDensity.current
     
@@ -30,7 +31,7 @@ fun ScannerDebugOverlay(
         val h = size.height
         
         // Draw OCR boxes based on ratios
-        val avatarDiameter = h * config.avatarDiameterRatio
+        val avatarDiameter = h * currentConfig.avatarDiameterRatio
         
         val textPaint = android.graphics.Paint().apply {
             color = android.graphics.Color.YELLOW
@@ -42,8 +43,8 @@ fun ScannerDebugOverlay(
         
         for (sIdx in 0..4) {
             // Ally
-            val allyY = h * config.allySlotYRatios[sIdx]
-            val allyX = w * config.allyAvatarCenterX
+            val allyY = h * currentConfig.allySlotYRatios[sIdx]
+            val allyX = w * currentConfig.allyAvatarCenterX
             
             drawRect(
                 color = Color.Green,
@@ -63,8 +64,8 @@ fun ScannerDebugOverlay(
             }
             
             // Enemy
-            val enemyY = h * config.enemySlotYRatios[sIdx]
-            val enemyX = w * config.enemyAvatarCenterX
+            val enemyY = h * currentConfig.enemySlotYRatios[sIdx]
+            val enemyX = w * currentConfig.enemyAvatarCenterX
             
             drawRect(
                 color = Color.Red,

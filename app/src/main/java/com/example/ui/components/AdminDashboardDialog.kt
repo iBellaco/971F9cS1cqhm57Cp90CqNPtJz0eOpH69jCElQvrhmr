@@ -286,13 +286,18 @@ fun EnhancedUserManagementPanel() {
             }
     }
 
+    var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
         loadUsers()
+        while (true) {
+            kotlinx.coroutines.delay(1000L)
+            currentTime = System.currentTimeMillis()
+        }
     }
 
     // Cálculos de métricas en tiempo real
     val totalUsers = users.size
-    val now = System.currentTimeMillis()
+    val now = currentTime
     val onlineThreshold = 10 * 60 * 1000L // Activos en últimos 10 minutos o con flag is_online
 
     val onlineUsers = users.count { u ->
@@ -1026,8 +1031,14 @@ private fun getSubscriptionStatusText(role: String, premiumUntil: Long?, isPremi
 
     val days = diff / (24 * 60 * 60 * 1000L)
     val hours = (diff % (24 * 60 * 60 * 1000L)) / (60 * 60 * 1000L)
+    val minutes = (diff % (60 * 60 * 1000L)) / (60 * 1000L)
+    val seconds = (diff % (60 * 1000L)) / 1000L
 
-    return if (days > 0) "Premium: $days d $hours h restantes" else "Premium: $hours h restantes"
+    return when {
+        days > 0 -> "Premium: ${days}d ${hours}h ${minutes}m ${seconds}s restantes"
+        hours > 0 -> "Premium: ${hours}h ${minutes}m ${seconds}s restantes"
+        else -> "Premium: ${minutes}m ${seconds}s restantes"
+    }
 }
 
 private fun formatExpirationDateDetailed(timestamp: Long?): String {
