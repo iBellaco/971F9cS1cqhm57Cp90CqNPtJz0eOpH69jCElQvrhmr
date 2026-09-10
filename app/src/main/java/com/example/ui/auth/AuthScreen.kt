@@ -2,14 +2,18 @@ package com.example.ui.auth
 
 import android.widget.Toast
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalActivity
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -437,15 +441,121 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             
             val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
             if (unreadCount > 0) {
-                Button(
-                    onClick = { showInboxDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                val infiniteTransition = rememberInfiniteTransition(label = "NewMessageAnimation")
+                val pulseScale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.035f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "pulseScale"
+                )
+                val iconWiggle by infiniteTransition.animateFloat(
+                    initialValue = -12f,
+                    targetValue = 12f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 280, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "iconWiggle"
+                )
+                val glowAlpha by infiniteTransition.animateFloat(
+                    initialValue = 0.5f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "glowAlpha"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp)
+                        .graphicsLayer {
+                            scaleX = pulseScale
+                            scaleY = pulseScale
+                        }
                 ) {
-                    Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Tienes $unreadCount mensaje(s) nuevo(s)")
+                    Button(
+                        onClick = { showInboxDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        border = BorderStroke(
+                            1.5.dp,
+                            Brush.horizontalGradient(
+                                listOf(
+                                    com.example.ui.theme.HextechGold.copy(alpha = glowAlpha),
+                                    DangerRed.copy(alpha = glowAlpha),
+                                    com.example.ui.theme.HextechCyan.copy(alpha = glowAlpha)
+                                )
+                            )
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    listOf(
+                                        Color(0xFFDC2626),
+                                        Color(0xFF991B1B)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MarkEmailUnread,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(22.dp)
+                                        .graphicsLayer {
+                                            rotationZ = iconWiggle
+                                        }
+                                )
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "Tienes $unreadCount mensaje(s) nuevo(s)",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 13.5.sp
+                                    )
+                                    Text(
+                                        text = "Toca para abrir tu bandeja de entrada",
+                                        color = Color.White.copy(alpha = 0.85f),
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                color = com.example.ui.theme.HextechGold.copy(alpha = glowAlpha),
+                                shape = RoundedCornerShape(6.dp),
+                                shadowElevation = 4.dp
+                            ) {
+                                Text(
+                                    text = "¡NUEVO!",
+                                    color = Color(0xFF0F172A),
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 10.sp,
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             } else {
                 OutlinedButton(

@@ -81,6 +81,7 @@ fun AdminDashboardDialog(
     var showReportsPanel by remember { mutableStateOf(false) }
     var showSupportReportsPanel by remember { mutableStateOf(false) }
     var showBroadcastDialog by remember { mutableStateOf(false) }
+    var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
     if (showReportsPanel) {
@@ -113,7 +114,9 @@ fun AdminDashboardDialog(
                     onClose = onDismiss,
                     onOpenReports = { showReportsPanel = true },
                     onOpenSupport = { showSupportReportsPanel = true },
-                    onOpenBroadcast = { showBroadcastDialog = true }
+                    onOpenBroadcast = { showBroadcastDialog = true },
+                    isMinimized = isMonitoringMinimized,
+                    onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
                 )
 
                 // Panel principal de gestión
@@ -122,7 +125,10 @@ fun AdminDashboardDialog(
                         .fillMaxSize()
                         .weight(1f)
                 ) {
-                    EnhancedUserManagementPanel()
+                    EnhancedUserManagementPanel(
+                        isMinimized = isMonitoringMinimized,
+                        onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
+                    )
                 }
             }
         }
@@ -134,7 +140,9 @@ private fun AdminDashboardHeader(
     onClose: () -> Unit,
     onOpenReports: () -> Unit,
     onOpenSupport: () -> Unit,
-    onOpenBroadcast: () -> Unit
+    onOpenBroadcast: () -> Unit,
+    isMinimized: Boolean = false,
+    onToggleMinimize: () -> Unit = {}
 ) {
     Surface(
         color = HextechSurfaceBg,
@@ -144,7 +152,7 @@ private fun AdminDashboardHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -175,69 +183,118 @@ private fun AdminDashboardHeader(
                             color = HextechGold
                         )
                         Text(
-                            text = "Control de Usuarios, Membresías y Slots",
+                            text = if (isMinimized) "Monitoreo minimizado (Vista amplia)" else "Control de Usuarios, Membresías y Slots",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextMuted,
+                            color = if (isMinimized) HextechCyan else TextMuted,
                             fontSize = 11.sp
                         )
                     }
                 }
 
-                IconButton(
-                    onClick = onClose,
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Botón para minimizar / expandir herramientas y monitoreo
+                    IconButton(
+                        onClick = onToggleMinimize,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(
+                                if (isMinimized) HextechGold.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
+                                CircleShape
+                            )
+                    ) {
+                        Icon(
+                            imageVector = if (isMinimized) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                            contentDescription = if (isMinimized) "Expandir monitoreo y reportes" else "Minimizar monitoreo y reportes",
+                            tint = if (isMinimized) HextechGold else TextPrimary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    IconButton(
+                        onClick = onClose,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar",
+                            tint = TextPrimary
+                        )
+                    }
+                }
+            }
+
+            // Barra compacta cuando está minimizado
+            AnimatedVisibility(visible = isMinimized) {
+                Row(
                     modifier = Modifier
-                        .size(36.dp)
-                        .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                        .clickable { onToggleMinimize() },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Cerrar",
-                        tint = TextPrimary
+                    Text(
+                        text = "⚡ Herramientas y monitoreo minimizados para ver más usuarios",
+                        color = HextechGold,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Mostrar ▲",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            // Botones de acción rápida superiores (Minimizables)
+            AnimatedVisibility(visible = !isMinimized) {
+                Column {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = onOpenReports,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Reportes OCR", fontSize = 11.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
+                        }
 
-            // Botones de acción rápida superiores
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onOpenReports,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Reportes OCR", fontSize = 11.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
-                }
+                        Button(
+                            onClick = onOpenSupport,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Soporte", fontSize = 11.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
+                        }
 
-                Button(
-                    onClick = onOpenSupport,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Soporte", fontSize = 11.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
-                }
-
-                Button(
-                    onClick = onOpenBroadcast,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
-                ) {
-                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Anuncio", fontSize = 11.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                        Button(
+                            onClick = onOpenBroadcast,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Anuncio", fontSize = 11.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             }
         }
@@ -254,7 +311,10 @@ enum class UserFilterTab(val label: String) {
 }
 
 @Composable
-fun EnhancedUserManagementPanel() {
+fun EnhancedUserManagementPanel(
+    isMinimized: Boolean = false,
+    onToggleMinimize: () -> Unit = {}
+) {
     val context = LocalContext.current
     var users by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -353,20 +413,59 @@ fun EnhancedUserManagementPanel() {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // KPI Cards Bar
-        AdminKpiCards(
-            total = totalUsers,
-            premium = premiumUsers,
-            free = freeUsers,
-            online = onlineUsers,
-            onRefresh = {
-                isRefreshing = true
-                loadUsers()
-            },
-            isRefreshing = isRefreshing
-        )
+        // Bloque de monitoreo y métricas minimizable
+        AnimatedVisibility(visible = !isMinimized) {
+            Column {
+                // KPI Cards Bar
+                AdminKpiCards(
+                    total = totalUsers,
+                    premium = premiumUsers,
+                    free = freeUsers,
+                    online = onlineUsers,
+                    onRefresh = {
+                        isRefreshing = true
+                        loadUsers()
+                    },
+                    isRefreshing = isRefreshing
+                )
 
-        ServerScraperHealthCard()
+                ServerScraperHealthCard()
+            }
+        }
+
+        // Barra informativa de estado minimizado y botón para alternar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (isMinimized) "Mostrando vista completa de usuarios" else "Monitoreo y herramientas activas",
+                color = if (isMinimized) HextechGold else TextMuted,
+                fontSize = 11.sp,
+                fontWeight = if (isMinimized) FontWeight.SemiBold else FontWeight.Normal
+            )
+            TextButton(
+                onClick = onToggleMinimize,
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Icon(
+                    imageVector = if (isMinimized) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(13.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = if (isMinimized) "Ver Monitoreo / Reportes" else "Minimizar Monitoreo",
+                    color = HextechCyan,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         // Buscador y Chips de Filtro
         Surface(
@@ -883,8 +982,37 @@ fun EnhancedUserAdminCard(
                     }
                 }
 
-                // Info de Slots de Dispositivos y Avatares
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Info de Slots de Dispositivos, Avatares y Esencia Azul
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val blueEssence = (user["blueEssence"] as? Number)?.toLong() ?: 0L
+                    // Badge de Esencia Azul
+                    Surface(
+                        color = HextechDarkBg,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, Color(0xFF0EA5E9).copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                contentDescription = "Esencia Azul",
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "$blueEssence EA",
+                                fontSize = 10.sp,
+                                color = Color(0xFF38BDF8),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
                     // Badge de Slots de Dispositivo
                     Surface(
                         color = HextechDarkBg,
@@ -1443,6 +1571,24 @@ fun UserDetailManagementDialog(
                                         Text("Desbloquear TODO", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Button(
+                                    onClick = {
+                                        revokeAllExclusiveAvatarsFromUser(context, uid) {
+                                            Toast.makeText(context, "¡Regalos de avatares retirados correctamente!", Toast.LENGTH_SHORT).show()
+                                            onReloadAll()
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.85f)),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Quitar Regalos de Avatares", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -1521,10 +1667,41 @@ fun UserDetailManagementDialog(
                             border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(18.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Comunicación y Recompensas", fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 13.sp)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(18.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Comunicación y Recompensas", fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 13.sp)
+                                    }
+
+                                    val currentEssence = (user["blueEssence"] as? Number)?.toLong() ?: 0L
+                                    Surface(
+                                        color = HextechDarkBg,
+                                        shape = RoundedCornerShape(6.dp),
+                                        border = androidx.compose.foundation.BorderStroke(0.5.dp, Color(0xFF0EA5E9).copy(alpha = 0.6f))
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(12.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(3.dp))
+                                            Text(
+                                                text = "$currentEssence EA",
+                                                fontSize = 10.5.sp,
+                                                color = Color(0xFF38BDF8),
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -1811,22 +1988,46 @@ fun AdminAvatarGiftDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Botón Regalar Todo el Catálogo
-                Button(
-                    onClick = {
-                        giftAllAvatarsToUser(context, uid) {
-                            currentUnlocked = allAvatars.map { it.id }.toSet()
-                            Toast.makeText(context, "¡Todos los avatares han sido regalados!", Toast.LENGTH_SHORT).show()
-                            onAvatarGifted("all")
-                        }
-                    },
+                // Botones Regalar / Quitar Todo el Catálogo
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
-                    shape = RoundedCornerShape(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("🎁 Regalar Todos los Exclusivos (${allAvatars.size} Avatares VIP)", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Button(
+                        onClick = {
+                            giftAllAvatarsToUser(context, uid) {
+                                currentUnlocked = allAvatars.map { it.id }.toSet()
+                                Toast.makeText(context, "¡Todos los avatares han sido regalados!", Toast.LENGTH_SHORT).show()
+                                onAvatarGifted("all")
+                            }
+                        },
+                        modifier = Modifier.weight(1.3f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED)),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("🎁 Regalar Todos (${allAvatars.size})", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
+                    }
+
+                    Button(
+                        onClick = {
+                            revokeAllExclusiveAvatarsFromUser(context, uid) {
+                                currentUnlocked = setOf("default_poro")
+                                Toast.makeText(context, "¡Regalos de avatares retirados!", Toast.LENGTH_SHORT).show()
+                                onAvatarGifted("none")
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.85f)),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 8.dp)
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Quitar Regalos", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color.White)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -1852,6 +2053,14 @@ fun AdminAvatarGiftDialog(
                                     Toast.makeText(context, "¡Avatar ${item.name} regalado!", Toast.LENGTH_SHORT).show()
                                     onAvatarGifted(item.id)
                                 }
+                            },
+                            onRevoke = {
+                                val currentEquipped = user["avatarId"] as? String
+                                revokeSingleAvatarFromUser(context, uid, item.id, currentEquipped) {
+                                    currentUnlocked = currentUnlocked - item.id
+                                    Toast.makeText(context, "¡Avatar ${item.name} retirado!", Toast.LENGTH_SHORT).show()
+                                    onAvatarGifted(item.id)
+                                }
                             }
                         )
                     }
@@ -1865,7 +2074,8 @@ fun AdminAvatarGiftDialog(
 private fun AvatarGiftCard(
     item: AvatarItem,
     isUnlocked: Boolean,
-    onGift: () -> Unit
+    onGift: () -> Unit,
+    onRevoke: () -> Unit = {}
 ) {
     Surface(
         color = HextechSurfaceBg,
@@ -1919,8 +2129,22 @@ private fun AvatarGiftCard(
                         fontSize = 9.5.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 3.dp)
+                        modifier = Modifier.padding(vertical = 2.dp)
                     )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Button(
+                    onClick = onRevoke,
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.85f)),
+                    shape = RoundedCornerShape(4.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.RemoveCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(11.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Quitar", color = Color.White, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
                 Button(
@@ -2174,6 +2398,57 @@ private fun giftAllAvatarsToUser(
         }
         .addOnFailureListener { e ->
             Toast.makeText(context, "Error al regalar avatares: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun revokeSingleAvatarFromUser(
+    context: Context,
+    uid: String,
+    avatarId: String,
+    currentEquippedAvatarId: String? = null,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val userRef = db.collection("users").document(uid)
+
+    val updates = mutableMapOf<String, Any>(
+        "unlockedAvatars" to FieldValue.arrayRemove(avatarId),
+        "avatarAllAccessGranted" to false
+    )
+    if (currentEquippedAvatarId == avatarId) {
+        updates["avatarId"] = "default_poro"
+    }
+
+    userRef.update(updates)
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al quitar avatar: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+}
+
+private fun revokeAllExclusiveAvatarsFromUser(
+    context: Context,
+    uid: String,
+    onSuccess: () -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val userRef = db.collection("users").document(uid)
+
+    val defaultAvatars = listOf("default_poro")
+    val updateData = hashMapOf<String, Any>(
+        "unlockedAvatars" to defaultAvatars,
+        "avatarAllAccessGranted" to false,
+        "avatarId" to "default_poro"
+    )
+
+    userRef.set(updateData, SetOptions.merge())
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al remover avatares: ${e.message}", Toast.LENGTH_LONG).show()
         }
 }
 
