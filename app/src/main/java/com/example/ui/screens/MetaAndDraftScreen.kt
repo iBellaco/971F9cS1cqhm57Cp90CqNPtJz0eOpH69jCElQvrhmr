@@ -482,7 +482,7 @@ fun MetaAndDraftScreen(
                     }
                 },
                 actions = {
-                    if (mode == MetaScreenMode.DRAFTING) {
+                    if (mode == MetaScreenMode.DRAFTING && isPremium) {
                         IconButton(
                             onClick = { showDraftHistoryScreen = true },
                             modifier = Modifier.testTag("nav_draft_history_button")
@@ -3824,59 +3824,41 @@ fun DraftAnalysisTab(
                 }
             }
 
-            Button(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (isPremium) {
+            if (isPremium) {
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onOpenHistory()
-                    } else {
-                        android.widget.Toast.makeText(tabContext, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier
-                    .weight(1.1f)
-                    .height(44.dp)
-                    .testTag("open_draft_history_button"),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = HextechSurface,
-                    contentColor = HextechCyan
-                ),
-                border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f)),
-                shape = RoundedCornerShape(12.dp),
-                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    },
+                    modifier = Modifier
+                        .weight(1.1f)
+                        .height(44.dp)
+                        .testTag("open_draft_history_button"),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = HextechSurface,
+                        contentColor = HextechCyan
+                    ),
+                    border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f)),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.History,
-                        contentDescription = null,
-                        tint = HextechCyan,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = tr("Historial"),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
-                        color = HextechCyan
-                    )
-                    if (!isPremium) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(16.dp)
+                        )
                         Spacer(modifier = Modifier.width(3.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
-                                .padding(horizontal = 3.dp, vertical = 1.dp)
-                        ) {
-                            Text(
-                                text = "PRO",
-                                color = HextechDarkBg,
-                                fontSize = 7.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
+                        Text(
+                            text = tr("Historial"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            color = HextechCyan
+                        )
                     }
                 }
             }

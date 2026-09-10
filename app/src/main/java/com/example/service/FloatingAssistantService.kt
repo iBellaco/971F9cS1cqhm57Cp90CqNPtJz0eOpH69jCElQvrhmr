@@ -1590,7 +1590,13 @@ private fun FloatingOverlayContent(
                                                 autoScanEnabled = false
                                                 showChampionPickerForSlot = Pair(isAlly, idx) 
                                             },
-                                            onSaveDraftClick = { showSaveDraftDialog = true },
+                                            onSaveDraftClick = { 
+                                                if (isPremium) {
+                                                    showSaveDraftDialog = true 
+                                                } else {
+                                                    android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
+                                                }
+                                            },
                                             isSavedRecently = isSavedRecently,
                                             onClearAll = { 
                                                 for (i in 0 until 5) {

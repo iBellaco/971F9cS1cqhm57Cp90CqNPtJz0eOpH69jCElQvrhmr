@@ -373,7 +373,7 @@ object ChampionVisualMatcher {
         avatarCrop: Bitmap,
         candidates: List<Champion>,
         excludedChampionIds: Set<String> = emptySet(),
-        minConfidenceThreshold: Float = 0.50f
+        minConfidenceThreshold: Float = 0.52f
     ): VisualMatchResult? {
         if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
 
@@ -430,13 +430,13 @@ object ChampionVisualMatcher {
             }
         }
 
-        // Se requiere superar el umbral mínimo y confianza adaptativa
+        // Se requiere superar el umbral mínimo y confianza adaptativa estricta para evitar falsos positivos
         if (bestChamp != null && bestScore >= minConfidenceThreshold) {
             val margin = bestScore - secondBestScore
-            val requiredConfidence = (minConfidenceThreshold + 0.05f).coerceAtLeast(0.44f)
-            val isConfident = bestScore >= requiredConfidence && (secondBestScore < 0 || margin >= 0.02f)
-            if (!isConfident && bestScore < (minConfidenceThreshold + 0.09f)) {
-                AppLogger.d(TAG, "Rechazado match visual por baja confianza/margen: ${bestChamp.name} (Score: $bestScore, Margin: $margin)")
+            val requiredConfidence = (minConfidenceThreshold + 0.06f).coerceAtLeast(0.56f)
+            val isConfident = bestScore >= requiredConfidence && (secondBestScore < 0 || margin >= 0.03f)
+            if (!isConfident || bestScore < minConfidenceThreshold) {
+                AppLogger.d(TAG, "Rechazado match visual por baja confianza/margen estricto: ${bestChamp.name} (Score: $bestScore, Margin: $margin)")
                 return null
             }
             AppLogger.d(TAG, "Similitud visual detectada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%, Margen: ${(margin * 100).toInt()}%)")
