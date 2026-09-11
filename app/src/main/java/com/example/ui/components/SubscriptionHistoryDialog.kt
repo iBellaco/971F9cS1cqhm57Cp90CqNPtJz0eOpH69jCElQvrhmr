@@ -1,8 +1,11 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -122,6 +125,66 @@ fun SubscriptionHistoryDialog(
                                 contentDescription = "Cerrar",
                                 tint = TextSecondary,
                                 modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+                HorizontalDivider(color = HextechCardBorder)
+
+                // Sección de Esencia Azul dentro del Historial
+                val currentBlueEssence by com.example.util.SubscriptionManager.blueEssence.collectAsState()
+                var showBuyEssenceDialogInside by remember { mutableStateOf(false) }
+                if (showBuyEssenceDialogInside) {
+                    BuyEssenceDialog(
+                        isAdmin = com.example.util.AuthManager.isCurrentUserAdmin(),
+                        onDismiss = { showBuyEssenceDialogInside = false }
+                    )
+                }
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .clickable { showBuyEssenceDialogInside = true },
+                    shape = RoundedCornerShape(12.dp),
+                    color = HextechSurfaceVariant.copy(alpha = 0.8f),
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                contentDescription = "Esencia Azul",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Esencia Azul Disponible",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                                Text(
+                                    text = "$currentBlueEssence EA",
+                                    color = HextechGold,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = HextechGold,
+                            contentColor = HextechDarkBg
+                        ) {
+                            Text(
+                                text = "+ Recargar",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
                     }

@@ -279,6 +279,36 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 subtitle = "Sesión iniciada correctamente"
             )
             
+            var showInboxDialog by remember { mutableStateOf(false) }
+            var showSupportDialog by remember { mutableStateOf(false) }
+            var showBuyEssenceDialog by remember { mutableStateOf(false) }
+
+            if (showInboxDialog) {
+                com.example.ui.components.UserInboxDialog(
+                    userUid = user.uid,
+                    onDismiss = { showInboxDialog = false }
+                )
+            }
+            if (showSupportDialog) {
+                com.example.ui.components.SupportReportDialog(onDismiss = { showSupportDialog = false })
+            }
+            if (showBuyEssenceDialog) {
+                com.example.ui.components.BuyEssenceDialog(
+                    isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin(),
+                    onDismiss = { showBuyEssenceDialog = false }
+                )
+            }
+
+            val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+            var showPurchaseHistoryDialog by remember { mutableStateOf(false) }
+
+            if (showPurchaseHistoryDialog) {
+                com.example.ui.components.PurchaseHistoryDialog(
+                    isAdmin = isAdminUser,
+                    onDismiss = { showPurchaseHistoryDialog = false }
+                )
+            }
+
             // Summoner Crest Avatar
             val finalUserName = savedUserName.takeIf { it.isNotBlank() }
                 ?: user.displayName?.takeIf { it.isNotBlank() }
@@ -318,62 +348,120 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 finishedListener = { avatarTapped = false }
             )
 
-            Box(
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = avatarScale
-                        scaleY = avatarScale
-                    }
-                    .clickable {
-                        avatarTapped = true
-                        showAvatarDialog = true
-                    },
-                contentAlignment = Alignment.Center
+            // Row with Inbox (left), Avatar in center, Support (right)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
-                // Ambient rotating ring matching active theme
+                // Inbox button on left (smaller)
+                val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
                 Box(
                     modifier = Modifier
-                        .size(86.dp)
-                        .graphicsLayer {
-                            scaleX = haloPulse
-                            scaleY = haloPulse
-                        }
-                        .rotate(haloRotation)
-                        .border(
-                            width = 2.dp,
-                            brush = Brush.sweepGradient(
-                                listOf(
-                                    activeTheme.primary,
-                                    activeTheme.secondary,
-                                    activeTheme.primaryGlow,
-                                    activeTheme.primary
-                                )
-                            ),
-                            shape = CircleShape
-                        )
-                )
-
-                UserAvatarView(
-                    avatarId = currentAvatarId,
-                    rankBorder = currentRankBorder,
-                    size = 72.dp,
-                    fallbackInitial = finalUserName
-                )
-                // Edit badge
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.BottomEnd)
+                        .size(38.dp)
                         .clip(CircleShape)
-                        .background(activeTheme.secondary)
-                        .border(1.5.dp, activeTheme.background, CircleShape),
+                        .background(activeTheme.surfaceVariant)
+                        .border(1.dp, if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder, CircleShape)
+                        .tactileClickable { showInboxDialog = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (unreadCount > 0) Icons.Default.MarkEmailUnread else Icons.Default.Message,
+                            contentDescription = "Bandeja de Entrada",
+                            tint = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.secondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        if (unreadCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .align(Alignment.TopEnd)
+                                    .clip(CircleShape)
+                                    .background(DangerRed)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                // Avatar in center (tappable to open avatar dialog with edit pencil badge)
+                Box(
+                    modifier = Modifier
+                        .graphicsLayer {
+                            scaleX = avatarScale
+                            scaleY = avatarScale
+                        }
+                        .tactileClickable {
+                            avatarTapped = true
+                            showAvatarDialog = true
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(86.dp)
+                            .graphicsLayer {
+                                scaleX = haloPulse
+                                scaleY = haloPulse
+                            }
+                            .rotate(haloRotation)
+                            .border(
+                                width = 2.dp,
+                                brush = Brush.sweepGradient(
+                                    listOf(
+                                        activeTheme.primary,
+                                        activeTheme.secondary,
+                                        activeTheme.primaryGlow,
+                                        activeTheme.primary
+                                    )
+                                ),
+                                shape = CircleShape
+                            )
+                    )
+
+                    UserAvatarView(
+                        avatarId = currentAvatarId,
+                        rankBorder = currentRankBorder,
+                        size = 72.dp,
+                        fallbackInitial = finalUserName
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.BottomEnd)
+                            .clip(CircleShape)
+                            .background(activeTheme.secondary)
+                            .border(1.5.dp, activeTheme.background, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Cambiar Avatar",
+                            tint = activeTheme.background,
+                            modifier = Modifier.size(13.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(20.dp))
+
+                // Support button on right (smaller)
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(activeTheme.surfaceVariant)
+                        .border(1.dp, activeTheme.cardBorder, CircleShape)
+                        .tactileClickable { showSupportDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Cambiar Avatar",
-                        tint = activeTheme.background,
-                        modifier = Modifier.size(13.dp)
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Soporte",
+                        tint = activeTheme.secondary,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
@@ -415,11 +503,88 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     )
                 }
             }
-            
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Blue Essence + Recharge panel right below username
+            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+            var essenceBounce by remember { mutableStateOf(false) }
+            val essenceScale by animateFloatAsState(
+                targetValue = if (essenceBounce) 1.08f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                label = "essenceScale",
+                finishedListener = { essenceBounce = false }
+            )
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleX = essenceScale
+                        scaleY = essenceScale
+                    }
+                    .tactileClickable {
+                        essenceBounce = true
+                        showBuyEssenceDialog = true
+                    },
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.surfaceVariant,
+                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                            contentDescription = "Esencia Azul",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Column {
+                            Text(
+                                text = "Esencia Azul",
+                                color = activeTheme.textSecondary,
+                                fontSize = 10.sp
+                            )
+                            Text(
+                                text = "$currentBlueEssence EA",
+                                color = activeTheme.primary,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(activeTheme.secondary)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = "+ Recargar",
+                            color = activeTheme.background,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             var isEmailVisible by remember { mutableStateOf(false) }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 4.dp).clickable { isEmailVisible = !isEmailVisible }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .tactileClickable { isEmailVisible = !isEmailVisible },
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = if (isEmailVisible) (user.email ?: "") else "••••••••@••••.com",
@@ -434,7 +599,92 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     modifier = Modifier.size(15.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Connected Devices panel right below email
+            var registeredDevicesCount by remember { mutableStateOf(1) }
+            var isSecurityExpanded by remember { mutableStateOf(false) }
+            LaunchedEffect(user.uid) {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.uid)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val devs = doc.get("registeredDevices") as? List<*> ?: emptyList<Any>()
+                        registeredDevicesCount = devs.size.coerceAtLeast(1)
+                    }
+            }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = activeTheme.surfaceVariant.copy(alpha = 0.55f)),
+                border = BorderStroke(1.dp, activeTheme.cardBorder)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .tactileClickable { isSecurityExpanded = !isSecurityExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "📱 Dispositivos Conectados:",
+                                color = activeTheme.secondary,
+                                fontSize = 12.5.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(activeTheme.primary.copy(alpha = 0.2f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "$registeredDevicesCount de 2 en uso",
+                                    color = activeTheme.primary,
+                                    fontSize = 11.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                )
+                            }
+                        }
+                        Icon(
+                            imageVector = if (isSecurityExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = null,
+                            tint = activeTheme.secondary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    AnimatedVisibility(visible = isSecurityExpanded) {
+                        Column(modifier = Modifier.padding(top = 10.dp)) {
+                            Text(
+                                text = "🔒 " + com.example.util.tr("Por seguridad de tu cuenta, la liberación y reasignación de slots de hardware es gestionada exclusivamente por los Administradores desde el panel de soporte."),
+                                color = activeTheme.textSecondary,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
+                                color = activeTheme.textMuted,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             val isUserPremium = isPremium || userRole == "admin" || AuthManager.isCurrentUserAdmin()
             if (isUserPremium) {
@@ -585,89 +835,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
 
-            var showBuyEssenceDialog by remember { mutableStateOf(false) }
-            var showEssenceLabel by remember { mutableStateOf(false) }
-            var showPurchaseHistoryDialog by remember { mutableStateOf(false) }
-
-            if (showBuyEssenceDialog) {
-                com.example.ui.components.BuyEssenceDialog(
-                    isAdmin = isAdminUser,
-                    onDismiss = { showBuyEssenceDialog = false }
-                )
-            }
-
-            if (showPurchaseHistoryDialog) {
-                com.example.ui.components.PurchaseHistoryDialog(
-                    isAdmin = isAdminUser,
-                    onDismiss = { showPurchaseHistoryDialog = false }
-                )
-            }
-
-            // Contenedor Esencia Azul Interactivo y Animado
-            var essenceBounce by remember { mutableStateOf(false) }
-            val essenceScale by animateFloatAsState(
-                targetValue = if (essenceBounce) 1.08f else 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                label = "essenceScale",
-                finishedListener = { essenceBounce = false }
-            )
-
-            Surface(
-                modifier = Modifier
-                    .graphicsLayer {
-                        scaleX = essenceScale
-                        scaleY = essenceScale
-                    }
-                    .clickable {
-                        essenceBounce = true
-                        showBuyEssenceDialog = true
-                    },
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant,
-                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                        contentDescription = "Esencia Azul",
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Text(
-                        text = "$currentBlueEssence EA",
-                        color = activeTheme.primary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(activeTheme.secondary)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = "+ Recargar",
-                            color = activeTheme.background,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-                }
-            }
-            
-            var showInboxDialog by remember { mutableStateOf(false) }
-            if (showInboxDialog) {
-                com.example.ui.components.UserInboxDialog(
-                    userUid = user.uid,
-                    onDismiss = { showInboxDialog = false }
-                )
-            }
             
             val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
             if (unreadCount > 0) {
@@ -1005,102 +1173,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
             
-            var showSupportDialog by remember { mutableStateOf(false) }
-
-            if (showSupportDialog) {
-                com.example.ui.components.SupportReportDialog(onDismiss = { showSupportDialog = false })
-            }
-
             if (showHistoryDialog) {
                 com.example.ui.components.SubscriptionHistoryDialog(
                     userId = user.uid,
                     userEmail = user.email,
                     onDismiss = { showHistoryDialog = false }
                 )
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Slot usage and no-logout recommendation (Collapsible and Animated)
-            var registeredDevicesCount by remember { mutableStateOf(1) }
-            var isSecurityExpanded by remember { mutableStateOf(false) }
-            LaunchedEffect(user.uid) {
-                com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                    .collection("users")
-                    .document(user.uid)
-                    .get()
-                    .addOnSuccessListener { doc ->
-                        val devs = doc.get("registeredDevices") as? List<*> ?: emptyList<Any>()
-                        registeredDevicesCount = devs.size.coerceAtLeast(1)
-                    }
-            }
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = activeTheme.surfaceVariant.copy(alpha = 0.55f)),
-                border = BorderStroke(1.dp, activeTheme.cardBorder)
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { isSecurityExpanded = !isSecurityExpanded },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "📱 Dispositivos Conectados:",
-                                color = activeTheme.secondary,
-                                fontSize = 12.5.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(activeTheme.primary.copy(alpha = 0.2f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "$registeredDevicesCount de 2 en uso",
-                                    color = activeTheme.primary,
-                                    fontSize = 11.sp,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                )
-                            }
-                        }
-                        Icon(
-                            imageVector = if (isSecurityExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = null,
-                            tint = activeTheme.secondary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    AnimatedVisibility(visible = isSecurityExpanded) {
-                        Column(modifier = Modifier.padding(top = 10.dp)) {
-                            Text(
-                                text = "🔒 " + com.example.util.tr("Por seguridad de tu cuenta, la liberación y reasignación de slots de hardware es gestionada exclusivamente por los Administradores desde el panel de soporte."),
-                                color = activeTheme.textSecondary,
-                                fontSize = 10.5.sp,
-                                lineHeight = 14.sp
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "⚠️ " + com.example.util.tr("Recomendación: Se recomienda no cerrar sesión para evitar un mal funcionamiento o problemas a futuro con tu cuenta, sincronización de licencias y el acceso fluido a tus herramientas de drafting."),
-                                color = activeTheme.textMuted,
-                                fontSize = 10.5.sp,
-                                lineHeight = 14.sp
-                            )
-                        }
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
