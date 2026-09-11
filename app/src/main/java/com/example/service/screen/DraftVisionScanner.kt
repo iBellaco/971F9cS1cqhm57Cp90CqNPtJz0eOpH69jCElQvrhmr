@@ -896,12 +896,15 @@ object DraftVisionScanner {
                 // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
             } else {
-                // Evaluamos los slots pendientes en el orden exacto de la secuencia del draft
-                // (incluyendo el 10º pick ya sea rival o aliado)
-                pickSequence.mapNotNull { turn ->
-                    val slot = if (turn.isAlly) allySlots.getOrNull(turn.slotIndex) else enemySlots.getOrNull(turn.slotIndex)
-                    if (slot != null && slot.champion == null) slot else null
-                }.distinct()
+                // REQUISITO ESTRICTO: NO aplicar reconocimiento visual a los primeros 9 picks.
+                // Exclusivamente para el PICK #10 (último turno de la secuencia), capturar retrato real mediante reconocimiento de imagen.
+                val tenthTurn = pickSequence.last()
+                val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
+                if (tenthSlot != null && tenthSlot.champion == null) {
+                    listOf(tenthSlot)
+                } else {
+                    emptyList()
+                }
             }
             
             val newDebugMatches = mutableMapOf<String, String>()
