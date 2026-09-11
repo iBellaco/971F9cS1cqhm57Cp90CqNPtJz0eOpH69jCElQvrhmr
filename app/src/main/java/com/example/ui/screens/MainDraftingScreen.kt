@@ -449,16 +449,20 @@ fun MainDraftingScreen(
                                                         factory = { ctx ->
                                                             android.webkit.WebView(ctx).apply {
                                                                 settings.javaScriptEnabled = true
+                                                                settings.domStorageEnabled = true
                                                                 settings.loadWithOverviewMode = true
                                                                 settings.useWideViewPort = true
+                                                                settings.mediaPlaybackRequiresUserGesture = false
+                                                                settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                                                settings.allowFileAccess = true
+                                                                settings.allowContentAccess = true
                                                                 webViewClient = android.webkit.WebViewClient()
-                                                                val urlToLoad = if (notice.videoUrl.contains("watch?v=")) {
-                                                                    notice.videoUrl.replace("watch?v=", "embed/")
-                                                                } else if (notice.videoUrl.contains("youtu.be/")) {
-                                                                    notice.videoUrl.replace("youtu.be/", "youtube.com/embed/")
-                                                                } else {
-                                                                    notice.videoUrl
+                                                                val ytId = when {
+                                                                    notice.videoUrl.contains("watch?v=") -> notice.videoUrl.substringAfter("watch?v=").substringBefore("&")
+                                                                    notice.videoUrl.contains("youtu.be/") -> notice.videoUrl.substringAfter("youtu.be/").substringBefore("?")
+                                                                    else -> ""
                                                                 }
+                                                                val urlToLoad = if (ytId.isNotBlank()) "https://www.youtube.com/embed/$ytId?playsinline=1&controls=1&modestbranding=1&rel=0" else notice.videoUrl
                                                                 loadUrl(urlToLoad)
                                                             }
                                                         },

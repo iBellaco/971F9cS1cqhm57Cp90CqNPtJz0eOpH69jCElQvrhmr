@@ -332,7 +332,11 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var isEnabled by remember { mutableStateOf(true) }
 
     val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia")
-    val isUrlValid = videoUrl.isBlank() || videoUrl.startsWith("http://", true) || videoUrl.startsWith("https://", true)
+    val isUrlValid = videoUrl.isBlank() || 
+                     videoUrl.startsWith("http://", true) || 
+                     videoUrl.startsWith("https://", true) || 
+                     videoUrl.startsWith("content://", true) || 
+                     videoUrl.startsWith("file://", true)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -483,9 +487,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     isError = !isUrlValid,
                     supportingText = {
                         if (!isUrlValid) {
-                            Text("URL inválida. Debe comenzar con http:// o https://", color = DangerRed, fontSize = 10.sp)
+                            Text("Enlace o ruta inválida. Debe comenzar con http://, https://, content:// o file://", color = DangerRed, fontSize = 10.sp)
                         } else {
-                            Text("Puedes pegar enlace web o subir archivo multimedia", color = TextMuted, fontSize = 10.sp)
+                            Text("Puedes pegar enlace web o subir archivo de galería", color = TextMuted, fontSize = 10.sp)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
