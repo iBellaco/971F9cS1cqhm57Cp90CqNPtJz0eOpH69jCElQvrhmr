@@ -1,2 +1,0 @@
-#!/bin/bash
-sed -i 's/var selectedTab by remember { mutableStateOf(LegalTab.PRIVACY) }/var selectedTab by remember { mutableStateOf(LegalTab.PRIVACY) }\n    var acceptedPrivacy by remember { mutableStateOf(false) }\n    var acceptedTerms by remember { mutableStateOf(false) }\n    var acceptedThirdParty by remember { mutableStateOf(false) }\n    val allAccepted = acceptedPrivacy \&\& acceptedTerms \&\& acceptedThirdParty/g' app/src/main/java/com/example/ui/components/PrivacyPolicyDialog.kt
