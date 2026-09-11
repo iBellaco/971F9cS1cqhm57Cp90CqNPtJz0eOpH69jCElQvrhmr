@@ -331,12 +331,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var selectedTag by remember { mutableStateOf("Anuncios importantes") }
     var isEnabled by remember { mutableStateOf(true) }
 
-    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia")
-    val isUrlValid = videoUrl.isBlank() || 
-                     videoUrl.startsWith("http://", true) || 
-                     videoUrl.startsWith("https://", true) || 
-                     videoUrl.startsWith("content://", true) || 
-                     videoUrl.startsWith("file://", true)
+    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer")
+    val isUrlValid = true
 
     AlertDialog(
         onDismissRequest = onDismiss,
