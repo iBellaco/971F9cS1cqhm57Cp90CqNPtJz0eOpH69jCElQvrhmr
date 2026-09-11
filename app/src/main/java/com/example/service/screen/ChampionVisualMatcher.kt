@@ -351,13 +351,13 @@ object ChampionVisualMatcher {
         }
         val stdDev = sqrt(sumSqDiff / samples)
 
-        // Un slot vacío, ícono de línea o casco gris tiene muy baja varianza de color o contraste plano
-        if (avgLum < 18 || contrast < 28 || stdDev < 12.0) {
+        // Un slot vacío, fondo plano o casco de marcador de posición tiene luminosidad insignificante o contraste casi nulo
+        if (avgLum < 10 || contrast < 16 || stdDev < 6.0) {
             return false
         }
 
-        // Si casi no hay píxeles de color (casco gris / icono plano monocromo), no es un campeón
-        if (colorfulRatio < 0.12f && stdDev < 20.0) {
+        // Si casi no hay contraste ni textura visual significativa, es un slot vacío
+        if (contrast < 22 && stdDev < 8.5) {
             return false
         }
 
@@ -366,14 +366,14 @@ object ChampionVisualMatcher {
 
     /**
      * Identifica el campeón con mayor similitud visual comparando contra las imágenes de avatares disponibles.
-     * Retorna el campeón SOLO si supera el umbral de confianza estricto y no es un slot vacío.
+     * Retorna el campeón si supera el umbral de confianza adaptativo y no es un slot vacío.
      */
     fun matchChampion(
         context: Context,
         avatarCrop: Bitmap,
         candidates: List<Champion>,
         excludedChampionIds: Set<String> = emptySet(),
-        minConfidenceThreshold: Float = 0.52f
+        minConfidenceThreshold: Float = 0.46f
     ): VisualMatchResult? {
         if (avatarCrop.isRecycled || avatarCrop.width < 12 || avatarCrop.height < 12) return null
 
@@ -430,13 +430,12 @@ object ChampionVisualMatcher {
             }
         }
 
-        // Se requiere superar el umbral mínimo y confianza adaptativa estricta para evitar falsos positivos
+        // Se requiere superar el umbral mínimo adaptativo
         if (bestChamp != null && bestScore >= minConfidenceThreshold) {
             val margin = bestScore - secondBestScore
-            val requiredConfidence = (minConfidenceThreshold + 0.06f).coerceAtLeast(0.56f)
-            val isConfident = bestScore >= requiredConfidence && (secondBestScore < 0 || margin >= 0.03f)
-            if (!isConfident || bestScore < minConfidenceThreshold) {
-                AppLogger.d(TAG, "Rechazado match visual por baja confianza/margen estricto: ${bestChamp.name} (Score: $bestScore, Margin: $margin)")
+            val isConfident = bestScore >= minConfidenceThreshold && (secondBestScore < 0 || margin >= 0.015f)
+            if (!isConfident) {
+                AppLogger.d(TAG, "Rechazado match visual por margen estrecho: ${bestChamp.name} (Score: $bestScore, Margin: $margin)")
                 return null
             }
             AppLogger.d(TAG, "Similitud visual detectada: ${bestChamp.name} (Puntuación: ${(bestScore * 100).toInt()}%, Margen: ${(margin * 100).toInt()}%)")

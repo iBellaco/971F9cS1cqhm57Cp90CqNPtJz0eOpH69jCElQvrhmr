@@ -58,6 +58,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -434,18 +435,28 @@ fun MainDraftingScreen(
                             val tagColor = getTagColor(tag)
                             var currentIndex by remember(tag, tagNotices.size) { mutableStateOf(0) }
                             val isPinned = pinnedMap[tag] ?: false
+                            var isFullscreenMedia by remember { mutableStateOf(false) }
+                            var slideDirection by remember { mutableStateOf(1) } // 1 for next (right to left), -1 for prev (left to right)
+                            var autoTimerTrigger by remember { mutableStateOf(0) }
 
-                            LaunchedEffect(tag, tagNotices.size, intervalMillis, isPinned) {
-                                if (tagNotices.size > 1 && !isPinned) {
+                            // Auto-rotation timer: pauses completely when isFullscreenMedia or isPinned is active
+                            LaunchedEffect(tag, tagNotices.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
+                                if (tagNotices.size > 1 && !isPinned && !isFullscreenMedia) {
                                     while (true) {
                                         kotlinx.coroutines.delay(intervalMillis)
-                                        currentIndex = (currentIndex + 1) % tagNotices.size
+                                        if (!isFullscreenMedia && !isPinned) {
+                                            slideDirection = 1
+                                            currentIndex = (currentIndex + 1) % tagNotices.size
+                                        }
                                     }
                                 }
                             }
 
                             val currentNotice = tagNotices[currentIndex.coerceIn(0, tagNotices.size - 1)]
-                            var isFullscreenMedia by remember(currentNotice.id) { mutableStateOf(false) }
+
+                            LaunchedEffect(currentNotice.id) {
+                                com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
+                            }
 
                             Card(
                                 modifier = Modifier
@@ -481,11 +492,16 @@ fun MainDraftingScreen(
 
                                             if (tagNotices.size > 1) {
                                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                                    // Manual previous notice
                                                     IconButton(
-                                                        onClick = { currentIndex = if (currentIndex > 0) currentIndex - 1 else tagNotices.size - 1 },
-                                                        modifier = Modifier.size(24.dp)
+                                                        onClick = {
+                                                            slideDirection = -1
+                                                            currentIndex = if (currentIndex > 0) currentIndex - 1 else tagNotices.size - 1
+                                                            autoTimerTrigger++
+                                                        },
+                                                        modifier = Modifier.size(28.dp)
                                                     ) {
-                                                        Text("<", color = tagColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                        Text("<", color = tagColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                                                     }
                                                     Surface(
                                                         color = tagColor.copy(alpha = 0.2f),
@@ -500,11 +516,16 @@ fun MainDraftingScreen(
                                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                                         )
                                                     }
+                                                    // Manual next notice
                                                     IconButton(
-                                                        onClick = { currentIndex = (currentIndex + 1) % tagNotices.size },
-                                                        modifier = Modifier.size(24.dp)
+                                                        onClick = {
+                                                            slideDirection = 1
+                                                            currentIndex = (currentIndex + 1) % tagNotices.size
+                                                            autoTimerTrigger++
+                                                        },
+                                                        modifier = Modifier.size(28.dp)
                                                     ) {
-                                                        Text(">", color = tagColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                        Text(">", color = tagColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                                                     }
                                                 }
                                             } else if (isPinned) {
@@ -526,56 +547,78 @@ fun MainDraftingScreen(
                                     }
                                     Spacer(modifier = Modifier.height(14.dp))
 
-                                    Column(modifier = Modifier.fillMaxWidth()) {
-                                        Surface(
-                                            color = tagColor.copy(alpha = 0.2f),
-                                            shape = RoundedCornerShape(4.dp),
-                                            border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
-                                        ) {
-                                            Text(
-                                                text = currentNotice.tag.uppercase(),
-                                                color = tagColor,
-                                                fontSize = 9.5.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    // Animated content transition between notices
+                                    AnimatedContent(
+                                        targetState = currentNotice,
+                                        transitionSpec = {
+                                            if (slideDirection >= 0) {
+                                                (slideInHorizontally(animationSpec = tween(350)) { width -> width } + fadeIn(animationSpec = tween(350)))
+                                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> -width } + fadeOut(animationSpec = tween(350)))
+                                            } else {
+                                                (slideInHorizontally(animationSpec = tween(350)) { width -> -width } + fadeIn(animationSpec = tween(350)))
+                                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> width } + fadeOut(animationSpec = tween(350)))
+                                            }.using(
+                                                SizeTransform(clip = false)
                                             )
+                                        },
+                                        label = "NoticeAnimatedContent"
+                                    ) { noticeItem ->
+                                        Column(modifier = Modifier.fillMaxWidth()) {
+                                            Surface(
+                                                color = tagColor.copy(alpha = 0.2f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
+                                            ) {
+                                                Text(
+                                                    text = noticeItem.tag.uppercase(),
+                                                    color = tagColor,
+                                                    fontSize = 9.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = noticeItem.title,
+                                                color = try { Color(android.graphics.Color.parseColor(noticeItem.titleColor)) } catch (_: Exception) { HextechGold },
+                                                fontSize = 13.5.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            if (noticeItem.content.isNotBlank()) {
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(
+                                                    text = noticeItem.content,
+                                                    color = try { Color(android.graphics.Color.parseColor(noticeItem.contentColor)) } catch (_: Exception) { TextSecondary },
+                                                    fontSize = 12.sp,
+                                                    lineHeight = 16.sp
+                                                )
+                                            }
+
+                                            if (noticeItem.videoUrl.isNotBlank()) {
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                com.example.ui.components.NoticeMediaViewer(
+                                                    mediaUrl = noticeItem.videoUrl,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .aspectRatio(985f / 425f),
+                                                    onExpand = {
+                                                        com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
+                                                        isFullscreenMedia = true
+                                                    }
+                                                )
+                                            }
                                         }
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Text(
-                                            text = currentNotice.title,
-                                            color = try { Color(android.graphics.Color.parseColor(currentNotice.titleColor)) } catch (_: Exception) { HextechGold },
-                                            fontSize = 13.5.sp,
-                                            fontWeight = FontWeight.Bold
+                                    }
+
+                                    // Fullscreen Dialog (freezes background and provides clean dedicated experience)
+                                    if (isFullscreenMedia) {
+                                        val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
+                                        com.example.ui.components.NoticeMediaFullscreenDialog(
+                                            mediaUrl = mediaToExpand,
+                                            externalUrl = currentNotice.externalUrl,
+                                            noticeId = currentNotice.id,
+                                            onDismiss = { isFullscreenMedia = false }
                                         )
-                                        if (currentNotice.content.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = currentNotice.content,
-                                                color = try { Color(android.graphics.Color.parseColor(currentNotice.contentColor)) } catch (_: Exception) { TextSecondary },
-                                                fontSize = 12.sp,
-                                                lineHeight = 16.sp
-                                            )
-                                        }
-
-                                        if (currentNotice.videoUrl.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            com.example.ui.components.NoticeMediaViewer(
-                                                mediaUrl = currentNotice.videoUrl,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .aspectRatio(985f / 425f),
-                                                onExpand = { isFullscreenMedia = true }
-                                            )
-                                        }
-
-                                        if (isFullscreenMedia) {
-                                            val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
-                                            com.example.ui.components.NoticeMediaFullscreenDialog(
-                                                mediaUrl = mediaToExpand,
-                                                externalUrl = currentNotice.externalUrl,
-                                                onDismiss = { isFullscreenMedia = false }
-                                            )
-                                        }
                                     }
                                 }
                             }

@@ -958,11 +958,14 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Sincronizar nombres de invocador aliados y hechizos (bloqueados tras el primer escaneo exitoso)
+                            // Sincronizar nombres de invocador aliados y hechizos
                             defaultRoles.forEachIndexed { idx, role ->
                                 val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                                if (!sName.isNullOrBlank() && state.allySummonerNames[idx].isNullOrBlank()) {
-                                    state.allySummonerNames[idx] = sName
+                                if (!sName.isNullOrBlank()) {
+                                    val current = state.allySummonerNames[idx]
+                                    if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
+                                        state.allySummonerNames[idx] = sName
+                                    }
                                 }
                                 val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
                                 if (!spells.isNullOrEmpty()) {
@@ -1049,11 +1052,14 @@ private fun FloatingOverlayContent(
                             }
                         }
 
-                        // Sincronizar nombres de invocador aliados y hechizos (bloqueados tras el primer escaneo exitoso)
+                        // Sincronizar nombres de invocador aliados y hechizos
                         defaultRoles.forEachIndexed { idx, role ->
                             val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                            if (!sName.isNullOrBlank() && state.allySummonerNames[idx].isNullOrBlank()) {
-                                state.allySummonerNames[idx] = sName
+                            if (!sName.isNullOrBlank()) {
+                                val current = state.allySummonerNames[idx]
+                                if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
+                                    state.allySummonerNames[idx] = sName
+                                }
                             }
                             val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
                             if (!spells.isNullOrEmpty()) {

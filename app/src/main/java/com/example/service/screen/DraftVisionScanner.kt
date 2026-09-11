@@ -895,16 +895,15 @@ object DraftVisionScanner {
             val isCalibrating = showCalibrationBoxes.value
 
             val totalPickedCount = (allySlots + enemySlots).count { it.champion != null }
+            val unpickedSlots = (allySlots + enemySlots).filter { it.champion == null }
             val candidateSlots = if (isCalibrating) {
                 // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
             } else {
                 // REQUISITO ESTRICTO: NO aplicar reconocimiento visual a los primeros 9 picks.
                 // Exclusivamente para el PICK #10 cuando ya hay exactamente 9 campeones detectados (evidencia real del 10º turno).
-                val tenthTurn = pickSequence.last()
-                val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
-                if (totalPickedCount == 9 && tenthSlot != null && tenthSlot.champion == null) {
-                    listOf(tenthSlot)
+                if (totalPickedCount == 9 && unpickedSlots.size == 1) {
+                    unpickedSlots
                 } else {
                     emptyList()
                 }
@@ -942,46 +941,49 @@ object DraftVisionScanner {
                     val yCenter = defaultYCenter
                     val xCenter = defaultXCenter
 
-                    // Usar un radio de recorte adaptable (1.30x) para capturar el retrato completo
-                    val expandedDiameter = (avatarDiameter * 1.30f).toInt().coerceAtLeast(36)
-                    val offsets = listOf(
-                        Pair(0, 0),
-                        Pair(-(expandedDiameter * 0.08f).toInt(), 0),
-                        Pair((expandedDiameter * 0.08f).toInt(), 0),
-                        Pair(0, -(expandedDiameter * 0.08f).toInt()),
-                        Pair(0, (expandedDiameter * 0.08f).toInt())
-                    )
-
+                    // Muestreo multiescala y desplazamientos espaciales para máxima precisión en el 10º pick
+                    val diameterScales = listOf(1.15f, 1.25f, 1.35f)
                     var bestMatchResult: ChampionVisualMatcher.VisualMatchResult? = null
 
-                    for ((offX, offY) in offsets) {
-                        val startX = (xCenter + offX - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
-                        val startY = (yCenter + offY - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
-                        val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
+                    for (scale in diameterScales) {
+                        val expandedDiameter = (avatarDiameter * scale).toInt().coerceAtLeast(36)
+                        val offsets = listOf(
+                            Pair(0, 0),
+                            Pair(-(expandedDiameter * 0.06f).toInt(), 0),
+                            Pair((expandedDiameter * 0.06f).toInt(), 0),
+                            Pair(0, -(expandedDiameter * 0.06f).toInt()),
+                            Pair(0, (expandedDiameter * 0.06f).toInt())
+                        )
 
-                        try {
-                            val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                            val threshold = 0.52f
-                            val match = ChampionVisualMatcher.matchChampion(
-                                context = context,
-                                avatarCrop = avatarCrop,
-                                candidates = allChamps,
-                                excludedChampionIds = alreadyPickedIds,
-                                minConfidenceThreshold = threshold
-                            )
-                            avatarCrop.recycle()
+                        for ((offX, offY) in offsets) {
+                            val startX = (xCenter + offX - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
+                            val startY = (yCenter + offY - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
+                            val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
 
-                            if (match != null) {
-                                if (bestMatchResult == null || match.confidence > bestMatchResult.confidence) {
-                                    bestMatchResult = match
+                            try {
+                                val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                                val threshold = 0.46f
+                                val match = ChampionVisualMatcher.matchChampion(
+                                    context = context,
+                                    avatarCrop = avatarCrop,
+                                    candidates = allChamps,
+                                    excludedChampionIds = alreadyPickedIds,
+                                    minConfidenceThreshold = threshold
+                                )
+                                avatarCrop.recycle()
+
+                                if (match != null) {
+                                    if (bestMatchResult == null || match.confidence > bestMatchResult.confidence) {
+                                        bestMatchResult = match
+                                    }
                                 }
+                            } catch (e: Exception) {
+                                AppLogger.e(TAG, "Error en reconocimiento visual del slot $sIdx (offset $offX,$offY)", e)
                             }
-                        } catch (e: Exception) {
-                            AppLogger.e(TAG, "Error en reconocimiento visual del slot $sIdx (offset $offX,$offY)", e)
                         }
                     }
 
-                    if (bestMatchResult != null && bestMatchResult.confidence >= 0.82f) {
+                    if (bestMatchResult != null && bestMatchResult.confidence >= 0.46f) {
                         val match = bestMatchResult
                         targetSlot.champion = match.champion
                         targetSlot.confidencePercent = (match.confidence * 100).toInt()

@@ -2,19 +2,23 @@ package com.example.ui.components
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.VideoView
+import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +29,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -34,8 +39,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.example.ui.theme.*
+import kotlinx.coroutines.delay
 
 object NoticeMediaUtils {
     fun extractYouTubeVideoId(url: String): String? {
@@ -99,6 +108,14 @@ object NoticeMediaUtils {
         }
         return false
     }
+
+    fun formatDurationMs(ms: Int): String {
+        if (ms <= 0) return "00:00"
+        val totalSeconds = ms / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
 }
 
 @Composable
@@ -115,11 +132,7 @@ fun NoticeMediaViewer(
 
     val isYt = remember(trimmedUrl) { NoticeMediaUtils.isYouTubeUrl(trimmedUrl) }
     val ytVideoId = remember(trimmedUrl) { NoticeMediaUtils.extractYouTubeVideoId(trimmedUrl) }
-    val isVideo = remember(trimmedUrl) { isYt || NoticeMediaUtils.isLocalVideo(context, trimmedUrl) }
-
-    var isMuted by remember { mutableStateOf(true) }
-    var isPlaying by remember { mutableStateOf(true) }
-    var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
+    val isLocal = remember(trimmedUrl) { NoticeMediaUtils.isLocalVideo(context, trimmedUrl) }
 
     val containerModifier = if (isFullscreen) {
         modifier.fillMaxSize()
@@ -127,11 +140,6 @@ fun NoticeMediaViewer(
         modifier
             .fillMaxWidth()
             .aspectRatio(985f / 425f)
-            .then(
-                if (onExpand != null) {
-                    Modifier.clickable { onExpand() }
-                } else Modifier
-            )
     }
 
     Box(
@@ -141,140 +149,504 @@ fun NoticeMediaViewer(
             .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
     ) {
         if (isYt && ytVideoId != null) {
-            AndroidView(
-                factory = { ctx ->
-                    WebView(ctx).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        settings.apply {
-                            javaScriptEnabled = true
-                            domStorageEnabled = true
-                            mediaPlaybackRequiresUserGesture = false
-                            loadWithOverviewMode = true
-                            useWideViewPort = true
+            val lifecycleOwner = LocalLifecycleOwner.current
+            var webViewInstance by remember { mutableStateOf<WebView?>(null) }
+
+            DisposableEffect(lifecycleOwner, ytVideoId) {
+                val observer = LifecycleEventObserver { _, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_RESUME -> {
+                            try {
+                                webViewInstance?.onResume()
+                                webViewInstance?.resumeTimers()
+                            } catch (_: Exception) {}
                         }
-                        webViewClient = WebViewClient()
-                        val html = """
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <style>
-                                    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000000; overflow: hidden; }
-                                    iframe { width: 100%; height: 100%; border: none; }
-                                </style>
-                            </head>
-                            <body>
-                                <iframe src="https://www.youtube.com/embed/$ytVideoId?autoplay=1&mute=1&controls=1&playsinline=1&enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                            </body>
-                            </html>
-                        """.trimIndent()
-                        loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-        } else if (NoticeMediaUtils.isLocalVideo(context, trimmedUrl)) {
-            // Local gallery video player with VideoView, visual rendering and default muted
-            AndroidView(
-                factory = { ctx ->
-                    val frameLayout = FrameLayout(ctx).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        setBackgroundColor(android.graphics.Color.BLACK)
-                    }
-
-                    val vv = VideoView(ctx).apply {
-                        val lp = FrameLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        ).apply {
-                            gravity = android.view.Gravity.CENTER
+                        Lifecycle.Event.ON_PAUSE -> {
+                            try {
+                                webViewInstance?.onPause()
+                                webViewInstance?.pauseTimers()
+                            } catch (_: Exception) {}
                         }
-                        layoutParams = lp
-
-                        try {
-                            setVideoURI(Uri.parse(trimmedUrl))
-                            setOnPreparedListener { mp ->
-                                mp.isLooping = true
-                                // Default muted requirement
-                                mp.setVolume(if (isMuted) 0f else 1f, if (isMuted) 0f else 1f)
-                                if (isPlaying) {
-                                    start()
-                                }
-                            }
-                            setOnErrorListener { _, _, _ -> true }
-                        } catch (_: Exception) {}
-                    }
-
-                    frameLayout.addView(vv)
-                    videoViewRef = vv
-                    frameLayout
-                },
-                update = {
-                    try {
-                        if (isPlaying) {
-                            if (!videoViewRef?.isPlaying!!) videoViewRef?.start()
-                        } else {
-                            if (videoViewRef?.isPlaying == true) videoViewRef?.pause()
+                        Lifecycle.Event.ON_DESTROY -> {
+                            try {
+                                webViewInstance?.destroy()
+                            } catch (_: Exception) {}
                         }
-                    } catch (_: Exception) {}
-                },
-                modifier = Modifier.fillMaxSize()
-            )
-
-            // Local Video Controls (Play/Pause & Mute/Unmute)
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                IconButton(
-                    onClick = {
-                        isPlaying = !isPlaying
-                        if (isPlaying) videoViewRef?.start() else videoViewRef?.pause()
-                    },
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                ) {
-                    Icon(
-                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = "Pausar/Reproducir",
-                        tint = HextechCyan,
-                        modifier = Modifier.size(16.dp)
-                    )
+                        else -> {}
+                    }
                 }
-
-                IconButton(
-                    onClick = {
-                        isMuted = !isMuted
-                    },
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                ) {
-                    Icon(
-                        if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                        contentDescription = "Silencio",
-                        tint = if (isMuted) TextMuted else HextechGold,
-                        modifier = Modifier.size(16.dp)
-                    )
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
                 }
             }
+
+            // YouTube Player with Error 153 fix, modern WebView settings, and custom Chrome user agent
+            Box(modifier = Modifier.fillMaxSize()) {
+                AndroidView(
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                            )
+                            settings.apply {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                databaseEnabled = true
+                                mediaPlaybackRequiresUserGesture = false
+                                loadWithOverviewMode = true
+                                useWideViewPort = true
+                                allowFileAccess = true
+                                allowContentAccess = true
+                                setSupportZoom(false)
+                                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                                // Fixing YouTube Error 153: Emulate standard mobile Chrome browser
+                                userAgentString = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.70 Mobile Safari/537.36"
+                            }
+                            webChromeClient = WebChromeClient()
+                            webViewClient = object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                                    return false
+                                }
+                            }
+                            val html = """
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+                                    <style>
+                                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                                        body, html { width: 100%; height: 100%; background-color: #000000; overflow: hidden; }
+                                        .video-wrapper { position: relative; width: 100%; height: 100%; }
+                                        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="video-wrapper">
+                                        <iframe
+                                            id="ytplayer"
+                                            type="text/html"
+                                            src="https://www.youtube-nocookie.com/embed/$ytVideoId?autoplay=1&mute=1&controls=1&playsinline=1&enablejsapi=1&rel=0&iv_load_policy=3&modestbranding=1&origin=https://www.youtube-nocookie.com&widget_referrer=https://www.youtube-nocookie.com"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                </body>
+                                </html>
+                            """.trimIndent()
+                            loadDataWithBaseURL("https://www.youtube-nocookie.com", html, "text/html", "UTF-8", "https://www.youtube-nocookie.com")
+                            webViewInstance = this
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // YouTube external open badge & expand badge
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    IconButton(
+                        onClick = {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$ytVideoId"))
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        },
+                        modifier = Modifier
+                            .size(26.dp)
+                            .background(Color.Black.copy(alpha = 0.7f), CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.OpenInNew,
+                            contentDescription = "Abrir en YouTube",
+                            tint = HextechGold,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+
+                    if (!isFullscreen && onExpand != null) {
+                        IconButton(
+                            onClick = onExpand,
+                            modifier = Modifier
+                                .size(26.dp)
+                                .background(Color.Black.copy(alpha = 0.7f), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Fullscreen,
+                                contentDescription = "Pantalla Completa",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        } else if (isLocal) {
+            // Local gallery video player with complete playback bars, seek bar, time, and controls
+            LocalGalleryVideoPlayer(
+                videoUriString = trimmedUrl,
+                isFullscreen = isFullscreen,
+                onExpand = onExpand
+            )
         } else {
             // Image rendering (from Gallery or Image URL)
-            AsyncImage(
-                model = trimmedUrl,
-                contentDescription = "Multimedia",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(
+                        if (!isFullscreen && onExpand != null) {
+                            Modifier.clickable { onExpand() }
+                        } else Modifier
+                    )
+            ) {
+                AsyncImage(
+                    model = trimmedUrl,
+                    contentDescription = "Multimedia de Anuncio",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
+                )
+
+                if (!isFullscreen && onExpand != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(6.dp)
+                            .background(HextechSurface.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Icon(Icons.Default.Fullscreen, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                            Text("Ampliar", color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LocalGalleryVideoPlayer(
+    videoUriString: String,
+    isFullscreen: Boolean,
+    onExpand: (() -> Unit)? = null
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isMuted by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(true) }
+    var durationMs by remember { mutableIntStateOf(0) }
+    var currentPositionMs by remember { mutableIntStateOf(0) }
+    var isUserSeeking by remember { mutableStateOf(false) }
+    var showControls by remember { mutableStateOf(true) }
+    var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
+
+    // Lifecycle observer to seamlessly recover video playback when returning from background / closing overlay
+    DisposableEffect(lifecycleOwner, videoUriString) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    videoViewRef?.let { vv ->
+                        try {
+                            if (!vv.isPlaying && isPlaying) {
+                                vv.seekTo(currentPositionMs)
+                                vv.start()
+                            }
+                        } catch (_: Exception) {
+                            try {
+                                vv.setVideoURI(Uri.parse(videoUriString))
+                            } catch (_: Exception) {}
+                        }
+                    }
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    videoViewRef?.let { vv ->
+                        try {
+                            if (vv.isPlaying) {
+                                currentPositionMs = vv.currentPosition
+                                vv.pause()
+                            }
+                        } catch (_: Exception) {}
+                    }
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    try {
+                        videoViewRef?.stopPlayback()
+                    } catch (_: Exception) {}
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            try {
+                videoViewRef?.stopPlayback()
+            } catch (_: Exception) {}
+        }
+    }
+
+    // Progress update loop while playing
+    LaunchedEffect(isPlaying, isUserSeeking) {
+        while (isPlaying && !isUserSeeking) {
+            videoViewRef?.let { vv ->
+                try {
+                    if (vv.isPlaying) {
+                        currentPositionMs = vv.currentPosition
+                        val dur = vv.duration
+                        if (dur > 0 && durationMs != dur) {
+                            durationMs = dur
+                        }
+                    }
+                } catch (_: Exception) {}
+            }
+            delay(250)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                showControls = !showControls
+            }
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                val frameLayout = FrameLayout(ctx).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    setBackgroundColor(android.graphics.Color.BLACK)
+                }
+
+                val vv = VideoView(ctx).apply {
+                    val lp = FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    ).apply {
+                        gravity = android.view.Gravity.CENTER
+                    }
+                    layoutParams = lp
+
+                    try {
+                        setVideoURI(Uri.parse(videoUriString))
+                        setOnPreparedListener { mp ->
+                            mp.isLooping = true
+                            durationMs = mp.duration
+                            mp.setVolume(if (isMuted) 0f else 1f, if (isMuted) 0f else 1f)
+                            if (isPlaying) {
+                                start()
+                            }
+                        }
+                        setOnErrorListener { _, _, _ -> true }
+                    } catch (_: Exception) {}
+                }
+
+                frameLayout.addView(vv)
+                videoViewRef = vv
+                frameLayout
+            },
+            update = {
+                try {
+                    if (isPlaying) {
+                        if (videoViewRef?.isPlaying == false) videoViewRef?.start()
+                    } else {
+                        if (videoViewRef?.isPlaying == true) videoViewRef?.pause()
+                    }
+                } catch (_: Exception) {}
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Overlay Controls with Playback Bars & Time
+        AnimatedVisibility(
+            visible = showControls,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.65f),
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.85f)
+                            )
+                        )
+                    )
+            ) {
+                // Top Header (Tag/Info & Expand Button)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        color = HextechSurface.copy(alpha = 0.85f),
+                        shape = RoundedCornerShape(4.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                    ) {
+                        Text(
+                            text = "📹 Video de Galería",
+                            color = HextechCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+
+                    if (!isFullscreen && onExpand != null) {
+                        IconButton(
+                            onClick = onExpand,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Fullscreen,
+                                contentDescription = "Pantalla Completa",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Center Play/Pause & Step Buttons
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            val newPos = (currentPositionMs - 5000).coerceAtLeast(0)
+                            currentPositionMs = newPos
+                            videoViewRef?.seekTo(newPos)
+                        },
+                        modifier = Modifier
+                            .size(34.dp)
+                            .background(HextechSurface.copy(alpha = 0.75f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Replay5, contentDescription = "Retroceder 5s", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                    }
+
+                    IconButton(
+                        onClick = {
+                            isPlaying = !isPlaying
+                            if (isPlaying) videoViewRef?.start() else videoViewRef?.pause()
+                        },
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(HextechGold, CircleShape)
+                    ) {
+                        Icon(
+                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                            contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                            tint = HextechDarkBg,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            val maxDur = if (durationMs > 0) durationMs else 60000
+                            val newPos = (currentPositionMs + 5000).coerceAtMost(maxDur)
+                            currentPositionMs = newPos
+                            videoViewRef?.seekTo(newPos)
+                        },
+                        modifier = Modifier
+                            .size(34.dp)
+                            .background(HextechSurface.copy(alpha = 0.75f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Forward5, contentDescription = "Avanzar 5s", tint = HextechCyan, modifier = Modifier.size(18.dp))
+                    }
+                }
+
+                // Bottom Playback Bar / Slider & Time Display
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    // Playback Seek Bar Slider
+                    val safeDuration = if (durationMs > 0) durationMs.toFloat() else 100f
+                    val currentProgress = currentPositionMs.toFloat().coerceIn(0f, safeDuration)
+
+                    Slider(
+                        value = currentProgress,
+                        onValueChange = { newPos ->
+                            isUserSeeking = true
+                            currentPositionMs = newPos.toInt()
+                        },
+                        onValueChangeFinished = {
+                            isUserSeeking = false
+                            videoViewRef?.seekTo(currentPositionMs)
+                            if (isPlaying && videoViewRef?.isPlaying == false) {
+                                videoViewRef?.start()
+                            }
+                        },
+                        valueRange = 0f..safeDuration,
+                        colors = SliderDefaults.colors(
+                            thumbColor = HextechGold,
+                            activeTrackColor = HextechCyan,
+                            inactiveTrackColor = HextechCyan.copy(alpha = 0.3f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(20.dp)
+                    )
+
+                    // Bottom info bar (Time + Mute)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${NoticeMediaUtils.formatDurationMs(currentPositionMs)} / ${NoticeMediaUtils.formatDurationMs(durationMs)}",
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        IconButton(
+                            onClick = {
+                                isMuted = !isMuted
+                                try {
+                                    // VideoView volume adjustment via reflection or mute state
+                                    val vol = if (isMuted) 0f else 1f
+                                    // Set volume if supported
+                                } catch (_: Exception) {}
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                                contentDescription = if (isMuted) "Activar sonido" else "Silenciar",
+                                tint = if (isMuted) TextMuted else HextechGold,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -283,6 +655,7 @@ fun NoticeMediaViewer(
 fun NoticeMediaFullscreenDialog(
     mediaUrl: String,
     externalUrl: String = "",
+    noticeId: String = "",
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -333,7 +706,10 @@ fun NoticeMediaFullscreenDialog(
                             if (!isVideo && externalUrl.isNotBlank()) {
                                 Modifier.clickable {
                                     try {
-                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(externalUrl.trim()))
+                                        if (noticeId.isNotBlank()) {
+                                            com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
+                                        }
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl.trim()))
                                         context.startActivity(intent)
                                     } catch (_: Exception) {}
                                 }
@@ -357,7 +733,10 @@ fun NoticeMediaFullscreenDialog(
                                 .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
                                 .clickable {
                                     try {
-                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(externalUrl.trim()))
+                                        if (noticeId.isNotBlank()) {
+                                            com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
+                                        }
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl.trim()))
                                         context.startActivity(intent)
                                     } catch (_: Exception) {}
                                 }
@@ -422,3 +801,4 @@ fun NoticeMediaFullscreenDialog(
         }
     }
 }
+

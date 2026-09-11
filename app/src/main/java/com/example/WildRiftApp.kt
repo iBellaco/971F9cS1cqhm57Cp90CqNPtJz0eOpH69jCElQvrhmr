@@ -93,6 +93,13 @@ class WildRiftApp : Application(), ImageLoaderFactory {
             AppLogger.e("WildRiftApp", "Error cargando traducciones dinámicas", e)
         }
 
+        try {
+            com.example.data.AppNoticeManager.init(this)
+            com.example.data.AppNoticeAnalyticsManager.init(this)
+        } catch (e: Exception) {
+            AppLogger.e("WildRiftApp", "Error inicializando gestor de avisos y analíticas", e)
+        }
+
 
 
         setupInstantAndPeriodicScraping()

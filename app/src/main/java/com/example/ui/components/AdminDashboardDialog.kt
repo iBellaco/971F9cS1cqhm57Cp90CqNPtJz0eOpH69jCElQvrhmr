@@ -86,6 +86,7 @@ fun AdminDashboardDialog(
     var showSupportReportsPanel by remember { mutableStateOf(false) }
     var showBroadcastDialog by remember { mutableStateOf(false) }
     var showNoticeConfigDialog by remember { mutableStateOf(false) }
+    var showCpmAnalyticsDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -103,6 +104,10 @@ fun AdminDashboardDialog(
 
     if (showNoticeConfigDialog) {
         AdminNoticeConfigDialog(onDismiss = { showNoticeConfigDialog = false })
+    }
+
+    if (showCpmAnalyticsDialog) {
+        AdminCpmAnalyticsDialog(onDismiss = { showCpmAnalyticsDialog = false })
     }
 
     Dialog(
@@ -125,6 +130,7 @@ fun AdminDashboardDialog(
                     onOpenSupport = { showSupportReportsPanel = true },
                     onOpenBroadcast = { showBroadcastDialog = true },
                     onOpenNotice = { showNoticeConfigDialog = true },
+                    onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
                     isMinimized = isMonitoringMinimized,
                     onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
                 )
@@ -152,6 +158,7 @@ private fun AdminDashboardHeader(
     onOpenSupport: () -> Unit,
     onOpenBroadcast: () -> Unit,
     onOpenNotice: () -> Unit,
+    onOpenCpmAnalytics: () -> Unit = {},
     isMinimized: Boolean = false,
     onToggleMinimize: () -> Unit = {}
 ) {
@@ -262,18 +269,18 @@ private fun AdminDashboardHeader(
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Button(
                             onClick = onOpenReports,
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("OCR", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
+                            Text("OCR", fontSize = 9.5.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
                         }
 
                         Button(
@@ -281,11 +288,11 @@ private fun AdminDashboardHeader(
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("Soporte", fontSize = 10.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
+                            Text("Soporte", fontSize = 9.5.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
                         }
 
                         Button(
@@ -293,11 +300,11 @@ private fun AdminDashboardHeader(
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("Broadcast", fontSize = 10.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                            Text("Broadcast", fontSize = 9.5.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
                         }
 
                         Button(
@@ -305,11 +312,23 @@ private fun AdminDashboardHeader(
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(2.dp))
-                            Text("Aviso", fontSize = 10.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold)
+                            Text("Avisos", fontSize = 9.5.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Button(
+                            onClick = onOpenCpmAnalytics,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("CPM", fontSize = 9.5.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -324,6 +343,11 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     val currentNotices by com.example.data.AppNoticeManager.notices.collectAsState()
     val currentIntervalVal by com.example.data.AppNoticeManager.streamerIntervalValue.collectAsState()
     val currentIntervalUnit by com.example.data.AppNoticeManager.streamerIntervalUnit.collectAsState()
+    var showCpmFromNotices by remember { mutableStateOf(false) }
+
+    if (showCpmFromNotices) {
+        AdminCpmAnalyticsDialog(onDismiss = { showCpmFromNotices = false })
+    }
 
     var noticesList by remember { mutableStateOf(currentNotices) }
     var intervalValueText by remember { mutableStateOf(currentIntervalVal.toString()) }
@@ -367,6 +391,35 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     .fillMaxWidth()
             ) {
                 Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Banner to open CPM & Monetization metrics
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCpmFromNotices = true },
+                    color = Color(0xFF00FF66).copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.2.dp, Color(0xFF00FF66).copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text("Métricas de CPM & Monetización", color = Color(0xFF00FF66), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Ver impresiones, clics, CTR e ingresos estimados", color = TextSecondary, fontSize = 10.sp)
+                            }
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(18.dp))
+                    }
+                }
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Card with copyable image dimension recommendations
