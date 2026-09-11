@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,11 +39,17 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Campaign
@@ -364,116 +371,216 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 1. Panel de Noticias / Avisos configurados desde el Admin (Primero en la parte superior)
-                notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }.forEach { notice ->
-                    var isNoticeMediaVisible by remember(notice.id, notice.videoUrl) { mutableStateOf(true) }
-                    var isVideoPaused by remember(notice.id) { mutableStateOf(false) }
-
+                // 1. Panel de Noticias / Avisos configurados desde el Admin (Unificado en una sola tarjeta con etiquetas arriba)
+                val activeNotices = notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }
+                if (activeNotices.isNotEmpty()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(1.2.dp, HextechGold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)),
+                            .clip(RoundedCornerShape(14.dp))
+                            .border(1.2.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
                         colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
                     ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                                    Spacer(modifier = Modifier.width(8.dp))
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Avisos y Novedades Oficiales", color = HextechGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            activeNotices.forEachIndexed { idx, notice ->
+                                var isMediaVisible by remember(notice.id, notice.videoUrl) { mutableStateOf(true) }
+                                var isFullscreenMedia by remember(notice.id) { mutableStateOf(false) }
+
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    // Etiqueta estrictamente ARRIBA del título
+                                    Surface(
+                                        color = HextechGold.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(4.dp),
+                                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                                    ) {
+                                        Text(
+                                            text = notice.tag.uppercase(),
+                                            color = HextechGold,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = notice.title,
-                                        color = HextechGold,
+                                        color = TextPrimary,
                                         fontSize = 13.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                }
-                                Surface(
-                                    color = HextechGold.copy(alpha = 0.2f),
-                                    shape = RoundedCornerShape(4.dp)
-                                ) {
-                                    Text(
-                                        text = notice.tag.uppercase(),
-                                        color = HextechGold,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                            }
-                            if (notice.content.isNotBlank()) {
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = notice.content,
-                                    color = TextPrimary,
-                                    fontSize = 12.sp,
-                                    lineHeight = 16.sp
-                                )
-                            }
-                            if (notice.videoUrl.isNotBlank() && isNoticeMediaVisible) {
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(140.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(HextechDarkBg)
-                                        .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                ) {
-                                    if (notice.videoUrl.contains("http", ignoreCase = true)) {
-                                        coil.compose.AsyncImage(
-                                            model = notice.videoUrl,
-                                            contentDescription = "Contenido Multimedia del Anuncio",
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                    if (notice.content.isNotBlank()) {
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = notice.content,
+                                            color = TextSecondary,
+                                            fontSize = 12.sp,
+                                            lineHeight = 16.sp
                                         )
                                     }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = if (isVideoPaused) 0.5f else 0.2f)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            IconButton(
-                                                onClick = { isVideoPaused = !isVideoPaused },
+
+                                    // Contenido Multimedia (Video / Imagen)
+                                    if (notice.videoUrl.isNotBlank()) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        if (isMediaVisible) {
+                                            Box(
                                                 modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
+                                                    .fillMaxWidth()
+                                                    .height(160.dp)
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .background(HextechDarkBg)
+                                                    .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                                             ) {
-                                                Icon(
-                                                    imageVector = if (isVideoPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                                                    contentDescription = if (isVideoPaused) "Reproducir" else "Pausar",
-                                                    tint = HextechGold
-                                                )
+                                                if (notice.videoUrl.contains("http", ignoreCase = true) && !notice.videoUrl.contains("youtube") && !notice.videoUrl.contains("mp4", true) && !notice.videoUrl.contains("youtu.be")) {
+                                                    coil.compose.AsyncImage(
+                                                        model = notice.videoUrl,
+                                                        contentDescription = "Multimedia del Anuncio",
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                                    )
+                                                } else {
+                                                    AndroidView(
+                                                        factory = { ctx ->
+                                                            android.webkit.WebView(ctx).apply {
+                                                                settings.javaScriptEnabled = true
+                                                                settings.loadWithOverviewMode = true
+                                                                settings.useWideViewPort = true
+                                                                webViewClient = android.webkit.WebViewClient()
+                                                                val urlToLoad = if (notice.videoUrl.contains("watch?v=")) {
+                                                                    notice.videoUrl.replace("watch?v=", "embed/")
+                                                                } else if (notice.videoUrl.contains("youtu.be/")) {
+                                                                    notice.videoUrl.replace("youtu.be/", "youtube.com/embed/")
+                                                                } else {
+                                                                    notice.videoUrl
+                                                                }
+                                                                loadUrl(urlToLoad)
+                                                            }
+                                                        },
+                                                        modifier = Modifier.fillMaxSize()
+                                                    )
+                                                }
+
+                                                // Botones de acción flotantes (Expandir horizontal / Minimizar sin eliminar anuncio)
+                                                Row(
+                                                    modifier = Modifier
+                                                        .align(Alignment.TopEnd)
+                                                        .padding(6.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                ) {
+                                                    IconButton(
+                                                        onClick = { isFullscreenMedia = true },
+                                                        modifier = Modifier
+                                                            .size(30.dp)
+                                                            .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
+                                                    ) {
+                                                        Icon(Icons.Default.Fullscreen, contentDescription = "Expandir / Vista Horizontal", tint = HextechCyan, modifier = Modifier.size(16.dp))
+                                                    }
+                                                    IconButton(
+                                                        onClick = { isMediaVisible = false },
+                                                        modifier = Modifier
+                                                            .size(30.dp)
+                                                            .background(DangerRed.copy(alpha = 0.85f), CircleShape)
+                                                    ) {
+                                                        Icon(Icons.Default.Close, contentDescription = "Ocultar multimedia (El anuncio sigue visible)", tint = Color.White, modifier = Modifier.size(14.dp))
+                                                    }
+                                                }
                                             }
-                                            IconButton(
-                                                onClick = { isNoticeMediaVisible = false },
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .background(DangerRed.copy(alpha = 0.85f), CircleShape)
+                                        } else {
+                                            OutlinedButton(
+                                                onClick = { isMediaVisible = true },
+                                                shape = RoundedCornerShape(6.dp),
+                                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan)
                                             ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Close,
-                                                    contentDescription = "Cerrar multimedia (Ahorro de datos)",
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(16.dp)
-                                                )
+                                                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text("Ver Multimedia Adjunta", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
+                                    }
+
+                                    // Diálogo Fullscreen / Horizontal
+                                    if (isFullscreenMedia) {
+                                        Dialog(
+                                            onDismissRequest = { isFullscreenMedia = false },
+                                            properties = DialogProperties(usePlatformDefaultWidth = false)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .background(Color.Black)
+                                                    .padding(16.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .fillMaxHeight(0.85f)
+                                                            .clip(RoundedCornerShape(12.dp))
+                                                            .background(HextechDarkBg)
+                                                    ) {
+                                                        if (notice.videoUrl.contains("http", ignoreCase = true) && !notice.videoUrl.contains("youtube") && !notice.videoUrl.contains("mp4", true) && !notice.videoUrl.contains("youtu.be")) {
+                                                            coil.compose.AsyncImage(
+                                                                model = notice.videoUrl,
+                                                                contentDescription = "Multimedia Ampliada",
+                                                                modifier = Modifier.fillMaxSize(),
+                                                                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                                                            )
+                                                        } else {
+                                                            AndroidView(
+                                                                factory = { ctx ->
+                                                                    android.webkit.WebView(ctx).apply {
+                                                                        settings.javaScriptEnabled = true
+                                                                        settings.loadWithOverviewMode = true
+                                                                        settings.useWideViewPort = true
+                                                                        webViewClient = android.webkit.WebViewClient()
+                                                                        val urlToLoad = if (notice.videoUrl.contains("watch?v=")) {
+                                                                            notice.videoUrl.replace("watch?v=", "embed/")
+                                                                        } else if (notice.videoUrl.contains("youtu.be/")) {
+                                                                            notice.videoUrl.replace("youtu.be/", "youtube.com/embed/")
+                                                                        } else {
+                                                                            notice.videoUrl
+                                                                        }
+                                                                        loadUrl(urlToLoad)
+                                                                    }
+                                                                },
+                                                                modifier = Modifier.fillMaxSize()
+                                                            )
+                                                        }
+                                                    }
+                                                    Spacer(modifier = Modifier.height(12.dp))
+                                                    Button(
+                                                        onClick = { isFullscreenMedia = false },
+                                                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
+                                                    ) {
+                                                        Text("Cerrar Vista Horizontal / Pantalla Completa", fontWeight = FontWeight.Bold)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (idx < activeNotices.size - 1) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Divider(color = HextechCardBorder.copy(alpha = 0.5f))
+                                        Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
 

@@ -496,82 +496,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = "🏛️ ${activeTheme.regionTag.uppercase()} • ${activeTheme.titleKey}",
+                        text = "${activeTheme.regionTag.uppercase()} • ${activeTheme.titleKey}",
                         color = activeTheme.primaryLight,
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Blue Essence + Recharge panel right below username
-            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            var essenceBounce by remember { mutableStateOf(false) }
-            val essenceScale by animateFloatAsState(
-                targetValue = if (essenceBounce) 1.08f else 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                label = "essenceScale",
-                finishedListener = { essenceBounce = false }
-            )
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        scaleX = essenceScale
-                        scaleY = essenceScale
-                    }
-                    .tactileClickable {
-                        essenceBounce = true
-                        showBuyEssenceDialog = true
-                    },
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant,
-                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                            contentDescription = "Esencia Azul",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Column {
-                            Text(
-                                text = "Esencia Azul",
-                                color = activeTheme.textSecondary,
-                                fontSize = 10.sp
-                            )
-                            Text(
-                                text = "$currentBlueEssence EA",
-                                color = activeTheme.primary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(activeTheme.secondary)
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
-                    ) {
-                        Text(
-                            text = "+ Recargar",
-                            color = activeTheme.background,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
                 }
             }
 
@@ -834,6 +763,70 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
                 Spacer(modifier = Modifier.height(10.dp))
             }
+
+            // Compact Blue Essence panel right below themes / coach tip
+            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+            var essenceBounce by remember { mutableStateOf(false) }
+            val essenceScale by animateFloatAsState(
+                targetValue = if (essenceBounce) 1.05f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                label = "essenceScale",
+                finishedListener = { essenceBounce = false }
+            )
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleX = essenceScale
+                        scaleY = essenceScale
+                    }
+                    .tactileClickable {
+                        essenceBounce = true
+                        showBuyEssenceDialog = true
+                    },
+                shape = RoundedCornerShape(10.dp),
+                color = activeTheme.surfaceVariant.copy(alpha = 0.7f),
+                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                            contentDescription = "Esencia Azul",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Esencia Azul: $currentBlueEssence EA",
+                            color = activeTheme.primary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(activeTheme.secondary)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "+ Recargar",
+                            color = activeTheme.background,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
 
             
@@ -1183,214 +1176,56 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action Grid: Animated Theme-Aware Interactive Cards
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            // Community Creators Card (Clean & Streamlined)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(76.dp)
+                    .tactileClickable {
+                        showCommunityCreatorsDialog = true
+                    },
+                shape = RoundedCornerShape(14.dp),
+                color = activeTheme.surfaceVariant,
+                border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.7f))
             ) {
-                // Fila 1: Avatares y Esencia Azul
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Card 1: Avatar Collection
-                    Surface(
+                    Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp)
-                            .tactileClickable { showAvatarDialog = true },
-                        shape = RoundedCornerShape(14.dp),
-                        color = activeTheme.surfaceVariant,
-                        border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.8f))
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(activeTheme.secondary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(activeTheme.secondary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Face,
-                                    contentDescription = null,
-                                    tint = activeTheme.secondary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "Avatares",
-                                    color = activeTheme.secondary,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    fontSize = 13.sp
-                                )
-                                Text(
-                                    text = "Colección & Marcos",
-                                    color = activeTheme.textMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data("https://i.postimg.cc/GhwSp1WM/Picsart-26-09-10-20-08-45-219.png")
+                                .crossfade(true)
+                                .error(com.example.R.drawable.ic_creators_logo)
+                                .placeholder(com.example.R.drawable.ic_creators_logo)
+                                .build(),
+                            contentDescription = "Creadores Pro",
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
                     }
-
-                    // Card 2: Blue Essence History
-                    Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp)
-                            .tactileClickable {
-                                if (isAdminUser) {
-                                    showPurchaseHistoryDialog = true
-                                } else {
-                                    android.widget.Toast.makeText(context, "Historial de Esencia Azul", android.widget.Toast.LENGTH_SHORT).show()
-                                }
-                            },
-                        shape = RoundedCornerShape(14.dp),
-                        color = activeTheme.surfaceVariant,
-                        border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(activeTheme.primary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                androidx.compose.foundation.Image(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_blue_essence),
-                                    contentDescription = "Esencia Azul",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "Esencia Azul",
-                                    color = activeTheme.primary,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    fontSize = 13.sp
-                                )
-                                Text(
-                                    text = "Historial & Recargas",
-                                    color = activeTheme.textMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Fila 2: Creadores y Centro de Soporte
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    // Card 3: Creators / Community con logo oficial en nube o recurso local
-                    Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp)
-                            .tactileClickable {
-                                showCommunityCreatorsDialog = true
-                            },
-                        shape = RoundedCornerShape(14.dp),
-                        color = activeTheme.surfaceVariant,
-                        border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.7f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(activeTheme.secondary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data("https://i.postimg.cc/GhwSp1WM/Picsart-26-09-10-20-08-45-219.png")
-                                        .crossfade(true)
-                                        .error(com.example.R.drawable.ic_creators_logo)
-                                        .placeholder(com.example.R.drawable.ic_creators_logo)
-                                        .build(),
-                                    contentDescription = "Creadores Pro",
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape),
-                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "Creadores",
-                                    color = activeTheme.secondary,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    fontSize = 13.sp
-                                )
-                                Text(
-                                    text = "Comunidad Pro",
-                                    color = activeTheme.textMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
-                    }
-
-                    // Card 4: Centro de Soporte y Ayuda
-                    Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(76.dp)
-                            .tactileClickable { showSupportDialog = true },
-                        shape = RoundedCornerShape(14.dp),
-                        color = activeTheme.surfaceVariant,
-                        border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.7f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(activeTheme.primary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = activeTheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "Soporte",
-                                    color = activeTheme.primary,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    fontSize = 13.sp
-                                )
-                                Text(
-                                    text = "Ayuda & Reportes",
-                                    color = activeTheme.textMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Creadores de la Comunidad",
+                            color = activeTheme.secondary,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = "Conoce al equipo y colaboradores oficiales",
+                            color = activeTheme.textMuted,
+                            fontSize = 11.sp
+                        )
                     }
                 }
             }

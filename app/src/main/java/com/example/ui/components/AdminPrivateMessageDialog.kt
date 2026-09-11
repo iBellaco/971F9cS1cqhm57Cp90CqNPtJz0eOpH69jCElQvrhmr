@@ -99,16 +99,17 @@ fun AdminPrivateMessageDialog(
                         Button(
                             onClick = { selectedTag = tag },
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) tag.badgeBg else tag.badgeBg.copy(alpha = 0.2f)
-                            )
+                                containerColor = if (isSelected) tag.badgeBg else tag.badgeBg.copy(alpha = 0.25f)
+                            ),
+                            border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, Color.White) else null
                         ) {
                             Text(
                                 "${tag.emoji} ${tag.label}",
                                 color = if (isSelected) tag.textColor else Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                 maxLines = 1
                             )
                         }

@@ -7,6 +7,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -478,16 +479,38 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 OutlinedTextField(
                     value = videoUrl,
                     onValueChange = { videoUrl = it },
-                    label = { Text("URL de Video o Enlace (Opcional)") },
+                    label = { Text("URL o Enlace de Video / Imagen (Opcional)") },
                     isError = !isUrlValid,
                     supportingText = {
                         if (!isUrlValid) {
                             Text("URL inválida. Debe comenzar con http:// o https://", color = DangerRed, fontSize = 10.sp)
+                        } else {
+                            Text("Puedes pegar enlace web o subir archivo multimedia", color = TextMuted, fontSize = 10.sp)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                val mediaPickerLauncher = rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+                ) { uri: android.net.Uri? ->
+                    uri?.let {
+                        videoUrl = it.toString()
+                        Toast.makeText(context, "Archivo multimedia cargado con éxito", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                Button(
+                    onClick = { mediaPickerLauncher.launch("*/*") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                ) {
+                    Icon(Icons.Default.AttachFile, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("📁 Subir Video o Imagen desde el Dispositivo", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
