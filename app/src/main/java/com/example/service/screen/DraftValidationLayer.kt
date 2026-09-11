@@ -50,18 +50,12 @@ object DraftValidationLayer {
             norm.matches(Regex("^(jugador|player|jogador)\\s*\\d+$")) ||
             norm.matches(Regex("^(jugador|player|jogador)\\s*[a-z0-9]*$"))) return true
         
-        // Descartar frases compuestas de orden de selección o interfaz
-        if (norm.contains("primera eleccion") || norm.contains("primera seleccion") ||
-            norm.contains("segunda eleccion") || norm.contains("segunda seleccion") ||
-            norm.contains("primer pick") || norm.contains("segundo pick") ||
-            norm.contains("first pick") || norm.contains("second pick") ||
-            norm.contains("1a eleccion") || norm.contains("1ª eleccion") ||
-            norm.contains("1a seleccion") || norm.contains("1ª seleccion") ||
-            norm.contains("2a eleccion") || norm.contains("2ª eleccion") ||
-            norm.contains("2a seleccion") || norm.contains("2ª seleccion") ||
-            norm.contains("primeira escolha") || norm.contains("segunda escolha") ||
-            norm.contains("primeira selecao") || norm.contains("segunda selecao") ||
-            norm.contains("orden de seleccion") || norm.contains("orden de eleccion") ||
+        // Descartar frases compuestas o menciones de orden de selección o interfaz
+        if (norm.contains("primera") || norm.contains("segunda") ||
+            norm.contains("seleccion") || norm.contains("selecao") ||
+            norm.contains("eleccion") || norm.contains("escolha") ||
+            norm.contains("pick") || norm.contains("orden") ||
+            norm.contains("primer") || norm.contains("segundo") ||
             norm.contains("buscando oponentes") || norm.contains("combatamos juntos")) {
             return true
         }

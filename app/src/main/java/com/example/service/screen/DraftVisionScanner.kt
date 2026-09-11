@@ -892,15 +892,16 @@ object DraftVisionScanner {
         if (context != null) {
             val isCalibrating = showCalibrationBoxes.value
 
+            val totalPickedCount = (allySlots + enemySlots).count { it.champion != null }
             val candidateSlots = if (isCalibrating) {
                 // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
             } else {
                 // REQUISITO ESTRICTO: NO aplicar reconocimiento visual a los primeros 9 picks.
-                // Exclusivamente para el PICK #10 (último turno de la secuencia), capturar retrato real mediante reconocimiento de imagen.
+                // Exclusivamente para el PICK #10 cuando ya hay exactamente 9 campeones detectados (evidencia real del 10º turno).
                 val tenthTurn = pickSequence.last()
                 val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
-                if (tenthSlot != null && tenthSlot.champion == null) {
+                if (totalPickedCount == 9 && tenthSlot != null && tenthSlot.champion == null) {
                     listOf(tenthSlot)
                 } else {
                     emptyList()
