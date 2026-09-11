@@ -337,9 +337,16 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var selectedTag by remember { mutableStateOf("Anuncios importantes") }
     var isEnabled by remember { mutableStateOf(true) }
 
-    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer")
+    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad")
     val isUrlValid = remember(videoUrl) { NoticeMediaUtils.isValidNoticeMedia(videoUrl) }
     val isExpandedUrlValid = remember(expandedImageUrl) { NoticeMediaUtils.isValidNoticeMedia(expandedImageUrl) }
+
+    val clipboardManager = remember { context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager }
+    fun copyToClipboard(label: String, text: String) {
+        val clip = android.content.ClipData.newPlainText(label, text)
+        clipboardManager?.setPrimaryClip(clip)
+        Toast.makeText(context, "Copiado al portapapeles: $text", Toast.LENGTH_SHORT).show()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -359,7 +366,77 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Interval configuration for streamer notices
+                // Card with copyable image dimension recommendations
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.PhotoSizeSelectActual, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("📐 Medidas Recomendadas (Toca para Copiar)", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text("Utiliza estas resoluciones exactas para que tus imágenes y videos queden perfectamente encuadrados:", color = TextSecondary, fontSize = 10.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Horizontal dimensions chip
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { copyToClipboard("Medida Horizontal", "985x425") },
+                            color = HextechSurfaceVariant,
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("🖼️ Horizontal (Panel de Inicio / Tarjeta):", color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Text("985 x 425 px  (o 1280x720 / 16:9)", color = TextPrimary, fontSize = 10.sp)
+                                }
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Copiar", tint = HextechCyan, modifier = Modifier.size(16.dp))
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // Vertical dimensions chip
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { copyToClipboard("Medida Vertical", "1080x1920") },
+                            color = HextechSurfaceVariant,
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("📱 Vertical (Vista Ampliada / Fullscreen):", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Text("1080 x 1920 px  (9:16 Pantalla Completa)", color = TextPrimary, fontSize = 10.sp)
+                                }
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Copiar", tint = HextechGold, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Interval configuration for streamer and publicidad notices
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
@@ -367,9 +444,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("⏱️ Intervalo de Rotación (Etiqueta Streamer > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Text("⏱️ Intervalo de Rotación (Streamer y Publicidad > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Si hay más de 1 aviso con etiqueta Streamer, rotarán con este intervalo:", color = TextSecondary, fontSize = 10.sp)
+                        Text("Si hay más de 1 anuncio con etiqueta 'Streamer' o 'Publicidad', rotarán automáticamente con este intervalo (si solo hay 1, se queda fijo):", color = TextSecondary, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),

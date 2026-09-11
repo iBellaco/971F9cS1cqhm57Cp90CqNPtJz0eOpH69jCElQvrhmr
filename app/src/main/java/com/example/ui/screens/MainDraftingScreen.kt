@@ -372,10 +372,11 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 1. Panel de Noticias / Avisos configurados desde el Admin (Unificado en una sola tarjeta con etiquetas arriba)
+                // 1. Panel de Noticias / Avisos configurados desde el Admin
                 val activeNotices = notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }
                 val streamerNotices = activeNotices.filter { it.tag.equals("Streamer", true) }
-                val otherNotices = activeNotices.filter { !it.tag.equals("Streamer", true) }
+                val adNotices = activeNotices.filter { it.tag.equals("Publicidad", true) }
+                val otherNotices = activeNotices.filter { !it.tag.equals("Streamer", true) && !it.tag.equals("Publicidad", true) }
 
                 val streamerIntervalValue by com.example.data.AppNoticeManager.streamerIntervalValue.collectAsState()
                 val streamerIntervalUnit by com.example.data.AppNoticeManager.streamerIntervalUnit.collectAsState()
@@ -389,6 +390,7 @@ fun MainDraftingScreen(
                     }
                 }
                 var streamerIndex by remember(streamerNotices.size) { mutableStateOf(0) }
+                var adIndex by remember(adNotices.size) { mutableStateOf(0) }
 
                 LaunchedEffect(streamerNotices.size, intervalMillis) {
                     if (streamerNotices.size > 1) {
@@ -398,6 +400,17 @@ fun MainDraftingScreen(
                         }
                     } else {
                         streamerIndex = 0
+                    }
+                }
+
+                LaunchedEffect(adNotices.size, intervalMillis) {
+                    if (adNotices.size > 1) {
+                        while (true) {
+                            kotlinx.coroutines.delay(intervalMillis)
+                            adIndex = (adIndex + 1) % adNotices.size
+                        }
+                    } else {
+                        adIndex = 0
                     }
                 }
 
@@ -442,7 +455,6 @@ fun MainDraftingScreen(
                                     }
                                     Spacer(modifier = Modifier.height(14.dp))
 
-                                    var isMediaVisible by remember(currentStreamer.id, currentStreamer.videoUrl) { mutableStateOf(true) }
                                     var isFullscreenMedia by remember(currentStreamer.id) { mutableStateOf(false) }
 
                                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -499,7 +511,102 @@ fun MainDraftingScreen(
                             }
                         }
 
-                        // 2. Other Notices Card
+                        // 2. Publicidad Card (Rotating if > 1, static if == 1)
+                        if (adNotices.isNotEmpty()) {
+                            val currentAd = adNotices[adIndex.coerceIn(0, adNotices.size - 1)]
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .border(1.2.dp, HextechCyan.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
+                                colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Publicidad y Patrocinadores", color = HextechCyan, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        if (adNotices.size > 1) {
+                                            Surface(
+                                                color = HextechGold.copy(alpha = 0.2f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                                            ) {
+                                                Text(
+                                                    text = "🔄 ${adIndex + 1}/${adNotices.size}",
+                                                    color = HextechGold,
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(14.dp))
+
+                                    var isFullscreenAdMedia by remember(currentAd.id) { mutableStateOf(false) }
+
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        Surface(
+                                            color = HextechCyan.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(4.dp),
+                                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
+                                        ) {
+                                            Text(
+                                                text = "PUBLICIDAD",
+                                                color = HextechCyan,
+                                                fontSize = 9.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = currentAd.title,
+                                            color = TextPrimary,
+                                            fontSize = 13.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (currentAd.content.isNotBlank()) {
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = currentAd.content,
+                                                color = TextSecondary,
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            )
+                                        }
+
+                                        if (currentAd.videoUrl.isNotBlank()) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            com.example.ui.components.NoticeMediaViewer(
+                                                mediaUrl = currentAd.videoUrl,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .aspectRatio(985f / 425f),
+                                                onExpand = { isFullscreenAdMedia = true }
+                                            )
+                                        }
+
+                                        if (isFullscreenAdMedia) {
+                                            val mediaToExpand = if (currentAd.expandedImageUrl.isNotBlank()) currentAd.expandedImageUrl else currentAd.videoUrl
+                                            com.example.ui.components.NoticeMediaFullscreenDialog(
+                                                mediaUrl = mediaToExpand,
+                                                onDismiss = { isFullscreenAdMedia = false }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 3. Other Notices Card
                         if (otherNotices.isNotEmpty()) {
                             Card(
                                 modifier = Modifier
